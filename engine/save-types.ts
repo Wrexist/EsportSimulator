@@ -744,11 +744,82 @@ export interface FinanceLedgerEntry {
 /**
  * Game event for save
  */
+/**
+ * Flexible event data payload.
+ * Events have diverse data shapes — this interface covers all known fields
+ * used across the codebase while remaining extensible via index signature.
+ */
+export interface EventDataPayload {
+    // Common fields
+    title?: string
+    message?: string
+    severity?: string
+
+    // Player-related
+    playerId?: string
+    playerName?: string
+
+    // Team-related
+    teamId?: string
+    teamName?: string
+    fromTeamId?: string
+    toTeamId?: string
+
+    // Financial
+    amount?: number
+    offerAmount?: number
+    salary?: number
+    buyout?: number
+    budget?: number
+
+    // Transfer/offer
+    offeringTeamId?: string
+    offeringTeamName?: string
+    offeringTeamTier?: string
+    salaryOffer?: number
+    signingBonus?: number
+    budgetAvailable?: number
+    worldRanking?: number
+    deadlineWeek?: number
+    reason?: string
+
+    // Tournament/match
+    tournamentId?: string
+    tournamentName?: string
+    matchId?: string
+    placement?: number
+
+    // HLTV awards
+    hltvAwards?: Record<string, unknown> | object
+
+    // Fan/social
+    followerCount?: number
+    followersPerWeek?: number
+    brand?: string
+    discount?: number
+
+    // Injury
+    weeksOut?: number
+    weeksUntilExpiry?: number
+
+    // Reputation
+    reputationImpact?: number
+
+    // Rival
+    rivalTeamId?: string
+
+    // Career
+    priority?: string
+
+    // Extensible for future event types
+    [key: string]: unknown
+}
+
 export interface GameEventSaveData {
     id: string
     type: string
     week: number
-    data: Record<string, unknown>
+    data: EventDataPayload
     acknowledged: boolean
     selectedChoiceId?: string
     choices?: {
