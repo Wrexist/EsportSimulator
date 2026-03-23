@@ -116,11 +116,11 @@ describe("Chemistry Engine", () => {
             expect(team.chemistry).toBe(63)
         })
 
-        test("LOCAL (BOOTCAMP) gives +0 chemistry", () => {
+        test("LOCAL (BOOTCAMP) gives +8 chemistry", () => {
             const team = makeTeam({ chemistry: 60 })
             const bonus = applyBootcampChemistryBonus(team, "BOOTCAMP")
-            expect(bonus).toBe(0)
-            expect(team.chemistry).toBe(60)
+            expect(bonus).toBe(8)
+            expect(team.chemistry).toBe(68)
         })
 
         test("caps at 100", () => {
