@@ -63,22 +63,30 @@ final_analysis.txt
 # Data files
 *.xlsx
 
-# Scratch scripts (not part of the app)
-analysis.js
-clean_next.js
-debug-match.ts
-find_lilmix.js
-inspect_xlsx.js
-read_lilmix_portraits.js
-verify-*.ts
+# Root-level scratch/debug scripts (not part of the app)
+/analysis.js
+/clean_next.js
+/debug-match.ts
+/find_lilmix.js
+/inspect_xlsx.js
+/read_lilmix_portraits.js
+/verify-*.ts
+/audit-assets.js
+/boost-hltv-players.js
+/download-*.js
+/inject-hltv-data.js
+/read-excel-players.js
+/rebuild-snapshot.js
 claude.mb
 nul
 progress.md
 rebuild-scripts.json
 
-# Personal notes
+# Personal notes and scratch
 HJÄLP.txt
 IDEAS AND CREATIVITE PLANS.txt
+SPELARE*
+PLANS.txt
 
 # OS files
 .DS_Store
