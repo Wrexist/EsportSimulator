@@ -1,0 +1,20 @@
+{
+  "name": "F1R3FIGHTER",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Galaxy",
+  "teamRank": "219",
+  "age": 27,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 93,
+    "entrying": 55,
+    "trading": 92,
+    "opening": 89,
+    "clutching": 77,
+    "sniping": 1,
+    "utility": 73
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sol",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "SPARTA",
+  "teamRank": "106",
+  "age": 24,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 19,
+    "entrying": 79,
+    "trading": 75,
+    "opening": 7,
+    "clutching": 41,
+    "sniping": 1,
+    "utility": 65
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

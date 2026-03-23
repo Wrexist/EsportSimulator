@@ -1,0 +1,20 @@
+{
+  "name": "Tr0ublE",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BASEMENT BOYS",
+  "teamRank": "147",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 40,
+    "entrying": 9,
+    "trading": 43,
+    "opening": 67,
+    "clutching": 49,
+    "sniping": 92,
+    "utility": 48
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

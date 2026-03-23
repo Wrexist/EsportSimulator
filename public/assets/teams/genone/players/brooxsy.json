@@ -1,0 +1,20 @@
+{
+  "name": "Brooxsy",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "GenOne",
+  "teamRank": "56",
+  "age": 24,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 60,
+    "entrying": 91,
+    "trading": 54,
+    "opening": 65,
+    "clutching": 49,
+    "sniping": 73,
+    "utility": 40
+  },
+  "matchesPlayed": 103,
+  "hltvHistory": []
+}

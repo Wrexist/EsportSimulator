@@ -1,0 +1,29 @@
+{
+  "name": "ENCE Academy",
+  "hltvRank": "195",
+  "nationality": "Finland",
+  "players": [
+    {
+      "name": "millert",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "teme",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "Cliqq",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "Schwarz",
+      "country": "Georgia",
+      "countryCode": "ge"
+    }
+  ],
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

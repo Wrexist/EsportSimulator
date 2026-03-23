@@ -1,0 +1,20 @@
+{
+  "name": "pr",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Impulse GW",
+  "teamRank": "112",
+  "age": 18,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 80,
+    "entrying": 20,
+    "trading": 38,
+    "opening": 73,
+    "clutching": 62,
+    "sniping": 1,
+    "utility": 52
+  },
+  "matchesPlayed": 165,
+  "hltvHistory": []
+}

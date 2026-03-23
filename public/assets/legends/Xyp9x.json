@@ -1,0 +1,21 @@
+{
+  "name": "Xyp9x",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Support",
+  "status": "Legend",
+  "age": 29,
+  "birthDate": "Sep 11, 1995",
+  "rating": 1.10,
+  "stats": {
+    "firepower": 85,
+    "entrying": 78,
+    "trading": 90,
+    "opening": 80,
+    "clutching": 99,
+    "sniping": 55,
+    "utility": 95
+  }
+}

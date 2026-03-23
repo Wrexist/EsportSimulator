@@ -1,0 +1,20 @@
+{
+  "name": "zuzu",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "BESTIA Academy",
+  "teamRank": "183",
+  "age": 18,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 28,
+    "entrying": 61,
+    "trading": 21,
+    "opening": 69,
+    "clutching": 41,
+    "sniping": 60,
+    "utility": 26
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

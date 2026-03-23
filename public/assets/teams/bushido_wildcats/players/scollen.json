@@ -1,0 +1,20 @@
+{
+  "name": "scolleN",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Bushido Wildcats",
+  "teamRank": "159",
+  "age": 20,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 46,
+    "entrying": 28,
+    "trading": 37,
+    "opening": 35,
+    "clutching": 71,
+    "sniping": 1,
+    "utility": 38
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

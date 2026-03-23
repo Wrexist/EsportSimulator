@@ -1,0 +1,34 @@
+{
+  "name": "ENCE",
+  "hltvRank": "70",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "sdy",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "F1KU",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "kRaSnaL",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "podi",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "Neityu",
+      "country": "France",
+      "countryCode": "fr"
+    }
+  ],
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

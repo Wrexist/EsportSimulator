@@ -1,0 +1,20 @@
+{
+  "name": "Ann4",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "hindsight",
+  "teamRank": "224",
+  "age": 23,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 28,
+    "entrying": 24,
+    "trading": 28,
+    "opening": 69,
+    "clutching": 58,
+    "sniping": 88,
+    "utility": 71
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

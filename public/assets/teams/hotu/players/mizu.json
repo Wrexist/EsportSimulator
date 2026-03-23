@@ -1,0 +1,20 @@
+{
+  "name": "mizu",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "HOTU",
+  "teamRank": "35",
+  "age": 22,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 64,
+    "entrying": 59,
+    "trading": 74,
+    "opening": 57,
+    "clutching": 34,
+    "sniping": 28,
+    "utility": 41
+  },
+  "matchesPlayed": 141,
+  "hltvHistory": []
+}

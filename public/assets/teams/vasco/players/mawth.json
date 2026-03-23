@@ -1,0 +1,20 @@
+{
+  "name": "mawth",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Vasco",
+  "teamRank": "173",
+  "age": 27,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 29,
+    "entrying": 41,
+    "trading": 43,
+    "opening": 22,
+    "clutching": 59,
+    "sniping": 4,
+    "utility": 65
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

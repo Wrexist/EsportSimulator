@@ -1,0 +1,20 @@
+{
+  "name": "spamzzy",
+  "country": "Colombia",
+  "countryCode": "co",
+  "team": "OverKnight",
+  "teamRank": "222",
+  "age": 29,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 23,
+    "entrying": 22,
+    "trading": 72,
+    "opening": 7,
+    "clutching": 75,
+    "sniping": 4,
+    "utility": 32
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "FaNg",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "BOSS",
+  "teamRank": "94",
+  "age": 23,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 42,
+    "entrying": 38,
+    "trading": 23,
+    "opening": 88,
+    "clutching": 64,
+    "sniping": 47,
+    "utility": 20
+  },
+  "matchesPlayed": 79,
+  "hltvHistory": []
+}

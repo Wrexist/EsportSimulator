@@ -1,0 +1,23 @@
+{
+  "name": "vzn",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fuego",
+  "teamRank": "139",
+  "role": "Unknown",
+  "status": "Unknown",
+  "debug": [],
+  "age": 24,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 14,
+    "entrying": 42,
+    "trading": 47,
+    "opening": 17,
+    "clutching": 49,
+    "sniping": 0,
+    "utility": 25
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

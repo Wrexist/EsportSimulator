@@ -1,0 +1,20 @@
+{
+  "name": "bajmi",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Friendly Campers",
+  "teamRank": "62",
+  "age": 23,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 29,
+    "entrying": 61,
+    "trading": 53,
+    "opening": 18,
+    "clutching": 43,
+    "sniping": 27,
+    "utility": 43
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

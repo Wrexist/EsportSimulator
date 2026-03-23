@@ -1,0 +1,20 @@
+{
+  "name": "maQuein",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "RUBY",
+  "teamRank": "91",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 31,
+    "entrying": 33,
+    "trading": 75,
+    "opening": 30,
+    "clutching": 92,
+    "sniping": 92,
+    "utility": 55
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

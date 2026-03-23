@@ -1,0 +1,20 @@
+{
+  "name": "rafaxF",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "PRIME",
+  "teamRank": "145",
+  "age": 24,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 49,
+    "entrying": 15,
+    "trading": 66,
+    "opening": 62,
+    "clutching": 50,
+    "sniping": 92,
+    "utility": 60
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

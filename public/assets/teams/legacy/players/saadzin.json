@@ -1,0 +1,20 @@
+{
+  "name": "saadzin",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "25",
+  "age": 21,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 33,
+    "entrying": 25,
+    "trading": 37,
+    "opening": 64,
+    "clutching": 36,
+    "sniping": 93,
+    "utility": 70
+  },
+  "matchesPlayed": 180,
+  "hltvHistory": []
+}

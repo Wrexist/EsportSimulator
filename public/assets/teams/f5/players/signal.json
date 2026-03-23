@@ -1,0 +1,20 @@
+{
+  "name": "Signal",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "F5",
+  "teamRank": "167",
+  "age": 27,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 21,
+    "entrying": 8,
+    "trading": 17,
+    "opening": 43,
+    "clutching": 30,
+    "sniping": 79,
+    "utility": 63
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

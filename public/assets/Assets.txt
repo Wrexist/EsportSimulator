@@ -1,0 +1,68 @@
+Required Assets Checklist
+To finalize the "Empire" and "Digital Hub" features, you should add the following assets to your public directory. Currently, many of these use Unsplash placeholders.
+
+1. Branding & Identity
+Location: /public/
+
+ logo.png: Primary app logo and icon source for UI, favicon, and install surfaces.
+2. Sponsorship Hub
+Location: /public/assets/sponsors/
+
+ hyperx-logo.png: High-contrast logo for the Standard tier.
+ redbull-logo.png: High-contrast logo for the Premium tier.
+ monster-logo.png: High-contrast logo for the Elite tier.
+3. Basecamp HQ
+Location: /public/assets/facilities/
+
+ hq-overview.jpg: Large background for the Basecamp header (replaces Unsplash #1542751371).
+ training-room.jpg: Visual for the Training facility.
+ recovery-hub.jpg: Visual for the Recovery facility.
+ tactical-suite.jpg: Visual for the Tactical facility.
+ fan-zone.jpg: Visual for the Merchandise/Fanzone facility.
+4. Merchandise Store
+Location: /public/assets/merch/
+
+ merch-fulfillment.jpg: Background for the merchandise fulfillment section.
+ jersey-pro.png: Transparent mockup for the team jersey.
+ hoodie-onyx.png: Transparent mockup for organization hoodies.
+5. Digital Hub (Smartphone)
+Location: /public/assets/ui/
+
+ phone-wallpaper.jpg: Background image for the SmartphoneOverlay.
+ notification-sound.mp3: Subtle sound for new inbox messages (optional).
+6. Staff & Players
+Location: /public/assets/portraits/
+
+ staff-placeholder.jpg: Generic silhouette for staff members.
+ player-placeholder.jpg: Generic silhouette for roster players.
+7. Tournament & Trophies
+Location: /public/assets/trophies/
+
+ trophy-gold.svg: Icon for 1st place finishes.
+ league-logo.svg: Branding for the major leagues.
+🤖 AI Image Generation Prompts
+Use these prompts with Midjourney, DALL-E 3, or Stable Diffusion to create assets that match the game's premium aesthetic.
+
+1. Basecamp HQ (The Overview)
+Goal: A cinematic, wide-angle view of a futuristic esports training facility.
+
+Prompt: Hyper-realistic cinematic wide shot of a futuristic esports headquarters "Basecamp", high-ceiling industrial loft style with matte black steel and frosted glass partitions, glowing blue neon accents, professional gaming setups in the background, clean minimalist architectural photography, 8k resolution, shot on Phase One XF, unreal engine 5 render style, cinematic lighting --ar 21:9
+
+2. Training Facility (Close-up)
+Goal: An intense, focused training environment.
+
+Prompt: Interior of a high-tech esports training room, rows of elite gaming PCs with liquid cooling and RGB lighting, ergonomic professional chairs, data screens on walls showing strategy maps, "Liquid Glass" aesthetic, sharp focus, volumetric lighting, moody dark atmosphere with blue and teal highlights --ar 16:9
+
+3. Merchandise Fulfillment Hub
+Goal: A high-end, boutique feel for the merch store.
+
+Prompt: Premium boutique esports merchandise showroom, sleek black display shelves with glowing under-lighting, team jerseys and hoodies displayed on minimalist mannequins, industrial chic decor, glass and high-end metal textures, "Onyx Stealth" aesthetic, luxury fashion retail architecture photography --ar 16:9
+
+4. Digital Hub / Smartphone Wallpaper
+Goal: An abstract, vibrant background for the phone UI.
+
+Prompt: Abstract liquid glass background for a smartphone UI, flowing translucent shapes in neon blue and deep violet, light refractions, macro photography of crystal structures, soft bokeh, premium digital art, high-tech organic look, blurred depth of field --ar 9:19
+
+TIP
+
+Aesthetic Consistency: For the Onyx theme variant, replace "blue neon" or "teal" in the prompts with "tactical orange #f97316" or "amber gold".

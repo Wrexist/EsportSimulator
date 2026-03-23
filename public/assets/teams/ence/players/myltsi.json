@@ -1,0 +1,24 @@
+{
+  "name": "myltsi",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "ENCE",
+  "teamRank": "41",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.98,
+  "stats": {
+    "firepower": 35,
+    "entrying": 82,
+    "trading": 51,
+    "opening": 26,
+    "clutching": 76,
+    "sniping": 0,
+    "utility": 61
+  },
+  "matchesPlayed": 90,
+  "hltvHistory": []
+}

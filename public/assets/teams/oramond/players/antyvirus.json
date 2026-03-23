@@ -1,0 +1,20 @@
+{
+  "name": "AntyVirus",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Oramond",
+  "teamRank": "51",
+  "age": 22,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 48,
+    "entrying": 80,
+    "trading": 69,
+    "opening": 50,
+    "clutching": 27,
+    "sniping": 1,
+    "utility": 41
+  },
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

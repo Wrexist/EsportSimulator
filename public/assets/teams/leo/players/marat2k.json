@@ -1,0 +1,20 @@
+{
+  "name": "marat2k",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Leo",
+  "teamRank": "130",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 54,
+    "entrying": 58,
+    "trading": 72,
+    "opening": 40,
+    "clutching": 40,
+    "sniping": 40,
+    "utility": 73
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

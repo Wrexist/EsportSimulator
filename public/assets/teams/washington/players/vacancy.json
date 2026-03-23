@@ -1,0 +1,20 @@
+{
+  "name": "Vacancy",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Washington",
+  "teamRank": "199",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 56,
+    "entrying": 93,
+    "trading": 53,
+    "opening": 63,
+    "clutching": 51,
+    "sniping": 34,
+    "utility": 34
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

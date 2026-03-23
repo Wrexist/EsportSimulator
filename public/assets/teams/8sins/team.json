@@ -1,0 +1,34 @@
+{
+  "name": "8Sins",
+  "hltvRank": "226",
+  "nationality": "United Kingdom",
+  "players": [
+    {
+      "name": "Frazehh",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "Tadpole",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "dobbo",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "Prime",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "TorNEX",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

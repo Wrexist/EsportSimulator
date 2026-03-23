@@ -1,0 +1,20 @@
+{
+  "name": "Lacerda",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Crashers",
+  "teamRank": "217",
+  "age": 18,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 63,
+    "entrying": 17,
+    "trading": 59,
+    "opening": 39,
+    "clutching": 76,
+    "sniping": 61,
+    "utility": 39
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

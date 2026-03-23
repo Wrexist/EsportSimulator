@@ -1,0 +1,20 @@
+{
+  "name": "SinK",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "WOPA",
+  "teamRank": "117",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 51,
+    "entrying": 14,
+    "trading": 41,
+    "opening": 54,
+    "clutching": 76,
+    "sniping": 92,
+    "utility": 51
+  },
+  "matchesPlayed": 90,
+  "hltvHistory": []
+}

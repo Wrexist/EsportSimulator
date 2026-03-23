@@ -1,0 +1,24 @@
+{
+  "name": "notineki",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "CYBERSHOKE",
+  "teamRank": "38",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.06,
+  "stats": {
+    "firepower": 45,
+    "entrying": 59,
+    "trading": 57,
+    "opening": 21,
+    "clutching": 56,
+    "sniping": 0,
+    "utility": 44
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

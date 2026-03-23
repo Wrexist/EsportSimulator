@@ -1,0 +1,20 @@
+{
+  "name": "Lekr0",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Johnny Speeds",
+  "teamRank": "73",
+  "age": 32,
+  "rating": 1,
+  "stats": {
+    "firepower": 19,
+    "entrying": 54,
+    "trading": 51,
+    "opening": 21,
+    "clutching": 43,
+    "sniping": 61,
+    "utility": 64
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

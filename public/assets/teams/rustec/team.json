@@ -1,0 +1,34 @@
+{
+  "name": "RUSTEC",
+  "hltvRank": "98",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "supra",
+      "country": "Estonia",
+      "countryCode": "ee"
+    },
+    {
+      "name": "Brilliance",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "anttzz",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "youka",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "jakekeS",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 106,
+  "hltvHistory": []
+}

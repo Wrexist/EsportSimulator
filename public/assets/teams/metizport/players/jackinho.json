@@ -1,0 +1,20 @@
+{
+  "name": "Jackinho",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Metizport",
+  "teamRank": "163",
+  "age": 26,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 9,
+    "entrying": 67,
+    "trading": 47,
+    "opening": 23,
+    "clutching": 39,
+    "sniping": 1,
+    "utility": 59
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

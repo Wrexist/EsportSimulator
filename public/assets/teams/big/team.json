@@ -1,0 +1,34 @@
+{
+  "name": "BIG",
+  "hltvRank": "63",
+  "nationality": "Germany",
+  "players": [
+    {
+      "name": "tabseN",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "JDC",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "faveN",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "blameF",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "gr1ks",
+      "country": "Belarus",
+      "countryCode": "by"
+    }
+  ],
+  "matchesPlayed": 83,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "CAJUN",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Zomblers",
+  "teamRank": "160",
+  "age": 28,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 43,
+    "entrying": 75,
+    "trading": 44,
+    "opening": 68,
+    "clutching": 29,
+    "sniping": 22,
+    "utility": 95
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

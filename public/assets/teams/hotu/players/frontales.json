@@ -1,0 +1,20 @@
+{
+  "name": "frontales",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "HOTU",
+  "teamRank": "35",
+  "age": 23,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 48,
+    "entrying": 16,
+    "trading": 55,
+    "opening": 52,
+    "clutching": 70,
+    "sniping": 94,
+    "utility": 62
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

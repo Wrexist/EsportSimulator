@@ -1,0 +1,20 @@
+{
+  "name": "lash",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Keyd Stars",
+  "teamRank": "169",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 79,
+    "entrying": 9,
+    "trading": 67,
+    "opening": 60,
+    "clutching": 82,
+    "sniping": 91,
+    "utility": 59
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

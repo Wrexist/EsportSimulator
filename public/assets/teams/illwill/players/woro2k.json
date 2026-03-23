@@ -1,0 +1,20 @@
+{
+  "name": "Woro2k",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "illwill",
+  "teamRank": "63",
+  "age": 24,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 89,
+    "entrying": 8,
+    "trading": 11,
+    "opening": 77,
+    "clutching": 92,
+    "sniping": 89,
+    "utility": 43
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

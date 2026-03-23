@@ -1,0 +1,20 @@
+{
+  "name": "newt",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QUAZAR",
+  "teamRank": "208",
+  "age": 19,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 55,
+    "entrying": 98,
+    "trading": 92,
+    "opening": 22,
+    "clutching": 28,
+    "sniping": 38,
+    "utility": 37
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

@@ -1,0 +1,93 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production build
+/build
+/dist/
+/output/
+/temp-app/
+
+# Steam build & tools
+/SteamBuild/
+/steamcmd/
+steamcmd.zip
+
+# Electron
+/release/
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# AI/IDE metadata
+/.claude/
+/.codex/
+/.expo/
+/.gemini/
+.codex-devserver.pid
+
+# Nested repos
+/Esports-Simulator/
+
+# Remotion video project (2.5GB)
+/remotion/
+
+# Large media
+Final_Trailer.mp4
+
+# Debug/scratch files
+build-error.txt
+build_debug.txt
+errors.txt
+final_analysis.txt
+*.log
+
+# Data files
+*.xlsx
+
+# Scratch scripts (not part of the app)
+analysis.js
+clean_next.js
+debug-match.ts
+find_lilmix.js
+inspect_xlsx.js
+read_lilmix_portraits.js
+verify-*.ts
+claude.mb
+nul
+progress.md
+rebuild-scripts.json
+
+# Personal notes
+HJÄLP.txt
+IDEAS AND CREATIVITE PLANS.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Steam developer notes
+steamworks ids
+
+# misc
+ordbok
+*.pid

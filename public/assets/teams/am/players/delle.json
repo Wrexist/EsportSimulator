@@ -1,0 +1,20 @@
+{
+  "name": "delle",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "AM",
+  "teamRank": "104",
+  "age": 21,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 67,
+    "entrying": 56,
+    "trading": 76,
+    "opening": 29,
+    "clutching": 53,
+    "sniping": 76,
+    "utility": 42
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Dili",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "ScarX",
+  "teamRank": "247",
+  "age": 23,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 43,
+    "entrying": 62,
+    "trading": 100,
+    "opening": 30,
+    "clutching": 18,
+    "sniping": 32,
+    "utility": 39
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

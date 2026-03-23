@@ -1,0 +1,20 @@
+{
+  "name": "kreaz",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Fingers Crossed",
+  "teamRank": "108",
+  "age": 27,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 70,
+    "entrying": 13,
+    "trading": 34,
+    "opening": 59,
+    "clutching": 52,
+    "sniping": 45,
+    "utility": 78
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

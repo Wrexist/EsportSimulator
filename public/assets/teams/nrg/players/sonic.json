@@ -1,0 +1,20 @@
+{
+  "name": "Sonic",
+  "country": "South Africa",
+  "countryCode": "za",
+  "team": "NRG",
+  "teamRank": "19",
+  "age": 27,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 79,
+    "entrying": 77,
+    "trading": 65,
+    "opening": 88,
+    "clutching": 22,
+    "sniping": 3,
+    "utility": 79
+  },
+  "matchesPlayed": 209,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "wEAVER",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Winners",
+  "teamRank": "232",
+  "age": 24,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 53,
+    "entrying": 23,
+    "trading": 20,
+    "opening": 54,
+    "clutching": 60,
+    "sniping": 1,
+    "utility": 40
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

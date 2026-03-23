@@ -1,0 +1,34 @@
+{
+  "name": "Steel Helmet",
+  "hltvRank": "242",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "captainMo",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "DD",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "AE",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "18yM",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "AiM",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

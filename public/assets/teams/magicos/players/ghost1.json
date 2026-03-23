@@ -1,0 +1,20 @@
+{
+  "name": "ghosT1",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MAGICOS",
+  "teamRank": "207",
+  "age": 19,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 41,
+    "entrying": 94,
+    "trading": 85,
+    "opening": 16,
+    "clutching": 34,
+    "sniping": 29,
+    "utility": 36
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "kensizor",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "B8",
+  "teamRank": "16",
+  "age": 20,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 82,
+    "entrying": 84,
+    "trading": 36,
+    "opening": 86,
+    "clutching": 16,
+    "sniping": 19,
+    "utility": 40
+  },
+  "matchesPlayed": 154,
+  "hltvHistory": []
+}

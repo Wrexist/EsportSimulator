@@ -1,0 +1,20 @@
+{
+  "name": "next",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Procyon",
+  "teamRank": "157",
+  "age": 19,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 12,
+    "entrying": 71,
+    "trading": 46,
+    "opening": 9,
+    "clutching": 69,
+    "sniping": 26,
+    "utility": 36
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

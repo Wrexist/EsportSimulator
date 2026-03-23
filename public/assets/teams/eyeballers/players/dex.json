@@ -1,0 +1,20 @@
+{
+  "name": "dex",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "EYEBALLERS",
+  "teamRank": "34",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 34,
+    "entrying": 63,
+    "trading": 33,
+    "opening": 53,
+    "clutching": 39,
+    "sniping": 40,
+    "utility": 58
+  },
+  "matchesPlayed": 143,
+  "hltvHistory": []
+}

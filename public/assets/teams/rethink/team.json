@@ -1,0 +1,29 @@
+{
+  "name": "ReThink",
+  "hltvRank": "177",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "zeak",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Rack",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "king",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "p1ke",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

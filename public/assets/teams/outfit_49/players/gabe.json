@@ -1,0 +1,20 @@
+{
+  "name": "Gabe",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Outfit 49",
+  "teamRank": "150",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 43,
+    "entrying": 57,
+    "trading": 72,
+    "opening": 34,
+    "clutching": 76,
+    "sniping": 14,
+    "utility": 59
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mogv",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "megoshort",
+  "teamRank": "115",
+  "age": 23,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 75,
+    "entrying": 46,
+    "trading": 25,
+    "opening": 56,
+    "clutching": 71,
+    "sniping": 71,
+    "utility": 69
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "agt",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "BESTIA Academy",
+  "teamRank": "183",
+  "age": 20,
+  "rating": 0.76,
+  "stats": {
+    "firepower": 5,
+    "entrying": 11,
+    "trading": 63,
+    "opening": 5,
+    "clutching": 39,
+    "sniping": 64,
+    "utility": 89
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

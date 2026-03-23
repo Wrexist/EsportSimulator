@@ -1,0 +1,23 @@
+{
+  "name": "bluewh1te",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "33",
+  "teamRank": "72",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 21,
+  "birthDate": "July 4, 2004",
+  "rating": 1.05,
+  "stats": {
+    "firepower": 64,
+    "entrying": 65,
+    "trading": 76,
+    "opening": 67,
+    "clutching": 40,
+    "sniping": 0,
+    "utility": 61
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

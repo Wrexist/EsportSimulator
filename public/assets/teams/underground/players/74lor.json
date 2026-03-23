@@ -1,0 +1,20 @@
+{
+  "name": "74LOR",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Underground",
+  "teamRank": "180",
+  "age": 20,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 48,
+    "entrying": 72,
+    "trading": 82,
+    "opening": 25,
+    "clutching": 61,
+    "sniping": 7,
+    "utility": 49
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

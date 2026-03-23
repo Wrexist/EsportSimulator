@@ -1,0 +1,34 @@
+{
+  "name": "XI",
+  "hltvRank": "230",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "Jiace",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "emili0",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Egelund",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Bakorino",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "ETYYY",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

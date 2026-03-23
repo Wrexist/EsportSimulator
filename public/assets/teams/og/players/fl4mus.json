@@ -1,0 +1,20 @@
+{
+  "name": "FL4MUS",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "OG",
+  "teamRank": "52",
+  "age": 21,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 83,
+    "entrying": 72,
+    "trading": 39,
+    "opening": 68,
+    "clutching": 22,
+    "sniping": 1,
+    "utility": 64
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

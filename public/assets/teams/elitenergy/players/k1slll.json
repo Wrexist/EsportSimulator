@@ -1,0 +1,20 @@
+{
+  "name": "k1slll",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "eLITenergy",
+  "teamRank": "170",
+  "age": 23,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 33,
+    "entrying": 90,
+    "trading": 55,
+    "opening": 39,
+    "clutching": 78,
+    "sniping": 1,
+    "utility": 89
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

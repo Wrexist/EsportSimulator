@@ -1,0 +1,20 @@
+{
+  "name": "fozil",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "RUBY",
+  "teamRank": "91",
+  "age": 23,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 60,
+    "entrying": 53,
+    "trading": 32,
+    "opening": 52,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 27
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

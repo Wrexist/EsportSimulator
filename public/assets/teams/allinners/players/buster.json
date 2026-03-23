@@ -1,0 +1,23 @@
+{
+  "name": "buster",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALLINNERS",
+  "teamRank": "150",
+  "role": "Rifler, AWPer, Riflers, AWPers",
+  "status": "Active",
+  "age": 26,
+  "birthDate": "December 17, 1999",
+  "rating": 1,
+  "stats": {
+    "firepower": 41,
+    "entrying": 13,
+    "trading": 21,
+    "opening": 27,
+    "clutching": 87,
+    "sniping": 3,
+    "utility": 46
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

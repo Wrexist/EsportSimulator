@@ -1,0 +1,20 @@
+{
+  "name": "clyd1e",
+  "country": "Philippines",
+  "countryCode": "ph",
+  "team": "Deep Cross",
+  "teamRank": "114",
+  "age": 18,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 98,
+    "entrying": 100,
+    "trading": 95,
+    "opening": 65,
+    "clutching": 51,
+    "sniping": 12,
+    "utility": 40
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

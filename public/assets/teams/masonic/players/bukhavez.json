@@ -1,0 +1,20 @@
+{
+  "name": "Bukhavez",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "MASONIC",
+  "teamRank": "138",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 52,
+    "entrying": 38,
+    "trading": 48,
+    "opening": 32,
+    "clutching": 74,
+    "sniping": 74,
+    "utility": 44
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

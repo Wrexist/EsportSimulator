@@ -1,0 +1,20 @@
+{
+  "name": "Gratisfaction",
+  "country": "New Zealand",
+  "countryCode": "nz",
+  "team": "Alter Ego",
+  "teamRank": "229",
+  "age": 29,
+  "rating": 0.61,
+  "stats": {
+    "firepower": 18,
+    "entrying": 52,
+    "trading": 46,
+    "opening": 35,
+    "clutching": 7,
+    "sniping": 66,
+    "utility": 55
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

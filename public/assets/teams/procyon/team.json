@@ -1,0 +1,34 @@
+{
+  "name": "Procyon",
+  "hltvRank": "157",
+  "nationality": "Argentina",
+  "players": [
+    {
+      "name": "lenci",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "pavv",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "MaxOff",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "AGL",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "next",
+      "country": "Argentina",
+      "countryCode": "ar"
+    }
+  ],
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

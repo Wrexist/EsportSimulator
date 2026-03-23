@@ -1,0 +1,23 @@
+{
+  "name": "volt",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "500",
+  "teamRank": "70",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 24,
+  "birthDate": "October 18, 2001",
+  "rating": 1.06,
+  "stats": {
+    "firepower": 50,
+    "entrying": 87,
+    "trading": 78,
+    "opening": 50,
+    "clutching": 40,
+    "sniping": 0,
+    "utility": 56
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

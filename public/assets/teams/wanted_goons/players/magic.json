@@ -1,0 +1,20 @@
+{
+  "name": "Magic",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wanted Goons",
+  "teamRank": "210",
+  "age": 25,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 74,
+    "entrying": 48,
+    "trading": 46,
+    "opening": 85,
+    "clutching": 43,
+    "sniping": 37,
+    "utility": 54
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

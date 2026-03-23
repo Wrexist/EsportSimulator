@@ -1,0 +1,20 @@
+{
+  "name": "stressarN",
+  "country": "North Macedonia",
+  "countryCode": "mk",
+  "team": "SINNERS",
+  "teamRank": "65",
+  "age": 23,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 85,
+    "entrying": 48,
+    "trading": 87,
+    "opening": 38,
+    "clutching": 29,
+    "sniping": 28,
+    "utility": 45
+  },
+  "matchesPlayed": 92,
+  "hltvHistory": []
+}

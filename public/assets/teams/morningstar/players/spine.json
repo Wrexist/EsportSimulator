@@ -1,0 +1,20 @@
+{
+  "name": "SPine",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Morningstar",
+  "teamRank": "82",
+  "age": 26,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 16,
+    "entrying": 83,
+    "trading": 43,
+    "opening": 32,
+    "clutching": 75,
+    "sniping": 1,
+    "utility": 76
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

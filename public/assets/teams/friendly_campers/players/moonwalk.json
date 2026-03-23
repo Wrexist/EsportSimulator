@@ -1,0 +1,20 @@
+{
+  "name": "moonwalk",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Friendly Campers",
+  "teamRank": "62",
+  "age": 22,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 23,
+    "entrying": 67,
+    "trading": 19,
+    "opening": 29,
+    "clutching": 25,
+    "sniping": 1,
+    "utility": 19
+  },
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

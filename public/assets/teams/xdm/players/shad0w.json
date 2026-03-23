@@ -1,0 +1,20 @@
+{
+  "name": "Shad0w",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "XDM",
+  "teamRank": "205",
+  "age": 25,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 99,
+    "entrying": 20,
+    "trading": 27,
+    "opening": 31,
+    "clutching": 4,
+    "sniping": 3,
+    "utility": 47
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

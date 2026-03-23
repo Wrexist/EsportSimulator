@@ -1,0 +1,20 @@
+{
+  "name": "ksloks",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ODDIK",
+  "teamRank": "47",
+  "age": 20,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 77,
+    "entrying": 75,
+    "trading": 47,
+    "opening": 77,
+    "clutching": 55,
+    "sniping": 47,
+    "utility": 51
+  },
+  "matchesPlayed": 144,
+  "hltvHistory": []
+}

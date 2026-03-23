@@ -1,0 +1,20 @@
+{
+  "name": "Kvem",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Passion UA",
+  "teamRank": "17",
+  "age": 24,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 83,
+    "entrying": 38,
+    "trading": 58,
+    "opening": 80,
+    "clutching": 30,
+    "sniping": 48,
+    "utility": 38
+  },
+  "matchesPlayed": 196,
+  "hltvHistory": []
+}

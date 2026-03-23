@@ -1,0 +1,20 @@
+{
+  "name": "Xant3r",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemiga",
+  "teamRank": "58",
+  "age": 21,
+  "rating": 1,
+  "stats": {
+    "firepower": 39,
+    "entrying": 75,
+    "trading": 42,
+    "opening": 58,
+    "clutching": 36,
+    "sniping": 1,
+    "utility": 75
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

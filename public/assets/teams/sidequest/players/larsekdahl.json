@@ -1,0 +1,20 @@
+{
+  "name": "LarsEkdahl",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Sidequest",
+  "teamRank": "235",
+  "age": 25,
+  "rating": 0.71,
+  "stats": {
+    "firepower": 39,
+    "entrying": 34,
+    "trading": 69,
+    "opening": 14,
+    "clutching": 4,
+    "sniping": 20,
+    "utility": 12
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

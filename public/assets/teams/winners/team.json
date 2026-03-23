@@ -1,0 +1,34 @@
+{
+  "name": "Winners",
+  "hltvRank": "232",
+  "nationality": "Kazakhstan",
+  "players": [
+    {
+      "name": "areokk",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "patootik",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "wEAVER",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "t0mmyyy",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "ualigod",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

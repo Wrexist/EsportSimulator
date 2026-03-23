@@ -1,0 +1,20 @@
+{
+  "name": "podi",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "ENCE",
+  "teamRank": "70",
+  "age": 21,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 72,
+    "entrying": 21,
+    "trading": 45,
+    "opening": 62,
+    "clutching": 97,
+    "sniping": 85,
+    "utility": 69
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

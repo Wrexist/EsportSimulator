@@ -1,0 +1,20 @@
+{
+  "name": "El1an",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WHITEBIRD",
+  "teamRank": "86",
+  "age": 26,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 31,
+    "entrying": 13,
+    "trading": 21,
+    "opening": 45,
+    "clutching": 85,
+    "sniping": 94,
+    "utility": 67
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

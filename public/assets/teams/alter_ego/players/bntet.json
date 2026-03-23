@@ -1,0 +1,20 @@
+{
+  "name": "BnTeT",
+  "country": "Indonesia",
+  "countryCode": "id",
+  "team": "Alter Ego",
+  "teamRank": "229",
+  "age": 30,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 58,
+    "entrying": 55,
+    "trading": 57,
+    "opening": 75,
+    "clutching": 92,
+    "sniping": 29,
+    "utility": 70
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

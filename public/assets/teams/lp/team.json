@@ -1,0 +1,34 @@
+{
+  "name": "LP",
+  "hltvRank": "140",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "zmb",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Leomonster",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Alisson",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "happ",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "divine",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

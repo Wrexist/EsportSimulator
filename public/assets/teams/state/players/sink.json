@@ -1,0 +1,20 @@
+{
+  "name": "SinK",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "STATE",
+  "teamRank": "110",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 44,
+    "entrying": 20,
+    "trading": 39,
+    "opening": 58,
+    "clutching": 58,
+    "sniping": 91,
+    "utility": 61
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sh1nejezzz",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "ex-RUBY",
+  "teamRank": "57",
+  "age": 20,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 42,
+    "entrying": 73,
+    "trading": 71,
+    "opening": 20,
+    "clutching": 65,
+    "sniping": 40,
+    "utility": 31
+  },
+  "matchesPlayed": 98,
+  "hltvHistory": []
+}

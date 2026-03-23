@@ -1,0 +1,20 @@
+{
+  "name": "Mizi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Prestige",
+  "teamRank": "149",
+  "age": 19,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 25,
+    "entrying": 85,
+    "trading": 79,
+    "opening": 37,
+    "clutching": 55,
+    "sniping": 18,
+    "utility": 66
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

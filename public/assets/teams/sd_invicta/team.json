@@ -1,0 +1,34 @@
+{
+  "name": "SD Invicta",
+  "hltvRank": "241",
+  "nationality": "Lithuania",
+  "players": [
+    {
+      "name": "v3gee",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "rennae",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "fer1to",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "Domas",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "ledzh1t",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

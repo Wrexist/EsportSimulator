@@ -1,0 +1,20 @@
+{
+  "name": "KAD1M",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "BRUTE",
+  "teamRank": "178",
+  "age": 23,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 70,
+    "entrying": 12,
+    "trading": 34,
+    "opening": 74,
+    "clutching": 89,
+    "sniping": 90,
+    "utility": 73
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

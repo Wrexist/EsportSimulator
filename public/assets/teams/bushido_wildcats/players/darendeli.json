@@ -1,0 +1,20 @@
+{
+  "name": "Darendeli",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Bushido Wildcats",
+  "teamRank": "159",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 83,
+    "entrying": 83,
+    "trading": 48,
+    "opening": 82,
+    "clutching": 35,
+    "sniping": 2,
+    "utility": 23
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

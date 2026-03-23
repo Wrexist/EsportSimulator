@@ -1,0 +1,20 @@
+{
+  "name": "lUMiER",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "MUERTA",
+  "teamRank": "191",
+  "age": 22,
+  "rating": 0.73,
+  "stats": {
+    "firepower": 14,
+    "entrying": 1,
+    "trading": 6,
+    "opening": 10,
+    "clutching": 42,
+    "sniping": 28,
+    "utility": 33
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "3DMAX",
+  "hltvRank": "13",
+  "nationality": "France",
+  "players": [
+    {
+      "name": "bodyy",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Maka",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Lucky",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Ex3rcice",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Graviti",
+      "country": "France",
+      "countryCode": "fr"
+    }
+  ],
+  "matchesPlayed": 225,
+  "hltvHistory": []
+}

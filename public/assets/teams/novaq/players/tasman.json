@@ -1,0 +1,20 @@
+{
+  "name": "tasman",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "NOVAQ",
+  "teamRank": "143",
+  "age": 20,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 73,
+    "entrying": 37,
+    "trading": 52,
+    "opening": 55,
+    "clutching": 59,
+    "sniping": 22,
+    "utility": 39
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

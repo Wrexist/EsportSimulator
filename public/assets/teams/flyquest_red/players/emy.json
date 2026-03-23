@@ -1,0 +1,20 @@
+{
+  "name": "Emy",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "FlyQuest RED",
+  "teamRank": "238",
+  "age": 25,
+  "rating": 0.72,
+  "stats": {
+    "firepower": 4,
+    "entrying": 38,
+    "trading": 16,
+    "opening": 54,
+    "clutching": 25,
+    "sniping": 19,
+    "utility": 53
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

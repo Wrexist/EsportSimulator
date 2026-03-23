@@ -1,0 +1,20 @@
+{
+  "name": "zyme",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "FOKUS",
+  "teamRank": "203",
+  "age": 24,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 80,
+    "entrying": 43,
+    "trading": 25,
+    "opening": 25,
+    "clutching": 80,
+    "sniping": 96,
+    "utility": 73
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

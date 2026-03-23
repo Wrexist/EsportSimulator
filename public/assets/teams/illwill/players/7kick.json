@@ -1,0 +1,20 @@
+{
+  "name": "7kick",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "illwill",
+  "teamRank": "46",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 63,
+    "entrying": 76,
+    "trading": 28,
+    "opening": 78,
+    "clutching": 48,
+    "sniping": 76,
+    "utility": 66
+  },
+  "matchesPlayed": 119,
+  "hltvHistory": []
+}

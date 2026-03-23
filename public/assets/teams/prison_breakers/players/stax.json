@@ -1,0 +1,20 @@
+{
+  "name": "stax",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Prison Breakers",
+  "teamRank": "189",
+  "age": 22,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 8,
+    "entrying": 9,
+    "trading": 7,
+    "opening": 50,
+    "clutching": 19,
+    "sniping": 1,
+    "utility": 90
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

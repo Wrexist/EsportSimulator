@@ -1,0 +1,34 @@
+{
+  "name": "ASTRAL",
+  "hltvRank": "87",
+  "nationality": "Latvia",
+  "players": [
+    {
+      "name": "r1ch",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "RaY5ive",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "ASTR",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Neqy",
+      "country": "Estonia",
+      "countryCode": "ee"
+    },
+    {
+      "name": "meowpop",
+      "country": "Latvia",
+      "countryCode": "lv"
+    }
+  ],
+  "matchesPlayed": 92,
+  "hltvHistory": []
+}

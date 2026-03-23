@@ -1,0 +1,20 @@
+{
+  "name": "fanatyk",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Oramond",
+  "teamRank": "51",
+  "age": 26,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 32,
+    "entrying": 35,
+    "trading": 48,
+    "opening": 17,
+    "clutching": 83,
+    "sniping": 25,
+    "utility": 51
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

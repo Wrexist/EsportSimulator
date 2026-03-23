@@ -1,0 +1,20 @@
+{
+  "name": "kisserek",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "SINNERS",
+  "teamRank": "65",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 59,
+    "entrying": 44,
+    "trading": 24,
+    "opening": 75,
+    "clutching": 42,
+    "sniping": 42,
+    "utility": 38
+  },
+  "matchesPlayed": 70,
+  "hltvHistory": []
+}

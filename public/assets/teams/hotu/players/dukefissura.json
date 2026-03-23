@@ -1,0 +1,20 @@
+{
+  "name": "dukefissura",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "HOTU",
+  "teamRank": "35",
+  "age": 29,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 59,
+    "entrying": 79,
+    "trading": 44,
+    "opening": 64,
+    "clutching": 41,
+    "sniping": 26,
+    "utility": 46
+  },
+  "matchesPlayed": 133,
+  "hltvHistory": []
+}

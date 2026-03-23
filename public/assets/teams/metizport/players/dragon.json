@@ -1,0 +1,20 @@
+{
+  "name": "Dragon",
+  "country": "Serbia",
+  "countryCode": "rs",
+  "team": "Metizport",
+  "teamRank": "163",
+  "age": 26,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 36,
+    "entrying": 56,
+    "trading": 45,
+    "opening": 75,
+    "clutching": 82,
+    "sniping": 29,
+    "utility": 61
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

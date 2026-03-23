@@ -1,0 +1,20 @@
+{
+  "name": "fNk",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "101",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 48,
+    "entrying": 67,
+    "trading": 57,
+    "opening": 56,
+    "clutching": 36,
+    "sniping": 82,
+    "utility": 93
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

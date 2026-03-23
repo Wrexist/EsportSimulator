@@ -1,0 +1,20 @@
+{
+  "name": "kumao",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALLINNERS",
+  "teamRank": "174",
+  "age": 20,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 43,
+    "entrying": 84,
+    "trading": 39,
+    "opening": 57,
+    "clutching": 62,
+    "sniping": 1,
+    "utility": 25
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

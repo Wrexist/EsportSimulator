@@ -1,0 +1,20 @@
+{
+  "name": "Br4tkO",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Lazer Cats",
+  "teamRank": "92",
+  "age": 18,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 84,
+    "entrying": 95,
+    "trading": 86,
+    "opening": 86,
+    "clutching": 26,
+    "sniping": 1,
+    "utility": 29
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

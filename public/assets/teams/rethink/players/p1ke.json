@@ -1,0 +1,20 @@
+{
+  "name": "p1ke",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "ReThink",
+  "teamRank": "177",
+  "age": 21,
+  "rating": 1,
+  "stats": {
+    "firepower": 29,
+    "entrying": 60,
+    "trading": 68,
+    "opening": 13,
+    "clutching": 85,
+    "sniping": 61,
+    "utility": 87
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

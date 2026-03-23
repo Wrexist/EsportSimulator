@@ -1,0 +1,20 @@
+{
+  "name": "Machado",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Crashers",
+  "teamRank": "217",
+  "age": 20,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 53,
+    "entrying": 15,
+    "trading": 53,
+    "opening": 36,
+    "clutching": 81,
+    "sniping": 91,
+    "utility": 54
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

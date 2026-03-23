@@ -1,0 +1,20 @@
+{
+  "name": "obsward",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Truck Drivers",
+  "teamRank": "164",
+  "age": 21,
+  "rating": 1.37,
+  "stats": {
+    "firepower": 96,
+    "entrying": 32,
+    "trading": 85,
+    "opening": 54,
+    "clutching": 90,
+    "sniping": 21,
+    "utility": 13
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

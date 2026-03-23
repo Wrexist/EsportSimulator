@@ -1,0 +1,20 @@
+{
+  "name": "zmb",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "LP",
+  "teamRank": "140",
+  "age": 27,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 67,
+    "entrying": 92,
+    "trading": 44,
+    "opening": 75,
+    "clutching": 50,
+    "sniping": 7,
+    "utility": 91
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

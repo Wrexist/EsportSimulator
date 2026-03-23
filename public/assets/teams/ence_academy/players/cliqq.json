@@ -1,0 +1,20 @@
+{
+  "name": "Cliqq",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "ENCE Academy",
+  "teamRank": "195",
+  "age": 17,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 3,
+    "entrying": 64,
+    "trading": 31,
+    "opening": 30,
+    "clutching": 23,
+    "sniping": 34,
+    "utility": 30
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "zock",
+  "country": "Uruguay",
+  "countryCode": "uy",
+  "team": "Bounty Hunters",
+  "teamRank": "88",
+  "age": 23,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 55,
+    "entrying": 36,
+    "trading": 18,
+    "opening": 76,
+    "clutching": 28,
+    "sniping": 1,
+    "utility": 39
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

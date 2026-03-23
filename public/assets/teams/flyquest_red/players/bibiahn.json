@@ -1,0 +1,20 @@
+{
+  "name": "BiBiAhn",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "FlyQuest RED",
+  "teamRank": "238",
+  "age": 23,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 70,
+    "entrying": 25,
+    "trading": 84,
+    "opening": 40,
+    "clutching": 57,
+    "sniping": 27,
+    "utility": 23
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

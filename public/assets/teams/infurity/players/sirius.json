@@ -1,0 +1,20 @@
+{
+  "name": "sirius",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "INFURITY",
+  "teamRank": "132",
+  "age": 31,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 19,
+    "entrying": 93,
+    "trading": 53,
+    "opening": 13,
+    "clutching": 63,
+    "sniping": 33,
+    "utility": 96
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

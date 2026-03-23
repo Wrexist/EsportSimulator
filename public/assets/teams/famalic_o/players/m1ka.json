@@ -1,0 +1,24 @@
+{
+  "name": "M1KA",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Famalicão",
+  "teamRank": "103",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 19,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.99,
+  "stats": {
+    "firepower": 31,
+    "entrying": 84,
+    "trading": 44,
+    "opening": 32,
+    "clutching": 61,
+    "sniping": 0,
+    "utility": 59
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

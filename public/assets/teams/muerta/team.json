@@ -1,0 +1,34 @@
+{
+  "name": "MUERTA",
+  "hltvRank": "191",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "xsepower",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "lesswill",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "HUckLer",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "lUMiER",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "SEMSYS",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Graviti",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "3DMAX",
+  "teamRank": "13",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 49,
+    "entrying": 53,
+    "trading": 49,
+    "opening": 66,
+    "clutching": 26,
+    "sniping": 52,
+    "utility": 67
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

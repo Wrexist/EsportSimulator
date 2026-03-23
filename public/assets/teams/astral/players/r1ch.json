@@ -1,0 +1,20 @@
+{
+  "name": "r1ch",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "ASTRAL",
+  "teamRank": "87",
+  "age": 19,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 20,
+    "entrying": 53,
+    "trading": 89,
+    "opening": 39,
+    "clutching": 37,
+    "sniping": 64,
+    "utility": 61
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "KEi",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Phantom",
+  "teamRank": "126",
+  "age": 24,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 65,
+    "entrying": 59,
+    "trading": 58,
+    "opening": 59,
+    "clutching": 37,
+    "sniping": 44,
+    "utility": 32
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

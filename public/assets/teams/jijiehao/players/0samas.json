@@ -1,0 +1,20 @@
+{
+  "name": "0SAMAS",
+  "country": "Palestine",
+  "countryCode": "pa",
+  "team": "JiJieHao",
+  "teamRank": "79",
+  "age": 23,
+  "rating": 1,
+  "stats": {
+    "firepower": 42,
+    "entrying": 42,
+    "trading": 42,
+    "opening": 30,
+    "clutching": 38,
+    "sniping": 38,
+    "utility": 50
+  },
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

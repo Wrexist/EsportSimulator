@@ -1,0 +1,34 @@
+{
+  "name": "WHITEBIRD",
+  "hltvRank": "86",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "NickelBack",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Lack1",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "El1an",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Forester",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "TRAVIS",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "rinji",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "INFURITY",
+  "teamRank": "132",
+  "age": 21,
+  "rating": 1.28,
+  "stats": {
+    "firepower": 93,
+    "entrying": 11,
+    "trading": 73,
+    "opening": 69,
+    "clutching": 41,
+    "sniping": 92,
+    "utility": 45
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

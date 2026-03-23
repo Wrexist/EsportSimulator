@@ -1,0 +1,20 @@
+{
+  "name": "OWNER",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BASEMENT BOYS",
+  "teamRank": "147",
+  "age": 23,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 86,
+    "entrying": 24,
+    "trading": 41,
+    "opening": 42,
+    "clutching": 38,
+    "sniping": 90,
+    "utility": 31
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

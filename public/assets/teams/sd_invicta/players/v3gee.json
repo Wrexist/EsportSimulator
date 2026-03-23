@@ -1,0 +1,20 @@
+{
+  "name": "v3gee",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "SD Invicta",
+  "teamRank": "241",
+  "age": 24,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 57,
+    "entrying": 4,
+    "trading": 28,
+    "opening": 14,
+    "clutching": 4,
+    "sniping": 34,
+    "utility": 35
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

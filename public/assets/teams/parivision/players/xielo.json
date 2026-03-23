@@ -1,0 +1,20 @@
+{
+  "name": "xiELO",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "PARIVISION",
+  "teamRank": "6",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 67,
+    "entrying": 84,
+    "trading": 67,
+    "opening": 64,
+    "clutching": 38,
+    "sniping": 4,
+    "utility": 36
+  },
+  "matchesPlayed": 247,
+  "hltvHistory": []
+}

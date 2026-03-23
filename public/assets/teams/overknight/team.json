@@ -1,0 +1,34 @@
+{
+  "name": "OverKnight",
+  "hltvRank": "222",
+  "nationality": "Mexico",
+  "players": [
+    {
+      "name": "spamzzy",
+      "country": "Colombia",
+      "countryCode": "co"
+    },
+    {
+      "name": "b1",
+      "country": "Mexico",
+      "countryCode": "mx"
+    },
+    {
+      "name": "AMC",
+      "country": "Mexico",
+      "countryCode": "mx"
+    },
+    {
+      "name": "4TAYLOR",
+      "country": "Venezuela",
+      "countryCode": "ve"
+    },
+    {
+      "name": "Majesticzz",
+      "country": "Mexico",
+      "countryCode": "mx"
+    }
+  ],
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

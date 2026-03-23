@@ -1,0 +1,20 @@
+{
+  "name": "J0nneW",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "SINQU",
+  "teamRank": "172",
+  "age": 20,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 10,
+    "entrying": 53,
+    "trading": 75,
+    "opening": 11,
+    "clutching": 80,
+    "sniping": 2,
+    "utility": 14
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

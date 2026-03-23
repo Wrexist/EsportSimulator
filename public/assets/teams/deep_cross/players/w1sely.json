@@ -1,0 +1,20 @@
+{
+  "name": "w1sely",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Deep Cross",
+  "teamRank": "114",
+  "age": 22,
+  "rating": 1.48,
+  "stats": {
+    "firepower": 99,
+    "entrying": 73,
+    "trading": 99,
+    "opening": 73,
+    "clutching": 97,
+    "sniping": 13,
+    "utility": 48
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

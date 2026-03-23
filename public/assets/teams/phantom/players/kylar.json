@@ -1,0 +1,20 @@
+{
+  "name": "Kylar",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Phantom",
+  "teamRank": "126",
+  "age": 26,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 68,
+    "entrying": 45,
+    "trading": 41,
+    "opening": 45,
+    "clutching": 73,
+    "sniping": 25,
+    "utility": 44
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

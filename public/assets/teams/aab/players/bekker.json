@@ -1,0 +1,20 @@
+{
+  "name": "bekker",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "109",
+  "age": 20,
+  "rating": 1,
+  "stats": {
+    "firepower": 39,
+    "entrying": 37,
+    "trading": 49,
+    "opening": 52,
+    "clutching": 73,
+    "sniping": 91,
+    "utility": 54
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

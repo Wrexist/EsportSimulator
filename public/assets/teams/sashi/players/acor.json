@@ -1,0 +1,20 @@
+{
+  "name": "acoR",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Sashi",
+  "teamRank": "78",
+  "age": 28,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 76,
+    "entrying": 54,
+    "trading": 68,
+    "opening": 62,
+    "clutching": 79,
+    "sniping": 93,
+    "utility": 64
+  },
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Bushido Wildcats",
+  "hltvRank": "159",
+  "nationality": "Turkey",
+  "players": [
+    {
+      "name": "Darendeli",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "eNs",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "scolleN",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "Vej",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "cadnyx",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

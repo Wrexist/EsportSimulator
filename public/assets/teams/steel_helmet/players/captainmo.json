@@ -1,0 +1,20 @@
+{
+  "name": "captainMo",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Steel Helmet",
+  "teamRank": "242",
+  "age": 36,
+  "rating": 0.39,
+  "stats": {
+    "firepower": 37,
+    "entrying": 24,
+    "trading": 2,
+    "opening": 34,
+    "clutching": 15,
+    "sniping": 26,
+    "utility": 9
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "julih",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Peekaboo",
+  "teamRank": "228",
+  "age": 26,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 82,
+    "entrying": 83,
+    "trading": 38,
+    "opening": 83,
+    "clutching": 28,
+    "sniping": 9,
+    "utility": 50
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

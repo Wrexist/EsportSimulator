@@ -1,0 +1,20 @@
+{
+  "name": "dan4o",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Omega",
+  "teamRank": "121",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 51,
+    "entrying": 71,
+    "trading": 61,
+    "opening": 17,
+    "clutching": 84,
+    "sniping": 60,
+    "utility": 48
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

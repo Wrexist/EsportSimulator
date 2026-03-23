@@ -1,0 +1,20 @@
+{
+  "name": "SoLb",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "SPARTA",
+  "teamRank": "66",
+  "age": 24,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 16,
+    "entrying": 66,
+    "trading": 62,
+    "opening": 9,
+    "clutching": 41,
+    "sniping": 0,
+    "utility": 64
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

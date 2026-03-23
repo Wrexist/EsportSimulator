@@ -1,0 +1,20 @@
+{
+  "name": "pavlysha666",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "DRGN",
+  "teamRank": "204",
+  "age": 23,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 73,
+    "entrying": 96,
+    "trading": 56,
+    "opening": 17,
+    "clutching": 88,
+    "sniping": 88,
+    "utility": 50
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

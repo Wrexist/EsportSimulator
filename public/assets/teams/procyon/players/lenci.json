@@ -1,0 +1,20 @@
+{
+  "name": "lenci",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Procyon",
+  "teamRank": "157",
+  "age": 26,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 43,
+    "entrying": 91,
+    "trading": 69,
+    "opening": 38,
+    "clutching": 34,
+    "sniping": 19,
+    "utility": 59
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

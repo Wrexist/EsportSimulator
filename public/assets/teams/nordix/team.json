@@ -1,0 +1,24 @@
+{
+  "name": "Nordix",
+  "hltvRank": "211",
+  "nationality": "Norway",
+  "players": [
+    {
+      "name": "sense",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "macke",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "aRTYSAN",
+      "country": "Norway",
+      "countryCode": "no"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

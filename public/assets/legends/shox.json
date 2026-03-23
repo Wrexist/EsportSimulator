@@ -1,0 +1,21 @@
+{
+  "name": "shox",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 32,
+  "birthDate": "Nov 10, 1992",
+  "rating": 1.18,
+  "stats": {
+    "firepower": 94,
+    "entrying": 90,
+    "trading": 90,
+    "opening": 92,
+    "clutching": 90,
+    "sniping": 72,
+    "utility": 82
+  }
+}

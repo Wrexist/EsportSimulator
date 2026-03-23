@@ -1,0 +1,34 @@
+{
+  "name": "Mindfreak",
+  "hltvRank": "133",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "tucks",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Texta",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "dpr",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "swerzieN",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "zune",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

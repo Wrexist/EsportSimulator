@@ -1,0 +1,20 @@
+{
+  "name": "MAGILA",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Fingers Crossed",
+  "teamRank": "108",
+  "age": 23,
+  "rating": 1,
+  "stats": {
+    "firepower": 52,
+    "entrying": 74,
+    "trading": 17,
+    "opening": 50,
+    "clutching": 21,
+    "sniping": 6,
+    "utility": 29
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

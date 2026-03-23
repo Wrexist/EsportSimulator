@@ -1,0 +1,20 @@
+{
+  "name": "AW",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "PARIVISION",
+  "teamRank": "18",
+  "age": 19,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 25,
+    "entrying": 85,
+    "trading": 72,
+    "opening": 14,
+    "clutching": 53,
+    "sniping": 0,
+    "utility": 72
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

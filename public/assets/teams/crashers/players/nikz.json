@@ -1,0 +1,20 @@
+{
+  "name": "nikz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Crashers",
+  "teamRank": "217",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 42,
+    "entrying": 38,
+    "trading": 47,
+    "opening": 42,
+    "clutching": 68,
+    "sniping": 62,
+    "utility": 32
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

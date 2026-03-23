@@ -1,0 +1,34 @@
+{
+  "name": "Rooster",
+  "hltvRank": "148",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "chelleos",
+      "country": "New Zealand",
+      "countryCode": "nz"
+    },
+    {
+      "name": "ju1ces",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "ADK",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "viridian",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Terryyy",
+      "country": "Hong Kong",
+      "countryCode": "hk"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

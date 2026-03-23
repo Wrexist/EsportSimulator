@@ -1,0 +1,20 @@
+{
+  "name": "Hanka",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "BIG EQUIPA",
+  "teamRank": "194",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 44,
+    "entrying": 45,
+    "trading": 44,
+    "opening": 51,
+    "clutching": 68,
+    "sniping": 2,
+    "utility": 26
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

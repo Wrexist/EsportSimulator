@@ -1,0 +1,20 @@
+{
+  "name": "kashl1d",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "K27",
+  "teamRank": "40",
+  "age": 19,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 70,
+    "entrying": 28,
+    "trading": 66,
+    "opening": 61,
+    "clutching": 80,
+    "sniping": 93,
+    "utility": 70
+  },
+  "matchesPlayed": 138,
+  "hltvHistory": []
+}

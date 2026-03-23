@@ -1,0 +1,20 @@
+{
+  "name": "dumau",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "25",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 84,
+    "entrying": 35,
+    "trading": 60,
+    "opening": 86,
+    "clutching": 24,
+    "sniping": 4,
+    "utility": 77
+  },
+  "matchesPlayed": 224,
+  "hltvHistory": []
+}

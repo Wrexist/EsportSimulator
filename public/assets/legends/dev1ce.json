@@ -1,0 +1,21 @@
+{
+  "name": "dev1ce",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "AWPer",
+  "status": "Legend",
+  "age": 29,
+  "birthDate": "Sep 8, 1995",
+  "rating": 1.22,
+  "stats": {
+    "firepower": 90,
+    "entrying": 82,
+    "trading": 92,
+    "opening": 88,
+    "clutching": 90,
+    "sniping": 98,
+    "utility": 85
+  }
+}

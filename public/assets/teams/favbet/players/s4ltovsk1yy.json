@@ -1,0 +1,20 @@
+{
+  "name": "s4ltovsk1yy",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "FAVBET",
+  "teamRank": "68",
+  "age": 24,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 63,
+    "entrying": 46,
+    "trading": 66,
+    "opening": 68,
+    "clutching": 77,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 101,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "yuramyata",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "SPARTA",
+  "teamRank": "106",
+  "age": 27,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 71,
+    "entrying": 16,
+    "trading": 74,
+    "opening": 43,
+    "clutching": 70,
+    "sniping": 93,
+    "utility": 65
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Passion UA",
+  "hltvRank": "17",
+  "nationality": "Other",
+  "players": [
+    {
+      "name": "JT",
+      "country": "South Africa",
+      "countryCode": "za"
+    },
+    {
+      "name": "hallzerk",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "Grim",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Kvem",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "nicx",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 188,
+  "hltvHistory": []
+}

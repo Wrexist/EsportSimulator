@@ -1,0 +1,20 @@
+{
+  "name": "Slaxx",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "PRIME",
+  "teamRank": "145",
+  "age": 24,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 50,
+    "entrying": 71,
+    "trading": 92,
+    "opening": 20,
+    "clutching": 79,
+    "sniping": 38,
+    "utility": 44
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Mechanical",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Underground",
+  "teamRank": "180",
+  "age": 23,
+  "rating": 0.85,
+  "stats": {
+    "firepower": 12,
+    "entrying": 93,
+    "trading": 39,
+    "opening": 15,
+    "clutching": 39,
+    "sniping": 31,
+    "utility": 75
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

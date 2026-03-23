@@ -1,0 +1,20 @@
+{
+  "name": "danoco",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Keyd Stars",
+  "teamRank": "169",
+  "age": 30,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 35,
+    "entrying": 62,
+    "trading": 81,
+    "opening": 57,
+    "clutching": 32,
+    "sniping": 31,
+    "utility": 41
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "EYEBALLERS",
+  "hltvRank": "34",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "JW",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "maxster",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Ro1f",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "bobeksde",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "dex",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 118,
+  "hltvHistory": []
+}

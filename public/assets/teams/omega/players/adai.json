@@ -1,0 +1,20 @@
+{
+  "name": "adai",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Omega",
+  "teamRank": "121",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 49,
+    "entrying": 64,
+    "trading": 61,
+    "opening": 60,
+    "clutching": 31,
+    "sniping": 79,
+    "utility": 40
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

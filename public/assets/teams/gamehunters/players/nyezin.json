@@ -1,0 +1,20 @@
+{
+  "name": "nyezin",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "GameHunters",
+  "teamRank": "124",
+  "age": 22,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 83,
+    "entrying": 19,
+    "trading": 19,
+    "opening": 84,
+    "clutching": 58,
+    "sniping": 30,
+    "utility": 59
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

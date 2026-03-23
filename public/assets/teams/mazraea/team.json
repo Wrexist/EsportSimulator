@@ -1,0 +1,34 @@
+{
+  "name": "MAZRAEA",
+  "hltvRank": "193",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "KmZ",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "C0C0",
+      "country": "Lebanon",
+      "countryCode": "lb"
+    },
+    {
+      "name": "twigs",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "BAGEL",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "no1nx",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

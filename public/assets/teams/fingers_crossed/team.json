@@ -1,0 +1,34 @@
+{
+  "name": "Fingers Crossed",
+  "hltvRank": "108",
+  "nationality": "Czech Republic",
+  "players": [
+    {
+      "name": "oskar",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "kreaz",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "nbqq",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "spardaus",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "MAGILA",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

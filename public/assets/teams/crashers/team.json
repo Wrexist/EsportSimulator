@@ -1,0 +1,34 @@
+{
+  "name": "Crashers",
+  "hltvRank": "217",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "Reix",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Machado",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "trindade",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "nikz",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Lacerda",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

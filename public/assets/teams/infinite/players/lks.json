@@ -1,0 +1,20 @@
+{
+  "name": "LkS",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "INFINITE",
+  "teamRank": "162",
+  "age": 21,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 11,
+    "entrying": 44,
+    "trading": 51,
+    "opening": 11,
+    "clutching": 45,
+    "sniping": 28,
+    "utility": 70
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Majesticzz",
+  "country": "Mexico",
+  "countryCode": "mx",
+  "team": "OverKnight",
+  "teamRank": "222",
+  "age": 25,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 71,
+    "entrying": 24,
+    "trading": 89,
+    "opening": 15,
+    "clutching": 84,
+    "sniping": 34,
+    "utility": 47
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

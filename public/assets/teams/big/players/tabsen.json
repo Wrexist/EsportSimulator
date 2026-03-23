@@ -1,0 +1,20 @@
+{
+  "name": "tabseN",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BIG",
+  "teamRank": "63",
+  "age": 30,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 28,
+    "entrying": 53,
+    "trading": 35,
+    "opening": 39,
+    "clutching": 44,
+    "sniping": 27,
+    "utility": 84
+  },
+  "matchesPlayed": 82,
+  "hltvHistory": []
+}

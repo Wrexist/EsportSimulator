@@ -1,0 +1,20 @@
+{
+  "name": "4ever",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "UR",
+  "teamRank": "206",
+  "age": 18,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 86,
+    "entrying": 74,
+    "trading": 89,
+    "opening": 91,
+    "clutching": 75,
+    "sniping": 82,
+    "utility": 75
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

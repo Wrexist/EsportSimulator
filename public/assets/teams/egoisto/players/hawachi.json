@@ -1,0 +1,20 @@
+{
+  "name": "hawachi",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "EGOISTO",
+  "teamRank": "166",
+  "age": 23,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 65,
+    "entrying": 77,
+    "trading": 75,
+    "opening": 27,
+    "clutching": 51,
+    "sniping": 41,
+    "utility": 22
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sosya",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BIG EQUIPA",
+  "teamRank": "194",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 45,
+    "entrying": 30,
+    "trading": 18,
+    "opening": 42,
+    "clutching": 91,
+    "sniping": 2,
+    "utility": 53
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

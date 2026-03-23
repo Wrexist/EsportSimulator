@@ -1,0 +1,34 @@
+{
+  "name": "Galorys",
+  "hltvRank": "185",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "destiny",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "drg",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "nython",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "gbb",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "tomate",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

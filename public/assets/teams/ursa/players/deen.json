@@ -1,0 +1,20 @@
+{
+  "name": "deeN",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "Ursa",
+  "teamRank": "85",
+  "age": 18,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 32,
+    "entrying": 53,
+    "trading": 52,
+    "opening": 34,
+    "clutching": 47,
+    "sniping": 1,
+    "utility": 32
+  },
+  "matchesPlayed": 82,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "zune",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Mindfreak",
+  "teamRank": "133",
+  "age": 21,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 70,
+    "entrying": 67,
+    "trading": 77,
+    "opening": 30,
+    "clutching": 68,
+    "sniping": 10,
+    "utility": 54
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

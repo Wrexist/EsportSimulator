@@ -1,0 +1,20 @@
+{
+  "name": "Eleven",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Atrix",
+  "teamRank": "234",
+  "age": 23,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 57,
+    "entrying": 84,
+    "trading": 73,
+    "opening": 30,
+    "clutching": 51,
+    "sniping": 54,
+    "utility": 43
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

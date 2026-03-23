@@ -1,0 +1,20 @@
+{
+  "name": "Jiace",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "XI",
+  "teamRank": "230",
+  "age": 27,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 61,
+    "entrying": 64,
+    "trading": 89,
+    "opening": 6,
+    "clutching": 96,
+    "sniping": 90,
+    "utility": 61
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

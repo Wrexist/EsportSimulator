@@ -1,0 +1,20 @@
+{
+  "name": "riskyb0b",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemiga",
+  "teamRank": "58",
+  "age": 23,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 67,
+    "entrying": 55,
+    "trading": 62,
+    "opening": 55,
+    "clutching": 46,
+    "sniping": 5,
+    "utility": 72
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

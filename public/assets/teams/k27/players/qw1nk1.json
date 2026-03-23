@@ -1,0 +1,20 @@
+{
+  "name": "qw1nk1",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "K27",
+  "teamRank": "40",
+  "age": 17,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 52,
+    "entrying": 93,
+    "trading": 49,
+    "opening": 32,
+    "clutching": 57,
+    "sniping": 1,
+    "utility": 49
+  },
+  "matchesPlayed": 157,
+  "hltvHistory": []
+}

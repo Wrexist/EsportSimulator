@@ -1,0 +1,21 @@
+{
+  "name": "coldzera",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 30,
+  "birthDate": "Oct 31, 1994",
+  "rating": 1.24,
+  "stats": {
+    "firepower": 96,
+    "entrying": 88,
+    "trading": 94,
+    "opening": 90,
+    "clutching": 98,
+    "sniping": 85,
+    "utility": 82
+  }
+}

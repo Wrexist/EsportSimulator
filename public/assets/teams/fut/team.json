@@ -1,0 +1,34 @@
+{
+  "name": "FUT",
+  "hltvRank": "14",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "dem0n",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "lauNX",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "Krabeni",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "cmtry",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "dziugss",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 191,
+  "hltvHistory": []
+}

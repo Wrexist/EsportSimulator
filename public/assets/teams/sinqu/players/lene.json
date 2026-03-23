@@ -1,0 +1,20 @@
+{
+  "name": "Lene",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "SINQU",
+  "teamRank": "172",
+  "age": 20,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 23,
+    "entrying": 32,
+    "trading": 19,
+    "opening": 60,
+    "clutching": 44,
+    "sniping": 19,
+    "utility": 33
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

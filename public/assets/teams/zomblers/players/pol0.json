@@ -1,0 +1,20 @@
+{
+  "name": "Pol0",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Zomblers",
+  "teamRank": "160",
+  "age": 23,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 65,
+    "entrying": 97,
+    "trading": 55,
+    "opening": 59,
+    "clutching": 20,
+    "sniping": 17,
+    "utility": 46
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

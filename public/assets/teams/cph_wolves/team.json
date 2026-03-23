@@ -1,0 +1,33 @@
+{
+  "name": "CPH Wolves",
+  "hltvRank": "99",
+  "players": [
+    {
+      "name": "n1Xen",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "b1elany",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Tapewaare",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "Jorko",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "Matheos",
+      "country": "Croatia",
+      "countryCode": "hr"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

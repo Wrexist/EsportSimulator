@@ -1,0 +1,34 @@
+{
+  "name": "STATE",
+  "hltvRank": "110",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "thamlike",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Patti",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "kwezz",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Zanto",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "SinK",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

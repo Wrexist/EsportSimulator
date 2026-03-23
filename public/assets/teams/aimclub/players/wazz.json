@@ -1,0 +1,23 @@
+{
+  "name": "waZz",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "aimclub",
+  "teamRank": "119",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "October 18, 2002",
+  "rating": 0.87,
+  "stats": {
+    "firepower": 16,
+    "entrying": 44,
+    "trading": 56,
+    "opening": 45,
+    "clutching": 16,
+    "sniping": 0,
+    "utility": 56
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

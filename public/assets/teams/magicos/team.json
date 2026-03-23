@@ -1,0 +1,29 @@
+{
+  "name": "MAGICOS",
+  "hltvRank": "207",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "Lcs",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "rx",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "snow",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "ghosT1",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Zero",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Change The Game",
+  "teamRank": "75",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.3,
+  "stats": {
+    "firepower": 97,
+    "entrying": 57,
+    "trading": 69,
+    "opening": 75,
+    "clutching": 54,
+    "sniping": 0,
+    "utility": 19
+  },
+  "matchesPlayed": 250,
+  "hltvHistory": []
+}

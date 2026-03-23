@@ -1,0 +1,24 @@
+{
+  "name": "acoR",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "37",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 28,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.04,
+  "stats": {
+    "firepower": 58,
+    "entrying": 32,
+    "trading": 55,
+    "opening": 64,
+    "clutching": 66,
+    "sniping": 92,
+    "utility": 64
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

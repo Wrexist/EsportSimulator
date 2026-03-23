@@ -1,0 +1,34 @@
+{
+  "name": "EC BANGA",
+  "hltvRank": "151",
+  "nationality": "Latvia",
+  "players": [
+    {
+      "name": "blazekiNho",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Labreenc",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "danss",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "makaroff",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "sqreet",
+      "country": "Latvia",
+      "countryCode": "lv"
+    }
+  ],
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "z1k4",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nuclear TigeRES",
+  "teamRank": "43",
+  "age": 23,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 84,
+    "entrying": 37,
+    "trading": 62,
+    "opening": 66,
+    "clutching": 52,
+    "sniping": 92,
+    "utility": 69
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

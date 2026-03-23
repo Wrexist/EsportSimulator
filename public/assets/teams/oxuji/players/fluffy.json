@@ -1,0 +1,20 @@
+{
+  "name": "fluffy",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Oxuji",
+  "teamRank": "154",
+  "age": 19,
+  "rating": 1.37,
+  "stats": {
+    "firepower": 93,
+    "entrying": 63,
+    "trading": 55,
+    "opening": 95,
+    "clutching": 7,
+    "sniping": 92,
+    "utility": 44
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

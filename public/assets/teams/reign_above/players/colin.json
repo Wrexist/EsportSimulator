@@ -1,0 +1,20 @@
+{
+  "name": "colin",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "Reign Above",
+  "teamRank": "118",
+  "age": 23,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 6,
+    "entrying": 47,
+    "trading": 95,
+    "opening": 26,
+    "clutching": 90,
+    "sniping": 3,
+    "utility": 43
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

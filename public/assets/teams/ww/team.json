@@ -1,0 +1,34 @@
+{
+  "name": "WW",
+  "hltvRank": "113",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "deko",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "StRoGo",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "ct0m",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "kelieN",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "m3wsu",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

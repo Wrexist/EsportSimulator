@@ -1,0 +1,20 @@
+{
+  "name": "Supers",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "DXA",
+  "teamRank": "240",
+  "age": 28,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 91,
+    "entrying": 6,
+    "trading": 41,
+    "opening": 29,
+    "clutching": 79,
+    "sniping": 54,
+    "utility": 72
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Mertowsk1",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Misa",
+  "teamRank": "186",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 81,
+    "entrying": 37,
+    "trading": 37,
+    "opening": 81,
+    "clutching": 81,
+    "sniping": 93,
+    "utility": 59
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

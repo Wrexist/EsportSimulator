@@ -1,0 +1,34 @@
+{
+  "name": "OG",
+  "hltvRank": "52",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "cadiaN",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "spooke",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "arrozdoce",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "adamb",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "FL4MUS",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

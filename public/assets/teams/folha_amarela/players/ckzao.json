@@ -1,0 +1,20 @@
+{
+  "name": "ckzao",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FOLHA AMARELA",
+  "teamRank": "175",
+  "age": 29,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 87,
+    "entrying": 28,
+    "trading": 12,
+    "opening": 91,
+    "clutching": 28,
+    "sniping": 29,
+    "utility": 67
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Falcons Force",
+  "hltvRank": "142",
+  "players": [
+    {
+      "name": "VENO",
+      "country": "Serbia",
+      "countryCode": "rs"
+    },
+    {
+      "name": "grecu",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "clockzi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Olaie",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "NucleonZ",
+      "country": "North Macedonia",
+      "countryCode": "mk"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

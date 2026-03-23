@@ -1,0 +1,20 @@
+{
+  "name": "khaN",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Nemiga",
+  "teamRank": "55",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 76,
+    "entrying": 28,
+    "trading": 63,
+    "opening": 76,
+    "clutching": 56,
+    "sniping": 92,
+    "utility": 67
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

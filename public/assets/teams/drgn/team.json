@@ -1,0 +1,34 @@
+{
+  "name": "DRGN",
+  "hltvRank": "204",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "mds",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "Muk0s",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "whisper",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "tommy",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "pavlysha666",
+      "country": "Belarus",
+      "countryCode": "by"
+    }
+  ],
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

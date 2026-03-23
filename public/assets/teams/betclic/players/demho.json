@@ -1,0 +1,20 @@
+{
+  "name": "Demho",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Betclic",
+  "teamRank": "93",
+  "age": 25,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 50,
+    "entrying": 49,
+    "trading": 16,
+    "opening": 36,
+    "clutching": 70,
+    "sniping": 63,
+    "utility": 43
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

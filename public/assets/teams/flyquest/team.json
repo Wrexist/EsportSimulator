@@ -1,0 +1,34 @@
+{
+  "name": "FlyQuest",
+  "hltvRank": "29",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "jks",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "INS",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Vexite",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "nettik",
+      "country": "New Zealand",
+      "countryCode": "nz"
+    },
+    {
+      "name": "story",
+      "country": "Portugal",
+      "countryCode": "pt"
+    }
+  ],
+  "matchesPlayed": 161,
+  "hltvHistory": []
+}

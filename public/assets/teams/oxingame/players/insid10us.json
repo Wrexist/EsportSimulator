@@ -1,0 +1,20 @@
+{
+  "name": "inSid10us",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "OxinGame",
+  "teamRank": "233",
+  "age": 20,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 53,
+    "entrying": 95,
+    "trading": 63,
+    "opening": 51,
+    "clutching": 1,
+    "sniping": 17,
+    "utility": 28
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

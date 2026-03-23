@@ -1,0 +1,20 @@
+{
+  "name": "REGIANE",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Atrix",
+  "teamRank": "234",
+  "age": 30,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 23,
+    "entrying": 17,
+    "trading": 95,
+    "opening": 5,
+    "clutching": 45,
+    "sniping": 86,
+    "utility": 26
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

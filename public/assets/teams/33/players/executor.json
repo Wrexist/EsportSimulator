@@ -1,0 +1,23 @@
+{
+  "name": "executor",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "33",
+  "teamRank": "72",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 26,
+  "birthDate": "August 15, 2004",
+  "rating": 0.57,
+  "stats": {
+    "firepower": 0,
+    "entrying": 32,
+    "trading": 58,
+    "opening": 28,
+    "clutching": 10,
+    "sniping": 0,
+    "utility": 11
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

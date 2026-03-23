@@ -1,0 +1,24 @@
+{
+  "name": "h0t",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Famalicão",
+  "teamRank": "103",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.06,
+  "stats": {
+    "firepower": 51,
+    "entrying": 11,
+    "trading": 83,
+    "opening": 57,
+    "clutching": 52,
+    "sniping": 84,
+    "utility": 45
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Ariant0",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "FOKUS",
+  "teamRank": "203",
+  "age": 26,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 50,
+    "entrying": 49,
+    "trading": 30,
+    "opening": 38,
+    "clutching": 47,
+    "sniping": 100,
+    "utility": 56
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

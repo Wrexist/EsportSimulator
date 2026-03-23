@@ -1,0 +1,20 @@
+{
+  "name": "Snoob",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "JUMBO",
+  "teamRank": "125",
+  "age": 23,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 33,
+    "entrying": 75,
+    "trading": 77,
+    "opening": 51,
+    "clutching": 15,
+    "sniping": 29,
+    "utility": 31
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

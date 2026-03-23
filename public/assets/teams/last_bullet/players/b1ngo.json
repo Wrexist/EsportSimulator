@@ -1,0 +1,20 @@
+{
+  "name": "B1NGO",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Last Bullet",
+  "teamRank": "182",
+  "age": 26,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 65,
+    "entrying": 93,
+    "trading": 75,
+    "opening": 27,
+    "clutching": 87,
+    "sniping": 77,
+    "utility": 72
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

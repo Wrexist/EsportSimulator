@@ -1,0 +1,20 @@
+{
+  "name": "Boye",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Tricked",
+  "teamRank": "59",
+  "age": 21,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 78,
+    "entrying": 34,
+    "trading": 36,
+    "opening": 55,
+    "clutching": 57,
+    "sniping": 22,
+    "utility": 49
+  },
+  "matchesPlayed": 108,
+  "hltvHistory": []
+}

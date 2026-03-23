@@ -1,0 +1,20 @@
+{
+  "name": "swerzieN",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Mindfreak",
+  "teamRank": "133",
+  "age": 20,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 86,
+    "entrying": 55,
+    "trading": 19,
+    "opening": 82,
+    "clutching": 54,
+    "sniping": 45,
+    "utility": 66
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

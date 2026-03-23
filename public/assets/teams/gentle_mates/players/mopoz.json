@@ -1,0 +1,20 @@
+{
+  "name": "mopoz",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Gentle Mates",
+  "teamRank": "27",
+  "age": 29,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 58,
+    "entrying": 57,
+    "trading": 5,
+    "opening": 70,
+    "clutching": 40,
+    "sniping": 1,
+    "utility": 67
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

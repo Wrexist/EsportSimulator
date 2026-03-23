@@ -1,0 +1,24 @@
+{
+  "name": "Jun7",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "BORING PLAYERS",
+  "teamRank": "138",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 17,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.08,
+  "stats": {
+    "firepower": 70,
+    "entrying": 94,
+    "trading": 70,
+    "opening": 77,
+    "clutching": 61,
+    "sniping": 4,
+    "utility": 44
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

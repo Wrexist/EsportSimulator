@@ -1,0 +1,20 @@
+{
+  "name": "eightz999",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QWENTRY",
+  "teamRank": "158",
+  "age": 24,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 80,
+    "entrying": 32,
+    "trading": 36,
+    "opening": 64,
+    "clutching": 70,
+    "sniping": 93,
+    "utility": 67
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

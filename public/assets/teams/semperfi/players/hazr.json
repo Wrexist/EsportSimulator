@@ -1,0 +1,20 @@
+{
+  "name": "hazr",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "SemperFi",
+  "teamRank": "137",
+  "age": 24,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 45,
+    "entrying": 65,
+    "trading": 45,
+    "opening": 57,
+    "clutching": 73,
+    "sniping": 60,
+    "utility": 42
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

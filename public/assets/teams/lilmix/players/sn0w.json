@@ -1,0 +1,20 @@
+{
+  "name": "Sn0w",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Lilmix",
+  "teamRank": "184",
+  "age": 21,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 88,
+    "entrying": 31,
+    "trading": 49,
+    "opening": 79,
+    "clutching": 89,
+    "sniping": 82,
+    "utility": 76
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

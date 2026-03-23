@@ -1,0 +1,20 @@
+{
+  "name": "remix",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Four Magic",
+  "teamRank": "190",
+  "age": 32,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 53,
+    "entrying": 17,
+    "trading": 9,
+    "opening": 56,
+    "clutching": 43,
+    "sniping": 95,
+    "utility": 51
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

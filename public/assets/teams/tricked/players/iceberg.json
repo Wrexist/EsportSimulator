@@ -1,0 +1,20 @@
+{
+  "name": "IceBerg",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Tricked",
+  "teamRank": "59",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 31,
+    "entrying": 68,
+    "trading": 17,
+    "opening": 63,
+    "clutching": 40,
+    "sniping": 1,
+    "utility": 69
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

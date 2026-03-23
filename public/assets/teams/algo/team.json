@@ -1,0 +1,34 @@
+{
+  "name": "ALGO",
+  "hltvRank": "128",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "nukkye",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "szejn",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Scr0b",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "anber",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "nopzy",
+      "country": "Serbia",
+      "countryCode": "rs"
+    }
+  ],
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

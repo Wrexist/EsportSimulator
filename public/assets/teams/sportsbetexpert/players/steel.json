@@ -1,0 +1,20 @@
+{
+  "name": "steel",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "SportsBetExpert",
+  "teamRank": "134",
+  "age": 36,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 34,
+    "entrying": 51,
+    "trading": 36,
+    "opening": 24,
+    "clutching": 15,
+    "sniping": 2,
+    "utility": 80
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "fer1to",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "SD Invicta",
+  "teamRank": "241",
+  "age": 21,
+  "rating": 0.69,
+  "stats": {
+    "firepower": 1,
+    "entrying": 63,
+    "trading": 5,
+    "opening": 72,
+    "clutching": 16,
+    "sniping": 41,
+    "utility": 9
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

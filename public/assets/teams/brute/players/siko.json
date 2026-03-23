@@ -1,0 +1,20 @@
+{
+  "name": "Siko",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "BRUTE",
+  "teamRank": "178",
+  "age": 19,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 25,
+    "entrying": 49,
+    "trading": 41,
+    "opening": 27,
+    "clutching": 48,
+    "sniping": 72,
+    "utility": 41
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "pavast4r",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "Legion",
+  "teamRank": "200",
+  "age": 18,
+  "rating": 1,
+  "stats": {
+    "firepower": 34,
+    "entrying": 96,
+    "trading": 54,
+    "opening": 18,
+    "clutching": 71,
+    "sniping": 22,
+    "utility": 68
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

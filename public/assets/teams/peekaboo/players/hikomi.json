@@ -1,0 +1,20 @@
+{
+  "name": "Hikomi",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Peekaboo",
+  "teamRank": "228",
+  "age": 23,
+  "rating": 1.26,
+  "stats": {
+    "firepower": 88,
+    "entrying": 52,
+    "trading": 69,
+    "opening": 34,
+    "clutching": 70,
+    "sniping": 6,
+    "utility": 45
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

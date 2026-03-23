@@ -1,0 +1,20 @@
+{
+  "name": "detr0ittJ",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fake do Biru",
+  "teamRank": "100",
+  "age": 25,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 34,
+    "entrying": 16,
+    "trading": 54,
+    "opening": 50,
+    "clutching": 94,
+    "sniping": 92,
+    "utility": 53
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Beyond Limits",
+  "hltvRank": "209",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "doltn",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Beastman",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "flixxy",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Pr0mise",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "denz",
+      "country": "Canada",
+      "countryCode": "ca"
+    }
+  ],
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

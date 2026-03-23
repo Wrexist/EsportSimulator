@@ -1,0 +1,20 @@
+{
+  "name": "k1not1",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "BESTIA Academy",
+  "teamRank": "183",
+  "age": 21,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 80,
+    "entrying": 54,
+    "trading": 96,
+    "opening": 64,
+    "clutching": 41,
+    "sniping": 78,
+    "utility": 56
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

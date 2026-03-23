@@ -1,0 +1,20 @@
+{
+  "name": "Lur",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Sidequest",
+  "teamRank": "235",
+  "age": 21,
+  "rating": 0.76,
+  "stats": {
+    "firepower": 23,
+    "entrying": 76,
+    "trading": 14,
+    "opening": 45,
+    "clutching": 85,
+    "sniping": 26,
+    "utility": 18
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

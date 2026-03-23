@@ -1,0 +1,20 @@
+{
+  "name": "anber",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ALGO",
+  "teamRank": "128",
+  "age": 19,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 78,
+    "entrying": 94,
+    "trading": 82,
+    "opening": 51,
+    "clutching": 56,
+    "sniping": 26,
+    "utility": 26
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

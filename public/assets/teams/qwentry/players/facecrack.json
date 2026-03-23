@@ -1,0 +1,20 @@
+{
+  "name": "facecrack",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QWENTRY",
+  "teamRank": "158",
+  "age": 31,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 72,
+    "entrying": 79,
+    "trading": 80,
+    "opening": 74,
+    "clutching": 39,
+    "sniping": 28,
+    "utility": 69
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

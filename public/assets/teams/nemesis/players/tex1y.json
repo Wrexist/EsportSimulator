@@ -1,0 +1,20 @@
+{
+  "name": "tex1y",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemesis",
+  "teamRank": "45",
+  "age": 18,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 44,
+    "entrying": 77,
+    "trading": 54,
+    "opening": 69,
+    "clutching": 55,
+    "sniping": 23,
+    "utility": 83
+  },
+  "matchesPlayed": 138,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Labreenc",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "EC BANGA",
+  "teamRank": "151",
+  "age": 23,
+  "rating": 0.76,
+  "stats": {
+    "firepower": 20,
+    "entrying": 71,
+    "trading": 99,
+    "opening": 8,
+    "clutching": 42,
+    "sniping": 14,
+    "utility": 47
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

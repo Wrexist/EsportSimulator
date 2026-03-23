@@ -1,0 +1,20 @@
+{
+  "name": "AwaykeN",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "Acend",
+  "teamRank": "103",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 44,
+    "entrying": 24,
+    "trading": 71,
+    "opening": 48,
+    "clutching": 56,
+    "sniping": 92,
+    "utility": 62
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

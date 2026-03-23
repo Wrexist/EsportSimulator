@@ -1,0 +1,20 @@
+{
+  "name": "slaxejezzz",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QWENTRY",
+  "teamRank": "158",
+  "age": 18,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 92,
+    "entrying": 79,
+    "trading": 58,
+    "opening": 67,
+    "clutching": 50,
+    "sniping": 2,
+    "utility": 43
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

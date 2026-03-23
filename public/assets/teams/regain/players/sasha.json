@@ -1,0 +1,20 @@
+{
+  "name": "sasha",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "regain",
+  "teamRank": "153",
+  "age": 22,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 13,
+    "entrying": 93,
+    "trading": 88,
+    "opening": 16,
+    "clutching": 44,
+    "sniping": 38,
+    "utility": 64
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "card",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Galorys",
+  "teamRank": "81",
+  "age": 22,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 44,
+    "entrying": 8,
+    "trading": 71,
+    "opening": 43,
+    "clutching": 74,
+    "sniping": 90,
+    "utility": 48
+  },
+  "matchesPlayed": 90,
+  "hltvHistory": []
+}

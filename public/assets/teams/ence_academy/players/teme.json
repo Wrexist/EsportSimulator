@@ -1,0 +1,20 @@
+{
+  "name": "teme",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "ENCE Academy",
+  "teamRank": "195",
+  "age": 18,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 70,
+    "entrying": 56,
+    "trading": 69,
+    "opening": 38,
+    "clutching": 67,
+    "sniping": 43,
+    "utility": 46
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

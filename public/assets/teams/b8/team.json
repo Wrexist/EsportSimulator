@@ -1,0 +1,34 @@
+{
+  "name": "B8",
+  "hltvRank": "16",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "alex666",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "npl",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "kensizor",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "esenthial",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "s1zzi",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 202,
+  "hltvHistory": []
+}

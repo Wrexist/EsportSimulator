@@ -1,0 +1,34 @@
+{
+  "name": "Chicken Coop",
+  "hltvRank": "197",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Drop",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "REKMEISTER",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Panic",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "jared",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Crisp",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

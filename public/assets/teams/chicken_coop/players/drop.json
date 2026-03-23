@@ -1,0 +1,20 @@
+{
+  "name": "Drop",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "Chicken Coop",
+  "teamRank": "197",
+  "age": 21,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 58,
+    "entrying": 49,
+    "trading": 78,
+    "opening": 33,
+    "clutching": 65,
+    "sniping": 45,
+    "utility": 58
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

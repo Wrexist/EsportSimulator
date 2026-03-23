@@ -1,0 +1,20 @@
+{
+  "name": "TRAVIS",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WHITEBIRD",
+  "teamRank": "86",
+  "age": 28,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 48,
+    "entrying": 16,
+    "trading": 46,
+    "opening": 47,
+    "clutching": 48,
+    "sniping": 35,
+    "utility": 56
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "9z",
+  "hltvRank": "42",
+  "nationality": "South America",
+  "players": [
+    {
+      "name": "max",
+      "country": "Uruguay",
+      "countryCode": "uy"
+    },
+    {
+      "name": "dgt",
+      "country": "Uruguay",
+      "countryCode": "uy"
+    },
+    {
+      "name": "meyern",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "luchov",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "HUASOPEEK",
+      "country": "Chile",
+      "countryCode": "cl"
+    }
+  ],
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

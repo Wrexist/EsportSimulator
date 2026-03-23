@@ -1,0 +1,20 @@
+{
+  "name": "kaiori",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QUAZAR",
+  "teamRank": "208",
+  "age": 19,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 35,
+    "entrying": 18,
+    "trading": 26,
+    "opening": 77,
+    "clutching": 47,
+    "sniping": 91,
+    "utility": 34
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

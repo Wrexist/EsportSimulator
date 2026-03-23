@@ -1,0 +1,20 @@
+{
+  "name": "Myggis",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "CSDIILIT",
+  "teamRank": "179",
+  "age": 21,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 12,
+    "entrying": 33,
+    "trading": 60,
+    "opening": 3,
+    "clutching": 83,
+    "sniping": 32,
+    "utility": 74
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

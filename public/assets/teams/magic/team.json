@@ -1,0 +1,29 @@
+{
+  "name": "magic",
+  "hltvRank": "48",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "h1te",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "MaSvAl",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "sFade8",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "tENZY",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 134,
+  "hltvHistory": []
+}

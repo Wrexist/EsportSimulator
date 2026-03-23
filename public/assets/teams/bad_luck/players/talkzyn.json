@@ -1,0 +1,20 @@
+{
+  "name": "talkzyn",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Bad Luck",
+  "teamRank": "192",
+  "age": 19,
+  "rating": 0.78,
+  "stats": {
+    "firepower": 5,
+    "entrying": 67,
+    "trading": 24,
+    "opening": 48,
+    "clutching": 26,
+    "sniping": 41,
+    "utility": 36
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

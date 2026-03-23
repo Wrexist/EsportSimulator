@@ -1,0 +1,34 @@
+{
+  "name": "NRG",
+  "hltvRank": "19",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "nitr0",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Sonic",
+      "country": "South Africa",
+      "countryCode": "za"
+    },
+    {
+      "name": "oSee",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "br0",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Jeorge",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 210,
+  "hltvHistory": []
+}

@@ -1,0 +1,29 @@
+{
+  "name": "JiJieHao",
+  "hltvRank": "79",
+  "nationality": "Lebanon",
+  "players": [
+    {
+      "name": "m1N1",
+      "country": "Lebanon",
+      "countryCode": "lb"
+    },
+    {
+      "name": "sinnopsyy",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "Bibu",
+      "country": "Iraq",
+      "countryCode": "iq"
+    },
+    {
+      "name": "0SAMAS",
+      "country": "Palestine",
+      "countryCode": "pa"
+    }
+  ],
+  "matchesPlayed": 87,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "suki",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Morningstar",
+  "teamRank": "82",
+  "age": 22,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 90,
+    "entrying": 35,
+    "trading": 71,
+    "opening": 12,
+    "clutching": 94,
+    "sniping": 23,
+    "utility": 59
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

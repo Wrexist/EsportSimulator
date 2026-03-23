@@ -1,0 +1,20 @@
+{
+  "name": "kwezz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "WOPA",
+  "teamRank": "117",
+  "age": 25,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 83,
+    "entrying": 20,
+    "trading": 23,
+    "opening": 78,
+    "clutching": 44,
+    "sniping": 3,
+    "utility": 69
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

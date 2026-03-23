@@ -1,0 +1,20 @@
+{
+  "name": "nitr0",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "NRG",
+  "teamRank": "19",
+  "age": 30,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 26,
+    "entrying": 65,
+    "trading": 43,
+    "opening": 13,
+    "clutching": 80,
+    "sniping": 27,
+    "utility": 83
+  },
+  "matchesPlayed": 189,
+  "hltvHistory": []
+}

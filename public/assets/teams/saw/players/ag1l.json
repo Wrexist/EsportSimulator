@@ -1,0 +1,20 @@
+{
+  "name": "Ag1l",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "20",
+  "age": 22,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 64,
+    "entrying": 51,
+    "trading": 31,
+    "opening": 39,
+    "clutching": 68,
+    "sniping": 1,
+    "utility": 56
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

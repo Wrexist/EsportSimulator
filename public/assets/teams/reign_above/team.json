@@ -1,0 +1,29 @@
+{
+  "name": "Reign Above",
+  "hltvRank": "118",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "SeRCEra",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "swayu",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "colin",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "cobalt",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

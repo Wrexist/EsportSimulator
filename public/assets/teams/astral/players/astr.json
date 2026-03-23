@@ -1,0 +1,20 @@
+{
+  "name": "ASTR",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "ASTRAL",
+  "teamRank": "87",
+  "age": 22,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 40,
+    "entrying": 95,
+    "trading": 77,
+    "opening": 61,
+    "clutching": 47,
+    "sniping": 56,
+    "utility": 57
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

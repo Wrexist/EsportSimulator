@@ -1,0 +1,20 @@
+{
+  "name": "junior",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "SkinRave",
+  "teamRank": "108",
+  "age": 25,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 93,
+    "entrying": 14,
+    "trading": 35,
+    "opening": 72,
+    "clutching": 81,
+    "sniping": 93,
+    "utility": 70
+  },
+  "matchesPlayed": 225,
+  "hltvHistory": []
+}

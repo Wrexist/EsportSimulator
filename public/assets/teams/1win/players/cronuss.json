@@ -1,0 +1,20 @@
+{
+  "name": "cronuss",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "1win",
+  "teamRank": "77",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 52,
+    "entrying": 90,
+    "trading": 18,
+    "opening": 83,
+    "clutching": 25,
+    "sniping": 60,
+    "utility": 41
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

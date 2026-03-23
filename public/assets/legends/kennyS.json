@@ -1,0 +1,21 @@
+{
+  "name": "kennyS",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "AWPer",
+  "status": "Legend",
+  "age": 29,
+  "birthDate": "May 19, 1995",
+  "rating": 1.24,
+  "stats": {
+    "firepower": 94,
+    "entrying": 70,
+    "trading": 78,
+    "opening": 92,
+    "clutching": 88,
+    "sniping": 99,
+    "utility": 72
+  }
+}

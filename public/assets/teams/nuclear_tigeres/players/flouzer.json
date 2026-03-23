@@ -1,0 +1,20 @@
+{
+  "name": "flouzer",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nuclear TigeRES",
+  "teamRank": "43",
+  "age": 18,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 84,
+    "entrying": 75,
+    "trading": 49,
+    "opening": 75,
+    "clutching": 43,
+    "sniping": 1,
+    "utility": 60
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

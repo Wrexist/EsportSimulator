@@ -1,0 +1,34 @@
+{
+  "name": "HOTU",
+  "hltvRank": "35",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "n0rb3r7",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "dukefissura",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "mizu",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "kAlash",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "frontales",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 108,
+  "hltvHistory": []
+}

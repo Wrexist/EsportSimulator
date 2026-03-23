@@ -1,0 +1,20 @@
+{
+  "name": "glowiing",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "CYBERSHOKE",
+  "teamRank": "58",
+  "age": 32,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 93,
+    "entrying": 73,
+    "trading": 45,
+    "opening": 85,
+    "clutching": 37,
+    "sniping": 36,
+    "utility": 68
+  },
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

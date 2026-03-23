@@ -1,0 +1,20 @@
+{
+  "name": "neight",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "F5",
+  "teamRank": "167",
+  "age": 26,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 17,
+    "entrying": 36,
+    "trading": 53,
+    "opening": 27,
+    "clutching": 48,
+    "sniping": 48,
+    "utility": 39
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

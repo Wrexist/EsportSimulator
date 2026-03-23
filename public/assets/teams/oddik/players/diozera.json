@@ -1,0 +1,20 @@
+{
+  "name": "diozera",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ODDIK",
+  "teamRank": "47",
+  "age": 18,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 75,
+    "entrying": 68,
+    "trading": 73,
+    "opening": 30,
+    "clutching": 47,
+    "sniping": 42,
+    "utility": 39
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

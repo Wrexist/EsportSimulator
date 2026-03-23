@@ -1,0 +1,23 @@
+{
+  "name": "tutu",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "BORING PLAYERS",
+  "teamRank": "138",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 24,
+  "birthDate": "April 14, 2001",
+  "rating": 1.11,
+  "stats": {
+    "firepower": 82,
+    "entrying": 64,
+    "trading": 68,
+    "opening": 74,
+    "clutching": 68,
+    "sniping": 1,
+    "utility": 78
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

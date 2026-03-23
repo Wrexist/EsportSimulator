@@ -1,0 +1,24 @@
+{
+  "name": "NucleonZ",
+  "country": "North Macedonia",
+  "countryCode": "mk",
+  "team": "Falcons Force",
+  "teamRank": "142",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 17,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.13,
+  "stats": {
+    "firepower": 97,
+    "entrying": 72,
+    "trading": 84,
+    "opening": 89,
+    "clutching": 21,
+    "sniping": 0,
+    "utility": 39
+  },
+  "matchesPlayed": 165,
+  "hltvHistory": []
+}

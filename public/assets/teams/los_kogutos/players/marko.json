@@ -1,0 +1,20 @@
+{
+  "name": "Markoś",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "los kogutos",
+  "teamRank": "89",
+  "age": 27,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 67,
+    "entrying": 13,
+    "trading": 33,
+    "opening": 52,
+    "clutching": 92,
+    "sniping": 86,
+    "utility": 48
+  },
+  "matchesPlayed": 103,
+  "hltvHistory": []
+}
