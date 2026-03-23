@@ -358,8 +358,9 @@ async function testLongRunFuzz500Weeks(): Promise<{ weeks: number; ms: number }>
   console.log = () => {}
   console.warn = () => {}
 
+  const fuzzWeeks = parseInt(process.env.CI_FUZZ_WEEKS || "500", 10)
   try {
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < fuzzWeeks; i++) {
       const weekBefore = save.currentWeek
       const result = await processor.processWeek(
         save,
@@ -375,7 +376,7 @@ async function testLongRunFuzz500Weeks(): Promise<{ weeks: number; ms: number }>
     console.warn = originalWarn
   }
 
-  return { weeks: 500, ms: Date.now() - start }
+  return { weeks: fuzzWeeks, ms: Date.now() - start }
 }
 
 async function main(): Promise<void> {
