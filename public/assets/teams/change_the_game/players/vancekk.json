@@ -1,0 +1,20 @@
+{
+  "name": "VanceKK",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Change The Game",
+  "teamRank": "102",
+  "age": 23,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 22,
+    "entrying": 13,
+    "trading": 28,
+    "opening": 56,
+    "clutching": 28,
+    "sniping": 76,
+    "utility": 52
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

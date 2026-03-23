@@ -1,0 +1,23 @@
+{
+  "name": "zdr",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "BORING PLAYERS",
+  "teamRank": "138",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 19,
+  "birthDate": "January 16, 2003",
+  "rating": 0.91,
+  "stats": {
+    "firepower": 31,
+    "entrying": 42,
+    "trading": 79,
+    "opening": 9,
+    "clutching": 46,
+    "sniping": 0,
+    "utility": 33
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

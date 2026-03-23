@@ -1,0 +1,20 @@
+{
+  "name": "TriBorgg1",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "VP.Prodigy",
+  "teamRank": "155",
+  "age": 16,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 68,
+    "entrying": 28,
+    "trading": 51,
+    "opening": 31,
+    "clutching": 51,
+    "sniping": 1,
+    "utility": 55
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

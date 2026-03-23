@@ -1,0 +1,20 @@
+{
+  "name": "Qlocuu",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "KOLESIE",
+  "teamRank": "54",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 66,
+    "entrying": 81,
+    "trading": 81,
+    "opening": 49,
+    "clutching": 68,
+    "sniping": 33,
+    "utility": 29
+  },
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Rare Atom",
+  "hltvRank": "72",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "Summer",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "ChildKing",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Tiger",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "L1haNg",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "chengking",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 91,
+  "hltvHistory": []
+}

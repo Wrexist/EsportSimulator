@@ -1,0 +1,20 @@
+{
+  "name": "Magnojez",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BetBoom",
+  "teamRank": "32",
+  "age": 21,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 95,
+    "entrying": 68,
+    "trading": 17,
+    "opening": 90,
+    "clutching": 35,
+    "sniping": 1,
+    "utility": 75
+  },
+  "matchesPlayed": 141,
+  "hltvHistory": []
+}

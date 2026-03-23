@@ -1,0 +1,20 @@
+{
+  "name": "sowalio",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemiga",
+  "teamRank": "55",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 42,
+    "entrying": 50,
+    "trading": 53,
+    "opening": 58,
+    "clutching": 39,
+    "sniping": 16,
+    "utility": 34
+  },
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

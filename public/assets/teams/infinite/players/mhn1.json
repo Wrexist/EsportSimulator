@@ -1,0 +1,20 @@
+{
+  "name": "mhN1",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "INFINITE",
+  "teamRank": "162",
+  "age": 25,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 37,
+    "entrying": 10,
+    "trading": 59,
+    "opening": 14,
+    "clutching": 61,
+    "sniping": 4,
+    "utility": 60
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

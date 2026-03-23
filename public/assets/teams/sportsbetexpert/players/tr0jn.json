@@ -1,0 +1,20 @@
+{
+  "name": "TR0JN",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "SportsBetExpert",
+  "teamRank": "146",
+  "age": 23,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 68,
+    "entrying": 56,
+    "trading": 43,
+    "opening": 51,
+    "clutching": 33,
+    "sniping": 2,
+    "utility": 51
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

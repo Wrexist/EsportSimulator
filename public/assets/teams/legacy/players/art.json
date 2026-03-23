@@ -1,0 +1,20 @@
+{
+  "name": "arT",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "25",
+  "age": 29,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 14,
+    "entrying": 42,
+    "trading": 4,
+    "opening": 70,
+    "clutching": 51,
+    "sniping": 16,
+    "utility": 62
+  },
+  "matchesPlayed": 161,
+  "hltvHistory": []
+}

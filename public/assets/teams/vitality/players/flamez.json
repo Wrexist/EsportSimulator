@@ -1,0 +1,20 @@
+{
+  "name": "flameZ",
+  "country": "Israel",
+  "countryCode": "il",
+  "team": "Vitality",
+  "teamRank": "1",
+  "age": 22,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 65,
+    "entrying": 92,
+    "trading": 31,
+    "opening": 85,
+    "clutching": 54,
+    "sniping": 37,
+    "utility": 69
+  },
+  "matchesPlayed": 279,
+  "hltvHistory": []
+}

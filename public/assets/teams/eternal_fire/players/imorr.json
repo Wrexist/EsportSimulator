@@ -1,0 +1,24 @@
+{
+  "name": "imoRR",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "136",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 26,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.04,
+  "stats": {
+    "firepower": 72,
+    "entrying": 74,
+    "trading": 56,
+    "opening": 75,
+    "clutching": 40,
+    "sniping": 4,
+    "utility": 52
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "jcobbb",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "FaZe",
+  "teamRank": "7",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 38,
+    "entrying": 77,
+    "trading": 60,
+    "opening": 45,
+    "clutching": 32,
+    "sniping": 42,
+    "utility": 16
+  },
+  "matchesPlayed": 271,
+  "hltvHistory": []
+}

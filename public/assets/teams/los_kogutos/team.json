@@ -1,0 +1,34 @@
+{
+  "name": "los kogutos",
+  "hltvRank": "89",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "Markoś",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "maaryy",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "AdrieN",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Nami",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "yvro",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

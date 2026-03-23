@@ -1,0 +1,20 @@
+{
+  "name": "VINI",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Imperial",
+  "teamRank": "23",
+  "age": 26,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 54,
+    "entrying": 54,
+    "trading": 22,
+    "opening": 30,
+    "clutching": 49,
+    "sniping": 83,
+    "utility": 73
+  },
+  "matchesPlayed": 167,
+  "hltvHistory": []
+}

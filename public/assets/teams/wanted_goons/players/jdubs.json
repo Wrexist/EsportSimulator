@@ -1,0 +1,20 @@
+{
+  "name": "JDubs",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wanted Goons",
+  "teamRank": "210",
+  "age": 26,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 69,
+    "entrying": 50,
+    "trading": 59,
+    "opening": 46,
+    "clutching": 47,
+    "sniping": 46,
+    "utility": 35
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

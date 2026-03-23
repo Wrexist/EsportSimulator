@@ -1,0 +1,20 @@
+{
+  "name": "tatazin",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Vasco",
+  "teamRank": "173",
+  "age": 31,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 43,
+    "entrying": 34,
+    "trading": 19,
+    "opening": 44,
+    "clutching": 62,
+    "sniping": 25,
+    "utility": 87
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

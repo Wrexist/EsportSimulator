@@ -1,0 +1,20 @@
+{
+  "name": "emili0",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "XI",
+  "teamRank": "230",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 54,
+    "entrying": 51,
+    "trading": 62,
+    "opening": 41,
+    "clutching": 26,
+    "sniping": 75,
+    "utility": 65
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

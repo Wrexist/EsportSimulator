@@ -1,0 +1,20 @@
+{
+  "name": "koala",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Sharks",
+  "teamRank": "39",
+  "age": 20,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 76,
+    "entrying": 18,
+    "trading": 69,
+    "opening": 22,
+    "clutching": 91,
+    "sniping": 36,
+    "utility": 37
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

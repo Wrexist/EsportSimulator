@@ -1,0 +1,20 @@
+{
+  "name": "YEKINDAR",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "FURIA",
+  "teamRank": "2",
+  "age": 26,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 80,
+    "entrying": 31,
+    "trading": 24,
+    "opening": 90,
+    "clutching": 31,
+    "sniping": 32,
+    "utility": 65
+  },
+  "matchesPlayed": 267,
+  "hltvHistory": []
+}

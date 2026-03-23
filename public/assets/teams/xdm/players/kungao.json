@@ -1,0 +1,20 @@
+{
+  "name": "Kungao",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "XDM",
+  "teamRank": "205",
+  "age": 21,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 27,
+    "entrying": 67,
+    "trading": 15,
+    "opening": 13,
+    "clutching": 42,
+    "sniping": 3,
+    "utility": 48
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

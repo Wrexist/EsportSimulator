@@ -1,0 +1,20 @@
+{
+  "name": "Starry",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Lynn Vision",
+  "teamRank": "36",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 76,
+    "entrying": 70,
+    "trading": 57,
+    "opening": 73,
+    "clutching": 35,
+    "sniping": 2,
+    "utility": 67
+  },
+  "matchesPlayed": 141,
+  "hltvHistory": []
+}

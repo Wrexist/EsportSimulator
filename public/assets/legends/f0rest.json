@@ -1,0 +1,21 @@
+{
+  "name": "f0rest",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 36,
+  "birthDate": "June 10, 1988",
+  "rating": 1.26,
+  "stats": {
+    "firepower": 95,
+    "entrying": 86,
+    "trading": 93,
+    "opening": 89,
+    "clutching": 92,
+    "sniping": 72,
+    "utility": 94
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "cptkurtka023",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "44",
+  "age": 26,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 67,
+    "entrying": 77,
+    "trading": 23,
+    "opening": 74,
+    "clutching": 39,
+    "sniping": 42,
+    "utility": 30
+  },
+  "matchesPlayed": 146,
+  "hltvHistory": []
+}

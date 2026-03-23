@@ -1,0 +1,20 @@
+{
+  "name": "gas",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Just Swing",
+  "teamRank": "171",
+  "age": 30,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 24,
+    "entrying": 86,
+    "trading": 66,
+    "opening": 51,
+    "clutching": 13,
+    "sniping": 54,
+    "utility": 56
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

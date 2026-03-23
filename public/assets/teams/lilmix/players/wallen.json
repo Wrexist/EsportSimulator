@@ -1,0 +1,20 @@
+{
+  "name": "walleN",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Lilmix",
+  "teamRank": "184",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 66,
+    "entrying": 16,
+    "trading": 97,
+    "opening": 16,
+    "clutching": 70,
+    "sniping": 30,
+    "utility": 56
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

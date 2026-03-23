@@ -1,0 +1,20 @@
+{
+  "name": "miL4nNN",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Truck Drivers",
+  "teamRank": "164",
+  "age": 26,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 91,
+    "entrying": 15,
+    "trading": 9,
+    "opening": 97,
+    "clutching": 21,
+    "sniping": 95,
+    "utility": 42
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

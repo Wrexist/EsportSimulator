@@ -1,0 +1,24 @@
+{
+  "name": "lugseN",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "136",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.96,
+  "stats": {
+    "firepower": 26,
+    "entrying": 34,
+    "trading": 59,
+    "opening": 47,
+    "clutching": 82,
+    "sniping": 91,
+    "utility": 67
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

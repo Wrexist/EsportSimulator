@@ -1,0 +1,34 @@
+{
+  "name": "The Huns",
+  "hltvRank": "67",
+  "nationality": "Mongolia",
+  "players": [
+    {
+      "name": "nin9",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "sk0R",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "Bart4k",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "xerolte",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "controlez",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

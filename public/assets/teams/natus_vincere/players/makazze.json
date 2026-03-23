@@ -1,0 +1,20 @@
+{
+  "name": "makazze",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "Natus Vincere",
+  "teamRank": "8",
+  "age": 19,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 62,
+    "entrying": 85,
+    "trading": 31,
+    "opening": 87,
+    "clutching": 36,
+    "sniping": 37,
+    "utility": 56
+  },
+  "matchesPlayed": 239,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mag1k3Y",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Nemesis",
+  "teamRank": "45",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 47,
+    "entrying": 21,
+    "trading": 61,
+    "opening": 40,
+    "clutching": 85,
+    "sniping": 89,
+    "utility": 57
+  },
+  "matchesPlayed": 154,
+  "hltvHistory": []
+}

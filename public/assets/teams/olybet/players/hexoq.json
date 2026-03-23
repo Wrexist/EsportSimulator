@@ -1,0 +1,20 @@
+{
+  "name": "hexoq",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "OlyBet",
+  "teamRank": "123",
+  "age": 19,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 52,
+    "entrying": 86,
+    "trading": 55,
+    "opening": 69,
+    "clutching": 25,
+    "sniping": 4,
+    "utility": 37
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

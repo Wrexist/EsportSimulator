@@ -1,0 +1,20 @@
+{
+  "name": "siuhy",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Liquid",
+  "teamRank": "15",
+  "age": 23,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 12,
+    "entrying": 66,
+    "trading": 52,
+    "opening": 24,
+    "clutching": 30,
+    "sniping": 1,
+    "utility": 67
+  },
+  "matchesPlayed": 197,
+  "hltvHistory": []
+}

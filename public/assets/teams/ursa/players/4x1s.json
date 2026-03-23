@@ -1,0 +1,20 @@
+{
+  "name": "4X1s",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "Ursa",
+  "teamRank": "85",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 67,
+    "entrying": 44,
+    "trading": 35,
+    "opening": 64,
+    "clutching": 34,
+    "sniping": 14,
+    "utility": 58
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

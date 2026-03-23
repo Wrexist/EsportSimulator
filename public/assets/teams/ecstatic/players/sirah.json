@@ -1,0 +1,24 @@
+{
+  "name": "sirah",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "37",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 19,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.2,
+  "stats": {
+    "firepower": 90,
+    "entrying": 54,
+    "trading": 46,
+    "opening": 71,
+    "clutching": 65,
+    "sniping": 0,
+    "utility": 56
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

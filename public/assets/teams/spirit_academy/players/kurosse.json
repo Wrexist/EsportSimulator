@@ -1,0 +1,20 @@
+{
+  "name": "kurosse",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Spirit Academy",
+  "teamRank": "110",
+  "age": 17,
+  "rating": 0.82,
+  "stats": {
+    "firepower": 9,
+    "entrying": 50,
+    "trading": 68,
+    "opening": 20,
+    "clutching": 54,
+    "sniping": 0,
+    "utility": 55
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

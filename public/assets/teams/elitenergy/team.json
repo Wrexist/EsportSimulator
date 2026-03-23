@@ -1,0 +1,34 @@
+{
+  "name": "eLITenergy",
+  "hltvRank": "170",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "keegaN",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "k0s",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "k1slll",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "finW",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "gooddeph",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

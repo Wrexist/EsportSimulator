@@ -1,0 +1,20 @@
+{
+  "name": "HObbit",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "1win",
+  "teamRank": "77",
+  "age": 31,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 84,
+    "entrying": 20,
+    "trading": 56,
+    "opening": 54,
+    "clutching": 46,
+    "sniping": 69,
+    "utility": 63
+  },
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

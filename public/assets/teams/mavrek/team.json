@@ -1,0 +1,33 @@
+{
+  "name": "Mavrek",
+  "hltvRank": "102",
+  "players": [
+    {
+      "name": "Jachro",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Cyrix",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Sharpie",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "toasty",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "brawckzz",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

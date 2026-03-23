@@ -1,0 +1,20 @@
+{
+  "name": "NickelBack",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WHITEBIRD",
+  "teamRank": "86",
+  "age": 28,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 24,
+    "entrying": 65,
+    "trading": 37,
+    "opening": 38,
+    "clutching": 34,
+    "sniping": 37,
+    "utility": 94
+  },
+  "matchesPlayed": 84,
+  "hltvHistory": []
+}

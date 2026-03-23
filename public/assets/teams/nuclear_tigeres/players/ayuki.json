@@ -1,0 +1,20 @@
+{
+  "name": "ayuki",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nuclear TigeRES",
+  "teamRank": "43",
+  "age": 18,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 49,
+    "entrying": 57,
+    "trading": 82,
+    "opening": 32,
+    "clutching": 65,
+    "sniping": 29,
+    "utility": 48
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

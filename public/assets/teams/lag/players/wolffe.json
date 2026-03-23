@@ -1,0 +1,20 @@
+{
+  "name": "Wolffe",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "LAG",
+  "teamRank": "144",
+  "age": 24,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 77,
+    "entrying": 91,
+    "trading": 29,
+    "opening": 19,
+    "clutching": 11,
+    "sniping": 24,
+    "utility": 66
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

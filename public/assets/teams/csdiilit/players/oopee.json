@@ -1,0 +1,20 @@
+{
+  "name": "oopee",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "CSDIILIT",
+  "teamRank": "179",
+  "age": 27,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 88,
+    "entrying": 36,
+    "trading": 63,
+    "opening": 77,
+    "clutching": 76,
+    "sniping": 1,
+    "utility": 49
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

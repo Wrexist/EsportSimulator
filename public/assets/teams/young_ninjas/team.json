@@ -1,0 +1,29 @@
+{
+  "name": "Young Ninjas",
+  "hltvRank": "146",
+  "nationality": "South Africa",
+  "players": [
+    {
+      "name": "MisteM",
+      "country": "South Africa",
+      "countryCode": "za"
+    },
+    {
+      "name": "rud",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "sL1m3",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "MahaR",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    }
+  ],
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

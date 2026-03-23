@@ -1,0 +1,20 @@
+{
+  "name": "h1te",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "magic",
+  "teamRank": "48",
+  "age": 23,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 41,
+    "entrying": 28,
+    "trading": 55,
+    "opening": 52,
+    "clutching": 70,
+    "sniping": 93,
+    "utility": 57
+  },
+  "matchesPlayed": 158,
+  "hltvHistory": []
+}

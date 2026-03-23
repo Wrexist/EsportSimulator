@@ -1,0 +1,20 @@
+{
+  "name": "SEMSYS",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "MUERTA",
+  "teamRank": "191",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 30,
+    "entrying": 27,
+    "trading": 61,
+    "opening": 62,
+    "clutching": 68,
+    "sniping": 30,
+    "utility": 69
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

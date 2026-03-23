@@ -1,0 +1,20 @@
+{
+  "name": "venomzera",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR",
+  "teamRank": "28",
+  "age": 21,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 46,
+    "entrying": 75,
+    "trading": 43,
+    "opening": 33,
+    "clutching": 44,
+    "sniping": 22,
+    "utility": 33
+  },
+  "matchesPlayed": 161,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "F0R3VER",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "VP.Prodigy",
+  "teamRank": "155",
+  "age": 18,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 68,
+    "entrying": 53,
+    "trading": 48,
+    "opening": 76,
+    "clutching": 22,
+    "sniping": 1,
+    "utility": 40
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

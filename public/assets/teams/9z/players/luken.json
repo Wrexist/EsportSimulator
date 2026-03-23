@@ -1,0 +1,23 @@
+{
+  "name": "Luken",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "9z",
+  "teamRank": "59",
+  "role": "Rifler, AWPer, Riflers, AWPers",
+  "status": "Active",
+  "age": 28,
+  "birthDate": "March 26, 1997",
+  "rating": 1.21,
+  "stats": {
+    "firepower": 92,
+    "entrying": 38,
+    "trading": 82,
+    "opening": 63,
+    "clutching": 88,
+    "sniping": 0,
+    "utility": 46
+  },
+  "matchesPlayed": 205,
+  "hltvHistory": []
+}

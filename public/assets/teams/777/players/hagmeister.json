@@ -1,0 +1,20 @@
+{
+  "name": "Hagmeister",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "777",
+  "teamRank": "225",
+  "age": 23,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 18,
+    "entrying": 88,
+    "trading": 58,
+    "opening": 69,
+    "clutching": 57,
+    "sniping": 29,
+    "utility": 29
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

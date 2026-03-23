@@ -1,0 +1,20 @@
+{
+  "name": "onic",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "44",
+  "age": 21,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 17,
+    "entrying": 60,
+    "trading": 21,
+    "opening": 30,
+    "clutching": 75,
+    "sniping": 3,
+    "utility": 73
+  },
+  "matchesPlayed": 128,
+  "hltvHistory": []
+}

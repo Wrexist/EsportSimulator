@@ -1,0 +1,20 @@
+{
+  "name": "Peeping",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wildcard",
+  "teamRank": "75",
+  "age": 20,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 59,
+    "entrying": 54,
+    "trading": 47,
+    "opening": 85,
+    "clutching": 51,
+    "sniping": 28,
+    "utility": 46
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

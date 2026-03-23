@@ -1,0 +1,20 @@
+{
+  "name": "story",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "FlyQuest",
+  "teamRank": "29",
+  "age": 23,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 85,
+    "entrying": 22,
+    "trading": 61,
+    "opening": 82,
+    "clutching": 66,
+    "sniping": 95,
+    "utility": 78
+  },
+  "matchesPlayed": 170,
+  "hltvHistory": []
+}

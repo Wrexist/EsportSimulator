@@ -1,0 +1,20 @@
+{
+  "name": "ualigod",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Winners",
+  "teamRank": "232",
+  "age": 20,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 17,
+    "entrying": 93,
+    "trading": 75,
+    "opening": 38,
+    "clutching": 6,
+    "sniping": 23,
+    "utility": 19
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

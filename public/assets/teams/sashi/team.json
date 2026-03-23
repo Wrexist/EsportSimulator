@@ -1,0 +1,34 @@
+{
+  "name": "Sashi",
+  "hltvRank": "78",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "acoR",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Cabbi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Zyphon",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "MistR",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Beccie",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

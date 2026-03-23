@@ -1,0 +1,34 @@
+{
+  "name": "Ninjas in Pyjamas",
+  "hltvRank": "21",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "Snappi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "sjuush",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "r1nkle",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "xKacpersky",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "cairne",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 215,
+  "hltvHistory": []
+}

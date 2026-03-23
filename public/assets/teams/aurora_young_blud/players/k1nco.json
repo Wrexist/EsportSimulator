@@ -1,0 +1,20 @@
+{
+  "name": "k1nco",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Aurora Young Blud",
+  "teamRank": "176",
+  "age": 19,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 60,
+    "entrying": 78,
+    "trading": 38,
+    "opening": 21,
+    "clutching": 85,
+    "sniping": 65,
+    "utility": 61
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

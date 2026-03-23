@@ -1,0 +1,34 @@
+{
+  "name": "FURIA fe",
+  "hltvRank": "239",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "gabs",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "bizinha",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "izaa",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "kaahSENSEI",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "lulitenz",
+      "country": "Argentina",
+      "countryCode": "ar"
+    }
+  ],
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

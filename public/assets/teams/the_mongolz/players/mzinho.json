@@ -1,0 +1,20 @@
+{
+  "name": "mzinho",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The MongolZ",
+  "teamRank": "10",
+  "age": 18,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 66,
+    "entrying": 23,
+    "trading": 18,
+    "opening": 47,
+    "clutching": 48,
+    "sniping": 2,
+    "utility": 56
+  },
+  "matchesPlayed": 202,
+  "hltvHistory": []
+}

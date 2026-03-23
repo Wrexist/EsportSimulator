@@ -1,0 +1,20 @@
+{
+  "name": "twigs",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "MAZRAEA",
+  "teamRank": "193",
+  "age": 25,
+  "rating": 0.77,
+  "stats": {
+    "firepower": 14,
+    "entrying": 35,
+    "trading": 8,
+    "opening": 73,
+    "clutching": 16,
+    "sniping": 74,
+    "utility": 36
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

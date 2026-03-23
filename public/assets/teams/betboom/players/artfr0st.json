@@ -1,0 +1,20 @@
+{
+  "name": "ArtFr0st",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BetBoom",
+  "teamRank": "32",
+  "age": 24,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 71,
+    "entrying": 6,
+    "trading": 66,
+    "opening": 52,
+    "clutching": 92,
+    "sniping": 95,
+    "utility": 73
+  },
+  "matchesPlayed": 129,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "RoberttMP",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "aimclub",
+  "teamRank": "135",
+  "age": 25,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 22,
+    "entrying": 77,
+    "trading": 31,
+    "opening": 31,
+    "clutching": 34,
+    "sniping": 23,
+    "utility": 53
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

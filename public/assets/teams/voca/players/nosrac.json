@@ -1,0 +1,20 @@
+{
+  "name": "nosraC",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Voca",
+  "teamRank": "49",
+  "age": 25,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 60,
+    "entrying": 28,
+    "trading": 25,
+    "opening": 74,
+    "clutching": 30,
+    "sniping": 7,
+    "utility": 79
+  },
+  "matchesPlayed": 122,
+  "hltvHistory": []
+}

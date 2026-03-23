@@ -1,0 +1,20 @@
+{
+  "name": "Techno",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The MongolZ",
+  "teamRank": "10",
+  "age": 20,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 19,
+    "entrying": 44,
+    "trading": 43,
+    "opening": 44,
+    "clutching": 36,
+    "sniping": 24,
+    "utility": 58
+  },
+  "matchesPlayed": 262,
+  "hltvHistory": []
+}

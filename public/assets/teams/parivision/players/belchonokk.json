@@ -1,0 +1,20 @@
+{
+  "name": "BELCHONOKK",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "PARIVISION",
+  "teamRank": "6",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 32,
+    "entrying": 95,
+    "trading": 48,
+    "opening": 41,
+    "clutching": 39,
+    "sniping": 23,
+    "utility": 34
+  },
+  "matchesPlayed": 285,
+  "hltvHistory": []
+}

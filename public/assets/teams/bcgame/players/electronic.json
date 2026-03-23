@@ -1,0 +1,20 @@
+{
+  "name": "electroNic",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BC.Game",
+  "teamRank": "26",
+  "age": 27,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 47,
+    "entrying": 73,
+    "trading": 83,
+    "opening": 68,
+    "clutching": 64,
+    "sniping": 43,
+    "utility": 37
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

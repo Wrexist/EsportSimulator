@@ -1,0 +1,34 @@
+{
+  "name": "FOKUS",
+  "hltvRank": "203",
+  "nationality": "Norway",
+  "players": [
+    {
+      "name": "berzerk",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "Ariant0",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "samee",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "zyme",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "tlx",
+      "country": "Germany",
+      "countryCode": "de"
+    }
+  ],
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

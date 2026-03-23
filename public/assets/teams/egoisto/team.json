@@ -1,0 +1,34 @@
+{
+  "name": "EGOISTO",
+  "hltvRank": "166",
+  "nationality": "Uzbekistan",
+  "players": [
+    {
+      "name": "hawachi",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "jaw1ko",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "Schwarzkopf",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "slash",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "sh1seido",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    }
+  ],
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

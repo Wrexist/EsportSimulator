@@ -1,0 +1,20 @@
+{
+  "name": "zeRRoFIX",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "44",
+  "age": 18,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 27,
+    "entrying": 66,
+    "trading": 79,
+    "opening": 9,
+    "clutching": 46,
+    "sniping": 27,
+    "utility": 44
+  },
+  "matchesPlayed": 114,
+  "hltvHistory": []
+}

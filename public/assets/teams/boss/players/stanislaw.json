@@ -1,0 +1,20 @@
+{
+  "name": "stanislaw",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "BOSS",
+  "teamRank": "94",
+  "age": 31,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 16,
+    "entrying": 99,
+    "trading": 44,
+    "opening": 14,
+    "clutching": 49,
+    "sniping": 63,
+    "utility": 94
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

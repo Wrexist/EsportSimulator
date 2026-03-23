@@ -1,0 +1,20 @@
+{
+  "name": "k0s",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "eLITenergy",
+  "teamRank": "170",
+  "age": 23,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 95,
+    "entrying": 97,
+    "trading": 62,
+    "opening": 92,
+    "clutching": 34,
+    "sniping": 34,
+    "utility": 47
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

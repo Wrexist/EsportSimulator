@@ -1,0 +1,34 @@
+{
+  "name": "FengDa",
+  "hltvRank": "156",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "Biuckmt",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "salmon",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "p5p",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "3gl",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Trash",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

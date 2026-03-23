@@ -1,0 +1,34 @@
+{
+  "name": "ARCRED",
+  "hltvRank": "60",
+  "nationality": "Uzbekistan",
+  "players": [
+    {
+      "name": "DSSj",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "Get_Jeka",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "Ryujin",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "Raijin",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "synyx",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

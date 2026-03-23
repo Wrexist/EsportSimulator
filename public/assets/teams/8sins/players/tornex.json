@@ -1,0 +1,20 @@
+{
+  "name": "TorNEX",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "8Sins",
+  "teamRank": "226",
+  "age": 23,
+  "rating": 1.21,
+  "stats": {
+    "firepower": 93,
+    "entrying": 30,
+    "trading": 26,
+    "opening": 90,
+    "clutching": 35,
+    "sniping": 26,
+    "utility": 32
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

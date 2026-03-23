@@ -1,0 +1,20 @@
+{
+  "name": "Ryujin",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "ARCRED",
+  "teamRank": "60",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 76,
+    "entrying": 77,
+    "trading": 80,
+    "opening": 41,
+    "clutching": 54,
+    "sniping": 34,
+    "utility": 40
+  },
+  "matchesPlayed": 82,
+  "hltvHistory": []
+}

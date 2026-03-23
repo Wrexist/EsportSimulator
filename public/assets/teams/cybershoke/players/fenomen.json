@@ -1,0 +1,20 @@
+{
+  "name": "FenomeN",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "CYBERSHOKE",
+  "teamRank": "58",
+  "age": 21,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 62,
+    "entrying": 35,
+    "trading": 80,
+    "opening": 51,
+    "clutching": 92,
+    "sniping": 93,
+    "utility": 60
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

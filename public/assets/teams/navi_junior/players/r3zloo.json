@@ -1,0 +1,20 @@
+{
+  "name": "R3ZLOO",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "NAVI Junior",
+  "teamRank": "237",
+  "age": 16,
+  "rating": 0.74,
+  "stats": {
+    "firepower": 2,
+    "entrying": 30,
+    "trading": 52,
+    "opening": 17,
+    "clutching": 25,
+    "sniping": 63,
+    "utility": 18
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

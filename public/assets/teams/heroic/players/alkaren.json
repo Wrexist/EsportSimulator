@@ -1,0 +1,20 @@
+{
+  "name": "Alkaren",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "HEROIC",
+  "teamRank": "22",
+  "age": 18,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 92,
+    "entrying": 12,
+    "trading": 41,
+    "opening": 95,
+    "clutching": 39,
+    "sniping": 92,
+    "utility": 59
+  },
+  "matchesPlayed": 201,
+  "hltvHistory": []
+}

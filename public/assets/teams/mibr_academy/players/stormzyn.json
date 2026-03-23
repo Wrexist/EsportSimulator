@@ -1,0 +1,20 @@
+{
+  "name": "stormzyn",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR Academy",
+  "teamRank": "245",
+  "age": 22,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 62,
+    "entrying": 46,
+    "trading": 96,
+    "opening": 91,
+    "clutching": 7,
+    "sniping": 1,
+    "utility": 90
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

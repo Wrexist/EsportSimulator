@@ -1,0 +1,20 @@
+{
+  "name": "Arctic",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Vantage",
+  "teamRank": "236",
+  "age": 22,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 1,
+    "entrying": 70,
+    "trading": 19,
+    "opening": 57,
+    "clutching": 53,
+    "sniping": 87,
+    "utility": 30
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

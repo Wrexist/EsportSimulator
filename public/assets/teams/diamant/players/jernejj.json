@@ -1,0 +1,20 @@
+{
+  "name": "jernejj",
+  "country": "Slovenia",
+  "countryCode": "si",
+  "team": "Diamant",
+  "teamRank": "220",
+  "age": 26,
+  "rating": 0.85,
+  "stats": {
+    "firepower": 21,
+    "entrying": 90,
+    "trading": 15,
+    "opening": 51,
+    "clutching": 1,
+    "sniping": 44,
+    "utility": 72
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

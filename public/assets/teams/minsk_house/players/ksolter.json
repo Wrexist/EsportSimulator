@@ -1,0 +1,20 @@
+{
+  "name": "ksolter",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Minsk House",
+  "teamRank": "136",
+  "age": 21,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 62,
+    "entrying": 100,
+    "trading": 50,
+    "opening": 14,
+    "clutching": 41,
+    "sniping": 41,
+    "utility": 29
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "oontoma",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "INFURITY",
+  "teamRank": "132",
+  "age": 22,
+  "rating": 1.31,
+  "stats": {
+    "firepower": 72,
+    "entrying": 82,
+    "trading": 94,
+    "opening": 71,
+    "clutching": 68,
+    "sniping": 36,
+    "utility": 47
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

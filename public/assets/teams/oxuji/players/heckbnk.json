@@ -1,0 +1,20 @@
+{
+  "name": "HeCkBNk",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Oxuji",
+  "teamRank": "154",
+  "age": 22,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 56,
+    "entrying": 58,
+    "trading": 93,
+    "opening": 39,
+    "clutching": 32,
+    "sniping": 41,
+    "utility": 30
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

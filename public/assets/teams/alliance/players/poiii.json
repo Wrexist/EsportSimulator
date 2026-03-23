@@ -1,0 +1,23 @@
+{
+  "name": "poiii",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "45",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 19,
+  "birthDate": "September 16, 2006",
+  "rating": 1.2,
+  "stats": {
+    "firepower": 92,
+    "entrying": 67,
+    "trading": 62,
+    "opening": 93,
+    "clutching": 42,
+    "sniping": 1,
+    "utility": 44
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

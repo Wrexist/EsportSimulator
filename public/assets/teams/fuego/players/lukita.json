@@ -1,0 +1,23 @@
+{
+  "name": "Lukita",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fuego",
+  "teamRank": "139",
+  "role": "Unknown",
+  "status": "Unknown",
+  "debug": [],
+  "age": 27,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 23,
+    "entrying": 58,
+    "trading": 27,
+    "opening": 21,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 72
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

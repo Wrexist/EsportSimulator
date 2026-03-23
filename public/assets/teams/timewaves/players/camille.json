@@ -1,0 +1,20 @@
+{
+  "name": "camille",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Timewaves",
+  "teamRank": "216",
+  "age": 25,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 25,
+    "entrying": 94,
+    "trading": 68,
+    "opening": 60,
+    "clutching": 24,
+    "sniping": 23,
+    "utility": 21
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

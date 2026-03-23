@@ -1,0 +1,20 @@
+{
+  "name": "viridian",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Rooster",
+  "teamRank": "148",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 30,
+    "entrying": 88,
+    "trading": 77,
+    "opening": 32,
+    "clutching": 50,
+    "sniping": 60,
+    "utility": 72
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

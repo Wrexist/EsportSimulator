@@ -1,0 +1,23 @@
+{
+  "name": "sakamoto",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fuego",
+  "teamRank": "139",
+  "role": "Unknown",
+  "status": "Unknown",
+  "debug": [],
+  "age": 25,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 64,
+    "entrying": 8,
+    "trading": 62,
+    "opening": 27,
+    "clutching": 70,
+    "sniping": 0,
+    "utility": 59
+  },
+  "matchesPlayed": 135,
+  "hltvHistory": []
+}

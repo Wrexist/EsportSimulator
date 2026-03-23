@@ -1,0 +1,34 @@
+{
+  "name": "Eternal Fire",
+  "hltvRank": "161",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "rigoN",
+      "country": "Switzerland",
+      "countryCode": "ch"
+    },
+    {
+      "name": "Woro2k",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "DemQQ",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "EMSTAR",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "jottAAA",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

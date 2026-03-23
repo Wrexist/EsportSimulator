@@ -1,0 +1,20 @@
+{
+  "name": "doni",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Wildcard Academy",
+  "teamRank": "135",
+  "age": 18,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 51,
+    "entrying": 87,
+    "trading": 48,
+    "opening": 78,
+    "clutching": 34,
+    "sniping": 0,
+    "utility": 19
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

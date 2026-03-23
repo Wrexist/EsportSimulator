@@ -1,0 +1,34 @@
+{
+  "name": "Players",
+  "hltvRank": "196",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "MITHPUTTINI",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "xns",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "spinnie",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Lich",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "prisma",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

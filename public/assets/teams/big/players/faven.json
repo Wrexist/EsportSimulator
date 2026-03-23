@@ -1,0 +1,20 @@
+{
+  "name": "faveN",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BIG",
+  "teamRank": "63",
+  "age": 26,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 69,
+    "entrying": 94,
+    "trading": 82,
+    "opening": 27,
+    "clutching": 62,
+    "sniping": 46,
+    "utility": 30
+  },
+  "matchesPlayed": 86,
+  "hltvHistory": []
+}

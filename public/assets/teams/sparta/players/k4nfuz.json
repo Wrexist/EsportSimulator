@@ -1,0 +1,20 @@
+{
+  "name": "k4nfuz",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "SPARTA",
+  "teamRank": "106",
+  "age": 21,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 25,
+    "entrying": 85,
+    "trading": 54,
+    "opening": 28,
+    "clutching": 49,
+    "sniping": 28,
+    "utility": 30
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

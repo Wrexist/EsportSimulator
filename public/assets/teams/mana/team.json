@@ -1,0 +1,34 @@
+{
+  "name": "MANA",
+  "hltvRank": "112",
+  "nationality": "Kosovo",
+  "players": [
+    {
+      "name": "SENER1",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "cerber",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "BledarD",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "Caleyy",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    },
+    {
+      "name": "ammar",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    }
+  ],
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

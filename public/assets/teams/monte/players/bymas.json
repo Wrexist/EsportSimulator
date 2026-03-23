@@ -1,0 +1,20 @@
+{
+  "name": "Bymas",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Monte",
+  "teamRank": "31",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 65,
+    "entrying": 33,
+    "trading": 78,
+    "opening": 44,
+    "clutching": 47,
+    "sniping": 55,
+    "utility": 42
+  },
+  "matchesPlayed": 127,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "xEternaLxx",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "ex-GANK",
+  "teamRank": "188",
+  "age": 17,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 55,
+    "entrying": 79,
+    "trading": 85,
+    "opening": 20,
+    "clutching": 37,
+    "sniping": 21,
+    "utility": 17
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

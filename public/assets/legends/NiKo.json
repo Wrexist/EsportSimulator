@@ -1,0 +1,21 @@
+{
+  "name": "NiKo",
+  "country": "Bosnia and Herzegovina",
+  "countryCode": "ba",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 27,
+  "birthDate": "Feb 16, 1997",
+  "rating": 1.28,
+  "stats": {
+    "firepower": 99,
+    "entrying": 95,
+    "trading": 92,
+    "opening": 95,
+    "clutching": 94,
+    "sniping": 82,
+    "utility": 85
+  }
+}

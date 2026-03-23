@@ -1,0 +1,20 @@
+{
+  "name": "Reix",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Crashers",
+  "teamRank": "217",
+  "age": 23,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 33,
+    "entrying": 40,
+    "trading": 25,
+    "opening": 22,
+    "clutching": 35,
+    "sniping": 68,
+    "utility": 92
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

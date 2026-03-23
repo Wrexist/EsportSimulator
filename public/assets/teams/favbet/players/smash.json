@@ -1,0 +1,20 @@
+{
+  "name": "Smash",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "FAVBET",
+  "teamRank": "68",
+  "age": 23,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 44,
+    "entrying": 96,
+    "trading": 62,
+    "opening": 55,
+    "clutching": 35,
+    "sniping": 27,
+    "utility": 61
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

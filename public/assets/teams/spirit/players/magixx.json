@@ -1,0 +1,20 @@
+{
+  "name": "magixx",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Spirit",
+  "teamRank": "5",
+  "age": 22,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 10,
+    "entrying": 90,
+    "trading": 21,
+    "opening": 27,
+    "clutching": 39,
+    "sniping": 3,
+    "utility": 87
+  },
+  "matchesPlayed": 220,
+  "hltvHistory": []
+}

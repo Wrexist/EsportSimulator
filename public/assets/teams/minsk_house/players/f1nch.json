@@ -1,0 +1,20 @@
+{
+  "name": "f1nch",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Minsk House",
+  "teamRank": "136",
+  "age": 24,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 58,
+    "entrying": 99,
+    "trading": 66,
+    "opening": 88,
+    "clutching": 6,
+    "sniping": 71,
+    "utility": 31
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

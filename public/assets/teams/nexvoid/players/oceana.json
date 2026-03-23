@@ -1,0 +1,20 @@
+{
+  "name": "OCEANA",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "NEXVOID",
+  "teamRank": "74",
+  "age": 18,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 16,
+    "entrying": 42,
+    "trading": 32,
+    "opening": 33,
+    "clutching": 30,
+    "sniping": 2,
+    "utility": 45
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

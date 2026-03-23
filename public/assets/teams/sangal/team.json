@@ -1,0 +1,34 @@
+{
+  "name": "Sangal",
+  "hltvRank": "97",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "clax",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Patsi",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "pr1metapz",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "danistzz",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "R4DYX",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

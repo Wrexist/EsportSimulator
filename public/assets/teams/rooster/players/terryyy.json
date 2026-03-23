@@ -1,0 +1,20 @@
+{
+  "name": "Terryyy",
+  "country": "Hong Kong",
+  "countryCode": "hk",
+  "team": "Rooster",
+  "teamRank": "148",
+  "age": 25,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 54,
+    "entrying": 68,
+    "trading": 58,
+    "opening": 78,
+    "clutching": 27,
+    "sniping": 49,
+    "utility": 55
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

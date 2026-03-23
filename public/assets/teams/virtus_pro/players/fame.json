@@ -1,0 +1,20 @@
+{
+  "name": "fame",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Virtus.pro",
+  "teamRank": "22",
+  "age": 24,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 85,
+    "entrying": 87,
+    "trading": 95,
+    "opening": 24,
+    "clutching": 3,
+    "sniping": 6,
+    "utility": 41
+  },
+  "matchesPlayed": 165,
+  "hltvHistory": []
+}

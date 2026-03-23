@@ -1,0 +1,20 @@
+{
+  "name": "KRIMZ",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "fnatic",
+  "teamRank": "33",
+  "age": 31,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 30,
+    "entrying": 23,
+    "trading": 41,
+    "opening": 29,
+    "clutching": 59,
+    "sniping": 77,
+    "utility": 69
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

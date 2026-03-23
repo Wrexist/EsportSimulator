@@ -1,0 +1,20 @@
+{
+  "name": "SunPayus",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "G2",
+  "teamRank": "9",
+  "age": 27,
+  "rating": 1,
+  "stats": {
+    "firepower": 32,
+    "entrying": 26,
+    "trading": 33,
+    "opening": 55,
+    "clutching": 75,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 257,
+  "hltvHistory": []
+}

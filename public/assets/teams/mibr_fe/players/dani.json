@@ -1,0 +1,20 @@
+{
+  "name": "Dani",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR fe",
+  "teamRank": "202",
+  "age": 18,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 70,
+    "entrying": 77,
+    "trading": 38,
+    "opening": 57,
+    "clutching": 26,
+    "sniping": 24,
+    "utility": 24
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

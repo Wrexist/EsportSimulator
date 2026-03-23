@@ -1,0 +1,24 @@
+{
+  "name": "Bambosh",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "BASEMENT BOYS",
+  "teamRank": "145",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.88,
+  "stats": {
+    "firepower": 12,
+    "entrying": 59,
+    "trading": 53,
+    "opening": 15,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 28
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

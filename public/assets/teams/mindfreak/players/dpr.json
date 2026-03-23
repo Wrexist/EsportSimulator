@@ -1,0 +1,20 @@
+{
+  "name": "dpr",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Mindfreak",
+  "teamRank": "133",
+  "age": 21,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 52,
+    "entrying": 62,
+    "trading": 48,
+    "opening": 22,
+    "clutching": 75,
+    "sniping": 11,
+    "utility": 27
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

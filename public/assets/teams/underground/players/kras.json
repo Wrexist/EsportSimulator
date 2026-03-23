@@ -1,0 +1,20 @@
+{
+  "name": "Kras",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Underground",
+  "teamRank": "180",
+  "age": 22,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 39,
+    "entrying": 77,
+    "trading": 54,
+    "opening": 80,
+    "clutching": 57,
+    "sniping": 32,
+    "utility": 16
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

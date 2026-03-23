@@ -1,0 +1,20 @@
+{
+  "name": "executor",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BET-M",
+  "teamRank": "80",
+  "age": 21,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 67,
+    "entrying": 45,
+    "trading": 74,
+    "opening": 61,
+    "clutching": 53,
+    "sniping": 3,
+    "utility": 59
+  },
+  "matchesPlayed": 103,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "4TAYLOR",
+  "country": "Venezuela",
+  "countryCode": "ve",
+  "team": "OverKnight",
+  "teamRank": "222",
+  "age": 24,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 56,
+    "entrying": 31,
+    "trading": 13,
+    "opening": 70,
+    "clutching": 21,
+    "sniping": 32,
+    "utility": 52
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

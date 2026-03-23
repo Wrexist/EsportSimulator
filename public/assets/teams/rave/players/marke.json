@@ -1,0 +1,20 @@
+{
+  "name": "MarKE",
+  "country": "Mexico",
+  "countryCode": "mx",
+  "team": "Rave",
+  "teamRank": "111",
+  "age": 27,
+  "rating": 1.21,
+  "stats": {
+    "firepower": 85,
+    "entrying": 35,
+    "trading": 67,
+    "opening": 35,
+    "clutching": 59,
+    "sniping": 90,
+    "utility": 81
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

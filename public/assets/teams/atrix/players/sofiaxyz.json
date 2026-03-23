@@ -1,0 +1,20 @@
+{
+  "name": "Sofiaxyz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Atrix",
+  "teamRank": "234",
+  "age": 19,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 9,
+    "entrying": 72,
+    "trading": 37,
+    "opening": 48,
+    "clutching": 35,
+    "sniping": 82,
+    "utility": 48
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

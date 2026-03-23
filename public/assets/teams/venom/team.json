@@ -1,0 +1,28 @@
+{
+  "name": "Venom",
+  "hltvRank": "54",
+  "players": [
+    {
+      "name": "innocent",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Sobol",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "flayy",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Qlocuu",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

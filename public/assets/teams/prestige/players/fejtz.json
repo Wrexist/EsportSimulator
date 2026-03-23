@@ -1,0 +1,20 @@
+{
+  "name": "fejtZ",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "Prestige",
+  "teamRank": "149",
+  "age": 28,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 88,
+    "entrying": 81,
+    "trading": 92,
+    "opening": 63,
+    "clutching": 52,
+    "sniping": 2,
+    "utility": 45
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

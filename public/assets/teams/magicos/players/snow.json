@@ -1,0 +1,20 @@
+{
+  "name": "snow",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MAGICOS",
+  "teamRank": "207",
+  "age": 19,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 29,
+    "entrying": 79,
+    "trading": 87,
+    "opening": 31,
+    "clutching": 29,
+    "sniping": 1,
+    "utility": 89
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

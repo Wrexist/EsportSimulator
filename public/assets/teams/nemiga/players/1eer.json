@@ -1,0 +1,20 @@
+{
+  "name": "1eeR",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Nemiga",
+  "teamRank": "58",
+  "age": 24,
+  "rating": 1,
+  "stats": {
+    "firepower": 49,
+    "entrying": 89,
+    "trading": 56,
+    "opening": 25,
+    "clutching": 60,
+    "sniping": 0,
+    "utility": 81
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

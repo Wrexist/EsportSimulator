@@ -1,0 +1,20 @@
+{
+  "name": "Qikert",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "MIBR",
+  "teamRank": "62",
+  "age": 27,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 6,
+    "entrying": 73,
+    "trading": 54,
+    "opening": 23,
+    "clutching": 33,
+    "sniping": 0,
+    "utility": 28
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

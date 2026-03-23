@@ -1,0 +1,20 @@
+{
+  "name": "kade0",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALLINNERS",
+  "teamRank": "174",
+  "age": 26,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 58,
+    "entrying": 26,
+    "trading": 31,
+    "opening": 46,
+    "clutching": 28,
+    "sniping": 20,
+    "utility": 57
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Wildcard",
+  "hltvRank": "75",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "mhL",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "reck",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "HexT",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "CLASIA",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Peeping",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 84,
+  "hltvHistory": []
+}

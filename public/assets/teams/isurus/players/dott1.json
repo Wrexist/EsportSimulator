@@ -1,0 +1,20 @@
+{
+  "name": "dott1",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Isurus",
+  "teamRank": "141",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 55,
+    "entrying": 43,
+    "trading": 46,
+    "opening": 31,
+    "clutching": 71,
+    "sniping": 41,
+    "utility": 24
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

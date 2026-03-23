@@ -1,0 +1,20 @@
+{
+  "name": "reck",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wildcard",
+  "teamRank": "75",
+  "age": 22,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 20,
+    "entrying": 89,
+    "trading": 60,
+    "opening": 16,
+    "clutching": 39,
+    "sniping": 1,
+    "utility": 36
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

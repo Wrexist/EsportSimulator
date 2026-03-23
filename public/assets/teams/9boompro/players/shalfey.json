@@ -1,0 +1,23 @@
+{
+  "name": "shalfey",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "9BOOMPRO",
+  "teamRank": "129",
+  "role": "In-game leader, In-game leaders",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "June 8, 2002",
+  "rating": 0.97,
+  "stats": {
+    "firepower": 32,
+    "entrying": 17,
+    "trading": 55,
+    "opening": 23,
+    "clutching": 44,
+    "sniping": 4,
+    "utility": 62
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

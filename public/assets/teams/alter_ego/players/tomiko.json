@@ -1,0 +1,20 @@
+{
+  "name": "tomiko",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Alter Ego",
+  "teamRank": "229",
+  "age": 21,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 45,
+    "entrying": 58,
+    "trading": 80,
+    "opening": 4,
+    "clutching": 30,
+    "sniping": 23,
+    "utility": 19
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

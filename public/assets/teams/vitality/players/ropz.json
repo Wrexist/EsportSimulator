@@ -1,0 +1,20 @@
+{
+  "name": "ropz",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "Vitality",
+  "teamRank": "1",
+  "age": 26,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 61,
+    "entrying": 11,
+    "trading": 56,
+    "opening": 37,
+    "clutching": 66,
+    "sniping": 7,
+    "utility": 22
+  },
+  "matchesPlayed": 227,
+  "hltvHistory": []
+}

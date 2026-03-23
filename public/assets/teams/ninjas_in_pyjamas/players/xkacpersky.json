@@ -1,0 +1,20 @@
+{
+  "name": "xKacpersky",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Ninjas in Pyjamas",
+  "teamRank": "21",
+  "age": 19,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 87,
+    "entrying": 73,
+    "trading": 34,
+    "opening": 63,
+    "clutching": 70,
+    "sniping": 25,
+    "utility": 35
+  },
+  "matchesPlayed": 156,
+  "hltvHistory": []
+}

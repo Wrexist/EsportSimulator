@@ -1,0 +1,20 @@
+{
+  "name": "sml",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SportsBetExpert",
+  "teamRank": "134",
+  "age": 20,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 81,
+    "entrying": 35,
+    "trading": 59,
+    "opening": 91,
+    "clutching": 17,
+    "sniping": 28,
+    "utility": 64
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

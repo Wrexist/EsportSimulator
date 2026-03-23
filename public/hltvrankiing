@@ -1,0 +1,190 @@
+1️⃣ Data model (minimal + future-proof)
+
+Add this to your Player model:
+
+export interface HltvTop20Entry {
+  year: number;      // e.g. 2024
+  rank: number;      // 1–20
+}
+
+export interface Player {
+  id: string;
+  name: string;
+  // ... all your existing fields
+
+  hltvHistory?: HltvTop20Entry[]; // optional, historical only
+}
+
+
+Example player data:
+
+hltvHistory: [
+  { year: 2022, rank: 11 },
+  { year: 2023, rank: 7 },
+  { year: 2024, rank: 3 }
+]
+
+2️⃣ Core idea (important)
+
+We compute one derived score:
+
+HLTV Reputation Score (0–100)
+
+This score:
+
+Is front-loaded toward the latest year
+
+Decays older years aggressively
+
+Is capped (no infinite stacking)
+
+Can be cleanly removed after several seasons
+
+3️⃣ Weighting model (this is the key)
+Year decay curve (example)
+
+You want something like this:
+
+Year difference	Weight
+Current year	1.00
+−1 year	0.60
+−2 years	0.35
+−3 years	0.15
+−4+ years	0.05
+
+We’ll implement this with a function, not a table.
+
+4️⃣ Rank → base value mapping
+
+HLTV ranks are not linear. Top 3 matters way more than 15–20.
+
+function rankToBaseValue(rank: number): number {
+  if (rank <= 3) return 100;
+  if (rank <= 5) return 90;
+  if (rank <= 10) return 75;
+  if (rank <= 15) return 60;
+  return 45; // 16–20
+}
+
+5️⃣ Year decay function (clean + tunable)
+function yearDecay(yearDiff: number): number {
+  if (yearDiff <= 0) return 1;
+  if (yearDiff === 1) return 0.6;
+  if (yearDiff === 2) return 0.35;
+  if (yearDiff === 3) return 0.15;
+  return 0.05;
+}
+
+
+You can later replace this with an exponential if you want.
+
+6️⃣ Final HLTV reputation score function
+
+This is the main function you’ll call everywhere.
+
+export function calculateHltvReputationScore(
+  hltvHistory: HltvTop20Entry[] | undefined,
+  currentYear: number
+): number {
+  if (!hltvHistory || hltvHistory.length === 0) {
+    return 0;
+  }
+
+  let weightedSum = 0;
+  let weightTotal = 0;
+
+  for (const entry of hltvHistory) {
+    const yearDiff = currentYear - entry.year;
+    if (yearDiff < 0) continue; // future data not allowed
+
+    const baseValue = rankToBaseValue(entry.rank);
+    const weight = yearDecay(yearDiff);
+
+    weightedSum += baseValue * weight;
+    weightTotal += weight;
+  }
+
+  if (weightTotal === 0) return 0;
+
+  // Normalize to 0–100
+  const score = weightedSum / weightTotal;
+
+  // Hard cap to prevent absurd legacy stacking
+  return Math.min(Math.round(score), 100);
+}
+
+7️⃣ How this integrates into your systems
+A) Reputation system (recommended)
+player.worldReputation =
+  baseReputation +
+  calculateHltvReputationScore(player.hltvHistory, currentYear) * 0.4;
+
+
+HLTV influences reputation
+
+But does NOT dominate it
+
+B) Transfer value modifier
+transferValue =
+  baseMarketValue *
+  (1 + hltvScore / 200); // max +50%
+
+C) AI behavior hooks (this is where it shines)
+aiInterestScore += hltvScore * 0.3;
+mediaAttention += hltvScore * 0.5;
+fanExpectation += hltvScore * 0.4;
+
+
+This makes AI:
+
+chase ex-Top 5 players
+
+overpay sometimes
+
+generate drama naturally
+
+8️⃣ IMPORTANT: seasonal decay in your sim
+
+After each simulated season, you should do:
+
+function decayHltvHistory(
+  hltvHistory: HltvTop20Entry[],
+  currentYear: number
+): HltvTop20Entry[] {
+  return hltvHistory.filter(entry => currentYear - entry.year <= 4);
+}
+
+
+After ~4–5 seasons:
+
+HLTV influence ≈ gone
+
+Your sim is fully autonomous
+
+This is exactly what you want.
+
+9️⃣ What NOT to do (seriously)
+
+❌ Do not add HLTV score to match-day rating
+
+❌ Do not let HLTV override role fit
+
+❌ Do not keep HLTV forever
+
+❌ Do not show “HLTV Rank” as sortable stat
+
+10️⃣ How to present this in UI (clean)
+
+Good:
+
+“World Reputation: Elite”
+
+“Former HLTV Top 3 (2024)”
+
+“High media value”
+
+Bad:
+
+“HLTV Score: 87.3”
+
+Let players feel it, not min-max it.

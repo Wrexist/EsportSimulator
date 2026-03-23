@@ -1,0 +1,24 @@
+{
+  "name": "jresy",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "136",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.01,
+  "stats": {
+    "firepower": 46,
+    "entrying": 82,
+    "trading": 71,
+    "opening": 53,
+    "clutching": 48,
+    "sniping": 0,
+    "utility": 38
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

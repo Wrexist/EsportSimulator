@@ -1,0 +1,34 @@
+{
+  "name": "F5",
+  "hltvRank": "167",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Kermi",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "neight",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "bones",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "cmrn",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Signal",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

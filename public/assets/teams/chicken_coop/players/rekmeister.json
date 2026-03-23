@@ -1,0 +1,20 @@
+{
+  "name": "REKMEISTER",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Chicken Coop",
+  "teamRank": "197",
+  "age": 24,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 87,
+    "entrying": 68,
+    "trading": 59,
+    "opening": 56,
+    "clutching": 56,
+    "sniping": 76,
+    "utility": 58
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

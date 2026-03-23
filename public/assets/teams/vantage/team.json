@@ -1,0 +1,29 @@
+{
+  "name": "Vantage",
+  "hltvRank": "236",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "Kiyo",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "neo",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Arctic",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "tidy",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

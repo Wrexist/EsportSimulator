@@ -1,0 +1,20 @@
+{
+  "name": "avid",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "76",
+  "age": 23,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 78,
+    "entrying": 71,
+    "trading": 72,
+    "opening": 72,
+    "clutching": 66,
+    "sniping": 76,
+    "utility": 80
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

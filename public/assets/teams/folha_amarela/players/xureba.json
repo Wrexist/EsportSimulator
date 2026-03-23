@@ -1,0 +1,20 @@
+{
+  "name": "xureba",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FOLHA AMARELA",
+  "teamRank": "175",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 37,
+    "entrying": 60,
+    "trading": 25,
+    "opening": 37,
+    "clutching": 67,
+    "sniping": 39,
+    "utility": 65
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

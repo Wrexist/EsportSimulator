@@ -1,0 +1,20 @@
+{
+  "name": "aliStair",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "THUNDER dOWNUNDER",
+  "teamRank": "99",
+  "age": 27,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 73,
+    "entrying": 26,
+    "trading": 53,
+    "opening": 73,
+    "clutching": 94,
+    "sniping": 92,
+    "utility": 71
+  },
+  "matchesPlayed": 82,
+  "hltvHistory": []
+}

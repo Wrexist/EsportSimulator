@@ -1,0 +1,20 @@
+{
+  "name": "sausol",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Gentle Mates",
+  "teamRank": "27",
+  "age": 25,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 66,
+    "entrying": 62,
+    "trading": 54,
+    "opening": 51,
+    "clutching": 65,
+    "sniping": 24,
+    "utility": 59
+  },
+  "matchesPlayed": 162,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "tein",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Nemesis",
+  "teamRank": "109",
+  "age": 19,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 22,
+    "entrying": 59,
+    "trading": 60,
+    "opening": 15,
+    "clutching": 86,
+    "sniping": 0,
+    "utility": 50
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

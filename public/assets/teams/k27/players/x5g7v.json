@@ -1,0 +1,20 @@
+{
+  "name": "X5G7V",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "K27",
+  "teamRank": "40",
+  "age": 22,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 56,
+    "entrying": 59,
+    "trading": 24,
+    "opening": 81,
+    "clutching": 58,
+    "sniping": 25,
+    "utility": 83
+  },
+  "matchesPlayed": 149,
+  "hltvHistory": []
+}

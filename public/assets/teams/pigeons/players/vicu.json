@@ -1,0 +1,20 @@
+{
+  "name": "vicu",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Pigeons",
+  "teamRank": "223",
+  "age": 23,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 87,
+    "entrying": 28,
+    "trading": 18,
+    "opening": 92,
+    "clutching": 48,
+    "sniping": 92,
+    "utility": 59
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

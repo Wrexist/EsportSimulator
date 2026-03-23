@@ -1,0 +1,20 @@
+{
+  "name": "gehji",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QUAZAR",
+  "teamRank": "208",
+  "age": 17,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 22,
+    "entrying": 49,
+    "trading": 68,
+    "opening": 58,
+    "clutching": 15,
+    "sniping": 29,
+    "utility": 54
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

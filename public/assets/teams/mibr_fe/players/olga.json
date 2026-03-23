@@ -1,0 +1,20 @@
+{
+  "name": "Olga",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR fe",
+  "teamRank": "202",
+  "age": 31,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 96,
+    "entrying": 39,
+    "trading": 68,
+    "opening": 91,
+    "clutching": 71,
+    "sniping": 26,
+    "utility": 90
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

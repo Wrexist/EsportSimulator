@@ -1,0 +1,20 @@
+{
+  "name": "neaLaN",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "NOVAQ",
+  "teamRank": "143",
+  "age": 25,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 29,
+    "entrying": 70,
+    "trading": 33,
+    "opening": 58,
+    "clutching": 39,
+    "sniping": 22,
+    "utility": 44
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

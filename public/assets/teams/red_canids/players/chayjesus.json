@@ -1,0 +1,20 @@
+{
+  "name": "chayJESUS",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids",
+  "teamRank": "38",
+  "age": 24,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 74,
+    "entrying": 74,
+    "trading": 56,
+    "opening": 66,
+    "clutching": 42,
+    "sniping": 2,
+    "utility": 72
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

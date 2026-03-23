@@ -1,0 +1,20 @@
+{
+  "name": "zealot",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Oxuji",
+  "teamRank": "154",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 87,
+    "entrying": 35,
+    "trading": 16,
+    "opening": 81,
+    "clutching": 28,
+    "sniping": 2,
+    "utility": 61
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

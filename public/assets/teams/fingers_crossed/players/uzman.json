@@ -1,0 +1,24 @@
+{
+  "name": "Uzman",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Fingers Crossed",
+  "teamRank": "82",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.12,
+  "stats": {
+    "firepower": 85,
+    "entrying": 24,
+    "trading": 12,
+    "opening": 24,
+    "clutching": 41,
+    "sniping": 2,
+    "utility": 21
+  },
+  "matchesPlayed": 160,
+  "hltvHistory": []
+}

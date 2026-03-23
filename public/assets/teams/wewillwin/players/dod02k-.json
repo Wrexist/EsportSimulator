@@ -1,0 +1,20 @@
+{
+  "name": "dod02k-",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "WeWillWin",
+  "teamRank": "187",
+  "age": 23,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 92,
+    "entrying": 30,
+    "trading": 98,
+    "opening": 69,
+    "clutching": 88,
+    "sniping": 26,
+    "utility": 34
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

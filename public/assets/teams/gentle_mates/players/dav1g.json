@@ -1,0 +1,20 @@
+{
+  "name": "dav1g",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Gentle Mates",
+  "teamRank": "27",
+  "age": 24,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 56,
+    "entrying": 62,
+    "trading": 60,
+    "opening": 56,
+    "clutching": 30,
+    "sniping": 28,
+    "utility": 53
+  },
+  "matchesPlayed": 189,
+  "hltvHistory": []
+}

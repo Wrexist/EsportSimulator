@@ -1,0 +1,20 @@
+{
+  "name": "p3kko",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "HAVU",
+  "teamRank": "120",
+  "age": 25,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 44,
+    "entrying": 31,
+    "trading": 6,
+    "opening": 32,
+    "clutching": 46,
+    "sniping": 45,
+    "utility": 48
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

@@ -1,0 +1,33 @@
+{
+  "name": "SkinRave",
+  "hltvRank": "108",
+  "players": [
+    {
+      "name": "MarKE",
+      "country": "Mexico",
+      "countryCode": "mx"
+    },
+    {
+      "name": "junior",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Cryptic",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Walco",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "laxiee",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

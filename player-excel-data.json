@@ -1,0 +1,2592 @@
+[
+  {
+    "Team Name": "Vitality",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/ogcHrcCdzRvxbYvAz04KAN.png?ixlib=java-2.1.0&w=50&s=e1f6019aa9f274ffe45a5e99c88dbc02,https://img-cdn.hltv.org/teamlogo/yeXBldn9w8LZCgdElAenPs.png?ixlib=java-2.1.0&w=50&s=15eaba0b75250065d20162d2cb05e3e6",
+    "Team Profile URL": "https://www.hltv.org/team/9565/vitality",
+    "Player 1 Link": "https://www.hltv.org/player/7322/apex",
+    "Player 2 Link": "https://www.hltv.org/player/11816/ropz",
+    "Player 3 Link": "https://www.hltv.org/player/11893/zywoo",
+    "Player 4 Link": "https://www.hltv.org/player/16693/flamez",
+    "Player 5 Link": "https://www.hltv.org/player/18462/mezii"
+  },
+  {
+    "Team Name": "FURIA",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/8297/furia",
+    "Player 1 Link": "https://www.hltv.org/player/2023/fallen",
+    "Player 2 Link": "https://www.hltv.org/player/12553/yuurih",
+    "Player 3 Link": "https://www.hltv.org/player/13915/yekindar",
+    "Player 4 Link": "https://www.hltv.org/player/15631/kscerato",
+    "Player 5 Link": "https://www.hltv.org/player/24144/molodoy"
+  },
+  {
+    "Team Name": "Falcons",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/4eJSkDQINNM6Tbs4WvLzkN.png?ixlib=java-2.1.0&w=50&s=d8c857ea47046f61eca695beab0d12ef",
+    "Team Profile URL": "https://www.hltv.org/team/11283/falcons",
+    "Player 1 Link": "https://www.hltv.org/player/3741/niko",
+    "Player 2 Link": "https://www.hltv.org/player/12018/teses",
+    "Player 3 Link": "https://www.hltv.org/player/19230/m0nesy",
+    "Player 4 Link": "https://www.hltv.org/player/19677/kyxsan",
+    "Player 5 Link": "https://www.hltv.org/player/24177/kyousuke"
+  },
+  {
+    "Team Name": "MOUZ",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4494/mouz",
+    "Player 1 Link": "https://www.hltv.org/player/13666/brollan",
+    "Player 2 Link": "https://www.hltv.org/player/18072/torzsi",
+    "Player 3 Link": "https://www.hltv.org/player/18221/spinx",
+    "Player 4 Link": "https://www.hltv.org/player/18850/jimpphat",
+    "Player 5 Link": "https://www.hltv.org/player/20312/xertion"
+  },
+  {
+    "Team Name": "FaZe",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/J3CwtISw72UEuibqDq0DZt.png?ixlib=java-2.1.0&w=50&s=02a017dc6bced6da74bc8821d1100f4a,https://img-cdn.hltv.org/teamlogo/Ci5ue0CdOwnUeY9RgMt7Km.png?ixlib=java-2.1.0&w=50&s=e38848db8d51b36086f19a3cbca6c308",
+    "Team Profile URL": "https://www.hltv.org/team/6667/faze",
+    "Player 1 Link": "https://www.hltv.org/player/429/karrigan",
+    "Player 2 Link": "https://www.hltv.org/player/9960/frozen",
+    "Player 3 Link": "https://www.hltv.org/player/10394/twistzz",
+    "Player 4 Link": "https://www.hltv.org/player/18053/broky",
+    "Player 5 Link": "https://www.hltv.org/player/22383/jcobbb"
+  },
+  {
+    "Team Name": "The MongolZ",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/bRk2sh_tSTO6fq1GLhgcal.png?ixlib=java-2.1.0&w=50&s=8b08e53858eb817852ae74b30a30151d",
+    "Team Profile URL": "https://www.hltv.org/team/6248/the-mongolz",
+    "Player 1 Link": "https://www.hltv.org/player/20194/blitz",
+    "Player 2 Link": "https://www.hltv.org/player/20275/techno",
+    "Player 3 Link": "https://www.hltv.org/player/21001/mzinho",
+    "Player 4 Link": "https://www.hltv.org/player/21809/910",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Natus Vincere",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4608/natus-vincere",
+    "Player 1 Link": "https://www.hltv.org/player/9816/aleksib",
+    "Player 2 Link": "https://www.hltv.org/player/14759/im",
+    "Player 3 Link": "https://www.hltv.org/player/18987/b1t",
+    "Player 4 Link": "https://www.hltv.org/player/20127/w0nderful",
+    "Player 5 Link": "https://www.hltv.org/player/22673/makazze"
+  },
+  {
+    "Team Name": "Spirit",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/syrtYYKR7sBRw3ZHy1YFX7.png?ixlib=java-2.1.0&w=50&s=40e66714687bec05ea422255b1c0099e,https://img-cdn.hltv.org/teamlogo/ywdn4tmAvXfllLeV2SkkvF.png?ixlib=java-2.1.0&w=50&s=9c70c7fbb048348f70f686acd2369c58",
+    "Team Profile URL": "https://www.hltv.org/team/7020/spirit",
+    "Player 1 Link": "https://www.hltv.org/player/16920/sh1ro",
+    "Player 2 Link": "https://www.hltv.org/player/18317/magixx",
+    "Player 3 Link": "https://www.hltv.org/player/19808/tn1r",
+    "Player 4 Link": "https://www.hltv.org/player/20423/zont1x",
+    "Player 5 Link": "https://www.hltv.org/player/21167/donk"
+  },
+  {
+    "Team Name": "G2",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/zFLwAELOD15BjJSDMMNBWQ.png?ixlib=java-2.1.0&w=50&s=affb583e6716d8ee904826992255cc4b",
+    "Team Profile URL": "https://www.hltv.org/team/5995/g2",
+    "Player 1 Link": "https://www.hltv.org/player/3972/hunter",
+    "Player 2 Link": "https://www.hltv.org/player/11617/malbsmd",
+    "Player 3 Link": "https://www.hltv.org/player/19164/sunpayus",
+    "Player 4 Link": "https://www.hltv.org/player/20447/heavygod",
+    "Player 5 Link": "https://www.hltv.org/player/21062/matys"
+  },
+  {
+    "Team Name": "Aurora",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/yJzPNOeXlyiniNxanYJCrv.png?ixlib=java-2.1.0&w=50&s=2c08f70c2f2f8c2024a438ddcf19bbf1",
+    "Team Profile URL": "https://www.hltv.org/team/11861/aurora",
+    "Player 1 Link": "https://www.hltv.org/player/150/maj3r",
+    "Player 2 Link": "https://www.hltv.org/player/7938/xantares",
+    "Player 3 Link": "https://www.hltv.org/player/8574/woxic",
+    "Player 4 Link": "https://www.hltv.org/player/20968/soulfly",
+    "Player 5 Link": "https://www.hltv.org/player/21243/wicadia"
+  },
+  {
+    "Team Name": "B8",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/O6nRWTCjUzBAR4pcOcrpSG.png?ixlib=java-2.1.0&w=50&s=305dde82e764725dab7e626800328137,https://img-cdn.hltv.org/teamlogo/rUIL5D299QDtRjXR2rxqV_.png?ixlib=java-2.1.0&w=50&s=3c6cf22f3a3c85a5fb69af20395bebfc",
+    "Team Profile URL": "https://www.hltv.org/team/11241/b8",
+    "Player 1 Link": "https://www.hltv.org/player/19592/headtr1ck",
+    "Player 2 Link": "https://www.hltv.org/player/20112/alex666",
+    "Player 3 Link": "https://www.hltv.org/player/21708/npl",
+    "Player 4 Link": "https://www.hltv.org/player/22842/kensizor",
+    "Player 5 Link": "https://www.hltv.org/player/23643/esenthial"
+  },
+  {
+    "Team Name": "3DMAX",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/QGPDS3Z2-aMXwCYVgA4RWH.png?ixlib=java-2.1.0&w=50&s=ec528d7e9d0f9b6b4bac227901fb1590",
+    "Team Profile URL": "https://www.hltv.org/team/4914/3dmax",
+    "Player 1 Link": "https://www.hltv.org/player/8374/bodyy",
+    "Player 2 Link": "https://www.hltv.org/player/13138/maka",
+    "Player 3 Link": "https://www.hltv.org/player/13497/lucky",
+    "Player 4 Link": "https://www.hltv.org/player/19739/ex3rcice",
+    "Player 5 Link": "https://www.hltv.org/player/21969/graviti"
+  },
+  {
+    "Team Name": "paiN",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/x7znFH8_QjLXOQRyR2y7Xp.png?ixlib=java-2.1.0&w=50&s=e4435bf7c351b546b867adc1d7886795",
+    "Team Profile URL": "https://www.hltv.org/team/4773/pain",
+    "Player 1 Link": "https://www.hltv.org/player/18141/biguzera",
+    "Player 2 Link": "https://www.hltv.org/player/19694/nqz",
+    "Player 3 Link": "https://www.hltv.org/player/20171/snow",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Astralis",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/6665/astralis",
+    "Player 1 Link": "https://www.hltv.org/player/10096/hooxi",
+    "Player 2 Link": "https://www.hltv.org/player/17956/jabbi",
+    "Player 3 Link": "https://www.hltv.org/player/20304/staehr",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Liquid",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/5973/liquid",
+    "Player 1 Link": "https://www.hltv.org/player/8520/naf",
+    "Player 2 Link": "https://www.hltv.org/player/8738/elige",
+    "Player 3 Link": "https://www.hltv.org/player/9436/nertz",
+    "Player 4 Link": "https://www.hltv.org/player/16820/siuhy",
+    "Player 5 Link": "https://www.hltv.org/player/21763/ultimate"
+  },
+  {
+    "Team Name": "Passion UA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/N2r90H86RES7-yGZeqREoX.png?ixlib=java-2.1.0&w=50&s=78daf41ce5c011c9a262c108a9209d34,https://img-cdn.hltv.org/teamlogo/u7e8W_gja3_9eZFemYaUg9.png?ixlib=java-2.1.0&w=50&s=c544c66529cdea85302bd3deb322959f",
+    "Team Profile URL": "https://www.hltv.org/team/12426/passion-ua",
+    "Player 1 Link": "https://www.hltv.org/player/11630/jt",
+    "Player 2 Link": "https://www.hltv.org/player/12840/hallzerk",
+    "Player 3 Link": "https://www.hltv.org/player/13578/grim",
+    "Player 4 Link": "https://www.hltv.org/player/21452/kvem",
+    "Player 5 Link": "https://www.hltv.org/player/21620/nicx"
+  },
+  {
+    "Team Name": "Legacy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/RWbHH6RA8uGwJurGeLFvSr.png?ixlib=java-2.1.0&w=50&s=3d251032e156cab2f6df8c630ca29745",
+    "Team Profile URL": "https://www.hltv.org/team/12468/legacy",
+    "Player 1 Link": "https://www.hltv.org/player/15698/dumau",
+    "Player 2 Link": "https://www.hltv.org/player/19045/latto",
+    "Player 3 Link": "https://www.hltv.org/player/19686/n1ssim",
+    "Player 4 Link": "https://www.hltv.org/player/20563/lux",
+    "Player 5 Link": "https://www.hltv.org/player/22965/saadzin"
+  },
+  {
+    "Team Name": "PARIVISION",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/6LmMX-SC5VWhlmfE3UO0CB.png?ixlib=java-2.1.0&w=50&s=7769d3dec7b4a737379fcfd760269595,https://img-cdn.hltv.org/teamlogo/I4OJxeJAFmZ222Ki0lYTd9.png?ixlib=java-2.1.0&w=50&s=422fed8596a5ab95f74c0d53b60ea482",
+    "Team Profile URL": "https://www.hltv.org/team/12467/parivision",
+    "Player 1 Link": "https://www.hltv.org/player/13776/jame",
+    "Player 2 Link": "https://www.hltv.org/player/19235/belchonokk",
+    "Player 3 Link": "https://www.hltv.org/player/22076/aw",
+    "Player 4 Link": "https://www.hltv.org/player/22471/xielo",
+    "Player 5 Link": "https://www.hltv.org/player/22929/nota"
+  },
+  {
+    "Team Name": "HEROIC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/4S22uk_gnZTiQiI-hhH4yp.png?ixlib=java-2.1.0&w=50&s=3619ddf1d490573ab3dc261b8c2f3f6f",
+    "Team Profile URL": "https://www.hltv.org/team/7175/heroic",
+    "Player 1 Link": "https://www.hltv.org/player/19187/xfl0ud",
+    "Player 2 Link": "https://www.hltv.org/player/20119/nilo",
+    "Player 3 Link": "https://www.hltv.org/player/21983/chr1zn",
+    "Player 4 Link": "https://www.hltv.org/player/22047/yxngstxr",
+    "Player 5 Link": "https://www.hltv.org/player/23600/alkaren"
+  },
+  {
+    "Team Name": "SAW",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/9vOlYp2U_z0vXPb9aLK-4r.png?ixlib=java-2.1.0&w=50&s=22abd048c4d198e504696f27e8ff68d1,https://img-cdn.hltv.org/teamlogo/9vOlYp2U_z0vXPb9aLK-4r.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=6013ee655368f0f1a69cd0c2183ba332",
+    "Team Profile URL": "https://www.hltv.org/team/10567/saw",
+    "Player 1 Link": "https://www.hltv.org/player/630/mutiris",
+    "Player 2 Link": "https://www.hltv.org/player/20462/story",
+    "Player 3 Link": "https://www.hltv.org/player/21014/ag1l",
+    "Player 4 Link": "https://www.hltv.org/player/22807/aragornn",
+    "Player 5 Link": "https://www.hltv.org/player/23140/krazy"
+  },
+  {
+    "Team Name": "Imperial",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/bBDk6-rND06sAzn67b5RdP.png?ixlib=java-2.1.0&w=50&s=467e31ba123f509130d647fbf1e04ef2",
+    "Team Profile URL": "https://www.hltv.org/team/9455/imperial",
+    "Player 1 Link": "https://www.hltv.org/player/10566/chelo",
+    "Player 2 Link": "https://www.hltv.org/player/12822/vini",
+    "Player 3 Link": "https://www.hltv.org/player/18676/skullz",
+    "Player 4 Link": "https://www.hltv.org/player/19869/try",
+    "Player 5 Link": "https://www.hltv.org/player/22564/noway"
+  },
+  {
+    "Team Name": "Virtus.pro",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/5378/virtuspro",
+    "Player 1 Link": "https://www.hltv.org/player/12732/fl1t",
+    "Player 2 Link": "https://www.hltv.org/player/16947/perfecto",
+    "Player 3 Link": "https://www.hltv.org/player/20101/fame",
+    "Player 4 Link": "https://www.hltv.org/player/23637/b1st",
+    "Player 5 Link": "https://www.hltv.org/player/24952/to0ro"
+  },
+  {
+    "Team Name": "GamerLegion",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/jS__cj2F09Bl8qBU_CvkQR.png?ixlib=java-2.1.0&w=50&s=11e6eacde0fea931c65c2437b1568027",
+    "Team Profile URL": "https://www.hltv.org/team/9928/gamerlegion",
+    "Player 1 Link": "https://www.hltv.org/player/2553/snax",
+    "Player 2 Link": "https://www.hltv.org/player/9278/rez",
+    "Player 3 Link": "https://www.hltv.org/player/20301/tauson",
+    "Player 4 Link": "https://www.hltv.org/player/22279/pr",
+    "Player 5 Link": "https://www.hltv.org/player/23766/hypex"
+  },
+  {
+    "Team Name": "Ninjas in Pyjamas",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/-ttGATBV_P_HcZazxNNtIb.png?ixlib=java-2.1.0&w=50&s=ba94f7812d1f47183a83f3f34ab959eb,https://img-cdn.hltv.org/teamlogo/mbY2YeFKUAbL9NyO6ab7-c.png?ixlib=java-2.1.0&w=50&s=33901dc1e88dc81e479574095806fcb9",
+    "Team Profile URL": "https://www.hltv.org/team/4411/ninjas-in-pyjamas",
+    "Player 1 Link": "https://www.hltv.org/player/922/snappi",
+    "Player 2 Link": "https://www.hltv.org/player/14148/sjuush",
+    "Player 3 Link": "https://www.hltv.org/player/20425/r1nkle",
+    "Player 4 Link": "https://www.hltv.org/player/23372/xkacpersky",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "M80",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/YsaWwP_VrkbHzuhszuANEK.png?ixlib=java-2.1.0&w=50&s=47a8cff375da8242af9137a2a592b97d",
+    "Team Profile URL": "https://www.hltv.org/team/12376/m80",
+    "Player 1 Link": "https://www.hltv.org/player/15370/slaxz",
+    "Player 2 Link": "https://www.hltv.org/player/16599/swisher",
+    "Player 3 Link": "https://www.hltv.org/player/20104/s1n",
+    "Player 4 Link": "https://www.hltv.org/player/21665/jba",
+    "Player 5 Link": "https://www.hltv.org/player/22921/lake"
+  },
+  {
+    "Team Name": "Gentle Mates",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/4vM_jGA-gAmOO3D19rxR1F.png?ixlib=java-2.1.0&w=50&s=e84a0026333c0d681a146ae08e1d318f",
+    "Team Profile URL": "https://www.hltv.org/team/13404/gentle-mates",
+    "Player 1 Link": "https://www.hltv.org/player/8371/alex",
+    "Player 2 Link": "https://www.hltv.org/player/9254/mopoz",
+    "Player 3 Link": "https://www.hltv.org/player/18749/sausol",
+    "Player 4 Link": "https://www.hltv.org/player/19509/dav1g",
+    "Player 5 Link": "https://www.hltv.org/player/21239/martinezsa"
+  },
+  {
+    "Team Name": "FUT",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Os71GAOy8KDuQFc0M8HE6O.png?ixlib=java-2.1.0&w=50&s=86f2bded6bcb7c690a42a62250ed69e7",
+    "Team Profile URL": "https://www.hltv.org/team/13286/fut",
+    "Player 1 Link": "https://www.hltv.org/player/20584/dem0n",
+    "Player 2 Link": "https://www.hltv.org/player/20761/launx",
+    "Player 3 Link": "https://www.hltv.org/player/22203/krabeni",
+    "Player 4 Link": "https://www.hltv.org/player/22674/cmtry",
+    "Player 5 Link": "https://www.hltv.org/player/23553/dziugss"
+  },
+  {
+    "Team Name": "Lynn Vision",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/DPcHT21uWwK1hDD_3txlL9.png?ixlib=java-2.1.0&w=50&s=4b5d5a187f00caf9bbae2d0fcbca6ff6",
+    "Team Profile URL": "https://www.hltv.org/team/8840/lynn-vision",
+    "Player 1 Link": "https://www.hltv.org/player/16551/westmelon",
+    "Player 2 Link": "https://www.hltv.org/player/18744/z4kr",
+    "Player 3 Link": "https://www.hltv.org/player/20254/starry",
+    "Player 4 Link": "https://www.hltv.org/player/22922/emiliaqaq",
+    "Player 5 Link": "https://www.hltv.org/player/23100/c4llm3su3"
+  },
+  {
+    "Team Name": "fnatic",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4991/fnatic",
+    "Player 1 Link": "https://www.hltv.org/player/7528/krimz",
+    "Player 2 Link": "https://www.hltv.org/player/15165/blamef",
+    "Player 3 Link": "https://www.hltv.org/player/17803/fear",
+    "Player 4 Link": "https://www.hltv.org/player/23046/jambo",
+    "Player 5 Link": "https://www.hltv.org/player/23414/jackasmo"
+  },
+  {
+    "Team Name": "FlyQuest",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/fmqTgF6Ziw0uied7MO3_ri.png?ixlib=java-2.1.0&w=50&s=255b5a4c460ad03161509ff7eb77b2dc",
+    "Team Profile URL": "https://www.hltv.org/team/12774/flyquest",
+    "Player 1 Link": "https://www.hltv.org/player/4679/jks",
+    "Player 2 Link": "https://www.hltv.org/player/11140/ins",
+    "Player 3 Link": "https://www.hltv.org/player/17384/vexite",
+    "Player 4 Link": "https://www.hltv.org/player/18214/nettik",
+    "Player 5 Link": "https://www.hltv.org/player/20123/regali"
+  },
+  {
+    "Team Name": "TYLOO",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4863/tyloo",
+    "Player 1 Link": "https://www.hltv.org/player/8552/attacker",
+    "Player 2 Link": "https://www.hltv.org/player/19645/jamyoung",
+    "Player 3 Link": "https://www.hltv.org/player/20702/jee",
+    "Player 4 Link": "https://www.hltv.org/player/20895/mercury",
+    "Player 5 Link": "https://www.hltv.org/player/21621/moseyuh"
+  },
+  {
+    "Team Name": "BetBoom",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/G4ZrdB0-q41USPd_z27IQA.png?ixlib=java-2.1.0&w=50&s=9c15ddf70f9c66399d4a47e0d8e93511",
+    "Team Profile URL": "https://www.hltv.org/team/12394/betboom",
+    "Player 1 Link": "https://www.hltv.org/player/11840/boombl4",
+    "Player 2 Link": "https://www.hltv.org/player/18506/s1ren",
+    "Player 3 Link": "https://www.hltv.org/player/20357/d1ledez",
+    "Player 4 Link": "https://www.hltv.org/player/21348/artfr0st",
+    "Player 5 Link": "https://www.hltv.org/player/21667/magnojez"
+  },
+  {
+    "Team Name": "EYEBALLERS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/3-Mfc-yWBTls8MPSEFhma5.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=2ffde3e377d01663937bf08b74d2057b,https://img-cdn.hltv.org/teamlogo/3-Mfc-yWBTls8MPSEFhma5.png?ixlib=java-2.1.0&w=50&s=752381fe4abe6ccbdbacb226f2c0ebb8",
+    "Team Profile URL": "https://www.hltv.org/team/11737/eyeballers",
+    "Player 1 Link": "https://www.hltv.org/player/3849/jw",
+    "Player 2 Link": "https://www.hltv.org/player/20879/maxster",
+    "Player 3 Link": "https://www.hltv.org/player/21012/ro1f",
+    "Player 4 Link": "https://www.hltv.org/player/21159/bobeksde",
+    "Player 5 Link": "https://www.hltv.org/player/22914/dex"
+  },
+  {
+    "Team Name": "NRG",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/SJZaPBCyZssru-pUDS3aZe.png?ixlib=java-2.1.0&w=50&s=5f4ca255d90b4ea7092882834bbf1bdc",
+    "Team Profile URL": "https://www.hltv.org/team/6673/nrg",
+    "Player 1 Link": "https://www.hltv.org/player/7687/nitr0",
+    "Player 2 Link": "https://www.hltv.org/player/8711/sonic",
+    "Player 3 Link": "https://www.hltv.org/player/13249/osee",
+    "Player 4 Link": "https://www.hltv.org/player/16717/br0",
+    "Player 5 Link": "https://www.hltv.org/player/20333/jeorge"
+  },
+  {
+    "Team Name": "Fluxo",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/zGveLNj821BCJGMu93qnj-.png?ixlib=java-2.1.0&w=50&s=f7d69ef82fdaf8d8b7f5a1a7fa8f13ed,https://img-cdn.hltv.org/teamlogo/zGveLNj821BCJGMu93qnj-.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=b75679391c2e39b840910bf96a6f26a5",
+    "Team Profile URL": "https://www.hltv.org/team/11837/fluxo",
+    "Player 1 Link": "https://www.hltv.org/player/12521/art",
+    "Player 2 Link": "https://www.hltv.org/player/18717/lucaozy",
+    "Player 3 Link": "https://www.hltv.org/player/19692/zevy",
+    "Player 4 Link": "https://www.hltv.org/player/20183/decenty",
+    "Player 5 Link": "https://www.hltv.org/player/20385/kye"
+  },
+  {
+    "Team Name": "HOTU",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/UH5TD1Lyutr_JwKu2ldl-A.png?ixlib=java-2.1.0&w=50&s=6ff0544743996e6f3b166643371d2839,https://img-cdn.hltv.org/teamlogo/P4UciCspVz2jLkse8jAfCN.png?ixlib=java-2.1.0&w=50&s=6c5b9e598c99619dc33a3c41b31711c5",
+    "Team Profile URL": "https://www.hltv.org/team/11581/hotu",
+    "Player 1 Link": "https://www.hltv.org/player/16612/n0rb3r7",
+    "Player 2 Link": "https://www.hltv.org/player/19823/dukefissura",
+    "Player 3 Link": "https://www.hltv.org/player/21385/mizu",
+    "Player 4 Link": "https://www.hltv.org/player/21692/kalash",
+    "Player 5 Link": "https://www.hltv.org/player/24806/frontales"
+  },
+  {
+    "Team Name": "ECSTATIC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/yx_pWjWbW-2F5oF5nLHXc8.png?ixlib=java-2.1.0&w=50&s=fd7c45846bfcd3fe64ae4454979dbecd",
+    "Team Profile URL": "https://www.hltv.org/team/11419/ecstatic",
+    "Player 1 Link": "https://www.hltv.org/player/10330/acor",
+    "Player 2 Link": "https://www.hltv.org/player/11995/tmb",
+    "Player 3 Link": "https://www.hltv.org/player/20417/anlelele",
+    "Player 4 Link": "https://www.hltv.org/player/21779/nut-nut",
+    "Player 5 Link": "https://www.hltv.org/player/22695/sirah"
+  },
+  {
+    "Team Name": "CYBERSHOKE",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/gzn14uIQ6ENslja9hMqnkj.png?ixlib=java-2.1.0&w=50&s=0bea5f061e9130561d93b89834624603,https://img-cdn.hltv.org/teamlogo/gzn14uIQ6ENslja9hMqnkj.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=6bab0b9005763ca832b7c8a7e8b21edb",
+    "Team Profile URL": "https://www.hltv.org/team/12380/cybershoke",
+    "Player 1 Link": "https://www.hltv.org/player/17508/glowiing",
+    "Player 2 Link": "https://www.hltv.org/player/20430/alpha",
+    "Player 3 Link": "https://www.hltv.org/player/21710/notineki",
+    "Player 4 Link": "https://www.hltv.org/player/22803/bl1x1",
+    "Player 5 Link": "https://www.hltv.org/player/22879/fenomen"
+  },
+  {
+    "Team Name": "Inner Circle",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/nzJhoae6HI3i1UORM-DBFD.png?ixlib=java-2.1.0&w=50&s=35faf966127b13f4cc4b7250a5aed454",
+    "Team Profile URL": "https://www.hltv.org/team/13117/inner-circle",
+    "Player 1 Link": "https://www.hltv.org/player/23642/flierax",
+    "Player 2 Link": "https://www.hltv.org/player/24168/onic",
+    "Player 3 Link": "https://www.hltv.org/player/24282/dawy",
+    "Player 4 Link": "https://www.hltv.org/player/24283/cairne",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Monte",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/2tc9n4fHkiRIX2FiJSkhgt.png?ixlib=java-2.1.0&w=50&s=7334ef0dd24ba5349b404dfd0e8c6148",
+    "Team Profile URL": "https://www.hltv.org/team/11811/monte",
+    "Player 1 Link": "https://www.hltv.org/player/19015/bymas",
+    "Player 2 Link": "https://www.hltv.org/player/19926/afro",
+    "Player 3 Link": "https://www.hltv.org/player/21217/ryu",
+    "Player 4 Link": "https://www.hltv.org/player/21816/gizmy",
+    "Player 5 Link": "https://www.hltv.org/player/22106/azuwu"
+  },
+  {
+    "Team Name": "ENCE",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4869/ence",
+    "Player 1 Link": "https://www.hltv.org/player/12708/rigon",
+    "Player 2 Link": "https://www.hltv.org/player/12731/sdy",
+    "Player 3 Link": "https://www.hltv.org/player/21233/myltsi",
+    "Player 4 Link": "https://www.hltv.org/player/21815/podi",
+    "Player 5 Link": "https://www.hltv.org/player/21972/neityu"
+  },
+  {
+    "Team Name": "Oramond",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/zjo04LDHH9is4hhmrPC9KO.png?ixlib=java-2.1.0&w=50&s=158552636c5c1292521d65a55cdbfdfb",
+    "Team Profile URL": "https://www.hltv.org/team/13470/oramond",
+    "Player 1 Link": "https://www.hltv.org/player/20071/fanatyk",
+    "Player 2 Link": "https://www.hltv.org/player/20686/suonko",
+    "Player 3 Link": "https://www.hltv.org/player/20945/frontsiderr",
+    "Player 4 Link": "https://www.hltv.org/player/22129/antyvirus",
+    "Player 5 Link": "https://www.hltv.org/player/24179/spavaqu"
+  },
+  {
+    "Team Name": "Sharks",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/xduTwTuydAWc0Dbt-eEjeH.png?ixlib=java-2.1.0&w=50&s=16cdced9e9b1a2b2e771157638f39391",
+    "Team Profile URL": "https://www.hltv.org/team/8113/sharks",
+    "Player 1 Link": "https://www.hltv.org/player/20558/gafolo",
+    "Player 2 Link": "https://www.hltv.org/player/21170/koala",
+    "Player 3 Link": "https://www.hltv.org/player/21221/maxxkor",
+    "Player 4 Link": "https://www.hltv.org/player/21921/rdnzao",
+    "Player 5 Link": "https://www.hltv.org/player/22911/doc"
+  },
+  {
+    "Team Name": "K27",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/7LmOZHYhlq-fIAm23aM2q1.png?ixlib=java-2.1.0&w=50&s=e194cf9c20b306723ae899eac0e8a356",
+    "Team Profile URL": "https://www.hltv.org/team/12895/k27",
+    "Player 1 Link": "https://www.hltv.org/player/19575/x5g7v",
+    "Player 2 Link": "https://www.hltv.org/player/22886/xeedo",
+    "Player 3 Link": "https://www.hltv.org/player/23684/relaxxie",
+    "Player 4 Link": "https://www.hltv.org/player/23686/kashl1d",
+    "Player 5 Link": "https://www.hltv.org/player/24725/qw1nk1"
+  },
+  {
+    "Team Name": "Alliance",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/xsWK0BtR26rN776qdnWFC1.png?ixlib=java-2.1.0&w=50&s=4aaf659c3855ebf08c78c157a0653352",
+    "Team Profile URL": "https://www.hltv.org/team/12474/alliance",
+    "Player 1 Link": "https://www.hltv.org/player/7443/twist",
+    "Player 2 Link": "https://www.hltv.org/player/16487/eraa",
+    "Player 3 Link": "https://www.hltv.org/player/22760/upe",
+    "Player 4 Link": "https://www.hltv.org/player/22860/avid",
+    "Player 5 Link": "https://www.hltv.org/player/23397/poiii"
+  },
+  {
+    "Team Name": "BESTIA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Z_R5K__qrvHmPjF66iCay-.png?ixlib=java-2.1.0&w=50&s=7e2afd72c2b3cabf53244ed6bc5142e3,https://img-cdn.hltv.org/teamlogo/Z_R5K__qrvHmPjF66iCay-.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=88d03008f96f67d8913fd593a883e813",
+    "Team Profile URL": "https://www.hltv.org/team/12144/bestia",
+    "Player 1 Link": "https://www.hltv.org/player/2161/noktse",
+    "Player 2 Link": "https://www.hltv.org/player/20185/cass1n",
+    "Player 3 Link": "https://www.hltv.org/player/20607/buda",
+    "Player 4 Link": "https://www.hltv.org/player/22570/tomaszin",
+    "Player 5 Link": "https://www.hltv.org/player/24863/timo"
+  },
+  {
+    "Team Name": "OG",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/VZHA__RIJY6gisB-l6HfiO.png?ixlib=java-2.1.0&w=50&s=978f70078a418cf82dff8a162b180731",
+    "Team Profile URL": "https://www.hltv.org/team/10503/og",
+    "Player 1 Link": "https://www.hltv.org/player/7964/cadian",
+    "Player 2 Link": "https://www.hltv.org/player/19064/spooke",
+    "Player 3 Link": "https://www.hltv.org/player/20465/arrozdoce",
+    "Player 4 Link": "https://www.hltv.org/player/20878/adamb",
+    "Player 5 Link": "https://www.hltv.org/player/20994/fl4mus"
+  },
+  {
+    "Team Name": "The Huns",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/VgVw2z9BmJJ2knbbyXeDfc.png?ixlib=java-2.1.0&w=50&s=c1577bd514234eb3d106357de5ea6aa4",
+    "Team Profile URL": "https://www.hltv.org/team/12510/the-huns",
+    "Player 1 Link": "https://www.hltv.org/player/15072/nin9",
+    "Player 2 Link": "https://www.hltv.org/player/18638/sk0r",
+    "Player 3 Link": "https://www.hltv.org/player/19957/bart4k",
+    "Player 4 Link": "https://www.hltv.org/player/20703/xerolte",
+    "Player 5 Link": "https://www.hltv.org/player/23402/cobrazera"
+  },
+  {
+    "Team Name": "Nuclear TigeRES",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/GcO3SLh1j8cgiNGoEXNUVS.png?ixlib=java-2.1.0&w=50&s=856dc9f0ffdbeedbe76d9874fbcdb546,https://img-cdn.hltv.org/teamlogo/_MgIfwkPlbZHTCa-R_s0r-.png?ixlib=java-2.1.0&w=50&s=e8fd3f1633fc6a564915391a7de46686",
+    "Team Profile URL": "https://www.hltv.org/team/13027/nuclear-tigeres",
+    "Player 1 Link": "https://www.hltv.org/player/19962/re1gn",
+    "Player 2 Link": "https://www.hltv.org/player/22878/senka",
+    "Player 3 Link": "https://www.hltv.org/player/22880/m1quse",
+    "Player 4 Link": "https://www.hltv.org/player/23762/z1k4",
+    "Player 5 Link": "https://www.hltv.org/player/24568/flouzer"
+  },
+  {
+    "Team Name": "BIG",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/7532/big",
+    "Player 1 Link": "https://www.hltv.org/player/5794/tabsen",
+    "Player 2 Link": "https://www.hltv.org/player/14929/jdc",
+    "Player 3 Link": "https://www.hltv.org/player/19284/prosus",
+    "Player 4 Link": "https://www.hltv.org/player/20122/freeze",
+    "Player 5 Link": "https://www.hltv.org/player/22884/gr1ks"
+  },
+  {
+    "Team Name": "Acend",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/TslndPhDvsn1bLMdm1j2i6.png?ixlib=java-2.1.0&w=50&s=0b477b55a7781f7f9bd5278cd9714ca2",
+    "Team Profile URL": "https://www.hltv.org/team/13518/acend",
+    "Player 1 Link": "https://www.hltv.org/player/11217/spellan",
+    "Player 2 Link": "https://www.hltv.org/player/15385/kaluber",
+    "Player 3 Link": "https://www.hltv.org/player/20114/shaik",
+    "Player 4 Link": "https://www.hltv.org/player/21371/awayken",
+    "Player 5 Link": "https://www.hltv.org/player/21657/skrimo"
+  },
+  {
+    "Team Name": "Friendly Campers",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13547/friendly-campers",
+    "Player 1 Link": "https://www.hltv.org/player/15203/reiko",
+    "Player 2 Link": "https://www.hltv.org/player/20245/samey",
+    "Player 3 Link": "https://www.hltv.org/player/20958/bajmi",
+    "Player 4 Link": "https://www.hltv.org/player/21263/olimp",
+    "Player 5 Link": "https://www.hltv.org/player/22703/moonwalk"
+  },
+  {
+    "Team Name": "Marsborne",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/s1nvkP0GnHTlIHagb0vOOB.png?ixlib=java-2.1.0&w=50&s=c1ef7f949e3b96760192f1eae0b0d31a",
+    "Team Profile URL": "https://www.hltv.org/team/13124/marsborne",
+    "Player 1 Link": "https://www.hltv.org/player/12937/wolfy",
+    "Player 2 Link": "https://www.hltv.org/player/17353/cxzi",
+    "Player 3 Link": "https://www.hltv.org/player/18761/viz",
+    "Player 4 Link": "https://www.hltv.org/player/19705/chop",
+    "Player 5 Link": "https://www.hltv.org/player/22069/grizz"
+  },
+  {
+    "Team Name": "Venom",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/rEVlQyigwGhc8iB5i3FUpX.png?ixlib=java-2.1.0&w=50&s=3a14f1fe8f4df3a724b387645142fd5b",
+    "Team Profile URL": "https://www.hltv.org/team/13419/venom",
+    "Player 1 Link": "https://www.hltv.org/player/3669/innocent",
+    "Player 2 Link": "https://www.hltv.org/player/15940/sobol",
+    "Player 3 Link": "https://www.hltv.org/player/21715/flayy",
+    "Player 4 Link": "https://www.hltv.org/player/22473/qlocuu",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Rare Atom",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/CH9I3Xh0tW94uEN1BMe9Pu.png?ixlib=java-2.1.0&w=50&s=fda7c0e83d4889a4164b99316b8f358f",
+    "Team Profile URL": "https://www.hltv.org/team/11514/rare-atom",
+    "Player 1 Link": "https://www.hltv.org/player/7028/summer",
+    "Player 2 Link": "https://www.hltv.org/player/19681/childking",
+    "Player 3 Link": "https://www.hltv.org/player/20808/tiger",
+    "Player 4 Link": "https://www.hltv.org/player/21825/l1hang",
+    "Player 5 Link": "https://www.hltv.org/player/24304/chengking"
+  },
+  {
+    "Team Name": "Sashi",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/xa5M31PECYUvHs6wlM9nzM.png?ixlib=java-2.1.0&w=50&s=e3f81637bc8dc9f9e3ab89a0a5c78d7d",
+    "Team Profile URL": "https://www.hltv.org/team/11712/sashi",
+    "Player 1 Link": "https://www.hltv.org/player/16723/cabbi",
+    "Player 2 Link": "https://www.hltv.org/player/20090/zyphon",
+    "Player 3 Link": "https://www.hltv.org/player/21199/mistr",
+    "Player 4 Link": "https://www.hltv.org/player/23338/beccie",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "9INE",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/BGC4LXlC8s4W0xWyelk2BI.png?ixlib=java-2.1.0&w=50&s=9b131e9589738e2c66ad28f1c1ed1d4b,https://img-cdn.hltv.org/teamlogo/59EeJjjh_x-MUuUzupO48J.png?ixlib=java-2.1.0&w=50&s=1e7daabab5fabc1b07abaff3d8fb0566",
+    "Team Profile URL": "https://www.hltv.org/team/10278/9ine",
+    "Player 1 Link": "https://www.hltv.org/player/2898/raalz",
+    "Player 2 Link": "https://www.hltv.org/player/16726/phzy",
+    "Player 3 Link": "https://www.hltv.org/player/20300/kraghen",
+    "Player 4 Link": "https://www.hltv.org/player/20309/bnox",
+    "Player 5 Link": "https://www.hltv.org/player/22702/cej0t"
+  },
+  {
+    "Team Name": "Nemiga",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/6ZPCm5r3XyGByXkFGiRnLh.png?ixlib=java-2.1.0&w=50&s=daa0328ebd0143763544b564610721e9",
+    "Team Profile URL": "https://www.hltv.org/team/7969/nemiga",
+    "Player 1 Link": "https://www.hltv.org/player/20387/xant3r",
+    "Player 2 Link": "https://www.hltv.org/player/21266/1eer",
+    "Player 3 Link": "https://www.hltv.org/player/22325/sowalio",
+    "Player 4 Link": "https://www.hltv.org/player/22460/riskyb0b",
+    "Player 5 Link": "https://www.hltv.org/player/23317/khan"
+  },
+  {
+    "Team Name": "9z",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/COZDFWOIm41AT0srqOHFhM.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=b00d55fe74b90f91c5b7e2b58bda5afb,https://img-cdn.hltv.org/teamlogo/COZDFWOIm41AT0srqOHFhM.png?ixlib=java-2.1.0&w=50&s=81c70f301dfc75e014336aa0ccb440f9",
+    "Team Profile URL": "https://www.hltv.org/team/9996/9z",
+    "Player 1 Link": "https://www.hltv.org/player/12092/max",
+    "Player 2 Link": "https://www.hltv.org/player/14737/meyern",
+    "Player 3 Link": "https://www.hltv.org/player/15914/luken",
+    "Player 4 Link": "https://www.hltv.org/player/20394/luchov",
+    "Player 5 Link": "https://www.hltv.org/player/22613/huasopeek"
+  },
+  {
+    "Team Name": "AM",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/WqSceeErZORFGoG8gJ4nLT.png?ixlib=java-2.1.0&w=50&s=a225f2cb39db0bf539158223cea243a2",
+    "Team Profile URL": "https://www.hltv.org/team/13237/am",
+    "Player 1 Link": "https://www.hltv.org/player/12781/k1to",
+    "Player 2 Link": "https://www.hltv.org/player/16705/altekz",
+    "Player 3 Link": "https://www.hltv.org/player/22060/delle",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "GenOne",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/DlMJrDmPA7qofO3HhP7Tbe.png?ixlib=java-2.1.0&w=50&s=5dedfb534782d2c3e00a5d476fc8fba9",
+    "Team Profile URL": "https://www.hltv.org/team/11609/genone",
+    "Player 1 Link": "https://www.hltv.org/player/7168/nbk",
+    "Player 2 Link": "https://www.hltv.org/player/14176/misutaaa",
+    "Player 3 Link": "https://www.hltv.org/player/19738/djoko",
+    "Player 4 Link": "https://www.hltv.org/player/21971/brooxsy",
+    "Player 5 Link": "https://www.hltv.org/player/22481/chucky"
+  },
+  {
+    "Team Name": "MIBR",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/sVnH-oAf1J5TnMwoY4cxUC.png?ixlib=java-2.1.0&w=50&s=b0ef463fa0f1638bce72a89590fbaddf,https://img-cdn.hltv.org/teamlogo/m_JQ624LNFHWiUY-25uuaE.png?ixlib=java-2.1.0&w=50&s=80a1e479dd1b15b974d3e2d5588763af",
+    "Team Profile URL": "https://www.hltv.org/team/9215/mibr",
+    "Player 1 Link": "https://www.hltv.org/player/11154/exit",
+    "Player 2 Link": "https://www.hltv.org/player/13239/qikert",
+    "Player 3 Link": "https://www.hltv.org/player/20987/brnz4n",
+    "Player 4 Link": "https://www.hltv.org/player/21037/insani",
+    "Player 5 Link": "https://www.hltv.org/player/23192/kl1m"
+  },
+  {
+    "Team Name": "illwill",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13501/illwill",
+    "Player 1 Link": "https://www.hltv.org/player/9656/hadji",
+    "Player 2 Link": "https://www.hltv.org/player/16885/woro2k",
+    "Player 3 Link": "https://www.hltv.org/player/18456/fostar",
+    "Player 4 Link": "https://www.hltv.org/player/20889/7kick",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "RED Canids",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Lyr7VJ-litGOwnRBu_8K5q.png?ixlib=java-2.1.0&w=50&s=4beac26b74d83ad2b1753ba2c5cb575d",
+    "Team Profile URL": "https://www.hltv.org/team/7176/red-canids",
+    "Player 1 Link": "https://www.hltv.org/player/19750/drop",
+    "Player 2 Link": "https://www.hltv.org/player/20026/chayjesus",
+    "Player 3 Link": "https://www.hltv.org/player/20085/kauez",
+    "Player 4 Link": "https://www.hltv.org/player/20939/history",
+    "Player 5 Link": "https://www.hltv.org/player/21288/venomzera"
+  },
+  {
+    "Team Name": "magic",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13592/magic",
+    "Player 1 Link": "https://www.hltv.org/player/19231/h1te",
+    "Player 2 Link": "https://www.hltv.org/player/19874/masval",
+    "Player 3 Link": "https://www.hltv.org/player/24173/tenzy",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "SPARTA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/4S4uiHHvhV2IFrEap8xG1H.png?ixlib=java-2.1.0&w=50&s=24bc35b96e8e749c5f158c05aed2a0ff",
+    "Team Profile URL": "https://www.hltv.org/team/13214/sparta",
+    "Player 1 Link": "https://www.hltv.org/player/20199/solb",
+    "Player 2 Link": "https://www.hltv.org/player/21369/1nvisiblee",
+    "Player 3 Link": "https://www.hltv.org/player/24171/djon8",
+    "Player 4 Link": "https://www.hltv.org/player/24172/yuramyata",
+    "Player 5 Link": "https://www.hltv.org/player/24818/k4nfuz"
+  },
+  {
+    "Team Name": "Sangal",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/zPv_FeMF8CANC10Jz32P9l.png?ixlib=java-2.1.0&w=50&s=741a13d27b484b39f24cdc76dbf80568",
+    "Team Profile URL": "https://www.hltv.org/team/10333/sangal",
+    "Player 1 Link": "https://www.hltv.org/player/12004/clax",
+    "Player 2 Link": "https://www.hltv.org/player/19673/patsi",
+    "Player 3 Link": "https://www.hltv.org/player/19882/norwi",
+    "Player 4 Link": "https://www.hltv.org/player/20709/r3salt",
+    "Player 5 Link": "https://www.hltv.org/player/22039/danistzz"
+  },
+  {
+    "Team Name": "SINNERS",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/10577/sinners",
+    "Player 1 Link": "https://www.hltv.org/player/11199/beastik",
+    "Player 2 Link": "https://www.hltv.org/player/12810/shock",
+    "Player 3 Link": "https://www.hltv.org/player/23295/kisserek",
+    "Player 4 Link": "https://www.hltv.org/player/23459/stressarn",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Johnny Speeds",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Qmj_vOYob6-N4w0-MkiQhT.png?ixlib=java-2.1.0&w=50&s=1ac8b274e801c8c4b265b4fc3ea1900c",
+    "Team Profile URL": "https://www.hltv.org/team/12604/johnny-speeds",
+    "Player 1 Link": "https://www.hltv.org/player/9255/draken",
+    "Player 2 Link": "https://www.hltv.org/player/9261/lekr0",
+    "Player 3 Link": "https://www.hltv.org/player/15569/sapec",
+    "Player 4 Link": "https://www.hltv.org/player/16029/heap",
+    "Player 5 Link": "https://www.hltv.org/player/22759/jocab"
+  },
+  {
+    "Team Name": "500",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/UZcbniXlu7tn7zLQfZS9tW.png?ixlib=java-2.1.0&w=50&s=34e3f2195cb2ac47873bd7f45655c683",
+    "Team Profile URL": "https://www.hltv.org/team/12000/500",
+    "Player 1 Link": "https://www.hltv.org/player/9766/hampus",
+    "Player 2 Link": "https://www.hltv.org/player/11219/cerq",
+    "Player 3 Link": "https://www.hltv.org/player/17145/rainwaker",
+    "Player 4 Link": "https://www.hltv.org/player/18571/cypher",
+    "Player 5 Link": "https://www.hltv.org/player/20358/volt"
+  },
+  {
+    "Team Name": "Chinggis Warriors",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/esvV905BqvAKUUPLq8e89T.png?ixlib=java-2.1.0&w=50&s=dd947742be3993f7b235cd1928ab078e",
+    "Team Profile URL": "https://www.hltv.org/team/12646/chinggis-warriors",
+    "Player 1 Link": "https://www.hltv.org/player/19229/roux",
+    "Player 2 Link": "https://www.hltv.org/player/19536/yami",
+    "Player 3 Link": "https://www.hltv.org/player/19537/cool4st",
+    "Player 4 Link": "https://www.hltv.org/player/22414/efire",
+    "Player 5 Link": "https://www.hltv.org/player/25510/tikuak"
+  },
+  {
+    "Team Name": "33",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/15vvyZtbtOeQVaqSITBxrA.png?ixlib=java-2.1.0&w=50&s=8667190105318dc4d8cdb076f6f6837e,https://img-cdn.hltv.org/teamlogo/15vvyZtbtOeQVaqSITBxrA.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=6b09bfbfa18f1606684b5780cbca5a32",
+    "Team Profile URL": "https://www.hltv.org/team/13297/33",
+    "Player 1 Link": "https://www.hltv.org/player/3459/kinqie",
+    "Player 2 Link": "https://www.hltv.org/player/20534/kiro",
+    "Player 3 Link": "https://www.hltv.org/player/22040/z1nny",
+    "Player 4 Link": "https://www.hltv.org/player/22927/executor",
+    "Player 5 Link": "https://www.hltv.org/player/23302/bluewh1te"
+  },
+  {
+    "Team Name": "Tricked",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/blNchPRF06sVx4To-LemoY.png?ixlib=java-2.1.0&w=50&s=939b83c622f496db95d11bfd0f85b428",
+    "Team Profile URL": "https://www.hltv.org/team/4602/tricked",
+    "Player 1 Link": "https://www.hltv.org/player/16731/iceberg",
+    "Player 2 Link": "https://www.hltv.org/player/21379/salazar",
+    "Player 3 Link": "https://www.hltv.org/player/21571/leakz",
+    "Player 4 Link": "https://www.hltv.org/player/21574/boye",
+    "Player 5 Link": "https://www.hltv.org/player/24104/nickyb"
+  },
+  {
+    "Team Name": "Fire Flux",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/dEkPG3QFLGo6xl9DtGPsm2.png?ixlib=java-2.1.0&w=50&s=9a9c4eeb77fd921baa804a425d4e2825",
+    "Team Profile URL": "https://www.hltv.org/team/12960/fire-flux",
+    "Player 1 Link": "https://www.hltv.org/player/9353/paz",
+    "Player 2 Link": "https://www.hltv.org/player/17117/shield",
+    "Player 3 Link": "https://www.hltv.org/player/17305/finigan",
+    "Player 4 Link": "https://www.hltv.org/player/20625/banjo",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Change The Game",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/jhWUEqa0RW-EmcsND2lk2H.png?ixlib=java-2.1.0&w=50&s=913a3e88b56c9793f25a78b3f4db6e10",
+    "Team Profile URL": "https://www.hltv.org/team/13175/change-the-game",
+    "Player 1 Link": "https://www.hltv.org/player/23001/hack1ng",
+    "Player 2 Link": "https://www.hltv.org/player/24644/vancekk",
+    "Player 3 Link": "https://www.hltv.org/player/24855/957",
+    "Player 4 Link": "https://www.hltv.org/player/24857/zero",
+    "Player 5 Link": "https://www.hltv.org/player/24858/laikexu"
+  },
+  {
+    "Team Name": "Nexus",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/TsvwZ9z4tVRO9Ry1jYxs_n.png?ixlib=java-2.1.0&w=50&s=ca777e2c0f8a3e0b26d0c90d98d72fbe",
+    "Team Profile URL": "https://www.hltv.org/team/7187/nexus",
+    "Player 1 Link": "https://www.hltv.org/player/1206/btn",
+    "Player 2 Link": "https://www.hltv.org/player/9626/xellow",
+    "Player 3 Link": "https://www.hltv.org/player/12945/blytz",
+    "Player 4 Link": "https://www.hltv.org/player/19817/s0und",
+    "Player 5 Link": "https://www.hltv.org/player/22563/fnl"
+  },
+  {
+    "Team Name": "MOUZ NXT",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/RfR1zmFJ0eP08VmFb6UOu3.png?ixlib=java-2.1.0&w=50&s=051cbffad4d1c25468d83abee6f4fe23",
+    "Team Profile URL": "https://www.hltv.org/team/11176/mouz-nxt",
+    "Player 1 Link": "https://www.hltv.org/player/21988/opdust",
+    "Player 2 Link": "https://www.hltv.org/player/24457/xelex",
+    "Player 3 Link": "https://www.hltv.org/player/25253/joey",
+    "Player 4 Link": "https://www.hltv.org/player/25254/ay0k",
+    "Player 5 Link": "https://www.hltv.org/player/25255/nikodeon"
+  },
+  {
+    "Team Name": "Metizport",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/L6vT42LZaQh88EXiZ5FpHK.png?ixlib=java-2.1.0&w=50&s=85eeac10933db8bdbf17dfcc28972af2",
+    "Team Profile URL": "https://www.hltv.org/team/11641/metizport",
+    "Player 1 Link": "https://www.hltv.org/player/13669/jackinho",
+    "Player 2 Link": "https://www.hltv.org/player/17937/isak",
+    "Player 3 Link": "https://www.hltv.org/player/20253/dragon",
+    "Player 4 Link": "https://www.hltv.org/player/24083/mail09",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Bounty Hunters",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/wJ38S9ZUb82rj8deT4_jqT.png?ixlib=java-2.1.0&w=50&s=b6af112ea7725decdb013a94a3605b39,https://img-cdn.hltv.org/teamlogo/g7RKwi-4djUsoVHYlRbp6q.png?ixlib=java-2.1.0&w=50&s=c2c066577fc21bc6f9a91e0d2f0fb183",
+    "Team Profile URL": "https://www.hltv.org/team/12776/bounty-hunters",
+    "Player 1 Link": "https://www.hltv.org/player/18322/kaiser",
+    "Player 2 Link": "https://www.hltv.org/player/18714/piriajr",
+    "Player 3 Link": "https://www.hltv.org/player/20083/ninjaz",
+    "Player 4 Link": "https://www.hltv.org/player/20690/zock",
+    "Player 5 Link": "https://www.hltv.org/player/20885/freq"
+  },
+  {
+    "Team Name": "1win",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/zbmzI2IMFNwHUvTO4EHaTZ.png?ixlib=java-2.1.0&w=50&s=fd29838f5b22b76075de4c80c2e04c0b",
+    "Team Profile URL": "https://www.hltv.org/team/10621/1win",
+    "Player 1 Link": "https://www.hltv.org/player/8528/hobbit",
+    "Player 2 Link": "https://www.hltv.org/player/15071/interz",
+    "Player 3 Link": "https://www.hltv.org/player/20700/lattykk",
+    "Player 4 Link": "https://www.hltv.org/player/23770/cronuss",
+    "Player 5 Link": "https://www.hltv.org/player/23771/oz1k"
+  },
+  {
+    "Team Name": "Galorys",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/GljsUhNlV1YdE2Z1ge-HzK.png?ixlib=java-2.1.0&w=50&s=fd7e8570af28b29e7dfa34eab2c506b1",
+    "Team Profile URL": "https://www.hltv.org/team/12677/galorys",
+    "Player 1 Link": "https://www.hltv.org/player/9483/destiny",
+    "Player 2 Link": "https://www.hltv.org/player/18743/nython",
+    "Player 3 Link": "https://www.hltv.org/player/20029/card",
+    "Player 4 Link": "https://www.hltv.org/player/20522/gbb",
+    "Player 5 Link": "https://www.hltv.org/player/23551/tomate"
+  },
+  {
+    "Team Name": "Fingers Crossed",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/5g0UQ8PApyAKUW3dkhMZd9.png?ixlib=java-2.1.0&w=50&s=1f9a3f32a57b265d29270f118a109a08",
+    "Team Profile URL": "https://www.hltv.org/team/13466/fingers-crossed",
+    "Player 1 Link": "https://www.hltv.org/player/19981/bagyz",
+    "Player 2 Link": "https://www.hltv.org/player/19982/sidivo",
+    "Player 3 Link": "https://www.hltv.org/player/22191/magila",
+    "Player 4 Link": "https://www.hltv.org/player/24022/uzman",
+    "Player 5 Link": "https://www.hltv.org/player/25045/fello"
+  },
+  {
+    "Team Name": "JiJieHao",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/OmcJcjX0obWnKkP7ChpuFA.png?ixlib=java-2.1.0&w=50&s=8e3bd16625d6f62c95285c98080ded66",
+    "Team Profile URL": "https://www.hltv.org/team/10245/jijiehao",
+    "Player 1 Link": "https://www.hltv.org/player/17675/m1n1",
+    "Player 2 Link": "https://www.hltv.org/player/18163/bibu",
+    "Player 3 Link": "https://www.hltv.org/player/19763/boros",
+    "Player 4 Link": "https://www.hltv.org/player/22419/0samas",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Morningstar",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/inXF-5NilS8a6Coi-GcFN8.png?ixlib=java-2.1.0&w=50&s=3c39874dd1ed2ed155ecc0a61b9cab5b",
+    "Team Profile URL": "https://www.hltv.org/team/13602/morningstar",
+    "Player 1 Link": "https://www.hltv.org/player/16558/ruben",
+    "Player 2 Link": "https://www.hltv.org/player/20258/spine",
+    "Player 3 Link": "https://www.hltv.org/player/20807/rage",
+    "Player 4 Link": "https://www.hltv.org/player/23596/expsasiki",
+    "Player 5 Link": "https://www.hltv.org/player/24747/suki"
+  },
+  {
+    "Team Name": "Gaimin Gladiators",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/nnUUng-EKdho6MRIhK3-5N.png?ixlib=java-2.1.0&w=50&s=c586546866230a714d618f68027169ec,https://img-cdn.hltv.org/teamlogo/YObFgAdiS_mzjowGdGixWD.png?ixlib=java-2.1.0&w=50&s=2bd88fdc5c4f46b86d9c4b31ad967e50",
+    "Team Profile URL": "https://www.hltv.org/team/11571/gaimin-gladiators",
+    "Player 1 Link": "https://www.hltv.org/player/9219/felps",
+    "Player 2 Link": "https://www.hltv.org/player/9482/nekiz",
+    "Player 3 Link": "https://www.hltv.org/player/11739/shz",
+    "Player 4 Link": "https://www.hltv.org/player/17861/jota",
+    "Player 5 Link": "https://www.hltv.org/player/21099/bsd"
+  },
+  {
+    "Team Name": "FORZE Reload",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/YJnWBDwmRDJ9o2uOUrhNeQ.png?ixlib=java-2.1.0&w=50&s=83f5ce35b3f98833671987bc637c74b7",
+    "Team Profile URL": "https://www.hltv.org/team/12857/forze-reload",
+    "Player 1 Link": "https://www.hltv.org/player/21367/spirit",
+    "Player 2 Link": "https://www.hltv.org/player/22327/something",
+    "Player 3 Link": "https://www.hltv.org/player/23628/kusme",
+    "Player 4 Link": "https://www.hltv.org/player/24607/swetsi",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Lazer Cats",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/WldQs3KiJJFmGzdeOdibuw.png?ixlib=java-2.1.0&w=50&s=995bcbd5b240788cce88d211d26a47b1",
+    "Team Profile URL": "https://www.hltv.org/team/12087/lazer-cats",
+    "Player 1 Link": "https://www.hltv.org/player/22706/yab0ku",
+    "Player 2 Link": "https://www.hltv.org/player/23151/nikitea",
+    "Player 3 Link": "https://www.hltv.org/player/23589/magic",
+    "Player 4 Link": "https://www.hltv.org/player/24204/kiy0o",
+    "Player 5 Link": "https://www.hltv.org/player/24914/br4tko"
+  },
+  {
+    "Team Name": "NOVAQ",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/ex06IkeUFuqX30u_SJLSgX.png?ixlib=java-2.1.0&w=50&s=bc1fced3cb203829b04f2bd7bd8b16ff",
+    "Team Profile URL": "https://www.hltv.org/team/13178/novaq",
+    "Player 1 Link": "https://www.hltv.org/player/11940/nealan",
+    "Player 2 Link": "https://www.hltv.org/player/22537/def1zer",
+    "Player 3 Link": "https://www.hltv.org/player/23292/pump",
+    "Player 4 Link": "https://www.hltv.org/player/23541/tasman",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Phantom",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/DzhUnKXRRy9yV2MILp29YH.png?ixlib=java-2.1.0&w=50&s=a856dc9cf0a2e9cb79c3166059885bed,https://img-cdn.hltv.org/teamlogo/DzhUnKXRRy9yV2MILp29YH.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=b3d5895eb294e943a4705c8e47db1d05",
+    "Team Profile URL": "https://www.hltv.org/team/13173/phantom",
+    "Player 1 Link": "https://www.hltv.org/player/4829/mynio",
+    "Player 2 Link": "https://www.hltv.org/player/17504/kei",
+    "Player 3 Link": "https://www.hltv.org/player/19114/kylar",
+    "Player 4 Link": "https://www.hltv.org/player/20289/dgl",
+    "Player 5 Link": "https://www.hltv.org/player/25104/kunai"
+  },
+  {
+    "Team Name": "HEROIC Academy",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13233/heroic-academy",
+    "Player 1 Link": "https://www.hltv.org/player/24281/st0m4k",
+    "Player 2 Link": "https://www.hltv.org/player/24690/yoghi",
+    "Player 3 Link": "https://www.hltv.org/player/25331/holy",
+    "Player 4 Link": "https://www.hltv.org/player/25585/muciek",
+    "Player 5 Link": "https://www.hltv.org/player/25676/hrdina"
+  },
+  {
+    "Team Name": "RUBY",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/YaQaIVK0D6cs4tfo0IIN5y.png?ixlib=java-2.1.0&w=50&s=71e4e0892ed059aa9979742d35df02fa",
+    "Team Profile URL": "https://www.hltv.org/team/12694/ruby",
+    "Player 1 Link": "https://www.hltv.org/player/20956/fozil",
+    "Player 2 Link": "https://www.hltv.org/player/22189/h4san4tor",
+    "Player 3 Link": "https://www.hltv.org/player/22326/kaide",
+    "Player 4 Link": "https://www.hltv.org/player/22459/sh1nejezzz",
+    "Player 5 Link": "https://www.hltv.org/player/24972/maquein"
+  },
+  {
+    "Team Name": "Voca",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/1Z_CvAJE9Qb5h9WyIi1PoP.png?ixlib=java-2.1.0&w=50&s=fb5cc17a7e784c586e6adb2372583c34,https://img-cdn.hltv.org/teamlogo/1Z_CvAJE9Qb5h9WyIi1PoP.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=c5be446ac6e525eacfe7a7dfd8a8cee5",
+    "Team Profile URL": "https://www.hltv.org/team/13499/voca",
+    "Player 1 Link": "https://www.hltv.org/player/14619/infinite",
+    "Player 2 Link": "https://www.hltv.org/player/17918/nosrac",
+    "Player 3 Link": "https://www.hltv.org/player/19709/shane",
+    "Player 4 Link": "https://www.hltv.org/player/19711/snav",
+    "Player 5 Link": "https://www.hltv.org/player/20692/dea"
+  },
+  {
+    "Team Name": "Leo",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/8W-UeGbtwFEzEz0RiPxxLS.png?ixlib=java-2.1.0&w=50&s=8e4a2a65e1aed01c87c1f317a81366ce",
+    "Team Profile URL": "https://www.hltv.org/team/11446/leo",
+    "Player 1 Link": "https://www.hltv.org/player/19617/amster",
+    "Player 2 Link": "https://www.hltv.org/player/21065/malkiss",
+    "Player 3 Link": "https://www.hltv.org/player/21650/marat2k",
+    "Player 4 Link": "https://www.hltv.org/player/21651/kl1o",
+    "Player 5 Link": "https://www.hltv.org/player/22649/oneun1que"
+  },
+  {
+    "Team Name": "FAVBET",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/4on2ywp0wcfk7vjUN3OjZk.png?ixlib=java-2.1.0&w=50&s=2bac9b7a976663386b297e8e5732c25e",
+    "Team Profile URL": "https://www.hltv.org/team/12818/favbet",
+    "Player 1 Link": "https://www.hltv.org/player/2131/bondik",
+    "Player 2 Link": "https://www.hltv.org/player/18240/smash",
+    "Player 3 Link": "https://www.hltv.org/player/19614/s4ltovsk1yy",
+    "Player 4 Link": "https://www.hltv.org/player/20110/marix",
+    "Player 5 Link": "https://www.hltv.org/player/20228/j3kie"
+  },
+  {
+    "Team Name": "Deep Cross",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/OheD9Wt2hrc8K5vmledjg-.png?ixlib=java-2.1.0&w=50&s=ec574773599bfb9ff2c7011446fde2f5,https://img-cdn.hltv.org/teamlogo/U6Fb3WnB7-AQkhpfklEOQb.png?ixlib=java-2.1.0&w=50&s=3739e609709c2dc4161bfda7ab8ea932",
+    "Team Profile URL": "https://www.hltv.org/team/13527/deep-cross",
+    "Player 1 Link": "https://www.hltv.org/player/21992/wasteofammo",
+    "Player 2 Link": "https://www.hltv.org/player/23850/clyd1e",
+    "Player 3 Link": "https://www.hltv.org/player/23875/xanzu",
+    "Player 4 Link": "https://www.hltv.org/player/24079/w1sely",
+    "Player 5 Link": "https://www.hltv.org/player/24161/daymake"
+  },
+  {
+    "Team Name": "ASTRAL",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/cep1rsT1ueXzsovbqAxK76.png?ixlib=java-2.1.0&w=50&s=50638f4d39d33d5e6eff0005372b36b8,https://img-cdn.hltv.org/teamlogo/cep1rsT1ueXzsovbqAxK76.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=c556e6afa68976c51fbf849fe5b0aaa7",
+    "Team Profile URL": "https://www.hltv.org/team/13333/astral",
+    "Player 1 Link": "https://www.hltv.org/player/21273/r1ch",
+    "Player 2 Link": "https://www.hltv.org/player/23545/ray5ive",
+    "Player 3 Link": "https://www.hltv.org/player/24128/astr",
+    "Player 4 Link": "https://www.hltv.org/player/24704/neqy",
+    "Player 5 Link": "https://www.hltv.org/player/24997/meowpop"
+  },
+  {
+    "Team Name": "Reign Above",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Vg3aWIrfY6ixZXYG2ShLpB.png?ixlib=java-2.1.0&w=50&s=5c140e6b499d9311da650f8e3fbed948",
+    "Team Profile URL": "https://www.hltv.org/team/13425/reign-above",
+    "Player 1 Link": "https://www.hltv.org/player/24681/sercera",
+    "Player 2 Link": "https://www.hltv.org/player/25366/swayu",
+    "Player 3 Link": "https://www.hltv.org/player/25368/sayyouwill",
+    "Player 4 Link": "https://www.hltv.org/player/25369/colin",
+    "Player 5 Link": "https://www.hltv.org/player/25580/cobalt"
+  },
+  {
+    "Team Name": "G2 Ares",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/7s-UIVdwo4C6iV1zYq20Ou.png?ixlib=java-2.1.0&w=50&s=30beb08dcc7ff03452b4ab839828307a",
+    "Team Profile URL": "https://www.hltv.org/team/12889/g2-ares",
+    "Player 1 Link": "https://www.hltv.org/player/19173/fnk",
+    "Player 2 Link": "https://www.hltv.org/player/21272/tak",
+    "Player 3 Link": "https://www.hltv.org/player/23544/hitori",
+    "Player 4 Link": "https://www.hltv.org/player/24111/junyme",
+    "Player 5 Link": "https://www.hltv.org/player/25576/yksjupe"
+  },
+  {
+    "Team Name": "CPH Wolves",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/4548/cph-wolves",
+    "Player 1 Link": "https://www.hltv.org/player/16753/n1xen",
+    "Player 2 Link": "https://www.hltv.org/player/20637/b1elany",
+    "Player 3 Link": "https://www.hltv.org/player/22048/tapewaare",
+    "Player 4 Link": "https://www.hltv.org/player/24203/jorko",
+    "Player 5 Link": "https://www.hltv.org/player/24332/matheos"
+  },
+  {
+    "Team Name": "WW",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/eCREd3vUcWijSsxUZ7GEoW.png?ixlib=java-2.1.0&w=50&s=aeda10fd2ce9c4467e66c3c4415b8cdc",
+    "Team Profile URL": "https://www.hltv.org/team/12967/ww",
+    "Player 1 Link": "https://www.hltv.org/player/20113/deko",
+    "Player 2 Link": "https://www.hltv.org/player/21690/strogo",
+    "Player 3 Link": "https://www.hltv.org/player/22350/ct0m",
+    "Player 4 Link": "https://www.hltv.org/player/23048/kelien",
+    "Player 5 Link": "https://www.hltv.org/player/23682/m3wsu"
+  },
+  {
+    "Team Name": "Keyd Stars",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/m-SA9fWSyBqRgsrDCDXCId.png?ixlib=java-2.1.0&w=50&s=5e9b55327740978fb8f425c27d2ba70a",
+    "Team Profile URL": "https://www.hltv.org/team/6033/keyd-stars",
+    "Player 1 Link": "https://www.hltv.org/player/16814/danoco",
+    "Player 2 Link": "https://www.hltv.org/player/18891/cutzmeretz",
+    "Player 3 Link": "https://www.hltv.org/player/18894/t9rnay",
+    "Player 4 Link": "https://www.hltv.org/player/22956/lash",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Mavrek",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13533/mavrek",
+    "Player 1 Link": "https://www.hltv.org/player/18437/jachro",
+    "Player 2 Link": "https://www.hltv.org/player/19939/cyrix",
+    "Player 3 Link": "https://www.hltv.org/player/22544/sharpie",
+    "Player 4 Link": "https://www.hltv.org/player/24769/toasty",
+    "Player 5 Link": "https://www.hltv.org/player/24770/brawckzz"
+  },
+  {
+    "Team Name": "Famalicão",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/nik7FOYWN7wLBcHyGlGqp5.png?ixlib=java-2.1.0&w=50&s=104dbf32c6f12fd06749ad34cbb2cd52",
+    "Team Profile URL": "https://www.hltv.org/team/13364/famalico",
+    "Player 1 Link": "https://www.hltv.org/player/20750/p3r3iira",
+    "Player 2 Link": "https://www.hltv.org/player/23141/seabraez",
+    "Player 3 Link": "https://www.hltv.org/player/23480/m1ka",
+    "Player 4 Link": "https://www.hltv.org/player/23559/snowiee",
+    "Player 5 Link": "https://www.hltv.org/player/24905/h0t"
+  },
+  {
+    "Team Name": "LP",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13304/lp",
+    "Player 1 Link": "https://www.hltv.org/player/14010/zmb",
+    "Player 2 Link": "https://www.hltv.org/player/17132/leomonster",
+    "Player 3 Link": "https://www.hltv.org/player/20521/alisson",
+    "Player 4 Link": "https://www.hltv.org/player/21284/happ",
+    "Player 5 Link": "https://www.hltv.org/player/23550/divine"
+  },
+  {
+    "Team Name": "Young Ninjas",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/8k9HLAg6m5nbteHcqrMs6P.png?ixlib=java-2.1.0&w=50&s=f8704e29f7b7966365cb2418471ebfc9,https://img-cdn.hltv.org/teamlogo/1P948nvj9SSDb5QTAUn4dn.png?ixlib=java-2.1.0&w=50&s=0845ec2a1cc5ebecebc57219b173995a",
+    "Team Profile URL": "https://www.hltv.org/team/10960/young-ninjas",
+    "Player 1 Link": "https://www.hltv.org/player/16811/mistem",
+    "Player 2 Link": "https://www.hltv.org/player/21512/rud",
+    "Player 3 Link": "https://www.hltv.org/player/22950/sl1m3",
+    "Player 4 Link": "https://www.hltv.org/player/23753/mahar",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "BC.Game",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Hwf-Y5nN-3qSvd0FZXOCh5.png?ixlib=java-2.1.0&w=50&s=a139a056665fc6d1534bd4d969ad2eaf",
+    "Team Profile URL": "https://www.hltv.org/team/12878/bcgame",
+    "Player 1 Link": "https://www.hltv.org/player/7998/s1mple",
+    "Player 2 Link": "https://www.hltv.org/player/8918/electronic",
+    "Player 3 Link": "https://www.hltv.org/player/20926/andu",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "EXSAD",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/WGZZcbwvZmNR01eFLcOH0V.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=1b12a9dfa56cc3b0c80392eeb51498bd,https://img-cdn.hltv.org/teamlogo/WGZZcbwvZmNR01eFLcOH0V.png?ixlib=java-2.1.0&w=50&s=c49863dcc3b9bda6b53a594958003b8b",
+    "Team Profile URL": "https://www.hltv.org/team/13047/exsad",
+    "Player 1 Link": "https://www.hltv.org/player/23482/tuxa",
+    "Player 2 Link": "https://www.hltv.org/player/24139/moretz",
+    "Player 3 Link": "https://www.hltv.org/player/25041/blaze",
+    "Player 4 Link": "https://www.hltv.org/player/25208/jerk0z",
+    "Player 5 Link": "https://www.hltv.org/player/25698/rafity"
+  },
+  {
+    "Team Name": "SkinRave",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/PK8iv9GaWRTgogrTsbAncQ.png?ixlib=java-2.1.0&w=50&s=417cb6dc4836b99196aa6e3c838e62f3,https://img-cdn.hltv.org/teamlogo/PK8iv9GaWRTgogrTsbAncQ.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=65663e6cadfe15aa6882729f3cf4d574",
+    "Team Profile URL": "https://www.hltv.org/team/13414/skinrave",
+    "Player 1 Link": "https://www.hltv.org/player/10892/marke",
+    "Player 2 Link": "https://www.hltv.org/player/14494/junior",
+    "Player 3 Link": "https://www.hltv.org/player/15176/cryptic",
+    "Player 4 Link": "https://www.hltv.org/player/17929/walco",
+    "Player 5 Link": "https://www.hltv.org/player/23458/laxiee"
+  },
+  {
+    "Team Name": "Nemesis",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/elLVHPbX3OkW4t8CHjKnoY.png?ixlib=java-2.1.0&w=50&s=334764e4cfd4a3b805b21085a21a4c5b",
+    "Team Profile URL": "https://www.hltv.org/team/13355/nemesis",
+    "Player 1 Link": "https://www.hltv.org/player/7996/cruc1al",
+    "Player 2 Link": "https://www.hltv.org/player/13018/thomas",
+    "Player 3 Link": "https://www.hltv.org/player/20872/nexius",
+    "Player 4 Link": "https://www.hltv.org/player/22035/n0te",
+    "Player 5 Link": "https://www.hltv.org/player/24734/tein"
+  },
+  {
+    "Team Name": "Spirit Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/txUq00aBKY7O4fLVJegmi_.png?ixlib=java-2.1.0&w=50&s=0be2e166db241569e89ac4ab8f5fb9a2,https://img-cdn.hltv.org/teamlogo/6iL7hUvamkQZnyOjw2MInU.png?ixlib=java-2.1.0&w=50&s=12daa825503b72771041c83e6d1e3638",
+    "Team Profile URL": "https://www.hltv.org/team/7900/spirit-academy",
+    "Player 1 Link": "https://www.hltv.org/player/22864/robo",
+    "Player 2 Link": "https://www.hltv.org/player/23319/syph0",
+    "Player 3 Link": "https://www.hltv.org/player/24176/mokuj1n",
+    "Player 4 Link": "https://www.hltv.org/player/25334/kurosse",
+    "Player 5 Link": "https://www.hltv.org/player/25390/kiryasoo"
+  },
+  {
+    "Team Name": "kONO",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/rW5srPjiZnkwa3TlC4vJFi.png?ixlib=java-2.1.0&w=50&s=1b6453d6089b4ea66937a105536973b6",
+    "Team Profile URL": "https://www.hltv.org/team/12858/kono",
+    "Player 1 Link": "https://www.hltv.org/player/9896/b0rup",
+    "Player 2 Link": "https://www.hltv.org/player/13718/birdfromsky",
+    "Player 3 Link": "https://www.hltv.org/player/15117/keoz",
+    "Player 4 Link": "https://www.hltv.org/player/16147/cptkurtka023",
+    "Player 5 Link": "https://www.hltv.org/player/22904/burmylov"
+  },
+  {
+    "Team Name": "Impulse GW",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/vo01qHPNrnJhPge4GMwAHR.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=10966ab3bbf189d1e6d159663c2d9768,https://img-cdn.hltv.org/teamlogo/vo01qHPNrnJhPge4GMwAHR.png?ixlib=java-2.1.0&w=50&s=31fa48f42f87d9d6561b893d3a718dfa",
+    "Team Profile URL": "https://www.hltv.org/team/13266/impulse-gw",
+    "Player 1 Link": "https://www.hltv.org/player/15885/pr",
+    "Player 2 Link": "https://www.hltv.org/player/20053/slaxx",
+    "Player 3 Link": "https://www.hltv.org/player/20054/rafaxf",
+    "Player 4 Link": "https://www.hltv.org/player/20055/stepa",
+    "Player 5 Link": "https://www.hltv.org/player/21115/sprayy"
+  },
+  {
+    "Team Name": "CALAOSCORNOS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/rA8vZ3Na_07mfdT1O-gGd1.png?ixlib=java-2.1.0&w=50&s=ddf60ae791c0470816197876373c7a2b",
+    "Team Profile URL": "https://www.hltv.org/team/13556/calaoscornos",
+    "Player 1 Link": "https://www.hltv.org/player/24138/kunana",
+    "Player 2 Link": "https://www.hltv.org/player/24633/mattymyimb",
+    "Player 3 Link": "https://www.hltv.org/player/24634/jayy2s",
+    "Player 4 Link": "https://www.hltv.org/player/25049/man",
+    "Player 5 Link": "https://www.hltv.org/player/25212/c0mplex"
+  },
+  {
+    "Team Name": "SemperFi",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/AhNio82uoOBO6dVCMCgDx-.png?ixlib=java-2.1.0&w=50&s=6fccab37a1e276b984b9f63daa2df18e",
+    "Team Profile URL": "https://www.hltv.org/team/12901/semperfi",
+    "Player 1 Link": "https://www.hltv.org/player/14294/hazr",
+    "Player 2 Link": "https://www.hltv.org/player/14990/keen",
+    "Player 3 Link": "https://www.hltv.org/player/20003/shadiy",
+    "Player 4 Link": "https://www.hltv.org/player/20086/addict",
+    "Player 5 Link": "https://www.hltv.org/player/20244/savage"
+  },
+  {
+    "Team Name": "INFURITY",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/O7_8BAktLrHF0mbFRXzpHB.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=61f0d77bfb334f6e64a37ddeab895d0b,https://img-cdn.hltv.org/teamlogo/O7_8BAktLrHF0mbFRXzpHB.png?ixlib=java-2.1.0&w=50&s=37b3d24220575e3caab58e39a0d9e973",
+    "Team Profile URL": "https://www.hltv.org/team/8488/infurity",
+    "Player 1 Link": "https://www.hltv.org/player/10730/sirius",
+    "Player 2 Link": "https://www.hltv.org/player/17318/shyyne",
+    "Player 3 Link": "https://www.hltv.org/player/20505/rinji",
+    "Player 4 Link": "https://www.hltv.org/player/24070/nolv1n",
+    "Player 5 Link": "https://www.hltv.org/player/25577/oontoma"
+  },
+  {
+    "Team Name": "Fake do Biru",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13081/fake-do-biru",
+    "Player 1 Link": "https://www.hltv.org/player/6593/pkl",
+    "Player 2 Link": "https://www.hltv.org/player/16817/hardzao",
+    "Player 3 Link": "https://www.hltv.org/player/18610/detr0ittj",
+    "Player 4 Link": "https://www.hltv.org/player/22362/xureba",
+    "Player 5 Link": "https://www.hltv.org/player/23045/lukiz"
+  },
+  {
+    "Team Name": "WOPA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/pF87FZYyXB5WVnSBU0Nh0S.png?ixlib=java-2.1.0&w=50&s=bc349a5eb451b166f129bfe25f9f14be",
+    "Team Profile URL": "https://www.hltv.org/team/12787/wopa",
+    "Player 1 Link": "https://www.hltv.org/player/11013/thamlike",
+    "Player 2 Link": "https://www.hltv.org/player/13077/patti",
+    "Player 3 Link": "https://www.hltv.org/player/13170/kwezz",
+    "Player 4 Link": "https://www.hltv.org/player/21381/zanto",
+    "Player 5 Link": "https://www.hltv.org/player/25088/sink"
+  },
+  {
+    "Team Name": "THUNDER dOWNUNDER",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/ipxSKA_nUU-nuW7BenfE2h.png?ixlib=java-2.1.0&w=50&s=165286a39b5f26d902b851bac8d2585d",
+    "Team Profile URL": "https://www.hltv.org/team/13486/thunder-downunder",
+    "Player 1 Link": "https://www.hltv.org/player/9115/dexter",
+    "Player 2 Link": "https://www.hltv.org/player/10588/liazz",
+    "Player 3 Link": "https://www.hltv.org/player/11139/alistair",
+    "Player 4 Link": "https://www.hltv.org/player/18545/asap",
+    "Player 5 Link": "https://www.hltv.org/player/20527/tjp"
+  },
+  {
+    "Team Name": "aimclub",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/PhNn8XgEQgZbp6ti-_IfFT.png?ixlib=java-2.1.0&w=50&s=846feccd98ac0b3b9cca3409929ed3e3",
+    "Team Profile URL": "https://www.hltv.org/team/6810/aimclub",
+    "Player 1 Link": "https://www.hltv.org/player/16971/zewts",
+    "Player 2 Link": "https://www.hltv.org/player/20158/ed1m",
+    "Player 3 Link": "https://www.hltv.org/player/21213/ersin",
+    "Player 4 Link": "https://www.hltv.org/player/21368/roberttmp",
+    "Player 5 Link": "https://www.hltv.org/player/21716/wazz"
+  },
+  {
+    "Team Name": "Ground Zero",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/rGAB_PzwZbvmNy3V8Xrven.png?ixlib=java-2.1.0&w=50&s=09d53655350132af167d0b5471525cd0",
+    "Team Profile URL": "https://www.hltv.org/team/8536/ground-zero",
+    "Player 1 Link": "https://www.hltv.org/player/12872/apocdud",
+    "Player 2 Link": "https://www.hltv.org/player/18736/pz",
+    "Player 3 Link": "https://www.hltv.org/player/19906/damyo",
+    "Player 4 Link": "https://www.hltv.org/player/22629/omichella",
+    "Player 5 Link": "https://www.hltv.org/player/23346/vision"
+  },
+  {
+    "Team Name": "UNiTY",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/coucDlsynd0Ujutb5o2SC-.png?ixlib=java-2.1.0&w=50&s=a5d9a7be6bddda8b8c01ab037786a465",
+    "Team Profile URL": "https://www.hltv.org/team/12267/unity",
+    "Player 1 Link": "https://www.hltv.org/player/15818/k1-fida",
+    "Player 2 Link": "https://www.hltv.org/player/15821/neofrag",
+    "Player 3 Link": "https://www.hltv.org/player/20229/moriisko",
+    "Player 4 Link": "https://www.hltv.org/player/21165/m1key",
+    "Player 5 Link": "https://www.hltv.org/player/23469/woozzzi"
+  },
+  {
+    "Team Name": "777",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Nj4UFYD0f_vEAoFEFWwaJf.png?ixlib=java-2.1.0&w=50&s=810f73bf56a6cdcbb28130a5af589684",
+    "Team Profile URL": "https://www.hltv.org/team/10943/777",
+    "Player 1 Link": "https://www.hltv.org/player/16269/zame",
+    "Player 2 Link": "https://www.hltv.org/player/21580/thomass1",
+    "Player 3 Link": "https://www.hltv.org/player/21860/brave",
+    "Player 4 Link": "https://www.hltv.org/player/22952/hagmeister",
+    "Player 5 Link": "https://www.hltv.org/player/23616/zapr"
+  },
+  {
+    "Team Name": "Bushido Wildcats",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/mkEf25rB0TXJ6ZcuQLIQkI.png?ixlib=java-2.1.0&w=50&s=96c1cfd7c61d2fdf1b780f6f4b46a9b8",
+    "Team Profile URL": "https://www.hltv.org/team/13281/bushido-wildcats",
+    "Player 1 Link": "https://www.hltv.org/player/21253/darendeli",
+    "Player 2 Link": "https://www.hltv.org/player/22498/ens",
+    "Player 3 Link": "https://www.hltv.org/player/22504/scollen",
+    "Player 4 Link": "https://www.hltv.org/player/24842/vej",
+    "Player 5 Link": "https://www.hltv.org/player/24843/cadnyx"
+  },
+  {
+    "Team Name": "Yawara",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/JwKJz_nvCUbB5kvZGK6Ho5.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=bb750d9f5993bd3df97cf2a05aeef701,https://img-cdn.hltv.org/teamlogo/JwKJz_nvCUbB5kvZGK6Ho5.png?ixlib=java-2.1.0&w=50&s=e099463ab8fb00a944ed779de231946b",
+    "Team Profile URL": "https://www.hltv.org/team/11933/yawara",
+    "Player 1 Link": "https://www.hltv.org/player/22364/j0w",
+    "Player 2 Link": "https://www.hltv.org/player/22566/deemo",
+    "Player 3 Link": "https://www.hltv.org/player/24284/revoltz",
+    "Player 4 Link": "https://www.hltv.org/player/24556/tele",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Mindfreak",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/JXoqNVZaSa0PHYSnfNeJGO.png?ixlib=java-2.1.0&w=50&s=24a2d2849779f23196e546a6ab58c933",
+    "Team Profile URL": "https://www.hltv.org/team/11668/mindfreak",
+    "Player 1 Link": "https://www.hltv.org/player/9108/tucks",
+    "Player 2 Link": "https://www.hltv.org/player/11847/texta",
+    "Player 3 Link": "https://www.hltv.org/player/23345/dpr",
+    "Player 4 Link": "https://www.hltv.org/player/24788/swerzien",
+    "Player 5 Link": "https://www.hltv.org/player/25138/zune"
+  },
+  {
+    "Team Name": "Eruption",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/73cl_gOmhR8_EmrZiaxleY.png?ixlib=java-2.1.0&w=50&s=139a7d4ba1b3bb6c70314f41eb002109,https://img-cdn.hltv.org/teamlogo/73cl_gOmhR8_EmrZiaxleY.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=cb2934488771635e689e773c55ff5df0",
+    "Team Profile URL": "https://www.hltv.org/team/12097/eruption",
+    "Player 1 Link": "https://www.hltv.org/player/19538/magnumz",
+    "Player 2 Link": "https://www.hltv.org/player/21428/fury5k",
+    "Player 3 Link": "https://www.hltv.org/player/24123/sideffect",
+    "Player 4 Link": "https://www.hltv.org/player/24125/xenization",
+    "Player 5 Link": "https://www.hltv.org/player/24804/viscera"
+  },
+  {
+    "Team Name": "SINQU",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/0DHec218X_NPcSy00uOQqC.png?ixlib=java-2.1.0&w=50&s=6164651a8c8d3ba92796f52c7563e89b",
+    "Team Profile URL": "https://www.hltv.org/team/13571/sinqu",
+    "Player 1 Link": "https://www.hltv.org/player/15562/samppa",
+    "Player 2 Link": "https://www.hltv.org/player/25677/lene",
+    "Player 3 Link": "https://www.hltv.org/player/25678/j0nnew",
+    "Player 4 Link": "https://www.hltv.org/player/25679/kapiv",
+    "Player 5 Link": "https://www.hltv.org/player/25680/geni"
+  },
+  {
+    "Team Name": "AaB",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/LqikHWQrIW3-MssZO9wdVb.png?ixlib=java-2.1.0&w=50&s=b93e024ab543bc98f1491ad2ea1accbb",
+    "Team Profile URL": "https://www.hltv.org/team/9621/aab",
+    "Player 1 Link": "https://www.hltv.org/player/20033/maze",
+    "Player 2 Link": "https://www.hltv.org/player/22940/mol011",
+    "Player 3 Link": "https://www.hltv.org/player/24276/n4xx1s",
+    "Player 4 Link": "https://www.hltv.org/player/24425/bekker",
+    "Player 5 Link": "https://www.hltv.org/player/25066/qx"
+  },
+  {
+    "Team Name": "9BOOMPRO",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13380/9boompro",
+    "Player 1 Link": "https://www.hltv.org/player/15662/zorte",
+    "Player 2 Link": "https://www.hltv.org/player/16555/ax1le",
+    "Player 3 Link": "https://www.hltv.org/player/17011/shalfey",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "ARCRED",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/FkqmKLoI7VzD95HuCu36rp.png?ixlib=java-2.1.0&w=50&s=a939e8537e182dc2a7493840443ec227,https://img-cdn.hltv.org/teamlogo/FkqmKLoI7VzD95HuCu36rp.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=56bb7233fd8978f53a67ac68935c0c1f",
+    "Team Profile URL": "https://www.hltv.org/team/10459/arcred",
+    "Player 1 Link": "https://www.hltv.org/player/18447/dssj",
+    "Player 2 Link": "https://www.hltv.org/player/18671/get-jeka",
+    "Player 3 Link": "https://www.hltv.org/player/19703/ryujin",
+    "Player 4 Link": "https://www.hltv.org/player/20207/raijin",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "BOSS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/T2F4lhjlOmbrxd7VUHaK-_.png?ixlib=java-2.1.0&w=50&s=4da79d39a39b33afbcef7a8952fb2bc5",
+    "Team Profile URL": "https://www.hltv.org/team/12534/boss",
+    "Player 1 Link": "https://www.hltv.org/player/13250/ben1337",
+    "Player 2 Link": "https://www.hltv.org/player/16647/bwills",
+    "Player 3 Link": "https://www.hltv.org/player/19079/fruitcupx",
+    "Player 4 Link": "https://www.hltv.org/player/19128/slight",
+    "Player 5 Link": "https://www.hltv.org/player/20564/d4rty"
+  },
+  {
+    "Team Name": "Rooster",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/LPjU8AAPrha2zdFvetTTMp.png?ixlib=java-2.1.0&w=50&s=e3db90a303823ddd00ad39fa7b963a8d",
+    "Team Profile URL": "https://www.hltv.org/team/9881/rooster",
+    "Player 1 Link": "https://www.hltv.org/player/12877/chelleos",
+    "Player 2 Link": "https://www.hltv.org/player/14333/ju1ces",
+    "Player 3 Link": "https://www.hltv.org/player/17390/adk",
+    "Player 4 Link": "https://www.hltv.org/player/21395/terryyy",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "FengDa",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/_Q3iz2MJXmpJp9QGv9jWnc.png?ixlib=java-2.1.0&w=50&s=3436ac6e2bc88b6ededfac64ab9bdcd5",
+    "Team Profile URL": "https://www.hltv.org/team/12899/fengda",
+    "Player 1 Link": "https://www.hltv.org/player/19060/biuckmt",
+    "Player 2 Link": "https://www.hltv.org/player/20896/salmon",
+    "Player 3 Link": "https://www.hltv.org/player/24306/3gl",
+    "Player 4 Link": "https://www.hltv.org/player/24748/trash",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "MANA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/h2IKJglH4eY5xOIiJH1Pjf.png?ixlib=java-2.1.0&w=50&s=6e0bd2ed9469c68cd1ab4bb9749048b5,https://img-cdn.hltv.org/teamlogo/H8M_mXal-97OG9NlMW96AX.png?ixlib=java-2.1.0&w=50&s=eb4a0c8e1165a324ae2c362b13069993",
+    "Team Profile URL": "https://www.hltv.org/team/13310/mana",
+    "Player 1 Link": "https://www.hltv.org/player/12777/gejmzilla",
+    "Player 2 Link": "https://www.hltv.org/player/18119/cerber",
+    "Player 3 Link": "https://www.hltv.org/player/20434/bledard",
+    "Player 4 Link": "https://www.hltv.org/player/21108/caleyy",
+    "Player 5 Link": "https://www.hltv.org/player/21109/ammar"
+  },
+  {
+    "Team Name": "Wildcard Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/CKEur6HAFVfmPTOgmzpsvv.png?ixlib=java-2.1.0&w=50&s=2af983c73cfdbcd3c7a282cfe8462d94,https://img-cdn.hltv.org/teamlogo/DrGIqX1CYwNpOOzRQJKH9-.png?ixlib=java-2.1.0&w=50&s=555f1a238fa8ef1eb73441c1ce9c3a5c",
+    "Team Profile URL": "https://www.hltv.org/team/13127/wildcard-academy",
+    "Player 1 Link": "https://www.hltv.org/player/23668/amsalem",
+    "Player 2 Link": "https://www.hltv.org/player/24113/ssen",
+    "Player 3 Link": "https://www.hltv.org/player/24325/tripex17",
+    "Player 4 Link": "https://www.hltv.org/player/24810/doni",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Eternal Fire",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Tafdq71X3B_-73b73bAixr.png?ixlib=java-2.1.0&w=50&s=f1505e0f7e03bed0d0d2b4c809768198",
+    "Team Profile URL": "https://www.hltv.org/team/11251/eternal-fire",
+    "Player 1 Link": "https://www.hltv.org/player/8575/calyx",
+    "Player 2 Link": "https://www.hltv.org/player/15835/imorr",
+    "Player 3 Link": "https://www.hltv.org/player/21023/emstar",
+    "Player 4 Link": "https://www.hltv.org/player/21250/jresy",
+    "Player 5 Link": "https://www.hltv.org/player/23274/lugsen"
+  },
+  {
+    "Team Name": "MASONIC",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/10867/masonic",
+    "Player 1 Link": "https://www.hltv.org/player/22810/krallej",
+    "Player 2 Link": "https://www.hltv.org/player/22811/avou",
+    "Player 3 Link": "https://www.hltv.org/player/23334/bukhavez",
+    "Player 4 Link": "https://www.hltv.org/player/23471/noruyp",
+    "Player 5 Link": "https://www.hltv.org/player/24105/botman"
+  },
+  {
+    "Team Name": "BORING PLAYERS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/o2z4oVTgRnF3UpoGlwIVgj.png?ixlib=java-2.1.0&w=50&s=bd7ed92a475f0cf20933931bd21d4789,https://img-cdn.hltv.org/teamlogo/wTqyVncbhEPAKahTJ9jvqK.png?ixlib=java-2.1.0&w=50&s=d9007710fc01015d1a08e60ac318cd96",
+    "Team Profile URL": "https://www.hltv.org/team/12948/boring-players",
+    "Player 1 Link": "https://www.hltv.org/player/840/karl",
+    "Player 2 Link": "https://www.hltv.org/player/22997/tutu",
+    "Player 3 Link": "https://www.hltv.org/player/24036/zdr",
+    "Player 4 Link": "https://www.hltv.org/player/24387/jun7",
+    "Player 5 Link": "https://www.hltv.org/player/25246/miszary"
+  },
+  {
+    "Team Name": "Fuego",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/uMH3otVlkGxvLAqKoC6Sh9.png?ixlib=java-2.1.0&w=50&s=13a25d9fc863d80401340b1b0f173cd4",
+    "Team Profile URL": "https://www.hltv.org/team/13511/fuego",
+    "Player 1 Link": "https://www.hltv.org/player/21888/thuister",
+    "Player 2 Link": "https://www.hltv.org/player/23960/sakamoto",
+    "Player 3 Link": "https://www.hltv.org/player/24298/alennncar",
+    "Player 4 Link": "https://www.hltv.org/player/24328/lukita",
+    "Player 5 Link": "https://www.hltv.org/player/24930/vzn"
+  },
+  {
+    "Team Name": "Last Bullet",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13433/last-bullet",
+    "Player 1 Link": "https://www.hltv.org/player/16768/lan",
+    "Player 2 Link": "https://www.hltv.org/player/16778/b1ngo",
+    "Player 3 Link": "https://www.hltv.org/player/16872/flying",
+    "Player 4 Link": "https://www.hltv.org/player/19735/roninbaby",
+    "Player 5 Link": "https://www.hltv.org/player/21509/miami"
+  },
+  {
+    "Team Name": "WATERMELON",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13326/watermelon",
+    "Player 1 Link": "https://www.hltv.org/player/20946/due1yant",
+    "Player 2 Link": "https://www.hltv.org/player/21350/neolife",
+    "Player 3 Link": "https://www.hltv.org/player/25165/sexyvova",
+    "Player 4 Link": "https://www.hltv.org/player/25167/gleb86rus",
+    "Player 5 Link": "https://www.hltv.org/player/25168/laksheri"
+  },
+  {
+    "Team Name": "Falcons Force",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/YfOBM0ri-zSsx9Cc8q6nz-.png?ixlib=java-2.1.0&w=50&s=458ef7af43f0a705811f82722fc58f2d",
+    "Team Profile URL": "https://www.hltv.org/team/13321/falcons-force",
+    "Player 1 Link": "https://www.hltv.org/player/25095/veno",
+    "Player 2 Link": "https://www.hltv.org/player/25332/grecu",
+    "Player 3 Link": "https://www.hltv.org/player/25430/clockzi",
+    "Player 4 Link": "https://www.hltv.org/player/25431/olaie",
+    "Player 5 Link": "https://www.hltv.org/player/25432/nucleonz"
+  },
+  {
+    "Team Name": "Rebels",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/vfupmnriFumqC8u48wFIdm.png?ixlib=java-2.1.0&w=50&s=f88ee3468bbd8661c4d9e40b2eddda29",
+    "Team Profile URL": "https://www.hltv.org/team/12642/rebels",
+    "Player 1 Link": "https://www.hltv.org/player/11205/stadodo",
+    "Player 2 Link": "https://www.hltv.org/player/16102/nopeej",
+    "Player 3 Link": "https://www.hltv.org/player/17003/snapy",
+    "Player 4 Link": "https://www.hltv.org/player/20683/icarus",
+    "Player 5 Link": "https://www.hltv.org/player/23237/tmkj"
+  },
+  {
+    "Team Name": "DEPO",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/kQXnifxzhtreinKml3c2T4.png?ixlib=java-2.1.0&w=50&s=b41e7e06fa98c73110fc335c49a33fec,https://img-cdn.hltv.org/teamlogo/QMj_KGH98bGzvokFoPi3ms.png?ixlib=java-2.1.0&w=50&s=757dbe54d797746b30add6c7231d2fb5",
+    "Team Profile URL": "https://www.hltv.org/team/12536/depo",
+    "Player 1 Link": "https://www.hltv.org/player/18989/fr0k",
+    "Player 2 Link": "https://www.hltv.org/player/22635/wetfy",
+    "Player 3 Link": "https://www.hltv.org/player/22638/icyvl0ne",
+    "Player 4 Link": "https://www.hltv.org/player/24656/shoxs",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "BASEMENT BOYS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/IAgnK7oXGijw4nomIKEVIw.png?ixlib=java-2.1.0&w=50&s=b4de8c1c642e9e648d878215fc8ac9ba",
+    "Team Profile URL": "https://www.hltv.org/team/13181/basement-boys",
+    "Player 1 Link": "https://www.hltv.org/player/20422/owner",
+    "Player 2 Link": "https://www.hltv.org/player/22945/tr0uble",
+    "Player 3 Link": "https://www.hltv.org/player/23614/bambosh",
+    "Player 4 Link": "https://www.hltv.org/player/24286/levantino",
+    "Player 5 Link": "https://www.hltv.org/player/24672/fakerealityy"
+  },
+  {
+    "Team Name": "SportsBetExpert",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/gk75xUsUSOXNvyT0A4UBS2.png?ixlib=java-2.1.0&w=50&s=e522fb3aa5ea928b95903bcc31adc39d",
+    "Team Profile URL": "https://www.hltv.org/team/13375/sportsbetexpert",
+    "Player 1 Link": "https://www.hltv.org/player/17378/reck",
+    "Player 2 Link": "https://www.hltv.org/player/18706/freshie",
+    "Player 3 Link": "https://www.hltv.org/player/21021/tr0jn",
+    "Player 4 Link": "https://www.hltv.org/player/22967/ogwizard",
+    "Player 5 Link": "https://www.hltv.org/player/23675/evan"
+  },
+  {
+    "Team Name": "ENCE Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/mId6g5Prtm9fz8JdVna2rr.png?ixlib=java-2.1.0&w=50&s=44dd7e8b22c1c56f3b254ebb7ed891a5",
+    "Team Profile URL": "https://www.hltv.org/team/11790/ence-academy",
+    "Player 1 Link": "https://www.hltv.org/player/21930/millert",
+    "Player 2 Link": "https://www.hltv.org/player/22733/teme",
+    "Player 3 Link": "https://www.hltv.org/player/23536/blick",
+    "Player 4 Link": "https://www.hltv.org/player/24121/cliqq",
+    "Player 5 Link": "https://www.hltv.org/player/24149/schwarz"
+  },
+  {
+    "Team Name": "HAVU",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/_bpWybCQhDRnPq8Z2ZYO5h.png?ixlib=java-2.1.0&w=50&s=2e3c9e1a0a833d4d92ce10ec8adddf00",
+    "Team Profile URL": "https://www.hltv.org/team/7865/havu",
+    "Player 1 Link": "https://www.hltv.org/player/9818/uli",
+    "Player 2 Link": "https://www.hltv.org/player/21963/alxc",
+    "Player 3 Link": "https://www.hltv.org/player/22143/p3kko",
+    "Player 4 Link": "https://www.hltv.org/player/22144/puuha",
+    "Player 5 Link": "https://www.hltv.org/player/22211/ottob"
+  },
+  {
+    "Team Name": "Omega",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Q9UB4lO8MMt_CQmtRkOKxQ.png?ixlib=java-2.1.0&w=50&s=aa17db8852f77ced212387620c9fef57,https://img-cdn.hltv.org/teamlogo/Q9UB4lO8MMt_CQmtRkOKxQ.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=8962792d23740b600de32dda08592007",
+    "Team Profile URL": "https://www.hltv.org/team/13479/omega",
+    "Player 1 Link": "https://www.hltv.org/player/23304/maison",
+    "Player 2 Link": "https://www.hltv.org/player/24021/adai",
+    "Player 3 Link": "https://www.hltv.org/player/25009/aldikon",
+    "Player 4 Link": "https://www.hltv.org/player/25010/botpa1",
+    "Player 5 Link": "https://www.hltv.org/player/25011/dan4o"
+  },
+  {
+    "Team Name": "ALLINNERS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/6PpIIM0TzjiuYeSXpxg0cO.png?ixlib=java-2.1.0&w=50&s=88899b9615e70e5daf0a305aeb242bff",
+    "Team Profile URL": "https://www.hltv.org/team/12812/allinners",
+    "Player 1 Link": "https://www.hltv.org/player/11942/buster",
+    "Player 2 Link": "https://www.hltv.org/player/18752/kade0",
+    "Player 3 Link": "https://www.hltv.org/player/23386/kumao",
+    "Player 4 Link": "https://www.hltv.org/player/23598/noni",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "OverKnight",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/IF2i2Jbw9ajqJJ6DjotpNB.png?ixlib=java-2.1.0&w=50&s=02bc750b13acaa64ce6c96c91056c8b4",
+    "Team Profile URL": "https://www.hltv.org/team/10901/overknight",
+    "Player 1 Link": "https://www.hltv.org/player/9214/spamzzy",
+    "Player 2 Link": "https://www.hltv.org/player/19918/b1",
+    "Player 3 Link": "https://www.hltv.org/player/20405/amc",
+    "Player 4 Link": "https://www.hltv.org/player/22547/4taylor",
+    "Player 5 Link": "https://www.hltv.org/player/24345/majesticzz"
+  },
+  {
+    "Team Name": "Mythic",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/giKWRtCUgQzLqqfLUgwPvv.png?ixlib=java-2.1.0&w=50&s=1f562a9c5d9bbb7aafcedeaf233a3837",
+    "Team Profile URL": "https://www.hltv.org/team/5479/mythic",
+    "Player 1 Link": "https://www.hltv.org/player/8503/fl0m",
+    "Player 2 Link": "https://www.hltv.org/player/15007/cooper",
+    "Player 3 Link": "https://www.hltv.org/player/15090/pwnalone",
+    "Player 4 Link": "https://www.hltv.org/player/20510/hyza",
+    "Player 5 Link": "https://www.hltv.org/player/22022/trucklover86"
+  },
+  {
+    "Team Name": "Nemesis SEA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/5sKYoPw8r0gtxezzwC6aXF.png?ixlib=java-2.1.0&w=50&s=22c5f1216399b75dc59c52c851b9e61e",
+    "Team Profile URL": "https://www.hltv.org/team/13497/nemesis-sea",
+    "Player 1 Link": "https://www.hltv.org/player/9339/impression",
+    "Player 2 Link": "https://www.hltv.org/player/12279/derek",
+    "Player 3 Link": "https://www.hltv.org/player/14359/w1nt3r",
+    "Player 4 Link": "https://www.hltv.org/player/23568/zumss",
+    "Player 5 Link": "https://www.hltv.org/player/24753/kuma"
+  },
+  {
+    "Team Name": "regain",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/-bjzyIYz1cnZSmS-8FE2fJ.png?ixlib=java-2.1.0&w=50&s=88b7b4f31c4a03bbc2310bb4c6624f03,https://img-cdn.hltv.org/teamlogo/-bjzyIYz1cnZSmS-8FE2fJ.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=89e5d3fdfd11c0dee5922d1a94608925",
+    "Team Profile URL": "https://www.hltv.org/team/12554/regain",
+    "Player 1 Link": "https://www.hltv.org/player/23136/zucar",
+    "Player 2 Link": "https://www.hltv.org/player/23137/dvrk",
+    "Player 3 Link": "https://www.hltv.org/player/23138/sasha",
+    "Player 4 Link": "https://www.hltv.org/player/24667/fuzenko",
+    "Player 5 Link": "https://www.hltv.org/player/24890/marekiew"
+  },
+  {
+    "Team Name": "los kogutos",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/dDKXyN2_cOJi96QbYWCiV5.png?ixlib=java-2.1.0&w=50&s=c9f60756855c93c86be57223fb9d6522",
+    "Team Profile URL": "https://www.hltv.org/team/10854/los-kogutos",
+    "Player 1 Link": "https://www.hltv.org/player/11276/marko",
+    "Player 2 Link": "https://www.hltv.org/player/20284/maaryy",
+    "Player 3 Link": "https://www.hltv.org/player/23767/adrien",
+    "Player 4 Link": "https://www.hltv.org/player/24243/nami",
+    "Player 5 Link": "https://www.hltv.org/player/24244/yvro"
+  },
+  {
+    "Team Name": "Just Swing",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/GNiCfDu3aX3HIarMXK7faV.png?ixlib=java-2.1.0&w=50&s=0e0a52450aa10dc71f9f72e87272087b",
+    "Team Profile URL": "https://www.hltv.org/team/13053/just-swing",
+    "Player 1 Link": "https://www.hltv.org/player/10722/gas",
+    "Player 2 Link": "https://www.hltv.org/player/20354/purely",
+    "Player 3 Link": "https://www.hltv.org/player/22441/qqgod",
+    "Player 4 Link": "https://www.hltv.org/player/23231/hina",
+    "Player 5 Link": "https://www.hltv.org/player/25247/sator1"
+  },
+  {
+    "Team Name": "MINLATE",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/6626/minlate",
+    "Player 1 Link": "https://www.hltv.org/player/9616/amanek",
+    "Player 2 Link": "https://www.hltv.org/player/15118/sbt",
+    "Player 3 Link": "https://www.hltv.org/player/20960/ex1st",
+    "Player 4 Link": "https://www.hltv.org/player/21143/sk1tt",
+    "Player 5 Link": "https://www.hltv.org/player/22474/polo"
+  },
+  {
+    "Team Name": "LAG",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/W30xfG1IVIUuOJnlsxtHMG.png?ixlib=java-2.1.0&w=50&s=7b86122252f70538d55be737b7e80c50,https://img-cdn.hltv.org/teamlogo/W30xfG1IVIUuOJnlsxtHMG.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=3e08a3ee240253db20ddafb98298ea97",
+    "Team Profile URL": "https://www.hltv.org/team/11955/lag",
+    "Player 1 Link": "https://www.hltv.org/player/12102/djay",
+    "Player 2 Link": "https://www.hltv.org/player/19177/consti",
+    "Player 3 Link": "https://www.hltv.org/player/20572/kmrn",
+    "Player 4 Link": "https://www.hltv.org/player/21128/pluto",
+    "Player 5 Link": "https://www.hltv.org/player/22552/sandman"
+  },
+  {
+    "Team Name": "FlyQuest RED",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/bqRjihc2rY4j6Er94k9vaB.png?ixlib=java-2.1.0&w=50&s=74ed489e974099a3eadc7fee8f9a104d",
+    "Team Profile URL": "https://www.hltv.org/team/12301/flyquest-red",
+    "Player 1 Link": "https://www.hltv.org/player/8850/goosebreeder",
+    "Player 2 Link": "https://www.hltv.org/player/14401/emy",
+    "Player 3 Link": "https://www.hltv.org/player/18641/bibiahn",
+    "Player 4 Link": "https://www.hltv.org/player/22111/vanessa",
+    "Player 5 Link": "https://www.hltv.org/player/23621/marie"
+  },
+  {
+    "Team Name": "eLITenergy",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13568/elitenergy",
+    "Player 1 Link": "https://www.hltv.org/player/21909/keegan",
+    "Player 2 Link": "https://www.hltv.org/player/22430/k0s",
+    "Player 3 Link": "https://www.hltv.org/player/22883/k1slll",
+    "Player 4 Link": "https://www.hltv.org/player/22961/finw",
+    "Player 5 Link": "https://www.hltv.org/player/25423/gooddeph"
+  },
+  {
+    "Team Name": "ShindeN",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/5tfhYrPKeLDzFW8X-vFExJ.png?ixlib=java-2.1.0&w=50&s=cfc4c6391157f58820f5108485a4f2a6,https://img-cdn.hltv.org/teamlogo/Wz4H8kfHRRVA3qI97__Pq1.png?ixlib=java-2.1.0&w=50&s=5a8ea5d2dea8ae4439c443aa93c30c06",
+    "Team Profile URL": "https://www.hltv.org/team/12959/shinden",
+    "Player 1 Link": "https://www.hltv.org/player/19985/nacho",
+    "Player 2 Link": "https://www.hltv.org/player/20451/abizz",
+    "Player 3 Link": "https://www.hltv.org/player/20992/ivz",
+    "Player 4 Link": "https://www.hltv.org/player/21155/naz",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "megoshort",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/11018/megoshort",
+    "Player 1 Link": "https://www.hltv.org/player/7700/robiin",
+    "Player 2 Link": "https://www.hltv.org/player/17769/twinkey",
+    "Player 3 Link": "https://www.hltv.org/player/24462/titulus",
+    "Player 4 Link": "https://www.hltv.org/player/24584/sn0w",
+    "Player 5 Link": "https://www.hltv.org/player/24727/mogv"
+  },
+  {
+    "Team Name": "Lilmix",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/9735/lilmix",
+    "Player 1 Link": "https://www.hltv.org/player/3329/quix",
+    "Player 2 Link": "https://www.hltv.org/player/9811/plessen",
+    "Player 3 Link": "https://www.hltv.org/player/15501/b0denmaster",
+    "Player 4 Link": "https://www.hltv.org/player/22380/bsover",
+    "Player 5 Link": "https://www.hltv.org/player/23741/doobs"
+  },
+  {
+    "Team Name": "WHITEBIRD",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13583/whitebird",
+    "Player 1 Link": "https://www.hltv.org/player/11498/nickelback",
+    "Player 2 Link": "https://www.hltv.org/player/13240/lack1",
+    "Player 3 Link": "https://www.hltv.org/player/13281/el1an",
+    "Player 4 Link": "https://www.hltv.org/player/13982/forester",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "INFINITE",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Bq4oCmwPwqkpV5XvHqmVhI.png?ixlib=java-2.1.0&w=50&s=16e18db9b1e19dc66aeed84ec4c6367e",
+    "Team Profile URL": "https://www.hltv.org/team/10823/infinite",
+    "Player 1 Link": "https://www.hltv.org/player/19171/mhn1",
+    "Player 2 Link": "https://www.hltv.org/player/24338/welnic",
+    "Player 3 Link": "https://www.hltv.org/player/24901/ra1n",
+    "Player 4 Link": "https://www.hltv.org/player/25333/lks",
+    "Player 5 Link": "https://www.hltv.org/player/25602/rqby"
+  },
+  {
+    "Team Name": "OlyBet",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/FvnOaG5ilZPKNcxaCxUPme.png?ixlib=java-2.1.0&w=50&s=ad79e98d431a2824c4483474eea84c30",
+    "Team Profile URL": "https://www.hltv.org/team/13551/olybet",
+    "Player 1 Link": "https://www.hltv.org/player/14969/discplex",
+    "Player 2 Link": "https://www.hltv.org/player/19566/frip",
+    "Player 3 Link": "https://www.hltv.org/player/23720/hexoq",
+    "Player 4 Link": "https://www.hltv.org/player/24210/yaankz",
+    "Player 5 Link": "https://www.hltv.org/player/24591/chipaan"
+  },
+  {
+    "Team Name": "QWENTRY",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13510/qwentry",
+    "Player 1 Link": "https://www.hltv.org/player/20883/eightz999",
+    "Player 2 Link": "https://www.hltv.org/player/23835/psychodoctor",
+    "Player 3 Link": "https://www.hltv.org/player/24311/wadeshot",
+    "Player 4 Link": "https://www.hltv.org/player/24807/slaxejezzz",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Ursa",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/y8cjHnlpqAPHEVRTd_tnzz.png?ixlib=java-2.1.0&w=50&s=648081ff7eaa6acbb51237e6ea5d5b6f",
+    "Team Profile URL": "https://www.hltv.org/team/13231/ursa",
+    "Player 1 Link": "https://www.hltv.org/player/19664/torox",
+    "Player 2 Link": "https://www.hltv.org/player/21513/4x1s",
+    "Player 3 Link": "https://www.hltv.org/player/23764/alv",
+    "Player 4 Link": "https://www.hltv.org/player/24349/deen",
+    "Player 5 Link": "https://www.hltv.org/player/25349/salazar"
+  },
+  {
+    "Team Name": "InControl",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Gn6RSmwgUVq_ug2VNgYR2Q.png?ixlib=java-2.1.0&w=50&s=81bf01eac6a406917eb73a95bb36aef9",
+    "Team Profile URL": "https://www.hltv.org/team/7720/incontrol",
+    "Player 1 Link": "https://www.hltv.org/player/14744/calamity",
+    "Player 2 Link": "https://www.hltv.org/player/20330/jsfeltner",
+    "Player 3 Link": "https://www.hltv.org/player/23690/tyra",
+    "Player 4 Link": "https://www.hltv.org/player/23691/beast",
+    "Player 5 Link": "https://www.hltv.org/player/24528/scorchyy"
+  },
+  {
+    "Team Name": "ODDIK",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/vpWs2bh24DJ8mqXotmXCJM.png?ixlib=java-2.1.0&w=50&s=415cf2a5a2ef2c318943b5bc53b38681,https://img-cdn.hltv.org/teamlogo/OyrfDgfALykW3zHDRh5Pnc.png?ixlib=java-2.1.0&w=50&s=f4d5734a7c6d930088fe882cbde540e6",
+    "Team Profile URL": "https://www.hltv.org/team/11768/oddik",
+    "Player 1 Link": "https://www.hltv.org/player/14390/wood7",
+    "Player 2 Link": "https://www.hltv.org/player/17181/naitte",
+    "Player 3 Link": "https://www.hltv.org/player/22182/ksloks",
+    "Player 4 Link": "https://www.hltv.org/player/22777/diozera",
+    "Player 5 Link": "https://www.hltv.org/player/24772/nardes"
+  },
+  {
+    "Team Name": "FUT Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/oYqohVYe6EACqvw-RGcUVr.png?ixlib=java-2.1.0&w=50&s=cbc4cb8b5436a6262f249ec4473f2d4f",
+    "Team Profile URL": "https://www.hltv.org/team/13474/fut-academy",
+    "Player 1 Link": "https://www.hltv.org/player/20437/brillo",
+    "Player 2 Link": "https://www.hltv.org/player/22650/rendysky",
+    "Player 3 Link": "https://www.hltv.org/player/22722/yoom",
+    "Player 4 Link": "https://www.hltv.org/player/23696/wonder",
+    "Player 5 Link": "https://www.hltv.org/player/23735/dezt"
+  },
+  {
+    "Team Name": "ex-GANK",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13586/ex-gank",
+    "Player 1 Link": "https://www.hltv.org/player/15732/cizzx",
+    "Player 2 Link": "https://www.hltv.org/player/22806/quality",
+    "Player 3 Link": "https://www.hltv.org/player/25109/zer0uky",
+    "Player 4 Link": "https://www.hltv.org/player/25500/xeternalxx",
+    "Player 5 Link": "https://www.hltv.org/player/25540/zemix"
+  },
+  {
+    "Team Name": "BRUTE",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/9139/brute",
+    "Player 1 Link": "https://www.hltv.org/player/22863/kad1m",
+    "Player 2 Link": "https://www.hltv.org/player/23204/siko",
+    "Player 3 Link": "https://www.hltv.org/player/23206/w4rden",
+    "Player 4 Link": "https://www.hltv.org/player/24261/realzen",
+    "Player 5 Link": "https://www.hltv.org/player/24553/n1kolaj"
+  },
+  {
+    "Team Name": "Flame Sharks",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/8ChSiXg9gqXtcIU2anbs17.png?ixlib=java-2.1.0&w=50&s=b57172b274375583ca14c47857639343",
+    "Team Profile URL": "https://www.hltv.org/team/13387/flame-sharks",
+    "Player 1 Link": "https://www.hltv.org/player/14273/idisbalance",
+    "Player 2 Link": "https://www.hltv.org/player/22193/sad",
+    "Player 3 Link": "https://www.hltv.org/player/22450/yakuza",
+    "Player 4 Link": "https://www.hltv.org/player/23638/7tetsu",
+    "Player 5 Link": "https://www.hltv.org/player/24114/xm1nd"
+  },
+  {
+    "Team Name": "The QUBE",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/5jrof5mV8eGaTkb_RgkwMy.png?ixlib=java-2.1.0&w=50&s=ee5e57955bd4663c9d4373e97e175121",
+    "Team Profile URL": "https://www.hltv.org/team/12825/the-qube",
+    "Player 1 Link": "https://www.hltv.org/player/24302/paranormal",
+    "Player 2 Link": "https://www.hltv.org/player/24396/solooos",
+    "Player 3 Link": "https://www.hltv.org/player/24512/cozen",
+    "Player 4 Link": "https://www.hltv.org/player/24513/kamui",
+    "Player 5 Link": "https://www.hltv.org/player/24779/bkzcurs3d"
+  },
+  {
+    "Team Name": "Oxuji",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/FHuQgIDeH66FZalxl9lKLh.png?ixlib=java-2.1.0&w=50&s=507c5ba895f8ba0efa7cec319263bc3d",
+    "Team Profile URL": "https://www.hltv.org/team/13553/oxuji",
+    "Player 1 Link": "https://www.hltv.org/player/21192/zealot",
+    "Player 2 Link": "https://www.hltv.org/player/21365/k1ssly",
+    "Player 3 Link": "https://www.hltv.org/player/24899/mikejio",
+    "Player 4 Link": "https://www.hltv.org/player/25608/ayano",
+    "Player 5 Link": "https://www.hltv.org/player/25609/heckbnk"
+  },
+  {
+    "Team Name": "Zomblers",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/dzs1Ru_r0dAPURqi9Hldhj.png?ixlib=java-2.1.0&w=50&s=5f7336395fe481e9fea781589616b89b",
+    "Team Profile URL": "https://www.hltv.org/team/12164/zomblers",
+    "Player 1 Link": "https://www.hltv.org/player/19707/grape",
+    "Player 2 Link": "https://www.hltv.org/player/20273/cajun",
+    "Player 3 Link": "https://www.hltv.org/player/20787/pose1donn",
+    "Player 4 Link": "https://www.hltv.org/player/21091/pol0",
+    "Player 5 Link": "https://www.hltv.org/player/23410/coolcoms"
+  },
+  {
+    "Team Name": "DRGN",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/caymLWDv8yViIJm9by65gY.png?ixlib=java-2.1.0&w=50&s=20fcb9c5107ced8c5931138b87d10870",
+    "Team Profile URL": "https://www.hltv.org/team/13523/drgn",
+    "Player 1 Link": "https://www.hltv.org/player/11926/mds",
+    "Player 2 Link": "https://www.hltv.org/player/23687/muk0s",
+    "Player 3 Link": "https://www.hltv.org/player/24316/whisper",
+    "Player 4 Link": "https://www.hltv.org/player/24318/tommy",
+    "Player 5 Link": "https://www.hltv.org/player/24838/pavlysha666"
+  },
+  {
+    "Team Name": "HyperSpirit",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/MdMPxRh2SX6Y3tOWO3Ok3M.png?ixlib=java-2.1.0&w=50&s=7ab5b1a592da8b9b944a10cff37b7a99",
+    "Team Profile URL": "https://www.hltv.org/team/13012/hyperspirit",
+    "Player 1 Link": "https://www.hltv.org/player/15573/ciocardau",
+    "Player 2 Link": "https://www.hltv.org/player/17116/ragga",
+    "Player 3 Link": "https://www.hltv.org/player/18294/adron",
+    "Player 4 Link": "https://www.hltv.org/player/21117/d1maje",
+    "Player 5 Link": "https://www.hltv.org/player/21337/starplajerz"
+  },
+  {
+    "Team Name": "YinYang",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/rqDlvPpWQAjfizl9_rX-oG.png?ixlib=java-2.1.0&w=50&s=a8c724c5261239790a566af2391f2e93",
+    "Team Profile URL": "https://www.hltv.org/team/13513/yinyang",
+    "Player 1 Link": "https://www.hltv.org/player/20411/zeak",
+    "Player 2 Link": "https://www.hltv.org/player/22877/rack",
+    "Player 3 Link": "https://www.hltv.org/player/23734/king",
+    "Player 4 Link": "https://www.hltv.org/player/24112/p1ke",
+    "Player 5 Link": "https://www.hltv.org/player/24143/lindeen"
+  },
+  {
+    "Team Name": "VP.Prodigy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/XeVFqoxRuwHgJKTL-BJfzH.png?ixlib=java-2.1.0&w=50&s=52dd4939e8b867d2e6778997cb0136a0",
+    "Team Profile URL": "https://www.hltv.org/team/10864/vpprodigy",
+    "Player 1 Link": "https://www.hltv.org/player/24292/f0r3ver",
+    "Player 2 Link": "https://www.hltv.org/player/24950/aquars",
+    "Player 3 Link": "https://www.hltv.org/player/24951/triborgg1",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "WiLD",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/1zk3Vg6pmLln2BNptmjqPl.png?ixlib=java-2.1.0&w=50&s=2068cb03b99d71a3ed71d7181093c319",
+    "Team Profile URL": "https://www.hltv.org/team/4903/wild",
+    "Player 1 Link": "https://www.hltv.org/player/12850/v1z3r",
+    "Player 2 Link": "https://www.hltv.org/player/22283/makszi",
+    "Player 3 Link": "https://www.hltv.org/player/22284/flasi",
+    "Player 4 Link": "https://www.hltv.org/player/22286/nons3ns",
+    "Player 5 Link": "https://www.hltv.org/player/25516/strong3r"
+  },
+  {
+    "Team Name": "Washington",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/oV-m8fKGacMgVuug5-H2wT.png?ixlib=java-2.1.0&w=50&s=c887a22b922fb2b67fdb039886099a1f",
+    "Team Profile URL": "https://www.hltv.org/team/13483/washington",
+    "Player 1 Link": "https://www.hltv.org/player/20336/artist",
+    "Player 2 Link": "https://www.hltv.org/player/20339/extinct",
+    "Player 3 Link": "https://www.hltv.org/player/20908/bevve",
+    "Player 4 Link": "https://www.hltv.org/player/22192/vacancy",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Prison Breakers",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13512/prison-breakers",
+    "Player 1 Link": "https://www.hltv.org/player/17216/mallby",
+    "Player 2 Link": "https://www.hltv.org/player/22655/r3kt",
+    "Player 3 Link": "https://www.hltv.org/player/22957/stax",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "LITE",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/AkO3S3UtmgC1qoXS8kBnCB.png?ixlib=java-2.1.0&w=50&s=b7e4c8a6e7c96500614c90beae35aa48",
+    "Team Profile URL": "https://www.hltv.org/team/13542/lite",
+    "Player 1 Link": "https://www.hltv.org/player/24778/elfmelk",
+    "Player 2 Link": "https://www.hltv.org/player/25596/blood",
+    "Player 3 Link": "https://www.hltv.org/player/25597/val",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Procyon",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Oma3eDC6flbDILSAQKIX-A.png?ixlib=java-2.1.0&w=50&s=42b4f66d73d99d0e813b8eed9423f228",
+    "Team Profile URL": "https://www.hltv.org/team/10997/procyon",
+    "Player 1 Link": "https://www.hltv.org/player/17997/lenci",
+    "Player 2 Link": "https://www.hltv.org/player/19086/pavv",
+    "Player 3 Link": "https://www.hltv.org/player/20689/hezz",
+    "Player 4 Link": "https://www.hltv.org/player/24091/dott1",
+    "Player 5 Link": "https://www.hltv.org/player/25105/agl"
+  },
+  {
+    "Team Name": "BIG Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/jn7TgPjiSMAbYk0jeHNMqq.png?ixlib=java-2.1.0&w=50&s=c2bb5f09f9a0823fbd63e3def8dcfe11,https://img-cdn.hltv.org/teamlogo/jn7TgPjiSMAbYk0jeHNMqq.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=ffc1321ba7378048962603cf1cf6f190",
+    "Team Profile URL": "https://www.hltv.org/team/10254/big-academy",
+    "Player 1 Link": "https://www.hltv.org/player/20170/kyuubii",
+    "Player 2 Link": "https://www.hltv.org/player/22866/jboen",
+    "Player 3 Link": "https://www.hltv.org/player/24195/xonn1k",
+    "Player 4 Link": "https://www.hltv.org/player/24358/w1dow",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Misa",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/NZDgFz0RzIniP7zbNUoHuU.png?ixlib=java-2.1.0&w=50&s=f04ee2b4b27a2aa62a3aca91566e92f4",
+    "Team Profile URL": "https://www.hltv.org/team/13528/misa",
+    "Player 1 Link": "https://www.hltv.org/player/14070/hatex",
+    "Player 2 Link": "https://www.hltv.org/player/24841/ckanic",
+    "Player 3 Link": "https://www.hltv.org/player/25076/rim3",
+    "Player 4 Link": "https://www.hltv.org/player/25575/zuedsta",
+    "Player 5 Link": "https://www.hltv.org/player/25578/mertowsk1"
+  },
+  {
+    "Team Name": "MIBR fe",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/m_JQ624LNFHWiUY-25uuaE.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=6f521aaf8c039fc3f6f235a8a1b7dd40,https://img-cdn.hltv.org/teamlogo/m_JQ624LNFHWiUY-25uuaE.png?ixlib=java-2.1.0&w=50&s=80a1e479dd1b15b974d3e2d5588763af",
+    "Team Profile URL": "https://www.hltv.org/team/10975/mibr-fe",
+    "Player 1 Link": "https://www.hltv.org/player/11215/olga",
+    "Player 2 Link": "https://www.hltv.org/player/16341/gabi",
+    "Player 3 Link": "https://www.hltv.org/player/21800/poppins",
+    "Player 4 Link": "https://www.hltv.org/player/21801/yungher",
+    "Player 5 Link": "https://www.hltv.org/player/23463/dani"
+  },
+  {
+    "Team Name": "Phoenix",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/MLMnBoI_XZRPrOA4L0XckB.png?ixlib=java-2.1.0&w=50&s=8c001a35a828ad4e75c6f7321c46e52c",
+    "Team Profile URL": "https://www.hltv.org/team/12909/phoenix",
+    "Player 1 Link": "https://www.hltv.org/player/13689/jchance",
+    "Player 2 Link": "https://www.hltv.org/player/20234/gabe",
+    "Player 3 Link": "https://www.hltv.org/player/22267/mds",
+    "Player 4 Link": "https://www.hltv.org/player/24045/h0nest",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "BIG EQUIPA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/6UagLkzIYk5UVlCFmEYXt1.png?ixlib=java-2.1.0&w=50&s=d2655c1d0158cda2f0bdaaeced552421,https://img-cdn.hltv.org/teamlogo/6UagLkzIYk5UVlCFmEYXt1.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=659091a034bec7539aa33f2e0fb0181f",
+    "Team Profile URL": "https://www.hltv.org/team/11718/big-equipa",
+    "Player 1 Link": "https://www.hltv.org/player/21849/astra",
+    "Player 2 Link": "https://www.hltv.org/player/22062/vicu",
+    "Player 3 Link": "https://www.hltv.org/player/22063/hanka",
+    "Player 4 Link": "https://www.hltv.org/player/23049/kyossa",
+    "Player 5 Link": "https://www.hltv.org/player/23995/emmsan"
+  },
+  {
+    "Team Name": "Underground",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/BlDVOQnGCGmv5v9LtET7Hf.png?ixlib=java-2.1.0&w=50&s=5ba5c802cc3b4af402cfa0c051786126",
+    "Team Profile URL": "https://www.hltv.org/team/12707/underground",
+    "Player 1 Link": "https://www.hltv.org/player/20320/n1ghtraid",
+    "Player 2 Link": "https://www.hltv.org/player/21463/mechanical",
+    "Player 3 Link": "https://www.hltv.org/player/23824/74lor",
+    "Player 4 Link": "https://www.hltv.org/player/25339/myst",
+    "Player 5 Link": "https://www.hltv.org/player/25452/royal"
+  },
+  {
+    "Team Name": "GameHunters",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/kaJW-Rt4N4IVPApc1wKtTd.png?ixlib=java-2.1.0&w=50&s=67d9bb2642668856a55fdf2ba192605f",
+    "Team Profile URL": "https://www.hltv.org/team/12988/gamehunters",
+    "Player 1 Link": "https://www.hltv.org/player/10827/prt",
+    "Player 2 Link": "https://www.hltv.org/player/11337/rcf",
+    "Player 3 Link": "https://www.hltv.org/player/13287/bnc",
+    "Player 4 Link": "https://www.hltv.org/player/17028/abr",
+    "Player 5 Link": "https://www.hltv.org/player/22126/nyezin"
+  },
+  {
+    "Team Name": "RUSTEC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/VMuaIpJpcqD5dv2p2z1cmN.png?ixlib=java-2.1.0&w=50&s=f2d3be3d8ebe4c2a3790d831665ad86d,https://img-cdn.hltv.org/teamlogo/VWD9BKgTB4KeH5Mgyv7Bzq.png?ixlib=java-2.1.0&w=50&s=560ad6400580d72ae2a834b53e1f8073",
+    "Team Profile URL": "https://www.hltv.org/team/12834/rustec",
+    "Player 1 Link": "https://www.hltv.org/player/16415/supra",
+    "Player 2 Link": "https://www.hltv.org/player/19297/brilliance",
+    "Player 3 Link": "https://www.hltv.org/player/20621/nitzie",
+    "Player 4 Link": "https://www.hltv.org/player/21686/anttzz",
+    "Player 5 Link": "https://www.hltv.org/player/24817/jakekes"
+  },
+  {
+    "Team Name": "FOLHA AMARELA",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13475/folha-amarela",
+    "Player 1 Link": "https://www.hltv.org/player/18140/f4stzin",
+    "Player 2 Link": "https://www.hltv.org/player/19972/ckzao",
+    "Player 3 Link": "https://www.hltv.org/player/22084/mello",
+    "Player 4 Link": "https://www.hltv.org/player/22404/cerolzin",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Outfit 49",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/xiNkAGePBThfzUt4-NsEz2.png?ixlib=java-2.1.0&w=50&s=5817fc61de004a0250cc2763f84a9ff3,https://img-cdn.hltv.org/teamlogo/xiNkAGePBThfzUt4-NsEz2.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=c0ad52e678558b54e491b058cb357db7",
+    "Team Profile URL": "https://www.hltv.org/team/13294/outfit-49",
+    "Player 1 Link": "https://www.hltv.org/player/14799/brett",
+    "Player 2 Link": "https://www.hltv.org/player/20573/andrew",
+    "Player 3 Link": "https://www.hltv.org/player/21093/sava9e",
+    "Player 4 Link": "https://www.hltv.org/player/23830/luke4k",
+    "Player 5 Link": "https://www.hltv.org/player/24238/s3rum"
+  },
+  {
+    "Team Name": "ALGO",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/CuxdvjW3vWmW0NxP2OKiWd.png?ixlib=java-2.1.0&w=50&s=e545b3bdbec345377cb5ba6007528a12",
+    "Team Profile URL": "https://www.hltv.org/team/13163/algo",
+    "Player 1 Link": "https://www.hltv.org/player/13679/nukkye",
+    "Player 2 Link": "https://www.hltv.org/player/17113/szejn",
+    "Player 3 Link": "https://www.hltv.org/player/21575/scr0b",
+    "Player 4 Link": "https://www.hltv.org/player/22948/anber",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "CSDIILIT",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/I3M-o-QGognpO9kzaJiRbT.png?ixlib=java-2.1.0&w=50&s=ee60cae916f3c5e11d023401ba2148ea",
+    "Team Profile URL": "https://www.hltv.org/team/13340/csdiilit",
+    "Player 1 Link": "https://www.hltv.org/player/9325/arvid",
+    "Player 2 Link": "https://www.hltv.org/player/14236/oopee",
+    "Player 3 Link": "https://www.hltv.org/player/21931/myggis",
+    "Player 4 Link": "https://www.hltv.org/player/24995/8juho8",
+    "Player 5 Link": "https://www.hltv.org/player/25504/puteli"
+  },
+  {
+    "Team Name": "8Sins",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/LzSMAmzYWVt1K1-HBrtdad.png?ixlib=java-2.1.0&w=50&s=00c0167da79d01ea9bd4c89de1e6c540,https://img-cdn.hltv.org/teamlogo/5sBOC721FlLG38FM4SH0xn.png?ixlib=java-2.1.0&w=50&s=60a13ad8de8f4591afbd0d44940e391d",
+    "Team Profile URL": "https://www.hltv.org/team/13024/8sins",
+    "Player 1 Link": "https://www.hltv.org/player/17656/frazehh",
+    "Player 2 Link": "https://www.hltv.org/player/18218/tadpole",
+    "Player 3 Link": "https://www.hltv.org/player/20128/dobbo",
+    "Player 4 Link": "https://www.hltv.org/player/21990/prime",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Imperial Valkyries",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/nMFc4UxQcg6D11pf9heJVa.png?ixlib=java-2.1.0&w=50&s=49fb8dd20cdc176594bff3c73b636839",
+    "Team Profile URL": "https://www.hltv.org/team/12828/imperial-valkyries",
+    "Player 1 Link": "https://www.hltv.org/player/12758/ana",
+    "Player 2 Link": "https://www.hltv.org/player/16497/tory",
+    "Player 3 Link": "https://www.hltv.org/player/18775/twenty3",
+    "Player 4 Link": "https://www.hltv.org/player/21756/kat",
+    "Player 5 Link": "https://www.hltv.org/player/24005/wieenn"
+  },
+  {
+    "Team Name": "TNC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/aCaG8jaXk11qRhOHu81INJ.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=d784f3db370b983160ab10c061abf78d,https://img-cdn.hltv.org/teamlogo/aCaG8jaXk11qRhOHu81INJ.png?ixlib=java-2.1.0&w=50&s=8bd5b9fea4632293235d47f49c6b9803",
+    "Team Profile URL": "https://www.hltv.org/team/13403/tnc",
+    "Player 1 Link": "https://www.hltv.org/player/16392/kamo",
+    "Player 2 Link": "https://www.hltv.org/player/25306/matih3h3",
+    "Player 3 Link": "https://www.hltv.org/player/25307/eskyy",
+    "Player 4 Link": "https://www.hltv.org/player/25308/benog",
+    "Player 5 Link": "https://www.hltv.org/player/25309/adex"
+  },
+  {
+    "Team Name": "Four Magic",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/s48ySdUp5ztbflUVuGDth5.png?ixlib=java-2.1.0&w=50&s=05ab6291af72b9db0a8c521f1c5cb72d",
+    "Team Profile URL": "https://www.hltv.org/team/13520/four-magic",
+    "Player 1 Link": "https://www.hltv.org/player/2544/remix",
+    "Player 2 Link": "https://www.hltv.org/player/19975/broken",
+    "Player 3 Link": "https://www.hltv.org/player/23587/ltz",
+    "Player 4 Link": "https://www.hltv.org/player/24716/cld",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Wanted Goons",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/jgXPDKxRWNP3a5qGXUSRAT.png?ixlib=java-2.1.0&w=50&s=a4b4ec6b79da5b14fd5becaff8981489,https://img-cdn.hltv.org/teamlogo/w1JUTlpeejAtnAXSG9OnZb.png?ixlib=java-2.1.0&w=50&s=ac2a562548910053c465670aa4e228f1",
+    "Team Profile URL": "https://www.hltv.org/team/12971/wanted-goons",
+    "Player 1 Link": "https://www.hltv.org/player/16865/magic",
+    "Player 2 Link": "https://www.hltv.org/player/20202/jdubs",
+    "Player 3 Link": "https://www.hltv.org/player/21426/febreeze",
+    "Player 4 Link": "https://www.hltv.org/player/24467/johan",
+    "Player 5 Link": "https://www.hltv.org/player/24664/killerpandas"
+  },
+  {
+    "Team Name": "RED Canids Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/cBbt6PRgyMMpkSLJWncEV3.png?ixlib=java-2.1.0&w=50&s=06898dac8e3dc1cc763c07a28d7b35a2",
+    "Team Profile URL": "https://www.hltv.org/team/13029/red-canids-academy",
+    "Player 1 Link": "https://www.hltv.org/player/23828/sanc",
+    "Player 2 Link": "https://www.hltv.org/player/24477/gtw",
+    "Player 3 Link": "https://www.hltv.org/player/24571/n0page",
+    "Player 4 Link": "https://www.hltv.org/player/24572/edv",
+    "Player 5 Link": "https://www.hltv.org/player/25681/nk"
+  },
+  {
+    "Team Name": "IHC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Dmy6A1T8EZ9OKU-x7yT4VR.png?ixlib=java-2.1.0&w=50&s=94ec104bae0e1fdfc5a1c39941bd89f0",
+    "Team Profile URL": "https://www.hltv.org/team/11585/ihc",
+    "Player 1 Link": "https://www.hltv.org/player/15060/neuz",
+    "Player 2 Link": "https://www.hltv.org/player/15062/shinobi",
+    "Player 3 Link": "https://www.hltv.org/player/24124/rhittacrit",
+    "Player 4 Link": "https://www.hltv.org/player/24394/aapestt",
+    "Player 5 Link": "https://www.hltv.org/player/25513/qqlightning"
+  },
+  {
+    "Team Name": "Prestige",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/_VIidkVVh0Rf4C8AoqcSgG.png?ixlib=java-2.1.0&w=50&s=cd540cfcdcf70371941633aaab0d6682",
+    "Team Profile URL": "https://www.hltv.org/team/13159/prestige",
+    "Player 1 Link": "https://www.hltv.org/player/23335/folke",
+    "Player 2 Link": "https://www.hltv.org/player/23936/few",
+    "Player 3 Link": "https://www.hltv.org/player/24102/mizi",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Crashers",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/LzU7T4b8c9FicgRI6nLADj.png?ixlib=java-2.1.0&w=50&s=0e2760f1c26e4fd09ca43a1b16ff4865",
+    "Team Profile URL": "https://www.hltv.org/team/6788/crashers",
+    "Player 1 Link": "https://www.hltv.org/player/21038/reix",
+    "Player 2 Link": "https://www.hltv.org/player/21085/antonini",
+    "Player 3 Link": "https://www.hltv.org/player/23829/machado",
+    "Player 4 Link": "https://www.hltv.org/player/24717/nikz",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Legion",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/E1Mbu8dLgT84ihEYQDnwGI.png?ixlib=java-2.1.0&w=50&s=7df326a514a027436133b3d42abc8845",
+    "Team Profile URL": "https://www.hltv.org/team/10287/legion",
+    "Player 1 Link": "https://www.hltv.org/player/17844/hzi",
+    "Player 2 Link": "https://www.hltv.org/player/18223/pokemon",
+    "Player 3 Link": "https://www.hltv.org/player/23744/hf",
+    "Player 4 Link": "https://www.hltv.org/player/23956/bloody",
+    "Player 5 Link": "https://www.hltv.org/player/24640/pavast4r"
+  },
+  {
+    "Team Name": "Charrados",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13519/charrados",
+    "Player 1 Link": "https://www.hltv.org/player/25552/space",
+    "Player 2 Link": "https://www.hltv.org/player/25553/s1lent",
+    "Player 3 Link": "https://www.hltv.org/player/25554/rodfps",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Ghost",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/7801/ghost",
+    "Player 1 Link": "https://www.hltv.org/player/8640/emuhleet",
+    "Player 2 Link": "https://www.hltv.org/player/21961/mira",
+    "Player 3 Link": "https://www.hltv.org/player/22067/piggykiki",
+    "Player 4 Link": "https://www.hltv.org/player/22096/7licious",
+    "Player 5 Link": "https://www.hltv.org/player/23524/ellie"
+  },
+  {
+    "Team Name": "Wicked",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13505/wicked",
+    "Player 1 Link": "https://www.hltv.org/player/21601/crazy-gamer",
+    "Player 2 Link": "https://www.hltv.org/player/21602/defaulter",
+    "Player 3 Link": "https://www.hltv.org/player/23324/cyclonef",
+    "Player 4 Link": "https://www.hltv.org/player/23429/ph1nnn",
+    "Player 5 Link": "https://www.hltv.org/player/23452/f1redup"
+  },
+  {
+    "Team Name": "FURY",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/ylIa0X44fFfLBECJKuOF9p.png?ixlib=java-2.1.0&w=50&s=7d877c6dc2d3d18318958137fb3ef52a",
+    "Team Profile URL": "https://www.hltv.org/team/10299/fury",
+    "Player 1 Link": "https://www.hltv.org/player/9144/cookie",
+    "Player 2 Link": "https://www.hltv.org/player/12588/brace",
+    "Player 3 Link": "https://www.hltv.org/player/14290/skull",
+    "Player 4 Link": "https://www.hltv.org/player/16031/cheeseball",
+    "Player 5 Link": "https://www.hltv.org/player/17392/rekonz"
+  },
+  {
+    "Team Name": "Nordix",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/OS8FJXGNdSUtFFZ7g-KeYK.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=fd4faf66c0e239d29394939884d4ab16,https://img-cdn.hltv.org/teamlogo/OS8FJXGNdSUtFFZ7g-KeYK.png?ixlib=java-2.1.0&w=50&s=c4e2c392a647d92dfbd0bf3cb246500d",
+    "Team Profile URL": "https://www.hltv.org/team/12766/nordix",
+    "Player 1 Link": "https://www.hltv.org/player/17450/sense",
+    "Player 2 Link": "https://www.hltv.org/player/20716/berzerk",
+    "Player 3 Link": "https://www.hltv.org/player/24515/macke",
+    "Player 4 Link": "https://www.hltv.org/player/24516/artysan",
+    "Player 5 Link": "https://www.hltv.org/player/24523/zyme"
+  },
+  {
+    "Team Name": "Vasco",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/8rWGnIe-BMnLbEEVsh0un5.png?ixlib=java-2.1.0&w=50&s=7579b9100ccb65093635438849a52cb8",
+    "Team Profile URL": "https://www.hltv.org/team/13413/vasco",
+    "Player 1 Link": "https://www.hltv.org/player/10838/mawth",
+    "Player 2 Link": "https://www.hltv.org/player/10840/tatazin",
+    "Player 3 Link": "https://www.hltv.org/player/22423/clon7",
+    "Player 4 Link": "https://www.hltv.org/player/23094/renanzin",
+    "Player 5 Link": "https://www.hltv.org/player/23588/n1cks"
+  },
+  {
+    "Team Name": "Timewaves",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/NVUaetiqY0v9tZ1-MdLGi3.png?ixlib=java-2.1.0&w=50&s=0cc82ec46b604d4c64eb1be24f650138,https://img-cdn.hltv.org/teamlogo/HgdYAKgYfAgg5VzIJ0_DYM.png?ixlib=java-2.1.0&w=50&s=62a141a669ef1d067c9d6837ac3f3e04",
+    "Team Profile URL": "https://www.hltv.org/team/13543/timewaves",
+    "Player 1 Link": "https://www.hltv.org/player/21248/harbor",
+    "Player 2 Link": "https://www.hltv.org/player/22330/elephant",
+    "Player 3 Link": "https://www.hltv.org/player/24321/kezza",
+    "Player 4 Link": "https://www.hltv.org/player/25594/camille",
+    "Player 5 Link": "https://www.hltv.org/player/25595/lawlkay"
+  },
+  {
+    "Team Name": "Money Crew",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13469/money-crew",
+    "Player 1 Link": "https://www.hltv.org/player/21705/n2o",
+    "Player 2 Link": "https://www.hltv.org/player/21820/obi",
+    "Player 3 Link": "https://www.hltv.org/player/22918/zy",
+    "Player 4 Link": "https://www.hltv.org/player/23222/zamgaa",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "UR",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/XeiebATiUOZ__URWR_BaDK.png?ixlib=java-2.1.0&w=50&s=3423e72e39cb8b7223ab1f8d9aec6439",
+    "Team Profile URL": "https://www.hltv.org/team/13116/ur",
+    "Player 1 Link": "https://www.hltv.org/player/23799/madness",
+    "Player 2 Link": "https://www.hltv.org/player/24847/glong",
+    "Player 3 Link": "https://www.hltv.org/player/25537/4ever",
+    "Player 4 Link": "https://www.hltv.org/player/25538/drace",
+    "Player 5 Link": "https://www.hltv.org/player/25539/yoi"
+  },
+  {
+    "Team Name": "FURIA fe",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/cZaGsN8yj6I2dEMfPsibLx.png?ixlib=java-2.1.0&w=50&s=b5481473462f811faf1c535778fcd20d",
+    "Team Profile URL": "https://www.hltv.org/team/10976/furia-fe",
+    "Player 1 Link": "https://www.hltv.org/player/11872/gabs",
+    "Player 2 Link": "https://www.hltv.org/player/16340/bizinha",
+    "Player 3 Link": "https://www.hltv.org/player/17288/izaa",
+    "Player 4 Link": "https://www.hltv.org/player/21219/kaahsensei",
+    "Player 5 Link": "https://www.hltv.org/player/22839/lulitenz"
+  },
+  {
+    "Team Name": "Diamant",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/_fM3le_bN4mqN68tp7LV7j.png?ixlib=java-2.1.0&w=50&s=b19d5e41aa67ea147281f826bbfefbf5",
+    "Team Profile URL": "https://www.hltv.org/team/13563/diamant",
+    "Player 1 Link": "https://www.hltv.org/player/18993/jkxy",
+    "Player 2 Link": "https://www.hltv.org/player/23270/jun1",
+    "Player 3 Link": "https://www.hltv.org/player/25651/libraa",
+    "Player 4 Link": "https://www.hltv.org/player/25652/destro-yd",
+    "Player 5 Link": "https://www.hltv.org/player/25653/jernejj"
+  },
+  {
+    "Team Name": "paiN Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/DJqL2qlXf6Fi01v-8QxQP1.png?ixlib=java-2.1.0&w=50&s=0e2a00494324afe7b104b4c749b70697,https://img-cdn.hltv.org/teamlogo/ymsKjfiW_u4huzUJ4OBde8.png?ixlib=java-2.1.0&w=50&s=f531fcf67ace6bcd313007abf4d68d12",
+    "Team Profile URL": "https://www.hltv.org/team/11905/pain-academy",
+    "Player 1 Link": "https://www.hltv.org/player/24089/tatu",
+    "Player 2 Link": "https://www.hltv.org/player/24223/markz",
+    "Player 3 Link": "https://www.hltv.org/player/24249/futoi",
+    "Player 4 Link": "https://www.hltv.org/player/24564/tsug",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Akimbo",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/aHIz8ksgYCmWSPaOd0Pzo7.png?ixlib=java-2.1.0&w=50&s=c695ca1f100ce57fd0278dac55f119dd",
+    "Team Profile URL": "https://www.hltv.org/team/12567/akimbo",
+    "Player 1 Link": "https://www.hltv.org/player/7935/roca",
+    "Player 2 Link": "https://www.hltv.org/player/8518/glorinsz",
+    "Player 3 Link": "https://www.hltv.org/player/18442/frizzy",
+    "Player 4 Link": "https://www.hltv.org/player/22133/littlebeer",
+    "Player 5 Link": "https://www.hltv.org/player/23370/tripp"
+  },
+  {
+    "Team Name": "ScarX",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/6Dg7rDr-qSMARz-Y5HQjuf.png?ixlib=java-2.1.0&w=50&s=6f783503819c8dcb04d0b7b5d0b8fc4a",
+    "Team Profile URL": "https://www.hltv.org/team/13217/scarx",
+    "Player 1 Link": "https://www.hltv.org/player/16167/x1ron",
+    "Player 2 Link": "https://www.hltv.org/player/16179/mrmn",
+    "Player 3 Link": "https://www.hltv.org/player/16180/dant1k",
+    "Player 4 Link": "https://www.hltv.org/player/21536/krypt0n",
+    "Player 5 Link": "https://www.hltv.org/player/21541/dili"
+  },
+  {
+    "Team Name": "Vantage",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/k7nye4mWdnljC6b10a4sOM.png?ixlib=java-2.1.0&w=50&s=aa5f6d4e23f6c5ab00cdbcc53e2d354f",
+    "Team Profile URL": "https://www.hltv.org/team/12455/vantage",
+    "Player 1 Link": "https://www.hltv.org/player/20582/kiyo",
+    "Player 2 Link": "https://www.hltv.org/player/21855/neo",
+    "Player 3 Link": "https://www.hltv.org/player/22978/arctic",
+    "Player 4 Link": "https://www.hltv.org/player/25453/tidy",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "OxinGame",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/qGiFpKDZt0T-kvVUkGvvmI.png?ixlib=java-2.1.0&w=50&s=0ce29670479b1f58a86e42d022b8830a,https://img-cdn.hltv.org/teamlogo/palMVmqnWT5cGaFa93I-B-.png?ixlib=java-2.1.0&w=50&s=80fd9e89c1d0a1195be870473c681bb3",
+    "Team Profile URL": "https://www.hltv.org/team/13457/oxingame",
+    "Player 1 Link": "https://www.hltv.org/player/25425/16thslatty",
+    "Player 2 Link": "https://www.hltv.org/player/25426/insid10us",
+    "Player 3 Link": "https://www.hltv.org/player/25427/berar",
+    "Player 4 Link": "https://www.hltv.org/player/25428/a1one",
+    "Player 5 Link": "https://www.hltv.org/player/25429/equalizer"
+  },
+  {
+    "Team Name": "NIC",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/mJDAMLOBKGWP85ZFFP13gs.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=3314d84181353d26341a12b3f61d6f87,https://img-cdn.hltv.org/teamlogo/mJDAMLOBKGWP85ZFFP13gs.png?ixlib=java-2.1.0&w=50&s=cb758e1d4a29e75d7309ad4eccaef585",
+    "Team Profile URL": "https://www.hltv.org/team/13582/nic",
+    "Player 1 Link": "https://www.hltv.org/player/25068/statiks",
+    "Player 2 Link": "https://www.hltv.org/player/25120/taurus",
+    "Player 3 Link": "https://www.hltv.org/player/25616/alexeren",
+    "Player 4 Link": "https://www.hltv.org/player/25699/st",
+    "Player 5 Link": "https://www.hltv.org/player/25700/hanuman"
+  },
+  {
+    "Team Name": "thekillaz fe",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/12912/thekillaz-fe",
+    "Player 1 Link": "https://www.hltv.org/player/9238/fly",
+    "Player 2 Link": "https://www.hltv.org/player/21758/samys",
+    "Player 3 Link": "https://www.hltv.org/player/22634/brunakiller",
+    "Player 4 Link": "https://www.hltv.org/player/23970/tamizinha",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Wave",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/xOYKGcKkRlcw1_fN1mF9Ap.png?ixlib=java-2.1.0&w=50&s=a7800b5d2623f51040593bf73c5a045e",
+    "Team Profile URL": "https://www.hltv.org/team/13014/wave",
+    "Player 1 Link": "https://www.hltv.org/player/22036/ayezs",
+    "Player 2 Link": "https://www.hltv.org/player/24063/hayanh",
+    "Player 3 Link": "https://www.hltv.org/player/25304/miksozzz",
+    "Player 4 Link": "https://www.hltv.org/player/25305/aerax",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Atrix",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/K2VILjWtsdCwtW4NLwhmFA.png?ixlib=java-2.1.0&w=50&s=631ec1a889fa8ae96af4bf035a6030f6,https://img-cdn.hltv.org/teamlogo/LtKBaXGb9G4UJ-whbm9LA5.png?ixlib=java-2.1.0&w=50&s=001a38d65db1740b24d89dbe668556ee",
+    "Team Profile URL": "https://www.hltv.org/team/12533/atrix",
+    "Player 1 Link": "https://www.hltv.org/player/19998/regiane",
+    "Player 2 Link": "https://www.hltv.org/player/20501/bokor",
+    "Player 3 Link": "https://www.hltv.org/player/21733/lyttlez",
+    "Player 4 Link": "https://www.hltv.org/player/23092/sofiaxyz",
+    "Player 5 Link": "https://www.hltv.org/player/23514/eleven"
+  },
+  {
+    "Team Name": "Peekaboo",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13393/peekaboo",
+    "Player 1 Link": "https://www.hltv.org/player/20502/julih",
+    "Player 2 Link": "https://www.hltv.org/player/21727/leti",
+    "Player 3 Link": "https://www.hltv.org/player/22065/angelka",
+    "Player 4 Link": "https://www.hltv.org/player/23451/hikomi",
+    "Player 5 Link": "https://www.hltv.org/player/25171/naylla"
+  },
+  {
+    "Team Name": "XI",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/ZLDnAZt-6zqU0mk0R2TK97.png?ixlib=java-2.1.0&w=50&s=235778c9f89ff38449b968769f113e17",
+    "Team Profile URL": "https://www.hltv.org/team/8947/xi",
+    "Player 1 Link": "https://www.hltv.org/player/22814/jiace",
+    "Player 2 Link": "https://www.hltv.org/player/24106/emili0",
+    "Player 3 Link": "https://www.hltv.org/player/24738/egelund",
+    "Player 4 Link": "https://www.hltv.org/player/24739/bakorino",
+    "Player 5 Link": "https://www.hltv.org/player/25399/etyyy"
+  },
+  {
+    "Team Name": "AKA HERO KAJO",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13142/aka-hero-kajo",
+    "Player 1 Link": "https://www.hltv.org/player/23050/waldee",
+    "Player 2 Link": "https://www.hltv.org/player/23051/milo",
+    "Player 3 Link": "https://www.hltv.org/player/23450/amyb",
+    "Player 4 Link": "https://www.hltv.org/player/23948/siljeeeh",
+    "Player 5 Link": "https://www.hltv.org/player/23950/piku"
+  },
+  {
+    "Team Name": "Sakura",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13531/sakura",
+    "Player 1 Link": "https://www.hltv.org/player/16581/stx",
+    "Player 2 Link": "https://www.hltv.org/player/22302/empathy",
+    "Player 3 Link": "https://www.hltv.org/player/23391/fawx",
+    "Player 4 Link": "https://www.hltv.org/player/24393/raven",
+    "Player 5 Link": "https://www.hltv.org/player/24415/serendipity"
+  },
+  {
+    "Team Name": "Arise",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13502/arise",
+    "Player 1 Link": "https://www.hltv.org/player/15762/ember",
+    "Player 2 Link": "https://www.hltv.org/player/19563/clouda",
+    "Player 3 Link": "https://www.hltv.org/player/23323/bhavi",
+    "Player 4 Link": "https://www.hltv.org/player/23325/benzene",
+    "Player 5 Link": "https://www.hltv.org/player/23430/rev3nnnn"
+  },
+  {
+    "Team Name": "Fingers Crossed fe",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/OTPipPhUTynQ9Dy51IRoj1.png?ixlib=java-2.1.0&w=50&s=0887bdbb42250924b15161ed6ce5c554",
+    "Team Profile URL": "https://www.hltv.org/team/13516/fingers-crossed-fe",
+    "Player 1 Link": "https://www.hltv.org/player/22028/margo",
+    "Player 2 Link": "https://www.hltv.org/player/23438/v1spel",
+    "Player 3 Link": "https://www.hltv.org/player/23505/irbitka",
+    "Player 4 Link": "https://www.hltv.org/player/24006/sosya",
+    "Player 5 Link": "https://www.hltv.org/player/24336/emocore"
+  },
+  {
+    "Team Name": "MIBR Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/gFQKd48pLOvrtEDXhcHxkZ.png?ixlib=java-2.1.0&w=50&s=76693c9855cb7f3afa733ba3c4db0ac9,https://img-cdn.hltv.org/teamlogo/gFQKd48pLOvrtEDXhcHxkZ.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=a49be56c507354e3868bbedbbf3445c8",
+    "Team Profile URL": "https://www.hltv.org/team/3044/mibr-academy",
+    "Player 1 Link": "https://www.hltv.org/player/6553/fl4sh",
+    "Player 2 Link": "https://www.hltv.org/player/21290/perez",
+    "Player 3 Link": "https://www.hltv.org/player/21700/brn",
+    "Player 4 Link": "https://www.hltv.org/player/22964/stormzyn",
+    "Player 5 Link": "https://www.hltv.org/player/25108/lkz"
+  },
+  {
+    "Team Name": "BAKS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/addrkF7msTiD-HdGMcCXbZ.png?ixlib=java-2.1.0&w=50&s=77c6157e0f8f6c0cc067dba37eb1110c,https://img-cdn.hltv.org/teamlogo/Bc-ZLyWM7AJ2Im6UWsVKMp.png?ixlib=java-2.1.0&w=50&s=3ca1758670c790daa97b23648f01756f",
+    "Team Profile URL": "https://www.hltv.org/team/11699/baks",
+    "Player 1 Link": "https://www.hltv.org/player/20600/sm3t",
+    "Player 2 Link": "https://www.hltv.org/player/21630/pipw",
+    "Player 3 Link": "https://www.hltv.org/player/24428/greatest",
+    "Player 4 Link": "https://www.hltv.org/player/24569/fluffy",
+    "Player 5 Link": "https://www.hltv.org/player/24825/mrtrelog"
+  },
+  {
+    "Team Name": "NomadS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/qvK6Go2ZNGqoDz3zCKa3C3.png?ixlib=java-2.1.0&w=50&s=11f89302aef47cf5cbad21c388675714",
+    "Team Profile URL": "https://www.hltv.org/team/12900/nomads",
+    "Player 1 Link": "https://www.hltv.org/player/12956/hasteka",
+    "Player 2 Link": "https://www.hltv.org/player/18150/clouden",
+    "Player 3 Link": "https://www.hltv.org/player/19978/henx",
+    "Player 4 Link": "https://www.hltv.org/player/24303/hoolig4n",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "QUAZAR",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/YiIFGuv43P9_fALVOSLJHh.png?ixlib=java-2.1.0&w=50&s=fb7fb2d19c66e04b89e883b0948ca78a",
+    "Team Profile URL": "https://www.hltv.org/team/11312/quazar",
+    "Player 1 Link": "https://www.hltv.org/player/24317/n4mb3r5",
+    "Player 2 Link": "https://www.hltv.org/player/24319/gehji",
+    "Player 3 Link": "https://www.hltv.org/player/24900/newt",
+    "Player 4 Link": "https://www.hltv.org/player/25077/kaiori",
+    "Player 5 Link": "https://www.hltv.org/player/25345/1zz"
+  },
+  {
+    "Team Name": "ALZON",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13471/alzon",
+    "Player 1 Link": "https://www.hltv.org/player/22556/royals",
+    "Player 2 Link": "https://www.hltv.org/player/24931/capim",
+    "Player 3 Link": "https://www.hltv.org/player/25464/yeda",
+    "Player 4 Link": "https://www.hltv.org/player/25465/balencyy",
+    "Player 5 Link": "https://www.hltv.org/player/25466/luk1nha"
+  },
+  {
+    "Team Name": "Lotus fe",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/e0Sg9VdVBlKARkTjyOcud_.png?ixlib=java-2.1.0&w=50&s=8d7d26a1c51b591a7eb04892d51e40aa",
+    "Team Profile URL": "https://www.hltv.org/team/12702/lotus-fe",
+    "Player 1 Link": "https://www.hltv.org/player/15525/alicerawr",
+    "Player 2 Link": "https://www.hltv.org/player/23060/abby",
+    "Player 3 Link": "https://www.hltv.org/player/23507/tokkis",
+    "Player 4 Link": "https://www.hltv.org/player/24220/zazu",
+    "Player 5 Link": "https://www.hltv.org/player/24724/cyclone"
+  },
+  {
+    "Team Name": "Dziuseppe",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13465/dziuseppe",
+    "Player 1 Link": "https://www.hltv.org/player/22476/virtuoso",
+    "Player 2 Link": "https://www.hltv.org/player/24081/keis",
+    "Player 3 Link": "https://www.hltv.org/player/24544/xydoo",
+    "Player 4 Link": "",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "WannaNow",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13544/wannanow",
+    "Player 1 Link": "https://www.hltv.org/player/8770/moeycq",
+    "Player 2 Link": "https://www.hltv.org/player/14502/prodigy",
+    "Player 3 Link": "https://www.hltv.org/player/17582/bogeymanh",
+    "Player 4 Link": "https://www.hltv.org/player/25600/phlux",
+    "Player 5 Link": "https://www.hltv.org/player/25601/r3xy"
+  },
+  {
+    "Team Name": "anything else",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/13206/anything-else",
+    "Player 1 Link": "https://www.hltv.org/player/17324/slash",
+    "Player 2 Link": "https://www.hltv.org/player/21555/cypress",
+    "Player 3 Link": "https://www.hltv.org/player/22021/fame",
+    "Player 4 Link": "https://www.hltv.org/player/24050/mcniff",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Aether",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/PwqtnH1XjoyqDFwh37YuYE.png?ixlib=java-2.1.0&w=50&s=014255619312d9cb2d640a3fbcde6986",
+    "Team Profile URL": "https://www.hltv.org/team/12908/aether",
+    "Player 1 Link": "https://www.hltv.org/player/18090/micro",
+    "Player 2 Link": "https://www.hltv.org/player/20215/umar",
+    "Player 3 Link": "https://www.hltv.org/player/21669/seb",
+    "Player 4 Link": "https://www.hltv.org/player/23088/ayaneuu",
+    "Player 5 Link": "https://www.hltv.org/player/24892/sathsea"
+  },
+  {
+    "Team Name": "Glitchtech",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/1u_Lmw94TnPFaDj3-fZDC_.png?ixlib=java-2.1.0&w=50&s=579314c8fcbbc87cbcb774c0fafca3e5",
+    "Team Profile URL": "https://www.hltv.org/team/13285/glitchtech",
+    "Player 1 Link": "https://www.hltv.org/player/20094/jonyzera",
+    "Player 2 Link": "https://www.hltv.org/player/20438/pata-jones",
+    "Player 3 Link": "https://www.hltv.org/player/21088/lth",
+    "Player 4 Link": "https://www.hltv.org/player/25072/jaythered",
+    "Player 5 Link": "https://www.hltv.org/player/25530/dragonst4r"
+  },
+  {
+    "Team Name": "DXA",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/iSnsGZx7NmjYY0GS-5xzLV.png?ixlib=java-2.1.0&w=50&s=a83e0ee3ebdb26d4cf7c558c654d1f73",
+    "Team Profile URL": "https://www.hltv.org/team/12276/dxa",
+    "Player 1 Link": "https://www.hltv.org/player/23669/supers",
+    "Player 2 Link": "https://www.hltv.org/player/25141/zacheraay",
+    "Player 3 Link": "https://www.hltv.org/player/25627/zoot",
+    "Player 4 Link": "https://www.hltv.org/player/25628/c4put",
+    "Player 5 Link": "https://www.hltv.org/player/25629/jlb"
+  },
+  {
+    "Team Name": "R2",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/fmCxWhySmGYH_51wRmTtal.png?ixlib=java-2.1.0&w=50&s=e7b74b13df206a1870d45694d2a34686",
+    "Team Profile URL": "https://www.hltv.org/team/13327/r2",
+    "Player 1 Link": "https://www.hltv.org/player/10499/jony-boy",
+    "Player 2 Link": "https://www.hltv.org/player/10506/tutehen",
+    "Player 3 Link": "https://www.hltv.org/player/10508/nbl",
+    "Player 4 Link": "https://www.hltv.org/player/20531/abm",
+    "Player 5 Link": "https://www.hltv.org/player/24558/maaxg1"
+  },
+  {
+    "Team Name": "MAGICOS",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/JYYR9M9lXYXhLY5nkj3Wk-.png?ixlib=java-2.1.0&w=50&s=adaf06a569f1df09ebaa0571e08bd63f",
+    "Team Profile URL": "https://www.hltv.org/team/13265/magicos",
+    "Player 1 Link": "https://www.hltv.org/player/23997/jhones-macarones",
+    "Player 2 Link": "https://www.hltv.org/player/25031/rx",
+    "Player 3 Link": "https://www.hltv.org/player/25032/snow",
+    "Player 4 Link": "https://www.hltv.org/player/25033/cr1a",
+    "Player 5 Link": "https://www.hltv.org/player/25200/freitas"
+  },
+  {
+    "Team Name": "NAVI Junior",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/10371/navi-junior",
+    "Player 1 Link": "https://www.hltv.org/player/25060/fazery",
+    "Player 2 Link": "https://www.hltv.org/player/25672/satsu",
+    "Player 3 Link": "https://www.hltv.org/player/25673/r3zloo",
+    "Player 4 Link": "https://www.hltv.org/player/25674/yoki",
+    "Player 5 Link": "https://www.hltv.org/player/25675/kodak"
+  },
+  {
+    "Team Name": "Eternal Fire Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/7BGH3f9mvwI0qL2xdmxUWF.png?ixlib=java-2.1.0&w=50&s=45edfacf7e21e2e2447d48044e513849",
+    "Team Profile URL": "https://www.hltv.org/team/11458/eternal-fire-academy",
+    "Player 1 Link": "https://www.hltv.org/player/22804/batuonfire",
+    "Player 2 Link": "https://www.hltv.org/player/25730/souv",
+    "Player 3 Link": "https://www.hltv.org/player/25731/hydro2k",
+    "Player 4 Link": "https://www.hltv.org/player/25732/gayew",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "JUMBO",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/568bCFHKBUnfzxRbFKoaMV.png?ixlib=java-2.1.0&w=50&s=fd73f269707aced36070bcecb5f34520",
+    "Team Profile URL": "https://www.hltv.org/team/13238/jumbo",
+    "Player 1 Link": "https://www.hltv.org/player/18663/matusik",
+    "Player 2 Link": "https://www.hltv.org/player/22800/renik",
+    "Player 3 Link": "https://www.hltv.org/player/23380/snoob",
+    "Player 4 Link": "https://www.hltv.org/player/25079/dede",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Reveal",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/12287/reveal",
+    "Player 1 Link": "https://www.hltv.org/player/12010/p4trick",
+    "Player 2 Link": "https://www.hltv.org/player/16425/red",
+    "Player 3 Link": "https://www.hltv.org/player/23041/jumiii",
+    "Player 4 Link": "https://www.hltv.org/player/23134/kebab",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "Players",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/11711/players",
+    "Player 1 Link": "https://www.hltv.org/player/16661/mithputtini",
+    "Player 2 Link": "https://www.hltv.org/player/20219/xns",
+    "Player 3 Link": "https://www.hltv.org/player/22085/spinnie",
+    "Player 4 Link": "https://www.hltv.org/player/22125/lich",
+    "Player 5 Link": "https://www.hltv.org/player/24087/prisma"
+  },
+  {
+    "Team Name": "Dark Tigers",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/7842/dark-tigers",
+    "Player 1 Link": "https://www.hltv.org/player/22345/pandi7o",
+    "Player 2 Link": "https://www.hltv.org/player/24285/olik",
+    "Player 3 Link": "https://www.hltv.org/player/24554/perdy",
+    "Player 4 Link": "https://www.hltv.org/player/25061/keb1k",
+    "Player 5 Link": "https://www.hltv.org/player/25623/luckzen"
+  },
+  {
+    "Team Name": "Coalesce",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/kA0AMMtkRtiDp8WCw_U0s0.png?ixlib=java-2.1.0&w=50&s=947ccdda91702b034f8083b05123cab8",
+    "Team Profile URL": "https://www.hltv.org/team/11278/coalesce",
+    "Player 1 Link": "https://www.hltv.org/player/22294/f0cus",
+    "Player 2 Link": "https://www.hltv.org/player/22876/fizzy",
+    "Player 3 Link": "https://www.hltv.org/player/22941/z-nan",
+    "Player 4 Link": "https://www.hltv.org/player/24056/flicky",
+    "Player 5 Link": "https://www.hltv.org/player/24652/onder"
+  },
+  {
+    "Team Name": "Rounds",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/q3albaDcUxaM8R2x6VeX3b.png?ixlib=java-2.1.0&w=50&s=907dc9ed7ed8310ced04003265968fa6",
+    "Team Profile URL": "https://www.hltv.org/team/12457/rounds",
+    "Player 1 Link": "https://www.hltv.org/player/17644/p12",
+    "Player 2 Link": "https://www.hltv.org/player/19996/jelo",
+    "Player 3 Link": "https://www.hltv.org/player/21499/ykis",
+    "Player 4 Link": "https://www.hltv.org/player/23502/kollo",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "BESTIA Academy",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/Z_R5K__qrvHmPjF66iCay-.png?ixlib=java-2.1.0&w=50&s=7e2afd72c2b3cabf53244ed6bc5142e3,https://img-cdn.hltv.org/teamlogo/Z_R5K__qrvHmPjF66iCay-.png?invert=true&ixlib=java-2.1.0&sat=-100&w=50&s=88d03008f96f67d8913fd593a883e813",
+    "Team Profile URL": "https://www.hltv.org/team/13026/bestia-academy",
+    "Player 1 Link": "https://www.hltv.org/player/22559/jotag3",
+    "Player 2 Link": "https://www.hltv.org/player/24560/lekzi",
+    "Player 3 Link": "https://www.hltv.org/player/24563/agt",
+    "Player 4 Link": "https://www.hltv.org/player/24715/k1not1",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "WahWah",
+    "Team Logo": "",
+    "Team Profile URL": "https://www.hltv.org/team/11878/wahwah",
+    "Player 1 Link": "https://www.hltv.org/player/17846/executor",
+    "Player 2 Link": "https://www.hltv.org/player/20772/insmutje",
+    "Player 3 Link": "https://www.hltv.org/player/22455/okay",
+    "Player 4 Link": "https://www.hltv.org/player/22456/bullet",
+    "Player 5 Link": ""
+  },
+  {
+    "Team Name": "NuTorious",
+    "Team Logo": "https://img-cdn.hltv.org/teamlogo/iR0NNyulDkSuYiGj26Q3ma.png?ixlib=java-2.1.0&w=50&s=0ceba122423414b28d4b3ee72d6eb4d5,https://img-cdn.hltv.org/teamlogo/_WTUaGpeNIpuUUIxrq6dAV.png?ixlib=java-2.1.0&w=50&s=4c7b0bd83f1cac12ba18b66656bc92dc",
+    "Team Profile URL": "https://www.hltv.org/team/12973/nutorious",
+    "Player 1 Link": "https://www.hltv.org/player/16603/jr24racing",
+    "Player 2 Link": "https://www.hltv.org/player/22149/nova",
+    "Player 3 Link": "https://www.hltv.org/player/24449/toasty",
+    "Player 4 Link": "https://www.hltv.org/player/24452/msaia",
+    "Player 5 Link": ""
+  }
+]

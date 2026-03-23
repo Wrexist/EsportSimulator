@@ -1,0 +1,20 @@
+{
+  "name": "Zacheraay",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "DXA",
+  "teamRank": "240",
+  "age": 22,
+  "rating": 0.78,
+  "stats": {
+    "firepower": 25,
+    "entrying": 31,
+    "trading": 27,
+    "opening": 35,
+    "clutching": 27,
+    "sniping": 49,
+    "utility": 39
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

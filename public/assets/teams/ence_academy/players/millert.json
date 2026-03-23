@@ -1,0 +1,20 @@
+{
+  "name": "millert",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "ENCE Academy",
+  "teamRank": "195",
+  "age": 19,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 50,
+    "entrying": 10,
+    "trading": 51,
+    "opening": 82,
+    "clutching": 54,
+    "sniping": 92,
+    "utility": 81
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

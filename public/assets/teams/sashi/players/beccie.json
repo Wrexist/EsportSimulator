@@ -1,0 +1,20 @@
+{
+  "name": "Beccie",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Sashi",
+  "teamRank": "78",
+  "age": 20,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 50,
+    "entrying": 78,
+    "trading": 84,
+    "opening": 24,
+    "clutching": 62,
+    "sniping": 37,
+    "utility": 36
+  },
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

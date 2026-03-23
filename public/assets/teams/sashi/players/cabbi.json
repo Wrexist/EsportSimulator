@@ -1,0 +1,20 @@
+{
+  "name": "Cabbi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Sashi",
+  "teamRank": "78",
+  "age": 27,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 79,
+    "entrying": 87,
+    "trading": 67,
+    "opening": 80,
+    "clutching": 51,
+    "sniping": 32,
+    "utility": 51
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

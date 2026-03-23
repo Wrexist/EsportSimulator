@@ -1,0 +1,20 @@
+{
+  "name": "kyousuke",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Falcons",
+  "teamRank": "3",
+  "age": 18,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 93,
+    "entrying": 72,
+    "trading": 73,
+    "opening": 91,
+    "clutching": 28,
+    "sniping": 3,
+    "utility": 28
+  },
+  "matchesPlayed": 224,
+  "hltvHistory": []
+}

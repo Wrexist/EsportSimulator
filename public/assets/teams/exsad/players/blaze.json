@@ -1,0 +1,24 @@
+{
+  "name": "blaze",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "EXSAD",
+  "teamRank": "107",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.95,
+  "stats": {
+    "firepower": 37,
+    "entrying": 98,
+    "trading": 58,
+    "opening": 30,
+    "clutching": 36,
+    "sniping": 0,
+    "utility": 69
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

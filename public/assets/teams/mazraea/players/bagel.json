@@ -1,0 +1,20 @@
+{
+  "name": "BAGEL",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "MAZRAEA",
+  "teamRank": "193",
+  "age": 21,
+  "rating": 0.77,
+  "stats": {
+    "firepower": 26,
+    "entrying": 28,
+    "trading": 57,
+    "opening": 70,
+    "clutching": 6,
+    "sniping": 68,
+    "utility": 43
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

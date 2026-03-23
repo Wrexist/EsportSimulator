@@ -1,0 +1,20 @@
+{
+  "name": "darkk",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "XDM",
+  "teamRank": "205",
+  "age": 24,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 33,
+    "entrying": 32,
+    "trading": 63,
+    "opening": 17,
+    "clutching": 12,
+    "sniping": 3,
+    "utility": 46
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "esenthial",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "B8",
+  "teamRank": "16",
+  "age": 19,
+  "rating": 1,
+  "stats": {
+    "firepower": 27,
+    "entrying": 31,
+    "trading": 74,
+    "opening": 59,
+    "clutching": 73,
+    "sniping": 1,
+    "utility": 21
+  },
+  "matchesPlayed": 196,
+  "hltvHistory": []
+}

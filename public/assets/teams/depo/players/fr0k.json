@@ -1,0 +1,20 @@
+{
+  "name": "fr0k",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "DEPO",
+  "teamRank": "105",
+  "age": 27,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 3,
+    "entrying": 92,
+    "trading": 73,
+    "opening": 7,
+    "clutching": 33,
+    "sniping": 26,
+    "utility": 25
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

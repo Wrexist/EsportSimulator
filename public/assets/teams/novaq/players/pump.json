@@ -1,0 +1,20 @@
+{
+  "name": "Pump",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "NOVAQ",
+  "teamRank": "143",
+  "age": 19,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 38,
+    "entrying": 45,
+    "trading": 47,
+    "opening": 31,
+    "clutching": 73,
+    "sniping": 7,
+    "utility": 58
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

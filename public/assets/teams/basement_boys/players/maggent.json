@@ -1,0 +1,20 @@
+{
+  "name": "maggent",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BASEMENT BOYS",
+  "teamRank": "147",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 31,
+    "entrying": 55,
+    "trading": 77,
+    "opening": 16,
+    "clutching": 64,
+    "sniping": 64,
+    "utility": 37
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

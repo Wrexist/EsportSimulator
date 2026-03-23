@@ -1,0 +1,34 @@
+{
+  "name": "Misa",
+  "hltvRank": "186",
+  "nationality": "Turkey",
+  "players": [
+    {
+      "name": "Ckanic",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "rim3",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "Zuedsta",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "Mertowsk1",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "souv",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Ciocardau",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "HyperSpirit",
+  "teamRank": "127",
+  "age": 25,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 68,
+    "entrying": 58,
+    "trading": 43,
+    "opening": 74,
+    "clutching": 32,
+    "sniping": 53,
+    "utility": 48
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

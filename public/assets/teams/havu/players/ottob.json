@@ -1,0 +1,20 @@
+{
+  "name": "ottob",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "HAVU",
+  "teamRank": "120",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 62,
+    "entrying": 5,
+    "trading": 40,
+    "opening": 85,
+    "clutching": 61,
+    "sniping": 95,
+    "utility": 46
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "LittleBEER",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Akimbo",
+  "teamRank": "221",
+  "age": 26,
+  "rating": 0.75,
+  "stats": {
+    "firepower": 5,
+    "entrying": 28,
+    "trading": 4,
+    "opening": 24,
+    "clutching": 8,
+    "sniping": 31,
+    "utility": 60
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "BESTIA Academy",
+  "hltvRank": "183",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "Jotag3",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Lekzi",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "agt",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "k1not1",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "zuzu",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

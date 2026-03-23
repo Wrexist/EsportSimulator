@@ -1,0 +1,24 @@
+{
+  "name": "Tapewaare",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "CPH Wolves",
+  "teamRank": "99",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.91,
+  "stats": {
+    "firepower": 19,
+    "entrying": 68,
+    "trading": 47,
+    "opening": 36,
+    "clutching": 53,
+    "sniping": 0,
+    "utility": 56
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

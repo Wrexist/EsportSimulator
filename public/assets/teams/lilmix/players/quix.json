@@ -1,0 +1,20 @@
+{
+  "name": "quix",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Lilmix",
+  "teamRank": "184",
+  "age": 33,
+  "rating": 0.74,
+  "stats": {
+    "firepower": 2,
+    "entrying": 76,
+    "trading": 30,
+    "opening": 5,
+    "clutching": 48,
+    "sniping": 2,
+    "utility": 44
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

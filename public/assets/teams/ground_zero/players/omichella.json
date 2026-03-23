@@ -1,0 +1,20 @@
+{
+  "name": "Omichella",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Ground Zero",
+  "teamRank": "139",
+  "age": 24,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 63,
+    "entrying": 81,
+    "trading": 52,
+    "opening": 52,
+    "clutching": 63,
+    "sniping": 75,
+    "utility": 31
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

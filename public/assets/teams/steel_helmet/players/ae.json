@@ -1,0 +1,20 @@
+{
+  "name": "AE",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Steel Helmet",
+  "teamRank": "242",
+  "age": 27,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 71,
+    "entrying": 11,
+    "trading": 85,
+    "opening": 46,
+    "clutching": 91,
+    "sniping": 71,
+    "utility": 6
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

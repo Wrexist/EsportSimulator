@@ -1,0 +1,20 @@
+{
+  "name": "MaSvAl",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "magic",
+  "teamRank": "48",
+  "age": 23,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 62,
+    "entrying": 78,
+    "trading": 40,
+    "opening": 46,
+    "clutching": 81,
+    "sniping": 81,
+    "utility": 62
+  },
+  "matchesPlayed": 142,
+  "hltvHistory": []
+}

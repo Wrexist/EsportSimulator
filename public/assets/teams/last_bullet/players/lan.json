@@ -1,0 +1,20 @@
+{
+  "name": "lan",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Last Bullet",
+  "teamRank": "182",
+  "age": 24,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 64,
+    "entrying": 10,
+    "trading": 43,
+    "opening": 92,
+    "clutching": 16,
+    "sniping": 94,
+    "utility": 37
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

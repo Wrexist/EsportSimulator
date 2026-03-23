@@ -1,0 +1,20 @@
+{
+  "name": "Tiger",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Rare Atom",
+  "teamRank": "72",
+  "age": 22,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 71,
+    "entrying": 12,
+    "trading": 34,
+    "opening": 75,
+    "clutching": 64,
+    "sniping": 93,
+    "utility": 72
+  },
+  "matchesPlayed": 101,
+  "hltvHistory": []
+}

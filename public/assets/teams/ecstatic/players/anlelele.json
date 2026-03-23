@@ -1,0 +1,20 @@
+{
+  "name": "Anlelele",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "50",
+  "age": 25,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 47,
+    "entrying": 46,
+    "trading": 51,
+    "opening": 53,
+    "clutching": 50,
+    "sniping": 38,
+    "utility": 73
+  },
+  "matchesPlayed": 135,
+  "hltvHistory": []
+}

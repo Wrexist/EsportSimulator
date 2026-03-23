@@ -1,0 +1,20 @@
+{
+  "name": "Walco",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "Rave",
+  "teamRank": "111",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 23,
+    "entrying": 71,
+    "trading": 17,
+    "opening": 42,
+    "clutching": 66,
+    "sniping": 71,
+    "utility": 71
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

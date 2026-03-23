@@ -1,0 +1,20 @@
+{
+  "name": "Beastman",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Beyond Limits",
+  "teamRank": "209",
+  "age": 26,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 73,
+    "entrying": 38,
+    "trading": 22,
+    "opening": 34,
+    "clutching": 3,
+    "sniping": 26,
+    "utility": 29
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

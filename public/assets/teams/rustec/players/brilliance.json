@@ -1,0 +1,20 @@
+{
+  "name": "Brilliance",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "RUSTEC",
+  "teamRank": "98",
+  "age": 23,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 12,
+    "entrying": 51,
+    "trading": 29,
+    "opening": 25,
+    "clutching": 79,
+    "sniping": 18,
+    "utility": 75
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

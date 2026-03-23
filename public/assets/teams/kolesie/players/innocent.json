@@ -1,0 +1,20 @@
+{
+  "name": "innocent",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "KOLESIE",
+  "teamRank": "54",
+  "age": 32,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 25,
+    "entrying": 18,
+    "trading": 20,
+    "opening": 29,
+    "clutching": 63,
+    "sniping": 36,
+    "utility": 82
+  },
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

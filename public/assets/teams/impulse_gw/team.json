@@ -1,0 +1,33 @@
+{
+  "name": "Impulse GW",
+  "hltvRank": "112",
+  "players": [
+    {
+      "name": "pr",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "Slaxx",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "rafaxF",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "Stepa",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Sprayy",
+      "country": "Portugal",
+      "countryCode": "pt"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

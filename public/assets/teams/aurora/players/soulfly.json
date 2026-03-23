@@ -1,0 +1,20 @@
+{
+  "name": "soulfly",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Aurora",
+  "teamRank": "11",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 47,
+    "entrying": 62,
+    "trading": 18,
+    "opening": 74,
+    "clutching": 31,
+    "sniping": 25,
+    "utility": 43
+  },
+  "matchesPlayed": 170,
+  "hltvHistory": []
+}

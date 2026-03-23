@@ -1,0 +1,20 @@
+{
+  "name": "Alisson",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "LP",
+  "teamRank": "140",
+  "age": 22,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 88,
+    "entrying": 72,
+    "trading": 94,
+    "opening": 26,
+    "clutching": 82,
+    "sniping": 26,
+    "utility": 55
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

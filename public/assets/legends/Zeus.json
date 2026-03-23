@@ -1,0 +1,21 @@
+{
+  "name": "Zeus",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "IGL",
+  "status": "Legend",
+  "age": 36,
+  "birthDate": "October 8, 1987",
+  "rating": 1.08,
+  "stats": {
+    "firepower": 72,
+    "entrying": 65,
+    "trading": 78,
+    "opening": 68,
+    "clutching": 82,
+    "sniping": 45,
+    "utility": 95
+  }
+}

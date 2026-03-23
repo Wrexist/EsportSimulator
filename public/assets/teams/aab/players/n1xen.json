@@ -1,0 +1,20 @@
+{
+  "name": "n1Xen",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "109",
+  "age": 22,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 53,
+    "entrying": 62,
+    "trading": 90,
+    "opening": 28,
+    "clutching": 32,
+    "sniping": 28,
+    "utility": 35
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

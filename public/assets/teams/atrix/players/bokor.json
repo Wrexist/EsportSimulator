@@ -1,0 +1,20 @@
+{
+  "name": "bokor",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Atrix",
+  "teamRank": "234",
+  "age": 21,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 15,
+    "entrying": 49,
+    "trading": 66,
+    "opening": 72,
+    "clutching": 23,
+    "sniping": 93,
+    "utility": 78
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

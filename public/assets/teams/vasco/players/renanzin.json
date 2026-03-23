@@ -1,0 +1,20 @@
+{
+  "name": "RenanZin",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Vasco",
+  "teamRank": "173",
+  "age": 19,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 40,
+    "entrying": 31,
+    "trading": 32,
+    "opening": 51,
+    "clutching": 71,
+    "sniping": 44,
+    "utility": 61
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

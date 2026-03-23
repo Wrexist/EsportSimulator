@@ -1,0 +1,20 @@
+{
+  "name": "blaze",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "129",
+  "age": 20,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 26,
+    "entrying": 84,
+    "trading": 43,
+    "opening": 41,
+    "clutching": 51,
+    "sniping": 43,
+    "utility": 61
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

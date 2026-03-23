@@ -1,0 +1,34 @@
+{
+  "name": "XDM",
+  "hltvRank": "205",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "Shad0w",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "taidao",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "r1verLaKe",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Kungao",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "darkk",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

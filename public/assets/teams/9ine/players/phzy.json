@@ -1,0 +1,23 @@
+{
+  "name": "phzy",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "9INE",
+  "teamRank": "57",
+  "role": "AWPer, AWPers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "September 24, 2002",
+  "rating": 1.11,
+  "stats": {
+    "firepower": 74,
+    "entrying": 24,
+    "trading": 46,
+    "opening": 56,
+    "clutching": 78,
+    "sniping": 80,
+    "utility": 73
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

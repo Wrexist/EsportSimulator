@@ -1,0 +1,20 @@
+{
+  "name": "Alv",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Ursa",
+  "teamRank": "85",
+  "age": 20,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 73,
+    "entrying": 12,
+    "trading": 53,
+    "opening": 82,
+    "clutching": 66,
+    "sniping": 94,
+    "utility": 53
+  },
+  "matchesPlayed": 93,
+  "hltvHistory": []
+}

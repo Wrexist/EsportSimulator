@@ -1,0 +1,20 @@
+{
+  "name": "slaxz-",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "M80",
+  "teamRank": "24",
+  "age": 27,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 71,
+    "entrying": 19,
+    "trading": 45,
+    "opening": 60,
+    "clutching": 65,
+    "sniping": 93,
+    "utility": 68
+  },
+  "matchesPlayed": 154,
+  "hltvHistory": []
+}

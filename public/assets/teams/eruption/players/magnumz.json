@@ -1,0 +1,20 @@
+{
+  "name": "MagnumZ",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Eruption",
+  "teamRank": "95",
+  "age": 24,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 59,
+    "entrying": 24,
+    "trading": 44,
+    "opening": 28,
+    "clutching": 94,
+    "sniping": 92,
+    "utility": 71
+  },
+  "matchesPlayed": 78,
+  "hltvHistory": []
+}

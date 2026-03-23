@@ -1,0 +1,20 @@
+{
+  "name": "fnl",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "101",
+  "age": 20,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 41,
+    "entrying": 37,
+    "trading": 48,
+    "opening": 32,
+    "clutching": 35,
+    "sniping": 82,
+    "utility": 39
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

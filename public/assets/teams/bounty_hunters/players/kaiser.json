@@ -1,0 +1,20 @@
+{
+  "name": "KAISER",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Bounty Hunters",
+  "teamRank": "88",
+  "age": 25,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 28,
+    "entrying": 9,
+    "trading": 22,
+    "opening": 33,
+    "clutching": 90,
+    "sniping": 74,
+    "utility": 71
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

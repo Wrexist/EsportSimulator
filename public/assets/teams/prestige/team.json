@@ -1,0 +1,34 @@
+{
+  "name": "Prestige",
+  "hltvRank": "149",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "fejtZ",
+      "country": "Estonia",
+      "countryCode": "ee"
+    },
+    {
+      "name": "HS",
+      "country": "Estonia",
+      "countryCode": "ee"
+    },
+    {
+      "name": "Folke",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Few",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Mizi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

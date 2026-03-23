@@ -1,0 +1,20 @@
+{
+  "name": "suonko",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Oramond",
+  "teamRank": "51",
+  "age": 25,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 71,
+    "entrying": 84,
+    "trading": 69,
+    "opening": 76,
+    "clutching": 28,
+    "sniping": 41,
+    "utility": 50
+  },
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

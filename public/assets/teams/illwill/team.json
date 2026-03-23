@@ -1,0 +1,34 @@
+{
+  "name": "illwill",
+  "hltvRank": "46",
+  "nationality": "Romania",
+  "players": [
+    {
+      "name": "nEMANHA",
+      "country": "Serbia",
+      "countryCode": "rs"
+    },
+    {
+      "name": "hAdji",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "fostar",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "adamS",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "7kick",
+      "country": "Romania",
+      "countryCode": "ro"
+    }
+  ],
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

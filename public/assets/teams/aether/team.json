@@ -1,0 +1,34 @@
+{
+  "name": "Aether",
+  "hltvRank": "131",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "brett",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Andrew",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Seb",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "xaler",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "s3rum",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

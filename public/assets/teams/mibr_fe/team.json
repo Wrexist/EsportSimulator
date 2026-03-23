@@ -1,0 +1,34 @@
+{
+  "name": "MIBR fe",
+  "hltvRank": "202",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "Olga",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "GaBi",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "poppins",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "yungher",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Dani",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

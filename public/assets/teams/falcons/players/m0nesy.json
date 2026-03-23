@@ -1,0 +1,20 @@
+{
+  "name": "m0NESY",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Falcons",
+  "teamRank": "3",
+  "age": 20,
+  "rating": 1.26,
+  "stats": {
+    "firepower": 96,
+    "entrying": 21,
+    "trading": 49,
+    "opening": 77,
+    "clutching": 75,
+    "sniping": 93,
+    "utility": 74
+  },
+  "matchesPlayed": 231,
+  "hltvHistory": []
+}

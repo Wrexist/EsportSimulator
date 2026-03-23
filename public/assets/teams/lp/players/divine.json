@@ -1,0 +1,20 @@
+{
+  "name": "divine",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "LP",
+  "teamRank": "140",
+  "age": 21,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 29,
+    "entrying": 20,
+    "trading": 33,
+    "opening": 66,
+    "clutching": 90,
+    "sniping": 92,
+    "utility": 62
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

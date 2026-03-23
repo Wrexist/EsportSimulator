@@ -1,0 +1,20 @@
+{
+  "name": "LaiKeXu",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Change The Game",
+  "teamRank": "102",
+  "age": 27,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 13,
+    "entrying": 58,
+    "trading": 40,
+    "opening": 31,
+    "clutching": 38,
+    "sniping": 70,
+    "utility": 27
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

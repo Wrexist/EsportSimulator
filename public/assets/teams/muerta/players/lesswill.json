@@ -1,0 +1,20 @@
+{
+  "name": "lesswill",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "MUERTA",
+  "teamRank": "191",
+  "age": 28,
+  "rating": 0.78,
+  "stats": {
+    "firepower": 2,
+    "entrying": 2,
+    "trading": 41,
+    "opening": 56,
+    "clutching": 52,
+    "sniping": 1,
+    "utility": 40
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

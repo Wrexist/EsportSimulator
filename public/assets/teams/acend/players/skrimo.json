@@ -1,0 +1,20 @@
+{
+  "name": "Skrimo",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "Acend",
+  "teamRank": "103",
+  "age": 21,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 51,
+    "entrying": 54,
+    "trading": 52,
+    "opening": 43,
+    "clutching": 68,
+    "sniping": 23,
+    "utility": 28
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

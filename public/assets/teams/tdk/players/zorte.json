@@ -1,0 +1,20 @@
+{
+  "name": "zorte",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "TDK",
+  "teamRank": "248",
+  "age": 27,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 46,
+    "entrying": 82,
+    "trading": 46,
+    "opening": 90,
+    "clutching": 45,
+    "sniping": 93,
+    "utility": 72
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

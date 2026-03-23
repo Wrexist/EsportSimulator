@@ -1,0 +1,34 @@
+{
+  "name": "Zomblers",
+  "hltvRank": "160",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "grape",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "CAJUN",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Pose1doNN",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Pol0",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "CoolComs",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    }
+  ],
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

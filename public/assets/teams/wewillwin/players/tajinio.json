@@ -1,0 +1,20 @@
+{
+  "name": "Tajinio",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "WeWillWin",
+  "teamRank": "187",
+  "age": 15,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 46,
+    "entrying": 87,
+    "trading": 97,
+    "opening": 40,
+    "clutching": 1,
+    "sniping": 2,
+    "utility": 47
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

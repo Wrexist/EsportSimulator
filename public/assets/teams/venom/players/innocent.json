@@ -1,0 +1,20 @@
+{
+  "name": "innocent",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Venom",
+  "teamRank": "54",
+  "age": 32,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 28,
+    "entrying": 20,
+    "trading": 47,
+    "opening": 28,
+    "clutching": 69,
+    "sniping": 0,
+    "utility": 86
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

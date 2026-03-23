@@ -1,0 +1,20 @@
+{
+  "name": "latto",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "25",
+  "age": 23,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 62,
+    "entrying": 55,
+    "trading": 46,
+    "opening": 20,
+    "clutching": 60,
+    "sniping": 29,
+    "utility": 77
+  },
+  "matchesPlayed": 154,
+  "hltvHistory": []
+}

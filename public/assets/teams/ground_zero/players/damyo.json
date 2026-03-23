@@ -1,0 +1,20 @@
+{
+  "name": "damyo",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Ground Zero",
+  "teamRank": "139",
+  "age": 24,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 60,
+    "entrying": 24,
+    "trading": 67,
+    "opening": 72,
+    "clutching": 41,
+    "sniping": 49,
+    "utility": 64
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

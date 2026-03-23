@@ -1,0 +1,20 @@
+{
+  "name": "Dr3nquu",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Betclic",
+  "teamRank": "93",
+  "age": 17,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 52,
+    "entrying": 4,
+    "trading": 29,
+    "opening": 64,
+    "clutching": 60,
+    "sniping": 61,
+    "utility": 50
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

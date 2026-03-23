@@ -1,0 +1,33 @@
+{
+  "name": "BORING PLAYERS",
+  "hltvRank": "138",
+  "players": [
+    {
+      "name": "karl",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "tutu",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "zdr",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Jun7",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Miszary",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

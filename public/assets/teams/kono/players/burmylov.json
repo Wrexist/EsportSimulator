@@ -1,0 +1,20 @@
+{
+  "name": "Burmylov",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "kONO",
+  "teamRank": "181",
+  "age": 18,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 84,
+    "entrying": 24,
+    "trading": 44,
+    "opening": 78,
+    "clutching": 49,
+    "sniping": 94,
+    "utility": 24
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

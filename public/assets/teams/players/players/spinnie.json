@@ -1,0 +1,20 @@
+{
+  "name": "spinnie",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Players",
+  "teamRank": "196",
+  "age": 24,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 81,
+    "entrying": 82,
+    "trading": 30,
+    "opening": 66,
+    "clutching": 81,
+    "sniping": 25,
+    "utility": 60
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

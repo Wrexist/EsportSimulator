@@ -1,0 +1,34 @@
+{
+  "name": "Lilmix",
+  "hltvRank": "184",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "quix",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "bsover",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "doobs",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "walleN",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Sn0w",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

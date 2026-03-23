@@ -1,0 +1,20 @@
+{
+  "name": "Frontsiderr",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Oramond",
+  "teamRank": "51",
+  "age": 25,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 54,
+    "entrying": 65,
+    "trading": 59,
+    "opening": 29,
+    "clutching": 80,
+    "sniping": 35,
+    "utility": 48
+  },
+  "matchesPlayed": 79,
+  "hltvHistory": []
+}

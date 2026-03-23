@@ -1,0 +1,20 @@
+{
+  "name": "rud",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "Young Ninjas",
+  "teamRank": "146",
+  "age": 20,
+  "rating": 1.24,
+  "stats": {
+    "firepower": 98,
+    "entrying": 79,
+    "trading": 46,
+    "opening": 97,
+    "clutching": 53,
+    "sniping": 94,
+    "utility": 30
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

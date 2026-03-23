@@ -1,0 +1,20 @@
+{
+  "name": "marie",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "FlyQuest RED",
+  "teamRank": "238",
+  "age": 18,
+  "rating": 0.65,
+  "stats": {
+    "firepower": 1,
+    "entrying": 8,
+    "trading": 59,
+    "opening": 31,
+    "clutching": 25,
+    "sniping": 31,
+    "utility": 29
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

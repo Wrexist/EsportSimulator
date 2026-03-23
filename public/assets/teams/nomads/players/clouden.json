@@ -1,0 +1,20 @@
+{
+  "name": "clouden",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "NomadS",
+  "teamRank": "213",
+  "age": 25,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 78,
+    "entrying": 76,
+    "trading": 92,
+    "opening": 67,
+    "clutching": 23,
+    "sniping": 1,
+    "utility": 58
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

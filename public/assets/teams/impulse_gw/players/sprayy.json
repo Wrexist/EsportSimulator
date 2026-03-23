@@ -1,0 +1,20 @@
+{
+  "name": "Sprayy",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Impulse GW",
+  "teamRank": "112",
+  "age": 23,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 7,
+    "entrying": 80,
+    "trading": 30,
+    "opening": 9,
+    "clutching": 56,
+    "sniping": 0,
+    "utility": 25
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

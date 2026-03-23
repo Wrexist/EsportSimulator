@@ -1,0 +1,20 @@
+{
+  "name": "kAlash",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "HOTU",
+  "teamRank": "35",
+  "age": 21,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 67,
+    "entrying": 54,
+    "trading": 55,
+    "opening": 45,
+    "clutching": 52,
+    "sniping": 3,
+    "utility": 22
+  },
+  "matchesPlayed": 147,
+  "hltvHistory": []
+}

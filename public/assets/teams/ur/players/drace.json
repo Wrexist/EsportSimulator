@@ -1,0 +1,20 @@
+{
+  "name": "drace",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "UR",
+  "teamRank": "206",
+  "age": 18,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 91,
+    "entrying": 46,
+    "trading": 81,
+    "opening": 70,
+    "clutching": 97,
+    "sniping": 98,
+    "utility": 59
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

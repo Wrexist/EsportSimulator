@@ -1,0 +1,20 @@
+{
+  "name": "woxic",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Aurora",
+  "teamRank": "11",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 43,
+    "entrying": 15,
+    "trading": 65,
+    "opening": 61,
+    "clutching": 84,
+    "sniping": 93,
+    "utility": 52
+  },
+  "matchesPlayed": 207,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "nawwk",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "megoshort",
+  "teamRank": "115",
+  "age": 28,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 55,
+    "entrying": 17,
+    "trading": 60,
+    "opening": 37,
+    "clutching": 96,
+    "sniping": 83,
+    "utility": 54
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

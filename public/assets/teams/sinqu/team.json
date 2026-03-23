@@ -1,0 +1,34 @@
+{
+  "name": "SINQU",
+  "hltvRank": "172",
+  "nationality": "Finland",
+  "players": [
+    {
+      "name": "Samppa",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "Lene",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "J0nneW",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "KapiV",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "Geni",
+      "country": "Finland",
+      "countryCode": "fi"
+    }
+  ],
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

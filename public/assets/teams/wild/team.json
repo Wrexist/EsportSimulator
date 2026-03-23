@@ -1,0 +1,34 @@
+{
+  "name": "WiLD",
+  "hltvRank": "198",
+  "nationality": "Hungary",
+  "players": [
+    {
+      "name": "v1z3r",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "makszi",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "flasi",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "NONS3NS",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "strong3r",
+      "country": "Hungary",
+      "countryCode": "hu"
+    }
+  ],
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

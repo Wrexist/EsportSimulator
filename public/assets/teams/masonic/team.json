@@ -1,0 +1,34 @@
+{
+  "name": "MASONIC",
+  "hltvRank": "138",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "KralleJ",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Avou",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Bukhavez",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Noruyp",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Botman",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

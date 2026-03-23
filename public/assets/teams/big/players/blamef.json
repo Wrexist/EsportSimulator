@@ -1,0 +1,20 @@
+{
+  "name": "blameF",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "BIG",
+  "teamRank": "63",
+  "age": 28,
+  "rating": 1.32,
+  "stats": {
+    "firepower": 97,
+    "entrying": 33,
+    "trading": 53,
+    "opening": 72,
+    "clutching": 77,
+    "sniping": 44,
+    "utility": 61
+  },
+  "matchesPlayed": 103,
+  "hltvHistory": []
+}

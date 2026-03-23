@@ -1,0 +1,34 @@
+{
+  "name": "Betclic",
+  "hltvRank": "93",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "hades",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Demho",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Prism",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "eskyy",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Dr3nquu",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 77,
+  "hltvHistory": []
+}

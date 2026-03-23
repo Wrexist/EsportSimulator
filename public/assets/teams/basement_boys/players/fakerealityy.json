@@ -1,0 +1,20 @@
+{
+  "name": "fakerealityy",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BASEMENT BOYS",
+  "teamRank": "147",
+  "age": 20,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 49,
+    "entrying": 54,
+    "trading": 59,
+    "opening": 36,
+    "clutching": 40,
+    "sniping": 70,
+    "utility": 43
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

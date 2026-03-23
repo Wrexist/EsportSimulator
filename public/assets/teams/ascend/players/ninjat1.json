@@ -1,0 +1,20 @@
+{
+  "name": "NinjaT1",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Ascend",
+  "teamRank": "231",
+  "age": 24,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 68,
+    "entrying": 91,
+    "trading": 96,
+    "opening": 15,
+    "clutching": 17,
+    "sniping": 90,
+    "utility": 13
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

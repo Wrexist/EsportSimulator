@@ -1,0 +1,20 @@
+{
+  "name": "Luken",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Gaimin Gladiators",
+  "teamRank": "64",
+  "age": 28,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 85,
+    "entrying": 48,
+    "trading": 77,
+    "opening": 47,
+    "clutching": 90,
+    "sniping": 17,
+    "utility": 40
+  },
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

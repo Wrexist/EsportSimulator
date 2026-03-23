@@ -1,0 +1,20 @@
+{
+  "name": "whiplash1",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "WeWillWin",
+  "teamRank": "187",
+  "age": 30,
+  "rating": 0.82,
+  "stats": {
+    "firepower": 8,
+    "entrying": 76,
+    "trading": 78,
+    "opening": 2,
+    "clutching": 46,
+    "sniping": 21,
+    "utility": 86
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

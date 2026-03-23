@@ -1,0 +1,20 @@
+{
+  "name": "Zyphon",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Sashi",
+  "teamRank": "78",
+  "age": 22,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 68,
+    "entrying": 61,
+    "trading": 36,
+    "opening": 74,
+    "clutching": 76,
+    "sniping": 12,
+    "utility": 30
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

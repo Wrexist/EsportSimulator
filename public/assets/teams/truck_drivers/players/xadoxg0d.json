@@ -1,0 +1,20 @@
+{
+  "name": "Xadoxg0d",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "Truck Drivers",
+  "teamRank": "164",
+  "age": 27,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 17,
+    "entrying": 57,
+    "trading": 35,
+    "opening": 41,
+    "clutching": 28,
+    "sniping": 4,
+    "utility": 35
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

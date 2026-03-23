@@ -1,0 +1,20 @@
+{
+  "name": "EMSTAR",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "161",
+  "age": 27,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 70,
+    "entrying": 91,
+    "trading": 63,
+    "opening": 69,
+    "clutching": 24,
+    "sniping": 72,
+    "utility": 89
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

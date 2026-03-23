@@ -1,0 +1,20 @@
+{
+  "name": "nEMANHA",
+  "country": "Serbia",
+  "countryCode": "rs",
+  "team": "illwill",
+  "teamRank": "46",
+  "age": 28,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 81,
+    "entrying": 20,
+    "trading": 12,
+    "opening": 83,
+    "clutching": 43,
+    "sniping": 38,
+    "utility": 80
+  },
+  "matchesPlayed": 118,
+  "hltvHistory": []
+}

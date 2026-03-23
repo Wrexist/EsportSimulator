@@ -1,0 +1,24 @@
+{
+  "name": "N4XX1S",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "128",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1,
+  "stats": {
+    "firepower": 15,
+    "entrying": 61,
+    "trading": 29,
+    "opening": 12,
+    "clutching": 75,
+    "sniping": 0,
+    "utility": 30
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

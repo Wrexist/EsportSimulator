@@ -1,0 +1,20 @@
+{
+  "name": "z1Nny",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BET-M",
+  "teamRank": "80",
+  "age": 22,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 77,
+    "entrying": 79,
+    "trading": 48,
+    "opening": 83,
+    "clutching": 65,
+    "sniping": 20,
+    "utility": 52
+  },
+  "matchesPlayed": 96,
+  "hltvHistory": []
+}

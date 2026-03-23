@@ -1,0 +1,20 @@
+{
+  "name": "hades",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Betclic",
+  "teamRank": "93",
+  "age": 26,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 77,
+    "entrying": 13,
+    "trading": 58,
+    "opening": 51,
+    "clutching": 58,
+    "sniping": 92,
+    "utility": 61
+  },
+  "matchesPlayed": 84,
+  "hltvHistory": []
+}

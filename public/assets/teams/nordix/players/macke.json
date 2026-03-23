@@ -1,0 +1,20 @@
+{
+  "name": "macke",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Nordix",
+  "teamRank": "211",
+  "age": 21,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 41,
+    "entrying": 50,
+    "trading": 39,
+    "opening": 40,
+    "clutching": 22,
+    "sniping": 5,
+    "utility": 21
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "PsychoDoctor",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QWENTRY",
+  "teamRank": "158",
+  "age": 20,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 28,
+    "entrying": 34,
+    "trading": 71,
+    "opening": 26,
+    "clutching": 35,
+    "sniping": 37,
+    "utility": 30
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

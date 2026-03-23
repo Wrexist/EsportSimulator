@@ -1,0 +1,20 @@
+{
+  "name": "Frip",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "OlyBet",
+  "teamRank": "123",
+  "age": 22,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 98,
+    "entrying": 69,
+    "trading": 70,
+    "opening": 85,
+    "clutching": 20,
+    "sniping": 5,
+    "utility": 62
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

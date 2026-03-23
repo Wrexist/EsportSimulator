@@ -1,0 +1,20 @@
+{
+  "name": "Sobol",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "KOLESIE",
+  "teamRank": "54",
+  "age": 28,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 20,
+    "entrying": 72,
+    "trading": 40,
+    "opening": 49,
+    "clutching": 41,
+    "sniping": 32,
+    "utility": 39
+  },
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

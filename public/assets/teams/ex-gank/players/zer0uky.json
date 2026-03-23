@@ -1,0 +1,20 @@
+{
+  "name": "zer0UKY",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "ex-GANK",
+  "teamRank": "188",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 45,
+    "entrying": 49,
+    "trading": 21,
+    "opening": 74,
+    "clutching": 70,
+    "sniping": 94,
+    "utility": 37
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

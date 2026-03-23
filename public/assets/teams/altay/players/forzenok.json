@@ -1,0 +1,20 @@
+{
+  "name": "forzenok",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALTAY",
+  "teamRank": "218",
+  "age": 20,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 67,
+    "entrying": 75,
+    "trading": 36,
+    "opening": 51,
+    "clutching": 41,
+    "sniping": 43,
+    "utility": 51
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "MINLATE",
+  "hltvRank": "116",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "amanek",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "SBT",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "ex1st",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "sk1tt",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "POLO",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

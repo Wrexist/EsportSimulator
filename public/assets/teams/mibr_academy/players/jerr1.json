@@ -1,0 +1,20 @@
+{
+  "name": "Jerr1",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR Academy",
+  "teamRank": "245",
+  "age": 18,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 51,
+    "entrying": 47,
+    "trading": 38,
+    "opening": 42,
+    "clutching": 22,
+    "sniping": 22,
+    "utility": 51
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

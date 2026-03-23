@@ -1,0 +1,20 @@
+{
+  "name": "Probl33m",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Sidequest",
+  "teamRank": "235",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 70,
+    "entrying": 22,
+    "trading": 52,
+    "opening": 67,
+    "clutching": 90,
+    "sniping": 44,
+    "utility": 27
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "dgt",
+  "country": "Uruguay",
+  "countryCode": "uy",
+  "team": "9z",
+  "teamRank": "42",
+  "age": 24,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 84,
+    "entrying": 46,
+    "trading": 59,
+    "opening": 61,
+    "clutching": 49,
+    "sniping": 50,
+    "utility": 46
+  },
+  "matchesPlayed": 154,
+  "hltvHistory": []
+}

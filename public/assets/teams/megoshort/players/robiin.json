@@ -1,0 +1,20 @@
+{
+  "name": "robiin",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "megoshort",
+  "teamRank": "115",
+  "age": 31,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 36,
+    "entrying": 32,
+    "trading": 66,
+    "opening": 43,
+    "clutching": 44,
+    "sniping": 51,
+    "utility": 88
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

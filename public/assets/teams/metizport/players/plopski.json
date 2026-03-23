@@ -1,0 +1,20 @@
+{
+  "name": "Plopski",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Metizport",
+  "teamRank": "163",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 24,
+    "entrying": 84,
+    "trading": 61,
+    "opening": 35,
+    "clutching": 47,
+    "sniping": 36,
+    "utility": 22
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

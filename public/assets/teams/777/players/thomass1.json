@@ -1,0 +1,20 @@
+{
+  "name": "thomass1",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "777",
+  "teamRank": "225",
+  "age": 24,
+  "rating": 1,
+  "stats": {
+    "firepower": 59,
+    "entrying": 29,
+    "trading": 87,
+    "opening": 14,
+    "clutching": 76,
+    "sniping": 4,
+    "utility": 21
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

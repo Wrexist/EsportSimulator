@@ -1,0 +1,20 @@
+{
+  "name": "Jynx",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Underground",
+  "teamRank": "180",
+  "age": 24,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 58,
+    "entrying": 53,
+    "trading": 72,
+    "opening": 30,
+    "clutching": 64,
+    "sniping": 28,
+    "utility": 36
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sh1seido",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "EGOISTO",
+  "teamRank": "166",
+  "age": 18,
+  "rating": 1.44,
+  "stats": {
+    "firepower": 100,
+    "entrying": 76,
+    "trading": 82,
+    "opening": 37,
+    "clutching": 50,
+    "sniping": 40,
+    "utility": 19
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

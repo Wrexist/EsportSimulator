@@ -1,0 +1,20 @@
+{
+  "name": "tripex17",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BIG Academy",
+  "teamRank": "81",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 42,
+    "entrying": 65,
+    "trading": 24,
+    "opening": 39,
+    "clutching": 66,
+    "sniping": 3,
+    "utility": 64
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

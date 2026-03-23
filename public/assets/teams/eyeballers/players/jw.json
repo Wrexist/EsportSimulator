@@ -1,0 +1,20 @@
+{
+  "name": "JW",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "EYEBALLERS",
+  "teamRank": "34",
+  "age": 30,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 25,
+    "entrying": 17,
+    "trading": 12,
+    "opening": 58,
+    "clutching": 85,
+    "sniping": 72,
+    "utility": 62
+  },
+  "matchesPlayed": 111,
+  "hltvHistory": []
+}

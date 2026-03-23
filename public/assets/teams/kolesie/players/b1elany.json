@@ -1,0 +1,20 @@
+{
+  "name": "b1elany",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "KOLESIE",
+  "teamRank": "54",
+  "age": 23,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 68,
+    "entrying": 48,
+    "trading": 56,
+    "opening": 27,
+    "clutching": 79,
+    "sniping": 28,
+    "utility": 45
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

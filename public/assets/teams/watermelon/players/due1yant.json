@@ -1,0 +1,20 @@
+{
+  "name": "Due1yant",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WATERMELON",
+  "teamRank": "152",
+  "age": 26,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 58,
+    "entrying": 34,
+    "trading": 76,
+    "opening": 49,
+    "clutching": 79,
+    "sniping": 39,
+    "utility": 49
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

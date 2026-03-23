@@ -1,0 +1,20 @@
+{
+  "name": "XELLOW",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "101",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 69,
+    "entrying": 17,
+    "trading": 42,
+    "opening": 72,
+    "clutching": 75,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

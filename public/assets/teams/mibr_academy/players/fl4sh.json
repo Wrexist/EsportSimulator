@@ -1,0 +1,20 @@
+{
+  "name": "fl4sh",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR Academy",
+  "teamRank": "245",
+  "age": 21,
+  "rating": 1,
+  "stats": {
+    "firepower": 77,
+    "entrying": 77,
+    "trading": 1,
+    "opening": 74,
+    "clutching": 9,
+    "sniping": 3,
+    "utility": 29
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

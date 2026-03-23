@@ -1,0 +1,41 @@
+{
+  "name": "Ax1Le",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "9BOOMPRO",
+  "teamRank": "129",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "April 29, 2002",
+  "rating": 1.03,
+  "stats": {
+    "firepower": 44,
+    "entrying": 21,
+    "trading": 25,
+    "opening": 21,
+    "clutching": 81,
+    "sniping": 11,
+    "utility": 79
+  },
+  "hltvHistory": [
+    {
+      "year": 2024,
+      "rank": 8
+    },
+    {
+      "year": 2023,
+      "rank": 7
+    },
+    {
+      "year": 2022,
+      "rank": 12
+    },
+    {
+      "year": 2021,
+      "rank": 6
+    }
+  ],
+  "matchesPlayed": 650,
+  "totalMVPs": 4
+}

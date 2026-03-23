@@ -1,0 +1,33 @@
+{
+  "name": "WOPA",
+  "hltvRank": "117",
+  "players": [
+    {
+      "name": "thamlike",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Patti",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "kwezz",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Zanto",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "SinK",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

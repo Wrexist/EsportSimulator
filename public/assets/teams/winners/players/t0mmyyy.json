@@ -1,0 +1,20 @@
+{
+  "name": "t0mmyyy",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Winners",
+  "teamRank": "232",
+  "age": 21,
+  "rating": 0.76,
+  "stats": {
+    "firepower": 3,
+    "entrying": 72,
+    "trading": 35,
+    "opening": 33,
+    "clutching": 42,
+    "sniping": 2,
+    "utility": 15
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

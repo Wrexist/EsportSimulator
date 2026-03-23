@@ -1,0 +1,34 @@
+{
+  "name": "Friendly Campers",
+  "hltvRank": "62",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "reiko",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "SaMey",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "bajmi",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "olimp",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "moonwalk",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 83,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "plushax",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALTAY",
+  "teamRank": "218",
+  "age": 22,
+  "rating": 0.77,
+  "stats": {
+    "firepower": 9,
+    "entrying": 7,
+    "trading": 38,
+    "opening": 13,
+    "clutching": 49,
+    "sniping": 25,
+    "utility": 26
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

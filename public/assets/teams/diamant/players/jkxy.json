@@ -1,0 +1,20 @@
+{
+  "name": "jkXy",
+  "country": "Slovenia",
+  "countryCode": "si",
+  "team": "Diamant",
+  "teamRank": "220",
+  "age": 24,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 24,
+    "entrying": 37,
+    "trading": 68,
+    "opening": 12,
+    "clutching": 7,
+    "sniping": 71,
+    "utility": 37
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

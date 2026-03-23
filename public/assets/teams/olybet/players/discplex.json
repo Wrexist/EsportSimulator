@@ -1,0 +1,20 @@
+{
+  "name": "discplex",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "OlyBet",
+  "teamRank": "123",
+  "age": 26,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 24,
+    "entrying": 63,
+    "trading": 53,
+    "opening": 14,
+    "clutching": 47,
+    "sniping": 17,
+    "utility": 50
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

@@ -1,0 +1,29 @@
+{
+  "name": "DEPO",
+  "hltvRank": "105",
+  "nationality": "Uzbekistan",
+  "players": [
+    {
+      "name": "fr0k",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "wetfy",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "icyvl0ne",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "shoxs",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    }
+  ],
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

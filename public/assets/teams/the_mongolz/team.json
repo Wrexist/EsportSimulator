@@ -1,0 +1,34 @@
+{
+  "name": "The MongolZ",
+  "hltvRank": "10",
+  "nationality": "Mongolia",
+  "players": [
+    {
+      "name": "bLitz",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "Techno",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "mzinho",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "910",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "cobrazera",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    }
+  ],
+  "matchesPlayed": 220,
+  "hltvHistory": []
+}

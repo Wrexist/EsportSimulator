@@ -1,0 +1,24 @@
+{
+  "name": "viscera",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Eruption",
+  "teamRank": "126",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 18,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.83,
+  "stats": {
+    "firepower": 23,
+    "entrying": 43,
+    "trading": 62,
+    "opening": 11,
+    "clutching": 52,
+    "sniping": 80,
+    "utility": 75
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

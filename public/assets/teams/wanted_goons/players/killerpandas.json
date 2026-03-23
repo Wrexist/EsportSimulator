@@ -1,0 +1,20 @@
+{
+  "name": "killerPandas",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wanted Goons",
+  "teamRank": "210",
+  "age": 22,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 91,
+    "entrying": 47,
+    "trading": 84,
+    "opening": 79,
+    "clutching": 56,
+    "sniping": 93,
+    "utility": 58
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Noktse",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "BESTIA",
+  "teamRank": "37",
+  "age": 33,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 8,
+    "entrying": 55,
+    "trading": 60,
+    "opening": 12,
+    "clutching": 60,
+    "sniping": 4,
+    "utility": 92
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

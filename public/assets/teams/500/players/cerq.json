@@ -1,0 +1,23 @@
+{
+  "name": "CeRq",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "500",
+  "teamRank": "70",
+  "role": "AWPer, AWPers",
+  "status": "Active",
+  "age": 26,
+  "birthDate": "December 7, 1999",
+  "rating": 1,
+  "stats": {
+    "firepower": 34,
+    "entrying": 29,
+    "trading": 77,
+    "opening": 36,
+    "clutching": 76,
+    "sniping": 90,
+    "utility": 70
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

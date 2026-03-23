@@ -1,0 +1,34 @@
+{
+  "name": "NOVAQ",
+  "hltvRank": "143",
+  "nationality": "Kazakhstan",
+  "players": [
+    {
+      "name": "neaLaN",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "ICY",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "def1zer",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "Pump",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "tasman",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

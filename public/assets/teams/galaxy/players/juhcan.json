@@ -1,0 +1,20 @@
+{
+  "name": "juhcaN",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Galaxy",
+  "teamRank": "219",
+  "age": 23,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 77,
+    "entrying": 89,
+    "trading": 94,
+    "opening": 35,
+    "clutching": 83,
+    "sniping": 1,
+    "utility": 39
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

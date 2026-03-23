@@ -1,0 +1,20 @@
+{
+  "name": "Executor",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "WahWah",
+  "teamRank": "246",
+  "age": 26,
+  "rating": 0.57,
+  "stats": {
+    "firepower": 25,
+    "entrying": 32,
+    "trading": 58,
+    "opening": 28,
+    "clutching": 10,
+    "sniping": 87,
+    "utility": 11
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

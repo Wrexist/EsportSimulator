@@ -1,0 +1,34 @@
+{
+  "name": "InControl",
+  "hltvRank": "214",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "jsfeltner",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "ayaneuu",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "TyRa",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "aelor",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Scorchyy",
+      "country": "Canada",
+      "countryCode": "ca"
+    }
+  ],
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

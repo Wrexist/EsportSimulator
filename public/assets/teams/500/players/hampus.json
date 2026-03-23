@@ -1,0 +1,23 @@
+{
+  "name": "hampus",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "500",
+  "teamRank": "70",
+  "role": "In-game leader, Lurker, In-game leaders, Lurkers",
+  "status": "Active",
+  "age": 27,
+  "birthDate": "November 26, 1998",
+  "rating": 1.02,
+  "stats": {
+    "firepower": 53,
+    "entrying": 64,
+    "trading": 12,
+    "opening": 80,
+    "clutching": 34,
+    "sniping": 3,
+    "utility": 66
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

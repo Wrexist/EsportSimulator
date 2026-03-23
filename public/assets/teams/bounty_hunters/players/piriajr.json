@@ -1,0 +1,23 @@
+{
+  "name": "piriajr",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Bounty Hunters",
+  "teamRank": "79",
+  "role": "Entry fraggers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "October 1, 2002",
+  "rating": 1.37,
+  "stats": {
+    "firepower": 100,
+    "entrying": 15,
+    "trading": 51,
+    "opening": 84,
+    "clutching": 63,
+    "sniping": 5,
+    "utility": 26
+  },
+  "matchesPlayed": 285,
+  "hltvHistory": []
+}

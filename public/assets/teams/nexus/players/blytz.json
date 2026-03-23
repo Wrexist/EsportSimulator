@@ -1,0 +1,20 @@
+{
+  "name": "Blytz",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "101",
+  "age": 25,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 61,
+    "entrying": 60,
+    "trading": 61,
+    "opening": 46,
+    "clutching": 41,
+    "sniping": 54,
+    "utility": 66
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

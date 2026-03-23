@@ -1,0 +1,20 @@
+{
+  "name": "Junyme",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "G2 Ares",
+  "teamRank": "84",
+  "age": 18,
+  "rating": 1,
+  "stats": {
+    "firepower": 47,
+    "entrying": 4,
+    "trading": 58,
+    "opening": 48,
+    "clutching": 85,
+    "sniping": 76,
+    "utility": 61
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

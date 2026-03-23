@@ -1,0 +1,21 @@
+{
+  "name": "s1mple",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "AWPer",
+  "status": "Legend",
+  "age": 27,
+  "birthDate": "Oct 2, 1997",
+  "rating": 1.35,
+  "stats": {
+    "firepower": 99,
+    "entrying": 92,
+    "trading": 95,
+    "opening": 97,
+    "clutching": 97,
+    "sniping": 99,
+    "utility": 88
+  }
+}

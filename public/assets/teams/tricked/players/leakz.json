@@ -1,0 +1,20 @@
+{
+  "name": "leakz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Tricked",
+  "teamRank": "59",
+  "age": 22,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 91,
+    "entrying": 21,
+    "trading": 54,
+    "opening": 50,
+    "clutching": 47,
+    "sniping": 1,
+    "utility": 37
+  },
+  "matchesPlayed": 76,
+  "hltvHistory": []
+}

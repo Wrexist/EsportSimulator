@@ -1,0 +1,34 @@
+{
+  "name": "Legion",
+  "hltvRank": "200",
+  "nationality": "Pakistan",
+  "players": [
+    {
+      "name": "HZI",
+      "country": "Pakistan",
+      "countryCode": "pk"
+    },
+    {
+      "name": "PokemoN",
+      "country": "Pakistan",
+      "countryCode": "pk"
+    },
+    {
+      "name": "hf",
+      "country": "Pakistan",
+      "countryCode": "pk"
+    },
+    {
+      "name": "Bloody",
+      "country": "Pakistan",
+      "countryCode": "pk"
+    },
+    {
+      "name": "pavast4r",
+      "country": "Pakistan",
+      "countryCode": "pk"
+    }
+  ],
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

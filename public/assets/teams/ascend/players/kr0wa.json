@@ -1,0 +1,20 @@
+{
+  "name": "kr0wa",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Ascend",
+  "teamRank": "231",
+  "age": 27,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 82,
+    "entrying": 72,
+    "trading": 97,
+    "opening": 1,
+    "clutching": 90,
+    "sniping": 26,
+    "utility": 17
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

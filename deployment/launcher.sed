@@ -1,0 +1,30 @@
+[Version]
+Class=IEXPRESS
+SEDVersion=3
+[Options]
+PackagePurpose=InstallApp
+ShowInstallProgramWindow=0
+HideExtractAnimation=1
+UseLongFileName=1
+InsideCompressed=0
+CAB_FixedSize=0
+CAB_ResvCodeSigning=0
+RebootMode=N
+InstallPrompt=
+DisplayLicense=
+FinishMessage=
+TargetName=%TEMP%\EsportsManagerLauncher.exe
+FriendlyName=Esports Manager Simulator
+AppLaunched=wscript.exe launcher.vbs
+PostInstallCmd=<None>
+AdminQuietInstCmd=
+UserQuietInstCmd=
+SourceFiles=SourceFiles
+[Strings]
+FILE0="launcher.vbs"
+FILE1="launcher_internal.bat"
+[SourceFiles]
+SourceFiles0=.\
+[SourceFiles0]
+%FILE0%=
+%FILE1%=

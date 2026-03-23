@@ -1,0 +1,20 @@
+{
+  "name": "k1ssly",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Oxuji",
+  "teamRank": "154",
+  "age": 23,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 33,
+    "entrying": 24,
+    "trading": 65,
+    "opening": 55,
+    "clutching": 68,
+    "sniping": 28,
+    "utility": 87
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

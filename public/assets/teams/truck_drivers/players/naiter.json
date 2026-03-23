@@ -1,0 +1,20 @@
+{
+  "name": "Naiter",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "Truck Drivers",
+  "teamRank": "164",
+  "age": 25,
+  "rating": 0.8,
+  "stats": {
+    "firepower": 5,
+    "entrying": 59,
+    "trading": 12,
+    "opening": 39,
+    "clutching": 13,
+    "sniping": 5,
+    "utility": 61
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

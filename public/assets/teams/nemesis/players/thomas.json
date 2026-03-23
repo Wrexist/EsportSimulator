@@ -1,0 +1,20 @@
+{
+  "name": "Thomas",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Nemesis",
+  "teamRank": "109",
+  "age": 27,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 32,
+    "entrying": 93,
+    "trading": 40,
+    "opening": 16,
+    "clutching": 73,
+    "sniping": 1,
+    "utility": 82
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

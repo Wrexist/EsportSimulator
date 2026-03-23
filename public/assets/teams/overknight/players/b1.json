@@ -1,0 +1,20 @@
+{
+  "name": "b1",
+  "country": "Mexico",
+  "countryCode": "mx",
+  "team": "OverKnight",
+  "teamRank": "222",
+  "age": 27,
+  "rating": 0.74,
+  "stats": {
+    "firepower": 17,
+    "entrying": 22,
+    "trading": 91,
+    "opening": 26,
+    "clutching": 18,
+    "sniping": 31,
+    "utility": 76
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

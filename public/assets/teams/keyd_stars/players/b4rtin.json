@@ -1,0 +1,20 @@
+{
+  "name": "b4rtiN",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Keyd Stars",
+  "teamRank": "169",
+  "age": 24,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 38,
+    "entrying": 81,
+    "trading": 20,
+    "opening": 50,
+    "clutching": 31,
+    "sniping": 29,
+    "utility": 36
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

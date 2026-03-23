@@ -1,0 +1,20 @@
+{
+  "name": "957",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Change The Game",
+  "teamRank": "102",
+  "age": 24,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 26,
+    "entrying": 15,
+    "trading": 37,
+    "opening": 28,
+    "clutching": 32,
+    "sniping": 57,
+    "utility": 69
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

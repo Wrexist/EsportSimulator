@@ -1,0 +1,20 @@
+{
+  "name": "cptkurtka023",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "kONO",
+  "teamRank": "111",
+  "age": 26,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 88,
+    "entrying": 65,
+    "trading": 36,
+    "opening": 87,
+    "clutching": 29,
+    "sniping": 0,
+    "utility": 40
+  },
+  "matchesPlayed": 190,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Ascend",
+  "hltvRank": "231",
+  "nationality": "Spain",
+  "players": [
+    {
+      "name": "kr0wa",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "KaonGod",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "NinjaT1",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "lucibesten",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "fix",
+      "country": "Spain",
+      "countryCode": "es"
+    }
+  ],
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

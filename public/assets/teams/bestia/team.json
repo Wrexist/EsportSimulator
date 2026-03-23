@@ -1,0 +1,34 @@
+{
+  "name": "BESTIA",
+  "hltvRank": "37",
+  "nationality": "Argentina",
+  "players": [
+    {
+      "name": "Noktse",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "cass1n",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "buda",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "tomaszin",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "timo",
+      "country": "Uruguay",
+      "countryCode": "uy"
+    }
+  ],
+  "matchesPlayed": 159,
+  "hltvHistory": []
+}

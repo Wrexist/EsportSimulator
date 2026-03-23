@@ -1,0 +1,20 @@
+{
+  "name": "BledarD",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "112",
+  "age": 24,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 69,
+    "entrying": 30,
+    "trading": 44,
+    "opening": 71,
+    "clutching": 78,
+    "sniping": 92,
+    "utility": 39
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

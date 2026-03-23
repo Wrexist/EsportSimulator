@@ -1,0 +1,20 @@
+{
+  "name": "Woro2k",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Eternal Fire",
+  "teamRank": "161",
+  "age": 24,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 96,
+    "entrying": 10,
+    "trading": 40,
+    "opening": 87,
+    "clutching": 85,
+    "sniping": 83,
+    "utility": 50
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "gun",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Sidequest",
+  "teamRank": "235",
+  "age": 23,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 43,
+    "entrying": 14,
+    "trading": 90,
+    "opening": 21,
+    "clutching": 48,
+    "sniping": 13,
+    "utility": 6
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

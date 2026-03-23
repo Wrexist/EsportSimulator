@@ -1,0 +1,20 @@
+{
+  "name": "tlx",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "FOKUS",
+  "teamRank": "203",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 45,
+    "entrying": 49,
+    "trading": 31,
+    "opening": 36,
+    "clutching": 61,
+    "sniping": 93,
+    "utility": 55
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

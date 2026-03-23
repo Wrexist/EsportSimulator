@@ -1,0 +1,20 @@
+{
+  "name": "laxiee",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "SkinRave",
+  "teamRank": "108",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 66,
+    "entrying": 62,
+    "trading": 71,
+    "opening": 55,
+    "clutching": 33,
+    "sniping": 0,
+    "utility": 22
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "HENU",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "INFURITY",
+  "teamRank": "132",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 74,
+    "entrying": 95,
+    "trading": 47,
+    "opening": 62,
+    "clutching": 20,
+    "sniping": 38,
+    "utility": 70
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

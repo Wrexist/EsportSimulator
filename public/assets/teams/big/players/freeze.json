@@ -1,0 +1,23 @@
+{
+  "name": "FreeZe",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BIG",
+  "teamRank": "50",
+  "role": "In-game leader, In-game leaders",
+  "status": "Active",
+  "age": 27,
+  "birthDate": "July 24, 1998",
+  "rating": 0.85,
+  "stats": {
+    "firepower": 3,
+    "entrying": 61,
+    "trading": 28,
+    "opening": 9,
+    "clutching": 49,
+    "sniping": 0,
+    "utility": 91
+  },
+  "matchesPlayed": 25,
+  "hltvHistory": []
+}

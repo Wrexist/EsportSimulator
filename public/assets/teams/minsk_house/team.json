@@ -1,0 +1,34 @@
+{
+  "name": "Minsk House",
+  "hltvRank": "136",
+  "nationality": "Belarus",
+  "players": [
+    {
+      "name": "lollipop21k",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "znxxX",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "ksolter",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "menddel",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "f1nch",
+      "country": "Belarus",
+      "countryCode": "by"
+    }
+  ],
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

@@ -1,0 +1,21 @@
+{
+  "name": "GuardiaN",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "AWPer",
+  "status": "Legend",
+  "age": 33,
+  "birthDate": "Jul 21, 1991",
+  "rating": 1.18,
+  "stats": {
+    "firepower": 88,
+    "entrying": 80,
+    "trading": 85,
+    "opening": 88,
+    "clutching": 88,
+    "sniping": 98,
+    "utility": 75
+  }
+}

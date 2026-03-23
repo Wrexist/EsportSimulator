@@ -1,0 +1,20 @@
+{
+  "name": "gr1ks",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "BIG",
+  "teamRank": "63",
+  "age": 20,
+  "rating": 1.24,
+  "stats": {
+    "firepower": 93,
+    "entrying": 18,
+    "trading": 58,
+    "opening": 68,
+    "clutching": 75,
+    "sniping": 94,
+    "utility": 55
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "lauNX",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "FUT",
+  "teamRank": "14",
+  "age": 20,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 80,
+    "entrying": 86,
+    "trading": 69,
+    "opening": 66,
+    "clutching": 53,
+    "sniping": 40,
+    "utility": 62
+  },
+  "matchesPlayed": 173,
+  "hltvHistory": []
+}

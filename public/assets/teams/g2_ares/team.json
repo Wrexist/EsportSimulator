@@ -1,0 +1,29 @@
+{
+  "name": "G2 Ares",
+  "hltvRank": "84",
+  "nationality": "Lithuania",
+  "players": [
+    {
+      "name": "tAk",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "hitori",
+      "country": "Uzbekistan",
+      "countryCode": "uz"
+    },
+    {
+      "name": "Junyme",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "yksjupe",
+      "country": "Finland",
+      "countryCode": "fi"
+    }
+  ],
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

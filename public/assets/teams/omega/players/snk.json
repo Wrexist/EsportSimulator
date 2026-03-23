@@ -1,0 +1,20 @@
+{
+  "name": "SNk",
+  "country": "Kyrgyzstan",
+  "countryCode": "ky",
+  "team": "Omega",
+  "teamRank": "121",
+  "age": 30,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 56,
+    "entrying": 9,
+    "trading": 44,
+    "opening": 39,
+    "clutching": 63,
+    "sniping": 91,
+    "utility": 63
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "gooddeph",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "eLITenergy",
+  "teamRank": "170",
+  "age": 21,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 19,
+    "entrying": 90,
+    "trading": 95,
+    "opening": 40,
+    "clutching": 57,
+    "sniping": 42,
+    "utility": 36
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

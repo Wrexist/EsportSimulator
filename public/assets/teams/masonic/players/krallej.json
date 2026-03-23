@@ -1,0 +1,20 @@
+{
+  "name": "KralleJ",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "MASONIC",
+  "teamRank": "138",
+  "age": 19,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 76,
+    "entrying": 48,
+    "trading": 26,
+    "opening": 82,
+    "clutching": 37,
+    "sniping": 80,
+    "utility": 58
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

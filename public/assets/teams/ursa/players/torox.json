@@ -1,0 +1,20 @@
+{
+  "name": "torox",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Ursa",
+  "teamRank": "85",
+  "age": 22,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 31,
+    "entrying": 20,
+    "trading": 10,
+    "opening": 28,
+    "clutching": 66,
+    "sniping": 4,
+    "utility": 23
+  },
+  "matchesPlayed": 97,
+  "hltvHistory": []
+}

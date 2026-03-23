@@ -1,0 +1,20 @@
+{
+  "name": "SLIGHT",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "BOSS",
+  "teamRank": "94",
+  "age": 23,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 85,
+    "entrying": 43,
+    "trading": 62,
+    "opening": 36,
+    "clutching": 84,
+    "sniping": 92,
+    "utility": 85
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

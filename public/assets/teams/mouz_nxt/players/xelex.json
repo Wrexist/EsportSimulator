@@ -1,0 +1,20 @@
+{
+  "name": "xelex",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "MOUZ NXT",
+  "teamRank": "69",
+  "age": 17,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 86,
+    "entrying": 64,
+    "trading": 74,
+    "opening": 66,
+    "clutching": 75,
+    "sniping": 41,
+    "utility": 69
+  },
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "gleb86rus",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WATERMELON",
+  "teamRank": "152",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 74,
+    "entrying": 84,
+    "trading": 83,
+    "opening": 22,
+    "clutching": 55,
+    "sniping": 1,
+    "utility": 35
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

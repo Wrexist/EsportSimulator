@@ -1,0 +1,20 @@
+{
+  "name": "meyern",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "9z",
+  "teamRank": "42",
+  "age": 23,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 51,
+    "entrying": 42,
+    "trading": 66,
+    "opening": 48,
+    "clutching": 85,
+    "sniping": 87,
+    "utility": 52
+  },
+  "matchesPlayed": 141,
+  "hltvHistory": []
+}

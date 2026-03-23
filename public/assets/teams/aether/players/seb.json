@@ -1,0 +1,20 @@
+{
+  "name": "Seb",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Aether",
+  "teamRank": "131",
+  "age": 24,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 67,
+    "entrying": 65,
+    "trading": 75,
+    "opening": 23,
+    "clutching": 54,
+    "sniping": 60,
+    "utility": 33
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

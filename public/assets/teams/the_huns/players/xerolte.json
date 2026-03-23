@@ -1,0 +1,20 @@
+{
+  "name": "xerolte",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The Huns",
+  "teamRank": "67",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 57,
+    "entrying": 14,
+    "trading": 13,
+    "opening": 40,
+    "clutching": 37,
+    "sniping": 17,
+    "utility": 74
+  },
+  "matchesPlayed": 89,
+  "hltvHistory": []
+}

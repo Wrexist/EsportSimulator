@@ -1,0 +1,24 @@
+{
+  "name": "FinigaN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Fire Flux",
+  "teamRank": "74",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 26,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.08,
+  "stats": {
+    "firepower": 82,
+    "entrying": 53,
+    "trading": 79,
+    "opening": 64,
+    "clutching": 54,
+    "sniping": 0,
+    "utility": 71
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

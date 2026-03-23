@@ -1,0 +1,20 @@
+{
+  "name": "nut nut",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "50",
+  "age": 20,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 54,
+    "entrying": 74,
+    "trading": 87,
+    "opening": 28,
+    "clutching": 81,
+    "sniping": 33,
+    "utility": 80
+  },
+  "matchesPlayed": 156,
+  "hltvHistory": []
+}

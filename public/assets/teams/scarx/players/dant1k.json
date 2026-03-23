@@ -1,0 +1,20 @@
+{
+  "name": "Dant1k",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "ScarX",
+  "teamRank": "247",
+  "age": 32,
+  "rating": 0.59,
+  "stats": {
+    "firepower": 35,
+    "entrying": 10,
+    "trading": 18,
+    "opening": 17,
+    "clutching": 1,
+    "sniping": 19,
+    "utility": 41
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}
