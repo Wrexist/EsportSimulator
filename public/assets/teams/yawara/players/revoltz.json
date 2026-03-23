@@ -1,0 +1,20 @@
+{
+  "name": "revoltz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Yawara",
+  "teamRank": "117",
+  "age": 19,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 80,
+    "entrying": 85,
+    "trading": 39,
+    "opening": 22,
+    "clutching": 32,
+    "sniping": 44,
+    "utility": 21
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

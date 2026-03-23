@@ -1,0 +1,21 @@
+{
+  "name": "flusha",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 31,
+  "birthDate": "Oct 3, 1993",
+  "rating": 1.14,
+  "stats": {
+    "firepower": 90,
+    "entrying": 82,
+    "trading": 92,
+    "opening": 85,
+    "clutching": 95,
+    "sniping": 55,
+    "utility": 88
+  }
+}

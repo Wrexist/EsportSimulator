@@ -1,0 +1,20 @@
+{
+  "name": "HS",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "Prestige",
+  "teamRank": "149",
+  "age": 29,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 49,
+    "entrying": 94,
+    "trading": 55,
+    "opening": 51,
+    "clutching": 47,
+    "sniping": 1,
+    "utility": 89
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

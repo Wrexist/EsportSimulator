@@ -1,0 +1,23 @@
+{
+  "name": "zorte",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "9BOOMPRO",
+  "teamRank": "129",
+  "role": "AWPer, AWPers",
+  "status": "Active",
+  "age": 27,
+  "birthDate": "May 27, 1998",
+  "rating": 1.05,
+  "stats": {
+    "firepower": 60,
+    "entrying": 58,
+    "trading": 36,
+    "opening": 93,
+    "clutching": 42,
+    "sniping": 93,
+    "utility": 68
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

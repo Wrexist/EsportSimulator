@@ -1,0 +1,20 @@
+{
+  "name": "h1glaiN",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Truck Drivers",
+  "teamRank": "164",
+  "age": 25,
+  "rating": 1.29,
+  "stats": {
+    "firepower": 92,
+    "entrying": 52,
+    "trading": 26,
+    "opening": 81,
+    "clutching": 73,
+    "sniping": 2,
+    "utility": 57
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

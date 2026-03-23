@@ -1,0 +1,20 @@
+{
+  "name": "Hezz",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Isurus",
+  "teamRank": "141",
+  "age": 25,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 68,
+    "entrying": 55,
+    "trading": 28,
+    "opening": 70,
+    "clutching": 41,
+    "sniping": 1,
+    "utility": 37
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

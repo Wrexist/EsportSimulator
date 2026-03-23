@@ -1,0 +1,20 @@
+{
+  "name": "Biuckmt",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "FengDa",
+  "teamRank": "156",
+  "age": 22,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 31,
+    "entrying": 13,
+    "trading": 21,
+    "opening": 17,
+    "clutching": 86,
+    "sniping": 1,
+    "utility": 22
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

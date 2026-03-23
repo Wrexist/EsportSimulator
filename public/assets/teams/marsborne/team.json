@@ -1,0 +1,34 @@
+{
+  "name": "Marsborne",
+  "hltvRank": "53",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "WolfY",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "motm",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Cxzi",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "chop",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Grizz",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 108,
+  "hltvHistory": []
+}

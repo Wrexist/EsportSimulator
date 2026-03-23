@@ -1,0 +1,20 @@
+{
+  "name": "bixs",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "WeWillWin",
+  "teamRank": "187",
+  "age": 27,
+  "rating": 1.21,
+  "stats": {
+    "firepower": 75,
+    "entrying": 98,
+    "trading": 23,
+    "opening": 78,
+    "clutching": 52,
+    "sniping": 24,
+    "utility": 11
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

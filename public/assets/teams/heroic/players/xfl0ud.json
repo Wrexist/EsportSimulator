@@ -1,0 +1,20 @@
+{
+  "name": "xfl0ud",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "HEROIC",
+  "teamRank": "22",
+  "age": 23,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 96,
+    "entrying": 53,
+    "trading": 33,
+    "opening": 86,
+    "clutching": 24,
+    "sniping": 33,
+    "utility": 74
+  },
+  "matchesPlayed": 153,
+  "hltvHistory": []
+}

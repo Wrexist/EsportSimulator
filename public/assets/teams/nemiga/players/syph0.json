@@ -1,0 +1,20 @@
+{
+  "name": "syph0",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Nemiga",
+  "teamRank": "55",
+  "age": 17,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 83,
+    "entrying": 59,
+    "trading": 55,
+    "opening": 52,
+    "clutching": 39,
+    "sniping": 2,
+    "utility": 43
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

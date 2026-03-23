@@ -1,0 +1,20 @@
+{
+  "name": "aiM",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "BIG EQUIPA",
+  "teamRank": "194",
+  "age": 23,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 10,
+    "entrying": 52,
+    "trading": 51,
+    "opening": 51,
+    "clutching": 49,
+    "sniping": 1,
+    "utility": 38
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

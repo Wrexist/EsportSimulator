@@ -1,0 +1,31 @@
+{
+    "name": "rain",
+    "country": "Norway",
+    "countryCode": "no",
+    "team": "100 Thieves",
+    "teamRank": "15",
+    "age": 31,
+    "rating": 0.95,
+    "stats": {
+        "firepower": 65,
+        "entrying": 45,
+        "trading": 60,
+        "opening": 55,
+        "clutching": 72,
+        "sniping": 35,
+        "utility": 55
+    },
+    "hltvHistory": [
+        {
+            "year": 2022,
+            "rank": 7
+        },
+        {
+            "year": 2017,
+            "rank": 5
+        }
+    ],
+    "matchesPlayed": 1300,
+    "majorWins": 1,
+    "totalMVPs": 3
+}

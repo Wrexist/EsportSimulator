@@ -1,0 +1,20 @@
+{
+  "name": "puuha",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "HAVU",
+  "teamRank": "120",
+  "age": 19,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 50,
+    "entrying": 79,
+    "trading": 32,
+    "opening": 43,
+    "clutching": 58,
+    "sniping": 29,
+    "utility": 77
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

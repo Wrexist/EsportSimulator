@@ -1,0 +1,20 @@
+{
+  "name": "kmrn",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "LAG",
+  "teamRank": "144",
+  "age": 23,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 73,
+    "entrying": 55,
+    "trading": 69,
+    "opening": 72,
+    "clutching": 33,
+    "sniping": 2,
+    "utility": 45
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

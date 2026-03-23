@@ -1,0 +1,20 @@
+{
+  "name": "SENER1",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "112",
+  "age": 29,
+  "rating": 1,
+  "stats": {
+    "firepower": 28,
+    "entrying": 96,
+    "trading": 66,
+    "opening": 26,
+    "clutching": 71,
+    "sniping": 34,
+    "utility": 93
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

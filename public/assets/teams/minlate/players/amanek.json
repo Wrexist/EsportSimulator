@@ -1,0 +1,20 @@
+{
+  "name": "amanek",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "MINLATE",
+  "teamRank": "116",
+  "age": 32,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 26,
+    "entrying": 59,
+    "trading": 25,
+    "opening": 49,
+    "clutching": 62,
+    "sniping": 4,
+    "utility": 55
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

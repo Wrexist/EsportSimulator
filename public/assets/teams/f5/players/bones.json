@@ -1,0 +1,20 @@
+{
+  "name": "bones",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "F5",
+  "teamRank": "167",
+  "age": 25,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 36,
+    "entrying": 7,
+    "trading": 81,
+    "opening": 22,
+    "clutching": 81,
+    "sniping": 88,
+    "utility": 57
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

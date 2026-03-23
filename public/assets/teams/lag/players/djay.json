@@ -1,0 +1,20 @@
+{
+  "name": "djay",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "LAG",
+  "teamRank": "144",
+  "age": 32,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 83,
+    "entrying": 89,
+    "trading": 62,
+    "opening": 59,
+    "clutching": 35,
+    "sniping": 13,
+    "utility": 78
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

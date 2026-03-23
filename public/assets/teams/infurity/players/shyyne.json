@@ -1,0 +1,20 @@
+{
+  "name": "shyyne",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "INFURITY",
+  "teamRank": "132",
+  "age": 26,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 38,
+    "entrying": 58,
+    "trading": 58,
+    "opening": 41,
+    "clutching": 15,
+    "sniping": 23,
+    "utility": 25
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

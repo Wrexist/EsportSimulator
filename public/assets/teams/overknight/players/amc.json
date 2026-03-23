@@ -1,0 +1,20 @@
+{
+  "name": "AMC",
+  "country": "Mexico",
+  "countryCode": "mx",
+  "team": "OverKnight",
+  "teamRank": "222",
+  "age": 24,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 77,
+    "entrying": 25,
+    "trading": 25,
+    "opening": 81,
+    "clutching": 9,
+    "sniping": 68,
+    "utility": 11
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

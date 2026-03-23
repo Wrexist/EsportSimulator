@@ -1,0 +1,20 @@
+{
+  "name": "Proper",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "JUMBO",
+  "teamRank": "125",
+  "age": 24,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 19,
+    "entrying": 35,
+    "trading": 24,
+    "opening": 17,
+    "clutching": 55,
+    "sniping": 23,
+    "utility": 48
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

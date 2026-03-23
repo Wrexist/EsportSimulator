@@ -1,0 +1,24 @@
+{
+  "name": "Olaie",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Falcons Force",
+  "teamRank": "142",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.89,
+  "stats": {
+    "firepower": 28,
+    "entrying": 90,
+    "trading": 54,
+    "opening": 8,
+    "clutching": 49,
+    "sniping": 0,
+    "utility": 32
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

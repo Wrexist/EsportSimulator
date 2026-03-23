@@ -1,0 +1,20 @@
+{
+  "name": "ivz",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "ShindeN",
+  "teamRank": "71",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 51,
+    "entrying": 14,
+    "trading": 52,
+    "opening": 41,
+    "clutching": 87,
+    "sniping": 93,
+    "utility": 63
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

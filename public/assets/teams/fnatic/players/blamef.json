@@ -1,0 +1,24 @@
+{
+  "name": "blameF",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "fnatic",
+  "teamRank": "29",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 28,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.28,
+  "stats": {
+    "firepower": 93,
+    "entrying": 26,
+    "trading": 49,
+    "opening": 75,
+    "clutching": 71,
+    "sniping": 0,
+    "utility": 55
+  },
+  "matchesPlayed": 240,
+  "hltvHistory": []
+}

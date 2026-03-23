@@ -1,0 +1,23 @@
+{
+  "name": "ALENNNCAR",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fuego",
+  "teamRank": "139",
+  "role": "Unknown",
+  "status": "Unknown",
+  "debug": [],
+  "age": 24,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 53,
+    "entrying": 8,
+    "trading": 23,
+    "opening": 54,
+    "clutching": 72,
+    "sniping": 91,
+    "utility": 52
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

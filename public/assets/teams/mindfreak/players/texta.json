@@ -1,0 +1,20 @@
+{
+  "name": "Texta",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Mindfreak",
+  "teamRank": "133",
+  "age": 24,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 97,
+    "entrying": 80,
+    "trading": 85,
+    "opening": 74,
+    "clutching": 25,
+    "sniping": 1,
+    "utility": 65
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

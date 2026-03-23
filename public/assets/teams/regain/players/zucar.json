@@ -1,0 +1,20 @@
+{
+  "name": "Zucar",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "regain",
+  "teamRank": "153",
+  "age": 24,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 87,
+    "entrying": 100,
+    "trading": 55,
+    "opening": 66,
+    "clutching": 24,
+    "sniping": 47,
+    "utility": 60
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

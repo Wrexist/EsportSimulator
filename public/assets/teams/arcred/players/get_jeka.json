@@ -1,0 +1,20 @@
+{
+  "name": "Get_Jeka",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "ARCRED",
+  "teamRank": "60",
+  "age": 23,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 36,
+    "entrying": 61,
+    "trading": 73,
+    "opening": 18,
+    "clutching": 43,
+    "sniping": 33,
+    "utility": 24
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

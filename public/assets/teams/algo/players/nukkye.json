@@ -1,0 +1,20 @@
+{
+  "name": "nukkye",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "ALGO",
+  "teamRank": "128",
+  "age": 28,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 80,
+    "entrying": 41,
+    "trading": 74,
+    "opening": 58,
+    "clutching": 57,
+    "sniping": 1,
+    "utility": 71
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

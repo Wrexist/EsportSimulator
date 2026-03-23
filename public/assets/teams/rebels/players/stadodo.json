@@ -1,0 +1,20 @@
+{
+  "name": "stadodo",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Rebels",
+  "teamRank": "119",
+  "age": 29,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 50,
+    "entrying": 6,
+    "trading": 58,
+    "opening": 56,
+    "clutching": 86,
+    "sniping": 91,
+    "utility": 72
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

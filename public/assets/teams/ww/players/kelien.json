@@ -1,0 +1,20 @@
+{
+  "name": "kelieN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WW",
+  "teamRank": "113",
+  "age": 21,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 20,
+    "entrying": 82,
+    "trading": 10,
+    "opening": 64,
+    "clutching": 48,
+    "sniping": 3,
+    "utility": 52
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

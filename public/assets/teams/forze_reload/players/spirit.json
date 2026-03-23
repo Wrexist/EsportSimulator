@@ -1,0 +1,20 @@
+{
+  "name": "spirit",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "FORZE Reload",
+  "teamRank": "90",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 70,
+    "entrying": 88,
+    "trading": 71,
+    "opening": 58,
+    "clutching": 47,
+    "sniping": 2,
+    "utility": 27
+  },
+  "matchesPlayed": 77,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "elem",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "TNC",
+  "teamRank": "201",
+  "age": 22,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 46,
+    "entrying": 99,
+    "trading": 66,
+    "opening": 1,
+    "clutching": 89,
+    "sniping": 43,
+    "utility": 19
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

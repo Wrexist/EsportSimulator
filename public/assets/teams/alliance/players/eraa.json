@@ -1,0 +1,20 @@
+{
+  "name": "eraa",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "76",
+  "age": 24,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 87,
+    "entrying": 14,
+    "trading": 47,
+    "opening": 63,
+    "clutching": 77,
+    "sniping": 94,
+    "utility": 70
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

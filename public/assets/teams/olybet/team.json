@@ -1,0 +1,34 @@
+{
+  "name": "OlyBet",
+  "hltvRank": "123",
+  "nationality": "Latvia",
+  "players": [
+    {
+      "name": "discplex",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Frip",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "hexoq",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "yaankz",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "ChipaaN",
+      "country": "Latvia",
+      "countryCode": "lv"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

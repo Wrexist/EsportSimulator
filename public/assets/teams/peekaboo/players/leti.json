@@ -1,0 +1,20 @@
+{
+  "name": "LETi",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Peekaboo",
+  "teamRank": "228",
+  "age": 27,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 30,
+    "entrying": 50,
+    "trading": 84,
+    "opening": 17,
+    "clutching": 15,
+    "sniping": 7,
+    "utility": 66
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

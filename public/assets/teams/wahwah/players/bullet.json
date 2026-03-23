@@ -1,0 +1,20 @@
+{
+  "name": "BulleT",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "WahWah",
+  "teamRank": "246",
+  "age": 23,
+  "rating": 0.85,
+  "stats": {
+    "firepower": 1,
+    "entrying": 100,
+    "trading": 86,
+    "opening": 16,
+    "clutching": 88,
+    "sniping": 66,
+    "utility": 52
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

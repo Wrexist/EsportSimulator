@@ -1,0 +1,34 @@
+{
+  "name": "Falcons",
+  "hltvRank": "3",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "NiKo",
+      "country": "Bosnia and Herzegovina",
+      "countryCode": "ba"
+    },
+    {
+      "name": "TeSeS",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "m0NESY",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "kyxsan",
+      "country": "North Macedonia",
+      "countryCode": "mk"
+    },
+    {
+      "name": "kyousuke",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 231,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Lucky",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "3DMAX",
+  "teamRank": "13",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 33,
+    "entrying": 63,
+    "trading": 66,
+    "opening": 37,
+    "clutching": 27,
+    "sniping": 72,
+    "utility": 65
+  },
+  "matchesPlayed": 229,
+  "hltvHistory": []
+}

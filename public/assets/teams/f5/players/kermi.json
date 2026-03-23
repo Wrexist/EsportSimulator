@@ -1,0 +1,20 @@
+{
+  "name": "Kermi",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "F5",
+  "teamRank": "167",
+  "age": 24,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 37,
+    "entrying": 28,
+    "trading": 59,
+    "opening": 19,
+    "clutching": 33,
+    "sniping": 79,
+    "utility": 53
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Ex3rcice",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "3DMAX",
+  "teamRank": "13",
+  "age": 26,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 29,
+    "entrying": 42,
+    "trading": 20,
+    "opening": 56,
+    "clutching": 76,
+    "sniping": 67,
+    "utility": 53
+  },
+  "matchesPlayed": 192,
+  "hltvHistory": []
+}

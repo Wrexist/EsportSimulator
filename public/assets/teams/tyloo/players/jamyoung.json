@@ -1,0 +1,20 @@
+{
+  "name": "JamYoung",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "TYLOO",
+  "teamRank": "30",
+  "age": 24,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 87,
+    "entrying": 74,
+    "trading": 74,
+    "opening": 90,
+    "clutching": 68,
+    "sniping": 33,
+    "utility": 63
+  },
+  "matchesPlayed": 207,
+  "hltvHistory": []
+}

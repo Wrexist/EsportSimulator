@@ -1,0 +1,20 @@
+{
+  "name": "MistR",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Sashi",
+  "teamRank": "78",
+  "age": 21,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 14,
+    "entrying": 87,
+    "trading": 78,
+    "opening": 30,
+    "clutching": 60,
+    "sniping": 37,
+    "utility": 56
+  },
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

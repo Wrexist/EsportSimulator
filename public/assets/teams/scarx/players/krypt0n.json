@@ -1,0 +1,20 @@
+{
+  "name": "kRYPt0N",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "ScarX",
+  "teamRank": "247",
+  "age": 20,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 80,
+    "entrying": 98,
+    "trading": 44,
+    "opening": 56,
+    "clutching": 83,
+    "sniping": 37,
+    "utility": 32
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

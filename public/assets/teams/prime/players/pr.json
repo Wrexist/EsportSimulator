@@ -1,0 +1,20 @@
+{
+  "name": "pr",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "PRIME",
+  "teamRank": "145",
+  "age": 25,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 66,
+    "entrying": 46,
+    "trading": 72,
+    "opening": 52,
+    "clutching": 19,
+    "sniping": 36,
+    "utility": 28
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

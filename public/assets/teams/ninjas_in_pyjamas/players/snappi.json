@@ -1,0 +1,20 @@
+{
+  "name": "Snappi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Ninjas in Pyjamas",
+  "teamRank": "21",
+  "age": 35,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 27,
+    "entrying": 42,
+    "trading": 16,
+    "opening": 33,
+    "clutching": 48,
+    "sniping": 4,
+    "utility": 80
+  },
+  "matchesPlayed": 226,
+  "hltvHistory": []
+}

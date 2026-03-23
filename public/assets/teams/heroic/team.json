@@ -1,0 +1,34 @@
+{
+  "name": "HEROIC",
+  "hltvRank": "22",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "xfl0ud",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "nilo",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "susp",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Chr1zN",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Alkaren",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 169,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "kRaSnaL",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "ENCE",
+  "teamRank": "70",
+  "age": 22,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 60,
+    "entrying": 58,
+    "trading": 81,
+    "opening": 43,
+    "clutching": 45,
+    "sniping": 40,
+    "utility": 47
+  },
+  "matchesPlayed": 87,
+  "hltvHistory": []
+}

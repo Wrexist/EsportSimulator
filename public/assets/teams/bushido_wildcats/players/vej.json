@@ -1,0 +1,20 @@
+{
+  "name": "Vej",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Bushido Wildcats",
+  "teamRank": "159",
+  "age": 21,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 76,
+    "entrying": 16,
+    "trading": 50,
+    "opening": 78,
+    "clutching": 52,
+    "sniping": 91,
+    "utility": 55
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

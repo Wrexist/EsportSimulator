@@ -1,0 +1,20 @@
+{
+  "name": "RoDfps",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Charrados",
+  "teamRank": "249",
+  "age": 21,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 42,
+    "entrying": 51,
+    "trading": 44,
+    "opening": 38,
+    "clutching": 37,
+    "sniping": 9,
+    "utility": 65
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

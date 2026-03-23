@@ -1,0 +1,20 @@
+{
+  "name": "toasty",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Mavrek",
+  "teamRank": "102",
+  "age": 25,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 24,
+    "entrying": 67,
+    "trading": 46,
+    "opening": 28,
+    "clutching": 92,
+    "sniping": 0,
+    "utility": 87
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

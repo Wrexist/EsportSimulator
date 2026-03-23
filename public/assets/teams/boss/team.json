@@ -1,0 +1,34 @@
+{
+  "name": "BOSS",
+  "hltvRank": "94",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "stanislaw",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "Bwills",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "FaNg",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "Fruitcupx",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "SLIGHT",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 97,
+  "hltvHistory": []
+}

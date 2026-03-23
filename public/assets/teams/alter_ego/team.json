@@ -1,0 +1,34 @@
+{
+  "name": "Alter Ego",
+  "hltvRank": "229",
+  "nationality": "Indonesia",
+  "players": [
+    {
+      "name": "BnTeT",
+      "country": "Indonesia",
+      "countryCode": "id"
+    },
+    {
+      "name": "Gratisfaction",
+      "country": "New Zealand",
+      "countryCode": "nz"
+    },
+    {
+      "name": "b1lal",
+      "country": "Lebanon",
+      "countryCode": "lb"
+    },
+    {
+      "name": "rate",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "tomiko",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "torzsi",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "MOUZ",
+  "teamRank": "4",
+  "age": 23,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 52,
+    "entrying": 30,
+    "trading": 70,
+    "opening": 55,
+    "clutching": 76,
+    "sniping": 94,
+    "utility": 58
+  },
+  "matchesPlayed": 216,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Scorchyy",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "InControl",
+  "teamRank": "214",
+  "age": 25,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 16,
+    "entrying": 25,
+    "trading": 82,
+    "opening": 29,
+    "clutching": 82,
+    "sniping": 90,
+    "utility": 50
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

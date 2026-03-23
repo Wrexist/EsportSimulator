@@ -1,0 +1,20 @@
+{
+  "name": "malbsMd",
+  "country": "Guatemala",
+  "countryCode": "gu",
+  "team": "G2",
+  "teamRank": "9",
+  "age": 23,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 35,
+    "entrying": 71,
+    "trading": 65,
+    "opening": 77,
+    "clutching": 22,
+    "sniping": 29,
+    "utility": 38
+  },
+  "matchesPlayed": 203,
+  "hltvHistory": []
+}

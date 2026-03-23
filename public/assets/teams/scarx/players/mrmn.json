@@ -1,0 +1,20 @@
+{
+  "name": "mRmN",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "ScarX",
+  "teamRank": "247",
+  "age": 27,
+  "rating": 0.57,
+  "stats": {
+    "firepower": 47,
+    "entrying": 5,
+    "trading": 49,
+    "opening": 41,
+    "clutching": 15,
+    "sniping": 37,
+    "utility": 34
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

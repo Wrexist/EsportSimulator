@@ -1,0 +1,20 @@
+{
+  "name": "xns",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Players",
+  "teamRank": "196",
+  "age": 26,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 79,
+    "entrying": 16,
+    "trading": 33,
+    "opening": 58,
+    "clutching": 78,
+    "sniping": 4,
+    "utility": 53
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

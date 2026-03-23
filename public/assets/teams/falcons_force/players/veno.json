@@ -1,0 +1,24 @@
+{
+  "name": "VENO",
+  "country": "Serbia",
+  "countryCode": "rs",
+  "team": "Falcons Force",
+  "teamRank": "142",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 18,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.13,
+  "stats": {
+    "firepower": 84,
+    "entrying": 26,
+    "trading": 43,
+    "opening": 34,
+    "clutching": 45,
+    "sniping": 0,
+    "utility": 23
+  },
+  "matchesPlayed": 165,
+  "hltvHistory": []
+}

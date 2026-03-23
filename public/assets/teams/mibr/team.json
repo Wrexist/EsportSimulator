@@ -1,0 +1,34 @@
+{
+  "name": "MIBR",
+  "hltvRank": "28",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "LNZ",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "brnz4n",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "insani",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "venomzera",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "kl1m",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 181,
+  "hltvHistory": []
+}

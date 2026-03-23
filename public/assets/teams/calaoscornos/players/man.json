@@ -1,0 +1,24 @@
+{
+  "name": "Mané",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "CALAOSCORNOS",
+  "teamRank": "113",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1,
+  "stats": {
+    "firepower": 30,
+    "entrying": 45,
+    "trading": 45,
+    "opening": 31,
+    "clutching": 62,
+    "sniping": 1,
+    "utility": 50
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "flayy",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Venom",
+  "teamRank": "54",
+  "age": 20,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 76,
+    "entrying": 21,
+    "trading": 86,
+    "opening": 38,
+    "clutching": 88,
+    "sniping": 84,
+    "utility": 52
+  },
+  "matchesPlayed": 160,
+  "hltvHistory": []
+}

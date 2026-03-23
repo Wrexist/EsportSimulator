@@ -1,0 +1,20 @@
+{
+  "name": "robo",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Spirit Academy",
+  "teamRank": "110",
+  "age": 19,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 78,
+    "entrying": 51,
+    "trading": 41,
+    "opening": 79,
+    "clutching": 28,
+    "sniping": 7,
+    "utility": 76
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

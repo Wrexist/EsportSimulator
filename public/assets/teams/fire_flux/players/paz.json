@@ -1,0 +1,24 @@
+{
+  "name": "paz",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Fire Flux",
+  "teamRank": "74",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 28,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.05,
+  "stats": {
+    "firepower": 56,
+    "entrying": 61,
+    "trading": 38,
+    "opening": 26,
+    "clutching": 31,
+    "sniping": 0,
+    "utility": 53
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "pullox",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "hindsight",
+  "teamRank": "224",
+  "age": 26,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 30,
+    "entrying": 20,
+    "trading": 84,
+    "opening": 33,
+    "clutching": 56,
+    "sniping": 43,
+    "utility": 59
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

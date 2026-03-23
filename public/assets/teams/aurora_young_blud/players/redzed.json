@@ -1,0 +1,20 @@
+{
+  "name": "redzed",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Aurora Young Blud",
+  "teamRank": "176",
+  "age": 20,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 30,
+    "entrying": 58,
+    "trading": 94,
+    "opening": 21,
+    "clutching": 75,
+    "sniping": 27,
+    "utility": 50
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

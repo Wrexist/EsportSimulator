@@ -1,0 +1,20 @@
+{
+  "name": "xsepower",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "MUERTA",
+  "teamRank": "191",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 89,
+    "entrying": 27,
+    "trading": 11,
+    "opening": 89,
+    "clutching": 24,
+    "sniping": 97,
+    "utility": 51
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

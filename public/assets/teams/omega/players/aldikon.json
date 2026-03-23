@@ -1,0 +1,20 @@
+{
+  "name": "Aldikon",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Omega",
+  "teamRank": "149",
+  "age": 19,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 50,
+    "entrying": 30,
+    "trading": 16,
+    "opening": 82,
+    "clutching": 56,
+    "sniping": 93,
+    "utility": 58
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

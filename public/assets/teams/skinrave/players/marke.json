@@ -1,0 +1,20 @@
+{
+  "name": "MarKE",
+  "country": "Mexico",
+  "countryCode": "mx",
+  "team": "SkinRave",
+  "teamRank": "108",
+  "age": 27,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 72,
+    "entrying": 24,
+    "trading": 72,
+    "opening": 30,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 82
+  },
+  "matchesPlayed": 185,
+  "hltvHistory": []
+}

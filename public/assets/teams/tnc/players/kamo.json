@@ -1,0 +1,20 @@
+{
+  "name": "Kamo",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "TNC",
+  "teamRank": "201",
+  "age": 24,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 54,
+    "entrying": 33,
+    "trading": 47,
+    "opening": 36,
+    "clutching": 46,
+    "sniping": 58,
+    "utility": 51
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

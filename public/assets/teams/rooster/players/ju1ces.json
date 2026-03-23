@@ -1,0 +1,20 @@
+{
+  "name": "ju1ces",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Rooster",
+  "teamRank": "148",
+  "age": 23,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 83,
+    "entrying": 74,
+    "trading": 80,
+    "opening": 35,
+    "clutching": 70,
+    "sniping": 51,
+    "utility": 29
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "KmZ",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "MAZRAEA",
+  "teamRank": "193",
+  "age": 25,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 35,
+    "entrying": 43,
+    "trading": 51,
+    "opening": 35,
+    "clutching": 26,
+    "sniping": 80,
+    "utility": 45
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

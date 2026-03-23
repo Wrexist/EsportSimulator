@@ -1,0 +1,20 @@
+{
+  "name": "Patti",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "STATE",
+  "teamRank": "110",
+  "age": 27,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 9,
+    "entrying": 87,
+    "trading": 44,
+    "opening": 45,
+    "clutching": 30,
+    "sniping": 38,
+    "utility": 82
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "BetBoom",
+  "hltvRank": "32",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "Boombl4",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "S1ren",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "d1Ledez",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "ArtFr0st",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Magnojez",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

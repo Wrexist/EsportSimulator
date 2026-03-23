@@ -1,0 +1,20 @@
+{
+  "name": "shalfey",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemiga",
+  "teamRank": "55",
+  "age": 23,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 27,
+    "entrying": 15,
+    "trading": 30,
+    "opening": 8,
+    "clutching": 69,
+    "sniping": 1,
+    "utility": 46
+  },
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

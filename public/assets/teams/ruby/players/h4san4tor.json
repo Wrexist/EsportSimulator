@@ -1,0 +1,20 @@
+{
+  "name": "H4SAN4TOR",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "RUBY",
+  "teamRank": "91",
+  "age": 20,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 54,
+    "entrying": 91,
+    "trading": 61,
+    "opening": 55,
+    "clutching": 42,
+    "sniping": 0,
+    "utility": 30
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

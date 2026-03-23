@@ -1,0 +1,20 @@
+{
+  "name": "poppins",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR fe",
+  "teamRank": "202",
+  "age": 19,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 32,
+    "entrying": 86,
+    "trading": 57,
+    "opening": 31,
+    "clutching": 36,
+    "sniping": 34,
+    "utility": 71
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

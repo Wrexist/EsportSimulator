@@ -1,0 +1,20 @@
+{
+  "name": "iM",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Natus Vincere",
+  "teamRank": "8",
+  "age": 26,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 78,
+    "entrying": 72,
+    "trading": 54,
+    "opening": 81,
+    "clutching": 26,
+    "sniping": 27,
+    "utility": 42
+  },
+  "matchesPlayed": 211,
+  "hltvHistory": []
+}

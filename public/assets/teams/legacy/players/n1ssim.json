@@ -1,0 +1,20 @@
+{
+  "name": "n1ssim",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "25",
+  "age": 24,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 26,
+    "entrying": 4,
+    "trading": 3,
+    "opening": 40,
+    "clutching": 37,
+    "sniping": 24,
+    "utility": 44
+  },
+  "matchesPlayed": 210,
+  "hltvHistory": []
+}

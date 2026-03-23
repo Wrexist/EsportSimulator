@@ -1,0 +1,20 @@
+{
+  "name": "s1n",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "M80",
+  "teamRank": "24",
+  "age": 23,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 29,
+    "entrying": 24,
+    "trading": 67,
+    "opening": 9,
+    "clutching": 73,
+    "sniping": 28,
+    "utility": 87
+  },
+  "matchesPlayed": 190,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "clax",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Sangal",
+  "teamRank": "97",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 65,
+    "entrying": 11,
+    "trading": 51,
+    "opening": 36,
+    "clutching": 64,
+    "sniping": 30,
+    "utility": 52
+  },
+  "matchesPlayed": 77,
+  "hltvHistory": []
+}

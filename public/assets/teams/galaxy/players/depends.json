@@ -1,0 +1,20 @@
+{
+  "name": "depends",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Galaxy",
+  "teamRank": "219",
+  "age": 25,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 46,
+    "entrying": 94,
+    "trading": 99,
+    "opening": 44,
+    "clutching": 67,
+    "sniping": 1,
+    "utility": 35
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

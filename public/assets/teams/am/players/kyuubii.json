@@ -1,0 +1,20 @@
+{
+  "name": "kyuubii",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "AM",
+  "teamRank": "104",
+  "age": 20,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 70,
+    "entrying": 31,
+    "trading": 67,
+    "opening": 74,
+    "clutching": 44,
+    "sniping": 46,
+    "utility": 54
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

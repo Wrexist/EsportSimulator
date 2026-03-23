@@ -1,0 +1,20 @@
+{
+  "name": "sATOR1",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Just Swing",
+  "teamRank": "171",
+  "age": 20,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 36,
+    "entrying": 79,
+    "trading": 82,
+    "opening": 5,
+    "clutching": 82,
+    "sniping": 73,
+    "utility": 17
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

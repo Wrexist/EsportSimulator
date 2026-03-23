@@ -1,0 +1,21 @@
+{
+  "name": "dupreeh",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Entry",
+  "status": "Legend",
+  "age": 31,
+  "birthDate": "Mar 26, 1993",
+  "rating": 1.16,
+  "stats": {
+    "firepower": 94,
+    "entrying": 96,
+    "trading": 90,
+    "opening": 94,
+    "clutching": 85,
+    "sniping": 65,
+    "utility": 88
+  }
+}

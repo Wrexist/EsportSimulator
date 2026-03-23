@@ -1,0 +1,20 @@
+{
+  "name": "tucks",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Mindfreak",
+  "teamRank": "133",
+  "age": 29,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 24,
+    "entrying": 49,
+    "trading": 40,
+    "opening": 48,
+    "clutching": 45,
+    "sniping": 24,
+    "utility": 92
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

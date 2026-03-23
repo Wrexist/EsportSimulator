@@ -1,0 +1,20 @@
+{
+  "name": "prosus",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BIG Academy",
+  "teamRank": "81",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 80,
+    "entrying": 69,
+    "trading": 52,
+    "opening": 62,
+    "clutching": 46,
+    "sniping": 32,
+    "utility": 45
+  },
+  "matchesPlayed": 98,
+  "hltvHistory": []
+}

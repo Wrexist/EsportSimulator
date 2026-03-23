@@ -1,0 +1,20 @@
+{
+  "name": "PR",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "GamerLegion",
+  "teamRank": "20",
+  "age": 18,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 61,
+    "entrying": 21,
+    "trading": 18,
+    "opening": 63,
+    "clutching": 67,
+    "sniping": 31,
+    "utility": 61
+  },
+  "matchesPlayed": 176,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "jERK0z",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "129",
+  "age": 17,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 48,
+    "entrying": 66,
+    "trading": 100,
+    "opening": 14,
+    "clutching": 33,
+    "sniping": 28,
+    "utility": 23
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

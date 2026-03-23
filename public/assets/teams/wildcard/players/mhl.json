@@ -1,0 +1,20 @@
+{
+  "name": "mhL",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Wildcard",
+  "teamRank": "75",
+  "age": 23,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 97,
+    "entrying": 30,
+    "trading": 75,
+    "opening": 67,
+    "clutching": 75,
+    "sniping": 92,
+    "utility": 59
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

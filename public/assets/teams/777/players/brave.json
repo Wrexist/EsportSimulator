@@ -1,0 +1,20 @@
+{
+  "name": "Brave",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "777",
+  "teamRank": "225",
+  "age": 23,
+  "rating": 1.36,
+  "stats": {
+    "firepower": 99,
+    "entrying": 38,
+    "trading": 95,
+    "opening": 60,
+    "clutching": 24,
+    "sniping": 26,
+    "utility": 40
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "NONS3NS",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "WiLD",
+  "teamRank": "198",
+  "age": 24,
+  "rating": 0.54,
+  "stats": {
+    "firepower": 49,
+    "entrying": 54,
+    "trading": 13,
+    "opening": 29,
+    "clutching": 9,
+    "sniping": 34,
+    "utility": 68
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

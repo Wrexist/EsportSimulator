@@ -1,0 +1,20 @@
+{
+  "name": "h1kaN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Bebop",
+  "teamRank": "165",
+  "age": 20,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 20,
+    "entrying": 47,
+    "trading": 21,
+    "opening": 49,
+    "clutching": 35,
+    "sniping": 12,
+    "utility": 24
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

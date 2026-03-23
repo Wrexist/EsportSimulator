@@ -1,0 +1,20 @@
+{
+  "name": "jaw1ko",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "EGOISTO",
+  "teamRank": "166",
+  "age": 21,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 23,
+    "entrying": 3,
+    "trading": 44,
+    "opening": 4,
+    "clutching": 15,
+    "sniping": 37,
+    "utility": 25
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

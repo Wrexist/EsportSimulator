@@ -1,0 +1,20 @@
+{
+  "name": "ogwizard",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "SportsBetExpert",
+  "teamRank": "134",
+  "age": 20,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 74,
+    "entrying": 11,
+    "trading": 87,
+    "opening": 44,
+    "clutching": 61,
+    "sniping": 92,
+    "utility": 57
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

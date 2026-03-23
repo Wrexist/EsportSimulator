@@ -1,0 +1,20 @@
+{
+  "name": "meowpop",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "ASTRAL",
+  "teamRank": "87",
+  "age": 18,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 25,
+    "entrying": 93,
+    "trading": 86,
+    "opening": 22,
+    "clutching": 80,
+    "sniping": 48,
+    "utility": 27
+  },
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

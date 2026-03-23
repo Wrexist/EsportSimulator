@@ -1,0 +1,20 @@
+{
+  "name": "KaiR0N-",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemiga",
+  "teamRank": "55",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 80,
+    "entrying": 83,
+    "trading": 67,
+    "opening": 47,
+    "clutching": 39,
+    "sniping": 20,
+    "utility": 21
+  },
+  "matchesPlayed": 89,
+  "hltvHistory": []
+}

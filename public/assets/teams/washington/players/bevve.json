@@ -1,0 +1,20 @@
+{
+  "name": "bevve",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Washington",
+  "teamRank": "199",
+  "age": 25,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 47,
+    "entrying": 53,
+    "trading": 89,
+    "opening": 9,
+    "clutching": 46,
+    "sniping": 40,
+    "utility": 33
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Jayy2s",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "129",
+  "age": 22,
+  "rating": 1.67,
+  "stats": {
+    "firepower": 100,
+    "entrying": 84,
+    "trading": 77,
+    "opening": 95,
+    "clutching": 85,
+    "sniping": 51,
+    "utility": 90
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

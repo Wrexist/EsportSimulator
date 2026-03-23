@@ -1,0 +1,34 @@
+{
+  "name": "Gaimin Gladiators",
+  "hltvRank": "64",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "HEN1",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "felps",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "NEKIZ",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Luken",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "JOTA",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

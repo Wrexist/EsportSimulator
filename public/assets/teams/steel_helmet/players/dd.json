@@ -1,0 +1,20 @@
+{
+  "name": "DD",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Steel Helmet",
+  "teamRank": "242",
+  "age": 31,
+  "rating": 0.47,
+  "stats": {
+    "firepower": 28,
+    "entrying": 69,
+    "trading": 33,
+    "opening": 28,
+    "clutching": 17,
+    "sniping": 27,
+    "utility": 6
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

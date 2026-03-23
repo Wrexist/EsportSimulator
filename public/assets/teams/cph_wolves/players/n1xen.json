@@ -1,0 +1,24 @@
+{
+  "name": "n1Xen",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "CPH Wolves",
+  "teamRank": "99",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.99,
+  "stats": {
+    "firepower": 53,
+    "entrying": 76,
+    "trading": 91,
+    "opening": 27,
+    "clutching": 37,
+    "sniping": 1,
+    "utility": 44
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

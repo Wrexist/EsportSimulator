@@ -1,0 +1,20 @@
+{
+  "name": "Swisher",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "M80",
+  "teamRank": "24",
+  "age": 27,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 63,
+    "entrying": 50,
+    "trading": 65,
+    "opening": 44,
+    "clutching": 52,
+    "sniping": 1,
+    "utility": 79
+  },
+  "matchesPlayed": 167,
+  "hltvHistory": []
+}

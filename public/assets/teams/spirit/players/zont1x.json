@@ -1,0 +1,20 @@
+{
+  "name": "zont1x",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Spirit",
+  "teamRank": "5",
+  "age": 20,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 32,
+    "entrying": 35,
+    "trading": 24,
+    "opening": 27,
+    "clutching": 43,
+    "sniping": 17,
+    "utility": 67
+  },
+  "matchesPlayed": 294,
+  "hltvHistory": []
+}

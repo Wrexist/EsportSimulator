@@ -1,0 +1,20 @@
+{
+  "name": "kyxsan",
+  "country": "North Macedonia",
+  "countryCode": "mk",
+  "team": "Falcons",
+  "teamRank": "3",
+  "age": 25,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 19,
+    "entrying": 71,
+    "trading": 26,
+    "opening": 24,
+    "clutching": 63,
+    "sniping": 25,
+    "utility": 76
+  },
+  "matchesPlayed": 295,
+  "hltvHistory": []
+}

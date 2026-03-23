@@ -1,0 +1,20 @@
+{
+  "name": "titulus",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "megoshort",
+  "teamRank": "115",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 74,
+    "entrying": 48,
+    "trading": 43,
+    "opening": 72,
+    "clutching": 53,
+    "sniping": 56,
+    "utility": 78
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

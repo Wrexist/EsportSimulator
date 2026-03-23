@@ -1,0 +1,20 @@
+{
+  "name": "rennae",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "SD Invicta",
+  "teamRank": "241",
+  "age": 26,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 68,
+    "entrying": 1,
+    "trading": 55,
+    "opening": 15,
+    "clutching": 67,
+    "sniping": 39,
+    "utility": 16
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

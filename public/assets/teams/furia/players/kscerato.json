@@ -1,0 +1,20 @@
+{
+  "name": "KSCERATO",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FURIA",
+  "teamRank": "2",
+  "age": 26,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 69,
+    "entrying": 59,
+    "trading": 49,
+    "opening": 35,
+    "clutching": 73,
+    "sniping": 1,
+    "utility": 79
+  },
+  "matchesPlayed": 264,
+  "hltvHistory": []
+}

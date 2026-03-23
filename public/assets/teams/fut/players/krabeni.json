@@ -1,0 +1,20 @@
+{
+  "name": "Krabeni",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "FUT",
+  "teamRank": "14",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 84,
+    "entrying": 38,
+    "trading": 16,
+    "opening": 87,
+    "clutching": 45,
+    "sniping": 1,
+    "utility": 75
+  },
+  "matchesPlayed": 175,
+  "hltvHistory": []
+}

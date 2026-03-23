@@ -1,0 +1,34 @@
+{
+  "name": "Ground Zero",
+  "hltvRank": "139",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "apocdud",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "pz",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "damyo",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Omichella",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "vision",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

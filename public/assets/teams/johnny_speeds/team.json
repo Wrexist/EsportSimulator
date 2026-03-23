@@ -1,0 +1,34 @@
+{
+  "name": "Johnny Speeds",
+  "hltvRank": "73",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "draken",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Lekr0",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Sapec",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "HEAP",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "jocab",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

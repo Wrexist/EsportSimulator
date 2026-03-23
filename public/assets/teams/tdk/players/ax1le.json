@@ -1,0 +1,20 @@
+{
+  "name": "Ax1Le",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "TDK",
+  "teamRank": "248",
+  "age": 23,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 36,
+    "entrying": 39,
+    "trading": 31,
+    "opening": 66,
+    "clutching": 42,
+    "sniping": 32,
+    "utility": 71
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

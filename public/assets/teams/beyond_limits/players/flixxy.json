@@ -1,0 +1,20 @@
+{
+  "name": "flixxy",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Beyond Limits",
+  "teamRank": "209",
+  "age": 25,
+  "rating": 0.5,
+  "stats": {
+    "firepower": 24,
+    "entrying": 14,
+    "trading": 28,
+    "opening": 12,
+    "clutching": 63,
+    "sniping": 36,
+    "utility": 58
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

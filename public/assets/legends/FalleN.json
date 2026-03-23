@@ -1,0 +1,21 @@
+{
+  "name": "FalleN",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "IGL",
+  "status": "Legend",
+  "age": 33,
+  "birthDate": "May 30, 1991",
+  "rating": 1.15,
+  "stats": {
+    "firepower": 82,
+    "entrying": 78,
+    "trading": 88,
+    "opening": 85,
+    "clutching": 88,
+    "sniping": 95,
+    "utility": 90
+  }
+}

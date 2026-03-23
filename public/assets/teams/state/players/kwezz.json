@@ -1,0 +1,20 @@
+{
+  "name": "kwezz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "STATE",
+  "teamRank": "110",
+  "age": 25,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 81,
+    "entrying": 46,
+    "trading": 51,
+    "opening": 82,
+    "clutching": 24,
+    "sniping": 1,
+    "utility": 74
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

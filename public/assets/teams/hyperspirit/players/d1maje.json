@@ -1,0 +1,20 @@
+{
+  "name": "d1maje",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "HyperSpirit",
+  "teamRank": "127",
+  "age": 24,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 25,
+    "entrying": 52,
+    "trading": 59,
+    "opening": 26,
+    "clutching": 40,
+    "sniping": 65,
+    "utility": 19
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "18yM",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Steel Helmet",
+  "teamRank": "242",
+  "age": 31,
+  "rating": 0.65,
+  "stats": {
+    "firepower": 12,
+    "entrying": 19,
+    "trading": 76,
+    "opening": 85,
+    "clutching": 34,
+    "sniping": 4,
+    "utility": 7
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

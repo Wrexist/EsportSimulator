@@ -1,0 +1,20 @@
+{
+  "name": "alex666",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "B8",
+  "teamRank": "16",
+  "age": 24,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 37,
+    "entrying": 45,
+    "trading": 12,
+    "opening": 32,
+    "clutching": 56,
+    "sniping": 2,
+    "utility": 56
+  },
+  "matchesPlayed": 221,
+  "hltvHistory": []
+}

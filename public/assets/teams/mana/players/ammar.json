@@ -1,0 +1,20 @@
+{
+  "name": "ammar",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "112",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 53,
+    "entrying": 51,
+    "trading": 52,
+    "opening": 42,
+    "clutching": 64,
+    "sniping": 31,
+    "utility": 44
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

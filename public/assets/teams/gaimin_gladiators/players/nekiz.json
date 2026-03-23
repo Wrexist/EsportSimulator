@@ -1,0 +1,20 @@
+{
+  "name": "NEKIZ",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Gaimin Gladiators",
+  "teamRank": "64",
+  "age": 30,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 16,
+    "entrying": 85,
+    "trading": 18,
+    "opening": 47,
+    "clutching": 37,
+    "sniping": 29,
+    "utility": 56
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

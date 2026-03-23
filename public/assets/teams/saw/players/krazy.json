@@ -1,0 +1,20 @@
+{
+  "name": "krazy",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "20",
+  "age": 22,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 64,
+    "entrying": 68,
+    "trading": 60,
+    "opening": 49,
+    "clutching": 57,
+    "sniping": 0,
+    "utility": 31
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

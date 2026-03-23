@@ -1,0 +1,20 @@
+{
+  "name": "gabs",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FURIA fe",
+  "teamRank": "239",
+  "age": 29,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 33,
+    "entrying": 37,
+    "trading": 33,
+    "opening": 32,
+    "clutching": 51,
+    "sniping": 80,
+    "utility": 61
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

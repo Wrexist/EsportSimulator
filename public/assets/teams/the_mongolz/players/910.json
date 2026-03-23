@@ -1,0 +1,20 @@
+{
+  "name": "910",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The MongolZ",
+  "teamRank": "10",
+  "age": 23,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 50,
+    "entrying": 34,
+    "trading": 47,
+    "opening": 33,
+    "clutching": 96,
+    "sniping": 92,
+    "utility": 64
+  },
+  "matchesPlayed": 224,
+  "hltvHistory": []
+}

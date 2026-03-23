@@ -1,0 +1,20 @@
+{
+  "name": "brett",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Aether",
+  "teamRank": "131",
+  "age": 27,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 82,
+    "entrying": 58,
+    "trading": 67,
+    "opening": 62,
+    "clutching": 34,
+    "sniping": 70,
+    "utility": 83
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

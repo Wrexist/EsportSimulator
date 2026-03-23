@@ -1,0 +1,35 @@
+{
+    "name": "device",
+    "country": "Denmark",
+    "countryCode": "dk",
+    "team": "100 Thieves",
+    "teamRank": "15",
+    "age": 30,
+    "rating": 0.98,
+    "stats": {
+        "firepower": 41,
+        "entrying": 7,
+        "trading": 30,
+        "opening": 64,
+        "clutching": 67,
+        "sniping": 76,
+        "utility": 70
+    },
+    "hltvHistory": [
+        {
+            "year": 2024,
+            "rank": 0
+        },
+        {
+            "year": 2019,
+            "rank": 3
+        },
+        {
+            "year": 2018,
+            "rank": 2
+        }
+    ],
+    "matchesPlayed": 1200,
+    "majorWins": 4,
+    "totalMVPs": 10
+}

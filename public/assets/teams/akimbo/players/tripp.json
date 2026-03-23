@@ -1,0 +1,20 @@
+{
+  "name": "tripp",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Akimbo",
+  "teamRank": "221",
+  "age": 22,
+  "rating": 1,
+  "stats": {
+    "firepower": 79,
+    "entrying": 12,
+    "trading": 70,
+    "opening": 53,
+    "clutching": 82,
+    "sniping": 41,
+    "utility": 14
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

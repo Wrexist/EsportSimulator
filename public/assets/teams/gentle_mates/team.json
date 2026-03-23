@@ -1,0 +1,34 @@
+{
+  "name": "Gentle Mates",
+  "hltvRank": "27",
+  "nationality": "Spain",
+  "players": [
+    {
+      "name": "alex",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "mopoz",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "sausol",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "dav1g",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "MartinezSa",
+      "country": "Spain",
+      "countryCode": "es"
+    }
+  ],
+  "matchesPlayed": 207,
+  "hltvHistory": []
+}

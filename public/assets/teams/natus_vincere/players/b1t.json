@@ -1,0 +1,20 @@
+{
+  "name": "b1t",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Natus Vincere",
+  "teamRank": "8",
+  "age": 23,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 64,
+    "entrying": 22,
+    "trading": 66,
+    "opening": 34,
+    "clutching": 40,
+    "sniping": 2,
+    "utility": 45
+  },
+  "matchesPlayed": 228,
+  "hltvHistory": []
+}

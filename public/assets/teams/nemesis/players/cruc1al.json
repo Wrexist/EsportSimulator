@@ -1,0 +1,20 @@
+{
+  "name": "CRUC1AL",
+  "country": "Netherlands",
+  "countryCode": "nl",
+  "team": "Nemesis",
+  "teamRank": "109",
+  "age": 28,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 72,
+    "entrying": 15,
+    "trading": 48,
+    "opening": 84,
+    "clutching": 78,
+    "sniping": 93,
+    "utility": 41
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

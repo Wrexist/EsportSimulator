@@ -1,0 +1,22 @@
+{
+    "name": "poiii",
+    "country": "Sweden",
+    "countryCode": "se",
+    "team": "100 Thieves",
+    "teamRank": "15",
+    "age": 20,
+    "rating": 1.04,
+    "stats": {
+        "firepower": 55,
+        "entrying": 35,
+        "trading": 52,
+        "opening": 50,
+        "clutching": 42,
+        "sniping": 38,
+        "utility": 48
+    },
+    "hltvHistory": [],
+    "matchesPlayed": 250,
+    "majorWins": 0,
+    "totalMVPs": 0
+}

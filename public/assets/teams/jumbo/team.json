@@ -1,0 +1,34 @@
+{
+  "name": "JUMBO",
+  "hltvRank": "125",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "matusik",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "reNIK",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Proper",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Snoob",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "DeDe",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "LAG",
+  "hltvRank": "144",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "djay",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "Wolffe",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "consti",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "kmrn",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Sandman",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "jocab",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Johnny Speeds",
+  "teamRank": "73",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 74,
+    "entrying": 54,
+    "trading": 69,
+    "opening": 37,
+    "clutching": 34,
+    "sniping": 49,
+    "utility": 37
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

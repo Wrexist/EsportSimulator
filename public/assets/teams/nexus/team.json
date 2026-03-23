@@ -1,0 +1,34 @@
+{
+  "name": "Nexus",
+  "hltvRank": "101",
+  "nationality": "Romania",
+  "players": [
+    {
+      "name": "XELLOW",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "Blytz",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "fNk",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "s0und",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "fnl",
+      "country": "Romania",
+      "countryCode": "ro"
+    }
+  ],
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

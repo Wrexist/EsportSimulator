@@ -1,0 +1,24 @@
+{
+  "name": "shield",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "Fire Flux",
+  "teamRank": "74",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.17,
+  "stats": {
+    "firepower": 77,
+    "entrying": 12,
+    "trading": 26,
+    "opening": 67,
+    "clutching": 86,
+    "sniping": 95,
+    "utility": 63
+  },
+  "matchesPlayed": 185,
+  "hltvHistory": []
+}

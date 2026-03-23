@@ -1,0 +1,20 @@
+{
+  "name": "SeRCEra",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Reign Above",
+  "teamRank": "118",
+  "age": 22,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 52,
+    "entrying": 92,
+    "trading": 31,
+    "opening": 52,
+    "clutching": 89,
+    "sniping": 5,
+    "utility": 54
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

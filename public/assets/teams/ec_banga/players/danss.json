@@ -1,0 +1,20 @@
+{
+  "name": "danss",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "EC BANGA",
+  "teamRank": "151",
+  "age": 24,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 52,
+    "entrying": 11,
+    "trading": 45,
+    "opening": 75,
+    "clutching": 41,
+    "sniping": 1,
+    "utility": 77
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Berar",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "OxinGame",
+  "teamRank": "233",
+  "age": 20,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 94,
+    "entrying": 59,
+    "trading": 87,
+    "opening": 69,
+    "clutching": 31,
+    "sniping": 1,
+    "utility": 26
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

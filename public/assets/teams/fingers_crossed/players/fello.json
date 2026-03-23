@@ -1,0 +1,24 @@
+{
+  "name": "fello",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Fingers Crossed",
+  "teamRank": "82",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 23,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.04,
+  "stats": {
+    "firepower": 64,
+    "entrying": 69,
+    "trading": 78,
+    "opening": 67,
+    "clutching": 44,
+    "sniping": 10,
+    "utility": 26
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

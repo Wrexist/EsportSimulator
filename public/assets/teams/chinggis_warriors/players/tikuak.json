@@ -1,0 +1,20 @@
+{
+  "name": "tikuak",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Chinggis Warriors",
+  "teamRank": "83",
+  "age": 16,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 84,
+    "entrying": 51,
+    "trading": 82,
+    "opening": 67,
+    "clutching": 37,
+    "sniping": 1,
+    "utility": 19
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

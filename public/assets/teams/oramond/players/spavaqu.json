@@ -1,0 +1,20 @@
+{
+  "name": "SpavaQu",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Oramond",
+  "teamRank": "51",
+  "age": 22,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 93,
+    "entrying": 26,
+    "trading": 38,
+    "opening": 91,
+    "clutching": 70,
+    "sniping": 89,
+    "utility": 47
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

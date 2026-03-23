@@ -1,0 +1,20 @@
+{
+  "name": "flasi",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "WiLD",
+  "teamRank": "198",
+  "age": 24,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 72,
+    "entrying": 30,
+    "trading": 100,
+    "opening": 89,
+    "clutching": 40,
+    "sniping": 76,
+    "utility": 51
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

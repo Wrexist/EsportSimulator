@@ -1,0 +1,20 @@
+{
+  "name": "cobalt",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Reign Above",
+  "teamRank": "118",
+  "age": 21,
+  "rating": 0.66,
+  "stats": {
+    "firepower": 3,
+    "entrying": 71,
+    "trading": 84,
+    "opening": 34,
+    "clutching": 7,
+    "sniping": 3,
+    "utility": 34
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

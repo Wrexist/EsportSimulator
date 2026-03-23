@@ -1,0 +1,20 @@
+{
+  "name": "s1mple",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "BC.Game",
+  "teamRank": "26",
+  "age": 28,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 91,
+    "entrying": 28,
+    "trading": 59,
+    "opening": 81,
+    "clutching": 72,
+    "sniping": 87,
+    "utility": 57
+  },
+  "matchesPlayed": 215,
+  "hltvHistory": []
+}

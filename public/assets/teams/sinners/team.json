@@ -1,0 +1,34 @@
+{
+  "name": "SINNERS",
+  "hltvRank": "65",
+  "nationality": "Czech Republic",
+  "players": [
+    {
+      "name": "beastik",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "SHOCK",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "MoDo",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "kisserek",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "stressarN",
+      "country": "North Macedonia",
+      "countryCode": "mk"
+    }
+  ],
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

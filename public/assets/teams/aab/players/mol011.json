@@ -1,0 +1,24 @@
+{
+  "name": "Mol011",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "128",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 19,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.06,
+  "stats": {
+    "firepower": 59,
+    "entrying": 22,
+    "trading": 38,
+    "opening": 17,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 47
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

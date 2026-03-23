@@ -1,0 +1,20 @@
+{
+  "name": "dea",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Voca",
+  "teamRank": "49",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 65,
+    "entrying": 20,
+    "trading": 49,
+    "opening": 71,
+    "clutching": 71,
+    "sniping": 80,
+    "utility": 72
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

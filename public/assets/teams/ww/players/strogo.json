@@ -1,0 +1,20 @@
+{
+  "name": "StRoGo",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WW",
+  "teamRank": "113",
+  "age": 23,
+  "rating": 0.72,
+  "stats": {
+    "firepower": 1,
+    "entrying": 18,
+    "trading": 27,
+    "opening": 17,
+    "clutching": 43,
+    "sniping": 33,
+    "utility": 50
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

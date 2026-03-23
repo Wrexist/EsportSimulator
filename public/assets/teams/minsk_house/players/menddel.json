@@ -1,0 +1,20 @@
+{
+  "name": "menddel",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Minsk House",
+  "teamRank": "136",
+  "age": 19,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 68,
+    "entrying": 21,
+    "trading": 23,
+    "opening": 15,
+    "clutching": 37,
+    "sniping": 67,
+    "utility": 42
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

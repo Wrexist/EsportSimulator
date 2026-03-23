@@ -1,0 +1,20 @@
+{
+  "name": "Destro_YD",
+  "country": "Slovenia",
+  "countryCode": "si",
+  "team": "Diamant",
+  "teamRank": "220",
+  "age": 22,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 5,
+    "entrying": 81,
+    "trading": 21,
+    "opening": 68,
+    "clutching": 25,
+    "sniping": 37,
+    "utility": 43
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

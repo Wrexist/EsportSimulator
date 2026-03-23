@@ -1,0 +1,20 @@
+{
+  "name": "kodak",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "NAVI Junior",
+  "teamRank": "237",
+  "age": 17,
+  "rating": 0.78,
+  "stats": {
+    "firepower": 6,
+    "entrying": 83,
+    "trading": 20,
+    "opening": 15,
+    "clutching": 73,
+    "sniping": 60,
+    "utility": 76
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

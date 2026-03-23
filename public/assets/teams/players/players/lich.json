@@ -1,0 +1,20 @@
+{
+  "name": "Lich",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Players",
+  "teamRank": "196",
+  "age": 22,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 16,
+    "entrying": 23,
+    "trading": 44,
+    "opening": 56,
+    "clutching": 35,
+    "sniping": 29,
+    "utility": 20
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

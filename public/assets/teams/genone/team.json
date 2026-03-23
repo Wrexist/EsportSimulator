@@ -1,0 +1,34 @@
+{
+  "name": "GenOne",
+  "hltvRank": "56",
+  "nationality": "France",
+  "players": [
+    {
+      "name": "NBK-",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "misutaaa",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Djoko",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Brooxsy",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Chucky",
+      "country": "Belgium",
+      "countryCode": "be"
+    }
+  ],
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "BIG Academy",
+  "hltvRank": "81",
+  "nationality": "Germany",
+  "players": [
+    {
+      "name": "prosus",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "JBOEN",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "tripex17",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "w1dow",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "doni",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 108,
+  "hltvHistory": []
+}

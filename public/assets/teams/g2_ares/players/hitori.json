@@ -1,0 +1,20 @@
+{
+  "name": "hitori",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "G2 Ares",
+  "teamRank": "84",
+  "age": 17,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 19,
+    "entrying": 49,
+    "trading": 36,
+    "opening": 14,
+    "clutching": 23,
+    "sniping": 76,
+    "utility": 25
+  },
+  "matchesPlayed": 94,
+  "hltvHistory": []
+}

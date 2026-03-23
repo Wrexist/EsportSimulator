@@ -1,0 +1,34 @@
+{
+  "name": "Isurus",
+  "hltvRank": "141",
+  "nationality": "Argentina",
+  "players": [
+    {
+      "name": "deco",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "atarax1a",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "Hezz",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "dott1",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "FraGuTy",
+      "country": "Argentina",
+      "countryCode": "ar"
+    }
+  ],
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

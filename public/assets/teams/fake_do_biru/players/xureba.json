@@ -1,0 +1,24 @@
+{
+  "name": "xureba",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fake do Biru",
+  "teamRank": "116",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.02,
+  "stats": {
+    "firepower": 38,
+    "entrying": 15,
+    "trading": 48,
+    "opening": 13,
+    "clutching": 57,
+    "sniping": 0,
+    "utility": 57
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

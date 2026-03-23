@@ -1,0 +1,20 @@
+{
+  "name": "freshie",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "SportsBetExpert",
+  "teamRank": "134",
+  "age": 23,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 90,
+    "entrying": 89,
+    "trading": 10,
+    "opening": 84,
+    "clutching": 22,
+    "sniping": 35,
+    "utility": 49
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

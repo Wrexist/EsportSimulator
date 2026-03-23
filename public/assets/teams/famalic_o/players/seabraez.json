@@ -1,0 +1,24 @@
+{
+  "name": "seabraez",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Famalicão",
+  "teamRank": "103",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.99,
+  "stats": {
+    "firepower": 41,
+    "entrying": 56,
+    "trading": 55,
+    "opening": 69,
+    "clutching": 38,
+    "sniping": 0,
+    "utility": 76
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

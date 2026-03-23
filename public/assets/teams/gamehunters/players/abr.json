@@ -1,0 +1,20 @@
+{
+  "name": "abr",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "GameHunters",
+  "teamRank": "124",
+  "age": 26,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 56,
+    "entrying": 26,
+    "trading": 68,
+    "opening": 27,
+    "clutching": 58,
+    "sniping": 25,
+    "utility": 34
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

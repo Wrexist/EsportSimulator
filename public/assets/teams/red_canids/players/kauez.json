@@ -1,0 +1,20 @@
+{
+  "name": "kauez",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids",
+  "teamRank": "38",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 42,
+    "entrying": 64,
+    "trading": 22,
+    "opening": 68,
+    "clutching": 44,
+    "sniping": 27,
+    "utility": 59
+  },
+  "matchesPlayed": 144,
+  "hltvHistory": []
+}

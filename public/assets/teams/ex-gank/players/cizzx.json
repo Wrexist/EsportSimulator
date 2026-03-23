@@ -1,0 +1,20 @@
+{
+  "name": "Cizzx",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "ex-GANK",
+  "teamRank": "188",
+  "age": 24,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 7,
+    "entrying": 53,
+    "trading": 41,
+    "opening": 32,
+    "clutching": 33,
+    "sniping": 2,
+    "utility": 77
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Outfit 49",
+  "hltvRank": "150",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Gabe",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "mds",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "H0NeST",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "Valter0k",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

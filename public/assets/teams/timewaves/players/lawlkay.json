@@ -1,0 +1,20 @@
+{
+  "name": "lawlkay",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Timewaves",
+  "teamRank": "216",
+  "age": 23,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 80,
+    "entrying": 83,
+    "trading": 96,
+    "opening": 16,
+    "clutching": 66,
+    "sniping": 19,
+    "utility": 24
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

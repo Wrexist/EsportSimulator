@@ -1,0 +1,20 @@
+{
+  "name": "Avou",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "MASONIC",
+  "teamRank": "138",
+  "age": 25,
+  "rating": 0.78,
+  "stats": {
+    "firepower": 2,
+    "entrying": 78,
+    "trading": 29,
+    "opening": 14,
+    "clutching": 34,
+    "sniping": 84,
+    "utility": 62
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

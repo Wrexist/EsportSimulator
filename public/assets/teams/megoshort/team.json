@@ -1,0 +1,34 @@
+{
+  "name": "megoshort",
+  "hltvRank": "115",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "robiin",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "nawwk",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Twinkey",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "titulus",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "mogv",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

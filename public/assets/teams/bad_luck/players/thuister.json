@@ -1,0 +1,20 @@
+{
+  "name": "Thuister",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Bad Luck",
+  "teamRank": "192",
+  "age": 22,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 44,
+    "entrying": 32,
+    "trading": 16,
+    "opening": 81,
+    "clutching": 74,
+    "sniping": 2,
+    "utility": 89
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

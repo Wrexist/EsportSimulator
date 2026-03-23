@@ -1,0 +1,20 @@
+{
+  "name": "j3kie",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "FAVBET",
+  "teamRank": "68",
+  "age": 25,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 64,
+    "entrying": 90,
+    "trading": 75,
+    "opening": 81,
+    "clutching": 26,
+    "sniping": 2,
+    "utility": 30
+  },
+  "matchesPlayed": 76,
+  "hltvHistory": []
+}

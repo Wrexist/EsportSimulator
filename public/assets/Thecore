@@ -1,0 +1,232 @@
+The core principle (important)
+
+A player is not “good”. A player is good for a role, in a context, at a moment in time.
+
+So your AI must rank players using:
+
+Base ability
+
+Role fit
+
+Context modifiers
+
+Reliability
+
+Ceiling (potential)
+
+✅ THE BEST WAY: A 5-LAYER PLAYER EVALUATION MODEL
+LAYER 1 — BASE SKILL SCORE (raw ability)
+
+This answers: “How good is this player in a vacuum?”
+
+Example (CS2)
+baseSkill =
+  rifle * 0.30 +
+  awp * 0.25 +
+  pistol * 0.10 +
+  grenades * 0.10 +
+  reaction * 0.15 +
+  clutch * 0.10
+
+
+Rules:
+
+Use weighted averages, not simple means
+
+Weights differ per game and per role
+
+This score is stable over time
+
+📌 This is what casual players expect to see as “overall”
+
+LAYER 2 — ROLE FIT SCORE (this is where realism starts)
+
+This answers: “How good is this player at what they’re supposed to do?”
+
+Example role weights
+
+AWPer
+
+roleFit =
+  awp * 0.45 +
+  reaction * 0.20 +
+  clutch * 0.15 +
+  stressResistance * 0.10 +
+  positioning * 0.10
+
+
+IGL
+
+roleFit =
+  leader * 0.30 +
+  tactic * 0.25 +
+  teamwork * 0.20 +
+  stressResistance * 0.15 +
+  rifle * 0.10
+
+
+Rules:
+
+A great rifler can be a bad AWPer
+
+Role mismatch should penalize ranking
+
+This prevents “one-stat gods”
+
+📌 This is what separates pros from casual sims
+
+LAYER 3 — CONTEXT MODIFIERS (dynamic)
+
+This answers: “How good is the player right now?”
+
+Modifiers (multiplicative, small)
+contextModifier =
+  (1 + formBonus) *
+  (1 - fatiguePenalty) *
+  (1 + moraleBonus) *
+  (1 - injuryPenalty)
+
+
+Example ranges:
+
+Form: ±10%
+
+Morale: ±8%
+
+Fatigue: up to −15%
+
+Injury: −30% or bench
+
+Rules:
+
+Never let modifiers exceed ±25% total
+
+These change weekly
+
+📌 This is what makes form slumps and hot streaks real
+
+LAYER 4 — RELIABILITY / CONSISTENCY
+
+This answers: “Can I trust this player?”
+
+Key stats:
+
+Stress resistance
+
+Productivity
+
+Past variance in performance
+
+Example:
+
+reliability =
+  (stressResistance * 0.5 + productivity * 0.5) / 100
+
+
+Usage:
+
+finalScore *= (0.85 + reliability * 0.15)
+
+
+Rules:
+
+Low reliability = boom/bust players
+
+High reliability = boring but valuable
+
+📌 This is how “consistent veterans” stay relevant
+
+LAYER 5 — POTENTIAL & AGE (future value)
+
+This answers: “Is this player worth investing in?”
+
+Used for:
+
+Transfers
+
+Scouting
+
+AI roster planning
+
+Example:
+
+futureValue =
+  finalScore *
+  (1 + (potential - currentStatsAvg) * ageFactor)
+
+
+Rules:
+
+Young + high potential boosts value
+
+Old + capped stats reduces long-term rank
+
+Should NOT affect match-day strength
+
+📌 This is why teams sign young players
+
+🧠 FINAL RANKING FORMULA (CLEAN)
+matchDayRating =
+  baseSkill *
+  roleFitMultiplier *
+  contextModifier *
+  reliabilityFactor
+
+transferRanking =
+  matchDayRating *
+  futureValueFactor
+
+globalReputation =
+  rollingAverage(matchDayRating over last N matches)
+
+📊 HOW TO PRESENT THIS IN UI (IMPORTANT)
+NEVER show the full formula
+
+Instead show:
+
+Overall Rating (rounded)
+
+Role Rating (AWPer ★★★★☆)
+
+Form indicator (↑ ↓)
+
+Consistency tag (“Consistent”, “Streaky”)
+
+Internally: math
+Externally: intuition
+
+❌ WHAT NOT TO DO
+
+These kill realism fast:
+
+❌ One “overall” stat
+
+❌ Flat averages
+
+❌ Ignoring role mismatch
+
+❌ Ignoring fatigue/morale
+
+❌ Potential affecting match strength
+
+❌ Random “hidden boosts”
+
+🧩 OPTIONAL (ADVANCED, BUT WORTH IT)
+
+If you want elite-level depth later:
+
+Separate mechanical skill vs decision-making
+
+Map-specific performance memory
+
+Team synergy multipliers (pairwise chemistry)
+
+Opponent matchup modifiers
+
+TL;DR (what to implement first)
+
+If you only implement ONE thing correctly:
+
+Separate Base Skill, Role Fit, and Context Modifiers
+
+That alone will make your AI feel smart.

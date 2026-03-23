@@ -1,0 +1,34 @@
+{
+  "name": "Akimbo",
+  "hltvRank": "221",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "roca",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "gloRinsz",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "FRIZZY",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "LittleBEER",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "tripp",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

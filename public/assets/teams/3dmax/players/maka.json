@@ -1,0 +1,20 @@
+{
+  "name": "Maka",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "3DMAX",
+  "teamRank": "13",
+  "age": 28,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 45,
+    "entrying": 7,
+    "trading": 46,
+    "opening": 71,
+    "clutching": 75,
+    "sniping": 83,
+    "utility": 86
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

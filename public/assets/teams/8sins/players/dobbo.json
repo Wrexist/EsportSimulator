@@ -1,0 +1,20 @@
+{
+  "name": "dobbo",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "8Sins",
+  "teamRank": "226",
+  "age": 22,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 58,
+    "entrying": 100,
+    "trading": 81,
+    "opening": 62,
+    "clutching": 23,
+    "sniping": 1,
+    "utility": 45
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

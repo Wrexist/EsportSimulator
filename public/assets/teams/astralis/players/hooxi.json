@@ -1,0 +1,20 @@
+{
+  "name": "HooXi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Astralis",
+  "teamRank": "12",
+  "age": 30,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 5,
+    "entrying": 41,
+    "trading": 35,
+    "opening": 26,
+    "clutching": 34,
+    "sniping": 39,
+    "utility": 81
+  },
+  "matchesPlayed": 177,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Jotag3",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "BESTIA Academy",
+  "teamRank": "183",
+  "age": 20,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 16,
+    "entrying": 69,
+    "trading": 53,
+    "opening": 16,
+    "clutching": 23,
+    "sniping": 69,
+    "utility": 23
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

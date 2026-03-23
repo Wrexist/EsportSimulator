@@ -1,0 +1,20 @@
+{
+  "name": "no1nx",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "MAZRAEA",
+  "teamRank": "193",
+  "age": 24,
+  "rating": 0.75,
+  "stats": {
+    "firepower": 31,
+    "entrying": 65,
+    "trading": 74,
+    "opening": 13,
+    "clutching": 32,
+    "sniping": 76,
+    "utility": 39
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

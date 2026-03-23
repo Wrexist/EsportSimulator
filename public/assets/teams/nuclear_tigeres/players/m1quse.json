@@ -1,0 +1,20 @@
+{
+  "name": "m1QUSE",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Nuclear TigeRES",
+  "teamRank": "43",
+  "age": 18,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 57,
+    "entrying": 79,
+    "trading": 66,
+    "opening": 31,
+    "clutching": 63,
+    "sniping": 39,
+    "utility": 46
+  },
+  "matchesPlayed": 152,
+  "hltvHistory": []
+}

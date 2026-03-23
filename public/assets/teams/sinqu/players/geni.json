@@ -1,0 +1,20 @@
+{
+  "name": "Geni",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "SINQU",
+  "teamRank": "172",
+  "age": 23,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 16,
+    "entrying": 98,
+    "trading": 42,
+    "opening": 14,
+    "clutching": 69,
+    "sniping": 8,
+    "utility": 51
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

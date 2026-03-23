@@ -1,0 +1,34 @@
+{
+  "name": "INFURITY",
+  "hltvRank": "132",
+  "nationality": "Norway",
+  "players": [
+    {
+      "name": "sirius",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "shyyne",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "HENU",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "rinji",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "oontoma",
+      "country": "Finland",
+      "countryCode": "fi"
+    }
+  ],
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

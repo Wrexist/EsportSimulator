@@ -1,0 +1,20 @@
+{
+  "name": "s1lent",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Charrados",
+  "teamRank": "249",
+  "age": 27,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 53,
+    "entrying": 12,
+    "trading": 29,
+    "opening": 40,
+    "clutching": 63,
+    "sniping": 9,
+    "utility": 86
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

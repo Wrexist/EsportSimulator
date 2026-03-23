@@ -1,0 +1,20 @@
+{
+  "name": "Forester",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WHITEBIRD",
+  "teamRank": "86",
+  "age": 26,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 56,
+    "entrying": 10,
+    "trading": 55,
+    "opening": 61,
+    "clutching": 38,
+    "sniping": 41,
+    "utility": 45
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Leo",
+  "hltvRank": "130",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "amster",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "Malkiss",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "marat2k",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "kL1o",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "OneUn1que",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

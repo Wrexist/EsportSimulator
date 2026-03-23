@@ -1,0 +1,20 @@
+{
+  "name": "jsfeltner",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "InControl",
+  "teamRank": "214",
+  "age": 26,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 40,
+    "entrying": 71,
+    "trading": 39,
+    "opening": 31,
+    "clutching": 16,
+    "sniping": 28,
+    "utility": 47
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

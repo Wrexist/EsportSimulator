@@ -1,0 +1,34 @@
+{
+  "name": "9INE",
+  "hltvRank": "41",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "raalz",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "shield",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "kraghen",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "bnox",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "cej0t",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 147,
+  "hltvHistory": []
+}

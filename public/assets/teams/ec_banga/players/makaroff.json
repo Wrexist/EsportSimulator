@@ -1,0 +1,20 @@
+{
+  "name": "makaroff",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "EC BANGA",
+  "teamRank": "151",
+  "age": 26,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 65,
+    "entrying": 23,
+    "trading": 11,
+    "opening": 35,
+    "clutching": 67,
+    "sniping": 64,
+    "utility": 63
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

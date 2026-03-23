@@ -1,0 +1,20 @@
+{
+  "name": "Zoot",
+  "country": "New Zealand",
+  "countryCode": "nz",
+  "team": "DXA",
+  "teamRank": "240",
+  "age": 22,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 19,
+    "entrying": 45,
+    "trading": 8,
+    "opening": 40,
+    "clutching": 11,
+    "sniping": 46,
+    "utility": 20
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

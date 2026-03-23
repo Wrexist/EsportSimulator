@@ -1,0 +1,20 @@
+{
+  "name": "olimp",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Friendly Campers",
+  "teamRank": "62",
+  "age": 26,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 41,
+    "entrying": 13,
+    "trading": 14,
+    "opening": 62,
+    "clutching": 41,
+    "sniping": 3,
+    "utility": 71
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

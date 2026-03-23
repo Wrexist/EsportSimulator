@@ -1,0 +1,20 @@
+{
+  "name": "afro",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "Monte",
+  "teamRank": "31",
+  "age": 26,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 69,
+    "entrying": 6,
+    "trading": 25,
+    "opening": 67,
+    "clutching": 95,
+    "sniping": 93,
+    "utility": 74
+  },
+  "matchesPlayed": 113,
+  "hltvHistory": []
+}

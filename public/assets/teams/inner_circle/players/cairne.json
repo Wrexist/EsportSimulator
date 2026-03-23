@@ -1,0 +1,20 @@
+{
+  "name": "cairne",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "39",
+  "age": 23,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 89,
+    "entrying": 87,
+    "trading": 72,
+    "opening": 80,
+    "clutching": 34,
+    "sniping": 0,
+    "utility": 45
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

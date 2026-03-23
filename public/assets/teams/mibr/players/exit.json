@@ -1,0 +1,20 @@
+{
+  "name": "exit",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR",
+  "teamRank": "62",
+  "age": 29,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 20,
+    "entrying": 77,
+    "trading": 60,
+    "opening": 15,
+    "clutching": 55,
+    "sniping": 0,
+    "utility": 78
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

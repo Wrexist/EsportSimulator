@@ -1,0 +1,20 @@
+{
+  "name": "Extinct",
+  "country": "Ireland",
+  "countryCode": "ie",
+  "team": "Washington",
+  "teamRank": "199",
+  "age": 26,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 21,
+    "entrying": 54,
+    "trading": 48,
+    "opening": 53,
+    "clutching": 28,
+    "sniping": 40,
+    "utility": 76
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

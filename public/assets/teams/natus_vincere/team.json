@@ -1,0 +1,34 @@
+{
+  "name": "Natus Vincere",
+  "hltvRank": "8",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "Aleksib",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "iM",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "b1t",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "w0nderful",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "makazze",
+      "country": "Kosovo",
+      "countryCode": "xk"
+    }
+  ],
+  "matchesPlayed": 244,
+  "hltvHistory": []
+}

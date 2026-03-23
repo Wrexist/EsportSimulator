@@ -1,0 +1,20 @@
+{
+  "name": "fury5k",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Eruption",
+  "teamRank": "95",
+  "age": 27,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 38,
+    "entrying": 8,
+    "trading": 5,
+    "opening": 68,
+    "clutching": 57,
+    "sniping": 3,
+    "utility": 73
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

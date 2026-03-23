@@ -1,0 +1,20 @@
+{
+  "name": "MATYS",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "G2",
+  "teamRank": "9",
+  "age": 23,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 64,
+    "entrying": 80,
+    "trading": 58,
+    "opening": 50,
+    "clutching": 31,
+    "sniping": 31,
+    "utility": 53
+  },
+  "matchesPlayed": 235,
+  "hltvHistory": []
+}

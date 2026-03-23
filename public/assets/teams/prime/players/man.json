@@ -1,0 +1,20 @@
+{
+  "name": "Mané",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "PRIME",
+  "teamRank": "145",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 40,
+    "entrying": 46,
+    "trading": 33,
+    "opening": 43,
+    "clutching": 54,
+    "sniping": 2,
+    "utility": 52
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

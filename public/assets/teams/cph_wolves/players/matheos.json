@@ -1,0 +1,24 @@
+{
+  "name": "Matheos",
+  "country": "Croatia",
+  "countryCode": "hr",
+  "team": "CPH Wolves",
+  "teamRank": "99",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 23,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.01,
+  "stats": {
+    "firepower": 64,
+    "entrying": 72,
+    "trading": 50,
+    "opening": 69,
+    "clutching": 46,
+    "sniping": 0,
+    "utility": 37
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

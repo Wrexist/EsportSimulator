@@ -1,0 +1,20 @@
+{
+  "name": "cass1n",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "BESTIA",
+  "teamRank": "37",
+  "age": 23,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 82,
+    "entrying": 33,
+    "trading": 91,
+    "opening": 52,
+    "clutching": 62,
+    "sniping": 92,
+    "utility": 72
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

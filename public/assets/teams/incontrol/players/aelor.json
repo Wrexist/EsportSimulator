@@ -1,0 +1,20 @@
+{
+  "name": "aelor",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "InControl",
+  "teamRank": "214",
+  "age": 22,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 24,
+    "entrying": 63,
+    "trading": 66,
+    "opening": 7,
+    "clutching": 76,
+    "sniping": 45,
+    "utility": 25
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

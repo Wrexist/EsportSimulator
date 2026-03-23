@@ -1,0 +1,20 @@
+{
+  "name": "Altekz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AM",
+  "teamRank": "104",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 43,
+    "entrying": 49,
+    "trading": 43,
+    "opening": 17,
+    "clutching": 76,
+    "sniping": 71,
+    "utility": 48
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

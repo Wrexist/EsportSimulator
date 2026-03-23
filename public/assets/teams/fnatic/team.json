@@ -1,0 +1,34 @@
+{
+  "name": "fnatic",
+  "hltvRank": "33",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "KRIMZ",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Maden",
+      "country": "Montenegro",
+      "countryCode": "me"
+    },
+    {
+      "name": "fEAR",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "jambo",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "jackasmo",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 135,
+  "hltvHistory": []
+}

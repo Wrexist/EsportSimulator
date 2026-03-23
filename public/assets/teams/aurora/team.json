@@ -1,0 +1,34 @@
+{
+  "name": "Aurora",
+  "hltvRank": "11",
+  "nationality": "Turkey",
+  "players": [
+    {
+      "name": "MAJ3R",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "XANTARES",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "woxic",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "soulfly",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "Wicadia",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 193,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "k1to",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "AM",
+  "teamRank": "104",
+  "age": 27,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 29,
+    "entrying": 64,
+    "trading": 18,
+    "opening": 55,
+    "clutching": 33,
+    "sniping": 47,
+    "utility": 63
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

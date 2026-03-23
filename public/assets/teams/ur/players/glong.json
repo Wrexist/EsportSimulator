@@ -1,0 +1,20 @@
+{
+  "name": "gLong",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "UR",
+  "teamRank": "206",
+  "age": 19,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 23,
+    "entrying": 63,
+    "trading": 65,
+    "opening": 15,
+    "clutching": 98,
+    "sniping": 95,
+    "utility": 11
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

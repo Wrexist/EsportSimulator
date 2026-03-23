@@ -1,0 +1,20 @@
+{
+  "name": "Dawy",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "44",
+  "age": 18,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 84,
+    "entrying": 59,
+    "trading": 90,
+    "opening": 59,
+    "clutching": 44,
+    "sniping": 44,
+    "utility": 24
+  },
+  "matchesPlayed": 114,
+  "hltvHistory": []
+}

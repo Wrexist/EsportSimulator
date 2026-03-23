@@ -1,0 +1,20 @@
+{
+  "name": "nettik",
+  "country": "New Zealand",
+  "countryCode": "nz",
+  "team": "FlyQuest",
+  "teamRank": "29",
+  "age": 22,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 31,
+    "entrying": 61,
+    "trading": 53,
+    "opening": 51,
+    "clutching": 29,
+    "sniping": 61,
+    "utility": 72
+  },
+  "matchesPlayed": 196,
+  "hltvHistory": []
+}

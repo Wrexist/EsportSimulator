@@ -1,0 +1,20 @@
+{
+  "name": "Nami",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "los kogutos",
+  "teamRank": "89",
+  "age": 24,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 47,
+    "entrying": 41,
+    "trading": 49,
+    "opening": 64,
+    "clutching": 57,
+    "sniping": 2,
+    "utility": 55
+  },
+  "matchesPlayed": 92,
+  "hltvHistory": []
+}

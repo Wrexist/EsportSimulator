@@ -1,0 +1,20 @@
+{
+  "name": "Schwarz",
+  "country": "Georgia",
+  "countryCode": "ge",
+  "team": "ENCE Academy",
+  "teamRank": "195",
+  "age": 18,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 96,
+    "entrying": 32,
+    "trading": 63,
+    "opening": 79,
+    "clutching": 77,
+    "sniping": 1,
+    "utility": 81
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "karrigan",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "FaZe",
+  "teamRank": "7",
+  "age": 35,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 10,
+    "entrying": 60,
+    "trading": 16,
+    "opening": 41,
+    "clutching": 30,
+    "sniping": 43,
+    "utility": 88
+  },
+  "matchesPlayed": 278,
+  "hltvHistory": []
+}

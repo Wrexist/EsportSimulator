@@ -1,0 +1,20 @@
+{
+  "name": "JDC",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BIG",
+  "teamRank": "63",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 77,
+    "entrying": 79,
+    "trading": 26,
+    "opening": 85,
+    "clutching": 25,
+    "sniping": 1,
+    "utility": 26
+  },
+  "matchesPlayed": 87,
+  "hltvHistory": []
+}

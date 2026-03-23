@@ -1,0 +1,34 @@
+{
+  "name": "CYBERSHOKE",
+  "hltvRank": "58",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "glowiing",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "alpha",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "bl1x1",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "FenomeN",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "Mokuj1n",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 76,
+  "hltvHistory": []
+}

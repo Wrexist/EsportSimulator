@@ -1,0 +1,33 @@
+{
+  "name": "Spirit Academy",
+  "hltvRank": "110",
+  "players": [
+    {
+      "name": "robo",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "syph0",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "Mokuj1n",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "kurosse",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Kiryasoo",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

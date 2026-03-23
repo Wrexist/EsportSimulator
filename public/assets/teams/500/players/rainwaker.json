@@ -1,0 +1,23 @@
+{
+  "name": "Rainwaker",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "500",
+  "teamRank": "70",
+  "role": "Lurker, Support, Lurkers, Support players",
+  "status": "Active",
+  "age": 24,
+  "birthDate": "April 27, 2001",
+  "rating": 1.13,
+  "stats": {
+    "firepower": 75,
+    "entrying": 33,
+    "trading": 30,
+    "opening": 50,
+    "clutching": 70,
+    "sniping": 0,
+    "utility": 38
+  },
+  "matchesPlayed": 165,
+  "hltvHistory": []
+}

@@ -1,0 +1,23 @@
+{
+  "name": "kinqie",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "33",
+  "teamRank": "72",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 34,
+  "birthDate": "November 7, 1991",
+  "rating": 0.93,
+  "stats": {
+    "firepower": 18,
+    "entrying": 72,
+    "trading": 26,
+    "opening": 32,
+    "clutching": 48,
+    "sniping": 1,
+    "utility": 85
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

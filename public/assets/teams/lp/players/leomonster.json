@@ -1,0 +1,20 @@
+{
+  "name": "Leomonster",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "LP",
+  "teamRank": "140",
+  "age": 22,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 45,
+    "entrying": 62,
+    "trading": 28,
+    "opening": 81,
+    "clutching": 18,
+    "sniping": 28,
+    "utility": 75
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

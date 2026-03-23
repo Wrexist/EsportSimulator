@@ -1,0 +1,20 @@
+{
+  "name": "felps",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Gaimin Gladiators",
+  "teamRank": "64",
+  "age": 29,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 83,
+    "entrying": 17,
+    "trading": 53,
+    "opening": 68,
+    "clutching": 23,
+    "sniping": 1,
+    "utility": 51
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

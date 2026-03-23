@@ -1,0 +1,34 @@
+{
+  "name": "BET-M",
+  "hltvRank": "80",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "kinqie",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "KIRO",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "z1Nny",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "executor",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "bluewh1te",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 92,
+  "hltvHistory": []
+}

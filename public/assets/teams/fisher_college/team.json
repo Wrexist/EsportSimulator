@@ -1,0 +1,34 @@
+{
+  "name": "Fisher College",
+  "hltvRank": "142",
+  "nationality": "Iceland",
+  "players": [
+    {
+      "name": "TH0R",
+      "country": "Iceland",
+      "countryCode": "is"
+    },
+    {
+      "name": "AlekS",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "ReFuZR",
+      "country": "Netherlands",
+      "countryCode": "nl"
+    },
+    {
+      "name": "CrePoW",
+      "country": "Belgium",
+      "countryCode": "be"
+    },
+    {
+      "name": "corn",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

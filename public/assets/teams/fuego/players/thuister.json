@@ -1,0 +1,23 @@
+{
+  "name": "Thuister",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fuego",
+  "teamRank": "139",
+  "role": "Unknown",
+  "status": "Unknown",
+  "debug": [],
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 79,
+    "entrying": 33,
+    "trading": 14,
+    "opening": 82,
+    "clutching": 32,
+    "sniping": 1,
+    "utility": 81
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

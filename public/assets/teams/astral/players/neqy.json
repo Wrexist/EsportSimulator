@@ -1,0 +1,20 @@
+{
+  "name": "Neqy",
+  "country": "Estonia",
+  "countryCode": "ee",
+  "team": "ASTRAL",
+  "teamRank": "87",
+  "age": 20,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 88,
+    "entrying": 88,
+    "trading": 84,
+    "opening": 62,
+    "clutching": 27,
+    "sniping": 50,
+    "utility": 58
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

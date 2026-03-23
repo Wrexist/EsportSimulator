@@ -1,0 +1,20 @@
+{
+  "name": "Ro1f",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "EYEBALLERS",
+  "teamRank": "34",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 38,
+    "entrying": 39,
+    "trading": 49,
+    "opening": 19,
+    "clutching": 64,
+    "sniping": 61,
+    "utility": 57
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

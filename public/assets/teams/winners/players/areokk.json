@@ -1,0 +1,20 @@
+{
+  "name": "areokk",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Winners",
+  "teamRank": "232",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 73,
+    "entrying": 19,
+    "trading": 79,
+    "opening": 36,
+    "clutching": 80,
+    "sniping": 5,
+    "utility": 73
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

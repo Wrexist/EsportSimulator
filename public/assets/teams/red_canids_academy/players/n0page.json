@@ -1,0 +1,20 @@
+{
+  "name": "n0page",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids Academy",
+  "teamRank": "212",
+  "age": 25,
+  "rating": 1,
+  "stats": {
+    "firepower": 35,
+    "entrying": 52,
+    "trading": 28,
+    "opening": 53,
+    "clutching": 12,
+    "sniping": 59,
+    "utility": 77
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

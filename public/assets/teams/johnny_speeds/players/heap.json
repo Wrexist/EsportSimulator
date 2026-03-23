@@ -1,0 +1,20 @@
+{
+  "name": "HEAP",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Johnny Speeds",
+  "teamRank": "73",
+  "age": 26,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 67,
+    "entrying": 36,
+    "trading": 34,
+    "opening": 72,
+    "clutching": 46,
+    "sniping": 64,
+    "utility": 39
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

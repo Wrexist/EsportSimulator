@@ -1,0 +1,28 @@
+{
+  "name": "Wildcard Academy",
+  "hltvRank": "135",
+  "players": [
+    {
+      "name": "AMSALEM",
+      "country": "Israel",
+      "countryCode": "il"
+    },
+    {
+      "name": "sSen",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "tripex17",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "doni",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

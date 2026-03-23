@@ -1,0 +1,20 @@
+{
+  "name": "ex1st",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "MINLATE",
+  "teamRank": "116",
+  "age": 21,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 87,
+    "entrying": 41,
+    "trading": 48,
+    "opening": 80,
+    "clutching": 47,
+    "sniping": 27,
+    "utility": 68
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

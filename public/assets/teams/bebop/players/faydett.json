@@ -1,0 +1,20 @@
+{
+  "name": "faydett",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Bebop",
+  "teamRank": "165",
+  "age": 26,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 46,
+    "entrying": 47,
+    "trading": 39,
+    "opening": 52,
+    "clutching": 53,
+    "sniping": 22,
+    "utility": 76
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

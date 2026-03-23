@@ -1,0 +1,20 @@
+{
+  "name": "atarax1a",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Isurus",
+  "teamRank": "141",
+  "age": 23,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 47,
+    "entrying": 3,
+    "trading": 20,
+    "opening": 70,
+    "clutching": 94,
+    "sniping": 92,
+    "utility": 58
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

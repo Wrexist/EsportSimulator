@@ -1,0 +1,20 @@
+{
+  "name": "Re1GN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nuclear TigeRES",
+  "teamRank": "49",
+  "age": 25,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 66,
+    "entrying": 52,
+    "trading": 78,
+    "opening": 62,
+    "clutching": 35,
+    "sniping": 0,
+    "utility": 25
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

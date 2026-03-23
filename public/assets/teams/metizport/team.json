@@ -1,0 +1,34 @@
+{
+  "name": "Metizport",
+  "hltvRank": "163",
+  "nationality": "Sweden",
+  "players": [
+    {
+      "name": "Jackinho",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "Plopski",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "isak",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "forsyy",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "Dragon",
+      "country": "Serbia",
+      "countryCode": "rs"
+    }
+  ],
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

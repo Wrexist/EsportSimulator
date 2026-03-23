@@ -1,0 +1,20 @@
+{
+  "name": "ryu",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Astralis",
+  "teamRank": "12",
+  "age": 21,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 60,
+    "entrying": 63,
+    "trading": 62,
+    "opening": 30,
+    "clutching": 63,
+    "sniping": 40,
+    "utility": 32
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

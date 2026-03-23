@@ -1,0 +1,24 @@
+{
+  "name": "b1elany",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "CPH Wolves",
+  "teamRank": "99",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 23,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.08,
+  "stats": {
+    "firepower": 56,
+    "entrying": 39,
+    "trading": 53,
+    "opening": 28,
+    "clutching": 75,
+    "sniping": 0,
+    "utility": 49
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

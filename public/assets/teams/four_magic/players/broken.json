@@ -1,0 +1,20 @@
+{
+  "name": "brokeN",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Four Magic",
+  "teamRank": "190",
+  "age": 23,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 3,
+    "entrying": 95,
+    "trading": 64,
+    "opening": 42,
+    "clutching": 39,
+    "sniping": 1,
+    "utility": 66
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

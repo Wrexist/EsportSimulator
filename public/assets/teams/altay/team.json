@@ -1,0 +1,34 @@
+{
+  "name": "ALTAY",
+  "hltvRank": "218",
+  "nationality": "Kazakhstan",
+  "players": [
+    {
+      "name": "kamaz1k",
+      "country": "Kyrgyzstan",
+      "countryCode": "ky"
+    },
+    {
+      "name": "plushax",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "Di1ka",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "Mescadi",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "forzenok",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

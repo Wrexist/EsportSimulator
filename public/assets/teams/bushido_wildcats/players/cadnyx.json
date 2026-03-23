@@ -1,0 +1,20 @@
+{
+  "name": "cadnyx",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Bushido Wildcats",
+  "teamRank": "159",
+  "age": 20,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 77,
+    "entrying": 53,
+    "trading": 78,
+    "opening": 57,
+    "clutching": 61,
+    "sniping": 23,
+    "utility": 40
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

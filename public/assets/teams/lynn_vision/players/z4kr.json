@@ -1,0 +1,20 @@
+{
+  "name": "z4KR",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Lynn Vision",
+  "teamRank": "36",
+  "age": 23,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 84,
+    "entrying": 40,
+    "trading": 47,
+    "opening": 77,
+    "clutching": 44,
+    "sniping": 94,
+    "utility": 60
+  },
+  "matchesPlayed": 137,
+  "hltvHistory": []
+}

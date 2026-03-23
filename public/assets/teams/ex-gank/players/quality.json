@@ -1,0 +1,20 @@
+{
+  "name": "Quality",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "ex-GANK",
+  "teamRank": "188",
+  "age": 19,
+  "rating": 1.21,
+  "stats": {
+    "firepower": 95,
+    "entrying": 33,
+    "trading": 84,
+    "opening": 47,
+    "clutching": 88,
+    "sniping": 4,
+    "utility": 63
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

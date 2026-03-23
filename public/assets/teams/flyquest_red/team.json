@@ -1,0 +1,34 @@
+{
+  "name": "FlyQuest RED",
+  "hltvRank": "238",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Emy",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "BiBiAhn",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "vanessa",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Fawx",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "marie",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

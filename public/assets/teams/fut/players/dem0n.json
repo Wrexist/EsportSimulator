@@ -1,0 +1,20 @@
+{
+  "name": "dem0n",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "FUT",
+  "teamRank": "14",
+  "age": 18,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 73,
+    "entrying": 68,
+    "trading": 75,
+    "opening": 38,
+    "clutching": 35,
+    "sniping": 33,
+    "utility": 38
+  },
+  "matchesPlayed": 170,
+  "hltvHistory": []
+}

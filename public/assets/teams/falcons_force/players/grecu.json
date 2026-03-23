@@ -1,0 +1,24 @@
+{
+  "name": "grecu",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Falcons Force",
+  "teamRank": "142",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 18,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.81,
+  "stats": {
+    "firepower": 4,
+    "entrying": 38,
+    "trading": 19,
+    "opening": 16,
+    "clutching": 36,
+    "sniping": 91,
+    "utility": 27
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

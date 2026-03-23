@@ -1,0 +1,20 @@
+{
+  "name": "WasteOfAmmo",
+  "country": "Indonesia",
+  "countryCode": "id",
+  "team": "Deep Cross",
+  "teamRank": "114",
+  "age": 25,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 54,
+    "entrying": 71,
+    "trading": 92,
+    "opening": 43,
+    "clutching": 47,
+    "sniping": 18,
+    "utility": 44
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

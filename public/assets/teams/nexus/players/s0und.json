@@ -1,0 +1,20 @@
+{
+  "name": "s0und",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "101",
+  "age": 23,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 57,
+    "entrying": 70,
+    "trading": 60,
+    "opening": 64,
+    "clutching": 29,
+    "sniping": 65,
+    "utility": 35
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

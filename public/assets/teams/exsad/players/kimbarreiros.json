@@ -1,0 +1,20 @@
+{
+  "name": "KiMBARREiROS",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "EXSAD",
+  "teamRank": "168",
+  "age": 23,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 4,
+    "entrying": 52,
+    "trading": 22,
+    "opening": 14,
+    "clutching": 23,
+    "sniping": 88,
+    "utility": 42
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

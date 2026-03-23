@@ -1,0 +1,20 @@
+{
+  "name": "nin9",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The Huns",
+  "teamRank": "67",
+  "age": 27,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 58,
+    "entrying": 9,
+    "trading": 16,
+    "opening": 49,
+    "clutching": 80,
+    "sniping": 77,
+    "utility": 91
+  },
+  "matchesPlayed": 72,
+  "hltvHistory": []
+}

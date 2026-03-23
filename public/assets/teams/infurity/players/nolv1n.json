@@ -1,0 +1,20 @@
+{
+  "name": "Nolv1n",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "INFURITY",
+  "teamRank": "115",
+  "age": 23,
+  "rating": 0.85,
+  "stats": {
+    "firepower": 8,
+    "entrying": 67,
+    "trading": 77,
+    "opening": 35,
+    "clutching": 36,
+    "sniping": 0,
+    "utility": 57
+  },
+  "matchesPlayed": 25,
+  "hltvHistory": []
+}

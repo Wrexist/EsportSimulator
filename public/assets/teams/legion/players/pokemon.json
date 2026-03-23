@@ -1,0 +1,20 @@
+{
+  "name": "PokemoN",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "Legion",
+  "teamRank": "200",
+  "age": 27,
+  "rating": 1.29,
+  "stats": {
+    "firepower": 97,
+    "entrying": 24,
+    "trading": 56,
+    "opening": 87,
+    "clutching": 34,
+    "sniping": 2,
+    "utility": 83
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

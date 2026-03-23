@@ -1,0 +1,20 @@
+{
+  "name": "abiraju",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "QWENTRY",
+  "teamRank": "158",
+  "age": 23,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 33,
+    "entrying": 78,
+    "trading": 69,
+    "opening": 14,
+    "clutching": 34,
+    "sniping": 29,
+    "utility": 44
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

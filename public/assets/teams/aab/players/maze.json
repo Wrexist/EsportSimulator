@@ -1,0 +1,20 @@
+{
+  "name": "Maze",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "109",
+  "age": 24,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 73,
+    "entrying": 45,
+    "trading": 80,
+    "opening": 51,
+    "clutching": 52,
+    "sniping": 1,
+    "utility": 83
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

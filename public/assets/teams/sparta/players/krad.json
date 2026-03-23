@@ -1,0 +1,20 @@
+{
+  "name": "Krad",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "SPARTA",
+  "teamRank": "106",
+  "age": 27,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 52,
+    "entrying": 70,
+    "trading": 12,
+    "opening": 95,
+    "clutching": 19,
+    "sniping": 1,
+    "utility": 61
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

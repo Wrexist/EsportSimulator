@@ -1,0 +1,20 @@
+{
+  "name": "m3wsu",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WW",
+  "teamRank": "113",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 45,
+    "entrying": 70,
+    "trading": 65,
+    "opening": 23,
+    "clutching": 30,
+    "sniping": 31,
+    "utility": 18
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

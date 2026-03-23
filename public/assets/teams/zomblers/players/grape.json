@@ -1,0 +1,20 @@
+{
+  "name": "grape",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Zomblers",
+  "teamRank": "160",
+  "age": 25,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 54,
+    "entrying": 23,
+    "trading": 94,
+    "opening": 17,
+    "clutching": 71,
+    "sniping": 4,
+    "utility": 35
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

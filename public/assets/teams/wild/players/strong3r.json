@@ -1,0 +1,20 @@
+{
+  "name": "strong3r",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "WiLD",
+  "teamRank": "198",
+  "age": 19,
+  "rating": 0.81,
+  "stats": {
+    "firepower": 2,
+    "entrying": 97,
+    "trading": 93,
+    "opening": 11,
+    "clutching": 5,
+    "sniping": 35,
+    "utility": 46
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

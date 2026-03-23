@@ -1,0 +1,20 @@
+{
+  "name": "jottAAA",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "161",
+  "age": 23,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 27,
+    "entrying": 37,
+    "trading": 62,
+    "opening": 20,
+    "clutching": 26,
+    "sniping": 52,
+    "utility": 20
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

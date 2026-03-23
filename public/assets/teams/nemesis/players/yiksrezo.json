@@ -1,0 +1,20 @@
+{
+  "name": "yiksrezo",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemesis",
+  "teamRank": "45",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 68,
+    "entrying": 70,
+    "trading": 81,
+    "opening": 39,
+    "clutching": 58,
+    "sniping": 18,
+    "utility": 34
+  },
+  "matchesPlayed": 151,
+  "hltvHistory": []
+}

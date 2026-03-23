@@ -1,0 +1,20 @@
+{
+  "name": "LNZ",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "MIBR",
+  "teamRank": "28",
+  "age": 23,
+  "rating": 1,
+  "stats": {
+    "firepower": 21,
+    "entrying": 64,
+    "trading": 29,
+    "opening": 41,
+    "clutching": 49,
+    "sniping": 20,
+    "utility": 84
+  },
+  "matchesPlayed": 211,
+  "hltvHistory": []
+}

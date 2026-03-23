@@ -1,0 +1,20 @@
+{
+  "name": "Purely",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Just Swing",
+  "teamRank": "171",
+  "age": 23,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 36,
+    "entrying": 89,
+    "trading": 55,
+    "opening": 24,
+    "clutching": 67,
+    "sniping": 85,
+    "utility": 58
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

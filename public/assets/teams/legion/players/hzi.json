@@ -1,0 +1,20 @@
+{
+  "name": "HZI",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "Legion",
+  "teamRank": "200",
+  "age": 18,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 30,
+    "entrying": 15,
+    "trading": 41,
+    "opening": 13,
+    "clutching": 71,
+    "sniping": 33,
+    "utility": 24
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

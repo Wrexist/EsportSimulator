@@ -1,0 +1,20 @@
+{
+  "name": "Efire",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Chinggis Warriors",
+  "teamRank": "83",
+  "age": 20,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 30,
+    "entrying": 94,
+    "trading": 69,
+    "opening": 20,
+    "clutching": 42,
+    "sniping": 1,
+    "utility": 56
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

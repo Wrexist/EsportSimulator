@@ -1,0 +1,20 @@
+{
+  "name": "AquaRS",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "VP.Prodigy",
+  "teamRank": "155",
+  "age": 19,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 63,
+    "entrying": 81,
+    "trading": 39,
+    "opening": 48,
+    "clutching": 45,
+    "sniping": 1,
+    "utility": 47
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

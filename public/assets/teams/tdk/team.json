@@ -1,0 +1,34 @@
+{
+  "name": "TDK",
+  "hltvRank": "248",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "zorte",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Ax1Le",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "nafany",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "sugaR",
+      "country": "Azerbaijan",
+      "countryCode": "az"
+    },
+    {
+      "name": "Xant3r",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

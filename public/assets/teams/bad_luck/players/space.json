@@ -1,0 +1,20 @@
+{
+  "name": "space",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Bad Luck",
+  "teamRank": "192",
+  "age": 19,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 40,
+    "entrying": 40,
+    "trading": 83,
+    "opening": 12,
+    "clutching": 40,
+    "sniping": 41,
+    "utility": 27
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

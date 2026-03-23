@@ -1,0 +1,20 @@
+{
+  "name": "C0C0",
+  "country": "Lebanon",
+  "countryCode": "lb",
+  "team": "MAZRAEA",
+  "teamRank": "193",
+  "age": 23,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 55,
+    "entrying": 50,
+    "trading": 52,
+    "opening": 5,
+    "clutching": 64,
+    "sniping": 89,
+    "utility": 42
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

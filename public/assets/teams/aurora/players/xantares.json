@@ -1,0 +1,20 @@
+{
+  "name": "XANTARES",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Aurora",
+  "teamRank": "11",
+  "age": 30,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 75,
+    "entrying": 78,
+    "trading": 40,
+    "opening": 91,
+    "clutching": 42,
+    "sniping": 19,
+    "utility": 55
+  },
+  "matchesPlayed": 209,
+  "hltvHistory": []
+}

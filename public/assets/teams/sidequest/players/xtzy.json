@@ -1,0 +1,20 @@
+{
+  "name": "xtzy",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Sidequest",
+  "teamRank": "235",
+  "age": 21,
+  "rating": 0.5,
+  "stats": {
+    "firepower": 24,
+    "entrying": 77,
+    "trading": 34,
+    "opening": 13,
+    "clutching": 8,
+    "sniping": 28,
+    "utility": 10
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

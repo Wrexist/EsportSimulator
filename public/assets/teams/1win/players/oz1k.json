@@ -1,0 +1,20 @@
+{
+  "name": "oz1k",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "1win",
+  "teamRank": "77",
+  "age": 19,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 60,
+    "entrying": 66,
+    "trading": 49,
+    "opening": 53,
+    "clutching": 37,
+    "sniping": 67,
+    "utility": 38
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

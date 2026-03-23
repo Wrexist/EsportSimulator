@@ -1,0 +1,20 @@
+{
+  "name": "patrikinho",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "TNC",
+  "teamRank": "201",
+  "age": 19,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 29,
+    "entrying": 100,
+    "trading": 97,
+    "opening": 17,
+    "clutching": 85,
+    "sniping": 44,
+    "utility": 74
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

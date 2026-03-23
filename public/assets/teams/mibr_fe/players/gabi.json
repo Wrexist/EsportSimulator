@@ -1,0 +1,20 @@
+{
+  "name": "GaBi",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR fe",
+  "teamRank": "202",
+  "age": 26,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 20,
+    "entrying": 18,
+    "trading": 17,
+    "opening": 22,
+    "clutching": 46,
+    "sniping": 1,
+    "utility": 55
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

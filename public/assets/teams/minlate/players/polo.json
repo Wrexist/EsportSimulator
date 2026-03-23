@@ -1,0 +1,20 @@
+{
+  "name": "POLO",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "MINLATE",
+  "teamRank": "116",
+  "age": 25,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 65,
+    "entrying": 7,
+    "trading": 41,
+    "opening": 37,
+    "clutching": 80,
+    "sniping": 92,
+    "utility": 83
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "raven",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Sakura",
+  "teamRank": "227",
+  "age": 27,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 10,
+    "entrying": 40,
+    "trading": 76,
+    "opening": 43,
+    "clutching": 46,
+    "sniping": 78,
+    "utility": 32
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

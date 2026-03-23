@@ -1,0 +1,20 @@
+{
+  "name": "MartinezSa",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Gentle Mates",
+  "teamRank": "27",
+  "age": 25,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 86,
+    "entrying": 18,
+    "trading": 38,
+    "opening": 78,
+    "clutching": 71,
+    "sniping": 93,
+    "utility": 56
+  },
+  "matchesPlayed": 168,
+  "hltvHistory": []
+}

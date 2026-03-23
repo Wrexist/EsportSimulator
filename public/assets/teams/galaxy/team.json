@@ -1,0 +1,34 @@
+{
+  "name": "Galaxy",
+  "hltvRank": "219",
+  "nationality": "Lithuania",
+  "players": [
+    {
+      "name": "juhcaN",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "depends",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "kaz",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "Santuriano",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "F1R3FIGHTER",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

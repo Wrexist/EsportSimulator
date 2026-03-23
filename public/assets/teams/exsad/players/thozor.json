@@ -1,0 +1,20 @@
+{
+  "name": "ThozoR",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "EXSAD",
+  "teamRank": "168",
+  "age": 24,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 64,
+    "entrying": 22,
+    "trading": 65,
+    "opening": 56,
+    "clutching": 46,
+    "sniping": 91,
+    "utility": 59
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

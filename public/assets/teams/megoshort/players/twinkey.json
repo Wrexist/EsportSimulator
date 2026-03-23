@@ -1,0 +1,20 @@
+{
+  "name": "Twinkey",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "megoshort",
+  "teamRank": "115",
+  "age": 25,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 24,
+    "entrying": 71,
+    "trading": 47,
+    "opening": 40,
+    "clutching": 24,
+    "sniping": 59,
+    "utility": 61
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "rdnzao",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Sharks",
+  "teamRank": "39",
+  "age": 22,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 69,
+    "entrying": 90,
+    "trading": 81,
+    "opening": 67,
+    "clutching": 29,
+    "sniping": 33,
+    "utility": 62
+  },
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

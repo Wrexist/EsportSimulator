@@ -1,0 +1,20 @@
+{
+  "name": "Staehr",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Astralis",
+  "teamRank": "12",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 73,
+    "entrying": 39,
+    "trading": 54,
+    "opening": 64,
+    "clutching": 27,
+    "sniping": 1,
+    "utility": 77
+  },
+  "matchesPlayed": 152,
+  "hltvHistory": []
+}

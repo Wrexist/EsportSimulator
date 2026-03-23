@@ -1,0 +1,20 @@
+{
+  "name": "ADK",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Rooster",
+  "teamRank": "148",
+  "age": 24,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 62,
+    "entrying": 69,
+    "trading": 59,
+    "opening": 49,
+    "clutching": 43,
+    "sniping": 100,
+    "utility": 52
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

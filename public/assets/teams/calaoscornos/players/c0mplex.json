@@ -1,0 +1,20 @@
+{
+  "name": "c0mplex",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "CALAOSCORNOS",
+  "teamRank": "122",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 65,
+    "entrying": 80,
+    "trading": 26,
+    "opening": 88,
+    "clutching": 3,
+    "sniping": 43,
+    "utility": 28
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "gejmzilla",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "134",
+  "age": 29,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 16,
+    "entrying": 53,
+    "trading": 19,
+    "opening": 42,
+    "clutching": 61,
+    "sniping": 2,
+    "utility": 90
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

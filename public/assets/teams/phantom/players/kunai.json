@@ -1,0 +1,20 @@
+{
+  "name": "Kunai",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Phantom",
+  "teamRank": "126",
+  "age": 19,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 34,
+    "entrying": 87,
+    "trading": 58,
+    "opening": 38,
+    "clutching": 33,
+    "sniping": 1,
+    "utility": 35
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

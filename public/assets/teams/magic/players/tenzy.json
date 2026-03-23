@@ -1,0 +1,20 @@
+{
+  "name": "tENZY",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "magic",
+  "teamRank": "48",
+  "age": 20,
+  "rating": 1.21,
+  "stats": {
+    "firepower": 93,
+    "entrying": 52,
+    "trading": 68,
+    "opening": 74,
+    "clutching": 46,
+    "sniping": 71,
+    "utility": 46
+  },
+  "matchesPlayed": 132,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Crisp",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Chicken Coop",
+  "teamRank": "197",
+  "age": 25,
+  "rating": 1.22,
+  "stats": {
+    "firepower": 96,
+    "entrying": 65,
+    "trading": 89,
+    "opening": 73,
+    "clutching": 90,
+    "sniping": 83,
+    "utility": 79
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

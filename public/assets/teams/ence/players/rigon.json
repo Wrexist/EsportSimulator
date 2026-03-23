@@ -1,0 +1,24 @@
+{
+  "name": "rigoN",
+  "country": "Switzerland",
+  "countryCode": "ch",
+  "team": "ENCE",
+  "teamRank": "41",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 26,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.93,
+  "stats": {
+    "firepower": 30,
+    "entrying": 88,
+    "trading": 31,
+    "opening": 71,
+    "clutching": 23,
+    "sniping": 0,
+    "utility": 25
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

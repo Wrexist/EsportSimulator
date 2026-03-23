@@ -1,0 +1,29 @@
+{
+  "name": "Monte",
+  "hltvRank": "31",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "Bymas",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    },
+    {
+      "name": "afro",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Gizmy",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "AZUWU",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    }
+  ],
+  "matchesPlayed": 124,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "pxsl",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "AM",
+  "teamRank": "104",
+  "age": 22,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 14,
+    "entrying": 31,
+    "trading": 43,
+    "opening": 18,
+    "clutching": 77,
+    "sniping": 91,
+    "utility": 67
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

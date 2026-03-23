@@ -1,0 +1,20 @@
+{
+  "name": "nicoodoz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "50",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 80,
+    "entrying": 13,
+    "trading": 57,
+    "opening": 86,
+    "clutching": 58,
+    "sniping": 63,
+    "utility": 60
+  },
+  "matchesPlayed": 126,
+  "hltvHistory": []
+}

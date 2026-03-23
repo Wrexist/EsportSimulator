@@ -1,0 +1,20 @@
+{
+  "name": "br0",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "NRG",
+  "teamRank": "19",
+  "age": 23,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 86,
+    "entrying": 61,
+    "trading": 67,
+    "opening": 47,
+    "clutching": 33,
+    "sniping": 4,
+    "utility": 80
+  },
+  "matchesPlayed": 188,
+  "hltvHistory": []
+}

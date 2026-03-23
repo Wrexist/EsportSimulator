@@ -1,0 +1,20 @@
+{
+  "name": "Libraa",
+  "country": "Slovenia",
+  "countryCode": "si",
+  "team": "Diamant",
+  "teamRank": "220",
+  "age": 23,
+  "rating": 1.48,
+  "stats": {
+    "firepower": 100,
+    "entrying": 7,
+    "trading": 90,
+    "opening": 93,
+    "clutching": 28,
+    "sniping": 43,
+    "utility": 68
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

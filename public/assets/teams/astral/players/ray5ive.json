@@ -1,0 +1,20 @@
+{
+  "name": "RaY5ive",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "ASTRAL",
+  "teamRank": "87",
+  "age": 21,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 84,
+    "entrying": 78,
+    "trading": 85,
+    "opening": 27,
+    "clutching": 88,
+    "sniping": 37,
+    "utility": 83
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

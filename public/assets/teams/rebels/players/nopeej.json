@@ -1,0 +1,20 @@
+{
+  "name": "NOPEEJ",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Rebels",
+  "teamRank": "119",
+  "age": 24,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 32,
+    "entrying": 22,
+    "trading": 85,
+    "opening": 18,
+    "clutching": 67,
+    "sniping": 73,
+    "utility": 45
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

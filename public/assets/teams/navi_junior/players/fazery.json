@@ -1,0 +1,20 @@
+{
+  "name": "FAZERY",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "NAVI Junior",
+  "teamRank": "237",
+  "age": 17,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 45,
+    "entrying": 24,
+    "trading": 84,
+    "opening": 7,
+    "clutching": 34,
+    "sniping": 64,
+    "utility": 59
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

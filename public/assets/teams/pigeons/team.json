@@ -1,0 +1,34 @@
+{
+  "name": "Pigeons",
+  "hltvRank": "223",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "tory",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "twenty3",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Kat",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    },
+    {
+      "name": "vicu",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "wieenN",
+      "country": "Georgia",
+      "countryCode": "ge"
+    }
+  ],
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

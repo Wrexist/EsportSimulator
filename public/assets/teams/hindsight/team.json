@@ -1,0 +1,34 @@
+{
+  "name": "hindsight",
+  "hltvRank": "224",
+  "nationality": "Latvia",
+  "players": [
+    {
+      "name": "pullox",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "Kaoday",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Ann4",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "mikeri",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Madam",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "r1verLaKe",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "XDM",
+  "teamRank": "205",
+  "age": 24,
+  "rating": 1.29,
+  "stats": {
+    "firepower": 76,
+    "entrying": 83,
+    "trading": 24,
+    "opening": 100,
+    "clutching": 48,
+    "sniping": 93,
+    "utility": 21
+  },
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

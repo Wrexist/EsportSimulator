@@ -1,0 +1,20 @@
+{
+  "name": "apocdud",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Ground Zero",
+  "teamRank": "139",
+  "age": 27,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 40,
+    "entrying": 59,
+    "trading": 35,
+    "opening": 59,
+    "clutching": 66,
+    "sniping": 66,
+    "utility": 90
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

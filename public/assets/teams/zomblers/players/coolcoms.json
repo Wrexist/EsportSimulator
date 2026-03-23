@@ -1,0 +1,20 @@
+{
+  "name": "CoolComs",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Zomblers",
+  "teamRank": "160",
+  "age": 27,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 48,
+    "entrying": 97,
+    "trading": 26,
+    "opening": 66,
+    "clutching": 11,
+    "sniping": 20,
+    "utility": 50
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

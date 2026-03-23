@@ -1,0 +1,20 @@
+{
+  "name": "chelo",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Imperial",
+  "teamRank": "23",
+  "age": 27,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 30,
+    "entrying": 75,
+    "trading": 17,
+    "opening": 69,
+    "clutching": 31,
+    "sniping": 72,
+    "utility": 58
+  },
+  "matchesPlayed": 158,
+  "hltvHistory": []
+}
