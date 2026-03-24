@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +25,17 @@ import { Label } from "@/components/ui/label"
 
 export default function MatchesPage() {
   const router = useRouter()
-  const { scheduledMatches, completedMatches, teams, players, playerTeamId, saveMatchResult, advanceWeek, isLoading, staff } = useGameStore()
+  const { scheduledMatches, completedMatches, teams, players, playerTeamId, saveMatchResult, advanceWeek, isLoading, staff } = useGameStore(useShallow(state => ({
+    scheduledMatches: state.scheduledMatches,
+    completedMatches: state.completedMatches,
+    teams: state.teams,
+    players: state.players,
+    playerTeamId: state.playerTeamId,
+    saveMatchResult: state.saveMatchResult,
+    advanceWeek: state.advanceWeek,
+    isLoading: state.isLoading,
+    staff: state.staff,
+  })))
   const [selectedMatch, setSelectedMatch] = useState<MatchSaveData | null>(null)
 
   // Quick Sim Dialog State

@@ -1,5 +1,5 @@
 import { TrainingFocus, calculateTrainingGains, calculateTrainingFatigue, EventType } from "@/types"
-import { GameSave } from "../save-types"
+import { GameSave, PlayerSaveData } from "../save-types"
 import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
@@ -53,7 +53,7 @@ export class TrainingProcessor {
 
                 Object.entries(gains).forEach(([stat, gain]) => {
                     if (gain && stat in player) {
-                        const current = (player as any)[stat] as number
+                        const current = player[stat as keyof PlayerSaveData] as number
 
                         let finalGain = gain * trainingBonus * coachBonus
                         if (['tactic', 'leader', 'teamwork'].includes(stat)) {
@@ -64,7 +64,7 @@ export class TrainingProcessor {
                             player.potential,
                             Math.min(100, Math.max(0, current + finalGain))
                         )
-                            ; (player as any)[stat] = newVal
+                        ;(player as unknown as Record<string, unknown>)[stat] = newVal
                     }
                 })
 
@@ -106,7 +106,7 @@ export class TrainingProcessor {
             }
 
             // Use the centralized Lifecycle Manager
-            PlayerLifecycleManager.processWeeklyUpdates(player as any, currentYear, save.currentWeek, totalRecoveryBonus, rng)
+            PlayerLifecycleManager.processWeeklyUpdates(player, currentYear, save.currentWeek, totalRecoveryBonus, rng)
         })
     }
 

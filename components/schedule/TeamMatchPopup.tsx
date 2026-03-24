@@ -70,7 +70,7 @@ export function TeamMatchPopup({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 top-16 bg-black/60 backdrop-blur-sm z-[100]"
+                        className="fixed inset-0 top-16 bg-black/60 backdrop-blur-sm z-modal"
                     />
 
                     {/* Popup */}
@@ -81,7 +81,7 @@ export function TeamMatchPopup({
                         animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
                         exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-40%" }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="fixed left-1/2 top-1/2 z-[100] w-full max-w-xl cursor-move"
+                        className="fixed left-1/2 top-1/2 z-modal w-full max-w-xl cursor-move"
                         style={{ x: "-50%", y: "-50%" }} // Ensure transform is applied for centering
                     >
                         <div className="bg-[#0a0c10]/95 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">

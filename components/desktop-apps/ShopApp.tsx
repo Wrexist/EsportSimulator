@@ -7,10 +7,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { EQUIPMENT_CATALOG, EQUIPMENT_TYPE_DISPLAY, EquipmentType } from "@/engine/equipment-manager"
 
 export function ShopApp() {
-    const { teams, playerTeamId, purchaseEquipment } = useGameStore()
+    const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        purchaseEquipment: state.purchaseEquipment,
+    })))
     const team = teams.find(t => t.id === playerTeamId)
     const [selectedType, setSelectedType] = useState<EquipmentType>("PC")
     const [isPurchasing, setIsPurchasing] = useState(false)

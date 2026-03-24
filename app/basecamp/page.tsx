@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -42,7 +43,11 @@ export default function BasecampPage() {
     teams,
     playerTeamId,
     upgradeFacility
-  } = useGameStore()
+  } = useGameStore(useShallow(state => ({
+    teams: state.teams,
+    playerTeamId: state.playerTeamId,
+    upgradeFacility: state.upgradeFacility,
+  })))
 
   const playerTeam = teams.find(t => t.id === playerTeamId)
 

@@ -143,7 +143,7 @@ export function getVisibleStats(
             baseStats.ovrRange = skill
             // Everything revealed
             baseStats.exactStats = { ...player }
-            baseStats.hltvHistory = player.hltvHistory as any
+            baseStats.hltvHistory = player.hltvHistory
             baseStats.matchesPlayed = player.matchesPlayed
             baseStats.majorWins = player.majorWins
             break
@@ -193,6 +193,6 @@ export function completeScoutingMission(
     return {
         playerId: mission.playerId,
         scoutedWeek: currentWeek,
-        scoutLevel: scoutLevel as any,
+        scoutLevel: scoutLevel as ScoutedPlayerEntry["scoutLevel"],
     }
 }

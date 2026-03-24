@@ -264,7 +264,7 @@ export function BugReportButton() {
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-[1000] group"
+        className="fixed bottom-6 right-6 z-devtools group"
         title="Report a Bug"
       >
         <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-black/30 hover:bg-white/15 hover:border-white/30 transition-colors cursor-pointer">

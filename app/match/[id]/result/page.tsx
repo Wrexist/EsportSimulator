@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Home, Trophy, Swords, Map as MapIcon, Calendar, Clock, ArrowLeft, Star } from "lucide-react"
@@ -48,7 +49,15 @@ function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, d
 export default function MatchResultPage({ params }: { params: { id: string } }) {
     const { id } = params
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments } = useGameStore()
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments } = useGameStore(useShallow(state => ({
+        completedMatches: state.completedMatches,
+        teams: state.teams,
+        players: state.players,
+        getDateForWeek: state.getDateForWeek,
+        clearActiveMatchState: state.clearActiveMatchState,
+        playerTeamId: state.playerTeamId,
+        tournaments: state.tournaments,
+    })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
     const [selectedMapIndex, setSelectedMapIndex] = useState(0)

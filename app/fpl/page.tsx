@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,8 +34,13 @@ import {
 } from "@/types/fpl"
 
 export default function FPLPage() {
-    const { players, playerTeamId, teams, currentWeek } = useGameStore()
-    const fplData = useGameStore(state => state.fplData)
+    const { players, playerTeamId, teams, currentWeek, fplData } = useGameStore(useShallow(state => ({
+        players: state.players,
+        playerTeamId: state.playerTeamId,
+        teams: state.teams,
+        currentWeek: state.currentWeek,
+        fplData: state.fplData,
+    })))
 
     const [searchTerm, setSearchTerm] = useState("")
     const [activeTab, setActiveTab] = useState("fpl")

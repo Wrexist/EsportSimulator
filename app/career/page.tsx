@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,20 @@ export default function CareerPage() {
         deleteSaveInSlot,
         managerDetails,
         financeLedger
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        completedMatches: state.completedMatches,
+        eventsLog: state.eventsLog,
+        hallOfFame: state.hallOfFame,
+        saveId: state.saveId,
+        listSaves: state.listSaves,
+        switchSave: state.switchSave,
+        deleteSaveInSlot: state.deleteSaveInSlot,
+        managerDetails: state.managerDetails,
+        financeLedger: state.financeLedger,
+    })))
 
     const [availableSaves, setAvailableSaves] = useState<SaveSlotMetadata[]>([])
     const [isLoadingSaves, setIsLoadingSaves] = useState(true)

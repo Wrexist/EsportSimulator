@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { PlayerDetail } from "@/components/player/player-detail"
 import { notFound, useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,7 +10,9 @@ import { ArrowLeft } from "lucide-react"
 export default function PlayerPage() {
     const { id } = useParams()
     const router = useRouter()
-    const { players } = useGameStore()
+    const { players } = useGameStore(useShallow(state => ({
+        players: state.players,
+    })))
 
     // Find player directly in the global players collection
     const itemId = Array.isArray(id) ? id[0] : id

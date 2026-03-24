@@ -5,6 +5,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Player, Team } from "@/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
@@ -57,7 +58,15 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
     const router = useRouter()
-    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId } = useGameStore()
+    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId } = useGameStore(useShallow(state => ({
+        players: state.players,
+        teams: state.teams,
+        contracts: state.contracts,
+        playerTeamId: state.playerTeamId,
+        transferPlayer: state.transferPlayer,
+        currentWeek: state.currentWeek,
+        saveId: state.saveId,
+    })))
 
     // Derived Data
     const playerSave = players.find(p => p.id === playerId)
@@ -244,11 +253,14 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
     return (
         <AnimatePresence>
-            <div className={cn("fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md", className)}>
+            <div className={cn("fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md", className)}>
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-negotiation"
                     className="glass-panel w-full max-w-4xl max-h-[min(600px,85vh)] flex overflow-hidden shadow-2xl border-white/10"
                 >
                     {/* Left Panel: Player Info */}
@@ -259,7 +271,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                             <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 mb-4 overflow-hidden shadow-lg">
                                 <PlayerPortrait src={playerSave.portraitPath} alt={playerSave.nickname} size={96} />
                             </div>
-                            <h2 className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
+                            <h2 id="modal-title-negotiation" className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
                             <p className="text-sm text-muted-foreground mb-2">{playerSave.name}</p>
 
                             <Badge className={cn("mb-4", tierStyle.bgColor, tierStyle.color)}>

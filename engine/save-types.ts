@@ -31,7 +31,7 @@ import { FPLSaveData } from "@/types/fpl"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 5
+export const CURRENT_SAVE_VERSION = 6
 
 /**
  * Minimum supported save version for migration
@@ -136,6 +136,62 @@ export interface GameSave {
 
     // === PHASE 80: FPL SYSTEM ===
     fplData?: FPLSaveData // Individual player ranking system
+
+    // === CROSS-SEASON CAREER STATISTICS ===
+    careerStats?: CareerStats
+}
+
+/**
+ * Cross-season career statistics
+ * Computed incrementally at season boundaries (every 52 weeks)
+ */
+export interface CareerStats {
+    // Per-season summaries (appended each season end)
+    seasons: SeasonSummary[]
+
+    // Aggregate career totals for the player's managed team
+    totalSeasons: number
+    totalMatches: number
+    totalWins: number
+    totalLosses: number
+    totalTournamentWins: number
+    totalPrizeMoney: number
+    peakWorldRanking: number
+    peakElo: number
+
+    // Manager career progression
+    teamsManaged: string[] // team IDs
+    lastUpdatedWeek: number
+}
+
+export interface SeasonSummary {
+    seasonNumber: number
+    startWeek: number
+    endWeek: number
+    teamId: string
+    teamName: string
+
+    // Performance
+    matches: number
+    wins: number
+    losses: number
+    winRate: number
+
+    // Achievements
+    trophiesWon: { tournamentId: string; tournamentName: string; tier: string }[]
+    finalWorldRanking: number
+    finalElo: number
+    leagueTier: string
+
+    // Financial
+    totalIncome: number
+    totalExpenses: number
+    endBudget: number
+
+    // Roster
+    rosterSize: number
+    mvpPlayerId?: string // Best avg rating player that season
+    mvpPlayerName?: string
 }
 
 export interface CelebrationData {
@@ -273,6 +329,7 @@ export interface TeamSaveData {
     runwayWeeks?: number // Cash / Net Burn
     weeklyNet?: number // Last week's net cashflow
     consecutiveInsolventWeeks?: number // Tracks insolvency duration for game-over trigger
+    _prevFinancialState?: "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT" // Tracks previous state for change detection
 
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]
@@ -680,6 +737,8 @@ export interface CompletedMatchSaveData extends MatchSaveData {
     analysis?: MatchAnalysis // Phase 12: Explainability
     eloChange?: { home: number; away: number }
     rankingChange?: { home: number; away: number }
+    _comebackWin?: boolean
+    _underdogWin?: boolean
 }
 
 /**

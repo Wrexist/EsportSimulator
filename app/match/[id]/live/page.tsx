@@ -482,7 +482,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
                     >
                         <TacticalLoadoutEditor
                             side={editingSide}

@@ -54,6 +54,7 @@ import { generateAnnualTop20, shouldTriggerAwards, addHLTVAwardsEvent } from "./
 import { buildQualificationGraph, dedupeQualifications, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
+import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 
 // ===== TYPES =====
 
@@ -210,7 +211,7 @@ export class AtomicWeekProcessor {
                     if (opponent && tournament) {
                         save.eventsLog.push({
                             id: `upcoming_match_${match.id}_${save.currentWeek}`,
-                            type: "TOURNAMENT" as any,
+                            type: "TOURNAMENT",
                             week: save.currentWeek,
                             acknowledged: false,
                             data: {
@@ -219,7 +220,7 @@ export class AtomicWeekProcessor {
                                 severity: "info",
                                 tournamentId: tournament.id,
                                 matchId: match.id,
-                                logoPath: (tournament as any).logoPath
+                                logoPath: tournament.logoPath
                             }
                         })
                     }
@@ -362,6 +363,16 @@ export class AtomicWeekProcessor {
             // ===== STEP 8C: Narrative & News =====
             debugLog(`[Week ${save.currentWeek}] Step 8C: Processing Narrative Features...`)
             this.generateNarrativeNews(save, rng)
+
+            // === Cross-Season Career Statistics ===
+            // Compute at season boundaries (every 52 weeks)
+            if (isSeasonEnd(save.currentWeek)) {
+                save.careerStats = updateCareerStats(save)
+                debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
+            } else if (!save.careerStats) {
+                // First-time migration for existing saves
+                save.careerStats = migrateCareerStats(save)
+            }
 
             // Guard long-running saves against unbounded log growth.
             this.compactPersistentState(save)
@@ -548,16 +559,16 @@ export class AtomicWeekProcessor {
                 return bonus
             }
 
-            const homeBonus = getTacticalBonus(homeTeam.id, (awayTeam as any).playstyle, (homeTeam as any).playstyle)
-            const awayBonus = getTacticalBonus(awayTeam.id, (homeTeam as any).playstyle, (awayTeam as any).playstyle)
+            const homeBonus = getTacticalBonus(homeTeam.id, awayTeam.playstyle ?? "", homeTeam.playstyle ?? "")
+            const awayBonus = getTacticalBonus(awayTeam.id, homeTeam.playstyle ?? "", awayTeam.playstyle ?? "")
 
             // Simulate using full engine
             const result = this.matchEngine.simulateMatch(
                 match,
-                homeTeam as any,
-                awayTeam as any,
-                homePlayers as any,
-                awayPlayers as any,
+                homeTeam,
+                awayTeam,
+                homePlayers,
+                awayPlayers,
                 rng,
                 homeBonus,
                 awayBonus
@@ -612,7 +623,7 @@ export class AtomicWeekProcessor {
                 const p = save.players.find(pl => pl.id === playerId)
                 if (p) {
                     WeaponMasteryManager.processMatchWeaponXP(
-                        p as any,
+                        p,
                         stats.rifle,
                         stats.awp,
                         stats.pistol,
@@ -667,8 +678,8 @@ export class AtomicWeekProcessor {
                 (result.awayScore > result.homeScore && awayIsUnderdog)
 
             // Store flags on the completed match for achievement tracking
-            if (hasComebackWin) (completedMatch as any)._comebackWin = true
-            if (hasUnderdogWin) (completedMatch as any)._underdogWin = true
+            if (hasComebackWin) completedMatch._comebackWin = true
+            if (hasUnderdogWin) completedMatch._underdogWin = true
 
             // Update player stats
             const homeWon = result.homeScore > result.awayScore
@@ -703,7 +714,7 @@ export class AtomicWeekProcessor {
                                 id: `evt_lvl_${save.currentWeek}_${p.id}_t`,
                                 type: "PLAYER_LEVEL_UP",
                                 week: save.currentWeek,
-                                data: { playerName: (p as any).nickname || (p as any).firstName || p.id, newLevel: p.level },
+                                data: { playerName: p.nickname || p.id, newLevel: p.level },
                                 acknowledged: false
                             })
                         }
@@ -1015,8 +1026,8 @@ export class AtomicWeekProcessor {
                     tournamentName: tournament.name,
                     week: save.currentWeek,
                     tier: tournament.tier,
-                    trophyPath: (tournament as any).trophyPath,
-                } as any)
+                    trophyPath: tournament.trophyPath,
+                })
             }
 
             // Compute placements for prize distribution and circuit points
@@ -1121,8 +1132,8 @@ export class AtomicWeekProcessor {
                     repGain: 10,
                     fanGain: fanGain,
                     week: save.currentWeek,
-                    logoPath: (tournament as any).logoPath,
-                    trophyPath: (tournament as any).trophyPath
+                    logoPath: tournament.logoPath,
+                    trophyPath: tournament.trophyPath
                 }
 
                 // Major win (S_TIER) → offer legend pick
@@ -1193,7 +1204,7 @@ export class AtomicWeekProcessor {
             if (scoutedPlayer) {
                 save.eventsLog.push({
                     id: `scouting_complete_${save.currentWeek}_${mission.playerId}`,
-                    type: "NEWS" as any,
+                    type: "NEWS",
                     week: save.currentWeek,
                     data: {
                         text: `Scouting report complete for ${scoutedPlayer.nickname}. Full stats are now visible.`,
@@ -1323,7 +1334,7 @@ export class AtomicWeekProcessor {
                         id: `academy_${prospectId}_${save.currentWeek}`,
                         playerId: prospectId,
                         enrolledWeek: save.currentWeek,
-                        trainingFocus: 'GENERAL' as any,
+                        trainingFocus: 'BALANCED' as const,
                         developmentProgress: 0,
                         potentialRevealed: false,
                         totalXpGained: 0,
@@ -1340,7 +1351,7 @@ export class AtomicWeekProcessor {
                 if (team.id === playerTeamId) {
                     save.eventsLog.unshift({
                         id: `youth_intake_${save.currentWeek}`,
-                        type: "TRAINING_COMPLETE" as any,
+                        type: "TRAINING_COMPLETE",
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
@@ -1399,13 +1410,12 @@ export class AtomicWeekProcessor {
             // Marketing campaign bonus
             const activeMarketing = save.scheduledActivities?.filter(a =>
                 a.type === "MARKETING" &&
-                a.data?.followersPerWeek &&
                 save.currentWeek >= a.week &&
                 save.currentWeek < a.week + a.duration &&
-                (a as any).data?.followersPerWeek
+                typeof (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek === "number"
             ) ?? []
             for (const campaign of activeMarketing) {
-                const gain = (campaign.data as any)?.followersPerWeek ?? 0
+                const gain = (campaign.data as { followersPerWeek?: number })?.followersPerWeek ?? 0
                 if (typeof gain === "number" && gain > 0) {
                     weeklyGrowth += gain
                 }
@@ -1464,7 +1474,7 @@ export class AtomicWeekProcessor {
                 if (!save.eventsLog.some(event => event.id === eventId)) {
                     save.eventsLog.unshift({
                         id: eventId,
-                        type: "SPONSOR_OFFER" as any,
+                        type: "SPONSOR_OFFER",
                         week: save.currentWeek,
                         data: {
                             title: "Sponsor Goal Met",
@@ -1539,7 +1549,7 @@ export class AtomicWeekProcessor {
                                     if (!save.eventsLog.some(event => event.id === eventId)) {
                                         save.eventsLog.unshift({
                                             id: eventId,
-                                            type: "SPONSOR_OFFER" as any,
+                                            type: "SPONSOR_OFFER",
                                             week: save.currentWeek,
                                             data: {
                                                 title: "Sponsor Goal Met",
@@ -1568,7 +1578,7 @@ export class AtomicWeekProcessor {
                     if (!save.eventsLog.some(event => event.id === expiryEventId)) {
                         save.eventsLog.unshift({
                             id: expiryEventId,
-                            type: "SPONSOR_OFFER" as any,
+                            type: "SPONSOR_OFFER",
                             week: save.currentWeek,
                             data: {
                                 title: "Sponsor Contract Ended",
@@ -1655,7 +1665,7 @@ export class AtomicWeekProcessor {
                 if (isInvited && !alreadyNotified) {
                     save.eventsLog.push({
                         id: `invite_notif_${def.id}_s${season}`,
-                        type: "TOURNAMENT" as any,
+                        type: "TOURNAMENT",
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
@@ -1745,8 +1755,8 @@ export class AtomicWeekProcessor {
                 debugLog(`[Tournament] ${definition.name}: Found ${availableAI.length} available AI teams`)
 
                 // If tournament has a requiredLeagueTier, prioritize matches but fallback if needed
-                if ((definition as any).requiredLeagueTier) {
-                    const requiredTier = (definition as any).requiredLeagueTier
+                if (definition.requiredLeagueTier) {
+                    const requiredTier = definition.requiredLeagueTier
                     const strictMatches = availableAI.filter(t => t.leagueTier === requiredTier)
 
                     if (strictMatches.length >= remainingSlots) {
@@ -1836,7 +1846,7 @@ export class AtomicWeekProcessor {
             if (participants.includes(playerTeamId)) {
                 save.eventsLog.push({
                     id: `tourney_start_${definition.id}_${save.currentWeek}`,
-                    type: "TOURNAMENT" as any,
+                    type: "TOURNAMENT",
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
@@ -1873,7 +1883,7 @@ export class AtomicWeekProcessor {
                 t.id === seasonalId || t.id === tournamentDef.id
             )
 
-            const pointsTable = CIRCUIT_POINTS[tournamentDef.tier] as any
+            const pointsTable = CIRCUIT_POINTS[tournamentDef.tier] as Record<number, number> | undefined
             if (!pointsTable) continue
 
             // Award points only from real completed instances to avoid phantom season points.
@@ -1950,7 +1960,7 @@ export class AtomicWeekProcessor {
                         tournamentId: tournament.id,
                         tournamentName: tournament.name,
                         week: save.currentWeek,
-                        trophyPath: (tournament as any).trophyPath,
+                        trophyPath: tournament.trophyPath,
                         tier: tournament.tier
                     })
 
@@ -2143,7 +2153,7 @@ export class AtomicWeekProcessor {
             const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
             for (const player of roster) {
                 // Use totalKills from player stats if available
-                const totalKills = (player as any).totalKills || 0
+                const totalKills = player.totalKills || 0
                 const milestones = [
                     { threshold: 500, name: "500 Tournament Kills" },
                     { threshold: 1000, name: "1,000 Tournament Kills" },

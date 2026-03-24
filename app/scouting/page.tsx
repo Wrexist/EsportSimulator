@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 import Image from "next/image"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import {
     Search,
@@ -123,7 +124,21 @@ export default function ScoutingPage() {
         watchlistedPlayerIds,
         toggleWatchlistPlayer,
         isPlayerWatchlisted,
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        players: state.players,
+        playerTeamId: state.playerTeamId,
+        scoutedPlayers: state.scoutedPlayers,
+        isPlayerScouted: state.isPlayerScouted,
+        startScoutingMission: state.startScoutingMission,
+        activeScoutingMission: state.activeScoutingMission,
+        transferHistory: state.transferHistory,
+        contracts: state.contracts,
+        currentWeek: state.currentWeek,
+        watchlistedPlayerIds: state.watchlistedPlayerIds,
+        toggleWatchlistPlayer: state.toggleWatchlistPlayer,
+        isPlayerWatchlisted: state.isPlayerWatchlisted,
+    })))
 
     const [allPlayers, setAllPlayers] = useState<SnapshotPlayer[]>([])
     const [allTeams, setAllTeams] = useState<SnapshotTeam[]>([])

@@ -149,7 +149,7 @@ export function calculateRoleFit(player: PlayerSaveData): number {
 
     let score = 0
     for (const [stat, weight] of Object.entries(weights)) {
-        const value = (player as any)[stat] ?? 50
+        const value = (player as unknown as Record<string, number>)[stat] ?? 50
         score += value * weight
     }
 
@@ -175,7 +175,7 @@ export function calculateContextModifier(player: PlayerSaveData): number {
     const moraleBonus = ((player.morale || 50) - 50) / 625 // -0.08 to +0.08
 
     // Health/injury penalty: up to -30%
-    const healthPenalty = (player as any).isInjured ? 0.30 : 0
+    const healthPenalty = player.injury ? 0.30 : 0
 
     const modifier = (1 + formBonus) * (1 - fatiguePenalty) * (1 + moraleBonus) * (1 - healthPenalty)
 
@@ -374,11 +374,11 @@ export function evaluatePlayer(
     const futureValue = calculateFutureValue(player, baseSkill)
 
     // HLTV reputation (use player's stored history if not passed)
-    const effectiveHistory = hltvHistory ?? (player as any).hltvHistory
+    const effectiveHistory = hltvHistory ?? player.hltvHistory
     let hltvScore = calculateHltvReputationScore(effectiveHistory, currentYear)
     // Fallback: use stored prestigeScore when hltvHistory yields nothing
-    if (hltvScore === 0 && (player as any).prestigeScore) {
-        hltvScore = (player as any).prestigeScore
+    if (hltvScore === 0 && player.prestigeScore) {
+        hltvScore = player.prestigeScore
     }
 
     // Composite: Match-day rating
@@ -428,7 +428,7 @@ export function evaluatePlayer(
     }
 
     // Composite: Transfer value (uses overallRating for price consistency with UI)
-    const transferValue = calculateMarketValue(partialEval as any, player, hltvScore, overallRating)
+    const transferValue = calculateMarketValue(partialEval, player, hltvScore, overallRating)
 
     return {
         ...partialEval,

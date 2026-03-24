@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import {
     BarChart,
     Bar,
@@ -58,7 +59,14 @@ import Image from "next/image"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 
 export default function StatsPage() {
-    const { players, teams, playerTeamId, completedMatches, contracts, currentWeek } = useGameStore()
+    const { players, teams, playerTeamId, completedMatches, contracts, currentWeek } = useGameStore(useShallow(state => ({
+        players: state.players,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        completedMatches: state.completedMatches,
+        contracts: state.contracts,
+        currentWeek: state.currentWeek,
+    })))
     const [activeTab, setActiveTab] = useState<"ANALYTICS" | "RESULTS" | "TROPHIES" | "RIVALRIES">("ANALYTICS")
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null)
 

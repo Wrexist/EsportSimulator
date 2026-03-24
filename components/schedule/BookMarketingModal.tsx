@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion } from "framer-motion"
 import { X, Megaphone, Share2, Handshake, Sparkles, Coins, CalendarClock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,11 @@ const MARKETING_OPTIONS = {
 }
 
 export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModalProps) {
-    const { scheduleActivity, teams, playerTeamId } = useGameStore()
+    const { scheduleActivity, teams, playerTeamId } = useGameStore(useShallow(state => ({
+        scheduleActivity: state.scheduleActivity,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+    })))
     const [selectedType, setSelectedType] = useState<MarketingType>("SOCIAL")
     const [duration, setDuration] = useState(1)
 
@@ -96,11 +101,14 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-dropdown flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-book-marketing"
                 className="glass-panel w-full max-w-2xl p-6 shadow-2xl border-white/10"
             >
                 <div className="flex justify-between items-center mb-6">
@@ -109,7 +117,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                             <Megaphone size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-normal uppercase tracking-tighter text-white">Marketing Campaign</h2>
+                            <h2 id="modal-title-book-marketing" className="text-xl font-normal uppercase tracking-tighter text-white">Marketing Campaign</h2>
                             <p className="text-xs text-muted-foreground uppercase tracking-widest">Week {week}</p>
                         </div>
                     </div>

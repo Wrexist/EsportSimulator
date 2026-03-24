@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import {
     CustomTeamData,
     GameDifficulty,
@@ -51,7 +52,10 @@ const STEPS: { id: WizardStep; label: string; icon: React.ElementType }[] = [
 
 export default function CreateTeamPage() {
     const router = useRouter()
-    const { initializeCustomTeam, teams } = useGameStore()
+    const { initializeCustomTeam, teams } = useGameStore(useShallow(state => ({
+        initializeCustomTeam: state.initializeCustomTeam,
+        teams: state.teams,
+    })))
     const getStoreError = () => useGameStore.getState().error
 
     // Wizard state

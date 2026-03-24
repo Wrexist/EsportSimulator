@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import {
     Trophy,
     Award,
@@ -25,7 +26,13 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export default function TrophyRoomPage() {
-    const { teams, playerTeamId, players, completedMatches, gameStartDate } = useGameStore()
+    const { teams, playerTeamId, players, completedMatches, gameStartDate } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        players: state.players,
+        completedMatches: state.completedMatches,
+        gameStartDate: state.gameStartDate,
+    })))
     const playerTeam = teams.find(t => t.id === playerTeamId)
 
     // Calculate real ELO change per team from their last completed match

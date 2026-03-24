@@ -32,6 +32,8 @@ import {
     StaffType,
     MatchEvent,
     CustomTactics,
+    TacticalStrategy,
+    PlayerLoadout,
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
 
@@ -191,7 +193,9 @@ export class SimulationEngineV2 {
                 customTactics,
                 matchSeed,
                 i, // mapIndex
-                match.stage // matchStage
+                match.stage, // matchStage
+                !!match.mentalPrep, // homeMentalPrep
+                false // awayMentalPrep
             )
 
             mapResults.push(mapResult)
@@ -378,7 +382,9 @@ export class SimulationEngineV2 {
         customTactics?: CustomTactics,
         matchSeed: number = 0,
         mapIndex: number = 0,
-        matchStage?: string
+        matchStage?: string,
+        homeMentalPrep?: boolean,
+        awayMentalPrep?: boolean
     ): MapResult {
         const rounds: RoundResult[] = []
         let homeRounds = 0
@@ -390,8 +396,8 @@ export class SimulationEngineV2 {
         let currentTTeam = homeStartsCT ? awayTeam.id : homeTeam.id
 
         // Calculate base team strengths
-        const homeBaseStrength = this.calculateTeamStrength(homeTeam, homePlayers, homeStaff)
-        const awayBaseStrength = this.calculateTeamStrength(awayTeam, awayPlayers, awayStaff)
+        const homeBaseStrength = this.calculateTeamStrength(homeTeam, homePlayers, homeStaff, homeMentalPrep)
+        const awayBaseStrength = this.calculateTeamStrength(awayTeam, awayPlayers, awayStaff, awayMentalPrep)
 
         // Apply playstyle counter modifiers (rock-paper-scissors tactical system)
         const homePlaystyleMod = calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle)
@@ -744,7 +750,8 @@ export class SimulationEngineV2 {
     public calculateTeamStrength(
         team: Team,
         players: Player[],
-        staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist }
+        staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+        mentalPrep?: boolean
     ): number {
         if (players.length === 0) return 0
 
@@ -814,7 +821,7 @@ export class SimulationEngineV2 {
         }
 
         // Mental Prep bonus ($5k mental reset): improves morale floor and clutch consistency
-        if ((team as any).mentalPrep) {
+        if (mentalPrep) {
             tacticalMod += 0.03 // +3% team strength from mental preparation
         }
 
@@ -851,8 +858,10 @@ export class SimulationEngineV2 {
         rng: SeededRNG,
         customTactics?: CustomTactics
     ): void {
-        const customTactic = customTactics ? (customTactics[strategy as keyof CustomTactics] as any)?.[isCT ? "ct" : "t"] : undefined
-        const playerLoadouts = customTactic?.playerLoadouts as any[] | undefined
+        // PISTOL is not a key in CustomTactics; when strategy is PISTOL, the lookup returns undefined (safe via optional chaining)
+        const tacticsForStrategy = customTactics ? customTactics[strategy as keyof CustomTactics] : undefined
+        const customTactic: TacticalStrategy | undefined = tacticsForStrategy?.[isCT ? "ct" : "t"]
+        const playerLoadouts: PlayerLoadout[] | undefined = customTactic?.playerLoadouts
 
         // PISTOL ROUND OVERRIDE - USER REQUESTED STRICT LOGIC
         // "everyone should have $800 and their starting pistol (glock for T & USP-S for CT) buy light kev all players for first round thats it."
@@ -885,7 +894,7 @@ export class SimulationEngineV2 {
         if (awpsToBuy > 0) {
             const candidates = [...players]
                 .filter(p => {
-                    const loadout = playerLoadouts?.[players.indexOf(p)] || playerLoadouts?.find((l: any) => l.slotIndex === players.indexOf(p))
+                    const loadout = playerLoadouts?.[players.indexOf(p)] || playerLoadouts?.find((l) => l.slotIndex === players.indexOf(p))
                     return !loadout && economy[p.id]?.cash >= 4750
                 })
                 .sort((a, b) => {
@@ -904,7 +913,7 @@ export class SimulationEngineV2 {
             if (!state) return
 
             let effectiveRole = p.role
-            const personalLoadout = playerLoadouts?.[idx] || playerLoadouts?.find((l: any) => l.slotIndex === idx)
+            const personalLoadout = playerLoadouts?.[idx] || playerLoadouts?.find((l) => l.slotIndex === idx)
 
             if (!personalLoadout) {
                 if (awpRecipients.has(p.id)) {
@@ -1250,7 +1259,7 @@ export class SimulationEngineV2 {
 
         return {
             winner: homeWins ? "HOME" : "AWAY",
-            winType: validatedWinType as any,
+            winType: validatedWinType,
             clutchEvent,
             clutchPlayerId,
             momentumShift,
@@ -1550,7 +1559,7 @@ export class SimulationEngineV2 {
 
                 // Phase 61.1: Headshot & Utility Logic
                 const killWeaponData = WEAPONS[weapon.toUpperCase()]
-                const killerSkill = (killer as any).skill ?? 10
+                const killerSkill = killer.skill ?? 10
 
                 let hsChance = 0.2 // Base fallback
                 if (killWeaponData?.type === EconomyWeaponType.SNIPER) {
@@ -1880,10 +1889,11 @@ export class SimulationEngineV2 {
             const staminaFactor = 1.1 - ((p.fatigue ?? 0) / 100)
 
             // Weapon Mastery bonus (accuracy bonus from trained weapons)
-            const mastery = (p as any).weaponMastery
+            const mastery = p.weaponMastery
             if (mastery && context === "KILL") {
                 // Use RIFLE mastery as primary (most common weapon)
-                const rifleXP = typeof mastery.RIFLE === 'number' ? mastery.RIFLE : (mastery.RIFLE?.xp ?? 0)
+                // Player.weaponMastery values are always numbers (normalized by adaptPlayerSaveToPlayer)
+                const rifleXP = mastery.RIFLE ?? 0
                 const masteryLevel = getMasteryLevel(rifleXP)
                 const accuracyBonus = MASTERY_LEVELS[masteryLevel].accuracyBonus
                 w *= 1.0 + (accuracyBonus / 100) // e.g., Master = +12% kill weight

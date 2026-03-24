@@ -672,7 +672,7 @@ export class SaveManager {
         state: WeekTickState,
         step: keyof Omit<WeekTickState, "weekNumber" | "saveId" | "startedAt" | "pendingMatchIds" | "completedMatchIds" | "generatedEventIds" | "errorMessage" | "failedStep">
     ): Promise<void> {
-        (state as any)[step] = true
+        (state[step] as boolean) = true
         await this.storage.setItem(this.getWeekTickStateKey(state.saveId), JSON.stringify(state))
     }
 
@@ -859,7 +859,7 @@ export class SaveManager {
             ...save,
             saveVersion: 3,
             playerTeamId,
-            managerDetails: (save.managerDetails as any) || {
+            managerDetails: save.managerDetails || {
                 name: (save.saveName as string) || "Manager",
                 level: 1,
                 xp: 0,
@@ -868,10 +868,10 @@ export class SaveManager {
                 careerLosses: 0,
                 championships: 0
             },
-            marketStaff: (save.marketStaff as any) || [],
-            newsFeed: (save.newsFeed as any) || [],
-            transferHistory: (save.transferHistory as any) || [],
-            scheduledActivities: (save.scheduledActivities as any) || []
+            marketStaff: save.marketStaff || [],
+            newsFeed: save.newsFeed || [],
+            transferHistory: save.transferHistory || [],
+            scheduledActivities: save.scheduledActivities || []
         }
     }
 
@@ -884,8 +884,8 @@ export class SaveManager {
             saveVersion: 4,
             academyPlayers: Array.isArray(save.academyPlayers) ? save.academyPlayers : [],
             academyMatchHistory: Array.isArray(save.academyMatchHistory) ? save.academyMatchHistory : [],
-            academyRoster: (save.academyRoster as any) || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
-            academyTrainingSchedule: (save.academyTrainingSchedule as any) || {},
+            academyRoster: save.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
+            academyTrainingSchedule: save.academyTrainingSchedule || {},
             academyWeeklyReports: Array.isArray(save.academyWeeklyReports) ? save.academyWeeklyReports : [],
             academyScoutingMissions: Array.isArray(save.academyScoutingMissions) ? save.academyScoutingMissions : [],
             academyPendingProspects: Array.isArray(save.academyPendingProspects) ? save.academyPendingProspects : []

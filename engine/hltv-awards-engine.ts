@@ -138,17 +138,17 @@ const AWPER_ROLES = ["AWPER", "AWP", "OP"]
  * Simplified: Based on OVR + key mechanical stats
  */
 function calculateHLTVRating(player: PlayerSaveData, rngSeed: number): number {
-    const evaluation = evaluatePlayer(player as any)
+    const evaluation = evaluatePlayer(player)
     const ovr = evaluation.overallRating
 
     // Base rating from OVR (maps 50-100 to 0.80-1.40)
     let rating = 0.80 + (ovr - 50) * 0.012
 
     // Mechanical stat bonuses
-    const rifle = (player as any).rifle || 50
-    const pistol = (player as any).pistol || 50
-    const clutch = (player as any).clutch || 50
-    const reaction = (player as any).reaction || 50
+    const rifle = player.rifle || 50
+    const pistol = player.pistol || 50
+    const clutch = player.clutch || 50
+    const reaction = player.reaction || 50
 
     // Add mechanical influence
     rating += ((rifle - 70) * 0.003)
@@ -168,15 +168,15 @@ function calculateHLTVRating(player: PlayerSaveData, rngSeed: number): number {
  * Calculate Impact Rating (contribution to round wins)
  */
 function calculateImpactRating(player: PlayerSaveData, rngSeed: number): number {
-    const evaluation = evaluatePlayer(player as any)
+    const evaluation = evaluatePlayer(player)
     const ovr = evaluation.overallRating
 
     // Base impact from OVR
     let impact = 0.85 + (ovr - 50) * 0.010
 
     // Entry/Clutch players have higher impact
-    const clutch = (player as any).clutch || 50
-    const creativity = (player as any).creativity || 50
+    const clutch = player.clutch || 50
+    const creativity = player.creativity || 50
 
     impact += ((clutch - 60) * 0.003)
     impact += ((creativity - 60) * 0.002)
@@ -198,8 +198,8 @@ function calculateImpactRating(player: PlayerSaveData, rngSeed: number): number 
  * Calculate KAST % (Kill/Assist/Survive/Trade percentage)
  */
 function calculateKAST(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player as any).overallRating
-    const teamwork = (player as any).teamwork || 50
+    const ovr = evaluatePlayer(player).overallRating
+    const teamwork = player.teamwork || 50
 
     // Base KAST scales with OVR (60-85% range)
     let kast = 60 + (ovr - 50) * 0.4
@@ -216,8 +216,8 @@ function calculateKAST(player: PlayerSaveData, rngSeed: number): number {
  * Calculate ADR (Average Damage per Round)
  */
 function calculateADR(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player as any).overallRating
-    const rifle = (player as any).rifle || 50
+    const ovr = evaluatePlayer(player).overallRating
+    const rifle = player.rifle || 50
 
     // Base ADR (60-100+ range)
     let adr = 60 + (ovr - 50) * 0.6
@@ -234,7 +234,7 @@ function calculateADR(player: PlayerSaveData, rngSeed: number): number {
  * Calculate KPR (Kills Per Round)
  */
 function calculateKPR(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player as any).overallRating
+    const ovr = evaluatePlayer(player).overallRating
 
     // Base KPR (0.55-1.0+ range)
     let kpr = 0.55 + (ovr - 50) * 0.008
@@ -268,7 +268,7 @@ export function generateAnnualTop20(
 
     // Calculate comprehensive stats for each player
     const playerScores = activePlayers.map(player => {
-        const evaluation = evaluatePlayer(player as any)
+        const evaluation = evaluatePlayer(player)
         const team = teams.find(t => t.rosterIds?.includes(player.id))
         const real = realStats.get(player.id)
 
@@ -442,7 +442,7 @@ export function addHLTVAwardsEvent(save: GameSave, awards: AnnualAwards): void {
     // Check if we already generated awards for this year
     const existingAwards = save.eventsLog.find(e =>
         e.type === EventType.MEDIA &&
-        (e.data as any)?.hltvAwards?.year === awards.year
+        (e.data.hltvAwards as { year?: number } | undefined)?.year === awards.year
     )
 
     if (existingAwards) return

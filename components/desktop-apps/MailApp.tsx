@@ -210,7 +210,7 @@ export const MailApp = React.memo(function MailApp({
                                 <ChevronDown size={8} />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-neutral-900 border-white/10 z-[1000]" sideOffset={5}>
+                        <DropdownMenuContent className="bg-neutral-900 border-white/10 z-devtools" sideOffset={5}>
                             <DropdownMenuLabel className="text-xs">Filter Messages</DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-white/10" />
                             <DropdownMenuCheckboxItem checked={messageFilter.includes("ALL")} onCheckedChange={() => toggleFilter("ALL")}>

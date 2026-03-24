@@ -20,16 +20,19 @@ export function ActivityPickerModal({ isOpen, onClose, week, onSelectType }: Act
     }
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-dropdown flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-activity-picker"
                 className="glass-panel w-full max-w-lg p-6 shadow-2xl border-white/10"
             >
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-xl font-normal uppercase tracking-tighter text-white">Schedule Activity</h2>
+                        <h2 id="modal-title-activity-picker" className="text-xl font-normal uppercase tracking-tighter text-white">Schedule Activity</h2>
                         <p className="text-xs text-muted-foreground uppercase tracking-widest">Week {week}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="Close dialog">

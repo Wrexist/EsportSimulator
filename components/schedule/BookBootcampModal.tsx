@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion } from "framer-motion"
 import { X, Plane, Dumbbell, Brain, Sparkles, Coins, CalendarClock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,11 @@ const BOOTCAMP_OPTIONS = {
 }
 
 export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalProps) {
-    const { scheduleActivity, teams, playerTeamId } = useGameStore()
+    const { scheduleActivity, teams, playerTeamId } = useGameStore(useShallow(state => ({
+        scheduleActivity: state.scheduleActivity,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+    })))
     const [selectedType, setSelectedType] = useState<BootcampType>("LOCAL")
     const [duration, setDuration] = useState(1)
     const [error, setError] = useState<string | null>(null)
@@ -91,17 +96,20 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 top-16 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 top-16 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-book-bootcamp"
                 className="glass-panel w-full max-w-4xl flex flex-col max-h-[90vh] shadow-2xl border-white/10"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-normal uppercase tracking-tight flex items-center gap-2">
+                        <h2 id="modal-title-book-bootcamp" className="text-2xl font-normal uppercase tracking-tight flex items-center gap-2">
                             <Plane className="text-primary" />
                             Schedule Bootcamp
                         </h2>

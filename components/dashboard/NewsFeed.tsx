@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion } from "framer-motion"
 import { Newspaper, Trophy, Users, Zap, Award, Calendar, Briefcase, Building2, DollarSign, Stethoscope } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +10,12 @@ import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 
 export function NewsFeed() {
-    const { newsFeed, getDateForWeek, teams, players } = useGameStore()
+    const { newsFeed, getDateForWeek, teams, players } = useGameStore(useShallow(state => ({
+        newsFeed: state.newsFeed,
+        getDateForWeek: state.getDateForWeek,
+        teams: state.teams,
+        players: state.players,
+    })))
 
     if (!newsFeed || newsFeed.length === 0) {
         return (

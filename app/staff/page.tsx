@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,8 +32,20 @@ export default function StaffPage() {
         fireStaff,
         marketStaff,
         refreshStaffMarket,
-        currentWeek
-    } = useGameStore()
+        currentWeek,
+        _hasHydrated,
+    } = useGameStore(useShallow(state => ({
+        staff: state.staff,
+        players: state.players,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        hireStaff: state.hireStaff,
+        fireStaff: state.fireStaff,
+        marketStaff: state.marketStaff,
+        refreshStaffMarket: state.refreshStaffMarket,
+        currentWeek: state.currentWeek,
+        _hasHydrated: state._hasHydrated,
+    })))
 
     const playerTeam = teams.find(t => t.id === playerTeamId)
     const currentStaff = staff.filter(s => s.teamId === playerTeamId)
@@ -48,9 +61,6 @@ export default function StaffPage() {
         recovery: currentStaff.filter(s => s.role === 'psychologist').reduce((sum, s) => sum + (s.stats?.mentalRecovery || 50), 0) / 10, // 100 stat = 10
         tactical: currentStaff.filter(s => s.role === 'analyst').reduce((sum, s) => sum + (s.stats?.analysis || 50), 0) / 20 // 100 stat = 5
     }
-
-    // Initial Market Load - Only if truly empty and hydrated
-    const { _hasHydrated } = useGameStore()
     useEffect(() => {
         // Only refresh if hydrated and market is empty
         if (_hasHydrated && marketStaff.length === 0) {

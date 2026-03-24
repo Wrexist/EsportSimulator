@@ -152,7 +152,7 @@ export function MarketApp({ events, onEventClick }: MarketAppProps) {
         if (hasScout) return null
 
         return (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm text-center p-6">
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md text-center p-6">
                 <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mb-4">
                     <Search size={32} className="text-rose-400" />
                 </div>
@@ -556,7 +556,7 @@ export function MarketApp({ events, onEventClick }: MarketAppProps) {
                     playerId={negotiatingId}
                     isOpen={!!negotiatingId}
                     onClose={() => setNegotiatingId(null)}
-                    className="absolute z-[100]"
+                    className="absolute z-modal"
                 />
             )}
         </div>
