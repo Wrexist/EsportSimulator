@@ -75,7 +75,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 bg-black/80 backdrop-blur-md z-[100]"
+                        className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal"
                         onClick={onClose}
                     />
 
@@ -85,7 +85,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 50 }}
                         transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-[100] flex items-center justify-center"
+                        className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-modal flex items-center justify-center"
                     >
                         <div role="dialog" aria-modal="true" aria-labelledby="modal-title-hltv-awards" className="w-full max-w-5xl max-h-full bg-gradient-to-br from-[#0a0c10] via-[#0d1117] to-[#0a0c10] border border-amber-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/10 flex flex-col">
 

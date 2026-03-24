@@ -60,7 +60,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8"
+                className="fixed inset-0 z-overlay flex items-center justify-center p-4 md:p-8"
             >
                 {/* Blurred Backdrop */}
                 <motion.div

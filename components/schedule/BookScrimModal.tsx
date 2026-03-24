@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { calculateTeamTier } from "@/engine/tier-system"
 import { motion, AnimatePresence } from "framer-motion"
@@ -21,7 +22,15 @@ interface BookScrimModalProps {
 }
 
 export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookScrimModalProps) {
-    const { teams, playerTeamId, players, scheduleScrim, currentWeek, currentDay, timeMode } = useGameStore()
+    const { teams, playerTeamId, players, scheduleScrim, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        players: state.players,
+        scheduleScrim: state.scheduleScrim,
+        currentWeek: state.currentWeek,
+        currentDay: state.currentDay,
+        timeMode: state.timeMode,
+    })))
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
     const [selectedDay, setSelectedDay] = useState<number>(initialDay)
     const [error, setError] = useState<string | null>(null)
@@ -67,7 +76,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 top-16 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 top-16 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}

@@ -13,7 +13,7 @@ export function WeekProcessingOverlay() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-overlay flex items-center justify-center bg-black/60 backdrop-blur-sm"
       role="alert"
       aria-live="assertive"
       aria-label="Processing week advancement"

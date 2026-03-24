@@ -69,7 +69,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/85 backdrop-blur-md"
             >
                 {/* Animated background glow */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">

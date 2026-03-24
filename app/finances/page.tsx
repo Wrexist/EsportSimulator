@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -63,7 +64,17 @@ const HEALTH_SPONSOR_WEIGHT = 8.33
 
 export default function FinancesPage() {
   const router = useRouter()
-  const { teams, playerTeamId, signSponsor, currentWeek, players, staff, contracts, completedMatches, tournaments } = useGameStore()
+  const { teams, playerTeamId, signSponsor, currentWeek, players, staff, contracts, completedMatches, tournaments } = useGameStore(useShallow(state => ({
+    teams: state.teams,
+    playerTeamId: state.playerTeamId,
+    signSponsor: state.signSponsor,
+    currentWeek: state.currentWeek,
+    players: state.players,
+    staff: state.staff,
+    contracts: state.contracts,
+    completedMatches: state.completedMatches,
+    tournaments: state.tournaments,
+  })))
   const playerTeam = teams.find(t => t.id === playerTeamId)
 
   if (!playerTeam) {

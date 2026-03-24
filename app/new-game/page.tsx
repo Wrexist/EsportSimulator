@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -86,7 +87,9 @@ type OnboardingStep = "welcome" | "team-select"
 
 export default function TeamSelectionPage() {
     const router = useRouter()
-    const { initializeNewGame } = useGameStore()
+    const { initializeNewGame } = useGameStore(useShallow(state => ({
+        initializeNewGame: state.initializeNewGame,
+    })))
 
     // Onboarding state
     const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome")

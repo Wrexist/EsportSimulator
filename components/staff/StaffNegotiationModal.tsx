@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
@@ -54,7 +55,16 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 }
 
 export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = false }: StaffNegotiationModalProps) {
-    const { teams, playerTeamId, marketStaff, staff: activeStaff, hireStaff, renewStaffContract, currentWeek, saveId } = useGameStore()
+    const { teams, playerTeamId, marketStaff, staff: activeStaff, hireStaff, renewStaffContract, currentWeek, saveId } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        marketStaff: state.marketStaff,
+        staff: state.staff,
+        hireStaff: state.hireStaff,
+        renewStaffContract: state.renewStaffContract,
+        currentWeek: state.currentWeek,
+        saveId: state.saveId,
+    })))
 
     // Find staff member in Market OR Active Staff (for renewals)
     const staffMember = isRenewal
@@ -151,7 +161,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
 
     return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}

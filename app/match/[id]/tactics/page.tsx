@@ -460,7 +460,7 @@ export default function TacticalHQPage() {
 
                         <div className="relative overflow-hidden rounded-2xl group border border-white/5 bg-[#0a0a0a]">
                             {!isVodUnlocked && (
-                                <div className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                                     <div className="bg-black/90 px-8 py-6 rounded-3xl border border-white/10 text-center shadow-2xl transform scale-100">
                                         <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
                                             <Lock size={24} className="text-white/40" />

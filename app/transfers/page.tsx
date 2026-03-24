@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -29,7 +30,13 @@ import { toast } from "sonner"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 
 export default function TransfersPage() {
-  const { players, teams, getPlayerTeam, transferPlayer, currentWeek } = useGameStore()
+  const { players, teams, getPlayerTeam, transferPlayer, currentWeek } = useGameStore(useShallow(state => ({
+    players: state.players,
+    teams: state.teams,
+    getPlayerTeam: state.getPlayerTeam,
+    transferPlayer: state.transferPlayer,
+    currentWeek: state.currentWeek,
+  })))
   const playerTeam = getPlayerTeam()
   const [searchTerm, setSearchTerm] = useState("")
   const debouncedSearch = useDebounce(searchTerm, 300)

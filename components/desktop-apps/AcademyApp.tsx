@@ -404,7 +404,7 @@ export function AcademyApp() {
             {/* Release Confirmation Modal */}
             <AnimatePresence>
                 {confirmingReleaseId && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4">
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
@@ -886,7 +886,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
             {/* ... overlay remains same ... */}
             <AnimatePresence>
                 {showMatchFlow && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/90 z-[100] flex items-center justify-center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center">
                         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center">
                             {!matchResult ? (
                                 <><Gamepad2 size={56} className="mx-auto mb-3 text-cyan-400 animate-pulse" /><div className="text-xl font-bold">Match in Progress...</div></>

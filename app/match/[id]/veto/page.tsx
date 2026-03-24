@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, use } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { startOfToday } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -54,7 +55,15 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
     const params = useParams()
     const id = params.id as string
     const router = useRouter()
-    const { scheduledMatches, getUpcomingMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore()
+    const { scheduledMatches, getUpcomingMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
+        scheduledMatches: state.scheduledMatches,
+        getUpcomingMatches: state.getUpcomingMatches,
+        teams: state.teams,
+        players: state.players,
+        updateScheduledMatch: state.updateScheduledMatch,
+        playerTeamId: state.playerTeamId,
+        completedMatches: state.completedMatches,
+    })))
 
     // State
     const [match, setMatch] = useState<MatchSaveData | undefined>(undefined)
@@ -605,7 +614,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-2xl p-6"
+                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-6"
                     >
                         <div className="max-w-2xl w-full text-center">
                             <motion.div

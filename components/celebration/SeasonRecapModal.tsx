@@ -33,12 +33,12 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 top-16 z-[100] flex items-center justify-center p-4 md:p-8">
+            <div className="fixed inset-0 top-16 z-modal flex items-center justify-center p-4 md:p-8">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                    className="absolute inset-0 bg-black/85 backdrop-blur-md"
                     onClick={onClose}
                 />
 

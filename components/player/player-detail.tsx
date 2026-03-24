@@ -37,6 +37,7 @@ import {
     Cpu
 } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { TalentTree } from "../staff/TalentTree"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -61,7 +62,19 @@ interface PlayerDetailProps {
 }
 
 export function PlayerDetail({ player }: PlayerDetailProps) {
-    const { contracts, listPlayerForTransfer, unlistPlayerForTransfer, getPlayerTeam, startRoleTraining, cancelRoleTraining, teams, playerTeamId, currentWeek, unlockPlayerTalent, fplData } = useGameStore()
+    const { contracts, listPlayerForTransfer, unlistPlayerForTransfer, getPlayerTeam, startRoleTraining, cancelRoleTraining, teams, playerTeamId, currentWeek, unlockPlayerTalent, fplData } = useGameStore(useShallow(state => ({
+        contracts: state.contracts,
+        listPlayerForTransfer: state.listPlayerForTransfer,
+        unlistPlayerForTransfer: state.unlistPlayerForTransfer,
+        getPlayerTeam: state.getPlayerTeam,
+        startRoleTraining: state.startRoleTraining,
+        cancelRoleTraining: state.cancelRoleTraining,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        unlockPlayerTalent: state.unlockPlayerTalent,
+        fplData: state.fplData,
+    })))
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
     const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [weaponModalOpen, setWeaponModalOpen] = useState(false)

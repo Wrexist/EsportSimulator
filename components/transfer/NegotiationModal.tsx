@@ -5,6 +5,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Player, Team } from "@/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
@@ -57,7 +58,15 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
     const router = useRouter()
-    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId } = useGameStore()
+    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId } = useGameStore(useShallow(state => ({
+        players: state.players,
+        teams: state.teams,
+        contracts: state.contracts,
+        playerTeamId: state.playerTeamId,
+        transferPlayer: state.transferPlayer,
+        currentWeek: state.currentWeek,
+        saveId: state.saveId,
+    })))
 
     // Derived Data
     const playerSave = players.find(p => p.id === playerId)
@@ -244,7 +253,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
     return (
         <AnimatePresence>
-            <div className={cn("fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md", className)}>
+            <div className={cn("fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md", className)}>
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}

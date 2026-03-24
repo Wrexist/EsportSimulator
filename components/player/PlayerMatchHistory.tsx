@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Trophy, Swords, ChevronRight, Calendar } from "lucide-react"
@@ -15,7 +16,12 @@ interface PlayerMatchHistoryProps {
 }
 
 export function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryProps) {
-    const { completedMatches, teams, getDateForWeek, players } = useGameStore()
+    const { completedMatches, teams, getDateForWeek, players } = useGameStore(useShallow(state => ({
+        completedMatches: state.completedMatches,
+        teams: state.teams,
+        getDateForWeek: state.getDateForWeek,
+        players: state.players,
+    })))
 
     // Find all matches where player participated
     const playerMatches = completedMatches

@@ -99,7 +99,7 @@ export function DevTools() {
             {/* Trigger Button — positioned left of BugReportButton */}
             <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-20 z-[1000] group"
+                className="fixed bottom-6 right-20 z-devtools group"
                 title="Dev Tools (F9)"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -127,7 +127,7 @@ export function DevTools() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-20 right-6 z-[1001] w-[480px] max-h-[75vh] bg-black/95 border border-red-500/20 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl flex flex-col"
+                        className="fixed bottom-20 right-6 z-devtools w-[480px] max-h-[75vh] bg-black/95 border border-red-500/20 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl flex flex-col"
                     >
                         {/* Header */}
                         <div className="px-4 py-3 bg-gradient-to-r from-red-950/50 to-black border-b border-red-500/20 flex justify-between items-center shrink-0">
