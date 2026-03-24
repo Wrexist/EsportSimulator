@@ -141,30 +141,43 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   if (dueMatches.length === 0) return
 
   const completedIds = new Set<string>()
-  const mapStaff = (staffRows: StaffSaveData[]) => ({
-    coach: staffRows.find(s => s.role === "coach"),
-    analyst: staffRows.find(s => s.role === "analyst"),
-    psychologist: staffRows.find(s => s.role === "psychologist"),
-  })
+  // Use entity indexes for O(1) lookups (fall back to linear scan if not built yet)
+  const teamIdx = state._teamIndex?.size ? state._teamIndex : undefined
+  const playerIdx = state._playerIndex?.size ? state._playerIndex : undefined
+  const staffIdx = state._staffIndex?.size ? state._staffIndex : undefined
+
+  const findTeam = (id: string) => teamIdx ? teamIdx.get(id) : state.teams.find(t => t.id === id)
+  const findPlayer = (id: string) => playerIdx ? playerIdx.get(id) : state.players.find(p => p.id === id)
+
+  const mapStaff = (staffIds: string[]) => {
+    const rows = staffIdx
+      ? staffIds.map(id => staffIdx.get(id)).filter(Boolean) as StaffSaveData[]
+      : state.staff.filter(s => staffIds.includes(s.id))
+    return {
+      coach: rows.find(s => s.role === "coach"),
+      analyst: rows.find(s => s.role === "analyst"),
+      psychologist: rows.find(s => s.role === "psychologist"),
+    }
+  }
 
   for (const match of dueMatches) {
-    const homeTeam = state.teams.find(team => team.id === match.homeTeamId)
-    const awayTeam = state.teams.find(team => team.id === match.awayTeamId)
+    const homeTeam = findTeam(match.homeTeamId)
+    const awayTeam = findTeam(match.awayTeamId)
     if (!homeTeam || !awayTeam) continue
 
     const homePlayers = homeTeam.rosterIds
-      .map(playerId => state.players.find(player => player.id === playerId))
+      .map(playerId => findPlayer(playerId))
       .filter(Boolean)
       .slice(0, 5) as Player[]
     const awayPlayers = awayTeam.rosterIds
-      .map(playerId => state.players.find(player => player.id === playerId))
+      .map(playerId => findPlayer(playerId))
       .filter(Boolean)
       .slice(0, 5) as Player[]
 
     if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
-    const homeStaff = state.staff.filter(staff => homeTeam.staffIds.includes(staff.id))
-    const awayStaff = state.staff.filter(staff => awayTeam.staffIds.includes(staff.id))
+    const homeStaff = mapStaff(homeTeam.staffIds)
+    const awayStaff = mapStaff(awayTeam.staffIds)
 
     const fallbackSeed = computeFallbackMatchSeed(
       match.id,
@@ -185,8 +198,8 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
       awayTeam as unknown as Team,
       homePlayers,
       awayPlayers,
-      mapStaff(homeStaff) as any,
-      mapStaff(awayStaff) as any
+      homeStaff as any,
+      awayStaff as any
     )
 
     const completedMatch: CompletedMatchSaveData = {
