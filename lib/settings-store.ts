@@ -125,12 +125,11 @@ export const useSettingsStore = create<GameSettings>()(
                             const [width, height] = resolution.split('x').map(Number)
                             document.documentElement.style.setProperty('--game-width', `${width}px`)
                             document.documentElement.style.setProperty('--game-height', `${height}px`)
-                            console.log(`[Settings] Resolution set to ${width}x${height} (simulated in browser)`)
+                            // Resolution set logged via debug in dev mode only
                         }
                     }
 
-                    // Log the change
-                    console.log(`[Settings] Window mode: ${windowMode}, Resolution: ${resolution}`)
+                    // Settings change applied
                 }
             }
         }),

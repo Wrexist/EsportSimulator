@@ -86,7 +86,7 @@ export class SteamService {
             this.electronBridge = (window as any).electron?.steam
 
             if (this.electronBridge) {
-                console.log("[Steam] Connected to Electron Steamworks bridge")
+                debug.log("[Steam] Connected to Electron Steamworks bridge")
                 this.isInitialized = true
 
                 if (onUnlock) {
@@ -209,7 +209,7 @@ export class SteamService {
             }
             this.unlockedAchievements.add(achievementId)
             this.persistCachedAchievements()
-            console.log(`[Steam] Achievement Unlocked: ${achievement.name}`)
+            debug.log(`[Steam] Achievement Unlocked: ${achievement.name}`)
 
             if (this.onUnlockCallback) {
                 this.onUnlockCallback({ ...achievement, unlocked: true, unlockedAt: new Date() })

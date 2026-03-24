@@ -94,21 +94,6 @@ export function DevTools() {
     const targetPlayerId = selectedPlayerId || rosterPlayers[0]?.id
     const targetPlayer = store.players.find(p => p.id === targetPlayerId)
 
-    const actionBtn = (label: string, onClick: () => void, color: string, icon?: React.ReactNode) => (
-        <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-                onClick()
-                store.addToast({ message: label, type: "info" })
-            }}
-            className={`font-mono text-[11px] border-${color}-500/20 hover:bg-${color}-500/20 justify-start text-${color}-400 h-8`}
-        >
-            {icon && <span className="mr-1.5 shrink-0">{icon}</span>}
-            {label}
-        </Button>
-    )
-
     return (
         <>
             {/* Trigger Button — positioned left of BugReportButton */}
