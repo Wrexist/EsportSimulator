@@ -60,6 +60,7 @@ export interface Match {
 
     // Phase 20: Tactical Perfection
     isHighPressure?: boolean // Finals/Semi-finals
+    mentalPrep?: boolean // Mental preparation bonus for the home team
 }
 
 /**

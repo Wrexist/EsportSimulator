@@ -33,7 +33,7 @@ export function initializeFPL(players: PlayerSaveData[], currentWeek: number): F
         .forEach(player => {
             // Use initial FPL ELO if provided (non-pro players), otherwise calculate from skill
             const skillBonus = ((player.skill || 50) - 50) * 34
-            const baseElo = (player as any).initialFplElo ?? (FPL_CONSTANTS.BASE_ELO + skillBonus)
+            const baseElo = (player as typeof player & { initialFplElo?: number }).initialFplElo ?? (FPL_CONSTANTS.BASE_ELO + skillBonus)
 
             playerStats[player.id] = {
                 playerId: player.id,

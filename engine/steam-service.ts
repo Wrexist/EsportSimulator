@@ -57,6 +57,12 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlocked' | 'unlock
     REDEMPTION: { id: "REDEMPTION", name: "Redemption Arc", description: "Win a Major the year after losing one", icon: "refresh", hidden: true },
 }
 
+type ElectronWindow = typeof window & {
+    electron?: {
+        steam?: unknown
+    }
+}
+
 export class SteamService {
     private static instance: SteamService
     private unlockedAchievements: Set<string> = new Set()
@@ -83,7 +89,7 @@ export class SteamService {
 
         if (typeof window !== "undefined") {
             // Access the bridge exposed in preload.js
-            this.electronBridge = (window as any).electron?.steam
+            this.electronBridge = (window as ElectronWindow).electron?.steam
 
             if (this.electronBridge) {
                 debug.log("[Steam] Connected to Electron Steamworks bridge")

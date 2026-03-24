@@ -392,7 +392,7 @@ export class DataGenerator {
       age: 28 + Math.floor(this.rng.next() * 15),
       nationality: this.nationalities[Math.floor(this.rng.next() * this.nationalities.length)],
       level,
-      specialization: ["tactical", "mental", "individual"][Math.floor(this.rng.next() * 3)] as any,
+      specialization: (["tactical", "mental", "individual"] as const)[Math.floor(this.rng.next() * 3)],
       salary: level * 1500 + Math.floor(this.rng.next() * 5000),
       contract: {
         yearsRemaining: 1 + Math.floor(this.rng.next() * 3),

@@ -54,9 +54,9 @@ export class MatchAnalyzer {
         const aimRating = Math.min(99, Math.round(winnerStats.avgRating * 50 + kd * 15))
 
         // Utility: derive from assists and KAST (teams with high KAST use utility well)
-        const allStats = Object.values(result.playerStats) as any[]
-        const avgKast = allStats.length > 0 ? allStats.reduce((s: number, p: any) => s + (p.kast || 70), 0) / allStats.length : 70
-        const avgAssists = allStats.length > 0 ? allStats.reduce((s: number, p: any) => s + (p.assists || 0), 0) / allStats.length : 2
+        const allStats = Object.values(result.playerStats)
+        const avgKast = allStats.length > 0 ? allStats.reduce((s, p) => s + (p.kast || 70), 0) / allStats.length : 70
+        const avgAssists = allStats.length > 0 ? allStats.reduce((s, p) => s + (p.assists || 0), 0) / allStats.length : 2
         const utilityRating = Math.min(99, Math.round(avgKast * 0.7 + avgAssists * 5))
 
         // Trading: trade count relative to total rounds played
@@ -122,7 +122,7 @@ export class MatchAnalyzer {
         function processPistol(round: RoundResult) {
             // round.winner is "ct" or "t"
             // We use team IDs stored in round to verify
-            const r = round as any
+            const r = round as RoundResult & { ctTeam?: string; ctTeamId?: string; tTeam?: string; tTeamId?: string }
             const winnerId = r.winner === "ct" ? (r.ctTeam || r.ctTeamId) : (r.tTeam || r.tTeamId)
 
             if (winnerId === match.homeTeamId) homePistolsWon++

@@ -233,7 +233,13 @@ export class JobOfferGenerator {
             return { success: false, message: "Offer not found" }
         }
 
-        const data = event.data as any
+        const data = event.data as {
+            deadlineWeek: number
+            negotiationPatience: number
+            negotiationAttempts: number
+            salaryOffer: number
+            offeringTeamId: string
+        }
 
         // Check if offer is still valid
         if (save.currentWeek > data.deadlineWeek) {
@@ -305,7 +311,7 @@ export class JobOfferGenerator {
             return { success: false, message: "Job offer not found" }
         }
 
-        const offerData = event.data as any
+        const offerData = event.data as { offeringTeamId: string; deadlineWeek: number }
         const newTeam = save.teams.find(t => t.id === offerData.offeringTeamId)
         if (!newTeam) {
             return { success: false, message: "Team no longer exists" }
@@ -331,7 +337,7 @@ export class JobOfferGenerator {
         const transitionEvent = {
             id: `job_transition_${save.currentWeek}_${newTeam.id}`,
             week: save.currentWeek,
-            type: "MEDIA" as any,
+            type: "MEDIA",
             data: {
                 type: EventType.MEDIA,
                 subject: `Manager moves to ${newTeam.name}!`,
@@ -358,7 +364,7 @@ export class JobOfferGenerator {
             return { success: false, message: "Job offer not found" }
         }
 
-        const offerData = event.data as any
+        const offerData = event.data as { offeringTeamName: string }
 
         // Mark as declined
         event.acknowledged = true

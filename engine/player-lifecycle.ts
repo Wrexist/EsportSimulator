@@ -5,6 +5,25 @@ import { GameSave, PlayerSaveData } from "./save-types"
 import { SeededRNG, generateSeed } from "./rng"
 
 /**
+ * Subset of player fields used by processWeeklyUpdates and its internal helpers.
+ * Both Player and PlayerSaveData satisfy this interface.
+ */
+interface PlayerLike {
+    age: number
+    fatigue: number
+    energy: number
+    maxEnergy: number
+    morale: number
+    form: number
+    hltvHistory?: { year: number; rank: number }[]
+    prestigeScore?: number
+    reaction: number
+    skill: number
+    rifle: number
+    clutch: number
+}
+
+/**
  * Manages player progression, aging, and psychological state
  */
 export class PlayerLifecycleManager {
@@ -25,7 +44,7 @@ export class PlayerLifecycleManager {
      * @param week Current game week
      * @param recoveryBonus Phase 18: Bonus to recovery from facilities (0-5)
      */
-    static processWeeklyUpdates(player: Player, currentYear: number, week: number, recoveryBonus: number = 0, rng?: SeededRNG): void {
+    static processWeeklyUpdates(player: PlayerLike, currentYear: number, week: number, recoveryBonus: number = 0, rng?: SeededRNG): void {
         this.processAging(player, week, rng)
         this.processPsychology(player, recoveryBonus)
         this.updatePrestige(player, currentYear)
@@ -66,7 +85,7 @@ export class PlayerLifecycleManager {
      * Handles aging mechanics
      * Players > 27 have a chance to lose physical stats each week
      */
-    private static processAging(player: Player, week: number, rng?: SeededRNG): void {
+    private static processAging(player: PlayerLike, week: number, rng?: SeededRNG): void {
         if (player.age <= 27) return
 
         // Chance increases with age, capped to prevent instant stat destruction
@@ -80,15 +99,13 @@ export class PlayerLifecycleManager {
         }
     }
 
-    private static applyAgingDecline(player: Player, rng?: SeededRNG): void {
+    private static applyAgingDecline(player: PlayerLike, rng?: SeededRNG): void {
         // Physical stats decline first
-        const physicalStats: (keyof Player)[] = ['reaction', 'skill', 'rifle', 'clutch']
+        const physicalStats: (keyof PlayerLike)[] = ['reaction', 'skill', 'rifle', 'clutch']
         const targetStat = physicalStats[Math.floor(this.roll(rng) * physicalStats.length)]
 
-        // @ts-ignore - dynamic access
-        if (typeof player[targetStat] === 'number' && player[targetStat] > 10) {
-            // @ts-ignore
-            player[targetStat] = Math.max(10, player[targetStat] - 1)
+        if (typeof player[targetStat] === 'number' && (player[targetStat] as number) > 10) {
+            (player as Record<string, unknown>)[targetStat as string] = Math.max(10, (player[targetStat] as number) - 1)
         }
     }
 
@@ -96,7 +113,7 @@ export class PlayerLifecycleManager {
      * Drifts morale and fatigue towards baseline
      * @param recoveryBonus Phase 18 bonus (level 1-5)
      */
-    private static processPsychology(player: Player, recoveryBonus: number = 0): void {
+    private static processPsychology(player: PlayerLike, recoveryBonus: number = 0): void {
         // Recover fatigue — base 8 ensures players don't spiral even without facilities
         // (matches add +10 per match, so base 8 keeps net gain manageable at +2)
         const fatigueRecovery = 8 + recoveryBonus
@@ -128,7 +145,7 @@ export class PlayerLifecycleManager {
     /**
      * Updates the cached HLTV Prestige Score
      */
-    private static updatePrestige(player: Player, currentYear: number): void {
+    private static updatePrestige(player: PlayerLike, currentYear: number): void {
         if (player.hltvHistory && player.hltvHistory.length > 0) {
             player.prestigeScore = calculateHltvPrestigeScore(player.hltvHistory, currentYear)
         }
