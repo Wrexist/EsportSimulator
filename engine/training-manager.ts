@@ -239,8 +239,8 @@ export class TrainingManager {
     player.secondaryRole = oldPrimary
 
     // Calculate coach bonus (coach development stat / 500, so 80 dev = +0.16 multiplier)
-    const staff = (game as any).staff || []
-    const coach = staff.find((s: any) => s.teamId === team.id && s.role === "coach")
+    const staff = game.staff || []
+    const coach = staff.find(s => s.teamId === team.id && s.role === "coach")
     const coachBonus = coach ? (coach.stats?.development || 50) / 500 : 0
 
     // Apply Stat Boosts based on new role (with coach bonus)

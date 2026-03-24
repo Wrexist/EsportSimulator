@@ -384,7 +384,7 @@ export class WeaponMasteryManager {
         const value = player.weaponMastery?.[weapon]
         if (value === undefined || value === null) return 0
         if (typeof value === 'number') return value
-        if (typeof value === 'object' && 'xp' in value) return (value as any).xp || 0
+        if (typeof value === 'object' && 'xp' in value) return (value as { xp: number }).xp || 0
         return 0
     }
 }

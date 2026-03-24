@@ -185,7 +185,7 @@ export class AIManager {
 
         const targetRole = availableRoles[Math.floor(this.roll(rng) * availableRoles.length)]
 
-        TrainingManager.startRoleTraining(save, team.id, target.id, targetRole as any)
+        TrainingManager.startRoleTraining(save, team.id, target.id, targetRole)
     }
 
     // === ACTIONS ===
@@ -363,9 +363,9 @@ export class AIManager {
             userPlayersForSale.forEach(player => {
                 if (offersMade >= this.MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK) return
 
-                const existingOffer = save.eventsLog.some((e: any) =>
+                const existingOffer = save.eventsLog.some(e =>
                     e.week === save.currentWeek &&
-                    e.type === ("TRANSFER_OFFER" as any) &&
+                    e.type === "TRANSFER_OFFER" &&
                     !e.selectedChoiceId &&
                     e.data?.teamId === aiTeam.id &&
                     e.data?.playerId === player.id

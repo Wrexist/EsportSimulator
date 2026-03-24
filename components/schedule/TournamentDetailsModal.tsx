@@ -16,6 +16,7 @@ import {
 } from "@/data/tournament-calendar"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import { TournamentStandings } from "@/components/tournament/TournamentStandings"
 import { TournamentBracket } from "@/components/tournament/TournamentBracket"
@@ -34,7 +35,17 @@ export function TournamentDetailsModal({
     tournament,
     status
 }: TournamentDetailsModalProps) {
-    const { tournaments, scheduledMatches, completedMatches, teams, playerTeamId, currentWeek, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore()
+    const { tournaments, scheduledMatches, completedMatches, teams, playerTeamId, currentWeek, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore(useShallow(state => ({
+        tournaments: state.tournaments,
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        tournamentQualifications: state.tournamentQualifications,
+        registerForTournament: state.registerForTournament,
+        activeMatchId: state.activeMatchId,
+    })))
     const [activeTab, setActiveTab] = useState<"overview" | "matches" | "standings" | "bracket">("standings")
 
     if (!tournament) return null
@@ -79,7 +90,7 @@ export function TournamentDetailsModal({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 top-16 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+                        className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4"
                     />
 
                     {/* Modal Content */}
@@ -87,8 +98,11 @@ export function TournamentDetailsModal({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title-tournament-details"
                         className={cn(
-                            "fixed z-[100] w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]",
+                            "fixed z-modal w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]",
                             activeTab === "bracket" ? "max-w-[90vw]" : "max-w-2xl"
                         )}
                     >
@@ -116,7 +130,7 @@ export function TournamentDetailsModal({
                                             {getEntryTypeLabel(tournament.entryType)}
                                         </div>
                                     </div>
-                                    <h2 className="text-3xl font-normal text-white tracking-tighter uppercase flex items-center gap-2">
+                                    <h2 id="modal-title-tournament-details" className="text-3xl font-normal text-white tracking-tighter uppercase flex items-center gap-2">
                                         {getDynamicTournamentName(tournament.name, currentWeek)}
                                     </h2>
                                 </div>

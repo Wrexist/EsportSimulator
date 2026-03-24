@@ -83,7 +83,7 @@ export class FinanceProcessor {
 
             // Generate budget warning events for player team
             if (team.id === playerTeamId) {
-                const prevState = (team as any)._prevFinancialState
+                const prevState = team._prevFinancialState
                 if (report.state !== "STABLE" && report.state !== prevState) {
                     const runway = Math.round(report.runwayWeeks);
                     const messages: Record<string, { desc: string; importance: string }> = {
@@ -103,7 +103,7 @@ export class FinanceProcessor {
                         })
                     }
                 }
-                ; (team as any)._prevFinancialState = report.state
+                team._prevFinancialState = report.state
             }
 
             if (team.id === playerTeamId) {
@@ -191,7 +191,7 @@ export class FinanceProcessor {
                             likes: rng.int(10, 209) + (isProfit ? 50 : 0),
                             views: rng.int(500, 2499)
                         }
-                    } as any)
+                    })
                     if (save.newsFeed.length > 50) save.newsFeed.pop()
                 }
             }

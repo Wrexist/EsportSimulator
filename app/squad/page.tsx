@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -23,7 +24,26 @@ import { SystemBonuses } from "@/components/squad/SystemBonuses"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export default function SquadPage() {
-  const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore()
+  const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
+    getPlayerTeam: state.getPlayerTeam,
+    players: state.players,
+    teams: state.teams,
+    playerTeamId: state.playerTeamId,
+    academyPlayers: state.academyPlayers,
+    setPlaystyle: state.setPlaystyle,
+    setEconomyStyle: state.setEconomyStyle,
+    setTargetPlayer: state.setTargetPlayer,
+    getUpcomingMatches: state.getUpcomingMatches,
+    performVODReview: state.performVODReview,
+    promotePlayer: state.promotePlayer,
+    swapRosterPositions: state.swapRosterPositions,
+    startRoleTraining: state.startRoleTraining,
+    contracts: state.contracts,
+    currentWeek: state.currentWeek,
+    treatInjury: state.treatInjury,
+    promoteProspect: state.promoteProspect,
+    addToast: state.addToast,
+  })))
   const teamData = teams.find(t => t.id === playerTeamId)
 
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
@@ -561,7 +581,7 @@ export default function SquadPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 top-16 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}

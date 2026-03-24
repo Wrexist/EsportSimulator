@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -8,7 +9,14 @@ import { Button } from "@/components/ui/button"
 import { AlertCircle, Lock } from "lucide-react"
 
 export function MatchNavigationGuard() {
-    const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore()
+    const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore(useShallow(state => ({
+        activeMatchId: state.activeMatchId,
+        setActiveMatch: state.setActiveMatch,
+        completedMatches: state.completedMatches,
+        scheduledMatches: state.scheduledMatches,
+        currentWeek: state.currentWeek,
+        isInitialized: state.isInitialized,
+    })))
     const pathname = usePathname()
     const router = useRouter()
     const [showBlocker, setShowBlocker] = useState(false)
@@ -97,7 +105,7 @@ export function MatchNavigationGuard() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+                    className="fixed inset-0 top-16 z-modal bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}

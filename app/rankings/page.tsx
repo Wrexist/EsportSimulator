@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import Image from "next/image"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import {
@@ -40,7 +41,15 @@ import { LeagueEngine, LEAGUE_TIERS, TIER_DISPLAY, LeagueTier } from "@/engine/l
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 
 export default function RankingsPage() {
-    const { teams, playerTeamId, players, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore()
+    const { teams, playerTeamId, players, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        players: state.players,
+        currentWeek: state.currentWeek,
+        isPlayerScouted: state.isPlayerScouted,
+        completedMatches: state.completedMatches,
+        circuitPoints: state.circuitPoints,
+    })))
     const [searchTerm, setSearchTerm] = useState("")
     const debouncedSearch = useDebounce(searchTerm, 300)
     const [selectedTier, setSelectedTier] = useState<TierLevel | "ALL">("ALL")

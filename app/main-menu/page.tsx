@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { SaveSlotMetadata } from "@/engine"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus, Play, Trash2, Calendar, Trophy, TrendingUp, ChevronRight, Gamepad2, Users, Target, Settings, Zap } from "lucide-react"
@@ -28,7 +29,12 @@ import Link from "next/link"
 
 export default function MainMenuPage() {
     const router = useRouter()
-    const { listSaves, switchSave, deleteSaveInSlot, isLoading } = useGameStore()
+    const { listSaves, switchSave, deleteSaveInSlot, isLoading } = useGameStore(useShallow(state => ({
+        listSaves: state.listSaves,
+        switchSave: state.switchSave,
+        deleteSaveInSlot: state.deleteSaveInSlot,
+        isLoading: state.isLoading,
+    })))
 
     const [saves, setSaves] = useState<SaveSlotMetadata[]>([])
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null)

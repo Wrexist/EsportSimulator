@@ -83,7 +83,7 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
 
         // Assign the specialty as primary role (not secondary)
         const specId = bestGlobalCandidate.specId
-        const player = (bestGlobalCandidate as any).player as PlayerSaveData
+        const player = bestGlobalCandidate.player
         player.role = specId
         assignedPlayerIds.add(player.id)
 

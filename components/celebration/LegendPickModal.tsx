@@ -69,7 +69,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/85 backdrop-blur-md"
             >
                 {/* Animated background glow */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -81,6 +81,9 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                     initial={{ scale: 0.8, opacity: 0, y: 40 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-legend-pick"
                     className="relative z-10 w-full max-w-5xl mx-4"
                 >
                     {/* Header */}
@@ -97,7 +100,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             </h1>
                             <Trophy className="text-amber-400" size={28} />
                         </div>
-                        <h2 className="text-4xl font-bold text-white uppercase tracking-tight">
+                        <h2 id="modal-title-legend-pick" className="text-4xl font-bold text-white uppercase tracking-tight">
                             Choose Your Legend
                         </h2>
                         <p className="text-white/40 mt-2 text-sm">

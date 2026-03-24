@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
 import type { TournamentSaveData } from "@/engine/save-types"
 
@@ -151,7 +152,18 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
 export default function TournamentDetailPage() {
     const { id } = useParams()
     const router = useRouter()
-    const { tournaments, teams, players, currentWeek, scheduledMatches, completedMatches, playerTeamId, tournamentQualifications, circuitPoints, registerForTournament } = useGameStore()
+    const { tournaments, teams, players, currentWeek, scheduledMatches, completedMatches, playerTeamId, tournamentQualifications, circuitPoints, registerForTournament } = useGameStore(useShallow(state => ({
+        tournaments: state.tournaments,
+        teams: state.teams,
+        players: state.players,
+        currentWeek: state.currentWeek,
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+        playerTeamId: state.playerTeamId,
+        tournamentQualifications: state.tournamentQualifications,
+        circuitPoints: state.circuitPoints,
+        registerForTournament: state.registerForTournament,
+    })))
 
     const tournament = useMemo(() => tournaments.find(t => t.id === id), [tournaments, id])
 
@@ -1696,7 +1708,13 @@ function MatchCardComponent({
     vertical?: boolean,
     className?: string
 }) {
-    const { scheduledMatches, completedMatches, teams, players, playerTeamId } = useGameStore()
+    const { scheduledMatches, completedMatches, teams, players, playerTeamId } = useGameStore(useShallow(state => ({
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+        teams: state.teams,
+        players: state.players,
+        playerTeamId: state.playerTeamId,
+    })))
 
     const matchData = useMemo(() => {
         return (

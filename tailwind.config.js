@@ -68,6 +68,17 @@ module.exports = {
             fontFamily: {
                 sans: ["var(--font-archivo)", "ui-sans-serif", "system-ui", "sans-serif"],
             },
+            zIndex: {
+                dropdown: "50",
+                "modal-backdrop": "100",
+                modal: "110",
+                celebration: "200",
+                sheet: "300",
+                dialog: "400",
+                devtools: "900",
+                toast: "950",
+                overlay: "1000",
+            },
         },
     },
     plugins: [require("tailwindcss-animate")],

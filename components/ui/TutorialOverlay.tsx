@@ -246,12 +246,12 @@ export function TutorialOverlay() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
                     className={cn(
-                        "fixed inset-0 z-[200] flex items-center justify-center",
+                        "fixed inset-0 z-celebration flex items-center justify-center",
                         isExiting && "pointer-events-none"
                     )}
                 >
                     {/* Backdrop */}
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+                    <div className="absolute inset-0 bg-black/85 backdrop-blur-md" />
 
                     {/* Tutorial Card */}
                     <motion.div

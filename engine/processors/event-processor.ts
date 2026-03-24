@@ -137,7 +137,7 @@ export class EventProcessor {
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
                         id: eventId,
-                        type: "win_streak" as any, // Custom type string
+                        type: "win_streak",
                         week: save.currentWeek,
                         data: { streak: winStreak, teamId: playerTeamId },
                         acknowledged: false,
@@ -156,7 +156,7 @@ export class EventProcessor {
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
                         id: eventId,
-                        type: "loss_streak" as any,
+                        type: "loss_streak",
                         week: save.currentWeek,
                         data: { streak: lossStreak, teamId: playerTeamId },
                         acknowledged: false,

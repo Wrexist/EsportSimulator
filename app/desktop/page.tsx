@@ -1156,7 +1156,7 @@ function DesktopContent() {
       <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEventId(null)}>
         <DialogContent className={cn(
           "bg-[rgba(10,10,15,0.98)] backdrop-blur-2xl p-0 overflow-hidden rounded-2xl relative",
-          "!fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-[9999]",
+          "!fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-overlay",
           notificationTheme.borderColor,
           "shadow-2xl",
           selectedEvent?.type === "JOB_OFFER" ? "max-w-md" : (

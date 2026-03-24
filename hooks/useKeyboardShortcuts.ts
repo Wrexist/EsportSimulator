@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/game-store'
+import { useShallow } from 'zustand/react/shallow'
 import { toast } from 'sonner'
 import logger from '@/lib/logger'
 
@@ -32,7 +33,12 @@ interface ShortcutConfig {
  */
 export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
     const router = useRouter()
-    const { saveGame, advanceWeek, isLoading, playerTeamId } = useGameStore()
+    const { saveGame, advanceWeek, isLoading, playerTeamId } = useGameStore(useShallow(state => ({
+        saveGame: state.saveGame,
+        advanceWeek: state.advanceWeek,
+        isLoading: state.isLoading,
+        playerTeamId: state.playerTeamId,
+    })))
     const canAdvanceTime = !isLoading && Boolean(playerTeamId)
 
     // Default shortcuts

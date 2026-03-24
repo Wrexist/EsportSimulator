@@ -69,6 +69,8 @@ import {
   normalizeQualificationStatus,
   resolveTournamentIdentity
 } from "@/engine/circuit-engine"
+import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
+import { pruneGameState } from "@/store/utils/array-pruning"
 
 const debugToolsEnabled = () => isDevToolsEnabled()
 
@@ -139,30 +141,43 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   if (dueMatches.length === 0) return
 
   const completedIds = new Set<string>()
-  const mapStaff = (staffRows: StaffSaveData[]) => ({
-    coach: staffRows.find(s => s.role === "coach"),
-    analyst: staffRows.find(s => s.role === "analyst"),
-    psychologist: staffRows.find(s => s.role === "psychologist"),
-  })
+  // Use entity indexes for O(1) lookups (fall back to linear scan if not built yet)
+  const teamIdx = state._teamIndex?.size ? state._teamIndex : undefined
+  const playerIdx = state._playerIndex?.size ? state._playerIndex : undefined
+  const staffIdx = state._staffIndex?.size ? state._staffIndex : undefined
+
+  const findTeam = (id: string) => teamIdx ? teamIdx.get(id) : state.teams.find(t => t.id === id)
+  const findPlayer = (id: string) => playerIdx ? playerIdx.get(id) : state.players.find(p => p.id === id)
+
+  const mapStaff = (staffIds: string[]) => {
+    const rows = staffIdx
+      ? staffIds.map(id => staffIdx.get(id)).filter(Boolean) as StaffSaveData[]
+      : state.staff.filter(s => staffIds.includes(s.id))
+    return {
+      coach: rows.find(s => s.role === "coach"),
+      analyst: rows.find(s => s.role === "analyst"),
+      psychologist: rows.find(s => s.role === "psychologist"),
+    }
+  }
 
   for (const match of dueMatches) {
-    const homeTeam = state.teams.find(team => team.id === match.homeTeamId)
-    const awayTeam = state.teams.find(team => team.id === match.awayTeamId)
+    const homeTeam = findTeam(match.homeTeamId)
+    const awayTeam = findTeam(match.awayTeamId)
     if (!homeTeam || !awayTeam) continue
 
     const homePlayers = homeTeam.rosterIds
-      .map(playerId => state.players.find(player => player.id === playerId))
+      .map(playerId => findPlayer(playerId))
       .filter(Boolean)
       .slice(0, 5) as Player[]
     const awayPlayers = awayTeam.rosterIds
-      .map(playerId => state.players.find(player => player.id === playerId))
+      .map(playerId => findPlayer(playerId))
       .filter(Boolean)
       .slice(0, 5) as Player[]
 
     if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
-    const homeStaff = state.staff.filter(staff => homeTeam.staffIds.includes(staff.id))
-    const awayStaff = state.staff.filter(staff => awayTeam.staffIds.includes(staff.id))
+    const homeStaff = mapStaff(homeTeam.staffIds)
+    const awayStaff = mapStaff(awayTeam.staffIds)
 
     const fallbackSeed = computeFallbackMatchSeed(
       match.id,
@@ -183,8 +198,8 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
       awayTeam as unknown as Team,
       homePlayers,
       awayPlayers,
-      mapStaff(homeStaff) as any,
-      mapStaff(awayStaff) as any
+      homeStaff as any,
+      awayStaff as any
     )
 
     const completedMatch: CompletedMatchSaveData = {
@@ -396,6 +411,13 @@ interface GameStoreState {
 
   // Phase 80: FPL System
   fplData?: import("@/types/fpl").FPLSaveData
+
+  // Entity indexes (transient, not persisted, rebuilt on hydration)
+  _teamIndex: Map<string, TeamSaveData>
+  _playerIndex: Map<string, PlayerSaveData>
+  _contractByPlayerIndex: Map<string, ContractSaveData>
+  _staffIndex: Map<string, StaffSaveData>
+  _completedMatchIds: Set<string>
 
   // Phase 75: Game Settings
   resolution: string
@@ -1152,6 +1174,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       isInitialized: false,
       _hasHydrated: false,
 
+      // Entity indexes (transient, rebuilt on hydration and after advanceWeek)
+      _teamIndex: new Map(),
+      _playerIndex: new Map(),
+      _contractByPlayerIndex: new Map(),
+      _staffIndex: new Map(),
+      _completedMatchIds: new Set(),
+
       // Actions
       setHasHydrated: (state) => set({ _hasHydrated: state }),
 
@@ -1683,6 +1712,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             isInitialized: true,
             isLoading: false
           })
+          // Rebuild entity indexes after new game initialization
+          const newState = get()
+          set(buildEntityIndexes(newState.teams, newState.players, newState.contracts, newState.staff, newState.completedMatches))
           get().refreshStaffMarket()
         } catch (err) {
           set({ isLoading: false, error: err instanceof Error ? err.message : "Initialization failed" })
@@ -2024,6 +2056,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             isLoading: false,
           })
 
+          // Rebuild entity indexes after custom team initialization
+          const customState = get()
+          set(buildEntityIndexes(customState.teams, customState.players, customState.contracts, customState.staff, customState.completedMatches))
+
           get().refreshStaffMarket()
         } catch (err) {
           console.error("Failed to create custom team:", err)
@@ -2226,6 +2262,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             isLoading: false
           })
 
+          // Rebuild entity indexes after loading game
+          const loadedState = get()
+          set(buildEntityIndexes(loadedState.teams, loadedState.players, loadedState.contracts, loadedState.staff, loadedState.completedMatches))
+
           // Welcome back toast if player was away for 24+ hours
           const lastPlayed = hydratedSave.lastPlayedAt
           if (lastPlayed) {
@@ -2401,10 +2441,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         // Guard: prevent advancing if the player has an unplayed match this week
+        const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
         const unplayedPlayerMatch = state.playerTeamId ? state.scheduledMatches.find(m =>
           m.week === state.currentWeek &&
           (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-          !state.completedMatches.some(cm => cm.id === m.id)
+          !completedIds.has(m.id)
         ) : null
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
@@ -2416,17 +2457,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         try {
           const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
 
-          // Process Scouting Completion (Fix)
+          // Batched pre-tick mutations: scouting, market rotation, staff XP, player XP
+          // Combined into a single set() to avoid multiple Immer snapshots + persist serializations
           set(draft => {
+            // === Process Scouting Completion ===
             const mission = draft.activeScoutingMission
             if (mission && draft.currentWeek >= mission.completionWeek) {
               const player = draft.players.find(p => p.id === mission.playerId)
-
-              // Clear active mission
               draft.activeScoutingMission = undefined
 
               if (!player) {
-                // Player was removed during scouting (retired/transferred out of league)
                 draft.eventsLog.unshift({
                   id: nextDeterministicId(draft, "evt_scout_failed", mission.playerId),
                   type: "SCOUTING_COMPLETE",
@@ -2439,7 +2479,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   acknowledged: false
                 })
               } else {
-                // Add to scouted list if not present
                 const alreadyScouted = draft.scoutedPlayers.some(sp => sp.playerId === mission.playerId)
                 if (!alreadyScouted) {
                   draft.scoutedPlayers.push({
@@ -2448,8 +2487,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                     scoutLevel: "EXPERT"
                   })
                 }
-
-                // Notify User
                 draft.eventsLog.unshift({
                   id: nextDeterministicId(draft, "evt_scout_complete", mission.playerId),
                   type: "SCOUTING_COMPLETE",
@@ -2464,21 +2501,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 })
               }
             }
-          })
 
-          // Phase 60: Market Rotation (every 4-8 weeks)
-          if (!state.nextMarketRefreshWeek) {
-            set(draft => { draft.nextMarketRefreshWeek = state.currentWeek + 4 })
-          } else if (state.currentWeek >= state.nextMarketRefreshWeek) {
-            set(draft => {
+            // === Market Rotation (every 4-8 weeks) ===
+            if (!draft.nextMarketRefreshWeek) {
+              draft.nextMarketRefreshWeek = state.currentWeek + 4
+            } else if (state.currentWeek >= draft.nextMarketRefreshWeek) {
               const rotated = StaffGenerator.rotateMarket(draft.marketStaff, state.currentWeek, preTickRng)
               draft.marketStaff = rotated
-              draft.nextMarketRefreshWeek = state.currentWeek + 4 + Math.floor(preTickRng.next() * 5) // 4-8 weeks
-            })
-          }
+              draft.nextMarketRefreshWeek = state.currentWeek + 4 + Math.floor(preTickRng.next() * 5)
+            }
 
-          // Phase 60: Staff XP & Level Up
-          set(draft => {
+            // === Staff XP & Level Up ===
             if (draft.staff) {
               draft.staff.forEach(s => {
                 if (s.teamId === state.playerTeamId) {
@@ -2502,15 +2535,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 }
               })
             }
-          })
 
-          // Player XP & Level Up
-          set(draft => {
+            // === Player XP & Level Up ===
             const userTeam = draft.teams.find(t => t.id === state.playerTeamId)
             if (userTeam) {
               draft.players.forEach(p => {
                 if (userTeam.rosterIds.includes(p.id)) {
-                  // Base XP from being in the team
                   const xpGain = 40 + Math.floor(preTickRng.next() * 40)
                   p.xp = (p.xp || 0) + xpGain
 
@@ -2537,7 +2567,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const latestState = get()
 
           // Explicitly construct GameSave from store state (avoid fragile spread)
-          const saveState: GameSave = JSON.parse(JSON.stringify({
+          const saveState: GameSave = structuredClone({
             saveVersion: (latestState as any).saveVersion || CURRENT_SAVE_VERSION,
             saveId: latestState.saveId || `save_recovery_${Date.now()}`,
             saveName: latestState.saveName || "Unknown",
@@ -2585,9 +2615,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             pendingLegendPick: latestState.pendingLegendPick,
             signedLegendIds: latestState.signedLegendIds || [],
             activelyPlayingLegendIds: latestState.activelyPlayingLegendIds || [],
-            gameOverReason: latestState.gameOverReason ?? null,
-            gameOverWeek: latestState.gameOverWeek ?? null,
-          }))
+            gameOverReason: latestState.gameOverReason ?? undefined,
+            gameOverWeek: latestState.gameOverWeek ?? undefined,
+          })
 
           const config = {
             playerTeamId: state.playerTeamId || "",
@@ -2881,12 +2911,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               draft.currentDay = draft.timeMode === "HYBRID_DAILY" ? 0 : 6
               draft.selectedWeeklyActivity = null // Reset selection
 
+              // Prune growing arrays to prevent unbounded memory/save growth
+              pruneGameState(draft)
+
               // Recalculate synergy for all teams (AI transfers may have changed rosters)
               draft.teams.forEach(t => {
                 const roster = draft.players.filter(p => t.rosterIds.includes(p.id))
                 t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
               })
             })
+
+            // Rebuild entity indexes after state update for O(1) lookups
+            const postTickState = get()
+            const newIndexes = buildEntityIndexes(postTickState.teams, postTickState.players, postTickState.contracts, postTickState.staff, postTickState.completedMatches)
+            set(newIndexes)
 
             // Check and unlock achievements based on current state
             const updatedState = get()
@@ -6099,8 +6137,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       storage: createJSONStorage(() => debouncedStorage),
       skipHydration: false,
       partialize: (state) => {
-        // Exclude transient UI state from persistence to prevent stuck states
-        const { isLoading, error, toasts, _hasHydrated, ...rest } = state
+        // Exclude transient UI state and entity indexes from persistence
+        const { isLoading, error, toasts, _hasHydrated, _teamIndex, _playerIndex, _contractByPlayerIndex, _staffIndex, _completedMatchIds, ...rest } = state
         return rest as typeof state
       },
       onRehydrateStorage: () => (state, error) => {
@@ -6110,6 +6148,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // Always mark hydrated — even on error — so the UI doesn't hang forever
         if (state) {
           state.setHasHydrated(true)
+          // Rebuild entity indexes after rehydration for O(1) lookups
+          const s = useGameStore.getState()
+          const indexes = buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches)
+          useGameStore.setState(indexes)
           // Defensive: clear stale isLoading from legacy persisted states
           if (state.isLoading) {
             useGameStore.setState({ isLoading: false, error: null })

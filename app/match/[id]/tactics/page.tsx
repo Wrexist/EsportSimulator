@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
@@ -40,7 +41,22 @@ export default function TacticalHQPage() {
         setPlaystyle,
         setEconomyStyle,
         setTargetPlayer
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        getUpcomingMatches: state.getUpcomingMatches,
+        teams: state.teams,
+        players: state.players,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        tournaments: state.tournaments,
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+        performVODReview: state.performVODReview,
+        performMentalReset: state.performMentalReset,
+        updateScheduledMatch: state.updateScheduledMatch,
+        setPlaystyle: state.setPlaystyle,
+        setEconomyStyle: state.setEconomyStyle,
+        setTargetPlayer: state.setTargetPlayer,
+    })))
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)
@@ -460,7 +476,7 @@ export default function TacticalHQPage() {
 
                         <div className="relative overflow-hidden rounded-2xl group border border-white/5 bg-[#0a0a0a]">
                             {!isVodUnlocked && (
-                                <div className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                                     <div className="bg-black/90 px-8 py-6 rounded-3xl border border-white/10 text-center shadow-2xl transform scale-100">
                                         <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
                                             <Lock size={24} className="text-white/40" />

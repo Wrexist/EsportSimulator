@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -10,7 +11,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function TeamPage() {
-  const { teams, playerTeamId, players, contracts } = useGameStore()
+  const { teams, playerTeamId, players, contracts } = useGameStore(useShallow(state => ({
+    teams: state.teams,
+    playerTeamId: state.playerTeamId,
+    players: state.players,
+    contracts: state.contracts,
+  })))
   const playerTeam = teams.find(t => t.id === playerTeamId)
   const roster = playerTeam?.rosterIds.map(id => players.find(p => p.id === id)).filter((p): p is any => !!p) || []
 

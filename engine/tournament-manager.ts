@@ -6,7 +6,8 @@ import {
     BracketMatchSaveData,
     TournamentGroupSaveData,
     MatchSaveData,
-    CompletedMatchSaveData
+    CompletedMatchSaveData,
+    PlayerSaveData
 } from "./save-types"
 import { MatchFormat } from "@/types"
 import { LeagueEngine } from "./league-engine"
@@ -532,8 +533,8 @@ export class TournamentManager {
                 const awayTeam = save.teams.find(t => t.id === bracketMatch.awayTeamId)
                 if (!homeTeam || !awayTeam) continue
 
-                const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
-                const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
+                const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
+                const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
                 if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
                 // Simulate the match
@@ -548,7 +549,7 @@ export class TournamentManager {
                     seed: bracketMatch.seed
                 }
 
-                const result = matchEngine.simulateMatch(matchForSim, homeTeam as any, awayTeam as any, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+                const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
 
                 // Mark as complete
                 bracketMatch.isCompleted = true
@@ -634,12 +635,12 @@ export class TournamentManager {
             const awayTeam = save.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam) continue
 
-            const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
-            const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
+            const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
+            const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
 
             if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
-            const result = matchEngine.simulateMatch(match, homeTeam as any, awayTeam as any, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+            const result = matchEngine.simulateMatch(match, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
 
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
@@ -774,8 +775,8 @@ export class TournamentManager {
             return
         }
 
-        const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
-        const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter(Boolean) as any[]
+        const homePlayers = homeTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
+        const awayPlayers = awayTeam.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
 
         if (homePlayers.length < 5 || awayPlayers.length < 5) {
             debug.warn(`[Tournament] Cannot simulate ${bracketMatch.id}: Not enough players (${homePlayers.length} vs ${awayPlayers.length})`)
@@ -814,7 +815,7 @@ export class TournamentManager {
             seed: bracketMatch.seed
         }
 
-        const result = matchEngine.simulateMatch(matchForSim, homeTeam as any, awayTeam as any, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+        const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
 
         // Mark bracket match as complete
         bracketMatch.isCompleted = true
@@ -900,7 +901,7 @@ export class TournamentManager {
                     require("@/data/tournament-calendar").getTournamentById(baseTournamentId)
                 const qualifierContext = baseDefinition
                     ? { ...baseDefinition, id: tournament.id }
-                    : ({ id: tournament.id } as any)
+                    : { id: tournament.id }
                 save.tournamentQualifications = QualificationEngine.processQualifierResults(
                     save.tournamentQualifications,
                     qualifierContext,

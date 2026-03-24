@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import {
   Dumbbell,
@@ -52,7 +53,18 @@ const getFocusIcon = (focus: string | undefined): LucideIcon => {
 }
 
 export default function TrainingPage() {
-  const { players, teams, playerTeamId, staff, startRoleTraining, cancelRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic } = useGameStore()
+  const { players, teams, playerTeamId, staff, startRoleTraining, cancelRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic } = useGameStore(useShallow(state => ({
+    players: state.players,
+    teams: state.teams,
+    playerTeamId: state.playerTeamId,
+    staff: state.staff,
+    startRoleTraining: state.startRoleTraining,
+    cancelRoleTraining: state.cancelRoleTraining,
+    setPlayerTrainingFocus: state.setPlayerTrainingFocus,
+    runTeamDrill: state.runTeamDrill,
+    customTactics: state.customTactics,
+    updateCustomTactic: state.updateCustomTactic,
+  })))
   const [selectedDrill, setSelectedDrill] = useState("recoil_master")
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [weaponTrainingPlayer, setWeaponTrainingPlayer] = useState<any>(null)
@@ -566,7 +578,7 @@ export default function TrainingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 top-16 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
           >
             <TacticalLoadoutEditor
               side={editingSide}

@@ -9,6 +9,7 @@ import { MatchFormat, MapId, PlayerRole } from "@/types/enums"
 import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { Player, PlayerMatchStats } from "@/types/player"
 import { Team, Coach } from "@/types/team"
+import { PlayerTier, StaffType } from "@/types/enums"
 import { TeamSaveData, PlayerSaveData, MatchSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { EconomyManager } from "@/engine/economy-manager"
@@ -20,7 +21,7 @@ function adaptTeamSaveToTeam(team: TeamSaveData): Team {
     return {
         id: team.id,
         name: team.name,
-        tier: (team.tier as any) || 'PRO',
+        tier: (team.tier as PlayerTier) || PlayerTier.PRO,
         logoPath: team.logoPath || '',
         roster: team.rosterIds || [],
         staff: [],
@@ -46,11 +47,11 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         age: p.age ?? 25,
         nationality: p.nationality || '',
         portraitPath: p.portraitPath || '',
-        firstName: (p as any).firstName,
-        lastName: (p as any).lastName,
+        firstName: (p.name || '').split(' ')[0] || undefined,
+        lastName: (p.name || '').split(' ').slice(1).join(' ') || undefined,
         role: (p.role as PlayerRole) || PlayerRole.RIFLER,
         secondaryRole: p.secondaryRole as PlayerRole | undefined,
-        tier: (p.tier as any) || 'PRO',
+        tier: (p.tier as PlayerTier) || PlayerTier.PRO,
         // Technical stats
         skill: p.skill ?? 50,
         awp: p.awp ?? 50,
@@ -60,8 +61,8 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         creativity: p.creativity ?? 50,
         clutch: p.clutch ?? 50,
         tactic: p.tactic ?? 50,
-        entry: (p as any).entry ?? 50,
-        trading: (p as any).trading ?? 50,
+        entry: 50,
+        trading: 50,
         // Mental stats
         leader: p.leader ?? 50,
         teamwork: p.teamwork ?? 50,
@@ -89,14 +90,21 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         clutchSuccessRate: 0,
         // Contract (minimal for sim)
         contract: {
-            teamId: '',
-            salary: (p as any).salary ?? 0,
+            playerId: p.id,
+            salaryPerWeek: 0,
             startWeek: 0,
             endWeek: 52,
             buyout: 0,
-        } as any,
-        // Weapon mastery
-        weaponMastery: p.weaponMastery,
+        },
+        // Weapon mastery — normalize SaveData format (number | object) to Player format (number only)
+        weaponMastery: p.weaponMastery
+            ? Object.fromEntries(
+                Object.entries(p.weaponMastery).map(([k, v]) => [
+                    k,
+                    typeof v === 'number' ? v : v.xp,
+                ])
+            )
+            : undefined,
         // Traits
         traits: p.traits || [],
         perks: p.perks || [],
@@ -106,7 +114,7 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         talentPoints: p.talentPoints,
         unlockedTalentIds: p.unlockedTalentIds,
         totalMVPs: p.totalMVPs,
-    } as Player
+    }
 }
 
 // Singleton instance for delegation
@@ -188,14 +196,15 @@ export class MatchEngine {
             tournamentId: match.tournamentId,
             stage: match.stage ?? undefined,
             isHighPressure: match.isHighPressure ?? false,
+            mentalPrep: match.mentalPrep ?? false,
         } as Match
 
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({
-            id: 'ai_coach', name: 'Coach', type: 'COACH' as any,
+            id: 'ai_coach', name: 'Coach', type: StaffType.COACH,
             level: Math.ceil(bonus * 5), salary: 0, contractWeeksRemaining: 52,
             tacticBonus: Math.ceil(bonus * 10), moraleStability: 0.2,
-        } as Coach)
+        })
 
         const homeStaff = homeTacticalBonus > 0 ? { coach: makeCoach(homeTacticalBonus) } : undefined
         const awayStaff = awayTacticalBonus > 0 ? { coach: makeCoach(awayTacticalBonus) } : undefined
@@ -489,7 +498,7 @@ export class MatchEngine {
             const avgSkill = players.reduce((sum, p) => sum + (p.skill ?? 50), 0) / players.length
             const chemistry = team.chemistry ?? 50
             const tactical = team.tacticalPrep || 0
-            const mentalBonus = (team as any).mentalPrep ? 3 : 0 // +3 power from mental prep
+            const mentalBonus = 0 // TeamSaveData does not track mentalPrep; no mental prep bonus in legacy sim path
 
             return (avgSkill * 0.6 + chemistry * 0.3 + tactical * 0.1 + mentalBonus) * buyPwr
         }

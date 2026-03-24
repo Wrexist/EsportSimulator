@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -30,7 +31,12 @@ import { SaveSlotMetadata } from "@/engine"
 
 export default function LoadGamePage() {
     const router = useRouter()
-    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId } = useGameStore()
+    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId } = useGameStore(useShallow(state => ({
+        listSaves: state.listSaves,
+        switchSave: state.switchSave,
+        deleteSaveInSlot: state.deleteSaveInSlot,
+        saveId: state.saveId,
+    })))
     const [slots, setSlots] = useState<SaveSlotMetadata[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)

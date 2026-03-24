@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import {
     Mouse,
     Keyboard,
@@ -37,7 +38,11 @@ import {
 const ICON_MAP: any = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 
 export default function EquipmentPage() {
-    const { teams, playerTeamId, purchaseEquipment } = useGameStore()
+    const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        purchaseEquipment: state.purchaseEquipment,
+    })))
     const [selectedType, setSelectedType] = useState<EquipmentType | "ALL">("ALL")
     const [selectedItem, setSelectedItem] = useState<EquipmentCatalogItem | null>(null)
 

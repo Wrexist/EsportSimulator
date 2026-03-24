@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Calendar as CalendarIcon,
@@ -66,7 +67,22 @@ export default function SchedulePage() {
     playerTeamId,
     tournamentQualifications,
     tournaments
-  } = useGameStore()
+  } = useGameStore(useShallow(state => ({
+    currentWeek: state.currentWeek,
+    currentDay: state.currentDay,
+    timeMode: state.timeMode,
+    scheduledMatches: state.scheduledMatches,
+    completedMatches: state.completedMatches,
+    scheduledActivities: state.scheduledActivities,
+    eventsLog: state.eventsLog,
+    isLoading: state.isLoading,
+    gameStartDate: state.gameStartDate,
+    teams: state.teams,
+    players: state.players,
+    playerTeamId: state.playerTeamId,
+    tournamentQualifications: state.tournamentQualifications,
+    tournaments: state.tournaments,
+  })))
   const router = useRouter()
   const [viewOffset, setViewOffset] = useState(0)
 
