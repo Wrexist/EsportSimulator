@@ -2615,8 +2615,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             pendingLegendPick: latestState.pendingLegendPick,
             signedLegendIds: latestState.signedLegendIds || [],
             activelyPlayingLegendIds: latestState.activelyPlayingLegendIds || [],
-            gameOverReason: latestState.gameOverReason ?? null,
-            gameOverWeek: latestState.gameOverWeek ?? null,
+            gameOverReason: latestState.gameOverReason ?? undefined,
+            gameOverWeek: latestState.gameOverWeek ?? undefined,
           })
 
           const config = {
