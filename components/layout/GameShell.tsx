@@ -19,6 +19,7 @@ const LegendPickModal = dynamic(() => import("../celebration/LegendPickModal").t
 const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod => mod.BugReportButton), { ssr: false })
 const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTools), { ssr: false })
 const WeekProcessingOverlay = dynamic(() => import("../ui/WeekProcessingOverlay").then(mod => mod.WeekProcessingOverlay), { ssr: false })
+const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModal").then(mod => mod.KeyboardShortcutsModal), { ssr: false })
 
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -30,6 +31,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const selectLegend = useGameStore(state => state.selectLegend)
     const initAchievements = useGameStore(state => state.initAchievements)
     const showBugReportButton = useGameStore(state => state.showBugReportButton)
+
+    // Keyboard shortcuts modal state
+    const [shortcutsOpen, setShortcutsOpen] = useState(false)
 
     // Exit confirmation dialog state
     const [exitDialog, setExitDialog] = useState<{ open: boolean; variant: ExitDialogVariant } | null>(null)
@@ -208,6 +212,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 e.preventDefault()
                 router.back()
             }
+            if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
+                e.preventDefault()
+                setShortcutsOpen(prev => !prev)
+                return
+            }
             if (e.key === " " && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
                 const state = useGameStore.getState()
                 const windowFocused = (window as any).__esimWindowFocused !== false
@@ -273,6 +282,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             {showBugReportButton && !hideChrome && <BugReportButton />}
             <DevTools />
             <WeekProcessingOverlay />
+            <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         </div >
     )
 }

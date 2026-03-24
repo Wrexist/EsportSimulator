@@ -31,6 +31,7 @@ export const metadata: Metadata = {
 
 import { GameShell } from '@/components/layout/GameShell'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { ColorblindFilters } from '@/components/ui/ColorblindFilters'
 
 export default function RootLayout({
   children,
@@ -44,6 +45,7 @@ export default function RootLayout({
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] px-4 py-2 bg-primary text-primary-foreground rounded-md ring-2 ring-cyan-400">
           Skip to main content
         </a>
+        <ColorblindFilters />
         <ErrorBoundary>
           <ConsoleToTerminal />
           <GameShell>
