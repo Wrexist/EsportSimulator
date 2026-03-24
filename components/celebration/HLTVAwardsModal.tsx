@@ -87,7 +87,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                         transition={{ duration: 0.4, ease: "easeOut" }}
                         className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-[100] flex items-center justify-center"
                     >
-                        <div className="w-full max-w-5xl max-h-full bg-gradient-to-br from-[#0a0c10] via-[#0d1117] to-[#0a0c10] border border-amber-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/10 flex flex-col">
+                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-hltv-awards" className="w-full max-w-5xl max-h-full bg-gradient-to-br from-[#0a0c10] via-[#0d1117] to-[#0a0c10] border border-amber-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/10 flex flex-col">
 
                             {/* Header */}
                             <div className="p-6 bg-gradient-to-r from-amber-500/20 via-transparent to-amber-500/20 border-b border-amber-500/20 relative overflow-hidden shrink-0">
@@ -121,7 +121,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                             <Trophy size={32} className="text-white" />
                                         </div>
                                         <div>
-                                            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400">
+                                            <h1 id="modal-title-hltv-awards" className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400">
                                                 HLTV Top 20 Players
                                             </h1>
                                             <p className="text-amber-400/60 text-sm font-medium">

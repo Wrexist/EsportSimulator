@@ -457,6 +457,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-roster-builder"
                     className="w-full max-w-4xl max-h-[90vh] bg-gradient-to-b from-zinc-900 to-black rounded-2xl border border-white/10 overflow-hidden flex flex-col"
                 >
                     {/* Scrollable Content Area */}
@@ -474,7 +477,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                     <Users className="text-white" size={28} />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-white">Build Your Roster</h2>
+                                    <h2 id="modal-title-roster-builder" className="text-2xl font-bold text-white">Build Your Roster</h2>
                                     <p className="text-muted-foreground">Sign free agents to compete in tournaments</p>
                                 </div>
                             </div>

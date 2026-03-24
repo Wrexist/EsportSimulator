@@ -96,12 +96,15 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-book-bootcamp"
                 className="glass-panel w-full max-w-4xl flex flex-col max-h-[90vh] shadow-2xl border-white/10"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-normal uppercase tracking-tight flex items-center gap-2">
+                        <h2 id="modal-title-book-bootcamp" className="text-2xl font-normal uppercase tracking-tight flex items-center gap-2">
                             <Plane className="text-primary" />
                             Schedule Bootcamp
                         </h2>

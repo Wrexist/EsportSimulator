@@ -39,6 +39,9 @@ export function TransferListingModal({
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-transfer-listing"
                 className="glass-panel w-full max-w-lg overflow-hidden border-white/10 shadow-2xl relative"
             >
                 {/* Header Pattern */}
@@ -59,7 +62,7 @@ export function TransferListingModal({
                         )}
                     </div>
 
-                    <h2 className="text-3xl font-normal text-white uppercase tracking-tighter mb-2">
+                    <h2 id="modal-title-transfer-listing" className="text-3xl font-normal text-white uppercase tracking-tighter mb-2">
                         {isListed ? "Unlist Player" : "Transfer List"}
                     </h2>
                     <p className="text-muted-foreground text-sm max-w-sm mb-8">

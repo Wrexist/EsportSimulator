@@ -249,6 +249,9 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-negotiation"
                     className="glass-panel w-full max-w-4xl max-h-[min(600px,85vh)] flex overflow-hidden shadow-2xl border-white/10"
                 >
                     {/* Left Panel: Player Info */}
@@ -259,7 +262,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                             <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 mb-4 overflow-hidden shadow-lg">
                                 <PlayerPortrait src={playerSave.portraitPath} alt={playerSave.nickname} size={96} />
                             </div>
-                            <h2 className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
+                            <h2 id="modal-title-negotiation" className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
                             <p className="text-sm text-muted-foreground mb-2">{playerSave.name}</p>
 
                             <Badge className={cn("mb-4", tierStyle.bgColor, tierStyle.color)}>

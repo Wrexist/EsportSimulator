@@ -80,6 +80,9 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-staff-details"
                     className="w-full max-w-5xl bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] ring-1 ring-white/10"
                     onClick={e => e.stopPropagation()}
                 >
@@ -109,7 +112,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                             {/* Info */}
                             <div className="space-y-2">
                                 <div className="flex items-center gap-4">
-                                    <h2 className="text-4xl font-normal text-white tracking-tight">{staff.name}</h2>
+                                    <h2 id="modal-title-staff-details" className="text-4xl font-normal text-white tracking-tight">{staff.name}</h2>
                                     <Badge variant="outline" className={`px-3 py-1 text-xs border ${rarityColor} bg-white/5 backdrop-blur-md shadow-lg`}>
                                         {staff.rarity || "Common"}
                                     </Badge>

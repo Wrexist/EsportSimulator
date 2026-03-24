@@ -75,6 +75,9 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title-exit-confirm"
                         className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden"
                     >
                         {/* Ambient glow */}
@@ -90,7 +93,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         </div>
 
                         {/* Title */}
-                        <h2 className="text-2xl font-normal text-white mb-2 uppercase tracking-tight relative">
+                        <h2 id="modal-title-exit-confirm" className="text-2xl font-normal text-white mb-2 uppercase tracking-tight relative">
                             {config.title}
                         </h2>
 

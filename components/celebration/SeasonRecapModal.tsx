@@ -46,6 +46,9 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-season-recap"
                     className="relative w-full max-w-4xl bg-[#0a0c10] border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl"
                 >
                     {/* Background Effects */}
@@ -60,7 +63,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                 <Badge variant="outline" className="text-primary border-primary/20 mb-4 px-4 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">
                                     Annual Report
                                 </Badge>
-                                <h1 className="text-5xl md:text-6xl font-normal text-white tracking-tighter uppercase italic">
+                                <h1 id="modal-title-season-recap" className="text-5xl md:text-6xl font-normal text-white tracking-tighter uppercase italic">
                                     Season <span className="text-primary">{year}</span> Recap
                                 </h1>
                                 <p className="text-white/40 mt-2 text-lg">Celebrating your organization's journey through the last 52 weeks.</p>

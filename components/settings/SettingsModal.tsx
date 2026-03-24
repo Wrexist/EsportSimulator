@@ -75,10 +75,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         transition={{ duration: 0.2 }}
                         className="fixed inset-0 top-16 flex items-center justify-center z-[100] p-4"
                     >
-                        <div className="w-full max-w-2xl bg-gradient-to-br from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
+                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-settings" className="w-full max-w-2xl bg-gradient-to-br from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                             {/* Header */}
                             <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-                                <h2 className="text-xl font-bold text-white">Settings</h2>
+                                <h2 id="modal-title-settings" className="text-xl font-bold text-white">Settings</h2>
                                 <Button
                                     variant="ghost"
                                     size="sm"

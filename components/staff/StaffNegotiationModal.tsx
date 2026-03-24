@@ -156,6 +156,9 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title-staff-negotiation"
                     className="glass-panel w-full max-w-4xl h-[600px] flex overflow-hidden shadow-2xl border-white/10"
                 >
                     {/* Left Panel: Staff Info */}
@@ -170,7 +173,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     <Image src="/staff_placeholder.png" alt={staffMember.name} fill className="object-cover opacity-80" />
                                 )}
                             </div>
-                            <h2 className="text-2xl font-normal text-white">{staffMember.name}</h2>
+                            <h2 id="modal-title-staff-negotiation" className="text-2xl font-normal text-white">{staffMember.name}</h2>
                             <div className="text-sm text-muted-foreground mb-2 flex items-center gap-2 justify-center">
                                 {staffMember.nationality && <CountryFlag country={staffMember.nationality} size={14} />}
                                 {staffMember.role.toUpperCase()}

@@ -39,7 +39,7 @@ export function ToastNotifications() {
     }
 
     return (
-        <div className="fixed top-16 right-6 z-[100] flex flex-col gap-2 pointer-events-none">
+        <div aria-live="polite" role="status" className="fixed top-16 right-6 z-[100] flex flex-col gap-2 pointer-events-none">
             <AnimatePresence>
                 {toasts.map(toast => (
                     <ToastItem

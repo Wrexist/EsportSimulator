@@ -87,6 +87,9 @@ export function TournamentDetailsModal({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title-tournament-details"
                         className={cn(
                             "fixed z-[100] w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]",
                             activeTab === "bracket" ? "max-w-[90vw]" : "max-w-2xl"
@@ -116,7 +119,7 @@ export function TournamentDetailsModal({
                                             {getEntryTypeLabel(tournament.entryType)}
                                         </div>
                                     </div>
-                                    <h2 className="text-3xl font-normal text-white tracking-tighter uppercase flex items-center gap-2">
+                                    <h2 id="modal-title-tournament-details" className="text-3xl font-normal text-white tracking-tighter uppercase flex items-center gap-2">
                                         {getDynamicTournamentName(tournament.name, currentWeek)}
                                     </h2>
                                 </div>

@@ -18,6 +18,7 @@ const ToastNotifications = dynamic(() => import("../ui/ToastNotifications").then
 const LegendPickModal = dynamic(() => import("../celebration/LegendPickModal").then(mod => mod.LegendPickModal), { ssr: false })
 const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod => mod.BugReportButton), { ssr: false })
 const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTools), { ssr: false })
+const WeekProcessingOverlay = dynamic(() => import("../ui/WeekProcessingOverlay").then(mod => mod.WeekProcessingOverlay), { ssr: false })
 
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -271,6 +272,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             {showBugReportButton && !hideChrome && <BugReportButton />}
             <DevTools />
+            <WeekProcessingOverlay />
         </div >
     )
 }
