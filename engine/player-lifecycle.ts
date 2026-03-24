@@ -105,7 +105,7 @@ export class PlayerLifecycleManager {
         const targetStat = physicalStats[Math.floor(this.roll(rng) * physicalStats.length)]
 
         if (typeof player[targetStat] === 'number' && (player[targetStat] as number) > 10) {
-            (player as Record<string, unknown>)[targetStat as string] = Math.max(10, (player[targetStat] as number) - 1)
+            (player as unknown as Record<string, unknown>)[targetStat as string] = Math.max(10, (player[targetStat] as number) - 1)
         }
     }
 

@@ -20,7 +20,6 @@ import type { TrainingFocus } from "@/types"
 // The worker doesn't need persistence - it just processes the week
 class WorkerSaveManager extends SaveManager {
   constructor() {
-    // @ts-expect-error - SaveManager constructor requires storage, but worker doesn't need it
     super()
   }
 
