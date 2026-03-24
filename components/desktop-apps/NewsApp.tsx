@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { GameEventSaveData } from "@/engine"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 
 interface NewsAppProps {
     events: GameEventSaveData[]
@@ -23,7 +24,10 @@ type CategoryType = "all" | "transfers" | "results" | "teams" | "breaking"
 export function NewsApp({ events, onEventClick }: NewsAppProps) {
     const [category, setCategory] = useState<CategoryType>("all")
     const [expandedNewsId, setExpandedNewsId] = useState<string | null>(null)
-    const { teams, players } = useGameStore()
+    const { teams, players } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        players: state.players,
+    })))
 
     // Categorize news
     const categorizedEvents = useMemo(() => {

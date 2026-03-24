@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
 
@@ -73,7 +74,31 @@ export function AcademyApp() {
         academyRoster, updateAcademyRoster, academyTrainingSchedule, updateAcademySchedule,
         academyWeeklyReports, academyScoutingMissions, staff,
         academyPendingProspects, discardPendingProspect, enrollPendingProspect
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        academyPlayers: state.academyPlayers,
+        academyMatchHistory: state.academyMatchHistory,
+        players: state.players,
+        buildAcademy: state.buildAcademy,
+        upgradeAcademy: state.upgradeAcademy,
+        scoutProspect: state.scoutProspect,
+        enrollProspect: state.enrollProspect,
+        setProspectTraining: state.setProspectTraining,
+        releaseProspect: state.releaseProspect,
+        promoteProspect: state.promoteProspect,
+        scheduleDevMatch: state.scheduleDevMatch,
+        academyRoster: state.academyRoster,
+        updateAcademyRoster: state.updateAcademyRoster,
+        academyTrainingSchedule: state.academyTrainingSchedule,
+        updateAcademySchedule: state.updateAcademySchedule,
+        academyWeeklyReports: state.academyWeeklyReports,
+        academyScoutingMissions: state.academyScoutingMissions,
+        staff: state.staff,
+        academyPendingProspects: state.academyPendingProspects,
+        discardPendingProspect: state.discardPendingProspect,
+        enrollPendingProspect: state.enrollPendingProspect,
+    })))
 
     const team = teams.find(t => t.id === playerTeamId)
     const [activeTab, setActiveTab] = useState<TabId>("ROSTER")

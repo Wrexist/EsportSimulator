@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
@@ -88,7 +89,17 @@ export default function TournamentsPage() {
         registerForTournament,
         scheduledMatches,
         completedMatches
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        tournaments: state.tournaments,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        circuitPoints: state.circuitPoints,
+        tournamentQualifications: state.tournamentQualifications,
+        registerForTournament: state.registerForTournament,
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+    })))
 
     const router = useRouter()
 

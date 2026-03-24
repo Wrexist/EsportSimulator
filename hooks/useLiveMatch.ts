@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
@@ -174,7 +175,20 @@ function sanitizeEconomyForActivePlayers(
 export function useLiveMatch(id: string) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic } = useGameStore()
+    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic } = useGameStore(useShallow(state => ({
+        scheduledMatches: state.scheduledMatches,
+        teams: state.teams,
+        players: state.players,
+        staff: state.staff,
+        getPlayerTeam: state.getPlayerTeam,
+        customTactics: state.customTactics,
+        setActiveMatch: state.setActiveMatch,
+        updateActiveMatchState: state.updateActiveMatchState,
+        activeMatchState: state.activeMatchState,
+        saveMatchResult: state.saveMatchResult,
+        clearActiveMatchState: state.clearActiveMatchState,
+        updateCustomTactic: state.updateCustomTactic,
+    })))
     const playerTeam = getPlayerTeam()
 
     // Data Refs

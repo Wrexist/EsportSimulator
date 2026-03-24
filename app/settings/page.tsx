@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -70,7 +71,30 @@ export default function SettingsPage() {
     autoSave, setAutoSave,
     notifications, setNotifications,
     showBugReportButton, setShowBugReportButton
-  } = useGameStore()
+  } = useGameStore(useShallow(state => ({
+    saveGame: state.saveGame,
+    deleteAllSaves: state.deleteAllSaves,
+    soundEnabled: state.soundEnabled,
+    setSoundEnabled: state.setSoundEnabled,
+    showTutorialOnNewGame: state.showTutorialOnNewGame,
+    setShowTutorialOnNewGame: state.setShowTutorialOnNewGame,
+    resolution: state.resolution,
+    setResolution: state.setResolution,
+    masterVolume: state.masterVolume,
+    setMasterVolume: state.setMasterVolume,
+    musicVolume: state.musicVolume,
+    setMusicVolume: state.setMusicVolume,
+    gameSpeed: state.gameSpeed,
+    setGameSpeed: state.setGameSpeed,
+    difficulty: state.difficulty,
+    setDifficulty: state.setDifficulty,
+    autoSave: state.autoSave,
+    setAutoSave: state.setAutoSave,
+    notifications: state.notifications,
+    setNotifications: state.setNotifications,
+    showBugReportButton: state.showBugReportButton,
+    setShowBugReportButton: state.setShowBugReportButton,
+  })))
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<SettingsTab>("SETTINGS")
 

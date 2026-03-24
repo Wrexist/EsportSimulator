@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
@@ -40,7 +41,22 @@ export default function TacticalHQPage() {
         setPlaystyle,
         setEconomyStyle,
         setTargetPlayer
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        getUpcomingMatches: state.getUpcomingMatches,
+        teams: state.teams,
+        players: state.players,
+        playerTeamId: state.playerTeamId,
+        currentWeek: state.currentWeek,
+        tournaments: state.tournaments,
+        scheduledMatches: state.scheduledMatches,
+        completedMatches: state.completedMatches,
+        performVODReview: state.performVODReview,
+        performMentalReset: state.performMentalReset,
+        updateScheduledMatch: state.updateScheduledMatch,
+        setPlaystyle: state.setPlaystyle,
+        setEconomyStyle: state.setEconomyStyle,
+        setTargetPlayer: state.setTargetPlayer,
+    })))
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)

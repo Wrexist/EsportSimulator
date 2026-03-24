@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -130,7 +131,17 @@ export default function StaffMeetingPage() {
         completedMatches,
         managerDetails,
         scheduledActivities
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        players: state.players,
+        staff: state.staff,
+        scheduleActivity: state.scheduleActivity,
+        currentWeek: state.currentWeek,
+        completedMatches: state.completedMatches,
+        managerDetails: state.managerDetails,
+        scheduledActivities: state.scheduledActivities,
+    })))
 
     const [schedulingId, setSchedulingId] = useState<string | null>(null)
 

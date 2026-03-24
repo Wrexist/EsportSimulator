@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { GameEventSaveData } from "@/engine"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
 
 interface CalendarAppProps {
@@ -21,7 +22,12 @@ type ViewType = "timeline" | "grid"
 
 export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppProps) {
     const router = useRouter()
-    const { registerForTournament, checkTournamentEligibility, tournamentQualifications, playerTeamId } = useGameStore()
+    const { registerForTournament, checkTournamentEligibility, tournamentQualifications, playerTeamId } = useGameStore(useShallow(state => ({
+        registerForTournament: state.registerForTournament,
+        checkTournamentEligibility: state.checkTournamentEligibility,
+        tournamentQualifications: state.tournamentQualifications,
+        playerTeamId: state.playerTeamId,
+    })))
     const [viewType, setViewType] = useState<ViewType>("timeline")
     const [selectedTournament, setSelectedTournament] = useState<string | null>(null)
 

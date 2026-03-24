@@ -9,7 +9,14 @@ import { Button } from "@/components/ui/button"
 import { AlertCircle, Lock } from "lucide-react"
 
 export function MatchNavigationGuard() {
-    const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore()
+    const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore(useShallow(state => ({
+        activeMatchId: state.activeMatchId,
+        setActiveMatch: state.setActiveMatch,
+        completedMatches: state.completedMatches,
+        scheduledMatches: state.scheduledMatches,
+        currentWeek: state.currentWeek,
+        isInitialized: state.isInitialized,
+    })))
     const pathname = usePathname()
     const router = useRouter()
     const [showBlocker, setShowBlocker] = useState(false)

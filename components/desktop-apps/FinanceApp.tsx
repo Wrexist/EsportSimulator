@@ -6,6 +6,7 @@ import { DollarSign, TrendingUp, TrendingDown, Clock, PieChart, ArrowUpRight, Ar
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 
 const CATEGORY_COLORS: Record<string, string> = {
     SALARY: "#ef4444", // red-500
@@ -18,7 +19,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export function FinanceApp() {
-    const { playerTeamId, teams, financeLedger, currentWeek } = useGameStore()
+    const { playerTeamId, teams, financeLedger, currentWeek } = useGameStore(useShallow(state => ({
+        playerTeamId: state.playerTeamId,
+        teams: state.teams,
+        financeLedger: state.financeLedger,
+        currentWeek: state.currentWeek,
+    })))
     const team = teams.find(t => t.id === playerTeamId)
 
     // Filter ledger for this team

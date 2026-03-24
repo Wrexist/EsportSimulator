@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -195,7 +196,14 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         getPlayerTeam,
         transferPlayer,
         currentWeek
-    } = useGameStore()
+    } = useGameStore(useShallow(state => ({
+        players: state.players,
+        teams: state.teams,
+        contracts: state.contracts,
+        getPlayerTeam: state.getPlayerTeam,
+        transferPlayer: state.transferPlayer,
+        currentWeek: state.currentWeek,
+    })))
 
     const playerTeam = getPlayerTeam()
     const [signedPlayers, setSignedPlayers] = useState<string[]>([])

@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine/save-types"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { toast } from "sonner"
 import {
     WEAPON_TYPES,
@@ -48,7 +49,14 @@ const iconMap: Record<string, any> = {
 }
 
 export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingModalProps) {
-    const { teams, playerTeamId, updatePlayer, updateTeamBudget, saveGame, players } = useGameStore()
+    const { teams, playerTeamId, updatePlayer, updateTeamBudget, saveGame, players } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        updatePlayer: state.updatePlayer,
+        updateTeamBudget: state.updateTeamBudget,
+        saveGame: state.saveGame,
+        players: state.players,
+    })))
     const playerTeam = teams.find((t: any) => t.id === playerTeamId)
     const budget = playerTeam?.budget || 0
 
