@@ -37,7 +37,8 @@ import {
     GlassTableRow,
     GlassTableCell,
 } from "@/components/ui/GlassTable"
-import TournamentBracket from "@/components/tournament/TournamentBracket"
+import dynamic from "next/dynamic"
+const TournamentBracket = dynamic(() => import("@/components/tournament/TournamentBracket"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"

@@ -199,6 +199,21 @@ class DebouncedStorage implements AsyncStorage {
             this.pendingWrites.set(key, { value, timer, resolve, reject })
         })
     }
+
+    /** Immediately flush all pending debounced writes to storage. */
+    async flush(): Promise<void> {
+        const entries = Array.from(this.pendingWrites.entries())
+        for (const [key, pending] of entries) {
+            clearTimeout(pending.timer)
+            this.pendingWrites.delete(key)
+            try {
+                await this.inner.setItem(key, pending.value)
+                pending.resolve()
+            } catch (err) {
+                pending.reject(err)
+            }
+        }
+    }
 }
 
 /** Debounced storage for Zustand persist — prevents flooding IndexedDB */

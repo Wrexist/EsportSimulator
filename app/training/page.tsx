@@ -34,9 +34,10 @@ import {
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { TrainingFocus, Role, CustomTactics } from "@/types"
-import { RoleTrainingModal } from "@/components/training/RoleTrainingModal"
-import { WeaponTrainingModal } from "@/components/training/WeaponTrainingModal"
-import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
+import dynamic from "next/dynamic"
+const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
+const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
+const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalLoadoutEditor").then(m => m.TacticalLoadoutEditor), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { DrillManager, ActiveDrill } from "@/engine/drill-manager"
 import { useRef, useEffect, useCallback } from "react"
