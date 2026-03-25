@@ -1293,7 +1293,7 @@ export class SimulationEngineV2 {
         const winType = this.determineWinType(rng, homeWins === homeIsCT)
 
         // Generate events for this round
-        const { kills, deaths, events, winType: validatedWinType } = this.generateRoundStats(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType)
+        const { kills, deaths, events, winType: validatedWinType } = this.generateRoundStats(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType, homePlayerIdSet, playerMap)
 
         // Momentum shift
         const momentumShift = homeWins ? 0.1 : -0.1
@@ -1341,7 +1341,9 @@ export class SimulationEngineV2 {
         homeWins: boolean,
         homeEconomy: Record<string, PlayerSimulationState>,
         awayEconomy: Record<string, PlayerSimulationState>,
-        winType: "ELIMINATION" | "BOMB_EXPLODED" | "BOMB_DEFUSE" | "TIME"
+        winType: "ELIMINATION" | "BOMB_EXPLODED" | "BOMB_DEFUSE" | "TIME",
+        homePlayerIdSet: Set<string>,
+        playerMap: Map<string, Player>
     ): {
         kills: { playerId: string; kills: number; weapon: string }[];
         deaths: { playerId: string; deaths: number }[];
