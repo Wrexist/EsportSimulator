@@ -16,6 +16,7 @@ import { QualificationEngine } from "./tournament-qualification"
 import { getTournamentMVP } from "./tournament-stats"
 import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
+import type { TournamentDefinition } from "@/data/tournament-calendar"
 
 /** Deterministic numeric ID for tiebreaking — works for both numeric and string IDs */
 function stableTeamIdNumber(id: string): number {
@@ -27,20 +28,22 @@ function stableTeamIdNumber(id: string): number {
 }
 
 // Lazy-cached require to avoid circular import at module load time
-let _matchEngineInstance: any = null
-let _MatchAnalyzer: any = null
-function getMatchEngine() {
+import type { MatchEngine } from "./match-engine"
+import type { MatchAnalyzer } from "./match-analyzer"
+let _matchEngineInstance: MatchEngine | null = null
+let _MatchAnalyzer: typeof MatchAnalyzer | null = null
+function getMatchEngine(): MatchEngine {
     if (!_matchEngineInstance) {
         const { MatchEngine } = require("./match-engine")
         _matchEngineInstance = new MatchEngine()
     }
-    return _matchEngineInstance
+    return _matchEngineInstance!
 }
-function getMatchAnalyzer() {
+function getMatchAnalyzer(): typeof MatchAnalyzer {
     if (!_MatchAnalyzer) {
         _MatchAnalyzer = require("./match-analyzer").MatchAnalyzer
     }
-    return _MatchAnalyzer
+    return _MatchAnalyzer!
 }
 
 /** Get coach tactical bonus for a team from save data */
@@ -140,6 +143,8 @@ export class TournamentManager {
                             changed = true
                         }
                         if (!match.awayTeamId) {
+                            // Note: if this produces a self-match (awayCandidate === homeTeamId),
+                            // the guard at line ~154 will detect and auto-advance
                             const awayCandidate = sourceWinners.find(id => id !== match.homeTeamId) || sourceWinners[1]
                             if (awayCandidate) {
                                 match.awayTeamId = awayCandidate
@@ -1007,8 +1012,8 @@ export class TournamentManager {
             }
 
             const maps = completedMatch.result.maps || []
-            const totalHomeRounds = maps.reduce((s: number, mp: any) => s + (mp.homeScore || 0), 0)
-            const totalAwayRounds = maps.reduce((s: number, mp: any) => s + (mp.awayScore || 0), 0)
+            const totalHomeRounds = maps.reduce((s: number, mp: { homeScore?: number }) => s + (mp.homeScore || 0), 0)
+            const totalAwayRounds = maps.reduce((s: number, mp: { awayScore?: number }) => s + (mp.awayScore || 0), 0)
             if (wRecord) wRecord.roundDiff += isWinnerHome ? (totalHomeRounds - totalAwayRounds) : (totalAwayRounds - totalHomeRounds)
             if (lRecord) lRecord.roundDiff += isWinnerHome ? (totalAwayRounds - totalHomeRounds) : (totalHomeRounds - totalAwayRounds)
         }
@@ -1266,7 +1271,7 @@ export class TournamentManager {
         if (pA && pB) this.generatePlayoffs(save, tournament, pA, pB)
     }
 
-    private static generatePlayoffs(save: GameSave, tournament: TournamentSaveData, pA: any, pB: any): void {
+    private static generatePlayoffs(save: GameSave, tournament: TournamentSaveData, pA: { first: string, second: string, third: string }, pB: { first: string, second: string, third: string }): void {
         tournament.currentStage = "Playoffs"
         const startWeek = tournament.endWeek - 1
 
@@ -1591,13 +1596,13 @@ export class TournamentManager {
 
         // 1. Find upcoming tournaments (starting in next 1-4 weeks)
         // We only care about tournaments that haven't started yet
-        const upcoming = FULL_TOURNAMENT_CALENDAR.filter((t: any) =>
+        const upcoming = FULL_TOURNAMENT_CALENDAR.filter((t: TournamentDefinition) =>
             t.startWeek > currentWeek &&
             t.startWeek <= currentWeek + 8 // 8 week lookahead for registration
         )
 
         const idx = buildSaveIndexes(save)
-        upcoming.forEach((def: any) => {
+        upcoming.forEach((def: TournamentDefinition) => {
             // Get or create dynamic tournament data
             let tournament = idx.tournamentIndex.get(def.id) ?? save.tournaments.find(t => t.id === def.id)
             if (!tournament) {
@@ -1669,7 +1674,7 @@ export class TournamentManager {
 
         const currentSeason = Math.floor((currentWeek - 1) / 52) + 1
 
-        FULL_TOURNAMENT_CALENDAR.forEach((def: any) => {
+        FULL_TOURNAMENT_CALENDAR.forEach((def: TournamentDefinition) => {
             // Calculate absolute start week for this season
             let absStartWeek = (currentSeason - 1) * 52 + def.startWeek
             let targetSeason = currentSeason

@@ -726,7 +726,7 @@ export default function FinancesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="bg-white/[0.02] border-white/10 overflow-hidden relative group p-8">
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556196149-80fb22852277?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10 grayscale group-hover:opacity-20 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 group-hover:opacity-70 transition-opacity" />
               <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary/20 rounded-2xl">

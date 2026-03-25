@@ -2,6 +2,7 @@
  * Manager Progression System
  * Handles Career Mode unlocks, XP gains, and Manager Level persistence.
  */
+import type { GameSave } from "./save-types"
 
 export const MANAGER_LEVEL_KEY = "cs2_manager_level"
 export const CAREER_MODE_ENABLED_KEY = "cs2_career_mode_enabled"
@@ -48,7 +49,7 @@ export class ManagerProgression {
     /**
      * Get manager level from game state (or fallback to 1)
      */
-    static getManagerLevel(game?: any): number {
+    static getManagerLevel(game?: GameSave): number {
         if (game?.managerDetails?.level) return game.managerDetails.level
         return 1
     }
@@ -63,7 +64,7 @@ export class ManagerProgression {
     /**
      * Grant XP to the manager. Handles level-ups and events.
      */
-    static gainXP(game: any, amount: number): { leveledUp: boolean, newLevel: number } {
+    static gainXP(game: GameSave, amount: number): { leveledUp: boolean, newLevel: number } {
         const md = game?.managerDetails
         if (!md) return { leveledUp: false, newLevel: 1 }
 
