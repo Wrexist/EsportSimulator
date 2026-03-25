@@ -55,6 +55,8 @@ import { buildQualificationGraph, dedupeQualifications, isQualificationForTourna
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
+import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
+import { ARRAY_CAPS } from "@/engine/constants"
 
 // ===== TYPES =====
 
@@ -85,12 +87,6 @@ const debugLog = (...args: any[]) => { if (AWP_DEBUG) console.log(...args) }
 const FATIGUE_RECOVERY_PER_WEEK = 10
 const INJURY_BASE_CHANCE = 0.01 // 1% base injury chance per week
 const FATIGUE_INJURY_MULTIPLIER = 0.005 // +0.5% per fatigue point over 50 (e.g. fatigue 80 = +15%)
-const MAX_EVENTS_LOG = 3000
-const MAX_COMPLETED_MATCHES = 8000
-const MAX_FINANCE_LEDGER = 12000
-const MAX_TRANSFER_HISTORY = 5000
-const MAX_NEWS_FEED = 1000
-const MAX_TOURNAMENT_QUALIFICATIONS = 6000
 
 // ===== ATOMIC WEEK PROCESSOR =====
 
@@ -133,6 +129,9 @@ export class AtomicWeekProcessor {
 
         // Create backup before processing
         await this.saveManager.saveGame(save)
+
+        // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
+        const idx = buildSaveIndexes(save)
 
         try {
             const result: WeekProcessorResult = {
@@ -186,7 +185,7 @@ export class AtomicWeekProcessor {
             // This must run before matches so tournament matches are scheduled first
             if (resumeStep <= 5) {
                 debugLog(`[Week ${save.currentWeek}] Step 4.5: Tournament Processing...`)
-                this.processTournaments(save, config.playerTeamId, rng)
+                this.processTournaments(save, config.playerTeamId, rng, idx)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
                 await this.saveManager.saveGame(save)
             }
@@ -203,10 +202,9 @@ export class AtomicWeekProcessor {
                 )
 
                 for (const match of playerUpcomingMatches) {
-                    const opponent = save.teams.find(t =>
-                        t.id === (match.homeTeamId === config.playerTeamId ? match.awayTeamId : match.homeTeamId)
-                    )
-                    const tournament = save.tournaments.find(t => t.id === match.tournamentId)
+                    const opponentId = match.homeTeamId === config.playerTeamId ? match.awayTeamId : match.homeTeamId
+                    const opponent = idx.teamIndex.get(opponentId)
+                    const tournament = match.tournamentId ? idx.tournamentIndex.get(match.tournamentId) : undefined
 
                     if (opponent && tournament) {
                         save.eventsLog.push({
@@ -226,7 +224,7 @@ export class AtomicWeekProcessor {
                     }
                 }
 
-                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId)
+                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
                 await this.saveManager.saveGame(save)
             }
@@ -234,7 +232,7 @@ export class AtomicWeekProcessor {
             // ===== STEP 6: Standings Update =====
             if (resumeStep <= 7) {
                 debugLog(`[Week ${save.currentWeek}] Step 6: Standings...`)
-                this.updateStandings(save)
+                this.updateStandings(save, idx)
 
                 // Sync all team league tiers based on current Elo
                 // This ensures teams always have correct S/A/B tier assignment
@@ -274,7 +272,7 @@ export class AtomicWeekProcessor {
                 EventsManager.generateModernEvents(save, rng)
 
                 // Phase 9: Check scouting mission completion
-                this.processScoutingMissions(save)
+                this.processScoutingMissions(save, idx)
 
                 // Phase 60: Job Market - Generate job offers based on performance
                 JobOfferGenerator.processWeeklyJobOffers(save, rng)
@@ -296,7 +294,7 @@ export class AtomicWeekProcessor {
                 if (retirementResult.legends.length > 0) {
                     // Move legendary players to Hall of Fame
                     retirementResult.legends.forEach(playerId => {
-                        const player = save.players.find(p => p.id === playerId)
+                        const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
                         if (player && player.isLegendary) {
                             save.legendaryPlayers.push({ ...player })
                         }
@@ -306,7 +304,7 @@ export class AtomicWeekProcessor {
                 // Mid-season surprise retirements (every 4 weeks, old declining AI players)
                 const midSeasonResult = EventProcessor.processMidSeasonRetirements(save, config.playerTeamId, rng)
                 midSeasonResult.legends.forEach(playerId => {
-                    const player = save.players.find(p => p.id === playerId)
+                    const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
                     if (player?.isLegendary) save.legendaryPlayers.push({ ...player })
                 })
 
@@ -362,7 +360,7 @@ export class AtomicWeekProcessor {
 
             // ===== STEP 8C: Narrative & News =====
             debugLog(`[Week ${save.currentWeek}] Step 8C: Processing Narrative Features...`)
-            this.generateNarrativeNews(save, rng)
+            this.generateNarrativeNews(save, rng, idx)
 
             // === Cross-Season Career Statistics ===
             // Compute at season boundaries (every 52 weeks)
@@ -430,7 +428,8 @@ export class AtomicWeekProcessor {
         save: GameSave,
         transaction: WeekTickState,
         rng: SeededRNG,
-        playerTeamId: string
+        playerTeamId: string,
+        idx?: SaveIndexes
     ): Promise<number> {
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek
@@ -455,14 +454,14 @@ export class AtomicWeekProcessor {
         let matchesPlayed = 0
 
         for (const match of weekMatches) {
-            const homeTeam = save.teams.find(t => t.id === match.homeTeamId)
-            const awayTeam = save.teams.find(t => t.id === match.awayTeamId)
+            const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
+            const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam) continue
 
             // Select active 5, skipping injured players and pulling from bench
             const selectActivePlayers = (rosterIds: string[]) => {
                 const available = rosterIds
-                    .map(id => save.players.find(p => p.id === id))
+                    .map(id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id))
                     .filter(p => p && !p.injury) as typeof save.players
                 return available.slice(0, 5)
             }
@@ -499,9 +498,9 @@ export class AtomicWeekProcessor {
                 save.completedMatches.push(forfeitResult)
                 save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
 
-                // Update form
-                const wTeam = save.teams.find(t => t.id === winningTeam.id)
-                const fTeam = save.teams.find(t => t.id === forfeitingTeam.id)
+                // Update form (already resolved, use directly)
+                const wTeam = winningTeam
+                const fTeam = forfeitingTeam
                 if (wTeam) {
                     if (!wTeam.recentForm) wTeam.recentForm = []
                     wTeam.recentForm.push("W")
@@ -620,7 +619,7 @@ export class AtomicWeekProcessor {
 
             // Award XP
             Object.entries(playerWeaponStats).forEach(([playerId, stats]) => {
-                const p = save.players.find(pl => pl.id === playerId)
+                const p = idx?.playerIndex.get(playerId) ?? save.players.find(pl => pl.id === playerId)
                 if (p) {
                     WeaponMasteryManager.processMatchWeaponXP(
                         p,
@@ -687,7 +686,7 @@ export class AtomicWeekProcessor {
             // Resolve tournament tier for fatigue/morale scaling and XP
             let matchTournamentTier: string | undefined
             if (match.tournamentId && match.tournamentId !== "SCRIM") {
-                const matchTournament = save.tournaments.find(t => t.id === match.tournamentId)
+                const matchTournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
                 if (matchTournament) matchTournamentTier = matchTournament.tier
             }
 
@@ -785,7 +784,7 @@ export class AtomicWeekProcessor {
 
             // Update Recent Form
             const updateForm = (teamId: string, outcome: "W" | "L" | "D") => {
-                const team = save.teams.find(t => t.id === teamId)
+                const team = idx?.teamIndex.get(teamId) ?? save.teams.find(t => t.id === teamId)
                 if (team) {
                     if (!team.recentForm) team.recentForm = []
                     team.recentForm.push(outcome)
@@ -804,7 +803,7 @@ export class AtomicWeekProcessor {
                 // Resolve tournament tier for K-factor bonus
                 let tournamentTier: string | undefined
                 if (match.tournamentId && match.tournamentId !== "SCRIM") {
-                    const tournament = save.tournaments.find(t => t.id === match.tournamentId)
+                    const tournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
                     if (tournament) tournamentTier = tournament.tier
                 }
 
@@ -843,7 +842,7 @@ export class AtomicWeekProcessor {
                 )
 
                 // Store ELO change (Phase 19 improvement)
-                const savedMatch = save.completedMatches.find(m => m.id === match.id)
+                const savedMatch = (idx?.completedMatchIndex.get(match.id) as CompletedMatchSaveData | undefined) ?? save.completedMatches.find(m => m.id === match.id)
                 if (savedMatch && eloResult) {
                     savedMatch.eloChange = {
                         home: homeWon ? eloResult.winnerChange : eloResult.loserChange,
@@ -860,7 +859,7 @@ export class AtomicWeekProcessor {
             // Phase 48: Talent Point Rewards
             // MVP of the match gets talent points (scaled by tournament tier)
             if (result.mvpPlayerId) {
-                const mvpPlayer = save.players.find(p => p.id === result.mvpPlayerId)
+                const mvpPlayer = idx?.playerIndex.get(result.mvpPlayerId) ?? save.players.find(p => p.id === result.mvpPlayerId)
                 if (mvpPlayer) {
                     const mvpTalentBonus = matchTournamentTier === "S_TIER" ? 3
                         : matchTournamentTier === "A_TIER" ? 2
@@ -920,7 +919,7 @@ export class AtomicWeekProcessor {
         return !!finalByStage?.result?.winnerId
     }
 
-    private updateStandings(save: GameSave): void {
+    private updateStandings(save: GameSave, idx?: SaveIndexes): void {
         const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
 
         const compareStandings = (
@@ -1010,7 +1009,7 @@ export class AtomicWeekProcessor {
             const winnerTeamId = tournament.winnerId || tournament.standings[0]?.teamId
             if (!winnerTeamId) return
 
-            const winningTeam = save.teams.find(t => t.id === winnerTeamId)
+            const winningTeam = idx?.teamIndex.get(winnerTeamId) ?? save.teams.find(t => t.id === winnerTeamId)
             if (!winningTeam) return
             if (!winningTeam.trophies) winningTeam.trophies = []
 
@@ -1050,7 +1049,7 @@ export class AtomicWeekProcessor {
                     const prizeLedgerId = `prize_${tournament.id}_${p.teamId}_p${p.position}`
                     if (save.financeLedger.some(entry => entry.id === prizeLedgerId)) continue
 
-                    const team = save.teams.find(t => t.id === p.teamId)
+                    const team = idx?.teamIndex.get(p.teamId) ?? save.teams.find(t => t.id === p.teamId)
                     if (!team) continue
 
                     team.budget += prizeAmount
@@ -1075,7 +1074,7 @@ export class AtomicWeekProcessor {
                 const points = pointsTable[p.position] ?? 0
                 if (points <= 0) continue
 
-                let entry = save.circuitPoints.find(cp => cp.teamId === p.teamId)
+                let entry = save.circuitPoints.find(cp => cp.teamId === p.teamId) // circuitPoints not indexed (small array)
                 if (entry) {
                     entry.points += points
                     entry.results.push({
@@ -1142,7 +1141,7 @@ export class AtomicWeekProcessor {
                     // Also exclude legends whose active counterpart is still playing
                     const stillActiveLegendIds = (save.activelyPlayingLegendIds || []).filter(lid => {
                         // Check if the active counterpart has retired — if so, allow this legend
-                        const legendData = LEGENDARY_PLAYERS.find(lp => lp.id === lid)
+                        const legendData = LEGENDARY_PLAYERS.find(lp => lp.id === lid) // static data, small array
                         if (!legendData) return true
                         const nick = legendData.nickname.toLowerCase()
                         return save.players.some(p =>
@@ -1181,7 +1180,7 @@ export class AtomicWeekProcessor {
     /**
      * Phase 9: Process scouting missions - complete any that are done
      */
-    private processScoutingMissions(save: GameSave): void {
+    private processScoutingMissions(save: GameSave, idx?: SaveIndexes): void {
         if (!save.activeScoutingMission) return
 
         const mission = save.activeScoutingMission
@@ -1200,7 +1199,7 @@ export class AtomicWeekProcessor {
             })
 
             // Generate news event
-            const scoutedPlayer = save.players.find(p => p.id === mission.playerId)
+            const scoutedPlayer = idx?.playerIndex.get(mission.playerId) ?? save.players.find(p => p.id === mission.playerId)
             if (scoutedPlayer) {
                 save.eventsLog.push({
                     id: `scouting_complete_${save.currentWeek}_${mission.playerId}`,
@@ -1595,7 +1594,7 @@ export class AtomicWeekProcessor {
     }
 
     // Phase 20: Process tournament-related logic
-    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
+    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG, idx?: SaveIndexes): void {
         const currentWeek = save.currentWeek
         const weekOfSeason = ((currentWeek - 1) % 52) + 1
         const season = Math.floor((currentWeek - 1) / 52) + 1
@@ -1686,7 +1685,7 @@ export class AtomicWeekProcessor {
 
             // Ensure tournament exists in save with SEASONAL ID
             const seasonalId = `${definition.id}_s${season}`
-            let tournament = save.tournaments.find(t => t.id === seasonalId)
+            let tournament = idx?.tournamentIndex.get(seasonalId) ?? save.tournaments.find(t => t.id === seasonalId)
             if (!tournament) {
                 tournament = {
                     id: seasonalId,
@@ -1879,7 +1878,7 @@ export class AtomicWeekProcessor {
             // Find the actual tournament instance (may have seasonal ID like "major_copenhagen_s1")
             const season = Math.floor((currentWeek - 1) / 52) + 1
             const seasonalId = `${tournamentDef.id}_s${season}`
-            const liveTournament = save.tournaments.find(t =>
+            const liveTournament = idx?.tournamentIndex.get(seasonalId) ?? idx?.tournamentIndex.get(tournamentDef.id) ?? save.tournaments.find(t =>
                 t.id === seasonalId || t.id === tournamentDef.id
             )
 
@@ -1897,7 +1896,7 @@ export class AtomicWeekProcessor {
                 for (const { teamId, position } of placements) {
                     const points = pointsTable[position] || 0
                     if (points > 0) {
-                        this.awardPoints(save, teamId, points, tournamentDef.name, position)
+                        this.awardPoints(save, teamId, points, tournamentDef.name, position, idx)
                     }
                 }
             } else {
@@ -1906,12 +1905,12 @@ export class AtomicWeekProcessor {
         }
     }
 
-    private awardPoints(save: GameSave, teamId: string, points: number, tournamentName: string, placement: number = 0) {
+    private awardPoints(save: GameSave, teamId: string, points: number, tournamentName: string, placement: number = 0, idx?: SaveIndexes) {
         if (!points) return
 
         if (!save.circuitPoints) save.circuitPoints = []
 
-        let entry = save.circuitPoints.find(cp => cp.teamId === teamId)
+        let entry = save.circuitPoints.find(cp => cp.teamId === teamId) // circuitPoints not indexed (small array)
         if (!entry) {
             entry = { teamId, points: 0, results: [] }
             save.circuitPoints.push(entry)
@@ -1919,7 +1918,7 @@ export class AtomicWeekProcessor {
 
         entry.points += points
         entry.results.push({
-            tournamentId: (FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName)?.id || "unknown"),
+            tournamentId: (FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName)?.id || "unknown"), // static data
             tournamentName,
             placement,
             points,
@@ -1928,8 +1927,8 @@ export class AtomicWeekProcessor {
 
         // Phase 28: Award Trophy for wins (Placement 1)
         if (placement === 1) {
-            const team = save.teams.find(t => t.id === teamId)
-            const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName)
+            const team = idx?.teamIndex.get(teamId) ?? save.teams.find(t => t.id === teamId)
+            const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName) // static data
             if (team && tournament) {
                 const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
                 const getSeason = (id: string) => {
@@ -1967,7 +1966,7 @@ export class AtomicWeekProcessor {
                     // Update player legacy stats for the winners (only count Majors)
                     if (tournament.tier === "S_TIER") {
                         team.rosterIds.forEach(pid => {
-                            const player = save.players.find(p => p.id === pid)
+                            const player = idx?.playerIndex.get(pid) ?? save.players.find(p => p.id === pid)
                             if (player) {
                                 if (!player.majorWins) player.majorWins = 0
                                 player.majorWins++
@@ -1983,7 +1982,7 @@ export class AtomicWeekProcessor {
         debugLog(`[Circuit] Awarded ${points} points to team ${teamId} for ${tournamentName} (P${placement})`)
     }
 
-    private generateNarrativeNews(save: GameSave, rng: SeededRNG): void {
+    private generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
         // 1. Monthly Power Rankings
         if (save.currentWeek > 1 && (save.currentWeek - 1) % 4 === 0) {
             const topTeams = [...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 5)
@@ -2003,7 +2002,7 @@ export class AtomicWeekProcessor {
         }
 
         // 2. Big Match Preview (Finals)
-        const playerTeam = save.teams.find(t => t.id === save.playerTeamId)
+        const playerTeam = idx?.teamIndex.get(save.playerTeamId) ?? save.teams.find(t => t.id === save.playerTeamId)
         if (playerTeam) {
             const finalsMatch = save.scheduledMatches.find(m =>
                 (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId) &&
@@ -2013,7 +2012,7 @@ export class AtomicWeekProcessor {
             )
 
             if (finalsMatch) {
-                const tournament = save.tournaments.find(t => t.id === finalsMatch.tournamentId)
+                const tournament = idx?.tournamentIndex.get(finalsMatch.tournamentId!) ?? save.tournaments.find(t => t.id === finalsMatch.tournamentId)
                 save.newsFeed.unshift({
                     id: `match_preview_${finalsMatch.id}`,
                     title: `Grand Final Alert: ${playerTeam.name} Path to Glory`,
@@ -2037,13 +2036,13 @@ export class AtomicWeekProcessor {
         // 4. Post-Match Headlines (for completed matches this week)
         const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1)
         for (const match of recentMatches.slice(0, 2)) { // Limit to 2 headlines per week
-            const homeTeam = save.teams.find(t => t.id === match.homeTeamId)
-            const awayTeam = save.teams.find(t => t.id === match.awayTeamId)
-            const winner = save.teams.find(t => t.id === match.result.winnerId)
+            const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
+            const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
+            const winner = match.result.winnerId ? (idx?.teamIndex.get(match.result.winnerId) ?? save.teams.find(t => t.id === match.result.winnerId)) : undefined
             const loser = match.result.winnerId === match.homeTeamId ? awayTeam : homeTeam
 
             if (winner && loser && match.tournamentId) {
-                const tournament = save.tournaments.find(t => t.id === match.tournamentId)
+                const tournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
                 let homeScore = match.result.homeScore
                 let awayScore = match.result.awayScore
 
@@ -2080,13 +2079,13 @@ export class AtomicWeekProcessor {
         // 5. Transfer Rumors (Random chance each week)
         if (rng.next() < 0.15 && save.currentWeek > 4) { // 15% chance per week
             const allPlayers = save.players.filter(p => {
-                const contract = save.contracts.find(c => c.playerId === p.id)
+                const contract = idx?.contractIndex.get(p.id) ?? save.contracts.find(c => c.playerId === p.id)
                 return contract && contract.endWeek - save.currentWeek < 12 // Expiring soon
             })
 
             if (allPlayers.length > 0) {
                 const player = allPlayers[Math.floor(rng.next() * allPlayers.length)]
-                const currentTeam = save.teams.find(t => t.rosterIds.includes(player.id))
+                const currentTeam = save.teams.find(t => t.rosterIds.includes(player.id)) // no index for roster membership
                 const interestedTeams = save.teams
                     .filter(t => t.id !== currentTeam?.id && t.budget > 100000)
                     .slice(0, 3)
@@ -2114,18 +2113,16 @@ export class AtomicWeekProcessor {
         }
 
         // 6. Rivalry Storylines (When two top teams face off)
+        // Pre-compute top 10 teams by Elo once for rivalry check
+        const topTeamIds = new Set([...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 10).map(t => t.id))
         const upcomingRivalry = save.scheduledMatches.find(m => {
             if (m.week !== save.currentWeek || m.isScrim) return false
-            const home = save.teams.find(t => t.id === m.homeTeamId)
-            const away = save.teams.find(t => t.id === m.awayTeamId)
-            // Both teams in top 10 by Elo
-            const topTeams = [...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 10).map(t => t.id)
-            return home && away && topTeams.includes(home.id) && topTeams.includes(away.id)
+            return topTeamIds.has(m.homeTeamId) && topTeamIds.has(m.awayTeamId)
         })
 
         if (upcomingRivalry && rng.next() < 0.5) {
-            const home = save.teams.find(t => t.id === upcomingRivalry.homeTeamId)
-            const away = save.teams.find(t => t.id === upcomingRivalry.awayTeamId)
+            const home = idx?.teamIndex.get(upcomingRivalry.homeTeamId) ?? save.teams.find(t => t.id === upcomingRivalry.homeTeamId)
+            const away = idx?.teamIndex.get(upcomingRivalry.awayTeamId) ?? save.teams.find(t => t.id === upcomingRivalry.awayTeamId)
 
             if (home && away) {
                 // Check head-to-head history
@@ -2180,24 +2177,24 @@ export class AtomicWeekProcessor {
     }
 
     private compactPersistentState(save: GameSave): void {
-        if (save.eventsLog.length > MAX_EVENTS_LOG) {
-            save.eventsLog = save.eventsLog.slice(0, MAX_EVENTS_LOG)
+        if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
+            save.eventsLog = save.eventsLog.slice(0, ARRAY_CAPS.eventsLog)
         }
 
-        if (save.completedMatches.length > MAX_COMPLETED_MATCHES) {
-            save.completedMatches = save.completedMatches.slice(-MAX_COMPLETED_MATCHES)
+        if (save.completedMatches.length > ARRAY_CAPS.completedMatches) {
+            save.completedMatches = save.completedMatches.slice(-ARRAY_CAPS.completedMatches)
         }
 
-        if (save.financeLedger.length > MAX_FINANCE_LEDGER) {
-            save.financeLedger = save.financeLedger.slice(-MAX_FINANCE_LEDGER)
+        if (save.financeLedger.length > ARRAY_CAPS.financeLedger) {
+            save.financeLedger = save.financeLedger.slice(-ARRAY_CAPS.financeLedger)
         }
 
-        if (save.transferHistory.length > MAX_TRANSFER_HISTORY) {
-            save.transferHistory = save.transferHistory.slice(-MAX_TRANSFER_HISTORY)
+        if (save.transferHistory.length > ARRAY_CAPS.transferHistory) {
+            save.transferHistory = save.transferHistory.slice(-ARRAY_CAPS.transferHistory)
         }
 
-        if (save.newsFeed.length > MAX_NEWS_FEED) {
-            save.newsFeed = save.newsFeed.slice(0, MAX_NEWS_FEED)
+        if (save.newsFeed.length > ARRAY_CAPS.newsFeed) {
+            save.newsFeed = save.newsFeed.slice(0, ARRAY_CAPS.newsFeed)
         }
 
         if (save.tournamentQualifications.length > 0) {
@@ -2205,8 +2202,8 @@ export class AtomicWeekProcessor {
                 save.tournamentQualifications,
                 save.currentWeek
             )
-            if (save.tournamentQualifications.length > MAX_TOURNAMENT_QUALIFICATIONS) {
-                save.tournamentQualifications = save.tournamentQualifications.slice(-MAX_TOURNAMENT_QUALIFICATIONS)
+            if (save.tournamentQualifications.length > ARRAY_CAPS.tournamentQualifications) {
+                save.tournamentQualifications = save.tournamentQualifications.slice(-ARRAY_CAPS.tournamentQualifications)
             }
         }
 

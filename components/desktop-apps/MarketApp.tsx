@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, memo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { GameEventSaveData } from "@/engine"
 import {
@@ -61,7 +61,7 @@ function calculateTacticalStats(p: any) {
     }
 }
 
-export function MarketApp({ events, onEventClick }: MarketAppProps) {
+function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
     // Game Store Data
     const players = useGameStore(state => state.players)
     const teams = useGameStore(state => state.teams)
@@ -562,3 +562,5 @@ export function MarketApp({ events, onEventClick }: MarketAppProps) {
         </div>
     )
 }
+
+export const MarketApp = memo(MarketAppComponent)

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
 import { Users } from "lucide-react"
@@ -9,7 +9,7 @@ interface SynergyChartProps {
     className?: string
 }
 
-export const SynergyChart: React.FC<SynergyChartProps> = ({ players, className }) => {
+const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className }) => {
 
 
     // 3. Calculate Radar Stats
@@ -36,24 +36,24 @@ export const SynergyChart: React.FC<SynergyChartProps> = ({ players, className }
 
     // Radar Chart Points
     // 5 points polygon
-    const points = stats.map((val, i) => {
+    const points = useMemo(() => stats.map((val, i) => {
         const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
         const r = (val / 100) * 80 // 80px radius max
         const x = 100 + r * Math.cos(angle)
         const y = 100 + r * Math.sin(angle)
         return `${x},${y}`
-    }).join(" ")
+    }).join(" "), [stats])
 
     const labels = ["Firepower", "Teamwork", "Tactics", "Utility", "Mental"]
-    const labelCoords = labels.map((label, i) => {
+    const labelCoords = useMemo(() => labels.map((label, i) => {
         const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
         const r = 105 // Label radius
         const x = 100 + r * Math.cos(angle)
         const y = 100 + r * Math.sin(angle)
         return { x, y, label, align: x < 90 ? 'end' : x > 110 ? 'start' : 'middle' }
-    })
+    }), [])
 
-    const overallScore = Math.round(stats.reduce((a, b) => a + b, 0) / 5)
+    const overallScore = useMemo(() => Math.round(stats.reduce((a, b) => a + b, 0) / 5), [stats])
 
     return (
         <div className={cn("flex flex-col items-center justify-center", className)}>
@@ -158,3 +158,6 @@ export const SynergyChart: React.FC<SynergyChartProps> = ({ players, className }
         </div>
     )
 }
+
+export const SynergyChart = memo(SynergyChartComponent)
+export default SynergyChart

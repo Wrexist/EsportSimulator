@@ -4,7 +4,7 @@
  * Indexes are transient (not persisted) and rebuilt on hydration and after state mutations.
  */
 
-import type { TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "@/engine/save-types"
+import type { TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData, TournamentSaveData, GameSave } from "@/engine/save-types"
 
 export interface EntityIndexes {
   _teamIndex: Map<string, TeamSaveData>
@@ -14,7 +14,67 @@ export interface EntityIndexes {
   _completedMatchIds: Set<string>
 }
 
-/** Build all indexes from current state arrays */
+/**
+ * Extended indexes for engine use (includes tournament data).
+ * Built once per processWeek() call for O(1) lookups across the entire save.
+ */
+export interface SaveIndexes {
+  teamIndex: Map<string, TeamSaveData>
+  playerIndex: Map<string, PlayerSaveData>
+  contractIndex: Map<string, ContractSaveData>
+  staffIndex: Map<string, StaffSaveData>
+  tournamentIndex: Map<string, TournamentSaveData>
+  completedMatchIndex: Map<string, { id: string }>
+}
+
+/** Build all indexes from a GameSave object (for engine use) */
+export function buildSaveIndexes(save: GameSave): SaveIndexes {
+  const teamIndex = new Map<string, TeamSaveData>()
+  for (const team of save.teams) {
+    teamIndex.set(team.id, team)
+  }
+
+  const playerIndex = new Map<string, PlayerSaveData>()
+  for (const player of save.players) {
+    playerIndex.set(player.id, player)
+  }
+
+  const contractIndex = new Map<string, ContractSaveData>()
+  for (const contract of save.contracts) {
+    contractIndex.set(contract.playerId, contract)
+  }
+
+  const staffIndex = new Map<string, StaffSaveData>()
+  for (const s of save.staff) {
+    staffIndex.set(s.id, s)
+  }
+
+  const tournamentIndex = new Map<string, TournamentSaveData>()
+  for (const t of save.tournaments) {
+    tournamentIndex.set(t.id, t)
+  }
+
+  const completedMatchIndex = new Map<string, { id: string }>()
+  for (const m of save.completedMatches) {
+    completedMatchIndex.set(m.id, m)
+  }
+
+  return { teamIndex, playerIndex, contractIndex, staffIndex, tournamentIndex, completedMatchIndex }
+}
+
+/**
+ * Build a bracket lookup map for a tournament's playoff bracket.
+ * Call once per tournament processing to avoid repeated .find() on bracket arrays.
+ */
+export function buildBracketIndex<T extends { id: string }>(bracket: T[]): Map<string, T> {
+  const map = new Map<string, T>()
+  for (const match of bracket) {
+    map.set(match.id, match)
+  }
+  return map
+}
+
+/** Build all indexes from current state arrays (for store use) */
 export function buildEntityIndexes(
   teams: TeamSaveData[],
   players: PlayerSaveData[],
@@ -74,4 +134,10 @@ export function getContractByPlayerId(contracts: ContractSaveData[], index: Map<
 export function isMatchCompleted(completedMatchIds: Set<string> | undefined, completedMatches: { id: string }[], matchId: string): boolean {
   if (completedMatchIds) return completedMatchIds.has(matchId)
   return completedMatches.some(cm => cm.id === matchId)
+}
+
+/** Get a tournament by ID, falling back to linear scan */
+export function getTournamentById(tournaments: TournamentSaveData[], index: Map<string, TournamentSaveData> | undefined, id: string): TournamentSaveData | undefined {
+  if (index) return index.get(id)
+  return tournaments.find(t => t.id === id)
 }

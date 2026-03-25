@@ -23,10 +23,10 @@ const ROUND_START_DELAY_MS = 1500
 type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 
 interface LiveMatchRuntimeData {
-    match: any
+    match: Record<string, unknown>
     result: MatchResult
-    homeTeam: any
-    awayTeam: any
+    homeTeam: Record<string, unknown>
+    awayTeam: Record<string, unknown>
     homePlayerIds: string[]
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
@@ -64,19 +64,20 @@ function getNormalizedSeed(rawSeed: unknown, matchId: string): number {
 
 function getActivePlayersByRosterOrder(
     team: { rosterIds?: string[]; roster?: string[] },
-    allPlayers: Array<{ id: string }>
+    allPlayers: Array<{ id: string }>,
+    playerMap?: Map<string, { id: string }>
 ): Player[] {
     const rosterIds = Array.isArray(team.rosterIds) ? team.rosterIds : (Array.isArray(team.roster) ? team.roster : [])
     const activeRosterIds = selectActiveRosterIds(rosterIds, ACTIVE_PLAYERS_PER_TEAM)
     const resolvedPlayers: Player[] = []
     for (const playerId of activeRosterIds) {
-        const player = allPlayers.find(p => p.id === playerId)
+        const player = playerMap?.get(playerId) ?? allPlayers.find(p => p.id === playerId)
         if (player) resolvedPlayers.push(player as unknown as Player)
     }
     return resolvedPlayers
 }
 
-function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): any {
+function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): Record<string, unknown> {
     return {
         map: mapId,
         ctStartTeamId: homeStartsCT ? homeTeamId : awayTeamId,
@@ -90,13 +91,13 @@ function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: s
 }
 
 function buildCanonicalResultMaps(
-    existingMaps: any[] | undefined,
+    existingMaps: Record<string, unknown>[] | undefined,
     canonicalMaps: MapId[],
     homeTeamId: string,
     awayTeamId: string,
     mapStartingSides: Record<string, string> | undefined,
     seed: number
-): any[] {
+): Record<string, unknown>[] {
     const sourceMaps = Array.isArray(existingMaps) ? existingMaps : []
     return canonicalMaps.map((mapId, mapIndex) => {
         const existing = sourceMaps[mapIndex]
@@ -289,8 +290,10 @@ export function useLiveMatch(id: string) {
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)
         if (!hTeam || !aTeam) return
 
-        const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>)
-        const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>)
+        // Build player lookup map for O(1) roster resolution
+        const playerMap = new Map(players.map(p => [p.id, p]))
+        const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
+        const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         if (homePlayers.length === 0 || awayPlayers.length === 0) return
 
         const seed = getNormalizedSeed((foundMatch as any).seed, foundMatch.id)
