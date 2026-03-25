@@ -46,7 +46,7 @@ export default function EquipmentPage() {
     const [selectedType, setSelectedType] = useState<EquipmentType | "ALL">("ALL")
     const [selectedItem, setSelectedItem] = useState<EquipmentCatalogItem | null>(null)
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
     const equipmentStatus = useMemo(() => {
         if (!playerTeam) return []

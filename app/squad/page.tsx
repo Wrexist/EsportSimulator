@@ -11,12 +11,12 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, TrendingUp, Zap, Gamepad2, Heart, ArrowUpRight, User as UserIcon, Users, Target, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ChemistryMatrix } from "@/components/squad/ChemistryMatrix"
+import ChemistryMatrix from "@/components/squad/ChemistryMatrix"
 import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { RoleTrainingModal } from "@/components/training/RoleTrainingModal"
 import { SynergyChart } from "@/components/squad/SynergyChart"
@@ -44,7 +44,7 @@ export default function SquadPage() {
     promoteProspect: state.promoteProspect,
     addToast: state.addToast,
   })))
-  const teamData = teams.find(t => t.id === playerTeamId)
+  const teamData = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
@@ -61,15 +61,17 @@ export default function SquadPage() {
 
 
   // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
-  const roster = (teamData.rosterIds || [])
-    .map((id, index) => {
-      const player = players.find(p => p.id === id)
-      if (!player) return null
-      const evaluation = evaluatePlayer(player as any)
-      const playerTier = getDisplayPlayerTier(evaluation.overallRating, teamData?.tier as TierLevel)
-      return { ...player, evaluation, playerTier, originalIndex: index }
-    })
-    .filter(Boolean) as any[]
+  const roster = useMemo(() => {
+    return (teamData.rosterIds || [])
+      .map((id, index) => {
+        const player = players.find(p => p.id === id)
+        if (!player) return null
+        const evaluation = evaluatePlayer(player as any)
+        const playerTier = getDisplayPlayerTier(evaluation.overallRating, teamData?.tier as TierLevel)
+        return { ...player, evaluation, playerTier, originalIndex: index }
+      })
+      .filter(Boolean) as any[]
+  }, [players, teamData?.rosterIds, teamData?.tier])
 
   // Split into Active and Bench
   const activeRoster = roster.slice(0, 5)

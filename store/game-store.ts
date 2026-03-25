@@ -734,10 +734,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         if (!candidates.includes(legendId)) return
 
         // Find the legend in players array (they're pre-loaded as retired)
-        const legend = state.players.find(p => p.id === legendId)
+        const legend = (state._playerIndex?.get(legendId) ?? state.players.find(p => p.id === legendId))
         if (!legend) return
 
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
 
         // Reactivate the legend
@@ -789,8 +789,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       }),
       debugTriggerInjury: (playerId) => set(state => {
         if (!debugToolsEnabled()) return
-        const targetId = playerId || state.teams.find(t => t.id === state.playerTeamId)?.rosterIds[0];
-        const player = state.players.find(p => p.id === targetId);
+        const targetId = playerId || (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))?.rosterIds[0];
+        const player = (state._playerIndex?.get(targetId!) ?? state.players.find(p => p.id === targetId));
         if (player) {
           player.injury = {
             type: "RSI", // Using string literal matching type
@@ -854,10 +854,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugTriggerRetirement: () => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
         const rosterPlayers = myTeam.rosterIds
-          .map(id => state.players.find(p => p.id === id))
+          .map(id => (state._playerIndex?.get(id) ?? state.players.find(p => p.id === id)))
           .filter(Boolean) as PlayerSaveData[]
         const candidate = rosterPlayers
           .filter(p => !p.isRetired && !p.isLegendary && p.age >= 20)
@@ -890,10 +890,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugBoostPlayerSkill: (playerId, amount = 5) => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state.players.find(p => p.id === targetId)
+        const player = (state._playerIndex?.get(targetId) ?? state.players.find(p => p.id === targetId))
         if (!player) return
         player.skill = Math.min(99, player.skill + amount)
         state.toasts.push({ id: nextDeterministicId(state, "toast_debug"), message: `${player.nickname} skill +${amount} → ${player.skill}`, type: "level_up" })
@@ -901,11 +901,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugMaxAllSkills: () => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
         let count = 0
         myTeam.rosterIds.forEach(id => {
-          const player = state.players.find(p => p.id === id)
+          const player = (state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))
           if (player) { player.skill = 99; count++ }
         })
         state.toasts.push({ id: nextDeterministicId(state, "toast_debug"), message: `${count} players set to skill 99!`, type: "level_up" })
@@ -913,10 +913,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugTriggerTransferOffer: () => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam || myTeam.rosterIds.length === 0) return
         const bestPlayer = myTeam.rosterIds
-          .map(id => state.players.find(p => p.id === id))
+          .map(id => (state._playerIndex?.get(id) ?? state.players.find(p => p.id === id)))
           .filter(Boolean)
           .sort((a: any, b: any) => b.skill - a.skill)[0] as PlayerSaveData | undefined
         if (!bestPlayer) return
@@ -944,10 +944,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugAddXP: (playerId, amount = 500) => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state.players.find(p => p.id === targetId)
+        const player = (state._playerIndex?.get(targetId) ?? state.players.find(p => p.id === targetId))
         if (!player) return
         player.xp = (player.xp || 0) + amount
         const xpNeeded = (player.level || 1) * 1000
@@ -963,18 +963,18 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       debugSetPlayerAge: (playerId, age = 37) => set(state => {
         if (!debugToolsEnabled()) return
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state.players.find(p => p.id === targetId)
+        const player = (state._playerIndex?.get(targetId) ?? state.players.find(p => p.id === targetId))
         if (!player) return
         player.age = age
         state.toasts.push({ id: nextDeterministicId(state, "toast_debug"), message: `${player.nickname} age set to ${age}`, type: "info" })
       }),
 
       treatInjury: (playerId) => set(state => {
-        const player = state.players.find(p => p.id === playerId);
-        const team = state.teams.find(t => t.id === state.playerTeamId);
+        const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId));
+        const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId));
         if (!player || !player.injury || !team) return;
 
         const COST = 5000;
@@ -1303,7 +1303,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Fatigue check for Bootcamps
         if (normalizedActivity.type === "BOOTCAMP" && normalizedActivity.duration >= 1) {
-          const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
+          const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           const players = state.players.filter(p => playerTeam?.rosterIds.includes(p.id))
           const avgFatigue = players.reduce((acc, p) => acc + p.fatigue, 0) / (players.length || 1)
 
@@ -1482,7 +1482,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         let tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === seriesId)
         if (!tournament) return { eligible: false, reason: "Tournament not found" }
 
-        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!myTeam) return { eligible: false, reason: "Team not found" }
 
         const seasonNumber = getSeasonFromTournamentId(tournamentId) ?? getSeasonFromWeek(state.currentWeek)
@@ -2069,7 +2069,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       switchTeam: (newTeamId: string) => {
         set(state => {
-          const team = state.teams.find(t => t.id === newTeamId)
+          const team = (state._teamIndex?.get(newTeamId) ?? state.teams.find(t => t.id === newTeamId))
           if (!team) return
 
           state.playerTeamId = newTeamId
@@ -3122,7 +3122,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             let normalizedMoney = 0
 
             if (teamId && (money || reputation)) {
-              resolvedTeam = state.teams.find(t => t.id === teamId)
+              resolvedTeam = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
               if (!resolvedTeam) return
 
               const moneyValidation = parseBoundedInt(money || 0, "Event money effect", -MAX_TRANSFER_FEE, MAX_TRANSFER_FEE)
@@ -3136,7 +3136,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }
 
             if (playerId && (morale || loyalty)) {
-              const player = state.players.find(p => p.id === playerId)
+              const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
               if (player) {
                 if (morale) player.morale = Math.max(0, Math.min(100, player.morale + morale))
                 if (loyalty) player.loyalty = Math.max(0, Math.min(100, player.loyalty + loyalty))
@@ -3164,7 +3164,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Legend Coach Hire — special handling
           if (eventId.startsWith("legend_coach_opportunity_") && choiceId === "hire") {
             const legendData = event.data as any
-            const team = state.teams.find(t => t.id === state.playerTeamId)
+            const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
             if (team && legendData) {
               const salaryCost = legendData.salaryCost || 15000
               // Replace existing coach or add new one
@@ -3217,8 +3217,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const matchSeed = ensureDeterministicSeed(state, match)
           const matchRng = new SeededRNG(matchSeed)
 
-          const homeTeam = state.teams.find(t => t.id === match.homeTeamId)
-          const awayTeam = state.teams.find(t => t.id === match.awayTeamId)
+          const homeTeam = (state._teamIndex?.get(match.homeTeamId) ?? state.teams.find(t => t.id === match.homeTeamId))
+          const awayTeam = (state._teamIndex?.get(match.awayTeamId) ?? state.teams.find(t => t.id === match.awayTeamId))
           if (!homeTeam || !awayTeam || !state.playerTeamId) return
 
           const isPlayerMatch = match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId
@@ -3718,12 +3718,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (matchDay > state.currentDay) return
         }
 
-        const hTeam = state.teams.find(t => t.id === match.homeTeamId)
-        const aTeam = state.teams.find(t => t.id === match.awayTeamId)
+        const hTeam = (state._teamIndex?.get(match.homeTeamId) ?? state.teams.find(t => t.id === match.homeTeamId))
+        const aTeam = (state._teamIndex?.get(match.awayTeamId) ?? state.teams.find(t => t.id === match.awayTeamId))
         if (!hTeam || !aTeam) return
 
-        const hPlayers = hTeam.rosterIds.map(id => state.players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
-        const aPlayers = aTeam.rosterIds.map(id => state.players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
+        const hPlayers = hTeam.rosterIds.map(id => (state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))).filter(Boolean) as unknown as Player[]
+        const aPlayers = aTeam.rosterIds.map(id => (state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))).filter(Boolean) as unknown as Player[]
 
         const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id))
         const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id))
@@ -3775,7 +3775,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Handle release to free agency
           if (toTeamId === "FA") {
             const sourceTeam = fromTeamId && fromTeamId !== "FA"
-              ? state.teams.find(t => t.id === fromTeamId)
+              ? (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId))
               : state.teams.find(t => t.rosterIds.includes(playerId))
             if (sourceTeam) {
               sourceTeam.rosterIds = sourceTeam.rosterIds.filter(id => id !== playerId)
@@ -3790,7 +3790,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               sourceTeam.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
             }
             state.contracts = state.contracts.filter(c => c.playerId !== playerId)
-            const releasedPlayer = state.players.find(p => p.id === playerId)
+            const releasedPlayer = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
             if (releasedPlayer) {
               (releasedPlayer as any).forSale = false
             }
@@ -3798,7 +3798,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             return
           }
 
-          const toTeam = state.teams.find(t => t.id === toTeamId)
+          const toTeam = (state._teamIndex?.get(toTeamId) ?? state.teams.find(t => t.id === toTeamId))
           if (!toTeam) {
             result = { success: false, message: "Target team not found" }
             return
@@ -3811,7 +3811,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
           const normalizedFee = feeValidation.value
 
-          const transferPlayerRecord = state.players.find(p => p.id === playerId)
+          const transferPlayerRecord = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (!transferPlayerRecord) {
             result = { success: false, message: "Player not found" }
             return
@@ -3842,7 +3842,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
           // 0. Validate and Strategic Refusal Check (Phase 7 Enh)
           if (fromTeamId && fromTeamId !== "FA") {
-            fromTeam = state.teams.find(t => t.id === fromTeamId) || null
+            fromTeam = (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId)) || null
             if (!fromTeam) {
               result = { success: false, message: "Source team not found" }
               return
@@ -3960,7 +3960,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           // 5. Update Player Status
-          const updatedPlayer = state.players.find(p => p.id === playerId)
+          const updatedPlayer = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (updatedPlayer) {
             (updatedPlayer as any).forSale = false
           }
@@ -3995,11 +3995,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // 7. Transfer History
           if (state.transferHistory) {
-            const player = state.players.find(p => p.id === playerId)
+            const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
             let fromName = "Free Agent"
 
             if (fromTeamId && fromTeamId !== "FA") {
-              const fTeam = state.teams.find(t => t.id === fromTeamId)
+              const fTeam = (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId))
               if (fTeam) fromName = fTeam.name
             }
 
@@ -4059,7 +4059,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const staffIndex = state.staff.findIndex(s => s.id === staffId)
           if (staffIndex !== -1) {
             const staffMember = state.staff[staffIndex]
-            const team = state.teams.find(t => t.id === staffMember.teamId)
+            const team = (state._teamIndex?.get(staffMember.teamId) ?? state.teams.find(t => t.id === staffMember.teamId))
             if (team) {
               team.staffIds = team.staffIds.filter(id => id !== staffId)
             }
@@ -4086,7 +4086,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       unlockSkill: (playerId: string, skillId: string, cost: number) => {
         set((state) => {
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (player && (player.availableSkillPoints || 0) >= cost) {
             if (!player.perks) player.perks = []
             if (!player.perks.includes(skillId)) {
@@ -4099,7 +4099,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       upgradeFacility: (teamId, facilityType) => {
         set(state => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) return
 
           if (!team.facilities) team.facilities = []
@@ -4201,7 +4201,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       signSponsor: (teamId, sponsor) => {
         let result = { success: false, message: "Sponsor signing failed." }
         set(state => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) {
             result = { success: false, message: "Team not found." }
             return
@@ -4264,7 +4264,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       purchaseEquipment: (catalogId) => {
         let result = { success: false, error: "" }
         set(state => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) {
             result = { success: false, error: "Team not found" }
             return
@@ -4283,7 +4283,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       upgradeMerchStore: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -4323,7 +4323,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       toggleMerchItem: (teamId, itemType) => {
         let result = { success: false, message: "Team not found" }
         set((state) => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) return
 
           if (!team.activeMerchItems) team.activeMerchItems = []
@@ -4341,7 +4341,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set((state) => {
           if (!state.playerTeamId || teamId !== state.playerTeamId) return
           if (!VALID_PLAYSTYLES.has(playstyle)) return
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (team) {
             team.playstyle = playstyle
           }
@@ -4352,7 +4352,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set((state) => {
           if (!state.playerTeamId || teamId !== state.playerTeamId) return
           if (!VALID_ECONOMY_STYLES.has(economyStyle)) return
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (team) {
             team.economyStyle = economyStyle
           }
@@ -4362,7 +4362,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       setTargetPlayer: (teamId, targetPlayerId) => {
         set((state) => {
           if (!state.playerTeamId || teamId !== state.playerTeamId) return
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (team) {
             if (!targetPlayerId) {
               team.targetPlayerId = undefined
@@ -4387,7 +4387,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
             if (match.week < state.currentWeek) return
 
-            const team = state.teams.find(t => t.id === state.playerTeamId)
+            const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
             if (team) {
               // Check funds
               if (team.budget < VOD_REVIEW_COST) return
@@ -4412,7 +4412,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       performMentalReset: (matchId?: string) => {
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team || team.budget < MENTAL_RESET_COST) return
 
           if (matchId) {
@@ -4438,7 +4438,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Boost morale for all players in roster
           team.rosterIds.forEach(pid => {
-            const player = state.players.find(p => p.id === pid)
+            const player = (state._playerIndex?.get(pid) ?? state.players.find(p => p.id === pid))
             if (player) {
               player.morale = Math.min(100, (player.morale || 70) + 15)
             }
@@ -4448,7 +4448,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       swapRosterPositions: (teamId, index1, index2) => {
         set((state) => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (team) {
             // Validate indices
             if (index1 >= 0 && index1 < team.rosterIds.length && index2 >= 0 && index2 < team.rosterIds.length) {
@@ -4462,7 +4462,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       promotePlayer: (playerId) => {
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) return
 
           // Check Phase 70 academy system first
@@ -4483,7 +4483,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               // Add to main roster (PlayerSaveData already exists in state.players)
               team.rosterIds.push(playerId)
               // Create a basic contract
-              const playerData = state.players.find(p => p.id === playerId)
+              const playerData = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
               const potential = playerData?.potential ?? 50
               state.contracts.push({
                 playerId,
@@ -4601,7 +4601,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Helpers
       getPlayerTeam: () => {
         const state = get()
-        return state.teams.find(t => t.id === state.playerTeamId)
+        return (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
       },
 
       getUpcomingMatches: (limit = 5) => {
@@ -4623,7 +4623,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       calculateTeamRating: () => {
         const state = get()
-        const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (!playerTeam) return 0
 
         const teamPlayers = state.players
@@ -4645,7 +4645,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             return
           }
 
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -4770,7 +4770,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       debugAddFunds: (amount: number) => {
         if (!debugToolsEnabled()) return
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (team) {
             team.budget = (team.budget || 0) + amount
             state.financeLedger.push({
@@ -4790,10 +4790,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       debugHealAll: () => {
         if (!debugToolsEnabled()) return
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (team) {
             team.rosterIds.forEach(pid => {
-              const player = state.players.find(p => p.id === pid)
+              const player = (state._playerIndex?.get(pid) ?? state.players.find(p => p.id === pid))
               if (player) {
                 player.health = 100
                 player.fatigue = 0
@@ -4808,10 +4808,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       debugMaxMorale: () => {
         if (!debugToolsEnabled()) return
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (team) {
             team.rosterIds.forEach(pid => {
-              const player = state.players.find(p => p.id === pid)
+              const player = (state._playerIndex?.get(pid) ?? state.players.find(p => p.id === pid))
               if (player) {
                 player.morale = 100
                 player.loyalty = 100
@@ -4854,7 +4854,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       setPlayerTrainingFocus: (playerId: string, focus: string) => {
         set((state) => {
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (player) {
             (player as any).trainingFocus = focus
           }
@@ -4863,7 +4863,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       listPlayerForTransfer: (playerId, price) => {
         set((state) => {
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           const normalizedPrice = parseBoundedInt(price, "Transfer listing price", 0, MAX_TRANSFER_FEE)
           if (!normalizedPrice.ok) {
             return
@@ -4886,7 +4886,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const offerData = event.data as any
-          const newTeam = state.teams.find(t => t.id === offerData.offeringTeamId)
+          const newTeam = (state._teamIndex?.get(offerData.offeringTeamId) ?? state.teams.find(t => t.id === offerData.offeringTeamId))
           if (!newTeam) {
             result = { success: false, message: "Team no longer exists" }
             return
@@ -4900,7 +4900,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Store old team ID for logging
           const oldTeamId = state.playerTeamId
-          const oldTeam = state.teams.find(t => t.id === oldTeamId)
+          const oldTeam = (state._teamIndex?.get(oldTeamId!) ?? state.teams.find(t => t.id === oldTeamId))
 
           // === CRITICAL: Switch teams ===
           state.playerTeamId = newTeam.id
@@ -4952,7 +4952,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       unlistPlayerForTransfer: (playerId) => {
         set((state) => {
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (player) {
             (player as any).forSale = false;
             (player as any).transferListingPrice = undefined
@@ -5051,13 +5051,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         let toastMsg = ""
         let toastType: "info" | "warning" = "info"
         set((state) => {
-          const contract = state.contracts.find(c => c.playerId === playerId)
+          const contract = (state._contractByPlayerIndex?.get(playerId) ?? state.contracts.find(c => c.playerId === playerId))
           if (!contract) {
             toastMsg = "Contract not found."
             toastType = "warning"
             return
           }
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) return
           const newSalary = Math.round(contract.salaryPerWeek * 1.1)
           const weeklyCost = newSalary - contract.salaryPerWeek
@@ -5105,7 +5105,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           ) || state.staff.find(s => s.role === "scout")
           const scoutId = scoutStaff?.id || "default_scout"
 
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team || team.budget < 3000) {
             return
           }
@@ -5129,7 +5129,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       getScoutingLevel: (playerId: string) => {
         const state = get()
         // Own team players are always fully scouted
-        const team = state.teams.find(t => t.id === state.playerTeamId)
+        const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (team?.rosterIds.includes(playerId)) {
           return "ELITE"
         }
@@ -5141,7 +5141,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       isPlayerScouted: (playerId: string) => {
         const state = get()
         // Own team players are always scouted
-        const team = state.teams.find(t => t.id === state.playerTeamId)
+        const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
         if (team?.rosterIds.includes(playerId)) {
           return true
         }
@@ -5209,7 +5209,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const staffMember = state.marketStaff[staffIndex]
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
 
           if (!team) return
 
@@ -5414,7 +5414,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Phase 21: Career Narrative - Tournament Win News
           if (placement === 1) {
-            const team = state.teams.find(t => t.id === teamId)
+            const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
             const tournamentName = FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.name || "The Tournament"
 
             // Phase 40: Major Tracking
@@ -5450,10 +5450,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       updatePlayer: (playerId, updates) => {
         set((state) => {
-          const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
+          const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!playerTeam || !playerTeam.rosterIds.includes(playerId)) return
 
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (player) {
             const numericClamp = (
               value: unknown,
@@ -5502,7 +5502,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const amountValidation = parseBoundedInt(amount, "Budget adjustment", -MAX_TRANSFER_FEE, MAX_TRANSFER_FEE)
           if (!amountValidation.ok) return
 
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (team) {
             const nextBudget = (team.budget || 0) + amountValidation.value
             if (nextBudget < 0) return
@@ -5516,7 +5516,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       buildAcademy: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -5557,7 +5557,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       upgradeAcademy: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === teamId)
+          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -5603,7 +5603,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       scoutProspect: (tier: ScoutingTier) => {
         let result: { success: boolean; player?: PlayerSaveData; message: string } = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -5658,7 +5658,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       enrollProspect: (playerId) => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -5676,7 +5676,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             return
           }
 
-          const player = state.players.find(p => p.id === playerId)
+          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
           if (!player) {
             result = { success: false, message: "Player not found" }
             return
@@ -5728,7 +5728,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
           const normalizedReleaseCost = releaseCostValidation.value
 
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           const prospectIndex = state.academyPlayers.findIndex(p => p.id === prospectId)
 
           if (prospectIndex === -1) {
@@ -5742,7 +5742,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const prospect = state.academyPlayers[prospectIndex]
-          const player = state.players.find(p => p.id === prospect.playerId)
+          const player = (state._playerIndex?.get(prospect.playerId) ?? state.players.find(p => p.id === prospect.playerId))
 
           // Deduct release cost
           if (team) {
@@ -5766,7 +5766,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       promoteProspect: (prospectId, contract) => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team) {
             result = { success: false, message: "Team not found" }
             return
@@ -5779,7 +5779,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const prospect = state.academyPlayers[prospectIndex]
-          const player = state.players.find(p => p.id === prospect.playerId)
+          const player = (state._playerIndex?.get(prospect.playerId) ?? state.players.find(p => p.id === prospect.playerId))
 
           if (!player) {
             result = { success: false, message: "Player data not found" }
@@ -5850,7 +5850,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       scheduleDevMatch: () => {
         let result = { success: false, message: "" }
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team || !team.academyFacility || team.academyFacility.level < 2) {
             result = { success: false, message: "Academy Level 2 required for matches" }
             return
@@ -5884,7 +5884,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const prospectPlayers = activeStarters.map(ap =>
-            state.players.find(p => p.id === ap.playerId)
+            (state._playerIndex?.get(ap.playerId) ?? state.players.find(p => p.id === ap.playerId))
           ).filter(Boolean) as PlayerSaveData[]
           const academyRng = new SeededRNG(state.lastRngSeed || generateSeed())
 
@@ -5922,7 +5922,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       processAcademyWeek: () => {
         set((state) => {
-          const team = state.teams.find(t => t.id === state.playerTeamId)
+          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
           if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
           const academyLevel = team.academyFacility.level
@@ -5945,7 +5945,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Process each prospect
           state.academyPlayers.forEach(prospect => {
-            const player = state.players.find(p => p.id === prospect.playerId)
+            const player = (state._playerIndex?.get(prospect.playerId) ?? state.players.find(p => p.id === prospect.playerId))
             if (!player) return
 
             const isStarter = starterIds.includes(prospect.id)

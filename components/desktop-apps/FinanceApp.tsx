@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 import { DollarSign, TrendingUp, TrendingDown, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -18,7 +18,7 @@ const CATEGORY_COLORS: Record<string, string> = {
     SPONSOR: "#8b5cf6", // violet-500
 }
 
-export function FinanceApp() {
+function FinanceAppComponent() {
     const { playerTeamId, teams, financeLedger, currentWeek } = useGameStore(useShallow(state => ({
         playerTeamId: state.playerTeamId,
         teams: state.teams,
@@ -200,3 +200,5 @@ export function FinanceApp() {
         </div>
     )
 }
+
+export const FinanceApp = memo(FinanceAppComponent)

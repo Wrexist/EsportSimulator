@@ -56,7 +56,7 @@ export default function RankingsPage() {
     const [activeTab, setActiveTab] = useState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "TROPHIES" | "CIRCUIT">("WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
     // Calculate rankings based on Elo (Phase 19)
     const rankedTeams = useMemo(() => {

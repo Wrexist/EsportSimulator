@@ -61,6 +61,11 @@ export const FULL_TOURNAMENT_CALENDAR = tournamentData as TournamentDefinition[]
 // Sort first so derived lists are also sorted
 FULL_TOURNAMENT_CALENDAR.sort((a, b) => a.startWeek - b.startWeek)
 
+/** O(1) lookup map for tournament definitions by ID (static, built once at module load) */
+export const TOURNAMENT_CALENDAR_INDEX = new Map<string, TournamentDefinition>(
+    FULL_TOURNAMENT_CALENDAR.map(t => [t.id, t])
+)
+
 // ============================================================================
 // DERIVED LISTS (For Backward Compatibility)
 // ============================================================================
@@ -113,13 +118,13 @@ export function getDiscoveredTournaments(currentWeek: number): TournamentDefinit
 }
 
 export function getTournamentById(id: string): TournamentDefinition | undefined {
-    // Try exact match first
-    const exact = FULL_TOURNAMENT_CALENDAR.find(t => t.id === id)
+    // Try exact match first (O(1) via index)
+    const exact = TOURNAMENT_CALENDAR_INDEX.get(id)
     if (exact) return exact
 
     // Try stripping seasonal suffix (e.g., "major_copenhagen_s1" -> "major_copenhagen")
     const baseId = id.replace(/_s\d+$/, '')
-    return FULL_TOURNAMENT_CALENDAR.find(t => t.id === baseId)
+    return TOURNAMENT_CALENDAR_INDEX.get(baseId)
 }
 
 export function getEntryPolicy(tournament: TournamentDefinition): EntryPolicy {

@@ -1,6 +1,7 @@
 import { GameSave } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
+import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 
 const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {
   awper: PlayerRole.AWPER,
@@ -24,10 +25,11 @@ export class TrainingManager {
     playerId: string,
     targetRole: Role
   ): { success: boolean, message: string } {
-    const team = game.teams.find(t => t.id === teamId)
+    const idx = buildSaveIndexes(game)
+    const team = idx.teamIndex.get(teamId) ?? game.teams.find(t => t.id === teamId)
     if (!team) return { success: false, message: "Team not found" }
 
-    const player = game.players.find(p => p.id === playerId)
+    const player = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
     if (!player) return { success: false, message: "Player not found" }
 
     // 1. Check if already training
@@ -90,7 +92,8 @@ export class TrainingManager {
    * Cancel an active training session
    */
   static cancelTraining(game: GameSave, teamId: string, playerId: string) {
-    const team = game.teams.find(t => t.id === teamId)
+    const idx = buildSaveIndexes(game)
+    const team = idx.teamIndex.get(teamId) ?? game.teams.find(t => t.id === teamId)
     if (!team || !team.activeRoleTraining) return
 
     const cancelled = team.activeRoleTraining.find(t => t.playerId === playerId)
@@ -110,7 +113,7 @@ export class TrainingManager {
 
     // Training CANCEL event (only for player's own team)
     if (cancelled && teamId === game.playerTeamId) {
-      const player = game.players.find(p => p.id === playerId)
+      const player = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
       const weeksRemaining = cancelled.totalWeeks - cancelled.weeksCompleted
       const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
       game.eventsLog.unshift({
@@ -132,13 +135,14 @@ export class TrainingManager {
    * Pauses if funds run out or player is injured.
    */
   static processWeeklyTraining(game: GameSave) {
+    const idx = buildSaveIndexes(game)
     game.teams.forEach(team => {
       if (!team.activeRoleTraining || team.activeRoleTraining.length === 0) return
 
       // Iterate backwards to allow removal
       for (let i = team.activeRoleTraining.length - 1; i >= 0; i--) {
         const session = team.activeRoleTraining[i]
-        const player = game.players.find(p => p.id === session.playerId)
+        const player = idx.playerIndex.get(session.playerId) ?? game.players.find(p => p.id === session.playerId)
 
         // Pause training while injured
         if (player?.injury) {
@@ -230,7 +234,8 @@ export class TrainingManager {
     team: any,
     session: any
   ) {
-    const player = game.players.find(p => p.id === session.playerId)
+    const idx = buildSaveIndexes(game)
+    const player = idx.playerIndex.get(session.playerId) ?? game.players.find(p => p.id === session.playerId)
     if (!player) return
 
     // Swap Roles: New Role becomes Primary, Old Primary becomes Secondary

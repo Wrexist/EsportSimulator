@@ -150,23 +150,21 @@ export class EconomyEngine {
     // === EXPENSE LOGIC ===
 
     private static calculatePlayerWages(rosterIds: string[], contracts: ContractSaveData[]): number {
+        const contractMap = new Map(contracts.map(c => [c.playerId, c]))
         let total = 0
         rosterIds.forEach(id => {
-            const contract = contracts.find(c => c.playerId === id)
-            if (contract) {
-                total += contract.salaryPerWeek
-            }
+            const contract = contractMap.get(id)
+            if (contract) total += contract.salaryPerWeek
         })
         return total
     }
 
     private static calculateStaffWages(staffIds: string[], staff: StaffSaveData[]): number {
+        const staffMap = new Map(staff.map(s => [s.id, s]))
         let total = 0
         staffIds.forEach(id => {
-            const member = staff.find(s => s.id === id)
-            if (member) {
-                total += member.salaryPerWeek
-            }
+            const member = staffMap.get(id)
+            if (member) total += member.salaryPerWeek
         })
         return total
     }

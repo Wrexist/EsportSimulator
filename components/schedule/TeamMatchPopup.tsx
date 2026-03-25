@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Swords, Trophy, TrendingUp, Users, Play, Eye, MapPin, Calendar } from "lucide-react"
@@ -38,18 +38,17 @@ export function TeamMatchPopup({
 }: TeamMatchPopupProps) {
     const router = useRouter()
 
-    if (!isOpen || !opponent) return null
-
-    // Calculate opponent team rating
-    const opponentRating = opponentRoster.length > 0
+    // Memoize opponent rating and top players to avoid recalculating evaluatePlayer on every render
+    const opponentRating = useMemo(() => opponentRoster.length > 0
         ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p as any).overallRating, 0) / opponentRoster.length)
-        : 0
+        : 0, [opponentRoster])
 
-    // Get top 5 players sorted by rating
-    const topPlayers = [...opponentRoster]
+    const topPlayers = useMemo(() => [...opponentRoster]
         .map(p => ({ ...p, ovr: evaluatePlayer(p as any).overallRating }))
         .sort((a, b) => b.ovr - a.ovr)
-        .slice(0, 5)
+        .slice(0, 5), [opponentRoster])
+
+    if (!isOpen || !opponent) return null
 
     const handleGoToMatch = () => {
         onClose()

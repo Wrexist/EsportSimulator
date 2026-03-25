@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Trophy, Users, Star, Target, Crosshair, Award } from "lucide-react"
@@ -22,7 +22,7 @@ interface TournamentStatsProps {
     isCompleted?: boolean
 }
 
-export function TournamentStats({
+function TournamentStatsComponent({
     tournamentId,
     completedMatches,
     players,
@@ -75,6 +75,8 @@ export function TournamentStats({
         </div>
     )
 }
+
+export default memo(TournamentStatsComponent)
 
 // MVP Banner Component
 function MVPBanner({ mvp }: { mvp: TournamentMVP }) {

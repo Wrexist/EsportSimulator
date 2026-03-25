@@ -81,24 +81,35 @@ export default function TransfersPage() {
     )
   }
 
-  // Filter available players (not in user team, not retired)
-  const allFiltered = useMemo(() => players
-    .filter(p => !playerTeam.rosterIds.includes(p.id))
-    .filter(p => !p.isRetired)
-    .filter(p => p.nickname.toLowerCase().includes(debouncedSearch.toLowerCase()))
-    .filter(p => roleFilter ? p.role === roleFilter : true)
-    .sort((a, b) => {
-      const ovrA = (a.skill + a.tactic + a.teamwork) / 3
-      const ovrB = (b.skill + b.tactic + b.teamwork) / 3
-      return ovrB - ovrA
-    }), [players, playerTeam.rosterIds, debouncedSearch, roleFilter])
+  // Pre-build roster set for O(1) exclusion check and player→team map for O(1) team lookups
+  const { rosterSet, playerTeamMap } = useMemo(() => {
+    const rosterSet = new Set(playerTeam.rosterIds)
+    const playerTeamMap = new Map<string, typeof teams[0]>()
+    teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
+    return { rosterSet, playerTeamMap }
+  }, [playerTeam.rosterIds, teams])
+
+  // Filter available players (not in user team, not retired) - single-pass filter + precomputed OVR for sort
+  const allFiltered = useMemo(() => {
+    const searchLower = debouncedSearch.toLowerCase()
+    return players
+      .filter(p =>
+        !rosterSet.has(p.id) &&
+        !p.isRetired &&
+        p.nickname.toLowerCase().includes(searchLower) &&
+        (roleFilter ? p.role === roleFilter : true)
+      )
+      .sort((a, b) =>
+        ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
+      )
+  }, [players, rosterSet, debouncedSearch, roleFilter])
 
   const totalPages = Math.max(1, Math.ceil(allFiltered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages - 1)
   const availablePlayers = allFiltered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
 
   const getTeamForPlayer = (playerId: string) => {
-    return teams.find(t => t.rosterIds.includes(playerId))
+    return playerTeamMap.get(playerId)
   }
 
   // Calculate estimated weekly salary based on player value
