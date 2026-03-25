@@ -11,16 +11,17 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, TrendingUp, Zap, Gamepad2, Heart, ArrowUpRight, User as UserIcon, Users, Target, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import ChemistryMatrix from "@/components/squad/ChemistryMatrix"
+import dynamic from "next/dynamic"
+const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { useState, useMemo } from "react"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { RoleTrainingModal } from "@/components/training/RoleTrainingModal"
-import { SynergyChart } from "@/components/squad/SynergyChart"
-import { SystemBonuses } from "@/components/squad/SystemBonuses"
+const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
+const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
+const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export default function SquadPage() {

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -13,32 +14,45 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
-import { SeasonRecapModal } from "@/components/celebration/SeasonRecapModal"
+import dynamic from "next/dynamic"
+const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRecapModal").then(m => m.SeasonRecapModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
 
 export default function Page() {
   const router = useRouter()
-  const isInitialized = useGameStore(s => s.isInitialized)
-  const playerTeamId = useGameStore(s => s.playerTeamId)
-  const teams = useGameStore(s => s.teams)
-  const players = useGameStore(s => s.players)
-  const contracts = useGameStore(s => s.contracts)
-  const scheduledMatches = useGameStore(s => s.scheduledMatches)
-  const completedMatches = useGameStore(s => s.completedMatches)
-  const currentWeek = useGameStore(s => s.currentWeek)
-  const currentDay = useGameStore(s => s.currentDay)
-  const timeMode = useGameStore(s => s.timeMode)
+
+  // Consolidated data selectors (single subscription, shallow equality)
+  const {
+    isInitialized, playerTeamId, teams, players, contracts,
+    scheduledMatches, completedMatches, currentWeek, currentDay,
+    timeMode, _hasHydrated, saveId, pendingSeasonRecap,
+    gameOverReason, gameOverWeek, tournamentQualifications,
+    financeLedger, staff, storeLoading,
+  } = useGameStore(useShallow(s => ({
+    isInitialized: s.isInitialized,
+    playerTeamId: s.playerTeamId,
+    teams: s.teams,
+    players: s.players,
+    contracts: s.contracts,
+    scheduledMatches: s.scheduledMatches,
+    completedMatches: s.completedMatches,
+    currentWeek: s.currentWeek,
+    currentDay: s.currentDay,
+    timeMode: s.timeMode,
+    _hasHydrated: s._hasHydrated,
+    saveId: s.saveId,
+    pendingSeasonRecap: s.pendingSeasonRecap,
+    gameOverReason: s.gameOverReason,
+    gameOverWeek: s.gameOverWeek,
+    tournamentQualifications: s.tournamentQualifications,
+    financeLedger: s.financeLedger,
+    staff: s.staff,
+    storeLoading: s.isLoading,
+  })))
+
+  // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
-  const storeLoading = useGameStore(s => s.isLoading)
-  const _hasHydrated = useGameStore(s => s._hasHydrated)
-  const saveId = useGameStore(s => s.saveId)
-  const pendingSeasonRecap = useGameStore(s => s.pendingSeasonRecap)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
-  const gameOverReason = useGameStore(s => s.gameOverReason)
-  const gameOverWeek = useGameStore(s => s.gameOverWeek)
-  const tournamentQualifications = useGameStore(s => s.tournamentQualifications)
-  const financeLedger = useGameStore(s => s.financeLedger)
-  const staff = useGameStore(s => s.staff)
 
   const [isSimulating, setIsSimulating] = useState(false)
 

@@ -53,6 +53,7 @@ export function AppWindow({
         startWidth: number;
         startHeight: number;
         direction?: ResizeDirection;
+        parentRect?: DOMRect;
     } | null>(null)
 
     const windowRef = useRef<HTMLDivElement>(null)
@@ -117,7 +118,7 @@ export function AppWindow({
             let newY = startPosY + deltaY
 
             if (windowRef.current && windowRef.current.parentElement) {
-                const parentRect = windowRef.current.parentElement.getBoundingClientRect()
+                const parentRect = dragRef.current.parentRect ?? windowRef.current.parentElement.getBoundingClientRect()
                 const taskbarHeight = 56
                 const minVisible = 100
                 newX = Math.max(-startWidth + minVisible, Math.min(newX, parentRect.width - minVisible))
@@ -149,7 +150,8 @@ export function AppWindow({
             startPosY: position.y,
             startWidth: size.width,
             startHeight: size.height,
-            direction: dir
+            direction: dir,
+            parentRect: windowRef.current?.parentElement?.getBoundingClientRect(),
         }
 
         // Lock cursor style during drag
@@ -177,6 +179,7 @@ export function AppWindow({
             startPosY: position.y,
             startWidth: size.width,
             startHeight: size.height,
+            parentRect: windowRef.current?.parentElement?.getBoundingClientRect(),
             // no direction = move
         }
         document.addEventListener('mousemove', handleMove)

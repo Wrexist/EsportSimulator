@@ -11,6 +11,7 @@ import { useShallow } from "zustand/react/shallow"
 import type { ExitDialogVariant } from "./ExitConfirmDialog"
 import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
+import { debouncedStorage } from "@/engine/storage-adapter"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -83,6 +84,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                         // Stop periodic auto-save to prevent concurrent IndexedDB writes
                         clearInterval(autoSaveInterval)
 
+                        // Flush any pending debounced storage writes before saving
+                        try { await debouncedStorage.flush() } catch { /* best effort */ }
+
                         let state = useGameStore.getState()
 
                         if (state.isLoading) {
@@ -149,6 +153,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 if (state.autoSave && state.saveId && !state.isLoading) {
                     isSaving = true
                     try {
+                        // Flush pending debounced writes before saving
+                        await debouncedStorage.flush()
                         await state.saveGame()
                     } catch {
                         // Periodic auto-save silently retries next interval
