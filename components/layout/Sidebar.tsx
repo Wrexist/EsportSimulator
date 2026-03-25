@@ -27,7 +27,8 @@ import {
     Package,
     Award,
     Monitor,
-    Swords
+    Swords,
+    Handshake
 } from "lucide-react"
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -52,6 +53,7 @@ const menuItems = [
     { icon: Award, label: "Trophies", href: "/trophies" },
     { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
     { icon: Search, label: "Scouting", href: "/scouting" },
+    { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
     { icon: DollarSign, label: "Finances", href: "/finances" },
     { icon: Settings, label: "Settings & Tools", href: "/settings" },
 ]
