@@ -59,19 +59,32 @@ function applyTheme(theme: Theme) {
 }
 
 /**
- * Initialize theme on app load
+ * Initialize theme on app load.
+ * Returns a cleanup function that removes the media-query listener.
  */
+let _themeCleanup: (() => void) | null = null
+
 export function initializeTheme() {
+    // Clean up any previous listener before attaching a new one
+    _themeCleanup?.()
+    _themeCleanup = null
+
     const { theme } = useTheme.getState()
     applyTheme(theme)
 
     // Listen for system theme changes
     if (theme === 'system') {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        mediaQuery.addEventListener('change', (e) => {
-            applyTheme('system')
-        })
+        const handler = () => { applyTheme('system') }
+        mediaQuery.addEventListener('change', handler)
+        _themeCleanup = () => mediaQuery.removeEventListener('change', handler)
     }
+}
+
+/** Remove the media-query listener (call on unmount / cleanup) */
+export function cleanupTheme() {
+    _themeCleanup?.()
+    _themeCleanup = null
 }
 
 /**
