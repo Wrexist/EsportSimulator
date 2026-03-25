@@ -459,7 +459,7 @@ export class AIManager {
         })
     }
 
-    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: any) {
+    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
         // 5% chance per week to discover a youth prospect for AI teams
         if (rng.next() > 0.05) return
         if (team.rosterIds.length >= 7) return // Already have enough players
@@ -472,6 +472,7 @@ export class AIManager {
             const prospect = prospects[0]
             const playerId = `ai_prospect_${team.id}_${save.currentWeek}_${rng.int(1000, 9999)}`
             const baseSkill = prospect.skill || rng.int(30, 55)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prospect data from dynamic require lacks type info
             const prospectPlayer: any = {
                 id: playerId,
                 nickname: prospect.nickname || `Rookie_${rng.int(100, 999)}`,
@@ -525,7 +526,7 @@ export class AIManager {
         } catch { /* prospect-generator not available */ }
     }
 
-    static processAITeamLogic(save: GameSave, team: TeamSaveData, rng: any) {
+    static processAITeamLogic(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
         // This overlaps with processWeeklyAI. 
         // We can delegate to manageRoster/manageFinances here or keep them separate.
         // For now, let's call our new logic.

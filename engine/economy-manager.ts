@@ -1,6 +1,6 @@
 import { TacticalStrategy } from "@/types"
 import { SeededRNG } from "./rng"
-import { SponsorSaveData } from "./save-types"
+import type { TeamSaveData, SponsorSaveData, FacilitySaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "./save-types"
 
 /**
  * EconomyManager handles all CS2-specific financial logic including
@@ -339,10 +339,10 @@ export class EconomyManager {
    * Matches the logic in EconomyEngine for consistency.
    */
   generateFinancialReport(
-    team: any,
-    players: any[] = [],
-    staff: any[] = [],
-    contracts: any[] = []
+    team: TeamSaveData,
+    players: PlayerSaveData[] = [],
+    staff: StaffSaveData[] = [],
+    contracts: ContractSaveData[] = []
   ) {
     const followers = team.followers || (team.fanbase * 7)
     const merchLevel = team.merchStoreLevel || 1
@@ -350,10 +350,10 @@ export class EconomyManager {
 
     // Sponsor Income (includes reputation factor)
     const repFactor = 0.7 + (team.reputation / 100) * 0.6
-    const sponsors = (team.sponsors || []).reduce((sum: number, s: any) => sum + (s.weeklyPayout * repFactor), 0)
+    const sponsors = (team.sponsors || []).reduce((sum: number, s: SponsorSaveData) => sum + (s.weeklyPayout * repFactor), 0)
 
     // Fan/Merch Income
-    const fanZoneFacility = team.facilities?.find((f: any) => f.type === "FANZONE")
+    const fanZoneFacility = team.facilities?.find((f: FacilitySaveData) => f.type === "FANZONE")
     const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * 0.2
     const effectiveRate = 0.0015 // Must match BASE_FAN_INCOME_PER_FAN in economy-engine.ts
     const levelMultiplier = 1 + (merchLevel - 1) * 0.4
@@ -374,7 +374,7 @@ export class EconomyManager {
     }, 0)
 
     // Expenses: Facilities Upkeep (Exponential scale)
-    const facilityUpkeep = (team.facilities || []).reduce((sum: number, f: any) => {
+    const facilityUpkeep = (team.facilities || []).reduce((sum: number, f: FacilitySaveData) => {
       return sum + Math.floor(Math.pow(f.level, 1.25) * 500)
     }, 0)
 
@@ -432,7 +432,7 @@ export class SponsorGenerator {
     }
   }
 
-  static generateOffers(team: any, currentWeek: number = 1) {
+  static generateOffers(team: TeamSaveData, currentWeek: number = 1) {
     // Generate 3 offers: Standard, Premium, Elite
     return [
       this.createOffer(team, "STANDARD", currentWeek),
@@ -441,7 +441,7 @@ export class SponsorGenerator {
     ]
   }
 
-  private static createOffer(team: any, tier: "STANDARD" | "PREMIUM" | "ELITE", currentWeek: number) {
+  private static createOffer(team: TeamSaveData, tier: "STANDARD" | "PREMIUM" | "ELITE", currentWeek: number) {
     const followers = team.followers || 1000
     const reputation = team.reputation || 10
     const teamId = team.id || team.name || "unknown_team"
@@ -486,7 +486,7 @@ export class SponsorGenerator {
    * Generate 3-5 varied sponsor offers using SeededRNG.
    * Offer count and tier distribution scale with team reputation.
    */
-  static generateVariedOffers(team: any, currentWeek: number, rng: SeededRNG): SponsorSaveData[] {
+  static generateVariedOffers(team: TeamSaveData, currentWeek: number, rng: SeededRNG): SponsorSaveData[] {
     const reputation = team.reputation || 10
     const teamId = team.id || team.name || "unknown_team"
 
