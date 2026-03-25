@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine"
@@ -14,7 +14,7 @@ interface ChemistryMatrixProps {
     className?: string
 }
 
-export function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMatrixProps) {
+function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMatrixProps) {
     const activePlayers = useMemo(() => players.slice(0, 5), [players]) // Ensure max 5 for the pentagon
 
     const getSynergy = (id1: string, id2: string) => {
@@ -190,3 +190,5 @@ export function ChemistryMatrix({ players, synergyMatrix = {}, className }: Chem
         </div>
     )
 }
+
+export default memo(ChemistryMatrix)

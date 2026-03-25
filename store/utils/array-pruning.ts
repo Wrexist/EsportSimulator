@@ -4,16 +4,8 @@
  * and prevent unbounded memory growth during long play sessions.
  */
 
-/** Default caps for game arrays - reduced from engine maximums */
-export const ARRAY_CAPS = {
-  completedMatches: 2000,
-  eventsLog: 500,
-  financeLedger: 2000,
-  transferHistory: 1000,
-  newsFeed: 200,
-  academyMatchHistory: 200,
-  academyWeeklyReports: 100,
-} as const
+import { ARRAY_CAPS } from "@/engine/constants"
+export { ARRAY_CAPS }
 
 /**
  * Prune an array to the cap, keeping the most recent entries.

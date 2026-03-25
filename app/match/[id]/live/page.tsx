@@ -125,6 +125,10 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const { homeTeam, awayTeam } = matchData.current
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
 
+    // Build O(1) lookup maps for original players (used in roster rendering)
+    const originalHomeMap = useMemo(() => new Map(originalHomePlayers.map(p => [p.id, p])), [originalHomePlayers])
+    const originalAwayMap = useMemo(() => new Map(originalAwayPlayers.map(p => [p.id, p])), [originalAwayPlayers])
+
     // Dynamic Colors based on Side
     const homeIsCT = simState.homeStartsCT
     const homeBorderClass = homeIsCT ? "border-l-blue-500/30" : "border-l-orange-500/30"
@@ -243,7 +247,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                     {/* HOME TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-[40px] border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
                         {homeRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalHomePlayers.find(op => op.id === p.id)
+                            const originalPlayer = originalHomeMap.get(p.id)
                             return (
                                 <div key={p.id} className={cn("p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
                                     <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
@@ -447,7 +451,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                     {/* AWAY TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-[40px] border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
                         {awayRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalAwayPlayers.find(op => op.id === p.id)
+                            const originalPlayer = originalAwayMap.get(p.id)
                             return (
                                 <div key={p.id} className={cn("p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
                                     <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">

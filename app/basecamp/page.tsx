@@ -30,7 +30,7 @@ import {
   Loader2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import type { EquipmentItem } from "@/types/game"
 import { motion } from "framer-motion"
@@ -49,7 +49,7 @@ export default function BasecampPage() {
     upgradeFacility: state.upgradeFacility,
   })))
 
-  const playerTeam = teams.find(t => t.id === playerTeamId)
+  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
   if (!playerTeam) {
     return <div className="flex items-center justify-center h-64 text-white/40"><Loader2 size={20} className="animate-spin mr-2" /> Loading...</div>

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useEffect, useRef, useState, useCallback } from "react"
+import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
@@ -30,7 +30,7 @@ interface TournamentBracketProps {
     playerTeamId?: string
 }
 
-export function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: TournamentBracketProps) {
+function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: TournamentBracketProps) {
     const confettiTriggeredForId = useRef<string | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const [isDragging, setIsDragging] = useState(false)
@@ -215,9 +215,9 @@ export function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId 
     }, [matches, rounds])
 
     // Sort rounds from earliest (left) to latest (right): RO32 -> RO16 -> QF -> SF -> Final
-    const sortedRounds = [...normalizedRounds].sort((a, b) => {
+    const sortedRounds = useMemo(() => [...normalizedRounds].sort((a, b) => {
         return getRoundPriority(a) - getRoundPriority(b)
-    })
+    }), [normalizedRounds])
 
     // Organize matches by NORMALIZED round name
     const organizedMatches = useMemo(() => {
@@ -697,3 +697,5 @@ export function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId 
         </div>
     )
 }
+
+export default memo(TournamentBracket)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, memo } from "react"
 import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { Map, ChevronUp } from "lucide-react"
@@ -45,7 +45,7 @@ interface MapRadarPanelProps {
     smokes?: RadarSmoke[]
 }
 
-export function MapRadarPanel({ currentMapId, mapName, radarDots, bombState, currentTime, killLines, sitePositions, smokes }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, currentTime, killLines, sitePositions, smokes }: MapRadarPanelProps) {
     const [isExpanded, setIsExpanded] = useState(true)
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
@@ -79,22 +79,22 @@ export function MapRadarPanel({ currentMapId, mapName, radarDots, bombState, cur
 
     const DOT_EDGE_PADDING = 2.1
 
-    const safeDots = (radarDots || [])
+    const safeDots = useMemo(() => (radarDots || [])
         .filter(dot => isFiniteCoord(dot.x) && isFiniteCoord(dot.y) && isFiniteCoord(dot.angle))
         .map(dot => ({
             ...dot,
             x: clampRadarCoord(dot.x, DOT_EDGE_PADDING, 100 - DOT_EDGE_PADDING),
             y: clampRadarCoord(dot.y, DOT_EDGE_PADDING, 100 - DOT_EDGE_PADDING),
             angle: dot.angle,
-        }))
+        })), [radarDots])
 
     // Filter dots by level for dual-level maps
-    const visibleDots = safeDots.filter(dot => {
+    const visibleDots = useMemo(() => safeDots.filter(dot => {
         if (!isDualLevel || !dot.level) return true
         return dot.level === resolvedRadarLevel
-    })
+    }), [safeDots, isDualLevel, resolvedRadarLevel])
 
-    const visibleKillLines = (killLines || [])
+    const visibleKillLines = useMemo(() => (killLines || [])
         .filter(line => (
             isFiniteCoord(line.fromX)
             && isFiniteCoord(line.fromY)
@@ -114,9 +114,9 @@ export function MapRadarPanel({ currentMapId, mapName, radarDots, bombState, cur
             if (!isDualLevel) return true
             if (!line.level) return true
             return line.level === resolvedRadarLevel
-        })
+        }), [killLines, isDualLevel, resolvedRadarLevel])
 
-    const visibleSmokes = (smokes || [])
+    const visibleSmokes = useMemo(() => (smokes || [])
         .filter(smoke => (
             isFiniteCoord(smoke.x)
             && isFiniteCoord(smoke.y)
@@ -135,18 +135,18 @@ export function MapRadarPanel({ currentMapId, mapName, radarDots, bombState, cur
             if (!isDualLevel) return true
             if (!smoke.level) return true
             return smoke.level === resolvedRadarLevel
-        })
+        }), [smokes, isDualLevel, resolvedRadarLevel])
 
-    const safeSitePositions = sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)
+    const safeSitePositions = useMemo(() => sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)
         ? {
             a: { x: clampRadarCoord(sitePositions.a.x), y: clampRadarCoord(sitePositions.a.y) },
             b: { x: clampRadarCoord(sitePositions.b.x), y: clampRadarCoord(sitePositions.b.y) },
         }
-        : undefined
+        : undefined, [sitePositions])
 
-    const safeBombPosition = bombState?.position && isFiniteCoord(bombState.position.x) && isFiniteCoord(bombState.position.y)
+    const safeBombPosition = useMemo(() => bombState?.position && isFiniteCoord(bombState.position.x) && isFiniteCoord(bombState.position.y)
         ? { x: clampRadarCoord(bombState.position.x), y: clampRadarCoord(bombState.position.y) }
-        : undefined
+        : undefined, [bombState?.position])
     const bombVisibleOnCurrentLevel = !isDualLevel || !bombState?.level || bombState.level === resolvedRadarLevel
 
     const ctAlive = safeDots.filter(d => d.side === "ct" && d.isAlive).length
@@ -650,3 +650,5 @@ export function MapRadarPanel({ currentMapId, mapName, radarDots, bombState, cur
         </div>
     )
 }
+
+export const MapRadarPanel = memo(MapRadarPanelComponent)

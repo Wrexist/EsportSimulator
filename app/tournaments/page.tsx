@@ -37,7 +37,7 @@ import {
     GlassTableRow,
     GlassTableCell,
 } from "@/components/ui/GlassTable"
-import { TournamentBracket } from "@/components/tournament/TournamentBracket"
+import TournamentBracket from "@/components/tournament/TournamentBracket"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
@@ -686,7 +686,7 @@ export default function TournamentsPage() {
                                 <div>
                                     <TournamentBracket
                                         rounds={["Quarter-Finals", "Semi-Finals", "Finals"]}
-                                        onMatchClick={(matchId) => {
+                                        onMatchClick={(matchId: string) => {
                                             const match = scheduledMatches.find(m => m.id === matchId)
                                             if (!match) return
 

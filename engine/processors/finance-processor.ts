@@ -18,6 +18,10 @@ export class FinanceProcessor {
         let totalExpenses = 0
         const rng = new SeededRNG(save.lastRngSeed || generateSeed())
 
+        // Build player map for O(1) lookups inside team roster loops
+        const playerMap = new Map<string, typeof save.players[0]>()
+        save.players.forEach(p => playerMap.set(p.id, p))
+
         save.teams.forEach(team => {
             const report = EconomyEngine.processWeeklyFinances(
                 team,
@@ -62,7 +66,7 @@ export class FinanceProcessor {
             if (report.state === "CRISIS" || report.state === "INSOLVENT") {
                 // Morale Penalty for Crisis
                 team.rosterIds.forEach(pid => {
-                    const p = save.players.find(pl => pl.id === pid)
+                    const p = playerMap.get(pid)
                     if (p) p.morale = Math.max(0, p.morale - 2)
                 })
             }
@@ -207,6 +211,9 @@ export class FinanceProcessor {
     }
 
     static processContractExpiry(save: GameSave, playerTeamId: string): void {
+        // Build Set of existing event IDs for O(1) duplicate checks
+        const existingEventIds = new Set(save.eventsLog.map(e => e.id))
+
         // Early warning: alert player 4 weeks before contracts expire
         const WARNING_WEEKS = 4
         const soonExpiring = save.contracts.filter(c =>
@@ -220,7 +227,7 @@ export class FinanceProcessor {
             const weeksLeft = contract.endWeek - save.currentWeek
             const warnId = `contract_warn_${save.currentWeek}_${contract.playerId}`
             // Only push if we haven't already warned this week
-            if (!save.eventsLog.some(e => e.id === warnId)) {
+            if (!existingEventIds.has(warnId)) {
                 save.eventsLog.unshift({
                     id: warnId,
                     type: "CONTRACT" as EventType,

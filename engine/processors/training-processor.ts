@@ -13,6 +13,17 @@ export class TrainingProcessor {
             const team = save.teams.find(t => t.id === teamId)
             if (!team) return
 
+            // Pre-compute facility and coach lookups once per team
+            const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
+            const trainingBonus = 1 + (trainingFacility?.level || 0) * 0.1
+
+            const tacticalFacility = team.facilities?.find(f => f.type === "TACTICAL")
+            const tacticalBonus = 1 + (tacticalFacility?.level || 0) * 0.2
+
+            const coaches = save.staff.filter(s => s.teamId === teamId && s.role === "coach")
+            const developmentStatSum = coaches.reduce((sum, c) => sum + (c.stats?.development || 50), 0)
+            const coachBonus = 1 + (developmentStatSum / 100) * 0.5
+
             team.rosterIds.forEach(playerId => {
                 const player = save.players.find(p => p.id === playerId)
                 if (!player) return
@@ -30,18 +41,6 @@ export class TrainingProcessor {
                 if (player.trainingFocus && player.trainingFocus !== "BALANCED" && Object.values(TrainingFocus).includes(player.trainingFocus as TrainingFocus)) {
                     focus = player.trainingFocus as TrainingFocus
                 }
-
-                // Bonues
-                const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
-                const trainingBonus = 1 + (trainingFacility?.level || 0) * 0.1
-
-                const tacticalFacility = team.facilities?.find(f => f.type === "TACTICAL")
-                const tacticalBonus = 1 + (tacticalFacility?.level || 0) * 0.2
-
-                // Coach Bonus
-                const coaches = save.staff.filter(s => s.teamId === teamId && s.role === "coach")
-                const developmentStatSum = coaches.reduce((sum, c) => sum + (c.stats?.development || 50), 0)
-                const coachBonus = 1 + (developmentStatSum / 100) * 0.5
 
                 // Apply training gains
                 const gains = calculateTrainingGains(
@@ -91,9 +90,13 @@ export class TrainingProcessor {
         const yearsPassed = Math.floor(save.currentWeek / 52)
         const currentYear = startYear + yearsPassed
 
+        // Build player-to-team map for O(1) lookups
+        const playerTeamMap = new Map<string, typeof save.teams[0]>()
+        save.teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
+
         save.players.forEach(player => {
             // Phase 18: Find team and facility for recovery bonus
-            const team = save.teams.find(t => t.rosterIds.includes(player.id))
+            const team = playerTeamMap.get(player.id)
             const recoveryFacility = team?.facilities?.find(f => f.type === "RECOVERY")
             let totalRecoveryBonus = recoveryFacility?.level || 0
 

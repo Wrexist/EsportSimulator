@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Trophy, TrendingUp, TrendingDown, Minus, Medal, DollarSign, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -29,7 +29,7 @@ interface TeamStanding {
     points: number
 }
 
-export function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifiedTeamIds }: TournamentStandingsProps) {
+function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifiedTeamIds }: TournamentStandingsProps) {
     const standings = useMemo(() => {
         const stats: Record<string, TeamStanding> = {}
 
@@ -376,6 +376,8 @@ export function TournamentStandings({ tournament, matches, teams, playerTeamId, 
         </div>
     )
 }
+
+export default memo(TournamentStandings)
 
 function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
     return (

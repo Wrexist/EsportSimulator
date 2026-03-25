@@ -18,19 +18,23 @@ export class EventProcessor {
 
         const playerTeam = save.teams.find(t => t.id === playerTeamId)
 
-        // 1. Contract expiration warnings (All players on user team)
+        // Build lookup maps for O(1) access inside loops
+        const contractMap = new Map<string, typeof save.contracts[0]>()
+        save.contracts.forEach(c => contractMap.set(c.playerId, c))
+        const playerMap = new Map<string, PlayerSaveData>()
+        save.players.forEach(p => playerMap.set(p.id, p))
+        const generatedEventIdSet = new Set(transaction.generatedEventIds)
+
+        // 1-3. Combined single pass over rosterIds for contract warnings, morale, and fatigue
         if (playerTeam) {
             for (const pid of playerTeam.rosterIds) {
-                const contract = save.contracts.find(c => c.playerId === pid)
+                // 1. Contract expiration warnings
+                const contract = contractMap.get(pid)
                 if (contract) {
                     const weeksLeft = contract.endWeek - save.currentWeek
                     if (weeksLeft > 0 && weeksLeft <= 4) {
                         const eventId = `contract_${contract.playerId}_${save.currentWeek}`
-                        if (!transaction.generatedEventIds.includes(eventId)) {
-                            // const player = save.players.find(p => p.id === pid)
-                            // We don't actually use player explicitly here other than for ID, 
-                            // but the original code fetched it. Kept for safety if needed later.
-
+                        if (!generatedEventIdSet.has(eventId)) {
                             save.eventsLog.push({
                                 id: eventId,
                                 type: EventType.CONTRACT,
@@ -51,16 +55,14 @@ export class EventProcessor {
                         }
                     }
                 }
-            }
-        }
 
-        // 2. Low morale warnings (User team only)
-        if (playerTeam) {
-            for (const pid of playerTeam.rosterIds) {
-                const player = save.players.find(p => p.id === pid)
-                if (player && player.morale < 30 && rng.bool(0.3)) {
+                const player = playerMap.get(pid)
+                if (!player) continue
+
+                // 2. Low morale warnings
+                if (player.morale < 30 && rng.bool(0.3)) {
                     const eventId = `morale_${player.id}_${save.currentWeek}`
-                    if (!transaction.generatedEventIds.includes(eventId)) {
+                    if (!generatedEventIdSet.has(eventId)) {
                         save.eventsLog.push({
                             id: eventId,
                             type: EventType.MORALE,
@@ -81,16 +83,11 @@ export class EventProcessor {
                         eventsGenerated++
                     }
                 }
-            }
-        }
 
-        // 3. High Fatigue Checks (User team)
-        if (playerTeam) {
-            for (const pid of playerTeam.rosterIds) {
-                const player = save.players.find(p => p.id === pid)
-                if (player && player.fatigue > 80 && rng.bool(0.5)) {
+                // 3. High Fatigue Checks
+                if (player.fatigue > 80 && rng.bool(0.5)) {
                     const eventId = `fatigue_${player.id}_${save.currentWeek}`
-                    if (!transaction.generatedEventIds.includes(eventId)) {
+                    if (!generatedEventIdSet.has(eventId)) {
                         save.eventsLog.push({
                             id: eventId,
                             type: EventType.INJURY, // Using generic type
@@ -218,6 +215,10 @@ export class EventProcessor {
     static processInjuryChecks(save: GameSave, rng: SeededRNG): number {
         let injuries = 0
 
+        // Build player-to-team map for O(1) lookups in news feed
+        const playerTeamMap = new Map<string, typeof save.teams[0]>()
+        save.teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
+
         save.players.forEach(player => {
             if (player.injury) {
                 player.injury.weeksRemaining = Math.max(0, player.injury.weeksRemaining - 1)
@@ -328,7 +329,7 @@ export class EventProcessor {
                 })
 
                 if (save.newsFeed) {
-                    const playerTeam = save.teams.find(t => t.rosterIds.includes(player.id))
+                    const playerTeam = playerTeamMap.get(player.id)
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
                         title: `${player.nickname} sidelined with ${injuryName}`,
@@ -353,13 +354,17 @@ export class EventProcessor {
         const retired: string[] = []
         const legends: string[] = []
 
+        // Build contract map for O(1) lookups inside retirement logic
+        const contractMap = new Map<string, typeof save.contracts[0]>()
+        save.contracts.forEach(c => contractMap.set(c.playerId, c))
+
         const retirePlayer = (player: PlayerSaveData) => {
             player.isRetired = true
             player.retirementWeek = save.currentWeek
             retired.push(player.id)
 
             // Auto-terminate contract and remove from roster
-            const contract = save.contracts.find(c => c.playerId === player.id)
+            const contract = contractMap.get(player.id)
             const lastTeamId = contract?.teamId
             if (contract) {
                 const team = save.teams.find(t => t.id === contract.teamId)
@@ -494,7 +499,7 @@ export class EventProcessor {
                     })
 
                     if (save.newsFeed) {
-                        const legendTeamId = save.contracts.find(c => c.playerId === player.id)?.teamId
+                        const legendTeamId = contractMap.get(player.id)?.teamId
                         save.newsFeed.unshift({
                             id: `news_legend_${player.id}_${save.currentWeek}`,
                             title: `${player.nickname} earns Legendary status`,
@@ -554,6 +559,10 @@ export class EventProcessor {
         const retired: string[] = []
         const legends: string[] = []
 
+        // Build contract map for O(1) lookups
+        const midContractMap = new Map<string, typeof save.contracts[0]>()
+        save.contracts.forEach(c => midContractMap.set(c.playerId, c))
+
         for (const player of candidates) {
             if (rng.next() >= 0.02) continue // 2% chance
 
@@ -563,7 +572,7 @@ export class EventProcessor {
             retired.push(player.id)
 
             // Remove from roster/contracts
-            const contract = save.contracts.find(c => c.playerId === player.id)
+            const contract = midContractMap.get(player.id)
             const lastTeamId = contract?.teamId
             if (contract) {
                 const team = save.teams.find(t => t.id === contract.teamId)

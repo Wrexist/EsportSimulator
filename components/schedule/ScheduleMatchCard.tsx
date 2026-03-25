@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { memo } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
@@ -28,7 +28,7 @@ interface ScheduleMatchCardProps {
     }
 }
 
-export function ScheduleMatchCard({
+export const ScheduleMatchCard = memo(function ScheduleMatchCard({
     match,
     teams,
     playerTeamId,
@@ -207,4 +207,4 @@ export function ScheduleMatchCard({
     }
 
     return null
-}
+})

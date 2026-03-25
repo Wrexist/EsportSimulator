@@ -32,6 +32,7 @@ import {
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 
 
 const menuItems = [
@@ -58,9 +59,11 @@ const menuItems = [
 export function Sidebar() {
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(false)
-    const activeMatchId = useGameStore(state => state.activeMatchId)
-    const getPlayerTeam = useGameStore(state => state.getPlayerTeam)
-    const managerDetails = useGameStore(state => state.managerDetails)
+    const { activeMatchId, getPlayerTeam, managerDetails } = useGameStore(useShallow(state => ({
+        activeMatchId: state.activeMatchId,
+        getPlayerTeam: state.getPlayerTeam,
+        managerDetails: state.managerDetails,
+    })))
 
     const playerTeam = getPlayerTeam?.() || null
     const teamColors = useMemo(() => getTeamColors(playerTeam), [playerTeam])

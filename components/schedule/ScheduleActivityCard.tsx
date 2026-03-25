@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Coffee, Plane, Users, Briefcase, Megaphone } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -10,7 +10,7 @@ interface ScheduleActivityCardProps {
     activity: ActivitySaveData
 }
 
-export function ScheduleActivityCard({ activity }: ScheduleActivityCardProps) {
+export const ScheduleActivityCard = memo(function ScheduleActivityCard({ activity }: ScheduleActivityCardProps) {
     const isRest = activity.type === "REST"
     const isBootcamp = activity.type === "BOOTCAMP"
     const isTravel = activity.type === "TRAVEL"
@@ -74,4 +74,4 @@ export function ScheduleActivityCard({ activity }: ScheduleActivityCardProps) {
             </div>
         </div>
     )
-}
+})

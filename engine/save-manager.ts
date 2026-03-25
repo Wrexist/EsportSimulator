@@ -58,9 +58,9 @@ export class SaveManager {
     }
 
     private serializeForIntegrity(save: Record<string, unknown>): string {
-        const copy: Record<string, unknown> = JSON.parse(JSON.stringify(save))
-        delete copy.integrityHash
-        return JSON.stringify(copy)
+        // Single-pass serialization: exclude integrityHash without deep-cloning the entire save
+        const { integrityHash, ...rest } = save
+        return JSON.stringify(rest)
     }
 
     private computeLegacyIntegrityHash(save: Record<string, unknown>): string {
