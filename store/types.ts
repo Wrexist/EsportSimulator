@@ -89,6 +89,11 @@ export interface EventsState {
   transferHistory: TransferRecord[]
 }
 
+export interface SponsorshipState {
+  sponsorOffers: SponsorSaveData[]
+  declinedSponsorOfferIds: string[]
+}
+
 export interface ScoutingState {
   scoutedPlayers: { playerId: string; scoutedWeek: number; scoutLevel: "BASIC" | "ADVANCED" | "EXPERT" | "ELITE" }[]
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
@@ -285,6 +290,11 @@ export interface SettingsActions {
   setShowBugReportButton: (enabled: boolean) => void
 }
 
+export interface SponsorshipActions {
+  refreshSponsorOffers: () => void
+  declineSponsorOffer: (offerId: string) => void
+}
+
 export interface DebugActions {
   debugAddFunds: (amount: number) => void
   debugHealAll: () => void
@@ -313,6 +323,7 @@ export type GameStoreState =
   EventsState &
   ScoutingState &
   AcademyState &
+  SponsorshipState &
   UIState &
   SettingsState &
   IndexesState
@@ -325,6 +336,7 @@ export type GameStoreActions =
   EventsActions &
   ScoutingActions &
   AcademyActions &
+  SponsorshipActions &
   UIActions &
   SettingsActions &
   DebugActions

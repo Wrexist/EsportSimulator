@@ -57,6 +57,7 @@ import { generateProspect, prospectToPlayerData } from "@/engine/prospect-genera
 import { SCOUTING_COSTS, ACADEMY_LEVELS, DEV_MATCH_CONFIG, isScoutingTierUnlocked, ENERGY_CONFIG, DEVELOPMENT_CONFIG, ACADEMY_DRILLS, SCOUTING_DURATIONS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyPlayer, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
 import { generateSeed } from "@/engine/rng"
+import { SponsorGenerator } from "@/engine/economy-manager"
 import { applyRosterChangePenalty, applyBootcampChemistryBonus } from "@/engine/chemistry-engine"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
@@ -653,6 +654,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       scheduledActivities: [],
 
       financeLedger: [],
+      sponsorOffers: [],
+      declinedSponsorOfferIds: [],
       eventsLog: [],
       acknowledgedEventIds: [],
       availableEquipment: [],
@@ -2349,6 +2352,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             academyWeeklyReports: state.academyWeeklyReports || [],
             academyScoutingMissions: state.academyScoutingMissions || [],
             academyPendingProspects: state.academyPendingProspects || [],
+            sponsorOffers: state.sponsorOffers || [],
+            declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
             fplData: state.fplData,
             pendingCelebration: state.pendingCelebration,
             pendingSeasonRecap: state.pendingSeasonRecap,
@@ -2609,6 +2614,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             academyWeeklyReports: latestState.academyWeeklyReports || [],
             academyScoutingMissions: latestState.academyScoutingMissions || [],
             academyPendingProspects: latestState.academyPendingProspects || [],
+            sponsorOffers: latestState.sponsorOffers || [],
+            declinedSponsorOfferIds: latestState.declinedSponsorOfferIds || [],
             fplData: latestState.fplData,
             pendingCelebration: latestState.pendingCelebration,
             pendingSeasonRecap: latestState.pendingSeasonRecap,
@@ -4255,9 +4262,28 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           team.sponsors.push(normalizedSponsor)
+          // Remove from available offers
+          state.sponsorOffers = state.sponsorOffers.filter(o => o.id !== sponsor.id)
           result = { success: true, message: `${normalizedSponsor.name} signed successfully.` }
         })
         return result
+      },
+
+      refreshSponsorOffers: () => {
+        set(state => {
+          const team = state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId)
+          if (!team) return
+          const rng = new SeededRNG(state.lastRngSeed + state.currentWeek * 7919)
+          state.sponsorOffers = SponsorGenerator.generateVariedOffers(team, state.currentWeek, rng)
+          state.declinedSponsorOfferIds = []
+        })
+      },
+
+      declineSponsorOffer: (offerId: string) => {
+        set(state => {
+          state.sponsorOffers = state.sponsorOffers.filter(o => o.id !== offerId)
+          state.declinedSponsorOfferIds.push(offerId)
+        })
       },
 
       // Equipment Shop

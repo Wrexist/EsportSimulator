@@ -1,5 +1,6 @@
 import { TacticalStrategy } from "@/types"
 import { SeededRNG } from "./rng"
+import { SponsorSaveData } from "./save-types"
 
 /**
  * EconomyManager handles all CS2-specific financial logic including
@@ -479,6 +480,96 @@ export class SponsorGenerator {
       requirements: req,
       goals
     }
+  }
+
+  /**
+   * Generate 3-5 varied sponsor offers using SeededRNG.
+   * Offer count and tier distribution scale with team reputation.
+   */
+  static generateVariedOffers(team: any, currentWeek: number, rng: SeededRNG): SponsorSaveData[] {
+    const reputation = team.reputation || 10
+    const teamId = team.id || team.name || "unknown_team"
+
+    // Determine offer count and tier distribution based on reputation
+    let tiers: ("STANDARD" | "PREMIUM" | "ELITE")[]
+    if (reputation > 70) {
+      tiers = ["STANDARD", "PREMIUM", "PREMIUM", "ELITE", "ELITE"]
+    } else if (reputation > 30) {
+      const hasTwoPremium = rng.bool(0.5)
+      tiers = hasTwoPremium
+        ? ["STANDARD", "PREMIUM", "PREMIUM", "ELITE"]
+        : ["STANDARD", "STANDARD", "PREMIUM", "ELITE"]
+    } else {
+      tiers = ["STANDARD", "STANDARD", "PREMIUM"]
+    }
+
+    const allCategories: (keyof typeof SponsorGenerator.SPONSOR_NAMES)[] = ["TECH", "ENERGY", "BETTING", "LIFESTYLE"]
+    const usedNames = new Set<string>()
+
+    return tiers.map((tier, index) => {
+      const offerRng = new SeededRNG(rng.int(1, 2147483646))
+
+      // Pick a category - varied across offers
+      const shuffledCategories = offerRng.shuffle(allCategories)
+      const category = shuffledCategories[0]
+      let name: string
+      // Avoid duplicate sponsor names
+      const candidates = this.SPONSOR_NAMES[category].filter(n => !usedNames.has(n))
+      if (candidates.length > 0) {
+        name = candidates[Math.floor(offerRng.next() * candidates.length)]
+      } else {
+        // Fallback to any unused name from any category
+        const allNames = Object.values(this.SPONSOR_NAMES).flat().filter(n => !usedNames.has(n))
+        name = allNames.length > 0 ? allNames[Math.floor(offerRng.next() * allNames.length)] : "Generic Esports"
+      }
+      usedNames.add(name)
+
+      // Value scaling based on reputation
+      let baseWeekly: number
+      if (reputation > 80) {
+        // S-tier: $50k-200k range
+        baseWeekly = offerRng.range(50000, 200000)
+      } else if (reputation > 60) {
+        baseWeekly = offerRng.range(20000, 80000)
+      } else if (reputation > 40) {
+        baseWeekly = offerRng.range(8000, 30000)
+      } else {
+        // C-tier: $2k-10k range
+        baseWeekly = offerRng.range(2000, 10000)
+      }
+
+      // Tier multiplier
+      if (tier === "PREMIUM") baseWeekly *= 1.8
+      if (tier === "ELITE") baseWeekly *= 3.5
+      baseWeekly = Math.floor(baseWeekly)
+
+      // Contract duration: 12-52 weeks
+      let duration: number
+      if (tier === "ELITE") duration = offerRng.int(36, 52)
+      else if (tier === "PREMIUM") duration = offerRng.int(20, 36)
+      else duration = offerRng.int(12, 24)
+
+      // Requirements
+      let req = "None"
+      if (tier === "PREMIUM") req = "Top 30 Ranking"
+      if (tier === "ELITE") req = "Top 10 Ranking or Major Participant"
+
+      // Goals
+      const goalRng = () => offerRng.next()
+      const goals = this.generateGoals(tier, goalRng, currentWeek, teamId)
+      // Make goal IDs unique per offer index
+      goals.forEach((g, gi) => { g.id = `goal_${teamId}_${currentWeek}_${tier}_${index}_${gi}` })
+
+      return {
+        id: `offer_${teamId}_${currentWeek}_${tier}_${index}`,
+        name: `${name} ${tier === "ELITE" ? "Global" : "Esports"}`,
+        tier,
+        weeklyPayout: baseWeekly,
+        remainingWeeks: duration,
+        requirements: req,
+        goals
+      }
+    })
   }
 
   private static generateGoals(
