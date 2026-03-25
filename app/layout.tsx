@@ -3,8 +3,6 @@ import { Archivo_Black } from 'next/font/google'
 import { ConsoleToTerminal } from '@/components/console-to-terminal'
 import './globals.css'
 
-// Force Rebuild Tag: 2026-01-23-FIX-REDIRECT
-
 const archivoBlack = Archivo_Black({
   subsets: ["latin"],
   display: 'swap',
@@ -41,7 +39,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${archivoBlack.className} ${archivoBlack.variable} font-sans antialiased bg-[#0e1217] text-foreground`} suppressHydrationWarning>
+      <body className={`${archivoBlack.className} ${archivoBlack.variable} font-sans antialiased bg-[#0e1217] text-foreground`}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-modal px-4 py-2 bg-primary text-primary-foreground rounded-md ring-2 ring-cyan-400">
           Skip to main content
         </a>

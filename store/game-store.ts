@@ -2962,10 +2962,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 t.week <= updatedState.currentWeek
               ).length
 
-              // Phase 40: Steam Rich Presence
-              const status = `Week ${updatedState.currentWeek} | Rank #${playerTeam.worldRanking}`
-              const display = playerTeam.leagueTier === "S_TIER" ? "{#Status_STier}" : "{#Status_Pro}"
-              steamAchievements.updateRichPresence(status, display)
+              // Phase 40: Steam Rich Presence (enhanced)
+              steamAchievements.updateGameStatePresence({
+                teamName: playerTeam.name,
+                week: updatedState.currentWeek,
+                ranking: playerTeam.worldRanking,
+                activity: playerTeam.leagueTier === "S_TIER" ? "S-Tier League" : "Pro League",
+              })
 
               // Fastest Run tracking
               if (playerTeam.leagueTier === "S_TIER") {

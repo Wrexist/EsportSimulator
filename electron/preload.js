@@ -20,6 +20,10 @@ contextBridge.exposeInMainWorld('electron', {
         getSize: () => ipcRenderer.invoke('window-get-size'),
         isFullscreen: () => ipcRenderer.invoke('window-is-fullscreen'),
     },
+    gpu: {
+        getMode: () => ipcRenderer.invoke('gpu-get-mode'),
+        setMode: (mode) => ipcRenderer.invoke('gpu-set-mode', mode),
+    },
     log: {
         writeError: (report) => ipcRenderer.invoke('log-write-error', report),
     },
