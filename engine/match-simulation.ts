@@ -930,11 +930,13 @@ export class SimulationEngineV2 {
         let awpsToBuy = strategy === "DOUBLE AWP" ? 2 : (strategy === "FULL" ? 1 : 0)
 
         // Pre-allocate AWP slots: prioritize AWPER-role players, then by cash
+        const playerPositionMap = new Map(players.map((p, i) => [p.id, i]))
         const awpRecipients = new Set<string>()
         if (awpsToBuy > 0) {
             const candidates = [...players]
                 .filter(p => {
-                    const loadout = playerLoadouts?.[players.indexOf(p)] || playerLoadouts?.find((l) => l.slotIndex === players.indexOf(p))
+                    const pIdx = playerPositionMap.get(p.id) ?? -1
+                    const loadout = playerLoadouts?.[pIdx] || playerLoadouts?.find((l) => l.slotIndex === pIdx)
                     return !loadout && economy[p.id]?.cash >= 4750
                 })
                 .sort((a, b) => {
@@ -1558,7 +1560,7 @@ export class SimulationEngineV2 {
 
                 if (isTradeKill && lastDeath) {
                     // Award assist to the fallen teammate
-                    const fallenTeammate = [...homePlayers, ...awayPlayers].find(p => p.id === lastDeath!.victimId)
+                    const fallenTeammate = playerMap.get(lastDeath!.victimId)
                     if (fallenTeammate) assister = fallenTeammate
                 }
 

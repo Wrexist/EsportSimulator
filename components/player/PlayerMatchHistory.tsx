@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +16,7 @@ interface PlayerMatchHistoryProps {
     limit?: number  // Number of matches to show (default 10)
 }
 
-export function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryProps) {
+export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryProps) {
     const { completedMatches, teams, getDateForWeek, players } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
@@ -23,11 +24,13 @@ export function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryP
         players: state.players,
     })))
 
+    const teamMap = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+
     // Find all matches where player participated
     const playerMatches = completedMatches
         .filter(match => {
-            const homeTeam = teams.find(t => t.id === match.homeTeamId)
-            const awayTeam = teams.find(t => t.id === match.awayTeamId)
+            const homeTeam = teamMap.get(match.homeTeamId)
+            const awayTeam = teamMap.get(match.awayTeamId)
             return homeTeam?.rosterIds.includes(playerId) ||
                 awayTeam?.rosterIds.includes(playerId)
         })
@@ -58,7 +61,7 @@ export function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryP
         }
 
         // Count wins/losses
-        const homeTeam = teams.find(t => t.id === match.homeTeamId)
+        const homeTeam = teamMap.get(match.homeTeamId)
         const isHome = homeTeam?.rosterIds.includes(playerId)
         const won = isHome
             ? match.result.homeScore > match.result.awayScore
@@ -111,8 +114,8 @@ export function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryP
 
             <div className="space-y-2">
                 {displayMatches.map(match => {
-                    const homeTeam = teams.find(t => t.id === match.homeTeamId)
-                    const awayTeam = teams.find(t => t.id === match.awayTeamId)
+                    const homeTeam = teamMap.get(match.homeTeamId)
+                    const awayTeam = teamMap.get(match.awayTeamId)
                     const playerTeam = homeTeam?.rosterIds.includes(playerId) ? homeTeam : awayTeam
                     const opponentTeam = playerTeam?.id === homeTeam?.id ? awayTeam : homeTeam
 

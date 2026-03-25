@@ -62,6 +62,19 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
             .sort((a, b) => (b.reputation || 0) - (a.reputation || 0))
     }, [teams, playerTeamId, searchTerm])
 
+    // Memoize team average ratings to avoid recalculating evaluatePlayer on every render
+    const teamAvgRatings = useMemo(() => {
+        const map = new Map<string, number>()
+        for (const team of opponents) {
+            const roster = team.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean)
+            const avgRating = roster.length > 0
+                ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p as any).overallRating), 0) / roster.length)
+                : 0
+            map.set(team.id, avgRating)
+        }
+        return map
+    }, [opponents, players])
+
     const handleBook = () => {
         const opponent = teams.find(t => t.id === selectedTeamId)
         const result = scheduleScrim(selectedTeamId!, week, selectedDay) as unknown as { success: boolean, message: string }
@@ -119,10 +132,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                         <div className="text-center py-8 text-white/30 text-sm">No teams found matching "{searchTerm}"</div>
                     ) : (
                         opponents.map(team => {
-                            const roster = team.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean)
-                            const avgRating = roster.length > 0
-                                ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p as any).overallRating), 0) / roster.length)
-                                : 0
+                            const avgRating = teamAvgRatings.get(team.id) || 0
 
                             const isSelected = selectedTeamId === team.id
 

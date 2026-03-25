@@ -133,6 +133,10 @@ export class AtomicWeekProcessor {
         // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
         const idx = buildSaveIndexes(save)
 
+        // Build O(1) dedup sets for event/ledger ID checks
+        const eventIdSet = new Set(save.eventsLog.map(e => e.id))
+        const ledgerIdSet = new Set(save.financeLedger.map(e => e.id))
+
         try {
             const result: WeekProcessorResult = {
                 success: false,
@@ -185,7 +189,7 @@ export class AtomicWeekProcessor {
             // This must run before matches so tournament matches are scheduled first
             if (resumeStep <= 5) {
                 debugLog(`[Week ${save.currentWeek}] Step 4.5: Tournament Processing...`)
-                this.processTournaments(save, config.playerTeamId, rng, idx)
+                this.processTournaments(save, config.playerTeamId, rng, idx, eventIdSet, ledgerIdSet)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
                 await this.saveManager.saveGame(save)
             }
@@ -232,7 +236,7 @@ export class AtomicWeekProcessor {
             // ===== STEP 6: Standings Update =====
             if (resumeStep <= 7) {
                 debugLog(`[Week ${save.currentWeek}] Step 6: Standings...`)
-                this.updateStandings(save, idx)
+                this.updateStandings(save, idx, eventIdSet, ledgerIdSet)
 
                 // Sync all team league tiers based on current Elo
                 // This ensures teams always have correct S/A/B tier assignment
@@ -286,7 +290,7 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 7.5: World Logic (AI / Fans)...`)
                 this.processAIWorldLogic(save, config.playerTeamId, rng)
                 this.processFanbaseGrowth(save, rng)
-                this.processWeeklySponsorGoals(save)
+                this.processWeeklySponsorGoals(save, eventIdSet, ledgerIdSet)
 
                 // ===== STEP 7.7: Player Retirements (Phase 23) =====
                 debugLog(`[Week ${save.currentWeek}] Step 7.7: Retirements...`)
@@ -769,8 +773,8 @@ export class AtomicWeekProcessor {
             updateStats(homePlayers, homeWon)
             updateStats(awayPlayers, !homeWon)
 
-            this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id)
-            this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id)
+            this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
+            this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
 
             // Phase 11: Update team rivalries
             updateRivalries(save, completedMatch)
@@ -919,7 +923,7 @@ export class AtomicWeekProcessor {
         return !!finalByStage?.result?.winnerId
     }
 
-    private updateStandings(save: GameSave, idx?: SaveIndexes): void {
+    private updateStandings(save: GameSave, idx?: SaveIndexes, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
         const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
 
         const compareStandings = (
@@ -1047,7 +1051,7 @@ export class AtomicWeekProcessor {
                     if (prizeAmount <= 0) continue
 
                     const prizeLedgerId = `prize_${tournament.id}_${p.teamId}_p${p.position}`
-                    if (save.financeLedger.some(entry => entry.id === prizeLedgerId)) continue
+                    if (ledgerIdSet?.has(prizeLedgerId) ?? save.financeLedger.some(entry => entry.id === prizeLedgerId)) continue
 
                     const team = idx?.teamIndex.get(p.teamId) ?? save.teams.find(t => t.id === p.teamId)
                     if (!team) continue
@@ -1063,6 +1067,7 @@ export class AtomicWeekProcessor {
                         description: `${tournament.name} - ${p.position === 1 ? "1st" : p.position === 2 ? "2nd" : p.position + "th"} Place`,
                         balance: team.budget,
                     })
+                    ledgerIdSet?.add(prizeLedgerId)
                 }
             }
 
@@ -1112,7 +1117,7 @@ export class AtomicWeekProcessor {
             winningTeam.followers = (winningTeam.followers || 0) + fanGain
 
             const trophyEventId = `trophy_${tournament.id}_${winnerTeamId}`
-            if (!save.eventsLog.some(event => event.id === trophyEventId)) {
+            if (!(eventIdSet?.has(trophyEventId) ?? save.eventsLog.some(event => event.id === trophyEventId))) {
                 save.eventsLog.push({
                     id: trophyEventId,
                     type: EventType.MEDIA,
@@ -1120,6 +1125,7 @@ export class AtomicWeekProcessor {
                     data: { teamId: winningTeam.id, tournamentName: tournament.name, fanGain },
                     acknowledged: false
                 })
+                eventIdSet?.add(trophyEventId)
             }
 
             if (winningTeam.id === save.playerTeamId) {
@@ -1429,7 +1435,9 @@ export class AtomicWeekProcessor {
         team: TeamSaveData,
         wonMatch: boolean,
         mapsWon: number,
-        matchId: string
+        matchId: string,
+        eventIdSet?: Set<string>,
+        ledgerIdSet?: Set<string>
     ): void {
         if (!team.sponsors || team.sponsors.length === 0) return
 
@@ -1452,7 +1460,7 @@ export class AtomicWeekProcessor {
                 goal.isCompleted = true
 
                 const payoutEntryId = `fin_sponsor_match_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}_${matchId}`
-                const alreadyPaid = save.financeLedger.some(entry => entry.id === payoutEntryId)
+                const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
                 if (alreadyPaid) return
 
                 team.budget += goal.bonusPayout
@@ -1466,11 +1474,12 @@ export class AtomicWeekProcessor {
                     description: `Goal Reached: ${goal.description}`,
                     balance: team.budget
                 })
+                ledgerIdSet?.add(payoutEntryId)
 
                 if (team.id !== save.playerTeamId) return
 
                 const eventId = `evt_sponsor_match_goal_${save.currentWeek}_${sponsor.id}_${goal.id}_${matchId}`
-                if (!save.eventsLog.some(event => event.id === eventId)) {
+                if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
                     save.eventsLog.unshift({
                         id: eventId,
                         type: "SPONSOR_OFFER",
@@ -1481,6 +1490,7 @@ export class AtomicWeekProcessor {
                         },
                         acknowledged: false
                     })
+                    eventIdSet?.add(eventId)
                 }
             })
         })
@@ -1489,7 +1499,7 @@ export class AtomicWeekProcessor {
     /**
      * Process sponsor contract lifecycle and weekly sponsor goals exactly once per week.
      */
-    private processWeeklySponsorGoals(save: GameSave): void {
+    private processWeeklySponsorGoals(save: GameSave, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
         save.teams.forEach(team => {
             if (!team.sponsors || team.sponsors.length === 0) return
 
@@ -1528,7 +1538,7 @@ export class AtomicWeekProcessor {
                             goal.isCompleted = true
 
                             const payoutEntryId = `fin_sponsor_goal_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}`
-                            const alreadyPaid = save.financeLedger.some(entry => entry.id === payoutEntryId)
+                            const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
 
                             if (!alreadyPaid) {
                                 team.budget += goal.bonusPayout
@@ -1542,10 +1552,11 @@ export class AtomicWeekProcessor {
                                     description: `Goal Reached: ${goal.description}`,
                                     balance: team.budget
                                 })
+                                ledgerIdSet?.add(payoutEntryId)
 
                                 if (team.id === save.playerTeamId) {
                                     const eventId = `evt_sponsor_goal_${save.currentWeek}_${sponsor.id}_${goal.id}`
-                                    if (!save.eventsLog.some(event => event.id === eventId)) {
+                                    if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
                                         save.eventsLog.unshift({
                                             id: eventId,
                                             type: "SPONSOR_OFFER",
@@ -1556,6 +1567,7 @@ export class AtomicWeekProcessor {
                                             },
                                             acknowledged: false
                                         })
+                                        eventIdSet?.add(eventId)
                                     }
                                 }
                             }
@@ -1574,7 +1586,7 @@ export class AtomicWeekProcessor {
 
                 if (team.id === save.playerTeamId) {
                     const expiryEventId = `evt_sponsor_expired_${save.currentWeek}_${sponsor.id}`
-                    if (!save.eventsLog.some(event => event.id === expiryEventId)) {
+                    if (!(eventIdSet?.has(expiryEventId) ?? save.eventsLog.some(event => event.id === expiryEventId))) {
                         save.eventsLog.unshift({
                             id: expiryEventId,
                             type: "SPONSOR_OFFER",
@@ -1585,6 +1597,7 @@ export class AtomicWeekProcessor {
                             },
                             acknowledged: false
                         })
+                        eventIdSet?.add(expiryEventId)
                     }
                 }
             })
@@ -1594,7 +1607,7 @@ export class AtomicWeekProcessor {
     }
 
     // Phase 20: Process tournament-related logic
-    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG, idx?: SaveIndexes): void {
+    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG, idx?: SaveIndexes, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
         const currentWeek = save.currentWeek
         const weekOfSeason = ((currentWeek - 1) % 52) + 1
         const season = Math.floor((currentWeek - 1) / 52) + 1
@@ -1659,11 +1672,12 @@ export class AtomicWeekProcessor {
                     q.status === "QUALIFIED"
                 )
 
-                const alreadyNotified = save.eventsLog.some(e => e.id === `invite_notif_${def.id}_s${season}`)
+                const alreadyNotified = eventIdSet?.has(`invite_notif_${def.id}_s${season}`) ?? save.eventsLog.some(e => e.id === `invite_notif_${def.id}_s${season}`)
 
                 if (isInvited && !alreadyNotified) {
+                    const inviteEventId = `invite_notif_${def.id}_s${season}`
                     save.eventsLog.push({
-                        id: `invite_notif_${def.id}_s${season}`,
+                        id: inviteEventId,
                         type: "TOURNAMENT",
                         week: save.currentWeek,
                         acknowledged: false,
@@ -1675,6 +1689,7 @@ export class AtomicWeekProcessor {
                             tier: def.tier
                         }
                     })
+                    eventIdSet?.add(inviteEventId)
                 }
             }
         })

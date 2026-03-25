@@ -7,6 +7,7 @@ import { ErrorBoundary } from "./ErrorBoundary"
 import { usePathname, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useEffect, useRef, useState, useCallback } from "react"
+import { useShallow } from "zustand/react/shallow"
 import type { ExitDialogVariant } from "./ExitConfirmDialog"
 import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
@@ -24,13 +25,15 @@ const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModa
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const theme = useGameStore(state => state.theme)
-    const pendingCelebration = useGameStore(state => state.pendingCelebration)
-    const clearCelebration = useGameStore(state => state.clearCelebration)
-    const pendingLegendPick = useGameStore(state => state.pendingLegendPick)
-    const selectLegend = useGameStore(state => state.selectLegend)
-    const initAchievements = useGameStore(state => state.initAchievements)
-    const showBugReportButton = useGameStore(state => state.showBugReportButton)
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton } = useGameStore(useShallow(state => ({
+        theme: state.theme,
+        pendingCelebration: state.pendingCelebration,
+        clearCelebration: state.clearCelebration,
+        pendingLegendPick: state.pendingLegendPick,
+        selectLegend: state.selectLegend,
+        initAchievements: state.initAchievements,
+        showBugReportButton: state.showBugReportButton,
+    })))
 
     // Keyboard shortcuts modal state
     const [shortcutsOpen, setShortcutsOpen] = useState(false)

@@ -44,7 +44,7 @@ export default function SquadPage() {
     promoteProspect: state.promoteProspect,
     addToast: state.addToast,
   })))
-  const teamData = teams.find(t => t.id === playerTeamId)
+  const teamData = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)

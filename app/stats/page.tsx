@@ -70,7 +70,7 @@ export default function StatsPage() {
     const [activeTab, setActiveTab] = useState<"ANALYTICS" | "RESULTS" | "TROPHIES" | "RIVALRIES">("ANALYTICS")
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null)
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const teamPlayers = players.filter(p => playerTeam?.rosterIds.includes(p.id))
 
     // Calculate EIR (Economy Impact Rating) = (Rating * 1000) / Salary

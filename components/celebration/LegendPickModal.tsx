@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, Star, Crown, Zap, Shield } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +18,9 @@ interface LegendPickModalProps {
 }
 
 export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
-    const players = useGameStore(state => state.players)
+    const { players } = useGameStore(useShallow(state => ({
+        players: state.players,
+    })))
     const [selectedId, setSelectedId] = useState<string | null>(null)
     const [confirmed, setConfirmed] = useState(false)
     const [mounted, setMounted] = useState(false)
