@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { DollarSign, Handshake, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { SponsorSaveData } from "@/engine/save-types"
 import { ActiveSponsorCard } from "@/components/sponsorships/ActiveSponsorCard"
 import { SponsorOfferCard } from "@/components/sponsorships/SponsorOfferCard"
 import { EmptySponsorSlot } from "@/components/sponsorships/EmptySponsorSlot"
@@ -72,7 +73,7 @@ export default function SponsorshipsPage() {
   }, [activeSponsors, playerTeam])
 
   // Determine lock state per offer
-  const getOfferLockState = (offer: typeof sponsorOffers[0]) => {
+  const getOfferLockState = (offer: SponsorSaveData) => {
     if (!playerTeam) return { isLocked: true, lockReason: "No team found" }
     const ranking = playerTeam.worldRanking || 999
 
@@ -101,7 +102,7 @@ export default function SponsorshipsPage() {
     return { isLocked: false, lockReason: "" }
   }
 
-  const handleAccept = (offer: typeof sponsorOffers[0]) => {
+  const handleAccept = (offer: SponsorSaveData) => {
     if (!playerTeam) return
     const result = signSponsor(playerTeam.id, {
       ...offer,

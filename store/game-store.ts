@@ -413,6 +413,10 @@ interface GameStoreState {
   // Phase 80: FPL System
   fplData?: import("@/types/fpl").FPLSaveData
 
+  // Sponsorship Manager
+  sponsorOffers: SponsorSaveData[]
+  declinedSponsorOfferIds: string[]
+
   // Entity indexes (transient, not persisted, rebuilt on hydration)
   _teamIndex: Map<string, TeamSaveData>
   _playerIndex: Map<string, PlayerSaveData>
@@ -461,6 +465,8 @@ interface GameStoreActions {
   // Empire (Phase 18)
   upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => void
   signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }
+  refreshSponsorOffers: () => void
+  declineSponsorOffer: (offerId: string) => void
   setTheme: (theme: "crystal" | "onyx") => void
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
