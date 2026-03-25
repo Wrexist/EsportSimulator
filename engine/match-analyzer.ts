@@ -146,9 +146,9 @@ export class MatchAnalyzer {
 
     private static determineKeyFactors(
         result: MatchResult,
-        homeStats: any,
-        awayStats: any,
-        roundAnalysis: any
+        homeStats: ReturnType<typeof MatchAnalyzer.aggregateStats>,
+        awayStats: ReturnType<typeof MatchAnalyzer.aggregateStats>,
+        roundAnalysis: ReturnType<typeof MatchAnalyzer.analyzeRounds>
     ) {
         const homeWon = result.homeScore > result.awayScore
         const winnerStats = homeWon ? homeStats : awayStats
@@ -190,9 +190,9 @@ export class MatchAnalyzer {
 
     private static generateSummary(
         winnerName: string,
-        factors: any,
+        factors: ReturnType<typeof MatchAnalyzer.determineKeyFactors>,
         result: MatchResult,
-        roundAnalysis: any
+        roundAnalysis: ReturnType<typeof MatchAnalyzer.analyzeRounds>
     ): string {
         const score = `${Math.max(result.homeScore, result.awayScore)}-${Math.min(result.homeScore, result.awayScore)}`
 

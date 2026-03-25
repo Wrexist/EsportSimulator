@@ -1,4 +1,4 @@
-import { GameSave } from "./save-types"
+import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
@@ -231,8 +231,8 @@ export class TrainingManager {
 
   private static completeTraining(
     game: GameSave,
-    team: any,
-    session: any
+    team: TeamSaveData,
+    session: RoleTrainingSession
   ) {
     const idx = buildSaveIndexes(game)
     const player = idx.playerIndex.get(session.playerId) ?? game.players.find(p => p.id === session.playerId)
@@ -278,7 +278,7 @@ export class TrainingManager {
     }
   }
 
-  private static applyRoleBonuses(player: any, role: Role, coachBonus: number = 0) {
+  private static applyRoleBonuses(player: PlayerSaveData, role: Role, coachBonus: number = 0) {
     // Boost relevant stats (0-100 scale)
     // Training completion provides a significant bump, enhanced by coach
     const boost = (val: number, amount: number) => Math.min(99, (val || 50) + Math.round(amount * (1 + coachBonus)))
