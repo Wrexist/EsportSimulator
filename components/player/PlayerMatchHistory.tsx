@@ -233,6 +233,6 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
             )}
         </div>
     )
-}
+})
 
 export default PlayerMatchHistory
