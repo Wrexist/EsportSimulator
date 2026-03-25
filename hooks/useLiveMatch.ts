@@ -23,10 +23,10 @@ const ROUND_START_DELAY_MS = 1500
 type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 
 interface LiveMatchRuntimeData {
-    match: Record<string, unknown>
+    match: any
     result: MatchResult
-    homeTeam: Record<string, unknown>
-    awayTeam: Record<string, unknown>
+    homeTeam: any
+    awayTeam: any
     homePlayerIds: string[]
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
@@ -77,7 +77,7 @@ function getActivePlayersByRosterOrder(
     return resolvedPlayers
 }
 
-function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): Record<string, unknown> {
+function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): any {
     return {
         map: mapId,
         ctStartTeamId: homeStartsCT ? homeTeamId : awayTeamId,
@@ -91,13 +91,13 @@ function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: s
 }
 
 function buildCanonicalResultMaps(
-    existingMaps: Record<string, unknown>[] | undefined,
+    existingMaps: any[] | undefined,
     canonicalMaps: MapId[],
     homeTeamId: string,
     awayTeamId: string,
     mapStartingSides: Record<string, string> | undefined,
     seed: number
-): Record<string, unknown>[] {
+): any[] {
     const sourceMaps = Array.isArray(existingMaps) ? existingMaps : []
     return canonicalMaps.map((mapId, mapIndex) => {
         const existing = sourceMaps[mapIndex]
