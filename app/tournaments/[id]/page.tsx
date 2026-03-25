@@ -51,8 +51,8 @@ import { getDynamicTournamentName } from "@/lib/utils-extended"
 import { getTeamFlag, getTeamRegion } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import { TournamentBracket } from "@/components/tournament/TournamentBracket"
-import { TournamentStats } from "@/components/tournament/TournamentStats"
+import TournamentBracket from "@/components/tournament/TournamentBracket"
+import TournamentStats from "@/components/tournament/TournamentStats"
 
 // Format display helper
 const formatDisplayName = (format: string): string => {
@@ -1383,7 +1383,7 @@ export default function TournamentDetailPage() {
                                                         matches={bracketMatches.map((m: any) => mapToBracketMatch(m, teams, completedMatches))}
                                                         rounds={uniqueStages.length > 0 ? uniqueStages : ["Quarter-Finals", "Semi-Finals", "Grand Final"]}
                                                         playerTeamId={playerTeamId || undefined}
-                                                        onMatchClick={(matchId) => {
+                                                        onMatchClick={(matchId: string) => {
                                                             const match = bracketMatches.find((m: any) => m.id === matchId)
                                                             if (match && (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId)) {
                                                                 // Navigate to match if it's the player's

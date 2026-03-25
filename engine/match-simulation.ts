@@ -1083,6 +1083,11 @@ export class SimulationEngineV2 {
         cachedAwayStressRes?: number,
         cachedPlayerMap?: Map<string, Player>
     ): RoundSimulationResult {
+        // Pre-built lookup set for O(1) home-player checks
+        const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
+        // Player map for O(1) lookups (use cached if available)
+        const playerMap = cachedPlayerMap ?? new Map(homePlayers.concat(awayPlayers).map(p => [p.id, p]))
+
         // Base win probability from strength
         // Upset Mechanics: Introduction of Chaos Factor
         // Controlled chaos: +/- 8% for realistic variance without wild swings

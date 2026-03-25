@@ -228,7 +228,7 @@ export class AtomicWeekProcessor {
                     }
                 }
 
-                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx)
+                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
                 await this.saveManager.saveGame(save)
             }
@@ -433,7 +433,9 @@ export class AtomicWeekProcessor {
         transaction: WeekTickState,
         rng: SeededRNG,
         playerTeamId: string,
-        idx?: SaveIndexes
+        idx?: SaveIndexes,
+        eventIdSet?: Set<string>,
+        ledgerIdSet?: Set<string>
     ): Promise<number> {
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek

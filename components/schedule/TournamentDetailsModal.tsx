@@ -18,8 +18,8 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
-import { TournamentStandings } from "@/components/tournament/TournamentStandings"
-import { TournamentBracket } from "@/components/tournament/TournamentBracket"
+import TournamentStandings from "@/components/tournament/TournamentStandings"
+import TournamentBracket from "@/components/tournament/TournamentBracket"
 import { isQualificationForTournament, getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 
 interface TournamentDetailsModalProps {

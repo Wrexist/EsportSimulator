@@ -4,7 +4,7 @@
  * Indexes are transient (not persisted) and rebuilt on hydration and after state mutations.
  */
 
-import type { TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData, TournamentSaveData, GameSave } from "@/engine/save-types"
+import type { TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData, TournamentSaveData, CompletedMatchSaveData, GameSave } from "@/engine/save-types"
 
 export interface EntityIndexes {
   _teamIndex: Map<string, TeamSaveData>
@@ -24,7 +24,7 @@ export interface SaveIndexes {
   contractIndex: Map<string, ContractSaveData>
   staffIndex: Map<string, StaffSaveData>
   tournamentIndex: Map<string, TournamentSaveData>
-  completedMatchIndex: Map<string, { id: string }>
+  completedMatchIndex: Map<string, CompletedMatchSaveData>
 }
 
 /** Build all indexes from a GameSave object (for engine use) */
@@ -54,7 +54,7 @@ export function buildSaveIndexes(save: GameSave): SaveIndexes {
     tournamentIndex.set(t.id, t)
   }
 
-  const completedMatchIndex = new Map<string, { id: string }>()
+  const completedMatchIndex = new Map<string, CompletedMatchSaveData>()
   for (const m of save.completedMatches) {
     completedMatchIndex.set(m.id, m)
   }

@@ -876,12 +876,12 @@ export function useLiveMatch(id: string) {
                     for (const p of originalHomePlayers) origPlayerMap.set(p.id, p)
                     for (const p of originalAwayPlayers) origPlayerMap.set(p.id, p)
 
-                    const killer = livePlayerMap.get(nextEvent.playerId)
-                    const victim = livePlayerMap.get(nextEvent.victimId)
+                    const killer = nextEvent.playerId ? livePlayerMap.get(nextEvent.playerId) : undefined
+                    const victim = nextEvent.victimId ? livePlayerMap.get(nextEvent.victimId) : undefined
                     const assister = nextEvent.assisterId ? livePlayerMap.get(nextEvent.assisterId) : undefined
 
-                    const killerPlayer = origPlayerMap.get(nextEvent.playerId)
-                    const victimPlayer = origPlayerMap.get(nextEvent.victimId)
+                    const killerPlayer = nextEvent.playerId ? origPlayerMap.get(nextEvent.playerId) : undefined
+                    const victimPlayer = nextEvent.victimId ? origPlayerMap.get(nextEvent.victimId) : undefined
                     const assisterPlayer = nextEvent.assisterId ? origPlayerMap.get(nextEvent.assisterId) : undefined
 
                     let killType = "KILL_GENERIC"
