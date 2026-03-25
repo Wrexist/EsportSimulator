@@ -113,6 +113,19 @@ function calculatePlaystyleCounterMod(myStyle: PlaystyleType, opponentStyle: Pla
 }
 
 
+// ===== UTILITY POWER VALUES (class-level, not redefined per round) =====
+const UTIL_POWER: Record<string, number> = {
+    smoke: 6,
+    molotov: 8,
+    flash: 5,
+    he: 4,
+}
+const UTIL_POWER_DEFAULT = 1
+
+function getUtilPower(util: string[] = []): number {
+    return (util || []).reduce((sum, u) => sum + (UTIL_POWER[u] ?? UTIL_POWER_DEFAULT), 0)
+}
+
 // ===== SIMULATION ENGINE =====
 
 interface PlayerSimulationState {
@@ -154,6 +167,10 @@ export class SimulationEngineV2 {
         const hStaff = homeStaff || this.getTeamStaff(homeTeam)
         const aStaff = awayStaff || this.getTeamStaff(awayTeam)
 
+        // Cache map strengths once (used by veto and map simulation)
+        const cachedHomeMapStrengths = this.calculateMapStrengths(activeHomePlayers)
+        const cachedAwayMapStrengths = this.calculateMapStrengths(activeAwayPlayers)
+
         // Perform map veto
         let maps: MapId[] = []
 
@@ -167,7 +184,9 @@ export class SimulationEngineV2 {
                 activeHomePlayers,
                 activeAwayPlayers,
                 hStaff.analyst,
-                aStaff.analyst
+                aStaff.analyst,
+                cachedHomeMapStrengths,
+                cachedAwayMapStrengths
             )
             maps = vetoResult.maps
         }
@@ -195,7 +214,9 @@ export class SimulationEngineV2 {
                 i, // mapIndex
                 match.stage, // matchStage
                 !!match.mentalPrep, // homeMentalPrep
-                false // awayMentalPrep
+                false, // awayMentalPrep
+                cachedHomeMapStrengths,
+                cachedAwayMapStrengths
             )
 
             mapResults.push(mapResult)
@@ -245,7 +266,9 @@ export class SimulationEngineV2 {
         homePlayers: Player[],
         awayPlayers: Player[],
         homeAnalyst?: Analyst,
-        awayAnalyst?: Analyst
+        awayAnalyst?: Analyst,
+        cachedHomeMapStrengths?: Map<MapId, number>,
+        cachedAwayMapStrengths?: Map<MapId, number>
     ): { veto: MapVeto[]; maps: MapId[] } {
         const allMaps: MapId[] = [
             MapId.DUST2, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
@@ -259,9 +282,9 @@ export class SimulationEngineV2 {
         const homeVetoSkill = homeAnalyst ? homeAnalyst.level : 1
         const awayVetoSkill = awayAnalyst ? awayAnalyst.level : 1
 
-        // Calculate team map strengths
-        const homeMapStrengths = this.calculateMapStrengths(homePlayers)
-        const awayMapStrengths = this.calculateMapStrengths(awayPlayers)
+        // Use cached map strengths if provided, otherwise calculate
+        const homeMapStrengths = cachedHomeMapStrengths || this.calculateMapStrengths(homePlayers)
+        const awayMapStrengths = cachedAwayMapStrengths || this.calculateMapStrengths(awayPlayers)
 
         // BAN PHASE: Each team bans 1 map (ban opponent's best)
         // Home team bans away's strongest map
@@ -384,7 +407,9 @@ export class SimulationEngineV2 {
         mapIndex: number = 0,
         matchStage?: string,
         homeMentalPrep?: boolean,
-        awayMentalPrep?: boolean
+        awayMentalPrep?: boolean,
+        cachedHomeMapStrengths?: Map<MapId, number>,
+        cachedAwayMapStrengths?: Map<MapId, number>
     ): MapResult {
         const rounds: RoundResult[] = []
         let homeRounds = 0
@@ -405,10 +430,12 @@ export class SimulationEngineV2 {
         const homeStrength = homeBaseStrength * homePlaystyleMod
         const awayStrength = awayBaseStrength * awayPlaystyleMod
 
-        // Map-specific adjustments
+        // Map-specific adjustments (use cached strengths to avoid recalculation)
+        const homeMapStr = cachedHomeMapStrengths || this.calculateMapStrengths(homePlayers)
+        const awayMapStr = cachedAwayMapStrengths || this.calculateMapStrengths(awayPlayers)
         const mapStrengths = {
-            home: this.calculateMapStrengths(homePlayers).get(map) || 50,
-            away: this.calculateMapStrengths(awayPlayers).get(map) || 50,
+            home: homeMapStr.get(map) || 50,
+            away: awayMapStr.get(map) || 50,
         }
 
         // Initialize economy
@@ -434,6 +461,16 @@ export class SimulationEngineV2 {
         // Momentum Tracking (0-100 Impact)
         let homeMomentumScore = 0
         let awayMomentumScore = 0
+
+        // Pre-built lookup set for O(1) home-player checks in the round loop
+        const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
+
+        // Pre-built player map for O(1) lookups in calculateEquipPower
+        const playerMap = new Map(homePlayers.concat(awayPlayers).map(p => [p.id, p]))
+
+        // Cache stress resistance averages (used every round when isHighPressure)
+        const homeStressRes = homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length
+        const awayStressRes = awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length
 
         // Loop until a team reaches a win condition
         while (true) {
@@ -589,7 +626,10 @@ export class SimulationEngineV2 {
                 homeStaff,
                 awayStaff,
                 map,
-                matchStage
+                matchStage,
+                homeStressRes,
+                awayStressRes,
+                playerMap
             )
 
             // Update Momentum
@@ -682,7 +722,7 @@ export class SimulationEngineV2 {
 
             // Kill Rewards
             roundResult.kills.forEach(k => {
-                const isHome = homePlayers.some(p => p.id === k.playerId)
+                const isHome = homePlayerIdSet.has(k.playerId)
                 const economy = isHome ? homeEconomy : awayEconomy
                 const state = economy[k.playerId]
                 const weapon = WEAPONS[state.weapon.toUpperCase()] || WEAPONS.AK47
@@ -712,7 +752,7 @@ export class SimulationEngineV2 {
 
             // Weapon Loss Logic (if dead, lose weapon)
             roundResult.deaths.forEach(d => {
-                const isHome = homePlayers.some(p => p.id === d.playerId)
+                const isHome = homePlayerIdSet.has(d.playerId)
                 const state = isHome ? homeEconomy[d.playerId] : awayEconomy[d.playerId]
                 if (d.deaths > 0) {
                     state.weapon = (isHome === homeIsCT) ? "usp" : "glock" // Reset to default based on side
@@ -1036,7 +1076,10 @@ export class SimulationEngineV2 {
         homeStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         awayStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         mapId?: MapId,
-        matchStage?: string
+        matchStage?: string,
+        cachedHomeStressRes?: number,
+        cachedAwayStressRes?: number,
+        cachedPlayerMap?: Map<string, Player>
     ): RoundSimulationResult {
         // Base win probability from strength
         // Upset Mechanics: Introduction of Chaos Factor
@@ -1071,17 +1114,7 @@ export class SimulationEngineV2 {
         }
 
         // Economy/Equipment Advantage
-        // Calculate utility power
-        // Calculate utility power
-        const getUtilPower = (util: string[] = []) => {
-            return (util || []).reduce((sum, u) => {
-                if (u === "smoke") return sum + 6
-                if (u === "molotov") return sum + 8
-                if (u === "flash") return sum + 5
-                if (u === "he") return sum + 4
-                return sum + 1
-            }, 0)
-        }
+        // (getUtilPower is defined at module level for reuse across rounds)
 
         // Helper to get mastery type
         const getMasteryType = (weaponId: string): WeaponType | undefined => {
@@ -1106,8 +1139,8 @@ export class SimulationEngineV2 {
                 const weapon = WEAPONS[p.weapon.toUpperCase()]
                 let power = (weapon?.power || 15)
 
-                // MASTERY BONUS
-                const player = players.find(pl => pl.id === p.id)
+                // MASTERY BONUS (use cached playerMap for O(1) lookup, fallback to linear search)
+                const player = cachedPlayerMap ? cachedPlayerMap.get(p.id) : players.find(pl => pl.id === p.id)
                 if (player && weapon) {
                     const type = getMasteryType(p.weapon)
                     if (type) {
@@ -1141,8 +1174,9 @@ export class SimulationEngineV2 {
         // Finals and semi-finals cause nerves. Teams with lower average stressResistance take a penalty.
         // Stage-based scaling: -3% group stage, -5% semi, -8% grand final
         if (isHighPressure) {
-            const homeStressRes = homePlayers.reduce((sum, p) => sum + p.stressResistance, 0) / homePlayers.length
-            const awayStressRes = awayPlayers.reduce((sum, p) => sum + p.stressResistance, 0) / awayPlayers.length
+            // Use cached stress resistance if provided, otherwise compute (fallback for public API callers)
+            const homeStressRes = cachedHomeStressRes ?? homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length
+            const awayStressRes = cachedAwayStressRes ?? awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length
 
             // Determine pressure penalty based on match stage
             const stageLower = (matchStage || "").toLowerCase()
@@ -1418,7 +1452,7 @@ export class SimulationEngineV2 {
             if (manAdvantage >= 4 && losersAlive.length > 0 && losersAlive.length <= 2 && currentTime > 35) {
                 // Check if they present any value to save?
                 // Don't save if on pistols or low eco
-                const isHomeLoser = homePlayers.some(p => p.id === losersAlive[0].id)
+                const isHomeLoser = homePlayerIdSet.has(losersAlive[0].id)
                 const economy = isHomeLoser ? homeEconomy : awayEconomy
 
                 const hasValuableGun = losersAlive.some(p => {

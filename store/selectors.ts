@@ -51,3 +51,14 @@ export const selectTeamStaff = (teamId: string) => (state: StoreState): StaffSav
 /** Select a contract by player ID (O(1) with index) */
 export const selectContractByPlayerId = (playerId: string) => (state: StoreState): ContractSaveData | undefined =>
   state._contractByPlayerIndex?.get(playerId) ?? state.contracts.find(c => c.playerId === playerId)
+
+/** Build reverse lookup: playerId → team that owns them (O(1) per lookup after build) */
+export const selectPlayerTeamMap = (state: StoreState): Map<string, TeamSaveData> => {
+  const map = new Map<string, TeamSaveData>()
+  for (const team of state.teams) {
+    for (const pid of team.rosterIds) {
+      map.set(pid, team)
+    }
+  }
+  return map
+}

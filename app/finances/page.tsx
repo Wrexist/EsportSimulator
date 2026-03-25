@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,18 +83,20 @@ export default function FinancesPage() {
   }
 
   // Cast for EconomyManager since it expects the simpler Team type
-  const report = economyManager.generateFinancialReport(
-    playerTeam,
-    players,
-    staff,
-    contracts
-  )
-  const currentMoney = playerTeam.budget ?? 0
-  const weeklyIncomeTotal = report.weeklyIncome?.total ?? 0
-  const weeklyExpensesTotal = report.weeklyExpenses?.total ?? 0
-  const netCashflow = report.netCashflow ?? 0
-  const isPositiveCashflow = netCashflow >= 0
-  const sponsorOffers = SponsorGenerator.generateOffers(playerTeam, currentWeek || 1)
+  const { report, currentMoney, weeklyIncomeTotal, weeklyExpensesTotal, netCashflow, isPositiveCashflow } = useMemo(() => {
+    const r = economyManager.generateFinancialReport(
+      playerTeam,
+      players,
+      staff,
+      contracts
+    )
+    const money = playerTeam.budget ?? 0
+    const incomeTotal = r.weeklyIncome?.total ?? 0
+    const expensesTotal = r.weeklyExpenses?.total ?? 0
+    const net = r.netCashflow ?? 0
+    return { report: r, currentMoney: money, weeklyIncomeTotal: incomeTotal, weeklyExpensesTotal: expensesTotal, netCashflow: net, isPositiveCashflow: net >= 0 }
+  }, [playerTeam, players, staff, contracts])
+  const sponsorOffers = useMemo(() => SponsorGenerator.generateOffers(playerTeam, currentWeek || 1), [playerTeam, currentWeek])
 
   const handleSignSponsor = (offer: any) => {
     const result = signSponsor(playerTeam.id, {
@@ -113,46 +116,48 @@ export default function FinancesPage() {
     })
   }
 
-  // === ADVANCED FINANCIAL METRICS ===
+  // === ADVANCED FINANCIAL METRICS (memoized) ===
 
-  // Runway Calculation - How many weeks until insolvency
-  const runwayWeeks = netCashflow < 0
-    ? Math.floor(currentMoney / Math.abs(netCashflow))
-    : 999 // Infinite if zero or positive cashflow
+  const { runwayWeeks, financialGrade, healthScore, projectedBudget } = useMemo(() => {
+    // Runway Calculation - How many weeks until insolvency
+    const runway = netCashflow < 0
+      ? Math.floor(currentMoney / Math.abs(netCashflow))
+      : 999 // Infinite if zero or positive cashflow
 
-  // Financial Grade (AAA to F)
-  const getFinancialGrade = () => {
+    // Financial Grade (AAA to F)
     const budgetScore = Math.min(currentMoney / BUDGET_SCORE_DIVISOR, 1) * BUDGET_SCORE_MAX
     const cashflowScore = netCashflow > 0 ? CASHFLOW_SCORE_MAX : Math.max(0, CASHFLOW_SCORE_HALF + (netCashflow / CASHFLOW_NORM_DIVISOR) * CASHFLOW_SCORE_HALF)
-    const runwayScore = Math.min(runwayWeeks / RUNWAY_WEEKS_FOR_MAX, 1) * RUNWAY_SCORE_MAX
-    const sponsorScore = (playerTeam.sponsors?.length || 0) * SPONSOR_SCORE_PER
+    const runwayScore = Math.min(runway / RUNWAY_WEEKS_FOR_MAX, 1) * RUNWAY_SCORE_MAX
+    const sponsorCount = playerTeam.sponsors?.length || 0
+    const sponsorScore = sponsorCount * SPONSOR_SCORE_PER
     const totalScore = budgetScore + cashflowScore + runwayScore + sponsorScore
 
-    if (totalScore >= 90) return { grade: "AAA", color: "text-emerald-400", bg: "bg-emerald-500/20" }
-    if (totalScore >= 80) return { grade: "AA", color: "text-green-400", bg: "bg-green-500/20" }
-    if (totalScore >= 70) return { grade: "A", color: "text-lime-400", bg: "bg-lime-500/20" }
-    if (totalScore >= 55) return { grade: "B", color: "text-yellow-400", bg: "bg-yellow-500/20" }
-    if (totalScore >= 40) return { grade: "C", color: "text-orange-400", bg: "bg-orange-500/20" }
-    if (totalScore >= 25) return { grade: "D", color: "text-red-400", bg: "bg-red-500/20" }
-    return { grade: "F", color: "text-red-500", bg: "bg-red-500/30" }
-  }
+    let grade: { grade: string; color: string; bg: string }
+    if (totalScore >= 90) grade = { grade: "AAA", color: "text-emerald-400", bg: "bg-emerald-500/20" }
+    else if (totalScore >= 80) grade = { grade: "AA", color: "text-green-400", bg: "bg-green-500/20" }
+    else if (totalScore >= 70) grade = { grade: "A", color: "text-lime-400", bg: "bg-lime-500/20" }
+    else if (totalScore >= 55) grade = { grade: "B", color: "text-yellow-400", bg: "bg-yellow-500/20" }
+    else if (totalScore >= 40) grade = { grade: "C", color: "text-orange-400", bg: "bg-orange-500/20" }
+    else if (totalScore >= 25) grade = { grade: "D", color: "text-red-400", bg: "bg-red-500/20" }
+    else grade = { grade: "F", color: "text-red-500", bg: "bg-red-500/30" }
 
-  const financialGrade = getFinancialGrade()
+    // Health Score (0-100)
+    const health = Math.min(100, Math.max(0,
+      (currentMoney / HEALTH_BUDGET_DIVISOR) * HEALTH_BUDGET_WEIGHT +
+      (netCashflow > 0 ? HEALTH_CASHFLOW_WEIGHT : Math.max(0, HEALTH_CASHFLOW_HALF + (netCashflow / HEALTH_CASHFLOW_NORM) * HEALTH_CASHFLOW_HALF)) +
+      Math.min(runway / RUNWAY_WEEKS_FOR_MAX, 1) * HEALTH_RUNWAY_WEIGHT +
+      sponsorCount * HEALTH_SPONSOR_WEIGHT
+    ))
 
-  // Health Score (0-100)
-  const healthScore = Math.min(100, Math.max(0,
-    (currentMoney / HEALTH_BUDGET_DIVISOR) * HEALTH_BUDGET_WEIGHT +
-    (netCashflow > 0 ? HEALTH_CASHFLOW_WEIGHT : Math.max(0, HEALTH_CASHFLOW_HALF + (netCashflow / HEALTH_CASHFLOW_NORM) * HEALTH_CASHFLOW_HALF)) +
-    Math.min(runwayWeeks / RUNWAY_WEEKS_FOR_MAX, 1) * HEALTH_RUNWAY_WEIGHT +
-    (playerTeam.sponsors?.length || 0) * HEALTH_SPONSOR_WEIGHT
-  ))
+    // 12-Week Projection
+    const projected = Array.from({ length: 12 }, (_, i) => ({
+      week: currentWeek + i + 1,
+      budget: Math.max(0, currentMoney + (netCashflow * (i + 1))),
+      isNegative: currentMoney + (netCashflow * (i + 1)) < 0
+    }))
 
-  // 12-Week Projection
-  const projectedBudget = Array.from({ length: 12 }, (_, i) => ({
-    week: currentWeek + i + 1,
-    budget: Math.max(0, currentMoney + (netCashflow * (i + 1))),
-    isNegative: currentMoney + (netCashflow * (i + 1)) < 0
-  }))
+    return { runwayWeeks: runway, financialGrade: grade, healthScore: health, projectedBudget: projected }
+  }, [currentMoney, netCashflow, playerTeam.sponsors?.length, currentWeek])
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

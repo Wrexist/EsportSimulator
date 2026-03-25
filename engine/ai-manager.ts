@@ -108,9 +108,15 @@ export class AIManager {
         const opponentPlayers = opponent.rosterIds
             .map(pid => save.players.find(p => p.id === pid))
             .filter((p): p is PlayerSaveData => !!p)
-            .sort((a, b) => (b.skill + b.potential * 0.2) - (a.skill + a.potential * 0.2))
 
-        team.targetPlayerId = opponentPlayers[0]?.id
+        // O(n) reduce instead of O(n log n) sort to find the best player
+        const bestOpponent = opponentPlayers.length > 0
+            ? opponentPlayers.reduce((best, p) =>
+                (p.skill + p.potential * 0.2) > (best.skill + best.potential * 0.2) ? p : best,
+                opponentPlayers[0])
+            : undefined
+
+        team.targetPlayerId = bestOpponent?.id
     }
 
     /**
@@ -273,8 +279,7 @@ export class AIManager {
 
         if (players.length === 0) return
 
-        players.sort((a, b) => a.skill - b.skill)
-        const worst = players[0]
+        const worst = players.reduce((min, p) => (p.skill < min.skill ? p : min), players[0])
 
         // Release
         team.rosterIds = team.rosterIds.filter(id => id !== worst.id)
@@ -325,12 +330,11 @@ export class AIManager {
             // Pick highest salary to dump wages?
             // Need contract info.
 
-            // Pick weakest or oldest player to list for transfer
-            const target = notForSale.sort((a, b) => {
-                const scoreA = (a.skill || 50) + (a.tactic || 50) - Math.max(0, (a.age || 20) - 27) * 5
-                const scoreB = (b.skill || 50) + (b.tactic || 50) - Math.max(0, (b.age || 20) - 27) * 5
-                return scoreA - scoreB
-            })[0]
+            // Pick weakest or oldest player to list for transfer (O(n) reduce instead of O(n log n) sort)
+            const scorePlayer = (p: PlayerSaveData) =>
+                (p.skill || 50) + (p.tactic || 50) - Math.max(0, (p.age || 20) - 27) * 5
+            const target = notForSale.reduce((min, p) =>
+                scorePlayer(p) < scorePlayer(min) ? p : min, notForSale[0])
             target.forSale = true
             target.transferListingPrice = (target.prestigeScore || 50) * 1000 // Basic value formula
             target.weeksOnTransferList = 0
@@ -354,6 +358,14 @@ export class AIManager {
         // 2. Iterate AI Teams
         const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
 
+        // Build Set of existing pending transfer offer keys for O(1) lookups
+        const existingOfferKeys = new Set<string>()
+        for (const e of save.eventsLog) {
+            if (e.week === save.currentWeek && e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
+                existingOfferKeys.add(`${e.data.teamId}_${e.data.playerId}`)
+            }
+        }
+
         aiTeams.forEach(aiTeam => {
             // Budget check
             if (aiTeam.budget < 50000) return
@@ -363,13 +375,7 @@ export class AIManager {
             userPlayersForSale.forEach(player => {
                 if (offersMade >= this.MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK) return
 
-                const existingOffer = save.eventsLog.some(e =>
-                    e.week === save.currentWeek &&
-                    e.type === "TRANSFER_OFFER" &&
-                    !e.selectedChoiceId &&
-                    e.data?.teamId === aiTeam.id &&
-                    e.data?.playerId === player.id
-                )
+                const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
                 if (existingOffer) return
 
                 // Calculate Market Value (Base Value)
@@ -544,7 +550,7 @@ export class AIManager {
                 .map(id => save.players.find(p => p.id === id))
                 .filter((p): p is PlayerSaveData => !!p && !p.isRetired)
             if (roster.length < 6) continue
-            const worst = [...roster].sort((a, b) => (a.skill ?? 0) - (b.skill ?? 0))[0]
+            const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
             if (worst && (worst.skill ?? 0) < 55) {
                 availablePlayers.push({ player: worst, team })
             }

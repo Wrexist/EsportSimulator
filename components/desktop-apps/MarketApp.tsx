@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, memo } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { GameEventSaveData } from "@/engine"
 import {
     LayoutGrid,
@@ -62,18 +63,20 @@ function calculateTacticalStats(p: any) {
 }
 
 function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
-    // Game Store Data
-    const players = useGameStore(state => state.players)
-    const teams = useGameStore(state => state.teams)
-    const playerTeamId = useGameStore(state => state.playerTeamId)
-    const contracts = useGameStore(state => state.contracts)
-    const transferPlayer = useGameStore(state => state.transferPlayer)
-    const currentWeek = useGameStore(state => state.currentWeek)
-    const startScoutingMission = useGameStore(state => state.startScoutingMission)
-    const activeScoutingMission = useGameStore(state => state.activeScoutingMission)
-    const isPlayerScouted = useGameStore(state => state.isPlayerScouted)
-    const transferHistory = useGameStore(state => state.transferHistory)
-    const staff = useGameStore(state => state.staff)
+    // Game Store Data (batched with useShallow to minimize re-renders)
+    const { players, teams, playerTeamId, contracts, transferPlayer, currentWeek, startScoutingMission, activeScoutingMission, isPlayerScouted, transferHistory, staff } = useGameStore(useShallow(state => ({
+        players: state.players,
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        contracts: state.contracts,
+        transferPlayer: state.transferPlayer,
+        currentWeek: state.currentWeek,
+        startScoutingMission: state.startScoutingMission,
+        activeScoutingMission: state.activeScoutingMission,
+        isPlayerScouted: state.isPlayerScouted,
+        transferHistory: state.transferHistory,
+        staff: state.staff,
+    })))
     // Scout Requirement Check
     const hasScout = staff.some(s => s.role === "scout" && s.teamId === playerTeamId)
 

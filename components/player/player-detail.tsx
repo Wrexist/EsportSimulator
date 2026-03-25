@@ -424,15 +424,15 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                         <div className="flex flex-col">
                             <span className="text-[9px] text-primary/60 font-normal uppercase tracking-widest mb-0.5">Salary</span>
                             <span className="text-lg font-normal text-white leading-none">
-                                ${contracts.find(c => c.playerId === player.id)?.salaryPerWeek.toLocaleString() ?? "0"}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
+                                ${contract?.salaryPerWeek.toLocaleString() ?? "0"}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
                             </span>
                         </div>
                         <div className="w-px h-6 bg-primary/10" />
                         <div className="flex flex-col">
                             <span className="text-[9px] text-primary/60 font-normal uppercase tracking-widest mb-0.5">Expiry</span>
                             <span className="text-lg font-normal text-white leading-none">
-                                {contracts.find(c => c.playerId === player.id)
-                                    ? Math.max(0, (contracts.find(c => c.playerId === player.id)!.endWeek - useGameStore.getState().currentWeek)) + " Weeks"
+                                {contract
+                                    ? Math.max(0, (contract.endWeek - currentWeek)) + " Weeks"
                                     : "N/A"
                                 }
                             </span>

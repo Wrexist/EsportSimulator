@@ -238,6 +238,7 @@ export function useLiveMatch(id: string) {
     const latestHomeRosterRef = useRef<LivePlayerState[]>([])
     const latestAwayRosterRef = useRef<LivePlayerState[]>([])
     const startNextRoundRef = useRef<(playerStrategy?: RoundStrategy) => void>(() => {})
+    const playerMapRef = useRef<Map<string, typeof players[0]>>(new Map())
 
     // Reset mounted flag on unmount to prevent state updates after navigation
     useEffect(() => {
@@ -292,6 +293,7 @@ export function useLiveMatch(id: string) {
 
         // Build player lookup map for O(1) roster resolution
         const playerMap = new Map(players.map(p => [p.id, p]))
+        playerMapRef.current = playerMap as Map<string, typeof players[0]>
         const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         if (homePlayers.length === 0 || awayPlayers.length === 0) return
@@ -578,8 +580,9 @@ export function useLiveMatch(id: string) {
         if (!runtime || !currentSimState) return
 
         const { homeTeam, awayTeam, homePlayerIds, awayPlayerIds, canonicalMaps } = runtime
-        const hPlayers = homePlayerIds.map(playerId => players.find(player => player.id === playerId)).filter(Boolean) as Player[]
-        const aPlayers = awayPlayerIds.map(playerId => players.find(player => player.id === playerId)).filter(Boolean) as Player[]
+        const pMap = playerMapRef.current
+        const hPlayers = homePlayerIds.map(playerId => pMap.get(playerId)).filter(Boolean) as Player[]
+        const aPlayers = awayPlayerIds.map(playerId => pMap.get(playerId)).filter(Boolean) as Player[]
         if (hPlayers.length === 0 || aPlayers.length === 0) return
 
         const isPlayerHome = homeTeam.id === playerTeam?.id
@@ -864,13 +867,22 @@ export function useLiveMatch(id: string) {
                     const side: "CT" | "T" = isHomeKiller
                         ? (sim.homeStartsCT ? "CT" : "T")
                         : (sim.homeStartsCT ? "T" : "CT")
-                    const killer = [...currentHomeRoster, ...currentAwayRoster].find(player => player.id === nextEvent.playerId)
-                    const victim = [...currentHomeRoster, ...currentAwayRoster].find(player => player.id === nextEvent.victimId)
-                    const assister = [...currentHomeRoster, ...currentAwayRoster].find(player => player.id === nextEvent.assisterId)
 
-                    const killerPlayer = [...originalHomePlayers, ...originalAwayPlayers].find(player => player.id === nextEvent.playerId)
-                    const victimPlayer = [...originalHomePlayers, ...originalAwayPlayers].find(player => player.id === nextEvent.victimId)
-                    const assisterPlayer = [...originalHomePlayers, ...originalAwayPlayers].find(player => player.id === nextEvent.assisterId)
+                    // Build O(1) lookup maps instead of repeated .find() on combined arrays
+                    const livePlayerMap = new Map<string, LivePlayerState>()
+                    for (const p of currentHomeRoster) livePlayerMap.set(p.id, p)
+                    for (const p of currentAwayRoster) livePlayerMap.set(p.id, p)
+                    const origPlayerMap = new Map<string, Player>()
+                    for (const p of originalHomePlayers) origPlayerMap.set(p.id, p)
+                    for (const p of originalAwayPlayers) origPlayerMap.set(p.id, p)
+
+                    const killer = livePlayerMap.get(nextEvent.playerId)
+                    const victim = livePlayerMap.get(nextEvent.victimId)
+                    const assister = nextEvent.assisterId ? livePlayerMap.get(nextEvent.assisterId) : undefined
+
+                    const killerPlayer = origPlayerMap.get(nextEvent.playerId)
+                    const victimPlayer = origPlayerMap.get(nextEvent.victimId)
+                    const assisterPlayer = nextEvent.assisterId ? origPlayerMap.get(nextEvent.assisterId) : undefined
 
                     let killType = "KILL_GENERIC"
                     if (weaponId === "awp") killType = "KILL_AWP"
