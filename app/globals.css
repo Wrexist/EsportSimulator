@@ -21,7 +21,7 @@
   outline-offset: 2px;
 }
 
-/* Reduce motion for users who prefer it */
+/* Reduce motion for users who prefer it (OS-level or in-game setting) */
 @media (prefers-reduced-motion: reduce) {
 
   *,
@@ -32,6 +32,16 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* In-game reduced motion toggle */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 html,

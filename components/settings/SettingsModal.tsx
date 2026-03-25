@@ -2,15 +2,18 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Monitor, Volume2, Gamepad2, Check } from "lucide-react"
+import { X, Monitor, Volume2, Gamepad2, Keyboard, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import {
     useSettingsStore,
     WindowMode,
     Resolution,
-    GameSpeed
+    GameSpeed,
+    Difficulty,
+    RenderingMode
 } from "@/lib/settings-store"
+import { soundManager } from "@/lib/sound-manager"
 import { cn } from "@/lib/utils"
 
 interface SettingsModalProps {
@@ -18,12 +21,13 @@ interface SettingsModalProps {
     onClose: () => void
 }
 
-type Tab = 'display' | 'audio' | 'game'
+type Tab = 'display' | 'audio' | 'game' | 'controls'
 
 const TABS = [
     { id: 'display' as Tab, label: 'Display', icon: Monitor },
     { id: 'audio' as Tab, label: 'Audio', icon: Volume2 },
     { id: 'game' as Tab, label: 'Game', icon: Gamepad2 },
+    { id: 'controls' as Tab, label: 'Controls', icon: Keyboard },
 ]
 
 const RESOLUTIONS: { value: Resolution; label: string }[] = [
@@ -43,6 +47,50 @@ const GAME_SPEEDS: { value: GameSpeed; label: string }[] = [
     { value: 'normal', label: 'Normal' },
     { value: 'fast', label: 'Fast' },
     { value: 'very-fast', label: 'Very Fast' },
+]
+
+const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
+    { value: 'easy', label: 'Easy', desc: 'AI teams make fewer optimal decisions' },
+    { value: 'normal', label: 'Normal', desc: 'Balanced AI competition' },
+    { value: 'hard', label: 'Hard', desc: 'AI teams play optimally and aggressively' },
+]
+
+const RENDERING_MODES: { value: RenderingMode; label: string; desc: string }[] = [
+    { value: 'performance', label: 'Performance', desc: 'GPU-accelerated rendering' },
+    { value: 'compatibility', label: 'Compatibility', desc: 'Software rendering (use if experiencing crashes)' },
+]
+
+const SHORTCUT_GROUPS = [
+    {
+        label: "General",
+        shortcuts: [
+            { keys: ["Ctrl", "S"], description: "Save game" },
+            { keys: ["Space"], description: "Advance 1 week" },
+            { keys: ["Esc"], description: "Close modal" },
+            { keys: ["?"], description: "Show keyboard shortcuts" },
+        ],
+    },
+    {
+        label: "Navigation",
+        shortcuts: [
+            { keys: ["1"], description: "Squad" },
+            { keys: ["2"], description: "Transfers" },
+            { keys: ["3"], description: "Staff" },
+            { keys: ["4"], description: "Schedule" },
+            { keys: ["5"], description: "Finances" },
+            { keys: ["6"], description: "Training" },
+            { keys: ["7"], description: "Scouting" },
+            { keys: ["8"], description: "Desktop" },
+            { keys: ["9"], description: "Settings" },
+        ],
+    },
+    {
+        label: "Modals",
+        shortcuts: [
+            { keys: ["Ctrl", "Enter"], description: "Confirm action" },
+            { keys: ["Esc"], description: "Cancel / Close" },
+        ],
+    },
 ]
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
@@ -110,7 +158,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Content */}
-                            <div className="p-6 min-h-[320px]">
+                            <div className="p-6 min-h-[320px] max-h-[460px] overflow-y-auto">
                                 {activeTab === 'display' && (
                                     <DisplaySettings settings={settings} />
                                 )}
@@ -118,7 +166,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     <AudioSettings settings={settings} />
                                 )}
                                 {activeTab === 'game' && (
-                                    <GameSettings settings={settings} />
+                                    <GameSettingsTab settings={settings} />
+                                )}
+                                {activeTab === 'controls' && (
+                                    <ControlsSettings />
                                 )}
                             </div>
 
@@ -180,24 +231,42 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
                 </select>
             </SettingRow>
 
-            <SettingRow label="VSync">
-                <ToggleSwitch
-                    enabled={settings.vsync}
-                    onChange={settings.setVsync}
-                />
+            <SettingRow label="Rendering Mode">
+                <div className="flex flex-col items-end gap-1">
+                    <select
+                        value={settings.renderingMode}
+                        onChange={(e) => settings.setRenderingMode(e.target.value as RenderingMode)}
+                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                    >
+                        {RENDERING_MODES.map((mode) => (
+                            <option key={mode.value} value={mode.value} className="bg-[#1a1f2e]">
+                                {mode.label}
+                            </option>
+                        ))}
+                    </select>
+                    <span className="text-[10px] text-white/30">Changes take effect after restart</span>
+                </div>
             </SettingRow>
 
-            <SettingRow label="FPS Limit">
-                <select
-                    value={settings.fpsLimit}
-                    onChange={(e) => settings.setFpsLimit(Number(e.target.value))}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
-                >
-                    <option value={0} className="bg-[#1a1f2e]">Unlimited</option>
-                    <option value={30} className="bg-[#1a1f2e]">30 FPS</option>
-                    <option value={60} className="bg-[#1a1f2e]">60 FPS</option>
-                    <option value={120} className="bg-[#1a1f2e]">120 FPS</option>
-                </select>
+            <SettingRow label="UI Scale">
+                <div className="flex items-center gap-3 w-48">
+                    <Slider
+                        value={[settings.uiScale]}
+                        onValueChange={(vals) => settings.setUiScale(vals[0])}
+                        min={80}
+                        max={120}
+                        step={5}
+                        className="flex-1 [&_[data-slot=slider-range]]:bg-emerald-500 [&_[data-slot=slider-thumb]]:border-emerald-500 [&_[data-slot=slider-thumb]]:bg-emerald-400"
+                    />
+                    <span className="text-sm text-white/50 tabular-nums w-10 text-right">{settings.uiScale}%</span>
+                </div>
+            </SettingRow>
+
+            <SettingRow label="Reduced Motion">
+                <ToggleSwitch
+                    enabled={settings.reducedMotion}
+                    onChange={settings.setReducedMotion}
+                />
             </SettingRow>
         </div>
     )
@@ -210,26 +279,68 @@ function AudioSettings({ settings }: { settings: ReturnType<typeof useSettingsSt
             <VolumeSlider
                 label="Master Volume"
                 value={settings.masterVolume}
-                onChange={settings.setMasterVolume}
+                onChange={(vol) => {
+                    settings.setMasterVolume(vol)
+                    soundManager.setMasterVolume(vol)
+                }}
             />
             <VolumeSlider
                 label="Music Volume"
                 value={settings.musicVolume}
-                onChange={settings.setMusicVolume}
+                onChange={(vol) => {
+                    settings.setMusicVolume(vol)
+                    soundManager.setMusicVolume(vol)
+                }}
             />
             <VolumeSlider
                 label="SFX Volume"
                 value={settings.sfxVolume}
-                onChange={settings.setSfxVolume}
+                onChange={(vol) => {
+                    settings.setSfxVolume(vol)
+                    soundManager.setSfxVolume(vol)
+                }}
             />
         </div>
     )
 }
 
 // Game Settings Tab
-function GameSettings({ settings }: { settings: ReturnType<typeof useSettingsStore.getState> }) {
+function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettingsStore.getState> }) {
     return (
         <div className="space-y-6">
+            <SettingRow label="Difficulty">
+                <div className="flex flex-col items-end gap-1">
+                    <select
+                        value={settings.difficulty}
+                        onChange={(e) => settings.setDifficulty(e.target.value as Difficulty)}
+                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                    >
+                        {DIFFICULTIES.map((diff) => (
+                            <option key={diff.value} value={diff.value} className="bg-[#1a1f2e]">
+                                {diff.label}
+                            </option>
+                        ))}
+                    </select>
+                    <span className="text-[10px] text-white/30">
+                        {DIFFICULTIES.find(d => d.value === settings.difficulty)?.desc}
+                    </span>
+                </div>
+            </SettingRow>
+
+            <SettingRow label="Game Speed">
+                <select
+                    value={settings.gameSpeed}
+                    onChange={(e) => settings.setGameSpeed(e.target.value as GameSpeed)}
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                >
+                    {GAME_SPEEDS.map((speed) => (
+                        <option key={speed.value} value={speed.value} className="bg-[#1a1f2e]">
+                            {speed.label}
+                        </option>
+                    ))}
+                </select>
+            </SettingRow>
+
             <SettingRow label="Auto-Save">
                 <ToggleSwitch
                     enabled={settings.autoSave}
@@ -250,26 +361,52 @@ function GameSettings({ settings }: { settings: ReturnType<typeof useSettingsSto
                 </select>
             </SettingRow>
 
-            <SettingRow label="Game Speed">
-                <select
-                    value={settings.gameSpeed}
-                    onChange={(e) => settings.setGameSpeed(e.target.value as GameSpeed)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
-                >
-                    {GAME_SPEEDS.map((speed) => (
-                        <option key={speed.value} value={speed.value} className="bg-[#1a1f2e]">
-                            {speed.label}
-                        </option>
-                    ))}
-                </select>
-            </SettingRow>
-
             <SettingRow label="Notifications">
                 <ToggleSwitch
                     enabled={settings.notifications}
                     onChange={settings.setNotifications}
                 />
             </SettingRow>
+
+            <SettingRow label="Language">
+                <select
+                    value={settings.language}
+                    onChange={(e) => settings.setLanguage(e.target.value)}
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                >
+                    <option value="en" className="bg-[#1a1f2e]">English</option>
+                </select>
+            </SettingRow>
+        </div>
+    )
+}
+
+// Controls Settings Tab
+function ControlsSettings() {
+    return (
+        <div className="space-y-6">
+            {SHORTCUT_GROUPS.map((group) => (
+                <div key={group.label}>
+                    <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">{group.label}</h3>
+                    <div className="space-y-2">
+                        {group.shortcuts.map((shortcut, i) => (
+                            <div key={i} className="flex items-center justify-between py-1.5">
+                                <span className="text-sm text-white/70">{shortcut.description}</span>
+                                <div className="flex gap-1">
+                                    {shortcut.keys.map((key, j) => (
+                                        <kbd
+                                            key={j}
+                                            className="px-2 py-0.5 text-xs font-mono bg-white/5 border border-white/10 rounded text-white/60"
+                                        >
+                                            {key}
+                                        </kbd>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
         </div>
     )
 }

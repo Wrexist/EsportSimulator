@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -118,7 +119,7 @@ export default function CareerPage() {
             const saves = await listSaves()
             setAvailableSaves(saves)
         } catch (error) {
-            console.error("Failed to list saves", error)
+            debug.error("Failed to list saves", error)
         } finally {
             setIsLoadingSaves(false)
         }
