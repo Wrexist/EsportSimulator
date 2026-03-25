@@ -23,6 +23,7 @@ import {
     CURRENT_SAVE_VERSION,
     repairSave,
 } from "./save-types"
+import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
 import { WeaponMasteryManager } from "@/engine/weapon-mastery-system"
 import { WEAPONS } from "@/engine/economy-manager"
@@ -291,6 +292,7 @@ export class AtomicWeekProcessor {
                 this.processAIWorldLogic(save, config.playerTeamId, rng)
                 this.processFanbaseGrowth(save, rng)
                 this.processWeeklySponsorGoals(save, eventIdSet, ledgerIdSet)
+                this.refreshSponsorOffers(save, config.playerTeamId, rng)
 
                 // ===== STEP 7.7: Player Retirements (Phase 23) =====
                 debugLog(`[Week ${save.currentWeek}] Step 7.7: Retirements...`)
@@ -1606,6 +1608,17 @@ export class AtomicWeekProcessor {
 
             team.sponsors = activeSponsors
         })
+    }
+
+    /**
+     * Generate fresh sponsor offers for the player's team each week.
+     */
+    private refreshSponsorOffers(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
+        const team = save.teams.find(t => t.id === playerTeamId)
+        if (!team) return
+        const offerRng = new SeededRNG(rng.int(1, 2147483646))
+        save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng)
+        save.declinedSponsorOfferIds = []
     }
 
     // Phase 20: Process tournament-related logic

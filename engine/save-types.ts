@@ -90,6 +90,10 @@ export interface GameSave {
     // === FINANCE ===
     financeLedger: FinanceLedgerEntry[]
 
+    // === SPONSORSHIP OFFERS ===
+    sponsorOffers?: SponsorSaveData[]
+    declinedSponsorOfferIds?: string[]
+
     // Phase 23: Hall of Fame
     hallOfFame: HallOfFameEntry[]
 

@@ -26,7 +26,6 @@ import {
   Zap,
   Globe,
   Award,
-  Target,
   BarChart3,
   Activity,
   Shield,
@@ -39,7 +38,7 @@ import {
   History,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { EconomyManager, SponsorGenerator } from "@/engine/economy-manager"
+import { EconomyManager } from "@/engine/economy-manager"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 
@@ -65,16 +64,13 @@ const HEALTH_SPONSOR_WEIGHT = 8.33
 
 export default function FinancesPage() {
   const router = useRouter()
-  const { teams, playerTeamId, signSponsor, currentWeek, players, staff, contracts, completedMatches, tournaments } = useGameStore(useShallow(state => ({
+  const { teams, playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
     teams: state.teams,
     playerTeamId: state.playerTeamId,
-    signSponsor: state.signSponsor,
     currentWeek: state.currentWeek,
     players: state.players,
     staff: state.staff,
     contracts: state.contracts,
-    completedMatches: state.completedMatches,
-    tournaments: state.tournaments,
   })))
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
@@ -96,26 +92,6 @@ export default function FinancesPage() {
     const net = r.netCashflow ?? 0
     return { report: r, currentMoney: money, weeklyIncomeTotal: incomeTotal, weeklyExpensesTotal: expensesTotal, netCashflow: net, isPositiveCashflow: net >= 0 }
   }, [playerTeam, players, staff, contracts])
-  const sponsorOffers = useMemo(() => SponsorGenerator.generateOffers(playerTeam, currentWeek || 1), [playerTeam, currentWeek])
-
-  const handleSignSponsor = (offer: any) => {
-    const result = signSponsor(playerTeam.id, {
-      ...offer,
-      signedWeek: currentWeek || 1
-    })
-
-    if (result.success) {
-      toast.success("Partnership Secured", {
-        description: `You have signed a ${offer.remainingWeeks}-week deal with ${offer.name}.`
-      })
-      return
-    }
-
-    toast.error("Unable to Sign Sponsor", {
-      description: result.message
-    })
-  }
-
   // === ADVANCED FINANCIAL METRICS (memoized) ===
 
   const { runwayWeeks, financialGrade, healthScore, projectedBudget } = useMemo(() => {
@@ -635,142 +611,52 @@ export default function FinancesPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="sponsors" className="space-y-8">
-          {/* New Sponsorship Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-normal tracking-tight">Partnership Network</h2>
-              <p className="text-muted-foreground text-sm">Negotiate contracts with goal-based incentives.</p>
-            </div>
-            <div className="flex gap-2">
-              <Badge variant="outline" className="h-8 border-primary/20 bg-primary/5 text-primary">Reputation: {playerTeam.reputation}/100</Badge>
-              <Badge variant="outline" className="h-8 border-white/10 bg-white/5">Followers: {(playerTeam.followers || 0).toLocaleString()}</Badge>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {sponsorOffers.map((offer: any) => {
-              // Check if we already have a sponsor for this tier
-              const activeSponsor = playerTeam.sponsors?.find(s => s.tier === offer.tier)
-
-              // Use active sponsor data if signed, otherwise use the offer
-              const displayData = activeSponsor || offer
-              const isSigned = !!activeSponsor
-
-              // Pre-compute tier eligibility
-              const ranking = playerTeam.worldRanking || 999
-              let isLocked = false
-              let lockReason = ""
-              if (!isSigned && offer.tier === "PREMIUM" && ranking > 30) {
-                isLocked = true
-                lockReason = "Requires Top 30 World Ranking"
-              }
-              if (!isSigned && offer.tier === "ELITE") {
-                const hasMajorTrophy = (playerTeam.trophies || []).some((t: any) => t.tier === "S_TIER")
-                const hasMajorParticipation = (completedMatches || []).some((match: any) => {
-                  if (match.homeTeamId !== playerTeam.id && match.awayTeamId !== playerTeam.id) return false
-                  if (!match.tournamentId) return false
-                  const tournament = (tournaments || []).find((t: any) => t.id === match.tournamentId)
-                  return tournament?.tier === "S_TIER"
-                })
-                const isTopRanked = ranking <= 10
-                if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) {
-                  isLocked = true
-                  lockReason = "Requires Top 10 Ranking or Major participation"
-                }
-              }
-
-              const bgGradient = displayData.tier === "ELITE" ? "from-amber-500/10 to-transparent" : displayData.tier === "PREMIUM" ? "from-purple-500/10 to-transparent" : "from-blue-500/10 to-transparent"
-              const borderColor = displayData.tier === "ELITE" ? "border-amber-500/30" : displayData.tier === "PREMIUM" ? "border-purple-500/30" : "border-blue-500/30"
-              const textColor = displayData.tier === "ELITE" ? "text-amber-400" : displayData.tier === "PREMIUM" ? "text-purple-400" : "text-blue-400"
-
-              return (
-                <Card key={offer.id} className={cn("bg-white/[0.02] border-white/5 overflow-hidden relative group hover:border-white/10 transition-all", isSigned && "border-green-500/20")}>
-                  {isSigned && <div className="absolute inset-0 bg-green-500/5 z-0 pointer-events-none" />}
-                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity", bgGradient)} />
-
-                  <CardHeader className="relative z-10">
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge variant="outline" className={cn("text-[10px] font-normal uppercase tracking-widest", borderColor, textColor)}>{displayData.tier}</Badge>
-                      {isSigned ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Briefcase className={cn("h-4 w-4", textColor)} />}
-                    </div>
-                    <CardTitle className="text-xl font-normal uppercase tracking-tight">{displayData.name}</CardTitle>
-                    <CardDescription className="text-xs font-sans">
-                      {isSigned ? `${displayData.remainingWeeks} Weeks Remaining` : `${displayData.remainingWeeks} Week Contract`}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="relative z-10 space-y-4">
-                    <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Weekly Base</span>
-                        <span className="text-white font-bold">${displayData.weeklyPayout.toLocaleString()}</span>
+        <TabsContent value="sponsors" className="space-y-6">
+          <Card className="bg-white/[0.02] border-white/10">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-xl font-normal tracking-tight">Sponsorship Summary</CardTitle>
+                  <CardDescription>{playerTeam.sponsors?.length || 0}/3 active partnerships</CardDescription>
+                </div>
+                <Badge variant="outline" className="h-8 border-green-500/20 bg-green-500/5 text-green-400">
+                  ${report.weeklyIncome.sponsors.toLocaleString()}/wk
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(playerTeam.sponsors?.length || 0) > 0 ? (
+                <div className="space-y-3">
+                  {playerTeam.sponsors?.map((sponsor: any) => (
+                    <div key={sponsor.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                      <div>
+                        <span className="font-medium text-white">{sponsor.name}</span>
+                        <Badge className={cn("ml-2 text-[10px]",
+                          sponsor.tier === "ELITE" ? "bg-amber-500/20 text-amber-400" :
+                          sponsor.tier === "PREMIUM" ? "bg-purple-500/20 text-purple-400" :
+                          "bg-blue-500/20 text-blue-400"
+                        )}>{sponsor.tier}</Badge>
                       </div>
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Signing Bonus</span>
-                        <span className="text-emerald-400 font-bold">+$0</span>
+                      <div className="text-right">
+                        <span className="text-green-400 font-bold">${sponsor.weeklyPayout.toLocaleString()}/wk</span>
+                        <span className="text-xs text-muted-foreground ml-2">{sponsor.remainingWeeks}w left</span>
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No active sponsors. Visit the Sponsorship Manager to sign deals.</p>
+              )}
 
-                    <div className="space-y-2">
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground">Performance Clauses</p>
-                      {displayData.goals && displayData.goals.map((goal: any) => (
-                        <div key={goal.id} className="text-xs flex items-center justify-between p-2 bg-white/5 rounded border border-white/5">
-                          <div className="flex items-center gap-2">
-                            <Target size={12} className={textColor} />
-                            <span>{goal.description} (x{goal.target})</span>
-                          </div>
-                          <span className="text-emerald-400 font-bold">+${goal.bonusPayout.toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Button
-                      className={cn("w-full font-bold shadow-lg", isSigned && "bg-green-500/10 text-green-500 hover:bg-green-500/20", isLocked && "opacity-50")}
-                      disabled={isSigned || isLocked}
-                      onClick={() => handleSignSponsor(offer)}
-                    >
-                      {isSigned ? "Active Partnership" : isLocked ? lockReason : "Sign Contract"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-
-          {/* Active Deals Tracking */}
-          {(playerTeam.sponsors?.length || 0) > 0 && (
-            <Card className="bg-emerald-950/20 border-emerald-500/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-emerald-400">
-                  <CheckCircle size={20} /> Active Goals
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {playerTeam.sponsors?.map(sponsor => (
-                  <div key={sponsor.id} className="space-y-3 pb-4 border-b border-emerald-500/10 last:border-0">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-white">{sponsor.name}</span>
-                      <span className="text-xs text-muted-foreground">{sponsor.remainingWeeks} weeks left</span>
-                    </div>
-                    {sponsor.goals?.map((goal: any) => (
-                      <div key={goal.id} className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>{goal.description}</span>
-                          <span className={cn(goal.isCompleted ? "text-emerald-400" : "text-white/60")}>{goal.current} / {goal.target} {goal.isCompleted && "(COMPLETED)"}</span>
-                        </div>
-                        <Progress value={(goal.current / goal.target) * 100} className="h-1.5 bg-black/40" />
-                        {goal.isCompleted && (
-                          <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Bonus Secured: ${goal.bonusPayout.toLocaleString()}</p>
-                        )}
-                      </div>
-                    ))}
-                    {(!sponsor.goals || sponsor.goals.length === 0) && <p className="text-xs text-muted-foreground italic">No active performance clauses.</p>}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+              <Button
+                className="w-full font-bold"
+                onClick={() => router.push("/sponsorships")}
+              >
+                <ChevronRight size={14} className="mr-1" />
+                Open Sponsorship Manager
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="merch" className="space-y-6">
