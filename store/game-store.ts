@@ -2444,6 +2444,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       advanceWeek: async () => {
         const state = get()
 
+        // Guard: prevent concurrent week processing (race condition from rapid key presses)
+        if (state.isLoading) return
+
         // Guard: prevent advancing if game is over (bankruptcy)
         if (state.gameOverReason) {
           get().addToast({ message: "Your organization has been dissolved. Load a save or start a new game.", type: "warning" })

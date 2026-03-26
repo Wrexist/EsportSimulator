@@ -3,7 +3,7 @@
 ## Prerequisites
 
 ✅ You have: Steamworks Partner account with an App ID
-✅ Location: Project folder `c:\Users\IsacC\Downloads\esports-simulator-game (1)`
+✅ Location: Your project folder (e.g., `C:\Projects\esports-simulator-game`)
 
 ---
 
@@ -14,7 +14,7 @@ Close everything and restart to clear file locks.
 
 ### Step 2: Build the Installer
 ```bash
-cd "c:\Users\IsacC\Downloads\esports-simulator-game (1)"
+cd "C:\Projects\esports-simulator-game"
 npm run dist
 ```
 
@@ -148,7 +148,7 @@ cd C:\SteamPipe\sdk\tools\ContentBuilder\builder
 ```
 
 cd C:\SteamPipe\sdk\tools\ContentBuilder\builder
->> .\steamcmd.exe +login poladero +run_app_build C:\SteamPipe\4326170.vdf +quit
+>> .\steamcmd.exe +login YOUR_STEAM_USERNAME +run_app_build C:\SteamPipe\4326170.vdf +quit
 **Enter password when prompted**
 
 ---
