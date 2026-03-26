@@ -316,6 +316,33 @@ export class SteamService {
         }
     }
 
+    /**
+     * Update Rich Presence with detailed game state
+     */
+    async updateGameStatePresence(state: {
+        teamName: string
+        week: number
+        ranking?: number
+        tournament?: string
+        activity?: string
+    }): Promise<void> {
+        if (!this.electronBridge?.setRichPresence) return
+        try {
+            const { teamName, week, ranking, tournament, activity } = state
+
+            let status = `Managing ${teamName} | Week ${week}`
+            if (ranking) status += ` | #${ranking}`
+
+            let display = activity || "In Game"
+            if (tournament) display = `Playing ${tournament}`
+
+            await this.electronBridge.setRichPresence("status", status)
+            await this.electronBridge.setRichPresence("steam_display", display)
+        } catch (e) {
+            debug.warn("[Steam] Rich presence update failed")
+        }
+    }
+
     // Cloud Save support
     async uploadSaveToCloud(saveId: string, data: string): Promise<boolean> {
         if (!this.electronBridge) return false

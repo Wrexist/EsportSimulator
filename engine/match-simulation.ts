@@ -469,8 +469,8 @@ export class SimulationEngineV2 {
         const playerMap = new Map(homePlayers.concat(awayPlayers).map(p => [p.id, p]))
 
         // Cache stress resistance averages (used every round when isHighPressure)
-        const homeStressRes = homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length
-        const awayStressRes = awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length
+        const homeStressRes = homePlayers.length > 0 ? homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length : 50
+        const awayStressRes = awayPlayers.length > 0 ? awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length : 50
 
         // Loop until a team reaches a win condition
         while (true) {
@@ -511,7 +511,8 @@ export class SimulationEngineV2 {
                             break
                         }
                         // If still tied, force a winner via coin flip
-                        if (rng.bool(homeStrength / (homeStrength + awayStrength))) homeRounds++
+                        const totalStr = homeStrength + awayStrength
+                        if (rng.bool(totalStr > 0 ? homeStrength / totalStr : 0.5)) homeRounds++
                         else awayRounds++
                         break
                     }
@@ -1182,8 +1183,8 @@ export class SimulationEngineV2 {
         // Stage-based scaling: -3% group stage, -5% semi, -8% grand final
         if (isHighPressure) {
             // Use cached stress resistance if provided, otherwise compute (fallback for public API callers)
-            const homeStressRes = cachedHomeStressRes ?? homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length
-            const awayStressRes = cachedAwayStressRes ?? awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length
+            const homeStressRes = cachedHomeStressRes ?? (homePlayers.length > 0 ? homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length : 50)
+            const awayStressRes = cachedAwayStressRes ?? (awayPlayers.length > 0 ? awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length : 50)
 
             // Determine pressure penalty based on match stage
             const stageLower = (matchStage || "").toLowerCase()

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter, useSearchParams } from "next/navigation"
+import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { GameEventSaveData } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
@@ -343,7 +344,7 @@ function DesktopContent() {
           }, 800)
           return
         } else {
-          console.error("[InboxPage] Job offer failed:", result.message)
+          debug.error("[InboxPage] Job offer failed:", result.message)
           setIsProcessing(false)
         }
       } else if (choiceId === "DECLINE") {

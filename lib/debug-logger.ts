@@ -19,8 +19,9 @@ export const debugWarn = (...args: any[]) => {
 }
 
 export const debugError = (...args: any[]) => {
-    // Always log errors, even in production
-    console.error(...args)
+    if (IS_DEV) {
+        console.error(...args)
+    }
 }
 
 // Shorthand for common patterns

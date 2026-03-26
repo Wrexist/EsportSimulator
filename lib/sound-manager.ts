@@ -3,7 +3,7 @@
 // Web Audio API Synthesizer for UI Sounds & Procedural Music
 // Generates all audio procedurally to avoid asset dependencies
 
-type SoundType = 'click' | 'hover' | 'success' | 'notification' | 'error' | 'start' | 'victory' | 'defeat' | 'matchStart' | 'roundWin' | 'roundLose'
+type SoundType = 'click' | 'hover' | 'success' | 'notification' | 'error' | 'start' | 'victory' | 'defeat' | 'matchStart' | 'roundWin' | 'roundLose' | 'weekAdvance' | 'transfer' | 'achievement' | 'contractSign' | 'facilityUpgrade' | 'tournamentAdvance'
 
 class SoundManager {
     private ctx: AudioContext | null = null
@@ -69,6 +69,12 @@ class SoundManager {
         // value: 0-100
         if (!this.ctx || !this.musicGain) return
         this.musicGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.6
+    }
+
+    public setSfxVolume(value: number) {
+        // value: 0-100
+        if (!this.ctx || !this.sfxGain) return
+        this.sfxGain.gain.value = Math.max(0, Math.min(1, value / 100))
     }
 
     // ============ SFX ============
@@ -181,6 +187,42 @@ class SoundManager {
             case 'roundLose':
                 this.playTone(349.23, t, 0.08, 'sine', 0.2)
                 this.playTone(293.66, t + 0.06, 0.12, 'sine', 0.2)
+                break
+            case 'weekAdvance':
+                // Soft clock-tick progression
+                this.playTone(600, t, 0.06, 'sine', 0.2)
+                this.playTone(800, t + 0.08, 0.1, 'sine', 0.15)
+                break
+            case 'transfer':
+                // Cash register / deal sound
+                this.playTone(523.25, t, 0.1, 'sine', 0.3)
+                this.playTone(659.25, t + 0.08, 0.1, 'sine', 0.3)
+                this.playTone(783.99, t + 0.16, 0.15, 'sine', 0.35)
+                break
+            case 'achievement':
+                // Triumphant fanfare
+                this.playTone(523.25, t, 0.12, 'sine', 0.4)
+                this.playTone(659.25, t + 0.1, 0.12, 'sine', 0.4)
+                this.playTone(783.99, t + 0.2, 0.12, 'sine', 0.4)
+                this.playTone(1046.5, t + 0.35, 0.5, 'sine', 0.5)
+                break
+            case 'contractSign':
+                // Pen scratch + confirmation
+                this.playTone(400, t, 0.05, 'triangle', 0.15)
+                this.playTone(600, t + 0.1, 0.15, 'sine', 0.25)
+                break
+            case 'facilityUpgrade':
+                // Building/construction ascending
+                this.playTone(220, t, 0.15, 'sine', 0.2)
+                this.playTone(330, t + 0.12, 0.15, 'sine', 0.25)
+                this.playTone(440, t + 0.24, 0.15, 'sine', 0.3)
+                this.playTone(550, t + 0.36, 0.25, 'sine', 0.35)
+                break
+            case 'tournamentAdvance':
+                // Ascending power chord
+                this.playTone(440, t, 0.1, 'sine', 0.3)
+                this.playTone(554.37, t + 0.08, 0.1, 'sine', 0.3)
+                this.playTone(659.25, t + 0.16, 0.2, 'sine', 0.35)
                 break
         }
         } catch { /* AudioContext error — silently degrade */ }

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { debug } from "@/lib/debug-logger"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -262,7 +263,7 @@ export default function CreateTeamPage() {
         } catch (err) {
             // Fallback for unexpected errors
             const msg = err instanceof Error ? err.message : "An unexpected error occurred"
-            console.error("Failed to create team:", err)
+            debug.error("Failed to create team:", err)
             toast.error("Failed to create team", {
                 description: msg,
                 duration: 8000,

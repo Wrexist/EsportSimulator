@@ -18,4 +18,5 @@ export const ARRAY_CAPS = {
   tournamentQualifications: 2000,
   academyMatchHistory: 200,
   academyWeeklyReports: 100,
+  hallOfFame: 500,
 } as const

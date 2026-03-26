@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
@@ -123,7 +124,7 @@ export default function TeamSelectionPage() {
                 setTeams(teamsData)
                 setPlayers(playersData)
             } catch (error) {
-                console.error("Failed to load snapshot data:", error)
+                debug.error("Failed to load snapshot data:", error)
                 toast.error("Failed to load game data", {
                     description: "Please check your connection and try again."
                 })
@@ -272,7 +273,7 @@ export default function TeamSelectionPage() {
             // Use client-side navigation to preserve store state
             router.push("/desktop")
         } catch (err) {
-            console.error("Failed to start game:", err)
+            debug.error("Failed to start game:", err)
             toast.error("Failed to start game", {
                 description: "An error occurred while initializing. Please try again."
             })

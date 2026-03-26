@@ -7,9 +7,9 @@
 // Base paths
 const TEAMS_PATH = '/assets/teams';
 const FLAGS_PATH = '/assets/flags';
-const PLACEHOLDER_PLAYER = '/player_placeholder.png';
-const PLACEHOLDER_STAFF = '/staff_placeholder.png';
-const PLACEHOLDER_LOGO = '/team_placeholder.png';
+const PLACEHOLDER_PLAYER = '/player_placeholder.webp';
+const PLACEHOLDER_STAFF = '/staff_placeholder.webp';
+const PLACEHOLDER_LOGO = '/team_placeholder.webp';
 
 
 // Country code mapping for flags
@@ -53,11 +53,11 @@ export function sanitizeName(name: string): string {
 
 /**
  * Get team logo URL with fallback
+ * Prefers WebP format for smaller file sizes, falls back to PNG
  */
 export function getTeamLogoUrl(teamName: string): string {
     const slug = sanitizeName(teamName);
-    // Use .png extension (actual file format in assets)
-    return `${TEAMS_PATH}/${slug}/logo.png`;
+    return `${TEAMS_PATH}/${slug}/logo.webp`;
 }
 
 /**
@@ -79,7 +79,7 @@ export function getTeamLogoUrlWithFallback(teamName: string): {
 export function getPlayerImageUrl(playerName: string, teamName: string): string {
     const teamSlug = sanitizeName(teamName);
     const playerSlug = sanitizeName(playerName);
-    return `${TEAMS_PATH}/${teamSlug}/players/${playerSlug}.png`;
+    return `${TEAMS_PATH}/${teamSlug}/players/${playerSlug}.webp`;
 }
 
 /**

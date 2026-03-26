@@ -87,6 +87,16 @@ async function optimizeImages() {
     // Process team logos and player portraits
     await walkDir(teamsDir);
 
+    // Process other asset directories
+    const otherDirs = ['portraits', 'staff', 'sponsors', 'tournaments', 'trophies', 'badges',
+        'equipment', 'events', 'facilities', 'legends', 'merch', 'ui'];
+    for (const dir of otherDirs) {
+        const dirPath = path.join(assetsDir, dir);
+        if (fs.existsSync(dirPath)) {
+            await walkDir(dirPath);
+        }
+    }
+
     // Process root-level placeholder images
     const rootAssets = ['player_placeholder.png', 'team_placeholder.png', 'staff_placeholder.png']
         .map(f => path.join(__dirname, '..', 'public', f));
