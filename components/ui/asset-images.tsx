@@ -80,7 +80,7 @@ export function TeamLogo({
     const teamSlug = sanitize(teamName);
     const logoPath = imgError
         ? PLACEHOLDERS.logo
-        : `/assets/teams/${teamSlug}/logo.png`;
+        : `/assets/teams/${teamSlug}/logo.webp`;
 
     return (
         <Image

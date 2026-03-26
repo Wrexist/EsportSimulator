@@ -20,6 +20,9 @@ class ErrorTracker {
     private enabled: boolean = process.env.NODE_ENV === 'production'
     private reports: ErrorReport[] = []
     private maxReports: number = 100
+    private errorHandler: ((event: ErrorEvent) => void) | null = null
+    private rejectionHandler: ((event: PromiseRejectionEvent) => void) | null = null
+    private originalConsoleError: ((...args: any[]) => void) | null = null
 
     /**
      * Initialize error tracking
@@ -31,7 +34,6 @@ class ErrorTracker {
 
         if (this.enabled) {
             this.setupGlobalHandlers()
-            console.log('Error tracking initialized')
         }
     }
 
@@ -42,31 +44,52 @@ class ErrorTracker {
         if (typeof window === 'undefined') return
 
         // Catch unhandled errors
-        window.addEventListener('error', (event) => {
+        this.errorHandler = (event: ErrorEvent) => {
             this.captureException(event.error || new Error(event.message), {
                 tags: { type: 'unhandled' }
             })
-        })
+        }
+        window.addEventListener('error', this.errorHandler)
 
         // Catch unhandled promise rejections
-        window.addEventListener('unhandledrejection', (event) => {
+        this.rejectionHandler = (event: PromiseRejectionEvent) => {
             this.captureException(
                 new Error(`Unhandled promise rejection: ${event.reason}`),
                 { tags: { type: 'promise' } }
             )
-        })
+        }
+        window.addEventListener('unhandledrejection', this.rejectionHandler)
 
-        // Catch React errors (will be caught by ErrorBoundary too)
-        const originalConsoleError = console.error
+        // Catch React errors - only actual Error objects, not warnings
+        this.originalConsoleError = console.error
+        const tracker = this
         console.error = (...args) => {
-            // Check if it's a React error
-            const message = args[0]?.toString() || ''
-            if (message.includes('React') || message.includes('component')) {
-                this.captureException(new Error(message), {
-                    tags: { type: 'react' }
+            const first = args[0]
+            if (first instanceof Error) {
+                tracker.captureException(first, {
+                    tags: { type: 'console' }
                 })
             }
-            originalConsoleError.apply(console, args)
+            tracker.originalConsoleError?.apply(console, args)
+        }
+    }
+
+    /**
+     * Cleanup global handlers to prevent memory leaks
+     */
+    cleanup() {
+        if (typeof window === 'undefined') return
+        if (this.errorHandler) {
+            window.removeEventListener('error', this.errorHandler)
+            this.errorHandler = null
+        }
+        if (this.rejectionHandler) {
+            window.removeEventListener('unhandledrejection', this.rejectionHandler)
+            this.rejectionHandler = null
+        }
+        if (this.originalConsoleError) {
+            console.error = this.originalConsoleError
+            this.originalConsoleError = null
         }
     }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/game-store'
 import { useShallow } from 'zustand/react/shallow'
@@ -116,6 +116,10 @@ export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
 
     const shortcuts = { ...defaultShortcuts, ...customShortcuts }
 
+    // Throttle to prevent rapid-fire execution (e.g., holding Space)
+    const lastExecRef = useRef<Record<string, number>>({})
+    const THROTTLE_MS = 300
+
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         // Build key string (e.g., 'ctrl+s', 'shift+?', 'space')
         const parts: string[] = []
@@ -137,6 +141,11 @@ export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
             target.isContentEditable
 
         if (isInputField && !shortcut.global) return
+
+        // Throttle: prevent rapid-fire (e.g., holding Space triggers 60x/sec)
+        const now = Date.now()
+        if (now - (lastExecRef.current[keyCombo] || 0) < THROTTLE_MS) return
+        lastExecRef.current[keyCombo] = now
 
         // Execute shortcut
         e.preventDefault()

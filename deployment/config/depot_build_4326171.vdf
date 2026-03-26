@@ -28,6 +28,15 @@
 	"FileExclusion" "steamservice.exe"
 	"FileExclusion" "steam_appid.txt"
 	
+	// Secrets and credentials
+	"FileExclusion" "*.pem"
+	"FileExclusion" "*.key"
+	"FileExclusion" "*.p12"
+	"FileExclusion" "*.pfx"
+	"FileExclusion" ".env"
+	"FileExclusion" ".env.*"
+	"FileExclusion" "credentials.json"
+
 	// Test files
 	"FileExclusion" "*.test.ts"
 	"FileExclusion" "*.spec.ts"

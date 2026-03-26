@@ -65,6 +65,28 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         setExitDialog(null)
     }, [])
 
+    // Sync sound manager with persisted settings on mount
+    useEffect(() => {
+        const settings = (window as any).__settingsStore
+        if (!settings) {
+            // Dynamic import to avoid circular deps
+            import("@/lib/settings-store").then(({ useSettingsStore }) => {
+                const s = useSettingsStore.getState()
+                import("@/lib/sound-manager").then(({ soundManager }) => {
+                    soundManager.setMasterVolume(s.masterVolume)
+                    soundManager.setMusicVolume(s.musicVolume)
+                    soundManager.setSfxVolume(s.sfxVolume)
+                    if (s.reducedMotion) {
+                        document.documentElement.classList.add('reduce-motion')
+                    }
+                    if (s.uiScale !== 100) {
+                        document.documentElement.style.fontSize = `${s.uiScale}%`
+                    }
+                })
+            })
+        }
+    }, [])
+
     useEffect(() => {
         initAchievements()
         if (typeof window !== "undefined") {

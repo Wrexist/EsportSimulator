@@ -6,13 +6,16 @@ import { persist } from 'zustand/middleware'
 export type WindowMode = 'fullscreen' | 'windowed' | 'borderless'
 export type Resolution = '1920x1080' | '1600x900' | '1280x720' | '1024x768'
 export type GameSpeed = 'normal' | 'fast' | 'very-fast'
+export type Difficulty = 'easy' | 'normal' | 'hard'
+export type RenderingMode = 'performance' | 'compatibility'
 
 interface GameSettings {
     // Display
     windowMode: WindowMode
     resolution: Resolution
-    vsync: boolean
-    fpsLimit: number
+    renderingMode: RenderingMode
+    reducedMotion: boolean
+    uiScale: number // 80-120, default 100
 
     // Audio
     masterVolume: number
@@ -24,12 +27,15 @@ interface GameSettings {
     autoSaveInterval: number // minutes
     gameSpeed: GameSpeed
     notifications: boolean
+    difficulty: Difficulty
+    language: string
 
     // Actions
     setWindowMode: (mode: WindowMode) => void
     setResolution: (res: Resolution) => void
-    setVsync: (enabled: boolean) => void
-    setFpsLimit: (limit: number) => void
+    setRenderingMode: (mode: RenderingMode) => void
+    setReducedMotion: (enabled: boolean) => void
+    setUiScale: (scale: number) => void
     setMasterVolume: (vol: number) => void
     setMusicVolume: (vol: number) => void
     setSfxVolume: (vol: number) => void
@@ -37,6 +43,8 @@ interface GameSettings {
     setAutoSaveInterval: (interval: number) => void
     setGameSpeed: (speed: GameSpeed) => void
     setNotifications: (enabled: boolean) => void
+    setDifficulty: (diff: Difficulty) => void
+    setLanguage: (lang: string) => void
     applyWindowSettings: () => void
 }
 
@@ -46,8 +54,9 @@ export const useSettingsStore = create<GameSettings>()(
             // Default values
             windowMode: 'windowed',
             resolution: '1280x720',
-            vsync: true,
-            fpsLimit: 60,
+            renderingMode: 'performance',
+            reducedMotion: false,
+            uiScale: 100,
             masterVolume: 80,
             musicVolume: 70,
             sfxVolume: 80,
@@ -55,12 +64,31 @@ export const useSettingsStore = create<GameSettings>()(
             autoSaveInterval: 10,
             gameSpeed: 'normal',
             notifications: true,
+            difficulty: 'normal',
+            language: 'en',
 
             // Setters
             setWindowMode: (mode) => set({ windowMode: mode }),
             setResolution: (res) => set({ resolution: res }),
-            setVsync: (enabled) => set({ vsync: enabled }),
-            setFpsLimit: (limit) => set({ fpsLimit: limit }),
+            setRenderingMode: (mode) => {
+                set({ renderingMode: mode })
+                // Apply via Electron IPC if available
+                if (typeof window !== 'undefined' && (window as any).electron?.gpu?.setMode) {
+                    (window as any).electron.gpu.setMode(mode)
+                }
+            },
+            setReducedMotion: (enabled) => {
+                set({ reducedMotion: enabled })
+                if (typeof document !== 'undefined') {
+                    document.documentElement.classList.toggle('reduce-motion', enabled)
+                }
+            },
+            setUiScale: (scale) => {
+                set({ uiScale: Math.max(80, Math.min(120, scale)) })
+                if (typeof document !== 'undefined') {
+                    document.documentElement.style.fontSize = `${scale}%`
+                }
+            },
             setMasterVolume: (vol) => set({ masterVolume: vol }),
             setMusicVolume: (vol) => set({ musicVolume: vol }),
             setSfxVolume: (vol) => set({ sfxVolume: vol }),
@@ -68,6 +96,8 @@ export const useSettingsStore = create<GameSettings>()(
             setAutoSaveInterval: (interval) => set({ autoSaveInterval: interval }),
             setGameSpeed: (speed) => set({ gameSpeed: speed }),
             setNotifications: (enabled) => set({ notifications: enabled }),
+            setDifficulty: (diff) => set({ difficulty: diff }),
+            setLanguage: (lang) => set({ language: lang }),
 
             // Apply window settings via Electron IPC or Browser API
             applyWindowSettings: () => {

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
@@ -52,7 +53,7 @@ export default function LoadGamePage() {
             const availableSlots = await listSaves()
             setSlots(availableSlots)
         } catch (error) {
-            console.error("Failed to load saves:", error)
+            debug.error("Failed to load saves:", error)
             setSlots([])
         } finally {
             setIsLoading(false)
@@ -66,11 +67,11 @@ export default function LoadGamePage() {
                 try {
                     router.push("/") // Go to dashboard
                 } catch (err) {
-                    console.error("Navigation failed:", err)
+                    debug.error("Navigation failed:", err)
                 }
             }
         } catch (error) {
-            console.error("Failed to load save:", error)
+            debug.error("Failed to load save:", error)
         }
     }
 
@@ -81,7 +82,7 @@ export default function LoadGamePage() {
             await deleteSaveInSlot(id)
             await refreshSlots()
         } catch (error) {
-            console.error("Failed to delete save:", error)
+            debug.error("Failed to delete save:", error)
         } finally {
             setIsDeleting(false)
             setDeleteTarget(null)

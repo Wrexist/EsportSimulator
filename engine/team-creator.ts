@@ -79,7 +79,7 @@ export function generateCustomTeamData(data: CustomTeamData, teamId: string): Pa
         shortName: data.shortName.toUpperCase(),
         tier: "AMATEUR",
         region: data.region,
-        logoPath: `/assets/teams/${slug}/logo.png`, // Will use placeholder
+        logoPath: `/assets/teams/${slug}/logo.webp`, // Will use placeholder
         reputation: settings.startingReputation,
         fanbase: fanbase,
         chemistry: 50,

@@ -10,9 +10,13 @@ if (!gotTheLock) {
     app.quit();
     process.exit(0);
 }
-const STABILITY_MODE = app.isPackaged && process.env.ESM_STABILITY_MODE !== '0';
+// Smart GPU acceleration: enable by default, disable only if previous GPU crash detected
+// or if user explicitly sets ESM_STABILITY_MODE=1
+const gpuCrashFlagPath = path.join(app.getPath('userData'), 'gpu-crash-flag');
+const hadGpuCrash = fs.existsSync(gpuCrashFlagPath);
+const forceStabilityMode = process.env.ESM_STABILITY_MODE === '1';
+const STABILITY_MODE = forceStabilityMode || hadGpuCrash;
 if (STABILITY_MODE) {
-    // Stable packaged default: avoid GPU acceleration paths that can stall renderer boot.
     app.disableHardwareAcceleration();
 }
 
@@ -48,6 +52,13 @@ app.on('child-process-gone', (_event, details) => {
     const exitCode = Number.isInteger(details?.exitCode) ? details.exitCode : 'n/a';
     const gpuTag = type === 'GPU' ? ' [GPU]' : '';
     debugLog(`[Process${gpuTag}] child-process-gone type=${type} reason=${reason} exitCode=${exitCode}`);
+    // If GPU process crashed, flag it so next launch uses software rendering
+    if (type === 'GPU' && reason !== 'clean-exit') {
+        try {
+            fs.writeFileSync(gpuCrashFlagPath, new Date().toISOString(), 'utf8');
+            debugLog('[GPU] Crash flag written - next launch will use software rendering');
+        } catch (e) { /* best effort */ }
+    }
     flushDebugLog();
 });
 
@@ -503,6 +514,25 @@ ipcMain.handle('window-is-fullscreen', (event) => {
         return mainWindow.isFullScreen();
     } catch (e) {
         console.error('[Electron] Error checking fullscreen:', e);
+        return false;
+    }
+});
+
+// GPU rendering mode controls
+ipcMain.handle('gpu-get-mode', () => {
+    return STABILITY_MODE ? 'compatibility' : 'performance';
+});
+
+ipcMain.handle('gpu-set-mode', (_event, mode) => {
+    try {
+        if (mode === 'compatibility') {
+            fs.writeFileSync(gpuCrashFlagPath, 'user-requested', 'utf8');
+        } else if (mode === 'performance') {
+            if (fs.existsSync(gpuCrashFlagPath)) fs.unlinkSync(gpuCrashFlagPath);
+        }
+        return true;
+    } catch (e) {
+        console.error('[GPU] Failed to set rendering mode:', e);
         return false;
     }
 });
