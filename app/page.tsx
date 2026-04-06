@@ -30,7 +30,7 @@ export default function Page() {
     scheduledMatches, completedMatches, currentWeek, currentDay,
     timeMode, _hasHydrated, saveId, pendingSeasonRecap,
     gameOverReason, gameOverWeek, tournamentQualifications,
-    financeLedger, staff, storeLoading, eventsLog,
+    financeLedger, staff, storeLoading,
   } = useGameStore(useShallow(s => ({
     isInitialized: s.isInitialized,
     playerTeamId: s.playerTeamId,
@@ -51,8 +51,10 @@ export default function Page() {
     financeLedger: s.financeLedger,
     staff: s.staff,
     storeLoading: s.isLoading,
-    eventsLog: s.eventsLog,
   })))
+
+  // Separate selector for eventsLog to avoid excessive re-renders from the shallow comparison
+  const eventsLog = useGameStore(s => s.eventsLog)
 
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
@@ -66,7 +68,7 @@ export default function Page() {
 
   // Detect unacknowledged HLTV award events
   const latestHLTVEvent = useMemo(() => {
-    return eventsLog.find(e =>
+    return (eventsLog ?? []).find(e =>
       e.type === "MEDIA" && (e.data as any)?.hltvAwards && !e.acknowledged
     )
   }, [eventsLog])
@@ -267,8 +269,11 @@ export default function Page() {
           </div>
           <Button
             onClick={() => {
-              setHltvAwards((latestHLTVEvent.data as any).hltvAwards as AnnualAwards)
-              setIsHLTVModalOpen(true)
+              const awards = (latestHLTVEvent?.data as any)?.hltvAwards
+              if (awards && Array.isArray(awards.top20) && awards.year) {
+                setHltvAwards(awards as AnnualAwards)
+                setIsHLTVModalOpen(true)
+              }
             }}
             className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-[10px] rounded-xl h-10 px-6"
           >

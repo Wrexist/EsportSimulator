@@ -2,9 +2,9 @@
 
 import { useGameStore } from "@/store/game-store"
 import { useRouter } from "next/navigation"
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import { format } from "date-fns"
-import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords, HelpCircle, X, Keyboard } from "lucide-react"
+import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords, X, Keyboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { soundManager } from "@/lib/sound-manager"
@@ -45,6 +45,7 @@ export function TopBar() {
 
     const [isMounted, setIsMounted] = useState(false)
     const [showShortcuts, setShowShortcuts] = useState(false)
+    const shortcutsRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         setIsMounted(true)
@@ -62,9 +63,11 @@ export function TopBar() {
             }
 
             if (e.key === " " && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                // Don't advance on match pages (could corrupt game state)
+                if (window.location.pathname.includes('/match/')) return
                 // Don't advance if a modal/dialog is open
-                const hasOpenDialog = document.querySelector('[role="dialog"]')
-                if (hasOpenDialog) return
+                const hasOpenOverlay = document.querySelector('[role="dialog"], [aria-modal="true"]')
+                if (hasOpenOverlay) return
                 e.preventDefault()
                 if (!isLoading) {
                     soundManager.play('weekAdvance')
@@ -83,6 +86,18 @@ export function TopBar() {
         window.addEventListener("keydown", handleKeyDown)
         return () => window.removeEventListener("keydown", handleKeyDown)
     }, [isLoading, timeMode, advanceDay, advanceWeek])
+
+    // Close shortcuts popover on click outside
+    useEffect(() => {
+        if (!showShortcuts) return
+        const handleClickOutside = (e: MouseEvent) => {
+            if (shortcutsRef.current && !shortcutsRef.current.contains(e.target as Node)) {
+                setShowShortcuts(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [showShortcuts])
 
     return (
         <header className="h-16 border-b border-white/10 bg-black/20 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
@@ -165,7 +180,7 @@ export function TopBar() {
                 </div>
 
                 {/* Keyboard Shortcuts Help */}
-                <div className="relative">
+                <div className="relative" ref={shortcutsRef}>
                     <Button
                         variant="ghost"
                         size="icon"

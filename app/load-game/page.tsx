@@ -233,7 +233,7 @@ export default function LoadGamePage() {
                                     <div className="p-2 flex gap-2 bg-white/5 border-t border-white/5">
                                         <button
                                             onClick={() => slot.saveId && handleLoad(slot.saveId)}
-                                            disabled={loadingSlotId === slot.saveId}
+                                            disabled={!!loadingSlotId}
                                             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white text-[10px] font-normal uppercase tracking-widest hover:bg-primary/80 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-wait"
                                         >
                                             {loadingSlotId === slot.saveId ? (

@@ -43,10 +43,11 @@ export default function TrophyRoomPage() {
     const trophies = useMemo(() => {
         return (playerTeam?.trophies || []).map((t: any, i: number) => {
             const year = Math.floor(startYear + (t.week || 0) / 52)
-            const tier = t.tier || "B"
+            // Normalize tier: engine stores "S_TIER" but TIER_CONFIG uses "S"
+            const tier = (t.tier || "B_TIER").replace("_TIER", "")
             return {
                 id: t.tournamentId || `tr_${i}`,
-                name: t.tournamentName,
+                name: t.tournamentName || "Unknown Tournament",
                 week: t.week || 0,
                 year,
                 tier,
@@ -76,8 +77,9 @@ export default function TrophyRoomPage() {
         return counts
     }, [trophies])
 
-    // Match stats for the team
+    // Match stats for the team (O(n) with Map lookup)
     const matchStats = useMemo(() => {
+        const teamMap = new Map(teams.map(t => [t.id, t]))
         let wins = 0, losses = 0, tournamentWins = 0
         const opponents: Record<string, { name: string; wins: number; losses: number }> = {}
 
@@ -92,7 +94,7 @@ export default function TrophyRoomPage() {
             if (m.tournamentId && won) tournamentWins++
 
             const oppId = isHome ? m.awayTeamId : m.homeTeamId
-            const oppTeam = teams.find(t => t.id === oppId)
+            const oppTeam = teamMap.get(oppId)
             if (oppTeam) {
                 if (!opponents[oppId]) opponents[oppId] = { name: oppTeam.name, wins: 0, losses: 0 }
                 if (won) opponents[oppId].wins++; else opponents[oppId].losses++
