@@ -50,7 +50,7 @@ import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-cale
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
-import { PLAYER_TALENT_TREE, getStaffPassiveBonuses } from "@/engine/talent-trees"
+import { PLAYER_TALENT_TREE, collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
@@ -3753,24 +3753,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           psychologist: sData.find(s => s.role === "psychologist"),
         })
 
-        // Apply staff talent passive bonuses (morale_floor, tilt_immunity)
-        const collectBonuses = (sData: any[]): Record<string, number> => {
-          const bonuses: Record<string, number> = {}
-          for (const s of sData) {
-            const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
-            for (const [k, v] of Object.entries(b)) bonuses[k] = (bonuses[k] || 0) + v
-          }
-          return bonuses
+        // Apply staff talent passive bonuses
+        const hBonuses = collectTeamTalentBonuses(hStaffData)
+        const aBonuses = collectTeamTalentBonuses(aStaffData)
+        applyTalentMoraleFloor(hPlayers, hBonuses)
+        applyTalentMoraleFloor(aPlayers, aBonuses)
+
+        const hStaff = mapStaff(hStaffData)
+        const aStaff = mapStaff(aStaffData)
+
+        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
+        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        if (homeAntiStrat > 0 && aStaff.coach) {
+          aStaff.coach.tacticBonus = Math.round((aStaff.coach.tacticBonus || 0) * (1 - homeAntiStrat))
         }
-        const hBonuses = collectBonuses(hStaffData)
-        const aBonuses = collectBonuses(aStaffData)
-        const applyMoraleFloor = (players: any[], bonuses: Record<string, number>) => {
-          let floor = bonuses["morale_floor"] || 0
-          if (bonuses["tilt_immunity"]) floor = Math.max(floor, 40)
-          if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
+        if (awayAntiStrat > 0 && hStaff.coach) {
+          hStaff.coach.tacticBonus = Math.round((hStaff.coach.tacticBonus || 0) * (1 - awayAntiStrat))
         }
-        applyMoraleFloor(hPlayers, hBonuses)
-        applyMoraleFloor(aPlayers, aBonuses)
 
         const bestOf = match.format === "BO3" ? 3 : match.format === "BO5" ? 5 : 1
         const fallbackSeed = Math.max(
@@ -3789,8 +3789,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           aTeam as unknown as Team,
           hPlayers,
           aPlayers,
-          mapStaff(hStaffData) as any,
-          mapStaff(aStaffData) as any
+          hStaff as any,
+          aStaff as any
         )
 
         state.saveMatchResult(matchId, result)

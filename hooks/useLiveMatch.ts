@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
-import { getStaffPassiveBonuses } from "@/engine/talent-trees"
+import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -326,24 +326,21 @@ export function useLiveMatch(id: string) {
         const homeStaff = mapStaff(hStaffData)
         const awayStaff = mapStaff(aStaffData)
 
-        // Apply staff talent passive bonuses (morale_floor, tilt_immunity)
-        const collectBonuses = (sData: any[]): Record<string, number> => {
-            const bonuses: Record<string, number> = {}
-            for (const s of sData) {
-                const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
-                for (const [k, v] of Object.entries(b)) bonuses[k] = (bonuses[k] || 0) + v
-            }
-            return bonuses
+        // Apply staff talent passive bonuses
+        const hBonuses = collectTeamTalentBonuses(hStaffData)
+        const aBonuses = collectTeamTalentBonuses(aStaffData)
+        applyTalentMoraleFloor(homePlayers, hBonuses)
+        applyTalentMoraleFloor(awayPlayers, aBonuses)
+
+        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
+        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        if (homeAntiStrat > 0 && awayStaff.coach) {
+            awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
         }
-        const hBonuses = collectBonuses(hStaffData)
-        const aBonuses = collectBonuses(aStaffData)
-        const applyMoraleFloor = (players: Player[], bonuses: Record<string, number>) => {
-            let floor = bonuses["morale_floor"] || 0
-            if (bonuses["tilt_immunity"]) floor = Math.max(floor, 40)
-            if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
+        if (awayAntiStrat > 0 && homeStaff.coach) {
+            homeStaff.coach.tacticBonus = Math.round(homeStaff.coach.tacticBonus * (1 - awayAntiStrat))
         }
-        applyMoraleFloor(homePlayers, hBonuses)
-        applyMoraleFloor(awayPlayers, aBonuses)
 
         const engineFallback = simulationEngineV2.simulateMatch(
             runtimeMatch,

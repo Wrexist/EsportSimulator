@@ -9,7 +9,7 @@ import { PlayerTier, StaffType } from "@/types/enums"
 import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
-import { getStaffPassiveBonuses } from "./talent-trees"
+import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "./talent-trees"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
 
@@ -173,32 +173,16 @@ export class MatchEngine {
         } as Match
 
         // Collect staff talent passive bonuses
-        const collectTalentBonuses = (staff?: StaffSaveData[]) => {
-            if (!staff?.length) return {}
-            const bonuses: Record<string, number> = {}
-            for (const s of staff) {
-                const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
-                for (const [k, v] of Object.entries(b)) {
-                    bonuses[k] = (bonuses[k] || 0) + v
-                }
-            }
-            return bonuses
-        }
-        const homeTalentBonuses = collectTalentBonuses(homeTeamStaff)
-        const awayTalentBonuses = collectTalentBonuses(awayTeamStaff)
+        const homeTalentBonuses = collectTeamTalentBonuses(homeTeamStaff || [])
+        const awayTalentBonuses = collectTeamTalentBonuses(awayTeamStaff || [])
 
-        // anti_strat talent: reduces opponent tactic effectiveness
+        // anti_strat talent: reduces opponent tactic effectiveness (multiplicative)
         const homeAntiStrat = (homeTalentBonuses["anti_strat"] || 0) / 100
         const awayAntiStrat = (awayTalentBonuses["anti_strat"] || 0) / 100
-        awayTacticalBonus = Math.max(0, awayTacticalBonus - homeAntiStrat)
-        homeTacticalBonus = Math.max(0, homeTacticalBonus - awayAntiStrat)
+        awayTacticalBonus *= (1 - homeAntiStrat)
+        homeTacticalBonus *= (1 - awayAntiStrat)
 
         // morale_floor / tilt_immunity talent: enforce minimum morale for match
-        const applyTalentMoraleFloor = (players: Player[], bonuses: Record<string, number>) => {
-            let floor = bonuses["morale_floor"] || 0
-            if (bonuses["tilt_immunity"]) floor = Math.max(floor, 40)
-            if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
-        }
         applyTalentMoraleFloor(adaptedHomePlayers, homeTalentBonuses)
         applyTalentMoraleFloor(adaptedAwayPlayers, awayTalentBonuses)
 

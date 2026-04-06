@@ -188,6 +188,29 @@ export function getStaffPassiveBonuses(
     return bonuses
 }
 
+/** Collect all talent bonuses for a team's staff into a single bonuses map */
+export function collectTeamTalentBonuses(
+    staffData: Array<{ role: string; unlockedTalentIds?: string[] }>
+): Record<string, number> {
+    const bonuses: Record<string, number> = {}
+    for (const s of staffData) {
+        if (!s.role) continue
+        const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+        for (const [k, v] of Object.entries(b)) bonuses[k] = (bonuses[k] || 0) + v
+    }
+    return bonuses
+}
+
+/** Apply morale_floor and tilt_immunity talent bonuses to players */
+export function applyTalentMoraleFloor(
+    players: Array<{ morale: number }>,
+    bonuses: Record<string, number>
+): void {
+    let floor = bonuses["morale_floor"] || 0
+    if ((bonuses["tilt_immunity"] || 0) > 0) floor = Math.max(floor, 40)
+    if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
+}
+
 /**
  * Collect all active PASSIVE_BONUS effects from a player's unlocked talents.
  * Returns a map of target -> total bonus value.
@@ -208,4 +231,3 @@ export function getPlayerPassiveBonuses(
     }
     return bonuses
 }
-
