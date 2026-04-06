@@ -91,7 +91,7 @@ export class TrainingProcessor {
                     player.endurance
                 )
                 if (playerFatigueReduction > 0) {
-                    fatigueGain *= (1 - playerFatigueReduction / 100)
+                    fatigueGain *= (1 - Math.min(playerFatigueReduction, 90) / 100)
                 }
                 player.fatigue = Math.min(100, player.fatigue + fatigueGain)
 
