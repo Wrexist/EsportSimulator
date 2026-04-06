@@ -37,7 +37,8 @@ export default function TrophyRoomPage() {
     })))
 
     const playerTeam = teams.find(t => t.id === playerTeamId)
-    const startYear = gameStartDate ? new Date(gameStartDate).getFullYear() : 2025
+    const parsedYear = gameStartDate ? new Date(gameStartDate).getFullYear() : 2025
+    const startYear = isNaN(parsedYear) ? 2025 : parsedYear
 
     // Build trophy list with computed year
     const trophies = useMemo(() => {

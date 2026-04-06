@@ -93,6 +93,7 @@ export default function LoadGamePage() {
     const handleDelete = async (id: string) => {
         if (isDeleting) return
         setIsDeleting(true)
+        setLoadError(null)
         try {
             await deleteSaveInSlot(id)
             await refreshSlots()
@@ -243,7 +244,7 @@ export default function LoadGamePage() {
                                             )}
                                         </button>
                                         <button
-                                            disabled={isDeleting}
+                                            disabled={isDeleting || !!loadingSlotId}
                                             onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}
                                             className="w-12 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >

@@ -63,8 +63,9 @@ export function TopBar() {
             }
 
             if (e.key === " " && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                // Don't advance on match pages (could corrupt game state)
-                if (window.location.pathname.includes('/match/')) return
+                // Don't advance on non-gameplay pages
+                const path = window.location.pathname
+                if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return
                 // Don't advance if a modal/dialog is open
                 const hasOpenOverlay = document.querySelector('[role="dialog"], [aria-modal="true"]')
                 if (hasOpenOverlay) return

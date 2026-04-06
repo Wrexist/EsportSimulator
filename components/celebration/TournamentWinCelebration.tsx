@@ -57,6 +57,8 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
     return (
         <AnimatePresence>
             <motion.div
+                role="dialog"
+                aria-modal="true"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
