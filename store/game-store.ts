@@ -2612,7 +2612,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             tournamentQualifications: latestState.tournamentQualifications || [],
             newsFeed: latestState.newsFeed || [],
             transferHistory: latestState.transferHistory || [],
-            hallOfFame: latestState.hallOfFame || [],
+            hallOfFame: latestState.hallOfFame || FOUNDING_LEGENDS,
             academyPlayers: latestState.academyPlayers || [],
             academyRoster: latestState.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
             academyMatchHistory: latestState.academyMatchHistory || [],
