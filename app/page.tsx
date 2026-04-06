@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Trophy, Users, TrendingUp, ArrowRight, Play, Zap, Loader2, DollarSign, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
+import { Calendar, Trophy, TrendingUp, ArrowRight, Play, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,10 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
 const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRecapModal").then(m => m.SeasonRecapModal), { ssr: false })
+const HLTVAwardsModal = dynamic(() => import("@/components/celebration/HLTVAwardsModal").then(m => m.HLTVAwardsModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
+import { soundManager } from "@/lib/sound-manager"
+import type { AnnualAwards } from "@/engine/hltv-awards-engine"
 
 export default function Page() {
   const router = useRouter()
@@ -50,11 +53,25 @@ export default function Page() {
     storeLoading: s.isLoading,
   })))
 
+  // Separate selector for eventsLog to avoid excessive re-renders from the shallow comparison
+  const eventsLog = useGameStore(s => s.eventsLog)
+
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
 
   const [isSimulating, setIsSimulating] = useState(false)
+
+  // HLTV Awards Modal State
+  const [hltvAwards, setHltvAwards] = useState<AnnualAwards | null>(null)
+  const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
+
+  // Detect unacknowledged HLTV award events
+  const latestHLTVEvent = useMemo(() => {
+    return (eventsLog ?? []).find(e =>
+      e.type === "MEDIA" && (e.data as any)?.hltvAwards && !e.acknowledged
+    )
+  }, [eventsLog])
 
   // Robust session check: isInitialized is the primary flag, 
   // but we also check if we have teams and a playerTeamId as a fallback.
@@ -158,6 +175,7 @@ export default function Page() {
   const handleSimulate = async () => {
     if (!nextMatch) return
     setIsSimulating(true)
+    soundManager.play('matchStart')
     try {
       await simulateInstantMatch(nextMatch.id)
       router.push(`/match/${nextMatch.id}/result`)
@@ -229,6 +247,41 @@ export default function Page() {
           stats={seasonRecapStats}
         />
       )}
+      <HLTVAwardsModal
+        isOpen={isHLTVModalOpen}
+        onClose={() => setIsHLTVModalOpen(false)}
+        awards={hltvAwards}
+      />
+
+      {/* HLTV Awards Banner */}
+      {latestHLTVEvent && !isHLTVModalOpen && (
+        <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/20 p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <Trophy size={20} className="text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-amber-300 uppercase tracking-wide">
+                {(latestHLTVEvent.data as any)?.title || "HLTV Top 20 Awards"}
+              </p>
+              <p className="text-[10px] text-amber-400/60">Click to view the ceremony</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => {
+              const awards = (latestHLTVEvent?.data as any)?.hltvAwards
+              if (awards && Array.isArray(awards.top20) && awards.year) {
+                setHltvAwards(awards as AnnualAwards)
+                setIsHLTVModalOpen(true)
+              }
+            }}
+            className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-[10px] rounded-xl h-10 px-6"
+          >
+            <Trophy size={14} className="mr-2" /> View Ceremony
+          </Button>
+        </div>
+      )}
+
       {/* Header / Welcome Row */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
