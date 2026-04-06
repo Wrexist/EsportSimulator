@@ -40,6 +40,8 @@ export default function LoadGamePage() {
     })))
     const [slots, setSlots] = useState<SaveSlotMetadata[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [loadingSlotId, setLoadingSlotId] = useState<string | null>(null)
+    const [loadError, setLoadError] = useState<{ saveId: string; message: string } | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
@@ -61,6 +63,8 @@ export default function LoadGamePage() {
     }
 
     const handleLoad = async (id: string) => {
+        setLoadingSlotId(id)
+        setLoadError(null)
         try {
             const success = await switchSave(id)
             if (success) {
@@ -69,15 +73,27 @@ export default function LoadGamePage() {
                 } catch (err) {
                     debug.error("Navigation failed:", err)
                 }
+            } else {
+                setLoadError({
+                    saveId: id,
+                    message: "Save file could not be loaded. It may be corrupted. The system attempted to restore from backups but was unable to recover the data."
+                })
             }
         } catch (error) {
             debug.error("Failed to load save:", error)
+            setLoadError({
+                saveId: id,
+                message: error instanceof Error ? error.message : "An unexpected error occurred while loading this save."
+            })
+        } finally {
+            setLoadingSlotId(null)
         }
     }
 
     const handleDelete = async (id: string) => {
         if (isDeleting) return
         setIsDeleting(true)
+        setLoadError(null)
         try {
             await deleteSaveInSlot(id)
             await refreshSlots()
@@ -187,16 +203,48 @@ export default function LoadGamePage() {
                                         </div>
                                     </div>
 
+                                    {/* Load Error */}
+                                    {loadError?.saveId === slot.saveId && (
+                                        <div className="mx-4 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+                                            <div className="flex items-start gap-2">
+                                                <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                                                <div>
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1">Load Failed</p>
+                                                    <p className="text-[10px] text-red-400/80 leading-relaxed">{loadError.message}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 mt-3">
+                                                <button
+                                                    onClick={() => slot.saveId && handleLoad(slot.saveId)}
+                                                    className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+                                                >
+                                                    Retry
+                                                </button>
+                                                <button
+                                                    onClick={() => setLoadError(null)}
+                                                    className="px-4 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/50 hover:bg-white/10 transition-colors"
+                                                >
+                                                    Dismiss
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Actions */}
                                     <div className="p-2 flex gap-2 bg-white/5 border-t border-white/5">
                                         <button
                                             onClick={() => slot.saveId && handleLoad(slot.saveId)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white text-[10px] font-normal uppercase tracking-widest hover:bg-primary/80 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                                            disabled={!!loadingSlotId}
+                                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white text-[10px] font-normal uppercase tracking-widest hover:bg-primary/80 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-wait"
                                         >
-                                            <Play size={12} fill="currentColor" /> Resume Career
+                                            {loadingSlotId === slot.saveId ? (
+                                                <><Clock size={12} className="animate-spin" /> Loading...</>
+                                            ) : (
+                                                <><Play size={12} fill="currentColor" /> Resume Career</>
+                                            )}
                                         </button>
                                         <button
-                                            disabled={isDeleting}
+                                            disabled={isDeleting || !!loadingSlotId}
                                             onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}
                                             className="w-12 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
