@@ -3763,13 +3763,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         const aStaff = mapStaff(aStaffData)
 
         // anti_strat: reduce opponent coach tactic bonus (multiplicative)
+        // mapStaff returns raw StaffSaveData which lacks tacticBonus, so derive from level
         const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
         const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
         if (homeAntiStrat > 0 && aStaff.coach) {
-          aStaff.coach.tacticBonus = Math.round((aStaff.coach.tacticBonus || 0) * (1 - homeAntiStrat))
+          const baseTactic = aStaff.coach.tacticBonus || (aStaff.coach.level || 1) * 2
+          aStaff.coach.tacticBonus = Math.round(baseTactic * (1 - homeAntiStrat))
         }
         if (awayAntiStrat > 0 && hStaff.coach) {
-          hStaff.coach.tacticBonus = Math.round((hStaff.coach.tacticBonus || 0) * (1 - awayAntiStrat))
+          const baseTactic = hStaff.coach.tacticBonus || (hStaff.coach.level || 1) * 2
+          hStaff.coach.tacticBonus = Math.round(baseTactic * (1 - awayAntiStrat))
         }
 
         const bestOf = match.format === "BO3" ? 3 : match.format === "BO5" ? 5 : 1
