@@ -36,6 +36,7 @@ import {
     PlayerLoadout,
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
+import { getStaffPassiveBonuses } from "@/engine/talent-trees"
 
 // ===== TYPES =====
 

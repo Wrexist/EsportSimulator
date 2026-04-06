@@ -496,9 +496,6 @@ interface GameStoreActions {
   // Phase 3: Career Moves
   switchTeam: (newTeamId: string) => void
 
-  // Phase 23: Hall of Fame
-  addToHallOfFame: (player: PlayerSaveData) => void
-
   // Phase 60: Talent Trees
   unlockStaffTalent: (staffId: string, talentId: string) => void
   unlockPlayerTalent: (playerId: string, talentId: string) => void
@@ -2937,6 +2934,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               })
             })
 
+            // Process academy weekly training, scouting missions, and prospect development
+            get().processAcademyWeek()
+
             // Rebuild entity indexes after state update for O(1) lookups
             const postTickState = get()
             const newIndexes = buildEntityIndexes(postTickState.teams, postTickState.players, postTickState.contracts, postTickState.staff, postTickState.completedMatches)
@@ -4602,37 +4602,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set({ soundEnabled: enabled })
         import("@/lib/sound-manager").then(({ soundManager }) => {
           soundManager.setEnabled(enabled)
-        })
-      },
-
-      addToHallOfFame: (player) => {
-        set((state) => {
-          // Mark as legendary and add to the legendary players data
-          const legendaryPlayer: PlayerSaveData = {
-            ...player,
-            isLegendary: true,
-            isRetired: true,
-            retirementWeek: state.currentWeek,
-          }
-          state.legendaryPlayers.push(legendaryPlayer)
-
-          // Also add a HallOfFameEntry so the player appears in the Hall of Fame UI
-          const hofEntry: HallOfFameEntry = {
-            id: `hof_${player.id}_${state.currentWeek}`,
-            name: player.nickname || player.name || player.id,
-            portraitPath: "",
-            eraStart: 1,
-            eraEnd: state.currentWeek,
-            primaryRole: player.role || "Rifler",
-            category: "INDUCTED",
-            inductionReasons: [{
-              type: "LONGEVITY",
-              label: "Career Achievement",
-              icon: "Award",
-            }],
-            nationality: player.nationality || "",
-          }
-          state.hallOfFame.push(hofEntry)
         })
       },
 

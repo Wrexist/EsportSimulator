@@ -3,6 +3,7 @@ import { GameSave, PlayerSaveData } from "../save-types"
 import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
+import { getStaffPassiveBonuses, getPlayerPassiveBonuses } from "../talent-trees"
 
 export class TrainingProcessor {
     static processTraining(
@@ -23,6 +24,18 @@ export class TrainingProcessor {
             const coaches = save.staff.filter(s => s.teamId === teamId && s.role === "coach")
             const developmentStatSum = coaches.reduce((sum, c) => sum + (c.stats?.development || 50), 0)
             const coachBonus = 1 + (developmentStatSum / 100) * 0.5
+
+            // Collect staff talent passive bonuses for training efficiency
+            const teamStaff = save.staff.filter(s => s.teamId === teamId)
+            let staffTrainingEfficiency = 0
+            let staffTacticMastery = 0
+            for (const s of teamStaff) {
+                const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+                staffTrainingEfficiency += bonuses["training_efficiency"] || 0
+                staffTacticMastery += bonuses["tactic_mastery"] || 0
+            }
+            const talentTrainingMod = 1 + staffTrainingEfficiency / 100
+            const talentTacticMod = 1 + staffTacticMastery / 100
 
             team.rosterIds.forEach(playerId => {
                 const player = save.players.find(p => p.id === playerId)
@@ -50,13 +63,17 @@ export class TrainingProcessor {
                     player.potential
                 )
 
+                // Player talent passive bonuses (fatigue reduction, energy recovery)
+                const playerBonuses = getPlayerPassiveBonuses(player.unlockedTalentIds || [])
+                const playerFatigueReduction = playerBonuses["fatigue_reduction"] || 0
+
                 Object.entries(gains).forEach(([stat, gain]) => {
                     if (gain && stat in player) {
                         const current = player[stat as keyof PlayerSaveData] as number
 
-                        let finalGain = gain * trainingBonus * coachBonus
+                        let finalGain = gain * trainingBonus * coachBonus * talentTrainingMod
                         if (['tactic', 'leader', 'teamwork'].includes(stat)) {
-                            finalGain *= tacticalBonus
+                            finalGain *= tacticalBonus * talentTacticMod
                         }
 
                         const newVal = Math.min(
@@ -67,12 +84,15 @@ export class TrainingProcessor {
                     }
                 })
 
-                // Apply fatigue
-                const fatigueGain = calculateTrainingFatigue(
+                // Apply fatigue (reduced by player talent)
+                let fatigueGain = calculateTrainingFatigue(
                     focus,
                     config.intensity,
                     player.endurance
                 )
+                if (playerFatigueReduction > 0) {
+                    fatigueGain *= (1 - playerFatigueReduction / 100)
+                }
                 player.fatigue = Math.min(100, player.fatigue + fatigueGain)
 
                 // REST bonus
@@ -106,7 +126,17 @@ export class TrainingProcessor {
                 const psychStatSum = psychologists.reduce((sum, p) => sum + (p.stats?.mentalRecovery || 50), 0)
                 // Bonus: 100 stat = +10 Recovery
                 totalRecoveryBonus += (psychStatSum / 100) * 10
+
+                // Staff talent: psychologist "recovery_amount" passive bonus
+                for (const psych of psychologists) {
+                    const bonuses = getStaffPassiveBonuses(psych.role, psych.unlockedTalentIds || [])
+                    totalRecoveryBonus += bonuses["recovery_amount"] || 0
+                }
             }
+
+            // Player talent: "energy_recovery" passive bonus
+            const playerBonuses = getPlayerPassiveBonuses(player.unlockedTalentIds || [])
+            totalRecoveryBonus += playerBonuses["energy_recovery"] || 0
 
             // Use the centralized Lifecycle Manager
             PlayerLifecycleManager.processWeeklyUpdates(player, currentYear, save.currentWeek, totalRecoveryBonus, rng)

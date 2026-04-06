@@ -569,6 +569,10 @@ export class AtomicWeekProcessor {
             const homeBonus = getTacticalBonus(homeTeam.id, awayTeam.playstyle ?? "", homeTeam.playstyle ?? "")
             const awayBonus = getTacticalBonus(awayTeam.id, homeTeam.playstyle ?? "", awayTeam.playstyle ?? "")
 
+            // Collect team staff for talent bonus application in match sim
+            const homeTeamStaff = save.staff.filter(s => s.teamId === homeTeam.id)
+            const awayTeamStaff = save.staff.filter(s => s.teamId === awayTeam.id)
+
             // Simulate using full engine
             const result = this.matchEngine.simulateMatch(
                 match,
@@ -578,7 +582,9 @@ export class AtomicWeekProcessor {
                 awayPlayers,
                 rng,
                 homeBonus,
-                awayBonus
+                awayBonus,
+                homeTeamStaff,
+                awayTeamStaff
             )
 
             // Phase 48: Weapon Mastery XP

@@ -6,9 +6,10 @@ import { MatchFormat, MapId, PlayerRole } from "@/types/enums"
 import { Player } from "@/types/player"
 import { Team, Coach } from "@/types/team"
 import { PlayerTier, StaffType } from "@/types/enums"
-import { TeamSaveData, PlayerSaveData, MatchSaveData } from "@/engine/save-types"
+import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
+import { getStaffPassiveBonuses } from "./talent-trees"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
 
@@ -138,7 +139,9 @@ export class MatchEngine {
         awayPlayers: PlayerSaveData[],
         rng: SeededRNG,
         homeTacticalBonus: number = 0,
-        awayTacticalBonus: number = 0
+        awayTacticalBonus: number = 0,
+        homeTeamStaff?: StaffSaveData[],
+        awayTeamStaff?: StaffSaveData[]
     ): MatchResult {
       try {
         // Delegate to SimulationEngineV2 for rich simulation (weapon tracking, economy, momentum)
@@ -168,6 +171,52 @@ export class MatchEngine {
             isHighPressure: match.isHighPressure ?? false,
             mentalPrep: match.mentalPrep ?? false,
         } as Match
+
+        // Collect staff talent passive bonuses
+        const collectTalentBonuses = (staff?: StaffSaveData[]) => {
+            if (!staff?.length) return {}
+            const bonuses: Record<string, number> = {}
+            for (const s of staff) {
+                const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+                for (const [k, v] of Object.entries(b)) {
+                    bonuses[k] = (bonuses[k] || 0) + v
+                }
+            }
+            return bonuses
+        }
+        const homeTalentBonuses = collectTalentBonuses(homeTeamStaff)
+        const awayTalentBonuses = collectTalentBonuses(awayTeamStaff)
+
+        // anti_strat talent: boost tactical bonus (reduces opponent effectiveness)
+        const homeAntiStrat = (homeTalentBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (awayTalentBonuses["anti_strat"] || 0) / 100
+        homeTacticalBonus += homeAntiStrat
+        awayTacticalBonus += awayAntiStrat
+
+        // tilt_immunity talent: apply morale floor to prevent low-morale matches
+        if (homeTalentBonuses["tilt_immunity"]) {
+            const moraleFloor = homeTalentBonuses["morale_floor"] || 0
+            adaptedHomePlayers.forEach(p => {
+                if (p.morale < moraleFloor) p.morale = moraleFloor
+            })
+        } else if (homeTalentBonuses["morale_floor"]) {
+            const floor = homeTalentBonuses["morale_floor"]
+            adaptedHomePlayers.forEach(p => {
+                if (p.morale < floor) p.morale = floor
+            })
+        }
+        if (awayTalentBonuses["tilt_immunity"]) {
+            const moraleFloor = awayTalentBonuses["morale_floor"] || 0
+            awayTalentBonuses["morale_floor"] = Math.max(moraleFloor, 50)
+            adaptedAwayPlayers.forEach(p => {
+                if (p.morale < (awayTalentBonuses["morale_floor"] || 0)) p.morale = awayTalentBonuses["morale_floor"] || 0
+            })
+        } else if (awayTalentBonuses["morale_floor"]) {
+            const floor = awayTalentBonuses["morale_floor"]
+            adaptedAwayPlayers.forEach(p => {
+                if (p.morale < floor) p.morale = floor
+            })
+        }
 
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({
