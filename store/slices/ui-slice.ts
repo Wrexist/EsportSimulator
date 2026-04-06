@@ -1,7 +1,6 @@
 "use client"
 
 import type { UIState, UIActions, SliceCreator } from "@/store/types"
-import type { PlayerSaveData, HallOfFameEntry } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 
 export const uiInitialState: UIState = {
@@ -92,38 +91,6 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
   clearLegendPick: () =>
     set((state) => {
       state.pendingLegendPick = null
-    }),
-
-  addToHallOfFame: (player: PlayerSaveData) =>
-    set((state) => {
-      // Mark as legendary and add to the legendary players data
-      const legendaryPlayer: PlayerSaveData = {
-        ...player,
-        isLegendary: true,
-        isRetired: true,
-        retirementWeek: state.currentWeek,
-      }
-      state.legendaryPlayers.push(legendaryPlayer)
-
-      // Also add a HallOfFameEntry so the player appears in the Hall of Fame UI
-      const hofEntry: HallOfFameEntry = {
-        id: `hof_${player.id}_${state.currentWeek}`,
-        name: player.nickname || player.name || player.id,
-        portraitPath: "",
-        eraStart: 1,
-        eraEnd: state.currentWeek,
-        primaryRole: player.role || "Rifler",
-        category: "INDUCTED",
-        inductionReasons: [
-          {
-            type: "LONGEVITY",
-            label: "Career Achievement",
-            icon: "Award",
-          },
-        ],
-        nationality: player.nationality || "",
-      }
-      state.hallOfFame.push(hofEntry)
     }),
 
   setWeeklyActivity: (type) =>

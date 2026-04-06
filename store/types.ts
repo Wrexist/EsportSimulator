@@ -263,7 +263,6 @@ export interface UIActions {
   clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
-  addToHallOfFame: (player: PlayerSaveData) => void
   setWeeklyActivity: (type: WeeklyActivityType) => void
 
   // Getters / Helpers

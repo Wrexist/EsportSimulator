@@ -5,6 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
+import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -324,6 +325,22 @@ export function useLiveMatch(id: string) {
         }
         const homeStaff = mapStaff(hStaffData)
         const awayStaff = mapStaff(aStaffData)
+
+        // Apply staff talent passive bonuses
+        const hBonuses = collectTeamTalentBonuses(hStaffData)
+        const aBonuses = collectTeamTalentBonuses(aStaffData)
+        applyTalentMoraleFloor(homePlayers, hBonuses)
+        applyTalentMoraleFloor(awayPlayers, aBonuses)
+
+        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
+        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        if (homeAntiStrat > 0 && awayStaff.coach) {
+            awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
+        }
+        if (awayAntiStrat > 0 && homeStaff.coach) {
+            homeStaff.coach.tacticBonus = Math.round(homeStaff.coach.tacticBonus * (1 - awayAntiStrat))
+        }
 
         const engineFallback = simulationEngineV2.simulateMatch(
             runtimeMatch,

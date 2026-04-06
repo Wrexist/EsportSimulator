@@ -265,6 +265,11 @@ export default function SettingsPage() {
               <RefreshCw className="mr-2 h-4 w-4" /> Dashboard
             </Button>
           </Link>
+          <Link href="/credits">
+            <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
+              <Heart className="mr-2 h-4 w-4" /> Credits
+            </Button>
+          </Link>
         </div>
       </motion.div>
 

@@ -164,3 +164,70 @@ export const PLAYER_TALENT_TREE: TalentNode[] = [
         effect: { type: "STAT_BOOST", target: "clutch", value: 10 }
     }
 ]
+
+/**
+ * Collect all active PASSIVE_BONUS effects from a staff member's unlocked talents.
+ * Returns a map of target -> total bonus value.
+ */
+export function getStaffPassiveBonuses(
+    staffRole: string,
+    unlockedTalentIds: string[]
+): Record<string, number> {
+    const tree = STAFF_TALENT_TREES[staffRole]
+    if (!tree || !unlockedTalentIds?.length) return {}
+
+    const bonuses: Record<string, number> = {}
+    for (const node of tree) {
+        if (
+            unlockedTalentIds.includes(node.id) &&
+            node.effect?.type === "PASSIVE_BONUS"
+        ) {
+            bonuses[node.effect.target] = (bonuses[node.effect.target] || 0) + node.effect.value
+        }
+    }
+    return bonuses
+}
+
+/** Collect all talent bonuses for a team's staff into a single bonuses map */
+export function collectTeamTalentBonuses(
+    staffData: Array<{ role: string; unlockedTalentIds?: string[] }>
+): Record<string, number> {
+    const bonuses: Record<string, number> = {}
+    for (const s of staffData) {
+        if (!s.role) continue
+        const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+        for (const [k, v] of Object.entries(b)) bonuses[k] = (bonuses[k] || 0) + v
+    }
+    return bonuses
+}
+
+/** Apply morale_floor and tilt_immunity talent bonuses to players */
+export function applyTalentMoraleFloor(
+    players: Array<{ morale: number }>,
+    bonuses: Record<string, number>
+): void {
+    let floor = bonuses["morale_floor"] || 0
+    if ((bonuses["tilt_immunity"] || 0) > 0) floor = Math.max(floor, 40)
+    if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
+}
+
+/**
+ * Collect all active PASSIVE_BONUS effects from a player's unlocked talents.
+ * Returns a map of target -> total bonus value.
+ */
+export function getPlayerPassiveBonuses(
+    unlockedTalentIds: string[]
+): Record<string, number> {
+    if (!unlockedTalentIds?.length) return {}
+
+    const bonuses: Record<string, number> = {}
+    for (const node of PLAYER_TALENT_TREE) {
+        if (
+            unlockedTalentIds.includes(node.id) &&
+            node.effect?.type === "PASSIVE_BONUS"
+        ) {
+            bonuses[node.effect.target] = (bonuses[node.effect.target] || 0) + node.effect.value
+        }
+    }
+    return bonuses
+}
