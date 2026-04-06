@@ -83,7 +83,6 @@ export { LeagueEngine } from "./league-engine"
 // Legacy SimulationEngine removed - use SimulationEngineV2 instead
 export { TrainingManager } from "./training-manager"
 export { EventsManager } from "./events-manager"
-export { SnapshotManager, type Snapshot } from "./snapshot-manager"
 export { reconcileTeamRoles, reconcileAllRoles } from "./role-reconciler"
 export { ManagerProgression } from "./manager-progression"
 export {

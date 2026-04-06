@@ -50,7 +50,7 @@ import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-cale
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
-import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
+import { PLAYER_TALENT_TREE, collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
@@ -495,9 +495,6 @@ interface GameStoreActions {
 
   // Phase 3: Career Moves
   switchTeam: (newTeamId: string) => void
-
-  // Phase 23: Hall of Fame
-  addToHallOfFame: (player: PlayerSaveData) => void
 
   // Phase 60: Talent Trees
   unlockStaffTalent: (staffId: string, talentId: string) => void
@@ -2615,7 +2612,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             tournamentQualifications: latestState.tournamentQualifications || [],
             newsFeed: latestState.newsFeed || [],
             transferHistory: latestState.transferHistory || [],
-            hallOfFame: latestState.hallOfFame || [],
+            hallOfFame: latestState.hallOfFame || FOUNDING_LEGENDS,
             academyPlayers: latestState.academyPlayers || [],
             academyRoster: latestState.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
             academyMatchHistory: latestState.academyMatchHistory || [],
@@ -2936,6 +2933,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
               })
             })
+
+            // Process academy weekly training, scouting missions, and prospect development
+            get().processAcademyWeek()
 
             // Rebuild entity indexes after state update for O(1) lookups
             const postTickState = get()
@@ -3753,6 +3753,28 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           psychologist: sData.find(s => s.role === "psychologist"),
         })
 
+        // Apply staff talent passive bonuses
+        const hBonuses = collectTeamTalentBonuses(hStaffData)
+        const aBonuses = collectTeamTalentBonuses(aStaffData)
+        applyTalentMoraleFloor(hPlayers, hBonuses)
+        applyTalentMoraleFloor(aPlayers, aBonuses)
+
+        const hStaff = mapStaff(hStaffData)
+        const aStaff = mapStaff(aStaffData)
+
+        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
+        // mapStaff returns raw StaffSaveData which lacks tacticBonus, so derive from level
+        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        if (homeAntiStrat > 0 && aStaff.coach) {
+          const baseTactic = aStaff.coach.tacticBonus || (aStaff.coach.level || 1) * 2
+          aStaff.coach.tacticBonus = Math.round(baseTactic * (1 - homeAntiStrat))
+        }
+        if (awayAntiStrat > 0 && hStaff.coach) {
+          const baseTactic = hStaff.coach.tacticBonus || (hStaff.coach.level || 1) * 2
+          hStaff.coach.tacticBonus = Math.round(baseTactic * (1 - awayAntiStrat))
+        }
+
         const bestOf = match.format === "BO3" ? 3 : match.format === "BO5" ? 5 : 1
         const fallbackSeed = Math.max(
           1,
@@ -3770,8 +3792,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           aTeam as unknown as Team,
           hPlayers,
           aPlayers,
-          mapStaff(hStaffData) as any,
-          mapStaff(aStaffData) as any
+          hStaff as any,
+          aStaff as any
         )
 
         state.saveMatchResult(matchId, result)
@@ -4602,37 +4624,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set({ soundEnabled: enabled })
         import("@/lib/sound-manager").then(({ soundManager }) => {
           soundManager.setEnabled(enabled)
-        })
-      },
-
-      addToHallOfFame: (player) => {
-        set((state) => {
-          // Mark as legendary and add to the legendary players data
-          const legendaryPlayer: PlayerSaveData = {
-            ...player,
-            isLegendary: true,
-            isRetired: true,
-            retirementWeek: state.currentWeek,
-          }
-          state.legendaryPlayers.push(legendaryPlayer)
-
-          // Also add a HallOfFameEntry so the player appears in the Hall of Fame UI
-          const hofEntry: HallOfFameEntry = {
-            id: `hof_${player.id}_${state.currentWeek}`,
-            name: player.nickname || player.name || player.id,
-            portraitPath: "",
-            eraStart: 1,
-            eraEnd: state.currentWeek,
-            primaryRole: player.role || "Rifler",
-            category: "INDUCTED",
-            inductionReasons: [{
-              type: "LONGEVITY",
-              label: "Career Achievement",
-              icon: "Award",
-            }],
-            nationality: player.nationality || "",
-          }
-          state.hallOfFame.push(hofEntry)
         })
       },
 
@@ -5924,7 +5915,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const prospectPlayers = activeStarters.map(ap =>
             (state._playerIndex?.get(ap.playerId) ?? state.players.find(p => p.id === ap.playerId))
           ).filter(Boolean) as PlayerSaveData[]
-          const academyRng = new SeededRNG(state.lastRngSeed || generateSeed())
+          const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ 0xACADE)
 
           const matchResult = AcademyEngine.simulateDevelopmentMatch(
             activeStarters,
@@ -5933,7 +5924,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             state.currentWeek,
             academyRng
           )
-          state.lastRngSeed = academyRng.getState()
+          // Academy uses a derived seed - don't overwrite main RNG chain
 
           // Consume energy and apply XP
           activeStarters.forEach(prospect => {
@@ -5964,7 +5955,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
           const academyLevel = team.academyFacility.level
-          const academyRng = new SeededRNG(state.lastRngSeed || generateSeed())
+          const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ 0xACADE)
 
           // Prepare report
           const report: import("@/types/academy").AcademyWeeklyReport = {
@@ -6100,7 +6091,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Remove completed missions
           state.academyScoutingMissions = state.academyScoutingMissions.filter(m => m.weeksRemaining > 0)
-          state.lastRngSeed = academyRng.getState()
+          // Academy uses a derived seed - don't overwrite main RNG chain
 
           // Deduct costs
           const upkeep = AcademyEngine.getWeeklyUpkeep(academyLevel, state.academyPlayers.length)

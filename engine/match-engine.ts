@@ -6,9 +6,10 @@ import { MatchFormat, MapId, PlayerRole } from "@/types/enums"
 import { Player } from "@/types/player"
 import { Team, Coach } from "@/types/team"
 import { PlayerTier, StaffType } from "@/types/enums"
-import { TeamSaveData, PlayerSaveData, MatchSaveData } from "@/engine/save-types"
+import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
+import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "./talent-trees"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
 
@@ -138,7 +139,9 @@ export class MatchEngine {
         awayPlayers: PlayerSaveData[],
         rng: SeededRNG,
         homeTacticalBonus: number = 0,
-        awayTacticalBonus: number = 0
+        awayTacticalBonus: number = 0,
+        homeTeamStaff?: StaffSaveData[],
+        awayTeamStaff?: StaffSaveData[]
     ): MatchResult {
       try {
         // Delegate to SimulationEngineV2 for rich simulation (weapon tracking, economy, momentum)
@@ -168,6 +171,20 @@ export class MatchEngine {
             isHighPressure: match.isHighPressure ?? false,
             mentalPrep: match.mentalPrep ?? false,
         } as Match
+
+        // Collect staff talent passive bonuses
+        const homeTalentBonuses = collectTeamTalentBonuses(homeTeamStaff || [])
+        const awayTalentBonuses = collectTeamTalentBonuses(awayTeamStaff || [])
+
+        // anti_strat talent: reduces opponent tactic effectiveness (multiplicative)
+        const homeAntiStrat = (homeTalentBonuses["anti_strat"] || 0) / 100
+        const awayAntiStrat = (awayTalentBonuses["anti_strat"] || 0) / 100
+        awayTacticalBonus *= (1 - homeAntiStrat)
+        homeTacticalBonus *= (1 - awayAntiStrat)
+
+        // morale_floor / tilt_immunity talent: enforce minimum morale for match
+        applyTalentMoraleFloor(adaptedHomePlayers, homeTalentBonuses)
+        applyTalentMoraleFloor(adaptedAwayPlayers, awayTalentBonuses)
 
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({

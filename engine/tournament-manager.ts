@@ -558,7 +558,9 @@ export class TournamentManager {
                     seed: bracketMatch.seed
                 }
 
-                const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+                const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
+                const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
+                const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
 
                 // Mark as complete
                 bracketMatch.isCompleted = true
@@ -650,7 +652,9 @@ export class TournamentManager {
 
             if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
-            const result = matchEngine.simulateMatch(match, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+            const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
+            const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
+            const result = matchEngine.simulateMatch(match, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
 
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
@@ -826,7 +830,9 @@ export class TournamentManager {
             seed: bracketMatch.seed
         }
 
-        const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam))
+        const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
+        const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
+        const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
 
         // Mark bracket match as complete
         bracketMatch.isCompleted = true
