@@ -50,7 +50,7 @@ import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-cale
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
-import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
+import { PLAYER_TALENT_TREE, getStaffPassiveBonuses } from "@/engine/talent-trees"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
@@ -3753,6 +3753,25 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           psychologist: sData.find(s => s.role === "psychologist"),
         })
 
+        // Apply staff talent passive bonuses (morale_floor, tilt_immunity)
+        const collectBonuses = (sData: any[]): Record<string, number> => {
+          const bonuses: Record<string, number> = {}
+          for (const s of sData) {
+            const b = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+            for (const [k, v] of Object.entries(b)) bonuses[k] = (bonuses[k] || 0) + v
+          }
+          return bonuses
+        }
+        const hBonuses = collectBonuses(hStaffData)
+        const aBonuses = collectBonuses(aStaffData)
+        const applyMoraleFloor = (players: any[], bonuses: Record<string, number>) => {
+          let floor = bonuses["morale_floor"] || 0
+          if (bonuses["tilt_immunity"]) floor = Math.max(floor, 40)
+          if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
+        }
+        applyMoraleFloor(hPlayers, hBonuses)
+        applyMoraleFloor(aPlayers, aBonuses)
+
         const bestOf = match.format === "BO3" ? 3 : match.format === "BO5" ? 5 : 1
         const fallbackSeed = Math.max(
           1,
@@ -5893,7 +5912,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const prospectPlayers = activeStarters.map(ap =>
             (state._playerIndex?.get(ap.playerId) ?? state.players.find(p => p.id === ap.playerId))
           ).filter(Boolean) as PlayerSaveData[]
-          const academyRng = new SeededRNG(state.lastRngSeed || generateSeed())
+          const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ 0xACADE)
 
           const matchResult = AcademyEngine.simulateDevelopmentMatch(
             activeStarters,
@@ -5902,7 +5921,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             state.currentWeek,
             academyRng
           )
-          state.lastRngSeed = academyRng.getState()
+          // Academy uses a derived seed - don't overwrite main RNG chain
 
           // Consume energy and apply XP
           activeStarters.forEach(prospect => {
@@ -5933,7 +5952,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
           const academyLevel = team.academyFacility.level
-          const academyRng = new SeededRNG(state.lastRngSeed || generateSeed())
+          const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ 0xACADE)
 
           // Prepare report
           const report: import("@/types/academy").AcademyWeeklyReport = {
@@ -6069,7 +6088,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Remove completed missions
           state.academyScoutingMissions = state.academyScoutingMissions.filter(m => m.weeksRemaining > 0)
-          state.lastRngSeed = academyRng.getState()
+          // Academy uses a derived seed - don't overwrite main RNG chain
 
           // Deduct costs
           const upkeep = AcademyEngine.getWeeklyUpkeep(academyLevel, state.academyPlayers.length)

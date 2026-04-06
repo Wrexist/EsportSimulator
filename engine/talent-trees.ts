@@ -209,20 +209,3 @@ export function getPlayerPassiveBonuses(
     return bonuses
 }
 
-/**
- * Collect all PASSIVE_BONUS effects from all staff of a team.
- * Merges bonuses from all staff members (coaches, analysts, psychologists, scouts).
- */
-export function getTeamStaffPassiveBonuses(
-    staff: Array<{ role: string; unlockedTalentIds: string[] }>,
-    teamId: string
-): Record<string, number> {
-    const bonuses: Record<string, number> = {}
-    for (const s of staff) {
-        const staffBonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds)
-        for (const [target, value] of Object.entries(staffBonuses)) {
-            bonuses[target] = (bonuses[target] || 0) + value
-        }
-    }
-    return bonuses
-}

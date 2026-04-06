@@ -187,36 +187,20 @@ export class MatchEngine {
         const homeTalentBonuses = collectTalentBonuses(homeTeamStaff)
         const awayTalentBonuses = collectTalentBonuses(awayTeamStaff)
 
-        // anti_strat talent: boost tactical bonus (reduces opponent effectiveness)
+        // anti_strat talent: reduces opponent tactic effectiveness
         const homeAntiStrat = (homeTalentBonuses["anti_strat"] || 0) / 100
         const awayAntiStrat = (awayTalentBonuses["anti_strat"] || 0) / 100
-        homeTacticalBonus += homeAntiStrat
-        awayTacticalBonus += awayAntiStrat
+        awayTacticalBonus = Math.max(0, awayTacticalBonus - homeAntiStrat)
+        homeTacticalBonus = Math.max(0, homeTacticalBonus - awayAntiStrat)
 
-        // tilt_immunity talent: apply morale floor to prevent low-morale matches
-        if (homeTalentBonuses["tilt_immunity"]) {
-            const moraleFloor = homeTalentBonuses["morale_floor"] || 0
-            adaptedHomePlayers.forEach(p => {
-                if (p.morale < moraleFloor) p.morale = moraleFloor
-            })
-        } else if (homeTalentBonuses["morale_floor"]) {
-            const floor = homeTalentBonuses["morale_floor"]
-            adaptedHomePlayers.forEach(p => {
-                if (p.morale < floor) p.morale = floor
-            })
+        // morale_floor / tilt_immunity talent: enforce minimum morale for match
+        const applyTalentMoraleFloor = (players: Player[], bonuses: Record<string, number>) => {
+            let floor = bonuses["morale_floor"] || 0
+            if (bonuses["tilt_immunity"]) floor = Math.max(floor, 40)
+            if (floor > 0) players.forEach(p => { if (p.morale < floor) p.morale = floor })
         }
-        if (awayTalentBonuses["tilt_immunity"]) {
-            const moraleFloor = awayTalentBonuses["morale_floor"] || 0
-            awayTalentBonuses["morale_floor"] = Math.max(moraleFloor, 50)
-            adaptedAwayPlayers.forEach(p => {
-                if (p.morale < (awayTalentBonuses["morale_floor"] || 0)) p.morale = awayTalentBonuses["morale_floor"] || 0
-            })
-        } else if (awayTalentBonuses["morale_floor"]) {
-            const floor = awayTalentBonuses["morale_floor"]
-            adaptedAwayPlayers.forEach(p => {
-                if (p.morale < floor) p.morale = floor
-            })
-        }
+        applyTalentMoraleFloor(adaptedHomePlayers, homeTalentBonuses)
+        applyTalentMoraleFloor(adaptedAwayPlayers, awayTalentBonuses)
 
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({
