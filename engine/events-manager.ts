@@ -233,7 +233,4 @@ export class EventsManager {
     return generated
   }
 
-  // Legacy generateEvents() and related helpers removed — all event generation
-  // now uses generateModernEvents() via atomic-week-processor.ts
-
 }

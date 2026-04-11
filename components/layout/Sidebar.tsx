@@ -1,14 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn, getTeamColors } from "@/lib/utils"
 import {
     Lock,
     Home,
-
-    Mail,
     Users,
     UserPlus,
     BarChart3,
@@ -22,45 +19,91 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
+    ChevronDown,
     ClipboardList,
     Crown,
     Package,
     Award,
     Monitor,
     Swords,
-    Handshake
+    Handshake,
+    GraduationCap,
+    type LucideIcon
 } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 
+interface MenuItem {
+    icon: LucideIcon
+    label: string
+    href: string
+}
 
-const menuItems = [
-    { icon: Home, label: "Home", href: "/" },
-    { icon: Monitor, label: "Desktop", href: "/desktop" },
-    { icon: Globe, label: "Rankings", href: "/rankings" },
-    { icon: Swords, label: "FPL", href: "/fpl" },
-    { icon: Users, label: "Squad", href: "/squad" },
-    { icon: ClipboardList, label: "Staff", href: "/staff" },
-    { icon: BarChart3, label: "Statistics", href: "/stats" },
-    { icon: Dumbbell, label: "Training", href: "/training" },
-    { icon: Calendar, label: "Schedule", href: "/schedule" },
-    { icon: Trophy, label: "Tournaments", href: "/tournaments" },
-    { icon: UserPlus, label: "Transfers", href: "/transfers" },
-    { icon: Building2, label: "Basecamp", href: "/basecamp" },
-    { icon: Package, label: "Equipment", href: "/equipment" },
-    { icon: Award, label: "Trophies", href: "/trophies" },
-    { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
-    { icon: Search, label: "Scouting", href: "/scouting" },
-    { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
-    { icon: DollarSign, label: "Finances", href: "/finances" },
-    { icon: Settings, label: "Settings & Tools", href: "/settings" },
+interface MenuGroup {
+    label: string
+    items: MenuItem[]
+}
+
+const menuGroups: MenuGroup[] = [
+    {
+        label: "Overview",
+        items: [
+            { icon: Home, label: "Home", href: "/" },
+            { icon: Monitor, label: "Desktop", href: "/desktop" },
+            { icon: Calendar, label: "Schedule", href: "/schedule" },
+        ]
+    },
+    {
+        label: "Team",
+        items: [
+            { icon: Users, label: "Squad", href: "/squad" },
+            { icon: Dumbbell, label: "Training", href: "/training" },
+            { icon: ClipboardList, label: "Staff", href: "/staff" },
+            { icon: Package, label: "Equipment", href: "/equipment" },
+        ]
+    },
+    {
+        label: "Recruitment",
+        items: [
+            { icon: UserPlus, label: "Transfers", href: "/transfers" },
+            { icon: Search, label: "Scouting", href: "/scouting" },
+            { icon: Building2, label: "Facilities", href: "/basecamp" },
+            { icon: GraduationCap, label: "Academy", href: "/academy" },
+        ]
+    },
+    {
+        label: "Competition",
+        items: [
+            { icon: Trophy, label: "Tournaments", href: "/tournaments" },
+            { icon: Globe, label: "Rankings", href: "/rankings" },
+            { icon: Swords, label: "FPL", href: "/fpl" },
+            { icon: BarChart3, label: "Statistics", href: "/stats" },
+        ]
+    },
+    {
+        label: "Business",
+        items: [
+            { icon: DollarSign, label: "Finances", href: "/finances" },
+            { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
+        ]
+    },
+    {
+        label: "Legacy",
+        items: [
+            { icon: Award, label: "Trophies", href: "/trophies" },
+            { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
+        ]
+    },
 ]
+
+const settingsItem: MenuItem = { icon: Settings, label: "Settings & Tools", href: "/settings" }
 
 export function Sidebar() {
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set())
     const { activeMatchId, getPlayerTeam, managerDetails } = useGameStore(useShallow(state => ({
         activeMatchId: state.activeMatchId,
         getPlayerTeam: state.getPlayerTeam,
@@ -70,7 +113,6 @@ export function Sidebar() {
     const playerTeam = getPlayerTeam?.() || null
     const teamColors = useMemo(() => getTeamColors(playerTeam), [playerTeam])
 
-    // Get manager initials
     const managerInitials = useMemo(() => {
         const name = managerDetails?.name || "Manager"
         const parts = name.split(" ")
@@ -79,6 +121,58 @@ export function Sidebar() {
         }
         return name.slice(0, 2).toUpperCase()
     }, [managerDetails])
+
+    const isMatchLocked = activeMatchId && pathname?.includes("/live")
+
+    const toggleGroup = useCallback((label: string) => {
+        setCollapsedGroups(prev => {
+            const next = new Set(prev)
+            if (next.has(label)) {
+                next.delete(label)
+            } else {
+                next.add(label)
+            }
+            return next
+        })
+    }, [])
+
+    const groupContainsActive = useCallback((group: MenuGroup) => {
+        return group.items.some(item => pathname === item.href)
+    }, [pathname])
+
+    const renderLink = (item: MenuItem) => {
+        const isActive = pathname === item.href
+        return (
+            <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group relative",
+                    isActive
+                        ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                        : "text-muted-foreground hover:bg-white/5 hover:text-white",
+                    isMatchLocked && "opacity-30 pointer-events-none grayscale"
+                )}
+            >
+                {isMatchLocked && <Lock size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20" />}
+                <item.icon size={20} className={cn("shrink-0", isActive && "text-primary")} />
+                <span
+                    className={cn(
+                        "font-medium text-sm whitespace-nowrap transition-all duration-200",
+                        isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
+                    )}
+                >
+                    {item.label}
+                </span>
+                {isActive && (
+                    <motion.div
+                        layoutId="active-pill"
+                        className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                    />
+                )}
+            </Link>
+        )
+    }
 
     return (
         <motion.div
@@ -109,41 +203,62 @@ export function Sidebar() {
                 </button>
             </div>
 
-            <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar custom-scrollbar">
-                {menuItems.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                                isActive
-                                    ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(59,130,246,0.15)]"
-                                    : "text-muted-foreground hover:bg-white/5 hover:text-white",
-                                (activeMatchId && pathname?.includes("/live")) && "opacity-30 pointer-events-none grayscale"
-                            )}
-                        >
-                            {(activeMatchId && pathname?.includes("/live")) && <Lock size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20" />}
+            <nav className="flex-1 px-2 py-2 space-y-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar custom-scrollbar">
+                {menuGroups.map((group, groupIndex) => {
+                    const hasActive = groupContainsActive(group)
+                    const isGroupCollapsed = collapsedGroups.has(group.label) && !hasActive
 
-                            <item.icon size={22} className={cn("shrink-0", isActive && "text-primary")} />
-                            <span
-                                className={cn(
-                                    "font-medium whitespace-nowrap transition-all duration-200",
-                                    isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
-                                )}
-                            >
-                                {item.label}
-                            </span>
-                            {isActive && (
-                                <motion.div
-                                    layoutId="active-pill"
-                                    className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                                />
+                    return (
+                        <div key={group.label}>
+                            {/* Group separator */}
+                            {groupIndex > 0 && !isCollapsed && (
+                                <div className="mx-3 my-2 border-t border-white/5" />
                             )}
-                        </Link>
+                            {groupIndex > 0 && isCollapsed && (
+                                <div className="mx-2 my-1 border-t border-white/5" />
+                            )}
+
+                            {/* Group header (only when sidebar is expanded) */}
+                            {!isCollapsed && (
+                                <button
+                                    onClick={() => toggleGroup(group.label)}
+                                    className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/30 hover:text-white/50 transition-colors"
+                                >
+                                    <span>{group.label}</span>
+                                    <ChevronDown
+                                        size={12}
+                                        className={cn(
+                                            "transition-transform duration-200",
+                                            isGroupCollapsed && "-rotate-90"
+                                        )}
+                                    />
+                                </button>
+                            )}
+
+                            {/* Group items */}
+                            <AnimatePresence initial={false}>
+                                {!isGroupCollapsed && (
+                                    <motion.div
+                                        initial={false}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="overflow-hidden space-y-0.5"
+                                    >
+                                        {group.items.map(renderLink)}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     )
                 })}
+
+                {/* Settings - always visible, no group */}
+                <div className="pt-1">
+                    {!isCollapsed && <div className="mx-3 my-2 border-t border-white/5" />}
+                    {isCollapsed && <div className="mx-2 my-1 border-t border-white/5" />}
+                    {renderLink(settingsItem)}
+                </div>
             </nav>
 
             <div className="p-4 border-t border-white/5">

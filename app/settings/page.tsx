@@ -174,7 +174,7 @@ export default function SettingsPage() {
     localStorage.removeItem("error-reports")
     localStorage.removeItem("performance-metrics")
     localStorage.removeItem("skipQuickSimConfirm")
-    window.location.href = "/"
+    window.location.href = "/main-menu"
   }
 
   const handleReplayTutorial = () => {

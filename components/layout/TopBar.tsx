@@ -2,11 +2,11 @@
 
 import { useGameStore } from "@/store/game-store"
 import { useRouter } from "next/navigation"
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { format } from "date-fns"
-import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords, X, Keyboard } from "lucide-react"
+import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { soundManager } from "@/lib/sound-manager"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { getTeamColors } from "@/lib/utils"
@@ -44,61 +44,10 @@ export function TopBar() {
     const teamColors = useMemo(() => getTeamColors(playerTeam), [playerTeam])
 
     const [isMounted, setIsMounted] = useState(false)
-    const [showShortcuts, setShowShortcuts] = useState(false)
-    const shortcutsRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         setIsMounted(true)
     }, [])
-
-    // Keyboard shortcuts
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // Ignore if typing in an input
-            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-
-            if (e.key === "?" && !e.ctrlKey && !e.metaKey) {
-                e.preventDefault()
-                setShowShortcuts(prev => !prev)
-            }
-
-            if (e.key === " " && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                // Don't advance on non-gameplay pages
-                const path = window.location.pathname
-                if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return
-                // Don't advance if a modal/dialog is open
-                const hasOpenOverlay = document.querySelector('[role="dialog"], [aria-modal="true"]')
-                if (hasOpenOverlay) return
-                e.preventDefault()
-                if (!isLoading) {
-                    soundManager.play('weekAdvance')
-                    if (timeMode === "HYBRID_DAILY") {
-                        advanceDay()
-                    } else {
-                        advanceWeek()
-                    }
-                }
-            }
-
-            if (e.key === "Escape") {
-                setShowShortcuts(false)
-            }
-        }
-        window.addEventListener("keydown", handleKeyDown)
-        return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [isLoading, timeMode, advanceDay, advanceWeek])
-
-    // Close shortcuts popover on click outside
-    useEffect(() => {
-        if (!showShortcuts) return
-        const handleClickOutside = (e: MouseEvent) => {
-            if (shortcutsRef.current && !shortcutsRef.current.contains(e.target as Node)) {
-                setShowShortcuts(false)
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
-    }, [showShortcuts])
 
     return (
         <header className="h-16 border-b border-white/10 bg-black/20 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
@@ -178,54 +127,6 @@ export function TopBar() {
                     <div className="p-2 rounded-xl bg-white/5 border border-white/5 text-muted-foreground">
                         <Clock size={16} />
                     </div>
-                </div>
-
-                {/* Keyboard Shortcuts Help */}
-                <div className="relative" ref={shortcutsRef}>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Keyboard shortcuts"
-                        onClick={() => setShowShortcuts(prev => !prev)}
-                        className="rounded-xl border border-white/10 hover:bg-white/5"
-                    >
-                        <Keyboard size={18} />
-                    </Button>
-
-                    <AnimatePresence>
-                        {showShortcuts && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                                className="absolute right-0 top-12 w-72 bg-[#0a0c10] border border-white/10 rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden"
-                            >
-                                <div className="p-4 border-b border-white/5 flex items-center justify-between">
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-white/60">Shortcuts</h3>
-                                    <button onClick={() => setShowShortcuts(false)} className="text-white/30 hover:text-white transition-colors">
-                                        <X size={14} />
-                                    </button>
-                                </div>
-                                <div className="p-3 space-y-1">
-                                    {[
-                                        { key: "Space", desc: timeMode === "HYBRID_DAILY" ? "Advance Day" : "Advance Week" },
-                                        { key: "?", desc: "Toggle Shortcuts" },
-                                        { key: "Esc", desc: "Close Popups" },
-                                    ].map(s => (
-                                        <div key={s.key} className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-white/5">
-                                            <span className="text-[11px] text-white/60">{s.desc}</span>
-                                            <kbd className="px-2 py-0.5 rounded-md bg-white/10 border border-white/10 text-[10px] font-mono text-white/80 min-w-[40px] text-center">
-                                                {s.key}
-                                            </kbd>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="px-4 py-3 border-t border-white/5">
-                                    <p className="text-[9px] text-white/20 uppercase tracking-widest">Use navigation sidebar to switch pages</p>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
 
                 {/* Theme Toggle */}

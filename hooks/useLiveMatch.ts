@@ -1235,9 +1235,6 @@ export function useLiveMatch(id: string) {
 
     const handleFinish = () => {
         if (!matchData.current) return
-        // Final Stats
-        // const rng = new SeededRNG(matchData.current.match.seed || Date.now())
-        // ... (Implement final stats generation if needed, or just trust the detailed logs we built)
         saveMatchResult(matchData.current.match.id, matchData.current.result)
         clearActiveMatchState()
         router.push(`/match/${id}/result`)

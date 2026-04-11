@@ -84,7 +84,6 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         simulateMatchInstant,
         handleFinish,
         customTactics,
-        teams, // unused, removing from destructure if not needed
         updateCustomTactic,
         playerTeam,
         originalHomePlayers,
