@@ -65,9 +65,11 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
         { id: "kit", name: "Defuse Kit", price: 400, special: "KIT", image: EQUIPMENT.defuse }
     ]
 
+    const EXCLUDED_WEAPONS = new Set(["dualies", "nova", "mag7", "ssg08", "aug"])
+
     const getWeaponsInCategory = (type: WeaponType | WeaponType[]) => {
         const types = Array.isArray(type) ? type : [type]
-        return Object.values(WEAPONS).filter(w => types.includes(w.type))
+        return Object.values(WEAPONS).filter(w => types.includes(w.type) && !EXCLUDED_WEAPONS.has(w.id))
     }
 
     const updateLoadout = (slotIndex: number, updates: Partial<PlayerLoadout>) => {
@@ -391,8 +393,6 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     {getWeaponsInCategory(WeaponType.PISTOL).map(w => {
                                         const isSelected = currentLoadout.secondaryWeaponId === w.id
                                         const icon = WEAPON_ICONS[w.id.toLowerCase() as keyof typeof WEAPON_ICONS]
-                                        // Removed: dualies
-                                        if (w.id === "dualies") return null
                                         if (side === "ct" && (w.id === "glock" || w.id === "tec9")) return null
                                         if (side === "t" && (w.id === "usp" || w.id === "fiveseven")) return null
 
@@ -437,8 +437,6 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     {getWeaponsInCategory([WeaponType.SMG, WeaponType.SHOTGUN]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
                                         const icon = WEAPON_ICONS[w.id.toLowerCase() as keyof typeof WEAPON_ICONS]
-                                        // Removed: nova, mag7
-                                        if (w.id === "nova" || w.id === "mag7") return null
                                         if (side === "ct" && w.id === "mac10") return null
                                         if (side === "t" && w.id === "mp9") return null
 
@@ -483,8 +481,6 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     {getWeaponsInCategory([WeaponType.RIFLE, WeaponType.SNIPER]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
                                         const icon = WEAPON_ICONS[w.id.toLowerCase() as keyof typeof WEAPON_ICONS]
-                                        // Removed: ssg08, aug
-                                        if (w.id === "ssg08" || w.id === "aug") return null
                                         if (side === "ct" && (w.id === "ak47" || w.id === "galil" || w.id === "sg553")) return null
                                         if (side === "t" && (w.id === "m4a4" || w.id === "m4a1s" || w.id === "famas")) return null
 

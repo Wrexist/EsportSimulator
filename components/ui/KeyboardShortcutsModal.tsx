@@ -12,23 +12,9 @@ const SHORTCUT_GROUPS = [
     label: "General",
     shortcuts: [
       { keys: ["Ctrl", "S"], description: "Save game" },
-      { keys: ["Space"], description: "Advance 1 week" },
-      { keys: ["Esc"], description: "Close modal" },
+      { keys: ["Space"], description: "Advance time" },
+      { keys: ["Esc"], description: "Go back / Close modal" },
       { keys: ["?"], description: "Show keyboard shortcuts" },
-    ],
-  },
-  {
-    label: "Navigation",
-    shortcuts: [
-      { keys: ["1"], description: "Squad" },
-      { keys: ["2"], description: "Transfers" },
-      { keys: ["3"], description: "Staff" },
-      { keys: ["4"], description: "Schedule" },
-      { keys: ["5"], description: "Finances" },
-      { keys: ["6"], description: "Training" },
-      { keys: ["7"], description: "Scouting" },
-      { keys: ["8"], description: "Desktop" },
-      { keys: ["9"], description: "Settings" },
     ],
   },
   {

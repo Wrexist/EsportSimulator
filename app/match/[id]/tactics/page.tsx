@@ -61,10 +61,6 @@ export default function TacticalHQPage() {
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)
 
-    // Tactics State
-    // const [mentalBoosted, setMentalBoosted] = useState(false) // REMOVED: Using match.mentalPrep
-    // const [vodReviewed, setVodReviewed] = useState(false) // REMOVED: Using match.vodReviewed
-
     const matchId = params.id as string
     // Find match in upcoming OR scheduled
     const match = getUpcomingMatches(20).find((m: any) => m.id === matchId) ||

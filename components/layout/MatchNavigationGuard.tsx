@@ -94,7 +94,7 @@ export function MatchNavigationGuard() {
 
     const handleReturnToMatch = () => {
         if (activeMatchId) {
-            router.push(`/match/${activeMatchId}/tactics`) // Default to tactics/live
+            router.push(`/match/${activeMatchId}/tactics`) // Return to tactics page to resume match setup
         }
     }
 

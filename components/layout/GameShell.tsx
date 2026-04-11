@@ -26,7 +26,7 @@ const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModa
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton } = useGameStore(useShallow(state => ({
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, timeMode, advanceDay, advanceWeek } = useGameStore(useShallow(state => ({
         theme: state.theme,
         pendingCelebration: state.pendingCelebration,
         clearCelebration: state.clearCelebration,
@@ -34,6 +34,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         selectLegend: state.selectLegend,
         initAchievements: state.initAchievements,
         showBugReportButton: state.showBugReportButton,
+        timeMode: state.timeMode,
+        advanceDay: state.advanceDay,
+        advanceWeek: state.advanceWeek,
     })))
 
     // Keyboard shortcuts modal state
@@ -229,7 +232,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const isDesktop = pathname === "/desktop"
     const hideChrome = isNewGame || isMainMenu
 
-    // Global Keyboard Shortcuts
+    // Global Keyboard Shortcuts (consolidated — TopBar no longer registers its own handlers)
     const router = useRouter()
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
@@ -249,11 +252,19 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 return
             }
             if (e.key === " " && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                // Don't advance on non-gameplay pages
+                const path = window.location.pathname
+                if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return
                 const state = useGameStore.getState()
                 const windowFocused = (window as any).__esimWindowFocused !== false
                 if (state.saveId && !state.isLoading && !hideChrome && windowFocused) {
                     e.preventDefault()
-                    state.advanceWeek()
+                    soundManager.play('weekAdvance')
+                    if (state.timeMode === "HYBRID_DAILY") {
+                        state.advanceDay()
+                    } else {
+                        state.advanceWeek()
+                    }
                 }
             }
         }

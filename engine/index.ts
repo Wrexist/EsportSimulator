@@ -20,9 +20,6 @@ export { EconomyManager, WEAPONS, WeaponType } from "./economy-manager"
 export { matchEngine, MatchEngine } from "./match-engine"
 export { commentaryManager, type CommentaryContext, type CommentaryType } from "./commentary-manager"
 
-// ===== WEEKLY LOOP =====
-// Legacy weekly-loop.ts removed - use AtomicWeekProcessor instead
-
 // ===== SAVE SYSTEM (Phase 5) =====
 export {
     // Types
@@ -80,7 +77,6 @@ export { TournamentManager } from "./tournament-manager"
 export { LeagueEngine } from "./league-engine"
 
 // ===== ADDITIONAL EXPORTS =====
-// Legacy SimulationEngine removed - use SimulationEngineV2 instead
 export { TrainingManager } from "./training-manager"
 export { EventsManager } from "./events-manager"
 export { reconcileTeamRoles, reconcileAllRoles } from "./role-reconciler"
