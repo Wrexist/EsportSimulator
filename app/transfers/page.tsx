@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -31,7 +30,6 @@ import { toast } from "sonner"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 
 export default function TransfersPage() {
-  const router = useRouter()
   const { players, teams, getPlayerTeam, transferPlayer, currentWeek } = useGameStore(useShallow(state => ({
     players: state.players,
     teams: state.teams,
@@ -64,7 +62,7 @@ export default function TransfersPage() {
             <p className="text-red-400 text-sm font-bold uppercase tracking-widest">Failed to load team data</p>
             <p className="text-muted-foreground text-xs">Team data could not be retrieved. Please try again.</p>
             <button
-              onClick={() => router.refresh()}
+              onClick={() => window.location.reload()}
               className="px-6 py-2 rounded-lg bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/80 transition-colors"
             >
               Retry
