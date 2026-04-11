@@ -5193,9 +5193,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return (state.watchlistedPlayerIds || []).includes(playerId)
       },
 
-      // Removed duplicate registerForTournament
-
-
       qualifyForTournament: (tournamentId, via) => {
         set((state) => {
           const identity = resolveTournamentIdentity(tournamentId, state.currentWeek)

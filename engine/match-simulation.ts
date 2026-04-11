@@ -1964,8 +1964,8 @@ export class SimulationEngineV2 {
                     }
                 }
             } else {
-                // if (traits.includes("AGGRESSIVE")) w *= 1.15
-                // if (traits.includes("PASSIVE")) w *= 0.9
+                if (traits.includes("AGGRESSIVE")) w *= 1.15
+                if (traits.includes("PASSIVE")) w *= 0.9
 
                 // Entry risk -> Use Reaction time
                 const reaction = p.reaction ?? 10

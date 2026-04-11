@@ -119,12 +119,12 @@ export default function FPLPage() {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
-                    <Trophy size={48} className="mx-auto mb-4 text-amber-400 animate-pulse" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">
-                        FPL System Loading...
+                    <Trophy size={48} className="mx-auto mb-4 text-amber-400" />
+                    <p className="text-white text-sm font-bold uppercase tracking-widest">
+                        FPL Season Not Started
                     </p>
-                    <p className="text-xs text-white/40 mt-2">
-                        Individual rankings will appear after the first week
+                    <p className="text-xs text-white/40 mt-2 max-w-sm mx-auto">
+                        The Fantasy Player League begins tracking individual player performance after your first game week. Advance time to get started.
                     </p>
                 </div>
             </div>
