@@ -1,0 +1,21 @@
+{
+  "trademarkKeywords": [
+    "redbull",
+    "faze",
+    "g2",
+    "100_thieves",
+    "mibr",
+    "pain",
+    "imperial",
+    "spirit",
+    "hltv",
+    "twitch",
+    "esl"
+  ],
+  "legacyContaminatedAllowlist": [
+    "public/assets/teams/morningstar/players/expsasiki.png",
+    "public/assets/teams/morningstar/players/rage.png",
+    "public/assets/teams/morningstar/players/ruben.png",
+    "public/assets/teams/chinggis_warriors/players/tikuak.png"
+  ]
+}
