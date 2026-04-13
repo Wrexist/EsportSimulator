@@ -6,6 +6,12 @@ Take control of your own professional esports organization in **Esports Manager:
 ## About This Game
 **Esports Manager: FPS** offers a deep, immersive simulation of the professional esports scene. You aren't just a coach; you are the architect of your team's destiny.
 
+## Early Access Q&A
+
+### What is the current state of the Early Access version?
+The current Early Access build already includes the full core gameplay loop. You can create and run an esports organization, recruit and train players, manage schedules and finances, scout prospects, set tactics, and compete in leagues and tournaments from regular season progression to championship outcomes. Match simulation, tactical adjustments, roster chemistry, and long-term management systems are all playable in the current version.  
+If you want the full feature breakdown, refer to the **About This Game** section above.
+
 ### Key Features:
 *   **Deep Tactical Simulation**: Watch matches unfold in real-time with our detailed 2D match engine. Adjust strategies on the fly—call for a "Rush B", set up a "Double AWP" defense, or manage your economy to break the opponent's bank.
 *   **Global Scouting Network**: Access a massive database of players across hundreds of teams. Filter by role (AWPer, IGL, Entry, etc.), age, and market value to find the perfect fit for your squad.
