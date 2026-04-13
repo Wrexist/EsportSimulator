@@ -99,3 +99,5 @@ steamworks ids
 # misc
 ordbok
 *.pid
+
+/tmp/
