@@ -1,3 +1,5 @@
+import fs from "node:fs"
+import path from "node:path"
 import { AtomicWeekProcessor } from "../engine/atomic-week-processor"
 import { SaveManager } from "../engine/save-manager"
 import { SeededRNG, generateSeed } from "../engine/rng"
@@ -238,6 +240,78 @@ function assert(condition: boolean, message: string): void {
   }
 }
 
+const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"])
+const TEXT_SIGNATURES = ["<!doctype html", "<html", "<?xml", "<svg", "<!DOCTYPE html"]
+const LEGACY_CONTAMINATED_ALLOWLIST = new Set([
+  "public/assets/teams/morningstar/players/expsasiki.png",
+  "public/assets/teams/morningstar/players/rage.png",
+  "public/assets/teams/morningstar/players/ruben.png",
+  "public/assets/teams/chinggis_warriors/players/tikuak.png",
+])
+const BINARY_IMAGE_PREFIXES = [
+  Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+  Buffer.from([0xff, 0xd8, 0xff]),
+  Buffer.from("GIF87a"),
+  Buffer.from("GIF89a"),
+  Buffer.from("RIFF"),
+]
+
+function isBinaryImage(buffer: Buffer): boolean {
+  if (buffer.length < 4) return false
+  if (buffer.subarray(4, 8).toString("ascii") === "ftyp") return true
+  return BINARY_IMAGE_PREFIXES.some(prefix => buffer.subarray(0, prefix.length).equals(prefix))
+}
+
+function looksLikeHtmlOrXml(buffer: Buffer): boolean {
+  const head = buffer.subarray(0, 512).toString("utf8").trimStart()
+  const lowered = head.toLowerCase()
+  return TEXT_SIGNATURES.some(sig => lowered.startsWith(sig.toLowerCase()))
+}
+
+function testStaticImageIntegrity(): { scanned: number; contaminated: string[] } {
+  const root = path.join(process.cwd(), "public", "assets")
+  if (!fs.existsSync(root)) return { scanned: 0, contaminated: [] }
+
+  const contaminated: string[] = []
+  let scanned = 0
+  const queue = [root]
+
+  while (queue.length > 0) {
+    const dir = queue.pop()!
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name)
+      if (entry.isDirectory()) {
+        queue.push(fullPath)
+        continue
+      }
+
+      const ext = path.extname(entry.name).toLowerCase()
+      if (!IMAGE_EXTENSIONS.has(ext)) continue
+
+      scanned += 1
+      const bytes = fs.readFileSync(fullPath)
+      if (!isBinaryImage(bytes) && looksLikeHtmlOrXml(bytes)) {
+        contaminated.push(path.relative(process.cwd(), fullPath))
+      }
+    }
+  }
+
+  const unexpected = contaminated.filter(file => !LEGACY_CONTAMINATED_ALLOWLIST.has(file))
+  if (unexpected.length > 0) {
+    throw new Error(
+      `Found ${unexpected.length} unexpected contaminated image file(s): ${unexpected.slice(0, 10).join(", ")}${unexpected.length > 10 ? " ..." : ""}`
+    )
+  }
+
+  if (contaminated.length > 0) {
+    console.warn(
+      `WARN: ${contaminated.length} known legacy contaminated file(s) detected. They must stay excluded from Steam builds until replaced with owned assets.`
+    )
+  }
+
+  return { scanned, contaminated }
+}
+
 async function testSaveIntegrityTamperDetection(): Promise<void> {
   const storage = new InMemoryStorage()
   const manager = new SaveManager(storage)
@@ -383,17 +457,21 @@ async function main(): Promise<void> {
   const started = Date.now()
   console.log("=== Steam Release Hardening Checks ===")
 
-  console.log("[1/3] Save tamper integrity check...")
+  console.log("[1/4] Save tamper integrity check...")
   await testSaveIntegrityTamperDetection()
   console.log("PASS: tamper detection rejects edited saves")
 
-  console.log("[2/3] Crash-resume exact-once by transaction step...")
+  console.log("[2/4] Crash-resume exact-once by transaction step...")
   await testCrashResumeByStep()
   console.log("PASS: all step crashes resume cleanly without double-week progression")
 
-  console.log("[3/3] 500-week simulation fuzz...")
+  console.log("[3/4] 500-week simulation fuzz...")
   const fuzz = await testLongRunFuzz500Weeks()
   console.log(`PASS: fuzz ${fuzz.weeks} weeks in ${fuzz.ms}ms`)
+
+  console.log("[4/4] Static image integrity (anti-third-party contamination)...")
+  const imageValidation = testStaticImageIntegrity()
+  console.log(`PASS: validated ${imageValidation.scanned} image files in public/assets`)
 
   const totalMs = Date.now() - started
   console.log(`=== All hardening checks passed in ${totalMs}ms ===`)
