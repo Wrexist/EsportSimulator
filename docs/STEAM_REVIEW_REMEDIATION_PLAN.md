@@ -20,17 +20,23 @@ Suggested text (edit to match implemented features exactly):
 ## Repository hardening added
 - `scripts/release-hardening-check.ts` now validates that image-path files in `public/assets` are not HTML/XML payloads.
 - Known legacy contaminated portrait paths are allowlisted for now but must remain excluded from packaged Steam builds (`package.json > build.files`) until replaced with owned binaries.
+ codex/fix-failed-build-issues-and-improve-content-bx8luv
 - `scripts/steam-compliance-audit.ts` generates `tmp/steam-compliance-report.json` and fails on high-risk compliance findings.
 - `config/steam-compliance-policy.json` centralizes trademark keyword scanning and legacy contaminated-asset allowlist.
 - `config/steam-compliance-baseline.json` stores accepted medium-risk findings so strict mode blocks only new regressions.
+=======
+ main
 - Run before upload:
   - `npm run lint`
   - `npm run type-check`
   - `npm test`
   - `npm run release:hardening`
+ codex/fix-failed-build-issues-and-improve-content-bx8luv
   - `npm run compliance:steam`
   - `npm run compliance:steam:baseline` (refresh accepted medium baseline after deliberate cleanup decisions)
   - `npm run compliance:steam:strict` (optional gate; fails on medium findings too)
+=======
+ main
 
 ## Store resubmission checklist
 - [ ] Replace screenshots/trailer with owned media only.
