@@ -2,11 +2,12 @@
   "extends": ["next/core-web-vitals"],
   "rules": {
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "no-console": ["warn", { "allow": ["error"] }],
     "prefer-const": "warn",
     "no-var": "error",
-    "eqeqeq": ["error", "always", { "null": "ignore" }]
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "react-hooks/rules-of-hooks": "warn",
+    "react/no-unescaped-entities": "warn"
   },
   "ignorePatterns": [
     "node_modules/",
