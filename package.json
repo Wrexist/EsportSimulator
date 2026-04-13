@@ -92,7 +92,7 @@
     "cross-env": "^7.0.3",
     "electron": "^39.2.7",
     "electron-builder": "^26.4.0",
-    "eslint": "^10.0.3",
+    "eslint": "^8.57.1",
     "fs-extra": "^11.3.3",
     "jest": "^29.7.0",
     "node-fetch": "^2.7.0",
@@ -103,7 +103,8 @@
     "tsx": "^4.20.5",
     "typescript": "~5.3.0",
     "wait-on": "^9.0.3",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "eslint-config-next": "^14.2.18"
   },
   "build": {
     "appId": "com.esportssim.game",
@@ -140,6 +141,10 @@
       "!node_modules/@typescript-eslint/**",
       "!node_modules/prettier/**",
       "!node_modules/@babel/**",
+      "!public/assets/teams/morningstar/players/ruben.png",
+      "!public/assets/teams/morningstar/players/rage.png",
+      "!public/assets/teams/morningstar/players/expsasiki.png",
+      "!public/assets/teams/chinggis_warriors/players/tikuak.png",
       "package.json",
       "next.config.js",
       "postcss.config.mjs",
