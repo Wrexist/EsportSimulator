@@ -74,12 +74,19 @@ export default function FinancesPage() {
   })))
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
-  if (!playerTeam) {
-    return <div className="flex items-center justify-center h-64 gap-2 text-white/50"><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Loading finances...</div>
-  }
-
   // Cast for EconomyManager since it expects the simpler Team type
   const { report, currentMoney, weeklyIncomeTotal, weeklyExpensesTotal, netCashflow, isPositiveCashflow } = useMemo(() => {
+    if (!playerTeam) {
+      return {
+        report: {} as ReturnType<EconomyManager["generateFinancialReport"]>,
+        currentMoney: 0,
+        weeklyIncomeTotal: 0,
+        weeklyExpensesTotal: 0,
+        netCashflow: 0,
+        isPositiveCashflow: true,
+      }
+    }
+
     const r = economyManager.generateFinancialReport(
       playerTeam,
       players,
@@ -95,6 +102,7 @@ export default function FinancesPage() {
   // === ADVANCED FINANCIAL METRICS (memoized) ===
 
   const { runwayWeeks, financialGrade, healthScore, projectedBudget } = useMemo(() => {
+    const sponsorCount = playerTeam?.sponsors?.length || 0
     // Runway Calculation - How many weeks until insolvency
     const runway = netCashflow < 0
       ? Math.floor(currentMoney / Math.abs(netCashflow))
@@ -104,7 +112,6 @@ export default function FinancesPage() {
     const budgetScore = Math.min(currentMoney / BUDGET_SCORE_DIVISOR, 1) * BUDGET_SCORE_MAX
     const cashflowScore = netCashflow > 0 ? CASHFLOW_SCORE_MAX : Math.max(0, CASHFLOW_SCORE_HALF + (netCashflow / CASHFLOW_NORM_DIVISOR) * CASHFLOW_SCORE_HALF)
     const runwayScore = Math.min(runway / RUNWAY_WEEKS_FOR_MAX, 1) * RUNWAY_SCORE_MAX
-    const sponsorCount = playerTeam.sponsors?.length || 0
     const sponsorScore = sponsorCount * SPONSOR_SCORE_PER
     const totalScore = budgetScore + cashflowScore + runwayScore + sponsorScore
 
@@ -133,7 +140,11 @@ export default function FinancesPage() {
     }))
 
     return { runwayWeeks: runway, financialGrade: grade, healthScore: health, projectedBudget: projected }
-  }, [currentMoney, netCashflow, playerTeam.sponsors?.length, currentWeek])
+  }, [currentMoney, netCashflow, playerTeam?.sponsors?.length, currentWeek])
+
+  if (!playerTeam) {
+    return <div className="flex items-center justify-center h-64 gap-2 text-white/50"><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Loading finances...</div>
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

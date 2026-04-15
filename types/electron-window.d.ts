@@ -17,6 +17,13 @@ declare global {
                 getSize: () => Promise<{ width: number; height: number } | null>;
                 isFullscreen: () => Promise<boolean>;
             };
+            storage: {
+                getItem: (key: string) => Promise<string | null>;
+                setItem: (key: string, value: string) => Promise<boolean>;
+                removeItem: (key: string) => Promise<boolean>;
+                clear: () => Promise<boolean>;
+                getAllKeys: () => Promise<string[]>;
+            };
             onAppClose: (callback: () => void) => void;
             confirmAppClose: () => Promise<boolean>;
             cancelAppClose: () => Promise<boolean>;

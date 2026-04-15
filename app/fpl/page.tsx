@@ -46,7 +46,7 @@ export default function FPLPage() {
     const [activeTab, setActiveTab] = useState("fpl")
 
     const playerTeam = teams.find(t => t.id === playerTeamId)
-    const myRosterIds = playerTeam?.rosterIds || []
+    const myRosterIds = useMemo(() => playerTeam?.rosterIds || [], [playerTeam?.rosterIds])
 
     // Get non-pro player metadata lookup
     const nonProLookup = useMemo(() => {
@@ -115,6 +115,20 @@ export default function FPLPage() {
         return fplCStandings.filter(entry => myRosterIds.includes(entry.player.id))
     }, [fplCStandings, myRosterIds])
 
+    // Hall of Champions: aggregate championship wins and earnings from all players
+    const hallOfChampions = useMemo(() => {
+        if (!fplData?.playerStats) return []
+        return Object.values(fplData.playerStats)
+            .filter(s => (s.fplChampionships || 0) > 0)
+            .sort((a, b) => (b.fplChampionships || 0) - (a.fplChampionships || 0) || (b.totalFPLEarnings || 0) - (a.totalFPLEarnings || 0))
+            .slice(0, 10)
+            .map(stats => {
+                const player = players.find(p => p.id === stats.playerId)
+                return player ? { player, stats } : null
+            })
+            .filter((e): e is NonNullable<typeof e> => e !== null)
+    }, [fplData?.playerStats, players])
+
     if (!fplData) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -135,20 +149,6 @@ export default function FPLPage() {
     const weeksRemaining = Math.max(0, season.endWeek - currentWeek + 1)
     const isOffSeason = !!(fplData.offSeasonEndWeek && currentWeek <= fplData.offSeasonEndWeek)
     const offSeasonWeeksLeft = isOffSeason ? fplData.offSeasonEndWeek! - currentWeek + 1 : 0
-
-    // Hall of Champions: aggregate championship wins and earnings from all players
-    const hallOfChampions = useMemo(() => {
-        if (!fplData?.playerStats) return []
-        return Object.values(fplData.playerStats)
-            .filter(s => (s.fplChampionships || 0) > 0)
-            .sort((a, b) => (b.fplChampionships || 0) - (a.fplChampionships || 0) || (b.totalFPLEarnings || 0) - (a.totalFPLEarnings || 0))
-            .slice(0, 10)
-            .map(stats => {
-                const player = players.find(p => p.id === stats.playerId)
-                return player ? { player, stats } : null
-            })
-            .filter((e): e is NonNullable<typeof e> => e !== null)
-    }, [fplData?.playerStats, players])
 
     // Render standings table with zone indicators
     const renderStandingsTable = (
