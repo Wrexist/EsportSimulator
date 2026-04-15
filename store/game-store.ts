@@ -1,5 +1,6 @@
 "use client"
 
+import { enableMapSet } from "immer"
 import { create } from "zustand"
 import { immer } from "zustand/middleware/immer"
 import { persist, createJSONStorage } from "zustand/middleware"
@@ -72,6 +73,8 @@ import {
 } from "@/engine/circuit-engine"
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
 import { pruneGameState } from "@/store/utils/array-pruning"
+
+enableMapSet()
 
 const debugToolsEnabled = () => isDevToolsEnabled()
 

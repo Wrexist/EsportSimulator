@@ -121,6 +121,14 @@ export function AcademyApp() {
     const [confirmingReleaseId, setConfirmingReleaseId] = useState<string | null>(null)
     const RELEASE_FEE = 1000
 
+    const prospectsWithData = useMemo(() =>
+        academyPlayers.map(ap => ({
+            prospect: ap,
+            player: players.find(p => p.id === ap.playerId)
+        })).filter(p => p.player),
+        [academyPlayers, players]
+    )
+
     if (!team) return <div className="p-4 text-white">Team not found</div>
 
     const academyLevel = team.academyFacility?.level || 0
@@ -129,14 +137,6 @@ export function AcademyApp() {
     const upgradeCost = nextLevelInfo?.buildCost || 0
     const canAffordUpgrade = team.budget >= upgradeCost
     const isMaxLevel = academyLevel >= 5
-
-    const prospectsWithData = useMemo(() =>
-        academyPlayers.map(ap => ({
-            prospect: ap,
-            player: players.find(p => p.id === ap.playerId)
-        })).filter(p => p.player),
-        [academyPlayers, players]
-    )
 
     const activeLineupCount = Object.values(academyRoster).filter(Boolean).length
     const canPlayMatch = activeLineupCount >= 5

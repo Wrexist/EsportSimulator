@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -82,27 +82,25 @@ export default function TransfersPage() {
   }
 
   // Pre-build roster set for O(1) exclusion check and player→team map for O(1) team lookups
-  const { rosterSet, playerTeamMap } = useMemo(() => {
+  const { rosterSet, playerTeamMap } = (() => {
     const rosterSet = new Set(playerTeam.rosterIds)
     const playerTeamMap = new Map<string, typeof teams[0]>()
     teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
     return { rosterSet, playerTeamMap }
-  }, [playerTeam.rosterIds, teams])
+  })()
 
   // Filter available players (not in user team, not retired) - single-pass filter + precomputed OVR for sort
-  const allFiltered = useMemo(() => {
-    const searchLower = debouncedSearch.toLowerCase()
-    return players
-      .filter(p =>
-        !rosterSet.has(p.id) &&
-        !p.isRetired &&
-        p.nickname.toLowerCase().includes(searchLower) &&
-        (roleFilter ? p.role === roleFilter : true)
-      )
-      .sort((a, b) =>
-        ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
-      )
-  }, [players, rosterSet, debouncedSearch, roleFilter])
+  const searchLower = debouncedSearch.toLowerCase()
+  const allFiltered = players
+    .filter(p =>
+      !rosterSet.has(p.id) &&
+      !p.isRetired &&
+      p.nickname.toLowerCase().includes(searchLower) &&
+      (roleFilter ? p.role === roleFilter : true)
+    )
+    .sort((a, b) =>
+      ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
+    )
 
   const totalPages = Math.max(1, Math.ceil(allFiltered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages - 1)

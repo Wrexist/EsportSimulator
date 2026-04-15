@@ -48,8 +48,6 @@ export function TournamentDetailsModal({
     })))
     const [activeTab, setActiveTab] = useState<"overview" | "matches" | "standings" | "bracket">("standings")
 
-    if (!tournament) return null
-
     // Find the actual seasonal tournament instance
     // e.g. "major" -> "major_s1"
     const seasonalTournament = tournaments.find(t =>

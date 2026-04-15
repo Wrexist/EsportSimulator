@@ -42,7 +42,7 @@ import {
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 
 export function DevTools() {
-    if (!isDevToolsEnabled()) return null
+    const devToolsEnabled = isDevToolsEnabled()
     const [isOpen, setIsOpen] = useState(false)
     const [activeTab, setActiveTab] = useState("economy")
     const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
@@ -54,6 +54,8 @@ export function DevTools() {
 
     // Toggle with F9
     useEffect(() => {
+        if (!devToolsEnabled) return
+
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "F9") {
                 setIsOpen(prev => !prev)
@@ -61,7 +63,7 @@ export function DevTools() {
         }
         window.addEventListener("keydown", handleKeyDown)
         return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [])
+    }, [devToolsEnabled])
 
     const handleQuickStart = useCallback(async () => {
         await store.initializeNewGame("Quick Test Save", "team_navi")
@@ -93,6 +95,8 @@ export function DevTools() {
     // Auto-select first player if none selected
     const targetPlayerId = selectedPlayerId || rosterPlayers[0]?.id
     const targetPlayer = store.players.find(p => p.id === targetPlayerId)
+
+    if (!devToolsEnabled) return null
 
     return (
         <>
