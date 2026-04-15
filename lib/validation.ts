@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CURRENT_SAVE_VERSION } from '@/engine/save-types'
+import { CURRENT_SAVE_VERSION, MIN_SUPPORTED_VERSION } from '@/engine/save-types'
 
 /**
  * Validation schemas for game data
@@ -37,26 +37,26 @@ export const TransferOfferSchema = z.object({
 
 export type TransferOffer = z.infer<typeof TransferOfferSchema>
 
-// Player stats validation
+// Player stats use a 0-100 scale. 0 is valid (unrated/new player).
 export const PlayerStatsSchema = z.object({
-    aim: z.number().min(1).max(20),
-    positioning: z.number().min(1).max(20),
-    utility: z.number().min(1).max(20),
-    gamesense: z.number().min(1).max(20),
-    clutch: z.number().min(1).max(20),
-    consistency: z.number().min(1).max(20),
+    aim: z.number().min(0).max(100),
+    positioning: z.number().min(0).max(100),
+    utility: z.number().min(0).max(100),
+    gamesense: z.number().min(0).max(100),
+    clutch: z.number().min(0).max(100),
+    consistency: z.number().min(0).max(100),
     // Additional stats
-    rifle: z.number().min(1).max(20).optional(),
-    awp: z.number().min(1).max(20).optional(),
-    creativity: z.number().min(1).max(20).optional(),
-    tactic: z.number().min(1).max(20).optional(),
-    teamwork: z.number().min(1).max(20).optional()
+    rifle: z.number().min(0).max(100).optional(),
+    awp: z.number().min(0).max(100).optional(),
+    creativity: z.number().min(0).max(100).optional(),
+    tactic: z.number().min(0).max(100).optional(),
+    teamwork: z.number().min(0).max(100).optional()
 })
 
 // Save file validation (basic structure)
 export const GameSaveMetadataSchema = z.object({
     saveVersion: z.number()
-        .min(CURRENT_SAVE_VERSION, `Save version must be at least ${CURRENT_SAVE_VERSION}`),
+        .min(MIN_SUPPORTED_VERSION, `Save version must be at least ${MIN_SUPPORTED_VERSION} (current: ${CURRENT_SAVE_VERSION})`),
     saveId: z.string().uuid(),
     saveName: z.string().min(1).max(100),
     playerTeamId: z.string(),

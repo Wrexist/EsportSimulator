@@ -351,6 +351,7 @@ export interface TeamSaveData {
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
     targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
+    lastStrategyChangeWeek?: number // Week of last AI strategy adaptation (cooldown enforcement)
 
     // === PHASE 21: CAREER NARRATIVE ===
     youthAcademyIds?: string[] // IDs of prospects in the academy

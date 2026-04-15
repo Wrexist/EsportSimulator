@@ -1094,7 +1094,8 @@ export class SimulationEngineV2 {
         // Controlled chaos: +/- 8% for realistic variance without wild swings
         const chaosFactor = rng.range(-0.08, 0.08)
 
-        let homeWinProb = homeBaseStrength / (homeBaseStrength + awayBaseStrength)
+        const strengthSum = homeBaseStrength + awayBaseStrength
+        let homeWinProb = strengthSum === 0 ? 0.5 : homeBaseStrength / strengthSum
         homeWinProb += chaosFactor
 
         // UPSET MECHANIC: Complacency & Grit

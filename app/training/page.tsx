@@ -481,9 +481,10 @@ export default function TrainingPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-9 w-9 p-0 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"
+                        className="h-9 w-9 p-0 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => setWeaponTrainingPlayer(player)}
-                        title="Specialist Training"
+                        disabled={!!player.injury}
+                        title={player.injury ? `Injured: ${player.injury.type}` : "Specialist Training"}
                       >
                         <Crosshair size={16} />
                       </Button>
@@ -506,9 +507,10 @@ export default function TrainingPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-9 w-9 p-0 rounded-xl bg-white/5 hover:bg-white/10"
+                          className="h-9 w-9 p-0 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
                           onClick={() => setTrainingPlayer(player)}
-                          title="Train Role"
+                          disabled={!!player.injury}
+                          title={player.injury ? `Injured: ${player.injury.type}` : "Train Role"}
                         >
                           <Swords size={16} />
                         </Button>
