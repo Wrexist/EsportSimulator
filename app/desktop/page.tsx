@@ -165,6 +165,7 @@ function DesktopContent() {
 
   // DEV: Keyboard shortcut (Ctrl+Shift+H) to test HLTV Awards Modal
   useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'H') {
         e.preventDefault()

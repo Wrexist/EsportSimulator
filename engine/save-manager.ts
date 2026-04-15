@@ -824,8 +824,23 @@ export class SaveManager {
         if (version < 5) {
             migrated = this.migrateToV5(migrated)
         }
+        if (version < 6) {
+            migrated = this.migrateToV6(migrated)
+        }
 
         return migrated as unknown as GameSave
+    }
+
+    /**
+     * Migrate save to v6
+     * All v6 fields (fplData, careerStats, gameOverReason, gameOverWeek) are optional
+     * and initialise naturally as undefined — only the version number needs updating.
+     */
+    private migrateToV6(save: Record<string, unknown>): Record<string, unknown> {
+        return {
+            ...save,
+            saveVersion: 6,
+        }
     }
 
     /**
