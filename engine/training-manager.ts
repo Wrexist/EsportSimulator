@@ -48,7 +48,7 @@ export class TrainingManager {
       return { success: false, message: "No training slots available this week" }
     }
 
-    if ((player.energy || 100) < 20) {
+    if ((player.energy ?? 100) < 20) {
       return { success: false, message: "Player is too exhausted to start training" }
     }
 
@@ -204,7 +204,7 @@ export class TrainingManager {
 
           // Deduct Energy (only if training progressed)
           if (player) {
-            player.energy = Math.max(0, (player.energy || 100) - 10)
+            player.energy = Math.max(0, (player.energy ?? 100) - 10)
           }
         } else {
           // Paused due to lack of funds — notify player once (only for player's own team)

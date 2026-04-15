@@ -21,7 +21,7 @@ import type { TournamentDefinition } from "@/data/tournament-calendar"
 /** Deterministic numeric ID for tiebreaking — works for both numeric and string IDs */
 function stableTeamIdNumber(id: string): number {
     const m = id.match(/\d+/)
-    if (m) return parseInt(m[0])
+    if (m) return parseInt(m[0], 10)
     let h = 0
     for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
     return h
@@ -463,13 +463,13 @@ export class TournamentManager {
         // Extract round number from ID like "tournament_r1_m1" or "r2_m3"
         const roundFromId = id.match(/_r(\d+)_m/i) || id.match(/^r(\d+)_/i)
         if (roundFromId) {
-            return parseInt(roundFromId[1])
+            return parseInt(roundFromId[1], 10)
         }
 
         // Extract from "Round of X" stages
         const roundOfMatch = stage.match(/round of (\d+)/i)
         if (roundOfMatch) {
-            const size = parseInt(roundOfMatch[1])
+            const size = parseInt(roundOfMatch[1], 10)
             // Larger "Round of X" = earlier round (Round of 32 before Round of 16)
             return Math.log2(size) // 32->5, 16->4, 8->3, etc.
         }
@@ -1026,7 +1026,7 @@ export class TournamentManager {
 
         // Check if round is finished
         const swissMatch = match.id.match(/_swiss_r(\d+)_/)
-        const roundNum = swissMatch ? parseInt(swissMatch[1]) : 1
+        const roundNum = swissMatch ? parseInt(swissMatch[1], 10) : 1
         const roundMatches = tournament.playoffBracket?.filter(m => m.id.includes(`_swiss_r${roundNum}_`))
         const allFinished = roundMatches?.every(m => m.isCompleted)
 
@@ -1088,7 +1088,7 @@ export class TournamentManager {
     private static handleOpeningResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
         const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
         const groupId = match.id.split("_opening")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0")
+        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
         const semiIdx = Math.floor(matchIdx / 2)
 
         // Winner to Upper Semi
@@ -1124,7 +1124,7 @@ export class TournamentManager {
     private static handleUpperSemiResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
         const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
         const groupId = match.id.split("_upper_semi")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0")
+        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
 
         // Winner to Upper Final
         const upperFinalId = `${groupId}_upper_final`
@@ -1190,7 +1190,7 @@ export class TournamentManager {
         const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
         const groupId = match.id.split("_lower")[0]
         if (match.id.includes("lower_r1")) {
-            const matchIdx = parseInt(match.id.split("_").pop() || "0")
+            const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
             const semi = bracketMap?.get(`${groupId}_lower_semi_${matchIdx}`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_${matchIdx}`)
             if (semi) {
                 semi.awayTeamId = winnerId

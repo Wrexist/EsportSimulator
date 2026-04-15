@@ -55,6 +55,9 @@ export class AIManager {
      * Adapt AI tactical identity weekly to prevent static meta exploitation.
      */
     private static adaptTeamStrategy(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
+        // Enforce minimum cooldown between strategy changes to prevent erratic weekly flipping.
+        const MIN_STRATEGY_COOLDOWN = 4 // weeks
+        if (save.currentWeek - (team.lastStrategyChangeWeek ?? 0) < MIN_STRATEGY_COOLDOWN) return
         // Keep strategic inertia; only pivot some weeks.
         if (this.roll(rng) > 0.35) return
 
@@ -87,6 +90,9 @@ export class AIManager {
             const styles: Array<NonNullable<TeamSaveData["playstyle"]>> = ["balanced", "default", "aggressive"]
             team.playstyle = styles[Math.floor(this.roll(rng) * styles.length)]
         }
+
+        // Record that strategy changed this week (cooldown enforcement)
+        team.lastStrategyChangeWeek = save.currentWeek
 
         // Opponent anti-strat targeting for upcoming week.
         const nextMatch = save.scheduledMatches.find(m =>
@@ -170,7 +176,7 @@ export class AIManager {
             team.rosterIds.includes(p.id) &&
             !p.secondaryRole &&
             !p.injury &&
-            (p.energy || 100) >= 20
+            (p.energy ?? 100) >= 20
         )
 
         // Filter out players already in training
@@ -450,8 +456,8 @@ export class AIManager {
         const sortedTeams = [...save.teams].sort((a, b) => {
             if (b.elo !== a.elo) return b.elo - a.elo
             if (b.reputation !== a.reputation) return b.reputation - a.reputation
-            const aNum = parseInt(a.id.replace(/\D/g, '')) || 0
-            const bNum = parseInt(b.id.replace(/\D/g, '')) || 0
+            const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
+            const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
             return aNum - bNum
         })
         sortedTeams.forEach((team, index) => {

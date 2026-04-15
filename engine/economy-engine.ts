@@ -11,6 +11,7 @@ import {
  */
 const FACILITY_BASE_COST = 500
 const FACILITY_COST_EXPONENT = 1.25 // Makes high level facilities expensive
+const MAX_FACILITY_LEVEL = 5 // Matches UI upgrade cap; prevents corrupt saves from causing runaway costs
 const BASE_FAN_INCOME_PER_FAN = 0.0015 // ~$75/week for 50k followers at level 1
 const TIER_MULTIPLIERS: Record<string, number> = {
     "S_TIER": 10.0,
@@ -175,7 +176,7 @@ export class EconomyEngine {
         let total = 0
         team.facilities.forEach(fac => {
             // Formula: Level ^ 1.25 * Base
-            const cost = Math.pow(fac.level, FACILITY_COST_EXPONENT) * FACILITY_BASE_COST
+            const cost = Math.pow(Math.min(fac.level, MAX_FACILITY_LEVEL), FACILITY_COST_EXPONENT) * FACILITY_BASE_COST
             total += cost
         })
 
