@@ -1,7 +1,7 @@
-
 /**
- * Async Storage Adapter for IndexedDB
- * Substitutes localStorage to overcome quota limits (5MB -> >1GB)
+ * Async storage adapter.
+ * Prefers Electron's disk-backed store when available, otherwise IndexedDB,
+ * and finally localStorage/memory as a best-effort browser fallback.
  */
 
 const DB_NAME = "EsportsSimDB"
@@ -16,23 +16,172 @@ export interface AsyncStorage {
     getAllKeys(): Promise<string[]>
 }
 
-class IndexedDBAdapter implements AsyncStorage {
-    private dbPromise: Promise<IDBDatabase> | null = null
-    private dbFailed = false
+class LocalStorageAdapter implements AsyncStorage {
+    private memory = new Map<string, string>()
 
-    constructor() {
-        if (typeof window !== "undefined") {
+    private getStorage(): Storage | null {
+        if (typeof window === "undefined") return null
+        try {
+            const storage = window.localStorage
+            const probeKey = "__esim_storage_probe__"
+            storage.setItem(probeKey, "1")
+            storage.removeItem(probeKey)
+            return storage
+        } catch {
+            return null
+        }
+    }
+
+    async getItem(key: string): Promise<string | null> {
+        const storage = this.getStorage()
+        if (storage) {
+            try {
+                return storage.getItem(key)
+            } catch (err) {
+                console.warn("[Storage] localStorage getItem failed, using memory fallback:", err)
+            }
+        }
+        return this.memory.get(key) ?? null
+    }
+
+    async setItem(key: string, value: string): Promise<void> {
+        const storage = this.getStorage()
+        if (storage) {
+            try {
+                storage.setItem(key, value)
+                this.memory.delete(key)
+                return
+            } catch (err) {
+                console.warn("[Storage] localStorage setItem failed, using memory fallback:", err)
+            }
+        }
+        this.memory.set(key, value)
+    }
+
+    async removeItem(key: string): Promise<void> {
+        const storage = this.getStorage()
+        if (storage) {
+            try {
+                storage.removeItem(key)
+            } catch (err) {
+                console.warn("[Storage] localStorage removeItem failed:", err)
+            }
+        }
+        this.memory.delete(key)
+    }
+
+    async clear(): Promise<void> {
+        const storage = this.getStorage()
+        if (storage) {
+            try {
+                storage.clear()
+            } catch (err) {
+                console.warn("[Storage] localStorage clear failed:", err)
+            }
+        }
+        this.memory.clear()
+    }
+
+    async getAllKeys(): Promise<string[]> {
+        const keys = new Set<string>(this.memory.keys())
+        const storage = this.getStorage()
+        if (storage) {
+            try {
+                for (let i = 0; i < storage.length; i++) {
+                    const key = storage.key(i)
+                    if (key) keys.add(key)
+                }
+            } catch (err) {
+                console.warn("[Storage] localStorage getAllKeys failed:", err)
+            }
+        }
+        return Array.from(keys)
+    }
+}
+
+class ElectronStorageAdapter implements AsyncStorage {
+    private bridge = typeof window !== "undefined" ? window.electron?.storage : undefined
+    private fallback: AsyncStorage
+
+    constructor(fallback: AsyncStorage) {
+        this.fallback = fallback
+    }
+
+    async getItem(key: string): Promise<string | null> {
+        if (!this.bridge) return this.fallback.getItem(key)
+        try {
+            return await this.bridge.getItem(key)
+        } catch (err) {
+            console.warn("[Storage] Electron storage getItem failed, falling back:", err)
+            return this.fallback.getItem(key)
+        }
+    }
+
+    async setItem(key: string, value: string): Promise<void> {
+        if (!this.bridge) return this.fallback.setItem(key, value)
+        try {
+            const ok = await this.bridge.setItem(key, value)
+            if (!ok) throw new Error("Electron storage rejected write")
+        } catch (err) {
+            console.warn("[Storage] Electron storage setItem failed, falling back:", err)
+            await this.fallback.setItem(key, value)
+        }
+    }
+
+    async removeItem(key: string): Promise<void> {
+        if (!this.bridge) return this.fallback.removeItem(key)
+        try {
+            const ok = await this.bridge.removeItem(key)
+            if (!ok) throw new Error("Electron storage rejected delete")
+        } catch (err) {
+            console.warn("[Storage] Electron storage removeItem failed, falling back:", err)
+            await this.fallback.removeItem(key)
+        }
+    }
+
+    async clear(): Promise<void> {
+        if (!this.bridge) return this.fallback.clear()
+        try {
+            const ok = await this.bridge.clear()
+            if (!ok) throw new Error("Electron storage rejected clear")
+        } catch (err) {
+            console.warn("[Storage] Electron storage clear failed, falling back:", err)
+            await this.fallback.clear()
+        }
+    }
+
+    async getAllKeys(): Promise<string[]> {
+        if (!this.bridge) return this.fallback.getAllKeys()
+        try {
+            return await this.bridge.getAllKeys()
+        } catch (err) {
+            console.warn("[Storage] Electron storage getAllKeys failed, falling back:", err)
+            return this.fallback.getAllKeys()
+        }
+    }
+}
+
+class IndexedDBAdapter implements AsyncStorage {
+    private dbPromise: Promise<IDBDatabase | null> | null = null
+    private dbFailed = false
+    private fallback: AsyncStorage
+
+    constructor(fallback: AsyncStorage) {
+        this.fallback = fallback
+
+        if (typeof window !== "undefined" && typeof indexedDB !== "undefined") {
             this.dbPromise = this.openDB().catch((err) => {
-                console.error("[Storage] IndexedDB failed to open, falling back to in-memory:", err)
+                console.error("[Storage] IndexedDB failed to open, falling back:", err)
                 this.dbFailed = true
-                return null as unknown as IDBDatabase
+                return null
             })
+        } else {
+            this.dbFailed = true
         }
     }
 
     private openDB(): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {
-            // Timeout: if IndexedDB doesn't respond in 5s, give up
             const timeout = setTimeout(() => {
                 reject(new Error("IndexedDB open timed out after 5s"))
             }, 5000)
@@ -56,12 +205,22 @@ class IndexedDBAdapter implements AsyncStorage {
         })
     }
 
-    async getItem(key: string): Promise<string | null> {
+    private async getDB(): Promise<IDBDatabase | null> {
         if (!this.dbPromise || this.dbFailed) return null
         try {
-            const db = await this.dbPromise
-            if (!db) return null
-            return new Promise((resolve, reject) => {
+            return await this.dbPromise
+        } catch (err) {
+            this.dbFailed = true
+            console.error("[Storage] IndexedDB unavailable, falling back:", err)
+            return null
+        }
+    }
+
+    async getItem(key: string): Promise<string | null> {
+        const db = await this.getDB()
+        if (!db) return this.fallback.getItem(key)
+        try {
+            return await new Promise((resolve, reject) => {
                 const transaction = db.transaction(STORE_NAME, "readonly")
                 const store = transaction.objectStore(STORE_NAME)
                 const request = store.get(key)
@@ -70,21 +229,17 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve(request.result || null)
             })
         } catch (err) {
-            console.error("[Storage] getItem failed:", err)
-            return null
+            console.error("[Storage] IndexedDB getItem failed, falling back:", err)
+            this.dbFailed = true
+            return this.fallback.getItem(key)
         }
     }
 
     async setItem(key: string, value: string): Promise<void> {
-        if (!this.dbPromise || this.dbFailed) {
-            throw new Error("[Storage] IndexedDB not available")
-        }
-        const db = await this.dbPromise
-        if (!db) {
-            throw new Error("[Storage] IndexedDB database is null")
-        }
-        return new Promise((resolve, reject) => {
-            try {
+        const db = await this.getDB()
+        if (!db) return this.fallback.setItem(key, value)
+        try {
+            await new Promise<void>((resolve, reject) => {
                 const transaction = db.transaction(STORE_NAME, "readwrite")
                 const store = transaction.objectStore(STORE_NAME)
                 const request = store.put(value, key)
@@ -92,18 +247,19 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onerror = () => reject(request.error ?? new Error("[Storage] setItem request failed"))
                 request.onsuccess = () => resolve()
                 transaction.onerror = () => reject(transaction.error ?? new Error("[Storage] setItem transaction failed"))
-            } catch (err) {
-                reject(err)
-            }
-        })
+            })
+        } catch (err) {
+            console.error("[Storage] IndexedDB setItem failed, falling back:", err)
+            this.dbFailed = true
+            await this.fallback.setItem(key, value)
+        }
     }
 
     async removeItem(key: string): Promise<void> {
-        if (!this.dbPromise || this.dbFailed) return
+        const db = await this.getDB()
+        if (!db) return this.fallback.removeItem(key)
         try {
-            const db = await this.dbPromise
-            if (!db) return
-            return new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 const transaction = db.transaction(STORE_NAME, "readwrite")
                 const store = transaction.objectStore(STORE_NAME)
                 const request = store.delete(key)
@@ -112,16 +268,17 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve()
             })
         } catch (err) {
-            console.error("[Storage] removeItem failed:", err)
+            console.error("[Storage] IndexedDB removeItem failed, falling back:", err)
+            this.dbFailed = true
+            await this.fallback.removeItem(key)
         }
     }
 
     async clear(): Promise<void> {
-        if (!this.dbPromise || this.dbFailed) return
+        const db = await this.getDB()
+        if (!db) return this.fallback.clear()
         try {
-            const db = await this.dbPromise
-            if (!db) return
-            return new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 const transaction = db.transaction(STORE_NAME, "readwrite")
                 const store = transaction.objectStore(STORE_NAME)
                 const request = store.clear()
@@ -130,16 +287,17 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve()
             })
         } catch (err) {
-            console.error("[Storage] clear failed:", err)
+            console.error("[Storage] IndexedDB clear failed, falling back:", err)
+            this.dbFailed = true
+            await this.fallback.clear()
         }
     }
 
     async getAllKeys(): Promise<string[]> {
-        if (!this.dbPromise || this.dbFailed) return []
+        const db = await this.getDB()
+        if (!db) return this.fallback.getAllKeys()
         try {
-            const db = await this.dbPromise
-            if (!db) return []
-            return new Promise((resolve, reject) => {
+            return await new Promise((resolve, reject) => {
                 const transaction = db.transaction(STORE_NAME, "readonly")
                 const store = transaction.objectStore(STORE_NAME)
                 const request = store.getAllKeys()
@@ -148,20 +306,24 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve((request.result as string[]) || [])
             })
         } catch (err) {
-            console.error("[Storage] getAllKeys failed:", err)
-            return []
+            console.error("[Storage] IndexedDB getAllKeys failed, falling back:", err)
+            this.dbFailed = true
+            return this.fallback.getAllKeys()
         }
     }
 }
 
-export const asyncStorage = new IndexedDBAdapter()
+const localStorageFallback = new LocalStorageAdapter()
+const baseStorage =
+    typeof window !== "undefined" && window.electron?.storage
+        ? new ElectronStorageAdapter(localStorageFallback)
+        : new IndexedDBAdapter(localStorageFallback)
+
+export const asyncStorage = baseStorage
 
 /**
  * Debounced storage wrapper for Zustand persist.
- * Zustand persist calls setItem on EVERY state change, which for a large game
- * state (~10+ MB) creates excessive IndexedDB write transactions that interfere
- * with SaveManager's critical save operations. This wrapper coalesces rapid
- * writes into a single debounced write.
+ * Zustand persist calls setItem on every state change, so we coalesce writes.
  */
 class DebouncedStorage implements AsyncStorage {
     private inner: AsyncStorage
@@ -182,7 +344,6 @@ class DebouncedStorage implements AsyncStorage {
         const existing = this.pendingWrites.get(key)
         if (existing) {
             clearTimeout(existing.timer)
-            // Resolve the old promise immediately (it will be superseded)
             existing.resolve()
         }
 
@@ -200,7 +361,6 @@ class DebouncedStorage implements AsyncStorage {
         })
     }
 
-    /** Immediately flush all pending debounced writes to storage. */
     async flush(): Promise<void> {
         const entries = Array.from(this.pendingWrites.entries())
         for (const [key, pending] of entries) {
@@ -216,5 +376,4 @@ class DebouncedStorage implements AsyncStorage {
     }
 }
 
-/** Debounced storage for Zustand persist — prevents flooding IndexedDB */
 export const debouncedStorage = new DebouncedStorage(asyncStorage)

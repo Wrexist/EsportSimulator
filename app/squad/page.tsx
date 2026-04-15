@@ -51,18 +51,10 @@ export default function SquadPage() {
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
 
-  if (!teamData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
-        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
-      </div>
-    )
-  }
-
-
   // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
   const roster = useMemo(() => {
+    if (!teamData) return []
+
     return (teamData.rosterIds || [])
       .map((id, index) => {
         const player = players.find(p => p.id === id)
@@ -72,7 +64,16 @@ export default function SquadPage() {
         return { ...player, evaluation, playerTier, originalIndex: index }
       })
       .filter(Boolean) as any[]
-  }, [players, teamData?.rosterIds, teamData?.tier])
+  }, [players, teamData])
+
+  if (!teamData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
+        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
+      </div>
+    )
+  }
 
   // Split into Active and Bench
   const activeRoster = roster.slice(0, 5)

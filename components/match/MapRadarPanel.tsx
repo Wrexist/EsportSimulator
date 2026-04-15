@@ -58,8 +58,6 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         setRadarLevelMode("auto")
     }, [currentMapId])
 
-    if (!radarImageData) return null
-
     const resolvedRadarLevel = useMemo(() => (
         radarLevelMode === "manual"
             ? manualRadarLevel
@@ -73,9 +71,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
             })
     ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, radarDots])
 
-    const radarSrc = resolvedRadarLevel === "lower" && radarImageData.secondary
+    const radarSrc = radarImageData && resolvedRadarLevel === "lower" && radarImageData.secondary
         ? radarImageData.secondary
-        : radarImageData.primary
+        : radarImageData?.primary
 
     const DOT_EDGE_PADDING = 2.1
 
@@ -180,6 +178,8 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     const defusedFadeOpacity = bombState?.defused && bombState.defuseTime != null && currentTime != null
         ? Math.max(0, 1 - (currentTime - bombState.defuseTime) / 3)
         : 0
+
+    if (!radarImageData || !radarSrc) return null
 
     return (
         <div className="glass-panel-dark rounded-[24px] border border-white/5 overflow-hidden">

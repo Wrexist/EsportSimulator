@@ -334,6 +334,7 @@ ipcMain.handle('steam-store-stats', (event) => {
     if (!steamClient) return false;
     if (!canRunSteamMutation(event, 'steam-store-stats')) return false;
     try {
+        if (!steamClient.stats?.store) return false;
         steamClient.stats.store();
         return true;
     } catch (e) {
@@ -346,6 +347,7 @@ ipcMain.handle('steam-set-achievement', (event, name) => {
     if (!steamClient) return false;
     if (!canRunSteamMutation(event, 'steam-set-achievement')) return false;
     try {
+        if (!steamClient.achievements?.activate || !steamClient.stats?.store) return false;
         steamClient.achievements.activate(name);
         steamClient.stats.store();
         return true;
@@ -359,6 +361,7 @@ ipcMain.handle('steam-set-leaderboard-score', async (event, name, score) => {
     if (!steamClient) return false;
     if (!canRunSteamMutation(event, 'steam-set-leaderboard-score')) return false;
     try {
+        if (!steamClient.leaderboards?.find) return false;
         const leaderboard = await steamClient.leaderboards.find(name);
         await leaderboard.submitScore(score);
         return true;
@@ -387,6 +390,7 @@ ipcMain.handle('steam-is-achievement-unlocked', (event, name) => {
     if (!steamClient) return false;
     if (!isTrustedSteamSender(event)) return false;
     try {
+        if (!steamClient.achievements?.isActivated) return false;
         return !!steamClient.achievements.isActivated(name);
     } catch (e) {
         console.error(`[Steam] Error reading achievement ${name}:`, e);
@@ -592,6 +596,61 @@ ipcMain.handle('log-write-error', (event, report) => {
     }
 });
 
+// Renderer storage bridge - uses electron-store for disk-backed persistence
+ipcMain.handle('storage-get-item', (_event, key) => {
+    try {
+        if (!store || typeof key !== 'string' || !key) return null;
+        const value = store.get(key);
+        return typeof value === 'string' ? value : null;
+    } catch (e) {
+        console.error('[Electron] Error reading storage key:', e);
+        return null;
+    }
+});
+
+ipcMain.handle('storage-set-item', (_event, key, value) => {
+    try {
+        if (!store || typeof key !== 'string' || !key || typeof value !== 'string') return false;
+        store.set(key, value);
+        return true;
+    } catch (e) {
+        console.error('[Electron] Error writing storage key:', e);
+        return false;
+    }
+});
+
+ipcMain.handle('storage-remove-item', (_event, key) => {
+    try {
+        if (!store || typeof key !== 'string' || !key) return false;
+        store.delete(key);
+        return true;
+    } catch (e) {
+        console.error('[Electron] Error removing storage key:', e);
+        return false;
+    }
+});
+
+ipcMain.handle('storage-clear', () => {
+    try {
+        if (!store) return false;
+        store.clear();
+        return true;
+    } catch (e) {
+        console.error('[Electron] Error clearing storage:', e);
+        return false;
+    }
+});
+
+ipcMain.handle('storage-get-all-keys', () => {
+    try {
+        if (!store) return [];
+        return Object.keys(store.store ?? {});
+    } catch (e) {
+        console.error('[Electron] Error listing storage keys:', e);
+        return [];
+    }
+});
+
 async function createWindow() {
     if (mainWindow || isCreatingWindow) return;
     isCreatingWindow = true;
@@ -685,7 +744,8 @@ async function createWindow() {
         mainWindow.on('unmaximize', saveState);
 
 
-        const BOOT_TIMEOUT_MS = 10000;
+        const BOOT_TIMEOUT_MS = app.isPackaged ? 30000 : 45000;
+        const POST_DOM_READY_GRACE_MS = app.isPackaged ? 15000 : 20000;
         const serverPort = process.env.NEXT_SERVER_PORT || '3000';
         const packagedUrl = `http://localhost:${serverPort}/main-menu`;
         const candidateUrls = app.isPackaged
@@ -699,6 +759,7 @@ async function createWindow() {
         let bootCompleted = false;
         let bootFailed = false;
         let lastBootError = '';
+        let rendererReachedDomReady = false;
 
         const clearBootWatchdog = () => {
             if (bootWatchdog) {
@@ -712,11 +773,39 @@ async function createWindow() {
                 loadRetryTimer = null;
             }
         };
+        const armBootWatchdog = (delayMs) => {
+            clearBootWatchdog();
+            if (bootCompleted || bootFailed) return;
+            bootDeadlineAt = Date.now() + delayMs;
+            debugLog(`[Renderer] Boot watchdog armed (${delayMs}ms)`);
+            flushDebugLog();
+            bootWatchdog = setTimeout(() => {
+                if (bootCompleted || bootFailed) return;
+                const currentUrl = mainWindow && !mainWindow.isDestroyed()
+                    ? mainWindow.webContents.getURL()
+                    : '';
+                if (rendererReachedDomReady && isSuccessfulRendererUrl(currentUrl)) {
+                    debugLog(`[Renderer] Promoting dom-ready renderer to boot success: ${currentUrl}`);
+                    flushDebugLog();
+                    markBootCompleted(`${currentUrl} (dom-ready fallback)`);
+                    return;
+                }
+                const detail = lastBootError || 'No renderer error captured before timeout.';
+                failBoot('Renderer boot timeout', detail);
+            }, delayMs);
+        };
         const markBootCompleted = (reason) => {
             if (bootCompleted || bootFailed) return;
             bootCompleted = true;
             clearBootWatchdog();
             clearLoadRetry();
+            try {
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.show();
+                    mainWindow.focus();
+                    mainWindow.webContents.focus();
+                }
+            } catch (_) { /* best effort */ }
             debugLog(`[Renderer] Boot success: ${reason}`);
             flushDebugLog();
         };
@@ -733,14 +822,8 @@ async function createWindow() {
         };
         const startBootWatchdog = () => {
             if (bootWatchdog || bootCompleted || bootFailed) return;
-            bootDeadlineAt = Date.now() + BOOT_TIMEOUT_MS;
-            debugLog(`[Renderer] Boot watchdog started (${BOOT_TIMEOUT_MS}ms)`);
-            flushDebugLog();
-            bootWatchdog = setTimeout(() => {
-                if (bootCompleted || bootFailed) return;
-                const detail = lastBootError || 'No renderer error captured before timeout.';
-                failBoot('Renderer boot timeout', detail);
-            }, BOOT_TIMEOUT_MS);
+            rendererReachedDomReady = false;
+            armBootWatchdog(BOOT_TIMEOUT_MS);
         };
         const getCurrentUrl = () => candidateUrls[Math.min(currentUrlIndex, candidateUrls.length - 1)];
         const isSuccessfulRendererUrl = (url) => {
@@ -800,6 +883,7 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
 <body><div class="c"><div class="logo">Esports Manager</div><div class="sub">FPS</div><div class="bar"><div class="bar-fill"></div></div></div></body></html>`;
         mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(loadingHtml));
         mainWindow.show();
+        mainWindow.focus();
 
         if (app.isPackaged) {
             try {
@@ -834,6 +918,13 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
         mainWindow.webContents.on('dom-ready', () => {
             debugLog('[Renderer] dom-ready');
             flushDebugLog();
+            const url = mainWindow.webContents.getURL();
+            if (!bootCompleted && !bootFailed && isSuccessfulRendererUrl(url)) {
+                rendererReachedDomReady = true;
+                debugLog(`[Renderer] Extending boot grace after dom-ready: ${url}`);
+                flushDebugLog();
+                armBootWatchdog(POST_DOM_READY_GRACE_MS);
+            }
         });
         mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
             // level: 0=verbose, 1=info, 2=warning, 3=error
