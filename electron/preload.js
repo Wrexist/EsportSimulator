@@ -27,8 +27,14 @@ contextBridge.exposeInMainWorld('electron', {
     log: {
         writeError: (report) => ipcRenderer.invoke('log-write-error', report),
     },
+    storage: {
+        getItem: (key) => ipcRenderer.invoke('storage-get-item', key),
+        setItem: (key, value) => ipcRenderer.invoke('storage-set-item', key, value),
+        removeItem: (key) => ipcRenderer.invoke('storage-remove-item', key),
+        clear: () => ipcRenderer.invoke('storage-clear'),
+        getAllKeys: () => ipcRenderer.invoke('storage-get-all-keys'),
+    },
     onAppClose: (callback) => ipcRenderer.on('app-close-intent', (_, ...args) => callback(...args)),
     confirmAppClose: () => ipcRenderer.invoke('app-close-confirmed'),
     cancelAppClose: () => ipcRenderer.invoke('app-close-cancelled'),
 });
-
