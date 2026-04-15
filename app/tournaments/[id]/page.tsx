@@ -227,18 +227,6 @@ export default function TournamentDetailPage() {
         }
     }, [seasonalInstances, id, selectedSeason])
 
-
-    if (!displayTournament) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-white p-8">
-                <h1 className="text-2xl font-bold opacity-50 mb-4 text-white/50">Tournament Not Found</h1>
-                <Button onClick={() => router.push("/tournaments")} variant="secondary" className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Tournaments
-                </Button>
-            </div>
-        )
-    }
-
     const playerTeam = teams.find(t => t.id === playerTeamId)
     const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
     const isQualificationForTournament = (q: any, tournamentId: string) =>
@@ -253,15 +241,6 @@ export default function TournamentDetailPage() {
         circuitPoints as any,
         tournamentQualifications
     ) : null
-
-    // Check registration against the specific displayTournament ID
-    const isRegistered = tournamentQualifications.some(q =>
-        isQualificationForTournament(q, displayTournament.id) && q.teamId === playerTeamId
-    )
-
-    // Check start based on the specific displayTournament
-    const isStarted = currentWeek >= (displayTournament?.startWeek || 0)
-    const isCompleted = displayTournament?.isCompleted
 
     const pathToEvent = useMemo<PathTimelineNode[]>(() => {
         if (!definition) return []
@@ -326,7 +305,27 @@ export default function TournamentDetailPage() {
                 playerStatus: playerRow?.status || null,
             }
         })
-    }, [currentWeek, definition, playerTeamId, tournamentQualifications])
+    }, [currentWeek, definition, playerTeamId, tournamentQualifications, isQualificationForTournament])
+
+    if (!displayTournament) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-white p-8">
+                <h1 className="text-2xl font-bold opacity-50 mb-4 text-white/50">Tournament Not Found</h1>
+                <Button onClick={() => router.push("/tournaments")} variant="secondary" className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Tournaments
+                </Button>
+            </div>
+        )
+    }
+
+    // Check registration against the specific displayTournament ID
+    const isRegistered = tournamentQualifications.some(q =>
+        isQualificationForTournament(q, displayTournament.id) && q.teamId === playerTeamId
+    )
+
+    // Check start based on the specific displayTournament
+    const isStarted = currentWeek >= (displayTournament.startWeek || 0)
+    const isCompleted = displayTournament.isCompleted
 
     return (
         <ErrorBoundary section="Tournament">

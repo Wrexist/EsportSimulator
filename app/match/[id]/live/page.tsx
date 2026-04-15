@@ -110,7 +110,11 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             gameState.round,
             matchData.current.match.seed ?? 0
         )
-    }, [gameState.time, gameState.round, currentMapId, simState?.homeStartsCT, homeRoster, awayRoster])
+    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, homeRoster, awayRoster])
+
+    // Build O(1) lookup maps for original players (used in roster rendering)
+    const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
+    const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
 
     if (!matchData.current || !simState) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
@@ -123,10 +127,6 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
     const { homeTeam, awayTeam } = matchData.current
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
-
-    // Build O(1) lookup maps for original players (used in roster rendering)
-    const originalHomeMap = useMemo(() => new Map(originalHomePlayers.map(p => [p.id, p])), [originalHomePlayers])
-    const originalAwayMap = useMemo(() => new Map(originalAwayPlayers.map(p => [p.id, p])), [originalAwayPlayers])
 
     // Dynamic Colors based on Side
     const homeIsCT = simState.homeStartsCT

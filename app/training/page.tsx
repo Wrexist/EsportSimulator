@@ -89,24 +89,24 @@ export default function TrainingPage() {
 
   const activeStaff = staff.filter(s => s.teamId === playerTeamId)
   const coach = activeStaff.find(s => s.role === "coach")
+  const drillCompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Empty roster state
-  if (teamPlayers.length === 0) {
-    return (
-      <div className="p-8 max-w-7xl mx-auto pb-20">
-        <div className="text-center py-20 glass-panel border-dashed border-white/10">
-          <Dumbbell size={40} className="text-muted-foreground/30 mx-auto mb-4" />
-          <p className="text-muted-foreground font-medium">No players to train</p>
-          <p className="text-sm text-muted-foreground/60 mt-2">Sign players via Transfers to start training</p>
-          <Link href="/transfers">
-            <Button variant="outline" size="sm" className="mt-5">
-              Browse Transfers
-            </Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const handleDrillComplete = useCallback((drill: ActiveDrill) => {
+    setActiveRun(prev => prev ? ({ ...prev, completed: true, logs: [...prev.logs, "TRAINING SESSION COMPLETE.", "CALCULATING GAINS..."] }) : null)
+
+    // Actual store update (delayed for animation)
+    if (drillCompleteTimerRef.current) clearTimeout(drillCompleteTimerRef.current)
+    drillCompleteTimerRef.current = setTimeout(() => {
+      const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
+      if (result.success) {
+        toast.success("Training Complete", { description: result.message })
+      } else {
+        toast.error("Training Failed", { description: result.message })
+      }
+      setActiveRun(null)
+      drillCompleteTimerRef.current = null
+    }, 2000)
+  }, [runTeamDrill])
 
   // Scroll to bottom of terminal
   useEffect(() => {
@@ -146,7 +146,7 @@ export default function TrainingPage() {
     }, 1500) // Delay between steps
 
     return () => clearTimeout(timer)
-  }, [activeRun])
+  }, [activeRun, teamPlayers, handleDrillComplete])
 
   const startDrill = () => {
     const drill = DrillManager.getDrills().find(d => d.id === selectedDrill)
@@ -161,8 +161,6 @@ export default function TrainingPage() {
     })
   }
 
-  const drillCompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   // Clean up drill complete timer on unmount
   useEffect(() => {
     return () => {
@@ -170,21 +168,22 @@ export default function TrainingPage() {
     }
   }, [])
 
-  const handleDrillComplete = (drill: ActiveDrill) => {
-    setActiveRun(prev => prev ? ({ ...prev, completed: true, logs: [...prev.logs, "TRAINING SESSION COMPLETE.", "CALCULATING GAINS..."] }) : null)
-
-    // Actual store update (delayed for animation)
-    if (drillCompleteTimerRef.current) clearTimeout(drillCompleteTimerRef.current)
-    drillCompleteTimerRef.current = setTimeout(() => {
-      const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
-      if (result.success) {
-        toast.success("Training Complete", { description: result.message })
-      } else {
-        toast.error("Training Failed", { description: result.message })
-      }
-      setActiveRun(null)
-      drillCompleteTimerRef.current = null
-    }, 2000)
+  // Empty roster state
+  if (teamPlayers.length === 0) {
+    return (
+      <div className="p-8 max-w-7xl mx-auto pb-20">
+        <div className="text-center py-20 glass-panel border-dashed border-white/10">
+          <Dumbbell size={40} className="text-muted-foreground/30 mx-auto mb-4" />
+          <p className="text-muted-foreground font-medium">No players to train</p>
+          <p className="text-sm text-muted-foreground/60 mt-2">Sign players via Transfers to start training</p>
+          <Link href="/transfers">
+            <Button variant="outline" size="sm" className="mt-5">
+              Browse Transfers
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -600,4 +599,3 @@ export default function TrainingPage() {
     </div >
   )
 }
-
