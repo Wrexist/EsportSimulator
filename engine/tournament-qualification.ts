@@ -104,7 +104,17 @@ export class CircuitPointsManager {
      */
     static getLeaderboard(circuitPoints: CircuitPointsEntry[], limit = 30): CircuitPointsEntry[] {
         return [...circuitPoints]
-            .sort((a, b) => b.points - a.points || a.teamId.localeCompare(b.teamId))
+            .sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points
+                // Secondary: most event wins (1st-place finishes)
+                const aWins = a.results.filter(r => r.placement === 1).length
+                const bWins = b.results.filter(r => r.placement === 1).length
+                if (bWins !== aWins) return bWins - aWins
+                // Tertiary: most recent result week
+                const aLatest = a.results.reduce((max, r) => Math.max(max, r.week), 0)
+                const bLatest = b.results.reduce((max, r) => Math.max(max, r.week), 0)
+                return bLatest - aLatest
+            })
             .slice(0, limit)
     }
 

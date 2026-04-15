@@ -17,9 +17,9 @@ type LegacyPlayerFields = {
     transferValue?: number
 }
 
-// Generate a unique ID for custom teams
+// Generate a unique ID for custom teams using crypto.randomUUID for guaranteed uniqueness
 function generateCustomTeamId(): string {
-    return `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `custom_${crypto.randomUUID()}`
 }
 
 // Sanitize team name for use as slug

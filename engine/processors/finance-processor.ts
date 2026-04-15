@@ -46,6 +46,8 @@ export class FinanceProcessor {
                 }
                 if (equipmentCosts > 0) {
                     team.budget -= equipmentCosts
+                    // Guard against NaN from corrupt equipment cost data
+                    if (!Number.isFinite(team.budget)) team.budget = report.newBalance
                     if (team.id === playerTeamId) {
                         totalExpenses += equipmentCosts
                         save.financeLedger.push({
@@ -59,6 +61,16 @@ export class FinanceProcessor {
                             balance: team.budget
                         })
                     }
+                    // Recalculate financial state to reflect equipment deduction
+                    // (report.state was computed before equipment costs were applied)
+                    const burnRate = Math.abs(Math.min(0, report.net)) + equipmentCosts
+                    const updatedRunway = burnRate > 0 ? team.budget / burnRate : 999
+                    if (team.budget <= 0)        team.financialState = "INSOLVENT"
+                    else if (updatedRunway < 3)  team.financialState = "CRISIS"
+                    else if (updatedRunway < 6)  team.financialState = "RISK"
+                    else if (updatedRunway < 12) team.financialState = "TIGHT"
+                    else                         team.financialState = "STABLE"
+                    team.runwayWeeks = Math.floor(updatedRunway)
                 }
             }
 

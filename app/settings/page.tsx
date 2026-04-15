@@ -98,6 +98,18 @@ export default function SettingsPage() {
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<SettingsTab>("SETTINGS")
 
+  // Accessibility: colorblind mode — persisted to localStorage
+  const [colorblindMode, setColorblindMode] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'off'
+    return localStorage.getItem('colorblind-mode') || 'off'
+  })
+
+  useEffect(() => {
+    const html = document.documentElement
+    html.classList.remove('colorblind-deuteranopia', 'colorblind-protanopia', 'colorblind-tritanopia', 'high-contrast')
+    if (colorblindMode !== 'off') html.classList.add(colorblindMode)
+  }, [colorblindMode])
+
   // Achievements state
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [achievementsProgress, setAchievementsProgress] = useState({ unlocked: 0, total: 0, percentage: 0 })
@@ -169,11 +181,15 @@ export default function SettingsPage() {
   const handleNewGame = async () => {
     if (typeof window === "undefined") return
     await deleteAllSaves()
-    localStorage.removeItem("analytics-events")
-    localStorage.removeItem("game-metrics")
-    localStorage.removeItem("error-reports")
-    localStorage.removeItem("performance-metrics")
-    localStorage.removeItem("skipQuickSimConfirm")
+    try {
+      localStorage.removeItem("analytics-events")
+      localStorage.removeItem("game-metrics")
+      localStorage.removeItem("error-reports")
+      localStorage.removeItem("performance-metrics")
+      localStorage.removeItem("skipQuickSimConfirm")
+    } catch {
+      // Storage clear is best-effort; proceed to new game regardless
+    }
     window.location.href = "/main-menu"
   }
 
@@ -505,11 +521,11 @@ export default function SettingsPage() {
                     <p className="text-xs text-muted-foreground">Adjust colors for color vision deficiency</p>
                   </div>
                   <select
-                    defaultValue="off"
+                    value={colorblindMode}
                     onChange={(e) => {
-                      const html = document.documentElement
-                      html.classList.remove('colorblind-deuteranopia', 'colorblind-protanopia', 'colorblind-tritanopia', 'high-contrast')
-                      if (e.target.value !== 'off') html.classList.add(e.target.value)
+                      const val = e.target.value
+                      setColorblindMode(val)
+                      try { localStorage.setItem('colorblind-mode', val) } catch {}
                     }}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >

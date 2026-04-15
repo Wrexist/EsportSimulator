@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Esports Manager Simulator is built as an offline-first mobile application using React Native and Expo. The architecture prioritizes determinism, immutability, and offline functionality.
+The Esports Manager Simulator is built as an offline-first desktop application using Next.js 14 and Electron. The architecture prioritizes determinism, immutability, and offline functionality.
 
 ## Core Principles
 
@@ -20,7 +20,7 @@ Using Zustand with Immer middleware:
 
 ### 3. Offline-First
 No network dependency:
-- All data stored locally in AsyncStorage
+- All data stored locally via Electron's file system adapter (`storage-adapter.ts`)
 - Simulation runs entirely on device
 - No server calls or API dependencies
 
@@ -28,7 +28,7 @@ No network dependency:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   UI Layer (React Native)            │
+│                   UI Layer (Next.js 14 + React)      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
 │  │  Screens │  │Components│  │Navigation│          │
 │  └──────────┘  └──────────┘  └──────────┘          │
@@ -58,9 +58,9 @@ No network dependency:
             │
             ▼
 ┌─────────────────────────────────────────────────────┐
-│         Persistence Layer (AsyncStorage)             │
-│  • Current game save                                 │
-│  • Snapshot history (max 50)                         │
+│     Persistence Layer (Electron / storage-adapter)   │
+│  • Current game save (versioned, SHA-256 integrity)  │
+│  • Multiple save slots                               │
 │  • User settings                                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -78,7 +78,7 @@ No network dependency:
 **Key Methods:**
 ```typescript
 calculatePlayerRating(stats: PlayerStats): number
-  → Returns 1-20 rating from weighted stats
+  → Returns 0-100 rating from weighted stats
 
 calculateTeamChemistry(players: Player[]): number
   → Returns 0-1 chemistry multiplier
@@ -91,42 +91,31 @@ advanceWeek(players: Player[]): Player[]
 ```
 
 **Determinism:**
-- Seeded PRNG using Math.sin transformation
+- Seeded PRNG using Mulberry32 algorithm (`engine/rng.ts`)
 - Seed increments on each random() call
 - Same seed + same state = same results
 
-### Snapshot Manager (`engine/snapshot-manager.ts`)
+### Save Manager (`engine/save-manager.ts`)
 
 **Responsibilities:**
-- Create deep copies of game state
-- Store snapshots in AsyncStorage
-- Restore previous game states
-- Manage snapshot limits (max 50)
+- Atomic week ticks with rollback/resume on crash
+- Versioned save files with SHA-256 integrity hashing
+- Migration support for saves from version 1 onwards
+- Multiple named save slots
+- Auto-save on close and every 2 minutes
 
-**Snapshot Structure:**
+**Save Versioning:**
 ```typescript
-interface Snapshot {
-  id: string              // Unique identifier
-  timestamp: Date         // When snapshot was created
-  gameDate: Date          // In-game date
-  state: GameState        // Deep cloned game state
-  description: string     // User-provided description
-}
+CURRENT_SAVE_VERSION = 6   // Increment on schema changes
+MIN_SUPPORTED_VERSION = 1  // Oldest save the migration system can upgrade
 ```
 
-**Usage Pattern:**
+**Atomic Week Tick:**
 ```typescript
-// Before risky action
-await createSnapshot("Before signing player")
-
-// If regret
-await restoreSnapshot(snapshotId)
-
-// Auto-snapshot before time advance
-set((draft) => {
-  await createSnapshot(`Before advancing ${weeks} weeks`)
-  // ... time advance logic
-})
+// 11-step week tick with checkpoint saves
+// If interrupted, resumes from last completed step
+// Prevents double-processing and save corruption
+await AtomicWeekProcessor.processWeek(save, saveManager)
 ```
 
 ### Data Generator (`engine/data-generator.ts`)
@@ -345,14 +334,14 @@ UI re-renders with updated state
    - Chemistry computed on-demand
 
 4. **Efficient Storage**
-   - JSON serialization for AsyncStorage
-   - Snapshots use deep clone, not references
+   - JSON serialization via Electron IPC to file system
+   - Atomic writes with backup prevent mid-write corruption
 
 ### Memory Management
 
-- Maximum 50 snapshots prevents unbounded growth
-- Old snapshots auto-deleted when limit reached
-- State deep cloned for snapshots, not shared
+- Save index rebuilt once per week tick for O(1) entity lookups
+- Indexes are ephemeral — not persisted, rebuilt from arrays on demand
+- State mutations use Immer drafts to prevent accidental reference sharing
 
 ## Testing Strategy
 
@@ -364,13 +353,13 @@ UI re-renders with updated state
 
 ### Integration Tests
 - Store actions update state correctly
-- Snapshots restore accurately
-- AsyncStorage persistence works
+- Save/load round-trip preserves data integrity
+- Week tick atomic rollback works on simulated crash
 
 ### Property-Based Tests
 - Same seed → same result (determinism)
-- Player stats always 1-20 bounds
-- Chemistry always 0-1 range
+- Player stats always 0-100 bounds
+- Chemistry always 0-100 range
 
 ## Future Enhancements
 
