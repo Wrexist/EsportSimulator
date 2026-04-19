@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="ex-JONK logo">
+  <circle cx="128" cy="128" r="108" fill="#6366F1" stroke="#1E1B4B" stroke-width="8"/>
+  <line x1="60" y1="80" x2="177" y2="80" stroke="#1E1B4B" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <line x1="70" y1="184" x2="167" y2="184" stroke="#1E1B4B" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#EEF2FF" letter-spacing="-2">E</text>
+</svg>

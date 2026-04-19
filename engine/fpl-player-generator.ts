@@ -498,7 +498,7 @@ export function generateFPLNonProPlayer(
         metadata.streamFollowers = rng.int(1000, 500000)
     }
     if (playerType === 'RETIRED_PRO' || playerType === 'ACADEMY_REJECT') {
-        const teams = ["Astralis", "NAVI", "G2", "Vitality", "FaZe", "MOUZ", "Spirit", "Heroic", "ENCE", "BIG"]
+        const teams = ["Astraflux", "Nava", "G-Two", "Vitalis", "Phaze", "Mouzen", "Phantom", "Valiant", "ANCE", "BIG Kings"]
         metadata.previousTeam = pick(teams, rng)
     }
 

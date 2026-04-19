@@ -23,7 +23,7 @@ export const TIER_THRESHOLDS = {
 }
 
 export const TEAM_REP_TIERS = {
-    TIER_1_MIN_REP: 75, // Vitality, G2, etc. (reputation is 0-100 scale)
+    TIER_1_MIN_REP: 75, // Top global orgs (reputation is 0-100 scale)
     TIER_2_MIN_REP: 40, // Mid-table
     // Below 40 is Tier 3
 }

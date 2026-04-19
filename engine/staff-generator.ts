@@ -1,6 +1,6 @@
 
 import { StaffSaveData, STAFF_ROLES } from "./save-types"
-import { REAL_STAFF_POOL } from "./staff-db"
+import { LEGACY_STAFF_POOL } from "./staff-db"
 import { SeededRNG } from "./rng"
 
 export class StaffGenerator {
@@ -16,7 +16,7 @@ export class StaffGenerator {
         const localRng = rng ?? new SeededRNG((week * 2654435761) >>> 0)
 
         // 1. Try to pull 2-3 Real Staff
-        const shuffledReal = [...REAL_STAFF_POOL]
+        const shuffledReal = [...LEGACY_STAFF_POOL]
         for (let i = shuffledReal.length - 1; i > 0; i--) {
             const j = localRng.int(0, i)
                 ;[shuffledReal[i], shuffledReal[j]] = [shuffledReal[j], shuffledReal[i]]

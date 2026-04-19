@@ -407,10 +407,10 @@ export class EconomyManager {
 
 export class SponsorGenerator {
   private static SPONSOR_NAMES = {
-    TECH: ["HyperX", "Logitech", "Razer", "SteelSeries", "Corsair", "Intel", "AMD"],
-    ENERGY: ["Red Bull", "Monster", "G-Fuel", "Rockstar", "Mountain Dew"],
-    BETTING: ["Betway", "GG.BET", "1xBet", "PrizePicks", "Stake"],
-    LIFESTYLE: ["Honda", "BMW", "DHL", "Mastercard", "Visa", "Coinbase"]
+    TECH: ["HyperZ", "Logitex", "Raven", "IronArc", "Corsaire", "Cortex", "AMPro"],
+    ENERGY: ["Meteor", "Surge Fuel", "Volt", "Boltrock", "Apex Mountain"],
+    BETTING: ["Wagerway", "ArenaBet", "1xBit", "PrizeStrike", "Staked"],
+    LIFESTYLE: ["Hondrive", "BMVK", "DHX", "Masterchip", "Visto", "Cybase"]
   }
 
   private static hashString(input: string): number {
