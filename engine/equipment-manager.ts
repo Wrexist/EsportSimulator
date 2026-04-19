@@ -172,7 +172,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         id: "headset_t3",
         type: "HEADSET",
         tier: 3,
-        name: "Elite IEM Setup",
+        name: "Elite In-Ear Setup",
         description: "Custom-molded in-ear monitors",
         bonus: { stat: "tactic", value: 8 },
         purchaseCost: 4000,

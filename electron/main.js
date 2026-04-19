@@ -651,6 +651,86 @@ ipcMain.handle('storage-get-all-keys', () => {
     }
 });
 
+// ============================================================
+// Community-import (mod) file IPC
+// Stores user-supplied fictional-data replacements in userData, outside
+// the shipped bundle. The game reads these at snapshot load time when
+// present.
+// ============================================================
+const MOD_DIRNAME = 'mods/community';
+function modDir() {
+    return path.join(app.getPath('userData'), MOD_DIRNAME);
+}
+function ensureModDir() {
+    const d = modDir();
+    if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+    return d;
+}
+function safeModFilename(name) {
+    // Only allow a known set of files to be written — never accept paths.
+    const allowed = new Set(['players.json', 'teams.json', 'tournaments.json', 'manifest.json']);
+    if (!allowed.has(name)) throw new Error(`Disallowed mod filename: ${name}`);
+    return name;
+}
+
+ipcMain.handle('mod-exists', () => {
+    try {
+        const d = modDir();
+        if (!fs.existsSync(d)) return false;
+        return fs.existsSync(path.join(d, 'teams.json')) || fs.existsSync(path.join(d, 'players.json'));
+    } catch (e) {
+        return false;
+    }
+});
+
+ipcMain.handle('mod-read', (_event, filename) => {
+    try {
+        const f = safeModFilename(filename);
+        const p = path.join(modDir(), f);
+        if (!fs.existsSync(p)) return null;
+        return fs.readFileSync(p, 'utf8');
+    } catch (e) {
+        console.error('[Mod] read failed:', e);
+        return null;
+    }
+});
+
+ipcMain.handle('mod-write', (_event, filename, contents) => {
+    try {
+        const f = safeModFilename(filename);
+        if (typeof contents !== 'string') return false;
+        const d = ensureModDir();
+        fs.writeFileSync(path.join(d, f), contents, 'utf8');
+        return true;
+    } catch (e) {
+        console.error('[Mod] write failed:', e);
+        return false;
+    }
+});
+
+ipcMain.handle('mod-clear', () => {
+    try {
+        const d = modDir();
+        if (!fs.existsSync(d)) return true;
+        for (const f of fs.readdirSync(d)) {
+            const full = path.join(d, f);
+            if (fs.statSync(full).isFile()) fs.unlinkSync(full);
+        }
+        return true;
+    } catch (e) {
+        console.error('[Mod] clear failed:', e);
+        return false;
+    }
+});
+
+ipcMain.handle('mod-path', () => {
+    try {
+        return modDir();
+    } catch (e) {
+        return null;
+    }
+});
+
 async function createWindow() {
     if (mainWindow || isCreatingWindow) return;
     isCreatingWindow = true;

@@ -204,7 +204,7 @@ export class EventsManager {
     if (playerTeam.reputation > 40 && rng.bool(0.03)) {
       const eventId = `equipment_deal_${week}`
       if (!save.eventsLog.some(e => e.id === eventId)) {
-        const brands = ["Logitech", "SteelSeries", "HyperX", "Razer", "Zowie", "Corsair"]
+        const brands = ["Logitex", "IronArc", "HyperZ", "Raven", "Zoe", "Corsaire"]
         const brand = brands[Math.floor(rng.next() * brands.length)]
         const discount = 20 + Math.floor(rng.next() * 30) // 20-49% discount
 

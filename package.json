@@ -24,6 +24,8 @@
     "compliance:steam": "tsx scripts/steam-compliance-audit.ts",
     "compliance:steam:baseline": "tsx scripts/steam-compliance-audit.ts --write-baseline",
     "compliance:steam:strict": "tsx scripts/steam-compliance-audit.ts --strict-medium",
+    "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
+    "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
     "release:verify": "npm run check:conflicts && npm run type-check && npm run release:hardening && npm run compliance:steam:strict && npm run build",
     "generate:radar-nav": "tsx scripts/generate-radar-nav-data.ts",
     "test": "npx jest --passWithNoTests",

@@ -34,6 +34,13 @@ contextBridge.exposeInMainWorld('electron', {
         clear: () => ipcRenderer.invoke('storage-clear'),
         getAllKeys: () => ipcRenderer.invoke('storage-get-all-keys'),
     },
+    mods: {
+        exists: () => ipcRenderer.invoke('mod-exists'),
+        read: (filename) => ipcRenderer.invoke('mod-read', filename),
+        write: (filename, contents) => ipcRenderer.invoke('mod-write', filename, contents),
+        clear: () => ipcRenderer.invoke('mod-clear'),
+        getPath: () => ipcRenderer.invoke('mod-path'),
+    },
     onAppClose: (callback) => ipcRenderer.on('app-close-intent', (_, ...args) => callback(...args)),
     confirmAppClose: () => ipcRenderer.invoke('app-close-confirmed'),
     cancelAppClose: () => ipcRenderer.invoke('app-close-cancelled'),

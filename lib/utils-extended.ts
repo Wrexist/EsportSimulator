@@ -196,7 +196,7 @@ export function keys<T extends object>(obj: T): (keyof T)[] {
 /**
  * Get dynamic tournament name with year based on game week
  * Replaces hardcoded years (e.g., "2025") with the calculated game year
- * @param name - Original tournament name (e.g., "IEM Katowice 2025")
+ * @param name - Original tournament name (e.g., "Winter Open Katova 2025")
  * @param currentWeek - Current game week
  * @param baseYear - The year used in the original data (default 2025)
  */

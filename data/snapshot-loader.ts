@@ -26,6 +26,7 @@ import {
 } from "@/engine/save-types"
 import { FOUNDING_LEGENDS } from "@/engine/hall-of-fame-data"
 import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
+import { loadModSnapshot, mergeSnapshot } from "@/engine/mod-loader"
 import { SeededRNG, generateSeed } from "@/engine/rng"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
@@ -137,13 +138,20 @@ export class SnapshotLoader {
                 this.loadJson<any[]>(`${this.snapshotPath}/sources.json${cacheSuffix}`),
             ])
 
+            // Merge in user-supplied community-import data if present
+            // (loaded from Electron's userData, never from the shipped bundle).
+            const mod = await loadModSnapshot()
+            const mergedPlayers = mergeSnapshot(players, mod?.players)
+            const mergedTeams = mergeSnapshot(teams, mod?.teams)
+            const mergedTournaments = mergeSnapshot(tournaments, mod?.tournaments)
+
             const snapshot: Snapshot = {
                 version: "1.0.0",
                 createdAt: new Date().toISOString(),
-                description: "CS2 Pro Scene Snapshot",
-                players,
-                teams,
-                tournaments,
+                description: mod ? "Snapshot + Community Import" : "Snapshot",
+                players: mergedPlayers,
+                teams: mergedTeams,
+                tournaments: mergedTournaments,
                 sources,
             }
 

@@ -24,6 +24,13 @@ declare global {
                 clear: () => Promise<boolean>;
                 getAllKeys: () => Promise<string[]>;
             };
+            mods?: {
+                exists: () => Promise<boolean>;
+                read: (filename: string) => Promise<string | null>;
+                write: (filename: string, contents: string) => Promise<boolean>;
+                clear: () => Promise<boolean>;
+                getPath: () => Promise<string | null>;
+            };
             onAppClose: (callback: () => void) => void;
             confirmAppClose: () => Promise<boolean>;
             cancelAppClose: () => Promise<boolean>;

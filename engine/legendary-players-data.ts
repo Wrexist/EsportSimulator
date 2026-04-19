@@ -9,12 +9,12 @@ import { PlayerSaveData } from "./save-types"
  */
 export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
     {
-        id: "legend_get_right",
-        name: "Christopher Alesund",
-        nickname: "GeT_RiGhT",
+        id: "legend_sovran",
+        name: "Axel Sund",
+        nickname: "Sovran",
         age: 34,
         nationality: "SE",
-        portraitPath: "/assets/legends/GeT_RiGhT.webp",
+        portraitPath: "/assets/legends/Sovran.svg",
         role: "Rifler",
         tier: "ELITE",
 
@@ -60,7 +60,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "87 Consecutive LAN Maps", "Best Player 2013-2014"],
-        careerTeams: ["Ninjas in Pyjamas", "dignitas"],
+        careerTeams: ["Nova Invaders", "Dignity"],
         hltvHistory: [
             { year: 2013, rank: 1 },
             { year: 2014, rank: 1 },
@@ -80,12 +80,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_f0rest",
-        name: "Patrik Lindberg",
-        nickname: "f0rest",
+        id: "legend_ironbark",
+        name: "Patrik Lundborg",
+        nickname: "Ironbark",
         age: 36,
         nationality: "SE",
-        portraitPath: "/assets/legends/f0rest.webp",
+        portraitPath: "/assets/legends/Ironbark.svg",
         role: "Rifler",
         tier: "ELITE",
 
@@ -127,7 +127,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "20+ Year Career", "Longevity Icon"],
-        careerTeams: ["Ninjas in Pyjamas", "dignitas", "GODSENT"],
+        careerTeams: ["Nova Invaders", "Dignity", "FATEBOUND"],
         hltvHistory: [
             { year: 2010, rank: 2 },
             { year: 2013, rank: 3 },
@@ -147,12 +147,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_kennys",
-        name: "Kenny Schrub",
-        nickname: "kennyS",
+        id: "legend_nocturn",
+        name: "Kenneth Schreb",
+        nickname: "Nocturn",
         age: 29,
         nationality: "FR",
-        portraitPath: "/assets/legends/kennyS.webp",
+        portraitPath: "/assets/legends/Nocturn.svg",
         role: "AWPer, Rifler",
         tier: "ELITE",
 
@@ -194,7 +194,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "AWP Meta Definer", "Major MVP"],
-        careerTeams: ["G2", "EnVyUs", "Titan"],
+        careerTeams: ["G-Two", "Envira", "Titan"],
         hltvHistory: [
             { year: 2014, rank: 3 },
             { year: 2015, rank: 6 },
@@ -213,12 +213,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_olof",
-        name: "Olof Kajbjer",
-        nickname: "olofmeister",
+        id: "legend_varden",
+        name: "Olaf Kajberg",
+        nickname: "Varden",
         age: 32,
         nationality: "SE",
-        portraitPath: "/assets/legends/olofmeister.webp",
+        portraitPath: "/assets/legends/Varden.svg",
         role: "Rifler, Entry",
         tier: "ELITE",
 
@@ -260,7 +260,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "Best Player 2015", "Olofpass"],
-        careerTeams: ["fnatic", "FaZe", "GODSENT"],
+        careerTeams: ["phanatic", "Phaze", "FATEBOUND"],
         hltvHistory: [
             { year: 2015, rank: 1 },
             { year: 2016, rank: 7 },
@@ -279,12 +279,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_pasha",
-        name: "Jaroslaw Jarzabkowski",
-        nickname: "pashaBiceps",
+        id: "legend_bastion",
+        name: "Jarek Jakob",
+        nickname: "Bastion",
         age: 36,
         nationality: "PL",
-        portraitPath: "/assets/legends/pashaBiceps.webp",
+        portraitPath: "/assets/legends/Bastion.svg",
         role: "Rifler",
         tier: "PRO",
 
@@ -326,7 +326,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "Cultural Icon", "VP Legend"],
-        careerTeams: ["Virtus.pro"],
+        careerTeams: ["Virtus Nova"],
         hltvHistory: [
             { year: 2014, rank: 12 },
             { year: 2015, rank: 18 },
@@ -345,12 +345,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_zeus",
-        name: "Danylo Teslenko",
-        nickname: "Zeus",
+        id: "legend_krolon",
+        name: "Dany Telsen",
+        nickname: "Krolon",
         age: 36,
         nationality: "UA",
-        portraitPath: "/assets/legends/Zeus.webp",
+        portraitPath: "/assets/legends/Krolon.svg",
         role: "IGL, Support",
         tier: "PRO",
 
@@ -392,7 +392,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "Legendary IGL", "Navi Architect"],
-        careerTeams: ["Natus Vincere", "Gambit"],
+        careerTeams: ["Natus Vincera", "Gambyt"],
         hltvHistory: [
             { year: 2010, rank: 8 },
             { year: 2017, rank: 15 },
@@ -411,12 +411,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_s1mple",
-        name: "Oleksandr Kostyliev",
-        nickname: "s1mple",
+        id: "legend_v4ltz",
+        name: "Aleksander Kostev",
+        nickname: "V4ltz",
         age: 27,
         nationality: "UA",
-        portraitPath: "/assets/legends/s1mple.webp",
+        portraitPath: "/assets/legends/V4ltz.svg",
         role: "AWPer, Rifler",
         tier: "ELITE",
 
@@ -457,8 +457,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["Major Champion 2021", "4x HLTV #1", "Greatest of All Time"],
-        careerTeams: ["Natus Vincere", "Team Liquid", "Flipsid3"],
+        legendaryAchievements: ["Major Champion 2021", "4x Player of the Year", "Greatest of All Time"],
+        careerTeams: ["Natus Vincera", "Team Tide", "Flipside3"],
         hltvHistory: [
             { year: 2018, rank: 1 },
             { year: 2019, rank: 2 },
@@ -478,12 +478,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_device",
-        name: "Nicolai Reedtz",
-        nickname: "dev1ce",
+        id: "legend_kalvera",
+        name: "Niklas Reedt",
+        nickname: "Kalvera",
         age: 29,
         nationality: "DK",
-        portraitPath: "/assets/legends/dev1ce.webp",
+        portraitPath: "/assets/legends/Kalvera.svg",
         role: "AWPer",
         tier: "ELITE",
 
@@ -524,8 +524,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["4x Major Champion", "Most Consistent AWPer", "Intel Grand Slam"],
-        careerTeams: ["Astralis", "Ninjas in Pyjamas", "dignitas"],
+        legendaryAchievements: ["4x Major Champion", "Most Consistent AWPer", "Grand Slam"],
+        careerTeams: ["Astraflux", "Nova Invaders", "Dignity"],
         hltvHistory: [
             { year: 2016, rank: 4 },
             { year: 2018, rank: 3 },
@@ -545,12 +545,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_niko",
-        name: "Nikola Kovac",
-        nickname: "NiKo",
+        id: "legend_niklaus",
+        name: "Nikolai Kovich",
+        nickname: "Niklaus",
         age: 27,
         nationality: "BA",
-        portraitPath: "/assets/legends/NiKo.webp",
+        portraitPath: "/assets/legends/Niklaus.svg",
         role: "Rifler, Entry",
         tier: "ELITE",
 
@@ -591,8 +591,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["HLTV Top 3 Multiple Years", "Best Aimer Ever", "Superstar"],
-        careerTeams: ["FaZe Clan", "G2", "mousesports"],
+        legendaryAchievements: ["Global Top 3 Multiple Years", "Best Aimer Ever", "Superstar"],
+        careerTeams: ["Phaze Syndicate", "G-Two", "Mousen Sports"],
         hltvHistory: [
             { year: 2017, rank: 3 },
             { year: 2018, rank: 5 },
@@ -612,12 +612,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_coldzera",
-        name: "Marcelo David",
-        nickname: "coldzera",
+        id: "legend_frosthaven",
+        name: "Marco Davis",
+        nickname: "Frosthaven",
         age: 30,
         nationality: "BR",
-        portraitPath: "/assets/legends/coldzera.webp",
+        portraitPath: "/assets/legends/Frosthaven.svg",
         role: "Rifler, AWPer",
         tier: "ELITE",
 
@@ -658,8 +658,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["2x Major Champion", "2x HLTV #1", "Jumping Double Kill"],
-        careerTeams: ["SK Gaming", "MIBR", "FaZe Clan"],
+        legendaryAchievements: ["2x Major Champion", "2x Player of the Year", "Jumping Double Kill"],
+        careerTeams: ["SC Gaming", "MB Esports", "Phaze Syndicate"],
         hltvHistory: [
             { year: 2016, rank: 1 },
             { year: 2017, rank: 1 },
@@ -679,12 +679,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_fallen",
-        name: "Gabriel Toledo",
-        nickname: "FalleN",
+        id: "legend_pyren",
+        name: "Gabriel Tolmor",
+        nickname: "Pyren",
         age: 33,
         nationality: "BR",
-        portraitPath: "/assets/legends/FalleN.webp",
+        portraitPath: "/assets/legends/Pyren.svg",
         role: "IGL, AWPer",
         tier: "ELITE",
 
@@ -726,7 +726,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "Brazilian CS Godfather", "Legendary IGL"],
-        careerTeams: ["SK Gaming", "MIBR", "Liquid", "Imperial"],
+        careerTeams: ["SC Gaming", "MB Esports", "Tide", "Imperius"],
         hltvHistory: [
             { year: 2016, rank: 5 },
             { year: 2017, rank: 6 },
@@ -745,12 +745,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_guardian",
-        name: "Ladislav Kovacs",
-        nickname: "GuardiaN",
+        id: "legend_sentryx",
+        name: "Ladis Kovalko",
+        nickname: "Sentryx",
         age: 33,
         nationality: "SK",
-        portraitPath: "/assets/legends/GuardiaN.webp",
+        portraitPath: "/assets/legends/Sentryx.svg",
         role: "AWPer",
         tier: "ELITE",
 
@@ -791,8 +791,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["CIS AWP Legend", "HLTV Top 5 Multiple Years", "Navi Star"],
-        careerTeams: ["Natus Vincere", "FaZe Clan", "Virtus.pro"],
+        legendaryAchievements: ["CIS AWP Legend", "Global Top 5 Multiple Years", "Navi Star"],
+        careerTeams: ["Natus Vincera", "Phaze Syndicate", "Virtus Nova"],
         hltvHistory: [
             { year: 2015, rank: 4 },
             { year: 2016, rank: 6 },
@@ -811,12 +811,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_flusha",
-        name: "Robin Ronnquist",
-        nickname: "flusha",
+        id: "legend_mirage",
+        name: "Robin Ronnborg",
+        nickname: "Mirage",
         age: 31,
         nationality: "SE",
-        portraitPath: "/assets/legends/flusha.webp",
+        portraitPath: "/assets/legends/Mirage.svg",
         role: "Rifler, Support",
         tier: "ELITE",
 
@@ -857,8 +857,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["3x Major Champion", "Clutch Master", "Fnatic Legend"],
-        careerTeams: ["fnatic", "GODSENT", "Cloud9"],
+        legendaryAchievements: ["3x Major Champion", "Clutch Master", "Franchise Legend"],
+        careerTeams: ["phanatic", "FATEBOUND", "Cumulus9"],
         hltvHistory: [
             { year: 2014, rank: 5 },
             { year: 2015, rank: 5 },
@@ -877,12 +877,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_dupreeh",
-        name: "Peter Rasmussen",
-        nickname: "dupreeh",
+        id: "legend_dupren",
+        name: "Peter Rasmund",
+        nickname: "Dupren",
         age: 31,
         nationality: "DK",
-        portraitPath: "/assets/legends/dupreeh.webp",
+        portraitPath: "/assets/legends/Dupren.svg",
         role: "Entry, Rifler",
         tier: "ELITE",
 
@@ -923,8 +923,8 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["4x Major Champion", "Best Entry Fragger", "Astralis Core"],
-        careerTeams: ["Astralis", "Vitality", "dignitas"],
+        legendaryAchievements: ["4x Major Champion", "Best Entry Fragger", "Northern Core"],
+        careerTeams: ["Astraflux", "Vitalis", "Dignity"],
         hltvHistory: [
             { year: 2018, rank: 9 },
             { year: 2019, rank: 8 },
@@ -943,12 +943,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_xyp9x",
-        name: "Andreas Hojsleth",
-        nickname: "Xyp9x",
+        id: "legend_cipherx",
+        name: "Andrej Hojsten",
+        nickname: "Cipherx",
         age: 29,
         nationality: "DK",
-        portraitPath: "/assets/legends/Xyp9x.webp",
+        portraitPath: "/assets/legends/Cipherx.svg",
         role: "Support, Rifler",
         tier: "ELITE",
 
@@ -990,7 +990,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["4x Major Champion", "Clutch Minister", "Best Support"],
-        careerTeams: ["Astralis", "dignitas"],
+        careerTeams: ["Astraflux", "Dignity"],
         hltvHistory: [
             { year: 2018, rank: 12 },
             { year: 2019, rank: 14 }
@@ -1008,12 +1008,12 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         unlockedTalentIds: []
     },
     {
-        id: "legend_shox",
-        name: "Richard Papillon",
-        nickname: "shox",
+        id: "legend_shoen",
+        name: "Rikard Papillotte",
+        nickname: "Shoen",
         age: 32,
         nationality: "FR",
-        portraitPath: "/assets/legends/shox.webp",
+        portraitPath: "/assets/legends/Shoen.svg",
         role: "Rifler, IGL",
         tier: "ELITE",
 
@@ -1055,7 +1055,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         retirementWeek: 0,
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "French Legend", "Style Icon"],
-        careerTeams: ["G2", "Vitality", "EnVyUs", "VeryGames"],
+        careerTeams: ["G-Two", "Vitalis", "Envira", "Apex Games"],
         hltvHistory: [
             { year: 2013, rank: 5 },
             { year: 2016, rank: 5 },

@@ -3,45 +3,46 @@ import { HallOfFameEntry } from "./save-types"
 /**
  * Founding Legends
  * Phase 23: Hall of Fame
- * 
- * Immutable list of real-world legends that populate the Hall of Fame at game start.
- * These are retired/inactive players who defined eras.
+ *
+ * Fictional legends seeded into the Hall of Fame at game start. They represent
+ * era-defining archetypes (lurker, IGL architect, AWPer meta-setter, etc.)
+ * without mapping to any real player. Portraits are procedural SVGs.
  */
 export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
     {
-        id: "legend_get_right",
-        name: "GeT_RiGhT",
-        portraitPath: "/assets/legends/GeT_RiGhT.webp",
+        id: "legend_sovran",
+        name: "Sovran",
+        portraitPath: "/assets/legends/Sovran.svg",
         eraStart: 2007,
         eraEnd: 2021,
         primaryRole: "Rifler",
         category: "FOUNDING",
         nationality: "SE",
         inductionReasons: [
-            { type: "MVP", label: "Era-Defining Player", icon: "Crown" },
+            { type: "MVP", label: "Era-Defining Lurker", icon: "Crown" },
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
-            { type: "IMPACT", label: "Lurker Pioneer", icon: "Zap" }
+            { type: "IMPACT", label: "Shadow-Play Pioneer", icon: "Zap" }
         ]
     },
     {
-        id: "legend_f0rest",
-        name: "f0rest",
-        portraitPath: "/assets/legends/f0rest.webp",
+        id: "legend_ironbark",
+        name: "Ironbark",
+        portraitPath: "/assets/legends/Ironbark.svg",
         eraStart: 2003,
         eraEnd: 2024,
         primaryRole: "Rifler",
         category: "FOUNDING",
         nationality: "SE",
         inductionReasons: [
-            { type: "LONGEVITY", label: "Longevity Icon", icon: "Hourglass" },
+            { type: "LONGEVITY", label: "Two-Decade Career", icon: "Hourglass" },
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
             { type: "MVP", label: "Mechanical Legend", icon: "Crosshair" }
         ]
     },
     {
-        id: "legend_pasha",
-        name: "pashaBiceps",
-        portraitPath: "/assets/legends/pashaBiceps.webp",
+        id: "legend_bastion",
+        name: "Bastion",
+        portraitPath: "/assets/legends/Bastion.svg",
         eraStart: 2004,
         eraEnd: 2019,
         primaryRole: "Rifler",
@@ -50,13 +51,13 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         inductionReasons: [
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
             { type: "IMPACT", label: "Cultural Icon", icon: "Heart" },
-            { type: "LOYALTY", label: "VP Legend", icon: "Shield" }
+            { type: "LOYALTY", label: "Polish Dynasty Core", icon: "Shield" }
         ]
     },
     {
-        id: "legend_kennys",
-        name: "kennyS",
-        portraitPath: "/assets/legends/kennyS.webp",
+        id: "legend_nocturn",
+        name: "Nocturn",
+        portraitPath: "/assets/legends/Nocturn.svg",
         eraStart: 2011,
         eraEnd: 2023,
         primaryRole: "AWPer",
@@ -69,9 +70,9 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         ]
     },
     {
-        id: "legend_olof",
-        name: "olofmeister",
-        portraitPath: "/assets/legends/olofmeister.webp",
+        id: "legend_varden",
+        name: "Varden",
+        portraitPath: "/assets/legends/Varden.svg",
         eraStart: 2010,
         eraEnd: 2022,
         primaryRole: "Rifler",
@@ -79,14 +80,14 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "SE",
         inductionReasons: [
             { type: "CHAMPION", label: "2x Major Champion", icon: "Trophy" },
-            { type: "MVP", label: "Best Player 2015", icon: "Crown" },
+            { type: "MVP", label: "Player of the Year", icon: "Crown" },
             { type: "IMPACT", label: "Versatility King", icon: "Puzzle" }
         ]
     },
     {
-        id: "legend_zeus",
-        name: "Zeus",
-        portraitPath: "/assets/legends/Zeus.webp",
+        id: "legend_krolon",
+        name: "Krolon",
+        portraitPath: "/assets/legends/Krolon.svg",
         eraStart: 2002,
         eraEnd: 2019,
         primaryRole: "IGL",
@@ -95,13 +96,13 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         inductionReasons: [
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
             { type: "IMPACT", label: "Leadership Icon", icon: "Brain" },
-            { type: "LOYALTY", label: "Navi Architect", icon: "Shield" }
+            { type: "LOYALTY", label: "Eastern Architect", icon: "Shield" }
         ]
     },
     {
-        id: "legend_s1mple",
-        name: "s1mple",
-        portraitPath: "/assets/legends/s1mple.webp",
+        id: "legend_v4ltz",
+        name: "V4ltz",
+        portraitPath: "/assets/legends/V4ltz.svg",
         eraStart: 2013,
         eraEnd: 2024,
         primaryRole: "AWPer",
@@ -109,14 +110,14 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "UA",
         inductionReasons: [
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
-            { type: "MVP", label: "4x HLTV #1", icon: "Crown" },
-            { type: "IMPACT", label: "Greatest of All Time", icon: "Zap" }
+            { type: "MVP", label: "4x Player of the Year", icon: "Crown" },
+            { type: "IMPACT", label: "Generational Talent", icon: "Zap" }
         ]
     },
     {
-        id: "legend_device",
-        name: "dev1ce",
-        portraitPath: "/assets/legends/dev1ce.webp",
+        id: "legend_kalvera",
+        name: "Kalvera",
+        portraitPath: "/assets/legends/Kalvera.svg",
         eraStart: 2013,
         eraEnd: 2023,
         primaryRole: "AWPer",
@@ -125,28 +126,28 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         inductionReasons: [
             { type: "CHAMPION", label: "4x Major Champion", icon: "Trophy" },
             { type: "MVP", label: "Most Consistent AWPer", icon: "Crosshair" },
-            { type: "IMPACT", label: "Intel Grand Slam", icon: "Star" }
+            { type: "IMPACT", label: "Grand Slam Winner", icon: "Star" }
         ]
     },
     {
-        id: "legend_niko",
-        name: "NiKo",
-        portraitPath: "/assets/legends/NiKo.webp",
+        id: "legend_niklaus",
+        name: "Niklaus",
+        portraitPath: "/assets/legends/Niklaus.svg",
         eraStart: 2012,
         eraEnd: 2024,
         primaryRole: "Rifler",
         category: "FOUNDING",
         nationality: "BA",
         inductionReasons: [
-            { type: "MVP", label: "HLTV Top 3 Multiple Years", icon: "Crown" },
-            { type: "IMPACT", label: "Best Aimer Ever", icon: "Crosshair" },
+            { type: "MVP", label: "Multi-Year Top 3", icon: "Crown" },
+            { type: "IMPACT", label: "Pure-Aim Legend", icon: "Crosshair" },
             { type: "MVP", label: "Superstar", icon: "Star" }
         ]
     },
     {
-        id: "legend_coldzera",
-        name: "coldzera",
-        portraitPath: "/assets/legends/coldzera.webp",
+        id: "legend_frosthaven",
+        name: "Frosthaven",
+        portraitPath: "/assets/legends/Frosthaven.svg",
         eraStart: 2014,
         eraEnd: 2023,
         primaryRole: "Rifler",
@@ -154,14 +155,14 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "BR",
         inductionReasons: [
             { type: "CHAMPION", label: "2x Major Champion", icon: "Trophy" },
-            { type: "MVP", label: "2x HLTV #1", icon: "Crown" },
-            { type: "IMPACT", label: "Jumping Double Kill", icon: "Zap" }
+            { type: "MVP", label: "2x Player of the Year", icon: "Crown" },
+            { type: "IMPACT", label: "Signature Mid-Air Kill", icon: "Zap" }
         ]
     },
     {
-        id: "legend_fallen",
-        name: "FalleN",
-        portraitPath: "/assets/legends/FalleN.webp",
+        id: "legend_pyren",
+        name: "Pyren",
+        portraitPath: "/assets/legends/Pyren.svg",
         eraStart: 2010,
         eraEnd: 2024,
         primaryRole: "IGL",
@@ -169,29 +170,29 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "BR",
         inductionReasons: [
             { type: "CHAMPION", label: "2x Major Champion", icon: "Trophy" },
-            { type: "IMPACT", label: "Brazilian CS Godfather", icon: "Brain" },
+            { type: "IMPACT", label: "Southern Scene Godfather", icon: "Brain" },
             { type: "LONGEVITY", label: "Legendary IGL", icon: "Hourglass" }
         ]
     },
     {
-        id: "legend_guardian",
-        name: "GuardiaN",
-        portraitPath: "/assets/legends/GuardiaN.webp",
+        id: "legend_sentryx",
+        name: "Sentryx",
+        portraitPath: "/assets/legends/Sentryx.svg",
         eraStart: 2009,
         eraEnd: 2020,
         primaryRole: "AWPer",
         category: "FOUNDING",
         nationality: "SK",
         inductionReasons: [
-            { type: "MVP", label: "HLTV Top 5 Multiple Years", icon: "Crown" },
-            { type: "IMPACT", label: "CIS AWP Legend", icon: "Crosshair" },
-            { type: "LOYALTY", label: "Navi Star", icon: "Shield" }
+            { type: "MVP", label: "Top 5 Multiple Years", icon: "Crown" },
+            { type: "IMPACT", label: "Eastern AWP Legend", icon: "Crosshair" },
+            { type: "LOYALTY", label: "Franchise Icon", icon: "Shield" }
         ]
     },
     {
-        id: "legend_flusha",
-        name: "flusha",
-        portraitPath: "/assets/legends/flusha.webp",
+        id: "legend_mirage",
+        name: "Mirage",
+        portraitPath: "/assets/legends/Mirage.svg",
         eraStart: 2012,
         eraEnd: 2023,
         primaryRole: "Rifler",
@@ -200,13 +201,13 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         inductionReasons: [
             { type: "CHAMPION", label: "3x Major Champion", icon: "Trophy" },
             { type: "IMPACT", label: "Clutch Master", icon: "Zap" },
-            { type: "LOYALTY", label: "Fnatic Legend", icon: "Shield" }
+            { type: "LOYALTY", label: "Franchise Legend", icon: "Shield" }
         ]
     },
     {
-        id: "legend_dupreeh",
-        name: "dupreeh",
-        portraitPath: "/assets/legends/dupreeh.webp",
+        id: "legend_dupren",
+        name: "Dupren",
+        portraitPath: "/assets/legends/Dupren.svg",
         eraStart: 2012,
         eraEnd: 2023,
         primaryRole: "Entry",
@@ -215,13 +216,13 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         inductionReasons: [
             { type: "CHAMPION", label: "4x Major Champion", icon: "Trophy" },
             { type: "IMPACT", label: "Best Entry Fragger", icon: "Zap" },
-            { type: "LOYALTY", label: "Astralis Core", icon: "Shield" }
+            { type: "LOYALTY", label: "Northern Core", icon: "Shield" }
         ]
     },
     {
-        id: "legend_xyp9x",
-        name: "Xyp9x",
-        portraitPath: "/assets/legends/Xyp9x.webp",
+        id: "legend_cipherx",
+        name: "Cipherx",
+        portraitPath: "/assets/legends/Cipherx.svg",
         eraStart: 2012,
         eraEnd: 2023,
         primaryRole: "Support",
@@ -229,14 +230,14 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "DK",
         inductionReasons: [
             { type: "CHAMPION", label: "4x Major Champion", icon: "Trophy" },
-            { type: "IMPACT", label: "Clutch Minister", icon: "Zap" },
+            { type: "IMPACT", label: "Clutch Specialist", icon: "Zap" },
             { type: "MVP", label: "Best Support Ever", icon: "Star" }
         ]
     },
     {
-        id: "legend_shox",
-        name: "shox",
-        portraitPath: "/assets/legends/shox.webp",
+        id: "legend_shoen",
+        name: "Shoen",
+        portraitPath: "/assets/legends/Shoen.svg",
         eraStart: 2007,
         eraEnd: 2023,
         primaryRole: "Rifler",
@@ -244,7 +245,7 @@ export const FOUNDING_LEGENDS: HallOfFameEntry[] = [
         nationality: "FR",
         inductionReasons: [
             { type: "CHAMPION", label: "Major Champion", icon: "Trophy" },
-            { type: "LONGEVITY", label: "French Legend", icon: "Hourglass" },
+            { type: "LONGEVITY", label: "Western Legend", icon: "Hourglass" },
             { type: "IMPACT", label: "Style Icon", icon: "Star" }
         ]
     }
