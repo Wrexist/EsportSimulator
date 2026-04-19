@@ -58,10 +58,10 @@ function renderHair(style: Hairstyle, color: string): string {
 export function renderPortraitSVG(seed: string, nickname: string): string {
     const h = fnv1aHash(seed)
     const bg = BG_PALETTES[h % BG_PALETTES.length]
-    const skin = SKIN_TONES[(h >> 3) % SKIN_TONES.length]
-    const hairColor = HAIR_COLORS[(h >> 7) % HAIR_COLORS.length]
-    const hairstyle = HAIRSTYLES[(h >> 11) % HAIRSTYLES.length]
-    const shirt = BG_PALETTES[(h >> 17) % BG_PALETTES.length][1]
+    const skin = SKIN_TONES[(h >>> 3) % SKIN_TONES.length]
+    const hairColor = HAIR_COLORS[(h >>> 7) % HAIR_COLORS.length]
+    const hairstyle = HAIRSTYLES[(h >>> 11) % HAIRSTYLES.length]
+    const shirt = BG_PALETTES[(h >>> 17) % BG_PALETTES.length][1]
 
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="${escapeAttr(nickname)} portrait">
   <defs>

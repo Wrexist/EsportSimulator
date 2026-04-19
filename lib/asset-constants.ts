@@ -83,25 +83,23 @@ export const MAPS = {
 // TOURNAMENT ASSETS
 // =============================================================================
 export const TOURNAMENTS = {
-    // Tier trophies (from existing tournament folder)
+    // Tier trophies (generic; not tournament-specific)
     aTierTrophy: '/assets/tournaments/a_tier_trophy.png',
     bTierTrophy: '/assets/tournaments/b_tier_trophy.png',
     sTierTrophy: '/assets/tournaments/s_tier_trophy.png',
-    // Specific tournament logos
-    copenhagenMajor: '/assets/tournaments/logo_copenhagen_major.png',
-    iemCologne: '/assets/tournaments/logo_iem_cologne.png',
-    iemKatowice: '/assets/tournaments/logo_iem_katowice.png',
-    shanghaiMajor: '/assets/tournaments/logo_shanghai_major.png',
+    // Procedurally-generated tournament logos. Each entry resolves via the
+    // sanitize pipeline so the filename never contains a trademarked slug.
+    northernMajor: '/assets/tournaments/logo_northern_major_2025.svg',
+    summerOpenColone: '/assets/tournaments/logo_summer_open_colone_2025.svg',
+    winterOpenKatova: '/assets/tournaments/logo_winter_open_katova_2025.svg',
+    easternMajor: '/assets/tournaments/logo_eastern_major_2025.svg',
 } as const;
 
 // =============================================================================
 // SPONSOR LOGOS
 // =============================================================================
-export const SPONSORS = {
-    hyperx: '/assets/sponsors/hyperx-logo.webp',
-    monster: '/assets/sponsors/monster-logo.webp',
-    redbull: '/assets/sponsors/redbull-logo.webp',
-} as const;
+// Sponsors are fictional. The shipped build never includes real brand logos.
+export const SPONSORS = {} as const;
 
 // =============================================================================
 // UI ASSETS

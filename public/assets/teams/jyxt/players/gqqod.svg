@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="gqQOD portrait">
+  <defs>
+    <linearGradient id="bg1gpwykn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#374151"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg1gpwykn)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#1E293B"/>
+  <!-- Neck -->
+  <rect x="112" y="148" width="32" height="32" fill="#3A2A1F"/>
+  <!-- Head -->
+  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#3A2A1F"/>
+  <!-- Hair -->
+  <path d="M60 104 Q60 52 128 52 Q196 52 196 104 L196 164 Q188 132 176 132 L176 176 L80 176 L80 132 Q68 132 60 164 Z" fill="#B04A3C"/>
+  <!-- Subtle shadow under chin -->
+  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+</svg>

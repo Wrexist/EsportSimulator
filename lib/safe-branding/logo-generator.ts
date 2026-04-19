@@ -58,7 +58,7 @@ export interface LogoSpec {
 export function logoSpec(seed: string, name: string): LogoSpec {
     const h = fnv1aHash(seed)
     const palette = PALETTES[h % PALETTES.length]
-    const shape = SHAPES[(h >> 4) % SHAPES.length]
+    const shape = SHAPES[(h >>> 4) % SHAPES.length]
 
     // Monogram: first letter of each significant word, up to 3 chars.
     const letters = name

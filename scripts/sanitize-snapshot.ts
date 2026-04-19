@@ -28,6 +28,7 @@ import {
     safeDescription,
     safeSlug,
     safeNickSlug,
+    stripForbidden,
     transformNickname,
 } from "@/lib/safe-branding/name-transform"
 import { renderLogoSVG } from "@/lib/safe-branding/logo-generator"
@@ -81,18 +82,56 @@ function shortNameFor(name: string): string {
 }
 
 function tournamentSlug(name: string): string {
-    return safeTournamentName(name)
+    const base = safeTournamentName(name)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_+|_+$/g, "")
         || "event"
+    return stripForbidden(base)
+}
+
+function generateLegendPortraits(): void {
+    // Read portraitPaths out of legendary-players-data.ts via a loose regex
+    // scan — avoids importing the file (which pulls save-types and types/).
+    const legendFile = path.join(REPO_ROOT, "engine", "legendary-players-data.ts")
+    if (!fs.existsSync(legendFile)) return
+    const src = fs.readFileSync(legendFile, "utf8")
+    const dir = path.join(REPO_ROOT, "public", "assets", "legends")
+    const entryRe = /nickname:\s*"([^"]+)"[\s\S]*?portraitPath:\s*"\/assets\/legends\/([^"]+)"/g
+    let m: RegExpExecArray | null
+    let count = 0
+    while ((m = entryRe.exec(src))) {
+        const [, nick, filename] = m
+        const svg = renderPortraitSVG(`legend_${filename}`, nick)
+        writeFile(path.join(dir, filename), svg)
+        count++
+    }
+    console.log(`Legend portraits: ${count}`)
+}
+
+function generateStaffPortraits(): void {
+    const staffFile = path.join(REPO_ROOT, "engine", "staff-db.ts")
+    if (!fs.existsSync(staffFile)) return
+    const src = fs.readFileSync(staffFile, "utf8")
+    const entryRe = /"name":\s*"([^"]+)"[\s\S]*?"portraitPath":\s*"\/assets\/(staff\/(?:coaches|analysts))\/([^"]+)"/g
+    let m: RegExpExecArray | null
+    let count = 0
+    while ((m = entryRe.exec(src))) {
+        const [, name, subdir, filename] = m
+        const svg = renderPortraitSVG(`staff_${filename}`, name)
+        writeFile(path.join(REPO_ROOT, "public", "assets", subdir, filename), svg)
+        count++
+    }
+    console.log(`Staff portraits: ${count}`)
 }
 
 function sanitizeTournament(t: AnyObj): AnyObj {
     const safeName = safeTournamentName(t.name || "")
     const safeShort = typeof t.shortName === "string" ? safeTournamentName(t.shortName) : t.shortName
     const safeDesc = typeof t.description === "string" ? safeDescription(t.description) : t.description
-    const slug = tournamentSlug(t.id || safeName)
+    // Use the already-sanitized name for the slug so trademark keywords
+    // never reach the output filename (the id itself contains the raw name).
+    const slug = tournamentSlug(safeName || t.id || "event")
 
     // Procedural logo: reuse team logo-generator with a tournament-seeded id.
     // Output goes to /public/assets/tournaments/logo_<slug>.svg and we rewrite
@@ -242,6 +281,10 @@ function main(): void {
         writeJson(DATA_TOURN_PATH, rtOut)
         console.log(`Rewrote runtime calendar: ${path.relative(REPO_ROOT, DATA_TOURN_PATH)} (${rtOut.length} tournaments)`)
     }
+
+    // --- Legends & staff: generate procedural portraits ---
+    generateLegendPortraits()
+    generateStaffPortraits()
 
     // --- Sources: rewrite to scrubbed equivalents ---
     if (fs.existsSync(sourcesPath)) {

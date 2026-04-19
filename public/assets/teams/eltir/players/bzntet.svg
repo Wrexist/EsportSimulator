@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="BznTeT portrait">
+  <defs>
+    <linearGradient id="bgw62n5b" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#374151"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bgw62n5b)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#1E293B"/>
+  <!-- Neck -->
+  <rect x="112" y="148" width="32" height="32" fill="#D4A373"/>
+  <!-- Head -->
+  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#D4A373"/>
+  <!-- Hair -->
+  <path d="M64 100 Q64 56 128 56 Q192 56 192 100 L192 124 Q180 100 128 100 Q76 100 64 124 Z" fill="#5B3E86"/>
+  <!-- Subtle shadow under chin -->
+  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+</svg>

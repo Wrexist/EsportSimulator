@@ -123,6 +123,22 @@ export const TOURNAMENT_NAME_MAP: Record<string, string> = {
     "EPICENTER": "EPICORE",
     "CCT": "CCX",
     "Champion of Champions Tour": "CCX Tour",
+    "BLAST": "Elite",
+    "ESL": "Global",
+    "IEM": "Winter Open",
+    "PGL": "Premier",
+    "Elisa": "Electra",
+    "ESEA": "Epic Arena",
+    "Roobet": "Rookbet",
+    "Skyesports": "Skyevents",
+    "Sky Esports": "Skyevents",
+    "HLTV": "StatCentral",
+    "BetBoom": "BoomByte",
+    "Dacha": "Legacy",
+    "Copenhagen Major": "Northern Major",
+    "Copenhagen": "Northern",
+    "Shanghai Major": "Eastern Major",
+    "Shanghai": "Eastern",
 }
 
 export const SPONSOR_NAME_MAP: Record<string, string> = {
@@ -221,8 +237,8 @@ export function generateVariant(name: string): string {
             const bucket = VOWEL_SWAPS[lower] || CONSONANT_SWAPS[lower]
             if (!bucket) continue
             // Swap only certain positions, driven by the hash
-            if (((h >> ((i + ti) % 24)) & 1) !== 0) {
-                const pick = bucket[(h >> (swapped % 16)) % bucket.length]
+            if (((h >>> ((i + ti) % 24)) & 1) !== 0) {
+                const pick = bucket[(h >>> (swapped % 16)) % bucket.length]
                 chars[i] = isUpper
                     ? pick.charAt(0).toUpperCase() + pick.slice(1)
                     : pick
@@ -233,7 +249,7 @@ export function generateVariant(name: string): string {
         let word = chars.join("")
 
         // Append a suffix ~30% of the time, for first token only
-        if (ti === 0 && ((h >> 17) & 3) === 0 && word.length <= 8) {
+        if (ti === 0 && ((h >>> 17) & 3) === 0 && word.length <= 8) {
             const suf = SUFFIXES[h % SUFFIXES.length]
             word = word + suf
         }
@@ -273,19 +289,47 @@ export function transformNickname(nick: string): string {
     if (!nick) return nick
     const h = fnv1aHash(nick.toLowerCase())
     const chars = nick.split("")
-    let swapped = 0
+
+    // First pass: collect indices of swappable characters.
+    const swappable: number[] = []
     for (let i = 0; i < chars.length; i++) {
-        const c = chars[i]
-        const lower = c.toLowerCase()
-        const rule = NICK_CHAR_SWAPS[lower]
-        if (!rule) continue
-        if (((h >> (i % 24)) & 1) === 0) continue
-        const rep = c === lower ? rule : rule.toUpperCase()
-        chars[i] = rep
-        swapped++
-        if (swapped >= 2) break
+        if (NICK_CHAR_SWAPS[chars[i].toLowerCase()]) swappable.push(i)
     }
-    return chars.join("")
+
+    // Swap one or two chars based on the hash so every input with
+    // swappable chars actually changes.
+    if (swappable.length > 0) {
+        const maxSwaps = Math.min(2, swappable.length)
+        const targetSwaps = 1 + (h >>> 3) % maxSwaps
+        let done = 0
+        for (let j = 0; j < swappable.length && done < targetSwaps; j++) {
+            const idx = swappable[(j + (h >>> 5)) % swappable.length]
+            const c = chars[idx]
+            const lower = c.toLowerCase()
+            const rule = NICK_CHAR_SWAPS[lower]!
+            chars[idx] = c === lower ? rule : rule.toUpperCase()
+            done++
+        }
+    }
+
+    let out = chars.join("")
+
+    // If the original nickname still appears as a substring (case-insensitive) —
+    // e.g. few or no swappable chars, or the swaps didn't land on unique bytes —
+    // force a stronger transformation: inject a deterministic character after
+    // the first alpha and, if still present, after the last alpha too.
+    if (out.toLowerCase().includes(nick.toLowerCase())) {
+        const injA = (h & 1 ? "x" : "z")
+        const firstAlpha = out.search(/[A-Za-z]/)
+        if (firstAlpha >= 0) {
+            out = out.slice(0, firstAlpha + 1) + injA + out.slice(firstAlpha + 1)
+        }
+        if (out.toLowerCase().includes(nick.toLowerCase())) {
+            const injB = ((h >>> 1) & 1) ? "q" : "v"
+            out = out + injB
+        }
+    }
+    return out
 }
 
 // ============================================================
@@ -306,16 +350,18 @@ export function safeTeamName(name: string): string {
 
 export function safeTournamentName(name: string): string {
     if (!name) return name
-    // Map longest-prefix-match so "IEM Katowice 2025" → "Winter Open Katova 2025"
+    // Tournament names can embed team / sponsor / event trademarks — apply
+    // all three maps. Longest-key first so compound keys win over prefixes.
+    // Matching is case-insensitive so ids like "iem_katowice_2025" rewrite too.
     let replaced = name
-    const keys = Object.keys(TOURNAMENT_NAME_MAP).sort((a, b) => b.length - a.length)
-    for (const k of keys) {
-        if (replaced.includes(k)) {
+    const allMaps: Record<string, string>[] = [TOURNAMENT_NAME_MAP, SPONSOR_NAME_MAP, TEAM_NAME_MAP]
+    for (const map of allMaps) {
+        const keys = Object.keys(map).sort((a, b) => b.length - a.length)
+        for (const k of keys) {
             const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-            replaced = replaced.replace(new RegExp(esc, "gi"), TOURNAMENT_NAME_MAP[k])
+            replaced = replaced.replace(new RegExp(esc, "gi"), map[k])
         }
     }
-    // Apply phrase replacements too
     for (const [re, rep] of PHRASE_REPLACEMENTS) replaced = replaced.replace(re, rep)
     return replaced
 }
@@ -330,35 +376,120 @@ export function safeSponsorName(name: string): string {
     return generateVariant(trimmed)
 }
 
+/**
+ * Substrings that would trip the Steam compliance scanner even inside a
+ * fictional-name slug. Applied as a last-chance stripper so that, e.g.,
+ * "mouzen" doesn't leak the "mouz" trademark substring.
+ */
+const FORBIDDEN_SUBSTRINGS: Array<[RegExp, string]> = [
+    [/faze/gi, "phae"],
+    [/mouz/gi, "muxe"],
+    [/monte/gi, "argon"],
+    [/spirit/gi, "phanto"],
+    [/\bnavi\b/gi, "nava"],
+    [/vitality/gi, "vitalis"],
+    [/astralis/gi, "astralix"],
+    [/\bfnatic\b/gi, "phanatic"],
+    [/liquid/gi, "tide"],
+    [/heroic/gi, "valiant"],
+    [/g2_?esports/gi, "gtwo"],
+    [/cloud9/gi, "cumulus9"],
+    [/mibr/gi, "mbes"],
+    [/imperial/gi, "imperius"],
+    [/complexity/gi, "complect"],
+    [/\bhltv\b/gi, "statcentral"],
+    [/redbull/gi, "surgefuel"],
+    [/hyperx/gi, "hyperz"],
+    [/monster_energy/gi, "meteor_energy"],
+    [/betboom/gi, "boombyte"],
+    [/betway/gi, "wagerway"],
+    [/blast/gi, "elite"],
+    [/dreamhack/gi, "dreamcircuit"],
+    [/\besl\b/gi, "global"],
+    [/\biem\b/gi, "wopen"],
+    [/\bpgl\b/gi, "premier"],
+    [/katowice/gi, "katova"],
+    [/thunderpick/gi, "thundercup"],
+    [/yalla/gi, "compass"],
+    [/weplay/gi, "playon"],
+    [/gamers8/gi, "gamersinfinity"],
+    [/dacha/gi, "legacy"],
+    [/elisa/gi, "electra"],
+    [/\besea\b/gi, "epicarena"],
+    [/roobet/gi, "rookbet"],
+    [/skyesports/gi, "skyevents"],
+    [/twitch/gi, "streamly"],
+    [/steelseries/gi, "ironarc"],
+    [/100[_-]?thieves/gi, "century_rogues"],
+    [/virtus[._-]?pro/gi, "virtus_nova"],
+    [/virtuspro/gi, "virtus_nova"],
+    [/mousesports/gi, "mousen_sports"],
+    [/outsiders/gi, "outliners"],
+    [/gamerlegion/gi, "gamerleague"],
+    [/furia/gi, "foria"],
+    [/mongolz/gi, "nomads"],
+    [/tyloo/gi, "taroo"],
+    [/rare_?atom/gi, "rare_element"],
+    [/lynn_?vision/gi, "lynx_vision"],
+    [/eternal_?fire/gi, "everblaze"],
+    [/sharks/gi, "hammerheads"],
+    [/red_?canids/gi, "red_wolves"],
+    [/renegades/gi, "insurgents"],
+    [/wildcard/gi, "wild_ace"],
+    [/\bnouns\b/gi, "pronoun"],
+    [/forze/gi, "surgex"],
+    [/\bheroic\b/gi, "valiant"],
+    [/\bence\b/gi, "ance"],
+    [/falcons/gi, "falconry"],
+    [/apeks/gi, "peaks"],
+    [/\bog\b/gi, "overgrowth"],
+    [/grayhound/gi, "grayhare"],
+    [/flyquest/gi, "flycrest"],
+    [/m80/gi, "a81"],
+    [/9ine/gi, "9ink"],
+    [/\b9z\b/gi, "9zed"],
+    [/party[-_]?astronauts/gi, "party_cosmonauts"],
+    [/bounty[-_]?hunters/gi, "coin_hunters"],
+    [/case[-_]?esports/gi, "casket"],
+    [/legacy[-_]?esports/gi, "lineage"],
+    [/fluxo/gi, "fluxion"],
+]
+
+export function stripForbidden(s: string): string {
+    let out = s
+    for (const [re, rep] of FORBIDDEN_SUBSTRINGS) out = out.replace(re, rep)
+    return out
+}
+
 export function safeSlug(name: string): string {
-    return safeTeamName(name)
+    const base = safeTeamName(name)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_+|_+$/g, "")
         || "team"
+    return stripForbidden(base)
 }
 
 export function safeNickSlug(nick: string): string {
-    return transformNickname(nick)
+    const base = transformNickname(nick)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "")
         || "player"
+    return stripForbidden(base)
 }
 
 export function safeDescription(text: string): string {
     if (!text) return text
     let out = text
     for (const [re, rep] of PHRASE_REPLACEMENTS) out = out.replace(re, rep)
-    // Run tournament map on descriptions too
-    const keys = Object.keys(TOURNAMENT_NAME_MAP).sort((a, b) => b.length - a.length)
-    for (const k of keys) {
-        const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-        out = out.replace(new RegExp(esc, "gi"), TOURNAMENT_NAME_MAP[k])
-    }
-    const spKeys = Object.keys(SPONSOR_NAME_MAP).sort((a, b) => b.length - a.length)
-    for (const k of spKeys) {
-        const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-        out = out.replace(new RegExp(esc, "gi"), SPONSOR_NAME_MAP[k])
+    // Run tournament and team maps on descriptions too
+    const allMaps: Record<string, string>[] = [TOURNAMENT_NAME_MAP, TEAM_NAME_MAP, SPONSOR_NAME_MAP]
+    for (const map of allMaps) {
+        const keys = Object.keys(map).sort((a, b) => b.length - a.length)
+        for (const k of keys) {
+            const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+            out = out.replace(new RegExp(esc, "gi"), map[k])
+        }
     }
     return out
 }

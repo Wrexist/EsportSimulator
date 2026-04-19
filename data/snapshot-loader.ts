@@ -83,8 +83,8 @@ export function calculateInitialPrestige(
 }
 
 /**
- * Normalize a nickname for matching: lowercase + leet-speak → letters
- * e.g. "dev1ce" → "device", "s1mple" → "simple", "FalleN" → "fallen"
+ * Normalize a nickname for matching: lowercase + leet-speak → letters.
+ * e.g. "t3am" → "team", "pl4y3r" → "player".
  */
 function normalizeNickname(nick: string): string {
     return nick
@@ -99,7 +99,7 @@ function normalizeNickname(nick: string): string {
 
 /**
  * Check if a legendary player has an active counterpart in the snapshot.
- * Matches on normalized nicknames to catch leet-speak variants (dev1ce ↔ device).
+ * Matches on normalized nicknames to catch leet-speak variants.
  */
 function isLegendActiveInSnapshot(
     legend: PlayerSaveData,

@@ -154,7 +154,7 @@ del /q "%GAME_DIR%\.gitignore" 2>nul
 del /q "%GAME_DIR%\.eslintrc*" 2>nul
 del /q "%GAME_DIR%\ordbok" 2>nul
 del /q "%GAME_DIR%\rebuild-scripts.json" 2>nul
-del /q "%GAME_DIR%\player-excel-data.json" 2>nul
+:: player-excel-data.json moved to raw-data/ (developer-only, never shipped)
 del /q "%GAME_DIR%\steamworks ids" 2>nul
 
 :: Remove development directories
