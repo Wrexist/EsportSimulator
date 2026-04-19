@@ -126,7 +126,6 @@ export const TOURNAMENT_NAME_MAP: Record<string, string> = {
     "BLAST": "Elite",
     "ESL": "Global",
     "IEM": "Winter Open",
-    "PGL": "Premier",
     "Elisa": "Electra",
     "ESEA": "Epic Arena",
     "Roobet": "Rookbet",
