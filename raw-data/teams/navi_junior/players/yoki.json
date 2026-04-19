@@ -1,0 +1,20 @@
+{
+  "name": "yoki",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "NAVI Junior",
+  "teamRank": "237",
+  "age": 16,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 51,
+    "entrying": 3,
+    "trading": 26,
+    "opening": 71,
+    "clutching": 43,
+    "sniping": 89,
+    "utility": 14
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "d1Ledez",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BetBoom",
+  "teamRank": "32",
+  "age": 22,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 53,
+    "entrying": 51,
+    "trading": 41,
+    "opening": 37,
+    "clutching": 29,
+    "sniping": 43,
+    "utility": 40
+  },
+  "matchesPlayed": 126,
+  "hltvHistory": []
+}

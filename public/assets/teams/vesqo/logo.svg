@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Vesqo logo">
+  <polygon points="128,16 232,72 232,184 128,240 24,184 24,72" fill="#F97316" stroke="#431407" stroke-width="6"/>
+  <line x1="81" y1="80" x2="198" y2="80" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <line x1="91" y1="184" x2="188" y2="184" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFF7ED" letter-spacing="-2">V</text>
+</svg>

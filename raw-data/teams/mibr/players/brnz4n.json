@@ -1,0 +1,20 @@
+{
+  "name": "brnz4n",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR",
+  "teamRank": "28",
+  "age": 22,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 30,
+    "entrying": 54,
+    "trading": 35,
+    "opening": 34,
+    "clutching": 34,
+    "sniping": 33,
+    "utility": 40
+  },
+  "matchesPlayed": 167,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "HeavyGod",
+  "country": "Israel",
+  "countryCode": "il",
+  "team": "G2",
+  "teamRank": "9",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 67,
+    "entrying": 55,
+    "trading": 65,
+    "opening": 29,
+    "clutching": 88,
+    "sniping": 1,
+    "utility": 58
+  },
+  "matchesPlayed": 297,
+  "hltvHistory": []
+}

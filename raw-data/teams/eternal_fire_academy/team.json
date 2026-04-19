@@ -1,0 +1,24 @@
+{
+  "name": "Eternal Fire Academy",
+  "hltvRank": "244",
+  "nationality": "Turkey",
+  "players": [
+    {
+      "name": "BatuOnFire",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "Hydro2K",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "GAYEW",
+      "country": "Turkey",
+      "countryCode": "tr"
+    }
+  ],
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

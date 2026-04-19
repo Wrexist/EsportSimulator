@@ -1,0 +1,20 @@
+{
+  "name": "izaa",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FURIA fe",
+  "teamRank": "239",
+  "age": 23,
+  "rating": 1,
+  "stats": {
+    "firepower": 40,
+    "entrying": 95,
+    "trading": 49,
+    "opening": 55,
+    "clutching": 14,
+    "sniping": 75,
+    "utility": 37
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

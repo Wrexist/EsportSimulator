@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="zol portrait">
+  <defs>
+    <linearGradient id="bg1h6novd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E1B4B"/>
+      <stop offset="1" stop-color="#312E81"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg1h6novd)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#374151"/>
+  <!-- Neck -->
+  <rect x="112" y="148" width="32" height="32" fill="#D4A373"/>
+  <!-- Head -->
+  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#D4A373"/>
+  <!-- Hair -->
+  <path d="M96 104 Q96 60 128 40 Q160 60 160 104 Z" fill="#5C3A1E"/>
+                    <path d="M72 108 Q88 104 96 104 L96 120 Q84 120 72 124 Z" fill="#5C3A1E" opacity="0.75"/>
+                    <path d="M184 108 Q168 104 160 104 L160 120 Q172 120 184 124 Z" fill="#5C3A1E" opacity="0.75"/>
+  <!-- Subtle shadow under chin -->
+  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "name": "maxxkor",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Sharks",
+  "teamRank": "39",
+  "age": 23,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 57,
+    "entrying": 12,
+    "trading": 50,
+    "opening": 47,
+    "clutching": 89,
+    "sniping": 92,
+    "utility": 80
+  },
+  "matchesPlayed": 136,
+  "hltvHistory": []
+}

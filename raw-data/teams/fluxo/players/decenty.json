@@ -1,0 +1,20 @@
+{
+  "name": "decenty",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fluxo",
+  "teamRank": "66",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 72,
+    "entrying": 24,
+    "trading": 56,
+    "opening": 68,
+    "clutching": 57,
+    "sniping": 6,
+    "utility": 15
+  },
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

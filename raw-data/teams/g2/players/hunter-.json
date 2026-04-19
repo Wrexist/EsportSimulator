@@ -1,0 +1,20 @@
+{
+  "name": "huNter-",
+  "country": "Bosnia and Herzegovina",
+  "countryCode": "ba",
+  "team": "G2",
+  "teamRank": "9",
+  "age": 30,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 23,
+    "entrying": 42,
+    "trading": 46,
+    "opening": 30,
+    "clutching": 39,
+    "sniping": 46,
+    "utility": 93
+  },
+  "matchesPlayed": 233,
+  "hltvHistory": []
+}

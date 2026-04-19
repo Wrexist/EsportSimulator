@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="PlayOn Academy League logo">
+  <circle cx="128" cy="128" r="108" fill="#FACC15" stroke="#111827" stroke-width="8"/>
+  <line x1="65" y1="80" x2="170" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <line x1="75" y1="184" x2="160" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="128" y="152.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="74" fill="#FFFFFF" letter-spacing="-2">PAL</text>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "name": "biguzera",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "paiN",
+  "teamRank": "18",
+  "age": 28,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 55,
+    "entrying": 58,
+    "trading": 21,
+    "opening": 63,
+    "clutching": 59,
+    "sniping": 2,
+    "utility": 86
+  },
+  "matchesPlayed": 157,
+  "hltvHistory": []
+}

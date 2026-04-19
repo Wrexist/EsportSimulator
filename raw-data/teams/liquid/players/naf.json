@@ -1,0 +1,20 @@
+{
+  "name": "NAF",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "Liquid",
+  "teamRank": "15",
+  "age": 28,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 54,
+    "entrying": 58,
+    "trading": 32,
+    "opening": 22,
+    "clutching": 48,
+    "sniping": 1,
+    "utility": 64
+  },
+  "matchesPlayed": 152,
+  "hltvHistory": []
+}

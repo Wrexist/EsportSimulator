@@ -1,0 +1,20 @@
+{
+  "name": "brn$",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR Academy",
+  "teamRank": "245",
+  "age": 20,
+  "rating": 0.81,
+  "stats": {
+    "firepower": 36,
+    "entrying": 22,
+    "trading": 8,
+    "opening": 8,
+    "clutching": 65,
+    "sniping": 81,
+    "utility": 62
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

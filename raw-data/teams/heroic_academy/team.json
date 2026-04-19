@@ -1,0 +1,34 @@
+{
+  "name": "HEROIC Academy",
+  "hltvRank": "96",
+  "nationality": "Romania",
+  "players": [
+    {
+      "name": "St0m4k",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "Yoghi",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "HOLY",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "Muciek",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Hrdina",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    }
+  ],
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

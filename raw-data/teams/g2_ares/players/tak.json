@@ -1,0 +1,20 @@
+{
+  "name": "tAk",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "G2 Ares",
+  "teamRank": "84",
+  "age": 21,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 81,
+    "entrying": 40,
+    "trading": 42,
+    "opening": 48,
+    "clutching": 91,
+    "sniping": 59,
+    "utility": 42
+  },
+  "matchesPlayed": 83,
+  "hltvHistory": []
+}

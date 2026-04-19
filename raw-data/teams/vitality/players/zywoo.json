@@ -1,0 +1,20 @@
+{
+  "name": "ZywOo",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "Vitality",
+  "teamRank": "1",
+  "age": 25,
+  "rating": 1.35,
+  "stats": {
+    "firepower": 98,
+    "entrying": 37,
+    "trading": 66,
+    "opening": 88,
+    "clutching": 53,
+    "sniping": 93,
+    "utility": 69
+  },
+  "matchesPlayed": 265,
+  "hltvHistory": []
+}

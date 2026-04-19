@@ -1,0 +1,20 @@
+{
+  "name": "insani",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR",
+  "teamRank": "28",
+  "age": 21,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 89,
+    "entrying": 60,
+    "trading": 41,
+    "opening": 90,
+    "clutching": 49,
+    "sniping": 1,
+    "utility": 63
+  },
+  "matchesPlayed": 207,
+  "hltvHistory": []
+}

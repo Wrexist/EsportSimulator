@@ -1,0 +1,34 @@
+{
+  "name": "TYLOO",
+  "hltvRank": "30",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "JamYoung",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Jee",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Mercury",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Moseyuh",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "Zero",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 179,
+  "hltvHistory": []
+}

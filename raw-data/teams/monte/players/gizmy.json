@@ -1,0 +1,20 @@
+{
+  "name": "Gizmy",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Monte",
+  "teamRank": "31",
+  "age": 21,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 43,
+    "entrying": 77,
+    "trading": 14,
+    "opening": 55,
+    "clutching": 39,
+    "sniping": 64,
+    "utility": 94
+  },
+  "matchesPlayed": 134,
+  "hltvHistory": []
+}

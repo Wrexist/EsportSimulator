@@ -1,0 +1,20 @@
+{
+  "name": "broky",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "FaZe",
+  "teamRank": "7",
+  "age": 24,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 40,
+    "entrying": 37,
+    "trading": 64,
+    "opening": 42,
+    "clutching": 72,
+    "sniping": 90,
+    "utility": 71
+  },
+  "matchesPlayed": 266,
+  "hltvHistory": []
+}

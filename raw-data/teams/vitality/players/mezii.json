@@ -1,0 +1,20 @@
+{
+  "name": "mezii",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Vitality",
+  "teamRank": "1",
+  "age": 27,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 41,
+    "entrying": 80,
+    "trading": 63,
+    "opening": 24,
+    "clutching": 61,
+    "sniping": 31,
+    "utility": 65
+  },
+  "matchesPlayed": 239,
+  "hltvHistory": []
+}

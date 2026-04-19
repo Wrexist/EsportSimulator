@@ -1,0 +1,20 @@
+{
+  "name": "fNk",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "G2 Ares",
+  "teamRank": "98",
+  "age": 23,
+  "rating": 1,
+  "stats": {
+    "firepower": 57,
+    "entrying": 71,
+    "trading": 53,
+    "opening": 70,
+    "clutching": 47,
+    "sniping": 0,
+    "utility": 88
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

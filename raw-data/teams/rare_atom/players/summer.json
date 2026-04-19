@@ -1,0 +1,20 @@
+{
+  "name": "Summer",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Rare Atom",
+  "teamRank": "72",
+  "age": 28,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 47,
+    "entrying": 76,
+    "trading": 42,
+    "opening": 29,
+    "clutching": 44,
+    "sniping": 1,
+    "utility": 92
+  },
+  "matchesPlayed": 70,
+  "hltvHistory": []
+}

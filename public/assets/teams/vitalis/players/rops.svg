@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="rops portrait">
+  <defs>
+    <linearGradient id="bgtpc0uw" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bgtpc0uw)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#134E4A"/>
+  <!-- Neck -->
+  <rect x="112" y="148" width="32" height="32" fill="#B07A4D"/>
+  <!-- Head -->
+  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#B07A4D"/>
+  <!-- Hair -->
+  <rect x="60" y="76" width="136" height="36" rx="8" fill="#0B0B0B"/>
+                    <rect x="56" y="104" width="150" height="12" rx="4" fill="#0B0B0B" opacity="0.85"/>
+  <!-- Subtle shadow under chin -->
+  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+</svg>

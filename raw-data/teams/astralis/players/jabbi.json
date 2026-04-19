@@ -1,0 +1,20 @@
+{
+  "name": "jabbi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Astralis",
+  "teamRank": "12",
+  "age": 22,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 69,
+    "entrying": 49,
+    "trading": 51,
+    "opening": 54,
+    "clutching": 49,
+    "sniping": 36,
+    "utility": 44
+  },
+  "matchesPlayed": 192,
+  "hltvHistory": []
+}

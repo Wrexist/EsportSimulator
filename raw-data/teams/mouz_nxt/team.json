@@ -1,0 +1,34 @@
+{
+  "name": "MOUZ NXT",
+  "hltvRank": "69",
+  "nationality": "Portugal",
+  "players": [
+    {
+      "name": "opdust",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "xelex",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "Joey",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "ay0k",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Nikodeon",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

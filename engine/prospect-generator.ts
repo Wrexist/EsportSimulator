@@ -152,9 +152,9 @@ const NICKNAME_PARTS = {
     ],
     // Realistic CS pro-style nicknames
     proStyle: [
-        "device", "s1mple", "ZywOo", "NiKo", "m0NESY", "donk", "ropz", "Twistzz",
-        "kscerato", "frozen", "b1t", "Jame", "sh1ro", "coldzera", "Ax1Le", "rain",
-        "broky", "tabseN", "YEKINDAR", "Brollan", "Spinx", "blameF", "Perfecto"
+        "dev1xe", "v4ltz", "Zyvo0", "N1Ko", "m3NESY", "donx", "rolpz", "Tw1stz",
+        "kscratto", "froozen", "b1ix", "Jumi", "sh2r0", "coldzer0", "Ax2Le", "raen",
+        "broxy", "tabzeN", "YETZ", "Brollix", "Spynx", "blazeF", "Perfectonic"
     ]
 }
 

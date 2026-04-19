@@ -1,0 +1,34 @@
+{
+  "name": "MOUZ",
+  "hltvRank": "4",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "Brollan",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "torzsi",
+      "country": "Hungary",
+      "countryCode": "hu"
+    },
+    {
+      "name": "Spinx",
+      "country": "Israel",
+      "countryCode": "il"
+    },
+    {
+      "name": "Jimpphat",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "xertioN",
+      "country": "Israel",
+      "countryCode": "il"
+    }
+  ],
+  "matchesPlayed": 216,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "tsug",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "paiN Academy",
+  "teamRank": "215",
+  "age": 20,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 9,
+    "entrying": 61,
+    "trading": 84,
+    "opening": 16,
+    "clutching": 50,
+    "sniping": 46,
+    "utility": 74
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

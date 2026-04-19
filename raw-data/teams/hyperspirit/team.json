@@ -1,0 +1,34 @@
+{
+  "name": "HyperSpirit",
+  "hltvRank": "127",
+  "nationality": "Romania",
+  "players": [
+    {
+      "name": "Ciocardau",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "ragga",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "ADRON",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "d1maje",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "starplajerz",
+      "country": "Romania",
+      "countryCode": "ro"
+    }
+  ],
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

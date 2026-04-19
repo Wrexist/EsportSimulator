@@ -1,0 +1,20 @@
+{
+  "name": "Jimpphat",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "MOUZ",
+  "teamRank": "4",
+  "age": 19,
+  "rating": 1,
+  "stats": {
+    "firepower": 25,
+    "entrying": 59,
+    "trading": 87,
+    "opening": 25,
+    "clutching": 63,
+    "sniping": 52,
+    "utility": 25
+  },
+  "matchesPlayed": 264,
+  "hltvHistory": []
+}

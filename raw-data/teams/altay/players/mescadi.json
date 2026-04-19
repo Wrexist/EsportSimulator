@@ -1,0 +1,20 @@
+{
+  "name": "Mescadi",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALTAY",
+  "teamRank": "218",
+  "age": 25,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 18,
+    "entrying": 17,
+    "trading": 73,
+    "opening": 67,
+    "clutching": 52,
+    "sniping": 93,
+    "utility": 60
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

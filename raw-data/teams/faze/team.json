@@ -1,0 +1,34 @@
+{
+  "name": "FaZe",
+  "hltvRank": "7",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "karrigan",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "frozen",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    },
+    {
+      "name": "Twistzz",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "broky",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "jcobbb",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 278,
+  "hltvHistory": []
+}

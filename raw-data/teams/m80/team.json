@@ -1,0 +1,34 @@
+{
+  "name": "M80",
+  "hltvRank": "24",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "slaxz-",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "Swisher",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "s1n",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "JBa",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Lake",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 182,
+  "hltvHistory": []
+}

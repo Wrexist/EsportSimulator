@@ -1,0 +1,20 @@
+{
+  "name": "sanc",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids Academy",
+  "teamRank": "212",
+  "age": 21,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 35,
+    "entrying": 69,
+    "trading": 61,
+    "opening": 47,
+    "clutching": 99,
+    "sniping": 75,
+    "utility": 26
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

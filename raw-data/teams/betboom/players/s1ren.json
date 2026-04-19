@@ -1,0 +1,20 @@
+{
+  "name": "S1ren",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BetBoom",
+  "teamRank": "32",
+  "age": 23,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 60,
+    "entrying": 49,
+    "trading": 61,
+    "opening": 21,
+    "clutching": 55,
+    "sniping": 45,
+    "utility": 37
+  },
+  "matchesPlayed": 148,
+  "hltvHistory": []
+}

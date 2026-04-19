@@ -1,0 +1,20 @@
+{
+  "name": "Muciek",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "HEROIC Academy",
+  "teamRank": "96",
+  "age": 18,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 62,
+    "entrying": 45,
+    "trading": 98,
+    "opening": 25,
+    "clutching": 96,
+    "sniping": 62,
+    "utility": 62
+  },
+  "matchesPlayed": 91,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "rigoN",
+  "country": "Switzerland",
+  "countryCode": "ch",
+  "team": "Eternal Fire",
+  "teamRank": "161",
+  "age": 26,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 66,
+    "entrying": 79,
+    "trading": 52,
+    "opening": 72,
+    "clutching": 12,
+    "sniping": 74,
+    "utility": 19
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

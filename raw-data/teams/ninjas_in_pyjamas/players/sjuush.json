@@ -1,0 +1,20 @@
+{
+  "name": "sjuush",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Ninjas in Pyjamas",
+  "teamRank": "21",
+  "age": 27,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 63,
+    "entrying": 52,
+    "trading": 21,
+    "opening": 59,
+    "clutching": 83,
+    "sniping": 27,
+    "utility": 66
+  },
+  "matchesPlayed": 162,
+  "hltvHistory": []
+}

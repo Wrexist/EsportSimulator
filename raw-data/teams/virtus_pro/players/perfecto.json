@@ -1,0 +1,20 @@
+{
+  "name": "Perfecto",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Virtus.pro",
+  "teamRank": "22",
+  "age": 26,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 69,
+    "entrying": 24,
+    "trading": 82,
+    "opening": 21,
+    "clutching": 32,
+    "sniping": 0,
+    "utility": 80
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

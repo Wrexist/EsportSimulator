@@ -1,0 +1,22 @@
+{
+    "name": "sirah",
+    "country": "Denmark",
+    "countryCode": "dk",
+    "team": "100 Thieves",
+    "teamRank": "15",
+    "age": 21,
+    "rating": 1.02,
+    "stats": {
+        "firepower": 52,
+        "entrying": 38,
+        "trading": 50,
+        "opening": 44,
+        "clutching": 48,
+        "sniping": 32,
+        "utility": 58
+    },
+    "hltvHistory": [],
+    "matchesPlayed": 280,
+    "majorWins": 0,
+    "totalMVPs": 0
+}

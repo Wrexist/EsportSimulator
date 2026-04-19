@@ -1,0 +1,20 @@
+{
+  "name": "Twistzz",
+  "country": "Canada",
+  "countryCode": "ca",
+  "team": "FaZe",
+  "teamRank": "7",
+  "age": 26,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 68,
+    "entrying": 85,
+    "trading": 81,
+    "opening": 54,
+    "clutching": 55,
+    "sniping": 1,
+    "utility": 53
+  },
+  "matchesPlayed": 295,
+  "hltvHistory": []
+}

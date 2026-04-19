@@ -1,0 +1,20 @@
+{
+  "name": "piriajr",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "paiN",
+  "teamRank": "18",
+  "age": 23,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 97,
+    "entrying": 35,
+    "trading": 45,
+    "opening": 75,
+    "clutching": 37,
+    "sniping": 2,
+    "utility": 20
+  },
+  "matchesPlayed": 161,
+  "hltvHistory": []
+}

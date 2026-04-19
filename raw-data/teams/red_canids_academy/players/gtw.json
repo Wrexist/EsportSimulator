@@ -1,0 +1,20 @@
+{
+  "name": "gtw",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids Academy",
+  "teamRank": "212",
+  "age": 15,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 62,
+    "entrying": 42,
+    "trading": 80,
+    "opening": 9,
+    "clutching": 13,
+    "sniping": 89,
+    "utility": 42
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

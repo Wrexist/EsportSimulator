@@ -1,0 +1,20 @@
+{
+  "name": "sh1ro",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Spirit",
+  "teamRank": "5",
+  "age": 24,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 86,
+    "entrying": 7,
+    "trading": 59,
+    "opening": 46,
+    "clutching": 82,
+    "sniping": 93,
+    "utility": 66
+  },
+  "matchesPlayed": 260,
+  "hltvHistory": []
+}

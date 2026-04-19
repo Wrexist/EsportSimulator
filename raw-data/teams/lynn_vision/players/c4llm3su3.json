@@ -1,0 +1,20 @@
+{
+  "name": "C4LLM3SU3",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Lynn Vision",
+  "teamRank": "36",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 25,
+    "entrying": 51,
+    "trading": 77,
+    "opening": 18,
+    "clutching": 78,
+    "sniping": 1,
+    "utility": 33
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}
