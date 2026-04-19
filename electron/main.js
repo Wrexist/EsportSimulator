@@ -677,7 +677,13 @@ ipcMain.handle('mod-exists', () => {
     try {
         const d = modDir();
         if (!fs.existsSync(d)) return false;
-        return fs.existsSync(path.join(d, 'teams.json')) || fs.existsSync(path.join(d, 'players.json'));
+        // Any of the three overlays is enough — tournaments-only imports
+        // are a valid use case (e.g. a patch that only rebrands events).
+        return (
+            fs.existsSync(path.join(d, 'teams.json')) ||
+            fs.existsSync(path.join(d, 'players.json')) ||
+            fs.existsSync(path.join(d, 'tournaments.json'))
+        );
     } catch (e) {
         return false;
     }
