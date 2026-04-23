@@ -1,7 +1,10 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-    enabled: process.env.ANALYZE === 'true',
-    openAnalyzer: false,
-})
+// Only require @next/bundle-analyzer when ANALYZE=true is set, so production
+// installs (`npm ci --omit=dev`) that never enable analysis don't blow up at
+// config load time on a missing devDependency. When ANALYZE is off we fall
+// back to an identity wrapper and the package isn't touched.
+const withBundleAnalyzer = process.env.ANALYZE === 'true'
+    ? require('@next/bundle-analyzer')({ enabled: true, openAnalyzer: false })
+    : (config) => config
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
