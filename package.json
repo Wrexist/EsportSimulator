@@ -118,11 +118,14 @@
   },
   "build": {
     "appId": "com.esportssim.game",
-    "productName": "Esports Manager",
+    "productName": "Esports Manager: FPS",
     "executableName": "EsportsManager",
+    "copyright": "© 2026 IsacC. All rights reserved.",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
+    "publish": null,
     "asar": true,
     "asarUnpack": [
       ".next/**/*",
@@ -130,7 +133,8 @@
       "package.json",
       "postcss.config.mjs",
       "public/**/*",
-      "steam_appid.txt"
+      "steam_appid.txt",
+      "node_modules/steamworks.js/**/*"
     ],
     "files": [
       "electron/**/*",
@@ -162,14 +166,29 @@
     ],
     "compression": "maximum",
     "win": {
-      "target": "nsis",
-      "icon": "public/logo.png"
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "dir", "arch": ["x64"] }
+      ]
     },
     "linux": {
-      "target": "AppImage"
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "dir", "arch": ["x64"] }
+      ],
+      "category": "Game",
+      "maintainer": "IsacC"
     },
     "mac": {
-      "target": "dmg"
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.simulation-games",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": false
     },
     "nsis": {
       "oneClick": false,

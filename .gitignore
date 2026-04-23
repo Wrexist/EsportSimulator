@@ -8,7 +8,13 @@
 /out/
 
 # production build
-/build
+/build/*
+# electron-builder resources live in /build/; track icons + entitlements
+!/build/icon.png
+!/build/icon.ico
+!/build/icon.icns
+!/build/entitlements.mac.plist
+!/build/entitlements.mac.inherit.plist
 /dist/
 /output/
 /temp-app/
@@ -17,6 +23,10 @@
 /SteamBuild/
 /steamcmd/
 steamcmd.zip
+# steam_appid.txt holds the live Steam App ID. Kept out of the public repo
+# until launch; dev builds fall back to 480 (Spacewar) in electron/steam.js.
+# CI and release builds must materialize this file before packaging.
+steam_appid.txt
 
 # Electron
 /release/

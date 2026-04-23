@@ -4,12 +4,27 @@ declare global {
     interface Window {
         electron: {
             steam: {
+                // identity
+                getSteamId: () => Promise<string | null>;
+                getPersonaName: () => Promise<string | null>;
+                // stats
                 getStat: (name: string) => Promise<number | null>;
-                isAchievementUnlocked: (name: string) => Promise<boolean>;
                 setStat: (name: string, value: number) => Promise<boolean>;
                 storeStats: () => Promise<boolean>;
+                // achievements
+                unlockAchievement: (name: string) => Promise<boolean>;
+                /** @deprecated use unlockAchievement */
                 setAchievement: (name: string) => Promise<boolean>;
+                isAchievementUnlocked: (name: string) => Promise<boolean>;
+                // leaderboards
                 setLeaderboardScore: (name: string, score: number) => Promise<boolean>;
+                // rich presence
+                setRichPresence: (key: string, value: string) => Promise<boolean>;
+                getRichPresence: (key: string) => Promise<string | null>;
+                // cloud saves
+                writeToCloud: (filename: string, contents: string) => Promise<boolean>;
+                readFromCloud: (filename: string) => Promise<string | null>;
+                deleteFromCloud: (filename: string) => Promise<boolean>;
             };
             window: {
                 setFullscreen: (fullscreen: boolean) => Promise<boolean>;
