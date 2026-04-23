@@ -56,7 +56,10 @@ export { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 export {
     SaveManager,
     saveManager,
+    type SaveErrorCode,
 } from "./save-manager"
+
+export { validateSaveSchema } from "./save-schema"
 
 export { asyncStorage, debouncedStorage } from "./storage-adapter"
 

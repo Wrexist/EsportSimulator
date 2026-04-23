@@ -41,16 +41,19 @@ export default function LoadGamePage() {
 
 function LoadGamePageInner() {
     const router = useRouter()
-    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId } = useGameStore(useShallow(state => ({
+    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId, lastLoadError, attemptSaveRecovery, clearLoadError } = useGameStore(useShallow(state => ({
         listSaves: state.listSaves,
         switchSave: state.switchSave,
         deleteSaveInSlot: state.deleteSaveInSlot,
         saveId: state.saveId,
+        lastLoadError: state.lastLoadError,
+        attemptSaveRecovery: state.attemptSaveRecovery,
+        clearLoadError: state.clearLoadError,
     })))
     const [slots, setSlots] = useState<SaveSlotMetadata[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [loadingSlotId, setLoadingSlotId] = useState<string | null>(null)
-    const [loadError, setLoadError] = useState<{ saveId: string; message: string } | null>(null)
+    const [recoveringSlotId, setRecoveringSlotId] = useState<string | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
@@ -73,7 +76,7 @@ function LoadGamePageInner() {
 
     const handleLoad = async (id: string) => {
         setLoadingSlotId(id)
-        setLoadError(null)
+        clearLoadError()
         try {
             const success = await switchSave(id)
             if (success) {
@@ -82,27 +85,33 @@ function LoadGamePageInner() {
                 } catch (err) {
                     debug.error("Navigation failed:", err)
                 }
-            } else {
-                setLoadError({
-                    saveId: id,
-                    message: "Save file could not be loaded. It may be corrupted. The system attempted to restore from backups but was unable to recover the data."
-                })
             }
-        } catch (error) {
-            debug.error("Failed to load save:", error)
-            setLoadError({
-                saveId: id,
-                message: error instanceof Error ? error.message : "An unexpected error occurred while loading this save."
-            })
+            // On failure, lastLoadError is set by the store with errorCode + message.
         } finally {
             setLoadingSlotId(null)
         }
     }
 
+    const handleRecover = async (id: string) => {
+        setRecoveringSlotId(id)
+        try {
+            const ok = await attemptSaveRecovery(id)
+            if (ok) {
+                router.push("/")
+            }
+        } finally {
+            setRecoveringSlotId(null)
+        }
+    }
+
+    const handleSkip = () => {
+        clearLoadError()
+    }
+
     const handleDelete = async (id: string) => {
         if (isDeleting) return
         setIsDeleting(true)
-        setLoadError(null)
+        clearLoadError()
         try {
             await deleteSaveInSlot(id)
             await refreshSlots()
@@ -213,31 +222,73 @@ function LoadGamePageInner() {
                                     </div>
 
                                     {/* Load Error */}
-                                    {loadError?.saveId === slot.saveId && (
-                                        <div className="mx-4 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
-                                            <div className="flex items-start gap-2">
-                                                <AlertCircle size={14} className="mt-0.5 shrink-0" />
-                                                <div>
-                                                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1">Load Failed</p>
-                                                    <p className="text-[10px] text-red-400/80 leading-relaxed">{loadError.message}</p>
+                                    {lastLoadError?.saveId === slot.saveId && (() => {
+                                        const code = lastLoadError.errorCode
+                                        const isNewerVersion = code === "NEWER_VERSION"
+                                        const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
+                                        const heading = isNewerVersion
+                                            ? "Save From Newer Version"
+                                            : isCorrupted
+                                                ? "Save Appears Corrupted"
+                                                : "Load Failed"
+                                        const body = isNewerVersion
+                                            ? "This save was written by a newer build of the game. Update the game to continue this career."
+                                            : isCorrupted
+                                                ? `${lastLoadError.message} You can skip this save (it will be left untouched) or attempt to recover from a backup.`
+                                                : lastLoadError.message
+                                        return (
+                                            <div className="mx-4 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+                                                <div className="flex items-start gap-2">
+                                                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                                                    <div>
+                                                        <p className="text-[10px] font-bold uppercase tracking-wider mb-1">{heading}</p>
+                                                        <p className="text-[10px] text-red-400/80 leading-relaxed">{body}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 mt-3">
+                                                    {isNewerVersion ? (
+                                                        <button
+                                                            onClick={handleSkip}
+                                                            className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+                                                        >
+                                                            Dismiss
+                                                        </button>
+                                                    ) : isCorrupted ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => slot.saveId && handleRecover(slot.saveId)}
+                                                                disabled={recoveringSlotId === slot.saveId}
+                                                                className="flex-1 py-2 rounded-lg bg-amber-500/20 text-[9px] font-bold uppercase tracking-widest text-amber-300 hover:bg-amber-500/30 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                                                            >
+                                                                {recoveringSlotId === slot.saveId ? "Recovering..." : "Attempt Recovery"}
+                                                            </button>
+                                                            <button
+                                                                onClick={handleSkip}
+                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors"
+                                                            >
+                                                                Skip Save
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                onClick={() => slot.saveId && handleLoad(slot.saveId)}
+                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+                                                            >
+                                                                Retry
+                                                            </button>
+                                                            <button
+                                                                onClick={handleSkip}
+                                                                className="px-4 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/50 hover:bg-white/10 transition-colors"
+                                                            >
+                                                                Dismiss
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="flex gap-2 mt-3">
-                                                <button
-                                                    onClick={() => slot.saveId && handleLoad(slot.saveId)}
-                                                    className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                                                >
-                                                    Retry
-                                                </button>
-                                                <button
-                                                    onClick={() => setLoadError(null)}
-                                                    className="px-4 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/50 hover:bg-white/10 transition-colors"
-                                                >
-                                                    Dismiss
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                        )
+                                    })()}
 
                                     {/* Actions */}
                                     <div className="p-2 flex gap-2 bg-white/5 border-t border-white/5">
