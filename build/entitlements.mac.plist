@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- V8 needs JIT to execute JavaScript. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<!-- Some Chromium / V8 pages allocate executable memory without a matching code signature. -->
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+	<!-- Required so the app can load native .dylibs shipped by third-party deps (steamworks.js). -->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+	<!-- Steam overlay / steamworks.js talk to the running Steam client over a local socket. -->
+	<key>com.apple.security.network.client</key>
+	<true/>
+</dict>
+</plist>
