@@ -30,6 +30,7 @@
     "screenshots:capture": "concurrently -k -s first -n \"server,capture\" \"cross-env PORT=3001 next dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && tsx scripts/capture-screenshots.ts\"",
     "release:verify": "npm run check:conflicts && npm run type-check && npm run release:hardening && npm run compliance:steam:strict && npm run build",
     "generate:radar-nav": "tsx scripts/generate-radar-nav-data.ts",
+    "perf:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsx scripts/perf-baseline.ts",
     "test": "npx jest --passWithNoTests",
     "test:watch": "npx jest --watch",
     "optimize:images": "node scripts/optimize-images.js"

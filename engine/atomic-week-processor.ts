@@ -25,6 +25,7 @@ import {
 } from "./save-types"
 import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
+import { perfTrace } from "./perf-trace"
 import { WeaponMasteryManager } from "@/engine/weapon-mastery-system"
 import { WEAPONS } from "@/engine/economy-manager"
 import { AIManager } from "./ai-manager"
@@ -109,6 +110,8 @@ export class AtomicWeekProcessor {
         config: WeekProcessorConfig,
         rng: SeededRNG
     ): Promise<WeekProcessorResult> {
+        const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
+        const __perfWeek = save.currentWeek + 1
         // Check for incomplete transaction
         let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
         let resumeStep = 1
@@ -394,6 +397,13 @@ export class AtomicWeekProcessor {
             await this.saveManager.completeWeekTick(save.saveId)
 
             result.success = true
+            if (perfTrace.enabled) {
+                perfTrace.record("processWeek", __perfT0, {
+                    week: __perfWeek,
+                    matches: result.matchesPlayed,
+                    events: result.eventsGenerated,
+                })
+            }
             return result
 
         } catch (error) {
@@ -410,6 +420,13 @@ export class AtomicWeekProcessor {
             // Preserve incomplete transaction for exact-once resume on next tick.
             // Explicit rollback remains available through rollback() when requested.
 
+            if (perfTrace.enabled) {
+                perfTrace.record("processWeek", __perfT0, {
+                    week: __perfWeek,
+                    matches: 0,
+                    failed: 1,
+                })
+            }
             return {
                 success: false,
                 error: errorMessage,
