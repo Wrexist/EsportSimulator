@@ -9,6 +9,7 @@
     "clean": "node scripts/clean-build.js",
     "clean:all": "node scripts/clean-build.js --all",
     "build": "npm run clean && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "analyze": "npm run clean && cross-env ANALYZE=true NODE_OPTIONS=--max-old-space-size=4096 next build",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
     "dev:all": "concurrently -k \"cross-env PORT=3001 npm run dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && cross-env NEXT_SERVER_PORT=3001 ESM_STABILITY_MODE=1 electron .\"",
     "lint": "next lint",
@@ -90,6 +91,7 @@
     "zustand": "5.0.9"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
     "@types/canvas-confetti": "^1.9.0",
     "@types/jest": "^29.5.14",
     "@types/node": "25.0.3",
