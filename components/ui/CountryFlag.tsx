@@ -52,8 +52,8 @@ const COUNTRY_CODES: Record<string, string> = {
     "Mongolia": "mn",
     "South Africa": "za",
     "New Zealand": "nz",
-    "Kosovo": "xk", // Unofficial code used by flagcdn
-    "Europe": "eu", // Flagcdn supports 'eu'
+    "Kosovo": "xk",
+    "Europe": "eu",
     "NA": "us",
     "North America": "us"
 }
@@ -102,12 +102,12 @@ export function CountryFlag({ country, className, showName = false, size = 20 }:
                 style={{ width: safeSize, height: Math.round(safeSize * 0.75) }}
             >
                 <Image
-                    src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+                    src={`/assets/flags/${code.toLowerCase()}.svg`}
                     alt={country}
                     fill
                     className="object-cover"
                     sizes={`${safeSize}px`}
-                    unoptimized // SVG/CDN usually safe to skip optimization to save bandwidth/processing
+                    unoptimized
                 />
             </div>
             {showName && <span className="text-xs font-semibold text-white/80">{country}</span>}

@@ -278,6 +278,10 @@ export class SaveManager {
      */
     async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         try {
+            // Callers may pass state owned by Immer (frozen); repairSave/updatedAt/
+            // integrityHash all mutate in place. Clone so mutation is safe.
+            save = structuredClone(save)
+
             // Auto-repair common issues before validation
             const repairs = repairSave(save)
             if (repairs && repairs.length > 0) {
