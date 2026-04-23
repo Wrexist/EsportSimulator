@@ -3,13 +3,24 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Bridging Electron to the React app
 contextBridge.exposeInMainWorld('electron', {
     steam: {
+        // identity
+        getSteamId: () => ipcRenderer.invoke('steam-get-id'),
+        getPersonaName: () => ipcRenderer.invoke('steam-get-persona-name'),
+        // stats
         getStat: (name) => ipcRenderer.invoke('steam-get-stat', name),
-        isAchievementUnlocked: (name) => ipcRenderer.invoke('steam-is-achievement-unlocked', name),
         setStat: (name, value) => ipcRenderer.invoke('steam-set-stat', name, value),
         storeStats: () => ipcRenderer.invoke('steam-store-stats'),
+        // achievements
+        unlockAchievement: (name) => ipcRenderer.invoke('steam-set-achievement', name),
+        // Back-compat alias for call sites that used the old name.
         setAchievement: (name) => ipcRenderer.invoke('steam-set-achievement', name),
+        isAchievementUnlocked: (name) => ipcRenderer.invoke('steam-is-achievement-unlocked', name),
+        // leaderboards
         setLeaderboardScore: (name, score) => ipcRenderer.invoke('steam-set-leaderboard-score', name, score),
+        // rich presence
         setRichPresence: (key, value) => ipcRenderer.invoke('steam-set-rich-presence', key, value),
+        getRichPresence: (key) => ipcRenderer.invoke('steam-get-rich-presence', key),
+        // cloud saves
         writeToCloud: (filename, contents) => ipcRenderer.invoke('steam-cloud-write', filename, contents),
         readFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-read', filename),
         deleteFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-delete', filename),

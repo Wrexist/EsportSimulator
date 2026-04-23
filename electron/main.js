@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const steam = require('./steam');
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
 // (steamworks, next.js) to prevent duplicate windows on alt-tab / re-launch.
@@ -20,13 +21,6 @@ if (STABILITY_MODE) {
     app.disableHardwareAcceleration();
 }
 
-let steamworks;
-try {
-    steamworks = require('steamworks.js');
-} catch (e) {
-    console.error('[Steam] Failed to load steamworks.js native module:', e);
-    steamworks = null;
-}
 const http = require('http');
 const { parse } = require('url');
 const next = require('next');
@@ -169,13 +163,8 @@ let mainWindow;
 let forceQuit = false;
 let closeTimeout = null;
 let closePending = false;
-let steamClient;
 let store;
 let isCreatingWindow = false;
-const steamMutationTimestamps = new Map();
-
-const STEAM_MUTATION_WINDOW_MS = 1000;
-const STEAM_MUTATION_LIMIT = 30;
 
 const resolveWindowIconPath = () => {
     const candidatePaths = [
@@ -191,23 +180,6 @@ const resolveWindowIconPath = () => {
     }
 
     return null;
-};
-
-const isTrustedSteamSender = (event) => {
-    if (!mainWindow) return false;
-    return event.sender.id === mainWindow.webContents.id;
-};
-
-const canRunSteamMutation = (event, key) => {
-    if (!isTrustedSteamSender(event)) return false;
-    const now = Date.now();
-    const windowKey = `${event.sender.id}:${key}`;
-    const history = steamMutationTimestamps.get(windowKey) || [];
-    const recent = history.filter((ts) => now - ts < STEAM_MUTATION_WINDOW_MS);
-    if (recent.length >= STEAM_MUTATION_LIMIT) return false;
-    recent.push(now);
-    steamMutationTimestamps.set(windowKey, recent);
-    return true;
 };
 
 const initStore = async () => {
@@ -236,31 +208,6 @@ if (!STABILITY_MODE) {
 // steamworks.js's electronEnableSteamOverlay() adds it, but on Electron 39+
 // it causes DWM to register GPU swap-chain surfaces as separate windows,
 // producing ghost copies in Alt-Tab on every focus change.
-
-// Enable Steam Overlay — manual setup instead of electronEnableSteamOverlay()
-// so we avoid the --disable-direct-composition flag it adds.
-// Read Steam App ID from steam_appid.txt to stay in sync with Steam SDK expectations.
-let STEAM_APP_ID = 4326170; // Fallback
-try {
-    const appIdPaths = [
-        path.join(process.resourcesPath, 'steam_appid.txt'),
-        path.join(app.getAppPath(), 'steam_appid.txt'),
-        path.join(__dirname, '../steam_appid.txt'),
-    ];
-    for (const p of appIdPaths) {
-        if (fs.existsSync(p)) {
-            const raw = fs.readFileSync(p, 'utf8').trim();
-            const parsed = parseInt(raw, 10);
-            if (Number.isFinite(parsed) && parsed > 0) {
-                STEAM_APP_ID = parsed;
-                debugLog(`[Steam] Loaded App ID ${STEAM_APP_ID} from ${p}`);
-                break;
-            }
-        }
-    }
-} catch (e) {
-    debugLog(`[Steam] Could not read steam_appid.txt, using fallback ID ${STEAM_APP_ID}`);
-}
 
 // Frame invalidator: keeps the renderer painting so the Steam Overlay can draw.
 // This replicates what electronEnableSteamOverlay() does internally.
@@ -292,182 +239,13 @@ if (!STABILITY_MODE) {
     app.on('browser-window-created', (_, bw) => attachFrameInvalidator(bw));
 }
 
-try {
-    if (steamworks) {
-        steamClient = steamworks.init(STEAM_APP_ID);
-        console.log('[Steam] Initialized:', steamClient.localplayer.getName());
-    } else {
-        console.warn('[Steam] steamworks.js module not available, running without Steam integration');
-    }
-} catch (e) {
-    console.error("[Steam] Failed to initialize:", e);
-}
-
-// Steam IPC Handlers
-ipcMain.handle('steam-get-stat', (event, name) => {
-    if (!steamClient) return null;
-    try {
-        return steamClient.stats.getInt(name) || steamClient.stats.getFloat(name);
-    } catch (e) {
-        console.error(`[Steam] Error getting stat ${name}:`, e);
-        return null;
-    }
-});
-
-ipcMain.handle('steam-set-stat', (event, name, value) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-set-stat')) return false;
-    try {
-        if (Number.isInteger(value)) {
-            steamClient.stats.setInt(name, value);
-        } else {
-            steamClient.stats.setFloat(name, value);
-        }
-        return true;
-    } catch (e) {
-        console.error(`[Steam] Error setting stat ${name}:`, e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-store-stats', (event) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-store-stats')) return false;
-    try {
-        if (!steamClient.stats?.store) return false;
-        steamClient.stats.store();
-        return true;
-    } catch (e) {
-        console.error('[Steam] Error storing stats:', e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-set-achievement', (event, name) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-set-achievement')) return false;
-    try {
-        if (!steamClient.achievements?.activate || !steamClient.stats?.store) return false;
-        steamClient.achievements.activate(name);
-        steamClient.stats.store();
-        return true;
-    } catch (e) {
-        console.error(`[Steam] Error setting achievement ${name}:`, e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-set-leaderboard-score', async (event, name, score) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-set-leaderboard-score')) return false;
-    try {
-        if (!steamClient.leaderboards?.find) return false;
-        const leaderboard = await steamClient.leaderboards.find(name);
-        await leaderboard.submitScore(score);
-        return true;
-    } catch (e) {
-        console.error(`[Steam] Error setting leaderboard ${name}:`, e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-set-rich-presence', async (event, key, value) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-set-rich-presence')) return false;
-    try {
-        if (steamClient.localplayer?.setRichPresence) {
-            steamClient.localplayer.setRichPresence(key, value);
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.error(`[Steam] Error setting rich presence ${key}:`, e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-is-achievement-unlocked', (event, name) => {
-    if (!steamClient) return false;
-    if (!isTrustedSteamSender(event)) return false;
-    try {
-        if (!steamClient.achievements?.isActivated) return false;
-        return !!steamClient.achievements.isActivated(name);
-    } catch (e) {
-        console.error(`[Steam] Error reading achievement ${name}:`, e);
-        return false;
-    }
-});
-
-// Validate Steam Cloud filenames to prevent path traversal attacks
-function isValidCloudFilename(filename) {
-    if (typeof filename !== 'string' || filename.length === 0 || filename.length > 255) return false;
-    if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) return false;
-    if (path.basename(filename) !== filename) return false;
-    return true;
-}
-
-ipcMain.handle('steam-cloud-write', async (event, filename, contents) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-cloud-write')) return false;
-    if (!isValidCloudFilename(filename)) { console.error(`[Steam] Rejected invalid cloud filename: ${String(filename).substring(0, 50)}`); return false; }
-    try {
-        const cloud = steamClient.cloud;
-        if (!cloud) return false;
-        if (typeof cloud.writeFile === 'function') {
-            await cloud.writeFile(filename, contents);
-            return true;
-        }
-        if (typeof cloud.writeFileAsync === 'function') {
-            await cloud.writeFileAsync(filename, contents);
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.error(`[Steam] Error writing cloud file ${filename}:`, e);
-        return false;
-    }
-});
-
-ipcMain.handle('steam-cloud-read', async (event, filename) => {
-    if (!steamClient) return null;
-    if (!canRunSteamMutation(event, 'steam-cloud-read')) return null;
-    if (!isValidCloudFilename(filename)) { console.error(`[Steam] Rejected invalid cloud filename: ${String(filename).substring(0, 50)}`); return null; }
-    try {
-        const cloud = steamClient.cloud;
-        if (!cloud) return null;
-        if (typeof cloud.readFile === 'function') {
-            return await cloud.readFile(filename);
-        }
-        if (typeof cloud.readFileAsync === 'function') {
-            return await cloud.readFileAsync(filename);
-        }
-        return null;
-    } catch (e) {
-        console.error(`[Steam] Error reading cloud file ${filename}:`, e);
-        return null;
-    }
-});
-
-ipcMain.handle('steam-cloud-delete', async (event, filename) => {
-    if (!steamClient) return false;
-    if (!canRunSteamMutation(event, 'steam-cloud-delete')) return false;
-    if (!isValidCloudFilename(filename)) { console.error(`[Steam] Rejected invalid cloud filename: ${String(filename).substring(0, 50)}`); return false; }
-    try {
-        const cloud = steamClient.cloud;
-        if (!cloud) return false;
-        if (typeof cloud.deleteFile === 'function') {
-            await cloud.deleteFile(filename);
-            return true;
-        }
-        if (typeof cloud.deleteFileAsync === 'function') {
-            await cloud.deleteFileAsync(filename);
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.error(`[Steam] Error deleting cloud file ${filename}:`, e);
-        return false;
-    }
+// Boot Steamworks and register all steam-* IPC handlers. Must run before the
+// first BrowserWindow is created so the Steam overlay has a chance to hook.
+// getTrustedWebContentsId returns -1 until mainWindow exists, which safely
+// rejects all IPC from the renderer during the brief init window.
+steam.initializeSteam({
+    getTrustedWebContentsId: () => (mainWindow ? mainWindow.webContents.id : -1),
+    log: debugLog,
 });
 
 // Window Control IPC Handlers
