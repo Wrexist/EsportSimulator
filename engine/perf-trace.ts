@@ -14,6 +14,11 @@ const enabled =
     typeof process.env !== "undefined" &&
     process.env.ESM_PERF_TRACE === "1"
 
+const stepsEnabled =
+    typeof process !== "undefined" &&
+    typeof process.env !== "undefined" &&
+    process.env.ESM_PERF_TRACE_STEPS === "1"
+
 type Bucket = {
     count: number
     totalMs: number
@@ -34,7 +39,24 @@ function now(): number {
 
 export const perfTrace = {
     enabled,
+    stepsEnabled,
     now,
+
+    /** Time a sub-step. Only aggregates; no per-call log line (too noisy). */
+    step(label: string, startedAt: number): number {
+        const dt = now() - startedAt
+        if (!stepsEnabled) return dt
+        let b = buckets.get(label)
+        if (!b) {
+            b = { count: 0, totalMs: 0, minMs: Infinity, maxMs: 0 }
+            buckets.set(label, b)
+        }
+        b.count += 1
+        b.totalMs += dt
+        if (dt < b.minMs) b.minMs = dt
+        if (dt > b.maxMs) b.maxMs = dt
+        return dt
+    },
 
     record(label: string, startedAt: number, extra?: Record<string, unknown>): number {
         const dt = now() - startedAt
@@ -61,7 +83,7 @@ export const perfTrace = {
 
     /** Emit a compact aggregate summary for all recorded labels, then reset. */
     flush(): void {
-        if (!enabled || buckets.size === 0) return
+        if ((!enabled && !stepsEnabled) || buckets.size === 0) return
         // eslint-disable-next-line no-console
         console.log("[perf] --- summary ---")
         for (const [label, b] of buckets) {

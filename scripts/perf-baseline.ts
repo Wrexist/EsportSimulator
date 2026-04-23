@@ -27,6 +27,7 @@ import { SeededRNG } from "../engine/rng"
 import { TournamentManager } from "../engine/tournament-manager"
 import { AIManager } from "../engine/ai-manager"
 import { MatchFormat } from "../types/enums"
+import { perfTrace } from "../engine/perf-trace"
 import type { AsyncStorage } from "../engine/storage-adapter"
 import type { TeamSaveData, PlayerSaveData, MatchSaveData } from "../engine/save-types"
 
@@ -270,6 +271,12 @@ async function main() {
     await mkdir(path.dirname(DOC_PATH), { recursive: true })
     await writeFile(DOC_PATH, report, "utf8")
     console.log(`[perf] wrote ${DOC_PATH}`)
+
+    // If step-level tracing was enabled, dump the aggregate table.
+    if (perfTrace.stepsEnabled) {
+        console.log("\n[perf] step-level aggregate (from processWeek sub-steps):")
+        perfTrace.flush()
+    }
 }
 
 function buildReport(

@@ -464,6 +464,38 @@ export class SaveManager {
     }
 
     /**
+     * Fast intra-tick checkpoint write.
+     *
+     * Used by AtomicWeekProcessor between its resume-step boundaries to make
+     * mid-tick crashes recoverable. Unlike saveGame(), this skips:
+     *   - structuredClone (caller guarantees no concurrent mutation)
+     *   - repairSave / validateSaveStructure (expensive; final saveGame() does them)
+     *   - integrity hashing (only matters on load; final save recomputes it)
+     *   - 3-deep backup rotation (only makes sense for the end-of-week save)
+     *   - read-back verification (a torn single-key write is effectively
+     *     impossible on electron-store / IDB single-put)
+     *   - Steam Cloud upload (only the final save is uploaded)
+     *
+     * In practice this is roughly a JSON.stringify + one setItem, so
+     * O(serialized size) without the ~3× multiplier of the full protocol.
+     */
+    async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
+        try {
+            save.updatedAt = new Date().toISOString()
+            const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+            const serialized = JSON.stringify(save)
+            await this.storage.setItem(key, serialized)
+            await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
+            return { success: true }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : "Unknown checkpoint error",
+            }
+        }
+    }
+
+    /**
      * Load game from storage.
      *
      * The error code on failure tells callers which dialog to surface:
