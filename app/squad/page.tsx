@@ -60,20 +60,28 @@ function SquadPageInner() {
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
 
+  // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
+  // scan the roster loop below was doing — O(roster × players) per render.
+  const playerById = useMemo(() => {
+    const map = new Map<string, typeof players[number]>()
+    for (const p of players) map.set(p.id, p)
+    return map
+  }, [players])
+
   // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
   const roster = useMemo(() => {
     if (!teamData) return []
 
     return (teamData.rosterIds || [])
       .map((id, index) => {
-        const player = players.find(p => p.id === id)
+        const player = playerById.get(id)
         if (!player) return null
         const evaluation = evaluatePlayer(player as any)
         const playerTier = getDisplayPlayerTier(evaluation.overallRating, teamData?.tier as TierLevel)
         return { ...player, evaluation, playerTier, originalIndex: index }
       })
       .filter(Boolean) as any[]
-  }, [players, teamData])
+  }, [playerById, teamData])
 
   if (!teamData) {
     return (

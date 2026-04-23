@@ -36,6 +36,7 @@ import {
     PlayerLoadout,
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
+import { perfTrace } from "./perf-trace"
 
 // ===== TYPES =====
 
@@ -153,6 +154,7 @@ export class SimulationEngineV2 {
         forcedMaps?: MapId[],
         customTactics?: CustomTactics
     ): MatchResult {
+      const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
       try {
         const matchSeed = (typeof match.seed === 'number' && Number.isFinite(match.seed) && match.seed > 0)
             ? Math.floor(match.seed) : 12345
@@ -241,6 +243,13 @@ export class SimulationEngineV2 {
         const winningPlayers = homeScore > awayScore ? activeHomePlayers : activeAwayPlayers
         const mvpPlayerId = this.determineMVP(playerStats, winningPlayers)
 
+        if (perfTrace.enabled) {
+            perfTrace.record("simulateMatch", __perfT0, {
+                matchId: match.id,
+                format: match.format,
+                maps: mapResults.length,
+            })
+        }
         return {
             homeScore,
             awayScore,

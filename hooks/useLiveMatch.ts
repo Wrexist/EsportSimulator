@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -578,18 +578,37 @@ export function useLiveMatch(id: string) {
         return () => clearTimeout(timer)
     }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
 
+    // Index staff by teamId once per `staff` array ref, so each live-match
+    // round doesn't re-scan every staff member to build home/away coach/analyst/psych.
+    const staffByTeamId = useMemo(() => {
+        const map = new Map<string, typeof staff>()
+        for (const s of staff) {
+            const teamId = s.teamId
+            if (!teamId) continue
+            const list = map.get(teamId)
+            if (list) list.push(s)
+            else map.set(teamId, [s])
+        }
+        return map
+    }, [staff])
+
     const getTeamStaff = useCallback((teamId: string) => {
-        const teamStaff = staff.filter(s => s.teamId === teamId)
-        const coachData = teamStaff.find(s => s.role === "coach")
-        const analystData = teamStaff.find(s => s.role === "analyst")
-        const psychData = teamStaff.find(s => s.role === "psychologist")
+        const teamStaff = staffByTeamId.get(teamId) ?? []
+        let coachData: typeof teamStaff[number] | undefined
+        let analystData: typeof teamStaff[number] | undefined
+        let psychData: typeof teamStaff[number] | undefined
+        for (const s of teamStaff) {
+            if (!coachData && s.role === "coach") coachData = s
+            else if (!analystData && s.role === "analyst") analystData = s
+            else if (!psychData && s.role === "psychologist") psychData = s
+        }
 
         return {
             coach: coachData ? createCoach(coachData.id, coachData.name, coachData.level, coachData.salaryPerWeek) : undefined,
             analyst: analystData ? createAnalyst(analystData.id, analystData.name, analystData.level, analystData.salaryPerWeek) : undefined,
             psychologist: psychData ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek) : undefined,
         }
-    }, [staff])
+    }, [staffByTeamId])
 
     const startNextRound = useCallback((playerStrategy?: RoundStrategy) => {
         const runtime = matchData.current
@@ -1206,7 +1225,10 @@ export function useLiveMatch(id: string) {
 
 
     // --- HANDLERS ---
-    const simulateRoundInstant = () => {
+    // Wrapped in useCallback so identity is stable across renders. Without this
+    // any child that takes these as props (e.g. LiveMatchControlBar) re-renders
+    // on every parent tick, defeating React.memo.
+    const simulateRoundInstant = useCallback(() => {
         if (isSimulatingRef.current) return
         isSimulatingRef.current = true
         if (isWaitingForStrategy) startNextRound()
@@ -1225,20 +1247,20 @@ export function useLiveMatch(id: string) {
         setSpeed(100)
         setIsPlaying(true)
         isSimulatingRef.current = false
-    }
+    }, [isWaitingForStrategy, startNextRound, processNextEvent])
 
-    const simulateMatchInstant = () => {
+    const simulateMatchInstant = useCallback(() => {
         setSpeed(100)
         setIsAutoTactics(true)
         setIsPlaying(true)
-    }
+    }, [])
 
-    const handleFinish = () => {
+    const handleFinish = useCallback(() => {
         if (!matchData.current) return
         saveMatchResult(matchData.current.match.id, matchData.current.result)
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
-    }
+    }, [id, saveMatchResult, clearActiveMatchState, router])
 
     return {
         gameState,

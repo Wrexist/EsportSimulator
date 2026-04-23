@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useRef, useCallback } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -40,6 +41,237 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { LeagueEngine, LEAGUE_TIERS, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 
+type RankingsRowProps = {
+    team: any
+    posInTier: number
+    tierSize: number
+    teamFlag: string
+    isPlayerTeam: boolean
+    onSelect: (team: any) => void
+}
+
+// React.memo on the row means it skips re-render when parent re-renders
+// unless one of its primitive/stable-reference props actually changed.
+// This is the hot-path dedupe: without it, a keystroke in the search box
+// re-renders every row even though most rows haven't changed.
+const RankingsRow = React.memo(function RankingsRow({
+    team,
+    posInTier,
+    tierSize,
+    teamFlag,
+    isPlayerTeam,
+    onSelect,
+}: RankingsRowProps) {
+    const tierStyle = getTierStyle(team.tier)
+    const leagueTierInfo = TIER_DISPLAY[team.leagueTier as LeagueTier]
+    const isPromotionZone = posInTier <= 3 && team.leagueTier !== "S_TIER"
+    const isRelegationZone = posInTier > tierSize - 3 && team.leagueTier !== "B_TIER"
+
+    return (
+        <div
+            role="row"
+            onClick={() => onSelect(team)}
+            className={cn(
+                "group grid items-center px-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer h-[72px]",
+                "grid-cols-[80px_minmax(240px,1fr)_120px_100px_80px_120px_56px]",
+                isPlayerTeam && "bg-primary/5 border-l-2 border-l-primary",
+                isPromotionZone && "bg-emerald-500/5",
+                isRelegationZone && "bg-red-500/5"
+            )}
+        >
+            {/* Rank */}
+            <div className="flex items-center gap-2">
+                <span
+                    className={cn(
+                        "text-xl font-normal italic",
+                        team.worldRanking === 1 ? "text-amber-400" :
+                            team.worldRanking === 2 ? "text-slate-300" :
+                                team.worldRanking === 3 ? "text-amber-700" : "text-white/30"
+                    )}
+                >
+                    #{team.worldRanking}
+                </span>
+            </div>
+
+            {/* Team */}
+            <div className="flex items-center gap-4 min-w-0">
+                <div
+                    className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform shrink-0",
+                        isPlayerTeam
+                            ? "bg-amber-500/20 border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]"
+                            : "bg-white/5 border border-white/10"
+                    )}
+                >
+                    <TeamLogoImage src={team.logoPath} alt={team.name} size={36} team={team} />
+                </div>
+                <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold text-white uppercase tracking-tight truncate">{team.name}</span>
+                        {isPlayerTeam && <Crown className="w-4 h-4 text-amber-400 fill-amber-400/20 ml-2 shrink-0" />}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
+                        <CountryFlag country={teamFlag} showName={false} size={16} />
+                        <span className={cn("font-normal uppercase ml-1", tierStyle.color)}>{tierStyle.label}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* League */}
+            <div className="text-center">
+                <Badge className={cn("text-[9px] font-normal px-2 py-0.5", leagueTierInfo?.bgColor, leagueTierInfo?.color, "border-none")}>
+                    {team.leagueTier === "S_TIER" && <Crown size={10} className="mr-1" />}
+                    {team.leagueTier === "A_TIER" && <Shield size={10} className="mr-1" />}
+                    {team.leagueTier === "B_TIER" && <TrendingUp size={10} className="mr-1" />}
+                    {leagueTierInfo?.label || "?"}
+                </Badge>
+            </div>
+
+            {/* Elo */}
+            <div className="text-center">
+                <span
+                    className={cn(
+                        "text-lg font-mono font-bold",
+                        (team.elo || 1000) >= 1400 ? "text-amber-400" :
+                            (team.elo || 1000) >= 1100 ? "text-blue-400" : "text-emerald-400"
+                    )}
+                >
+                    {team.elo || 1000}
+                </span>
+            </div>
+
+            {/* OVR */}
+            <div className="text-center">
+                <span
+                    className={cn(
+                        "text-lg font-normal",
+                        team.avgRating >= 80 ? "text-emerald-400" :
+                            team.avgRating >= 70 ? "text-blue-400" :
+                                team.avgRating >= 60 ? "text-amber-400" : "text-white/50"
+                    )}
+                >
+                    {team.avgRating}
+                </span>
+            </div>
+
+            {/* Form */}
+            <div className="flex items-center justify-center gap-1">
+                {(team.recentForm || []).length > 0 ? (
+                    team.recentForm.map((result: string, i: number) => (
+                        <div
+                            // Stable key: index + value, since form is a small fixed-order list.
+                            key={`${i}-${result}`}
+                            className={cn(
+                                "w-4 h-4 rounded-full text-[8px] font-normal flex items-center justify-center",
+                                result === "W" ? "bg-emerald-500 text-black" : "bg-red-500 text-white"
+                            )}
+                        >
+                            {result}
+                        </div>
+                    ))
+                ) : (
+                    <span className="text-[10px] text-muted-foreground">--</span>
+                )}
+            </div>
+
+            {/* Chevron */}
+            <div className="flex justify-end">
+                <button className="p-2 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-white transition-colors">
+                    <ChevronRight size={18} />
+                </button>
+            </div>
+        </div>
+    )
+})
+
+type VirtualizedRankingsListProps = {
+    displayTeams: any[]
+    playerTeamId: string | null | undefined
+    posInTierByTeamId: Map<string, { posInTier: number; tierSize: number }>
+    teamFlagByTeamId: Map<string, string>
+    onSelectTeam: (team: any) => void
+}
+
+const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
+    displayTeams,
+    playerTeamId,
+    posInTierByTeamId,
+    teamFlagByTeamId,
+    onSelectTeam,
+}: VirtualizedRankingsListProps) {
+    const parentRef = useRef<HTMLDivElement | null>(null)
+    // Dynamic height works out-of-box via estimateSize; 72 px matches the row
+    // class (`h-[72px]`) so the initial scroll height matches the real layout.
+    const rowVirtualizer = useVirtualizer({
+        count: displayTeams.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 72,
+        overscan: 8,
+    })
+
+    return (
+        <div className="glass-panel p-0 border-white/5 overflow-hidden">
+            {/* Header */}
+            <div
+                className={cn(
+                    "grid items-center px-4 h-12 border-b border-white/10 bg-white/[0.03]",
+                    "grid-cols-[80px_minmax(240px,1fr)_120px_100px_80px_120px_56px]",
+                    "text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em]"
+                )}
+                role="row"
+            >
+                <div>Rank</div>
+                <div>Team</div>
+                <div className="text-center">League</div>
+                <div className="text-center">Elo</div>
+                <div className="text-center">OVR</div>
+                <div className="text-center">Form</div>
+                <div className="text-right" />
+            </div>
+
+            {/* Scroll container + virtualized rows.
+                Fixed height so the virtualizer has a viewport to compute
+                against. 640 px shows ~9 rows; the rest windows in on scroll. */}
+            <div ref={parentRef} className="overflow-y-auto" style={{ height: 640 }}>
+                <div
+                    style={{
+                        height: rowVirtualizer.getTotalSize(),
+                        width: "100%",
+                        position: "relative",
+                    }}
+                >
+                    {rowVirtualizer.getVirtualItems().map(v => {
+                        const team = displayTeams[v.index]
+                        if (!team) return null
+                        const posMeta = posInTierByTeamId.get(team.id)
+                        return (
+                            <div
+                                key={team.id}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    transform: `translateY(${v.start}px)`,
+                                }}
+                            >
+                                <RankingsRow
+                                    team={team}
+                                    posInTier={posMeta?.posInTier ?? 0}
+                                    tierSize={posMeta?.tierSize ?? 0}
+                                    teamFlag={teamFlagByTeamId.get(team.id) ?? "un"}
+                                    isPlayerTeam={team.id === playerTeamId}
+                                    onSelect={onSelectTeam}
+                                />
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    )
+})
+
 export default function RankingsPage() {
     const { teams, playerTeamId, players, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
         teams: state.teams,
@@ -58,7 +290,36 @@ export default function RankingsPage() {
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
-    // Calculate rankings based on Elo (Phase 19)
+    // Build an O(1) player-id → player index once per `players` change. Used
+    // below to replace the `players.find(p => p.id === id)` loop that
+    // previously ran O(roster × players) per row per render.
+    const playerById = useMemo(() => {
+        const map = new Map<string, typeof players[number]>()
+        for (const p of players) map.set(p.id, p)
+        return map
+    }, [players])
+
+    // Precompute recent form per team once (instead of filtering the full
+    // completedMatches array for every row on every render).
+    const recentFormByTeamId = useMemo(() => {
+        const byTeam = new Map<string, string[]>()
+        // completedMatches sorted desc by week (cheap fallback when it isn't).
+        const sorted = [...completedMatches].sort((a, b) => b.week - a.week)
+        for (const m of sorted) {
+            const homeId = m.homeTeamId
+            const awayId = m.awayTeamId
+            const homeList = byTeam.get(homeId)
+            if (!homeList) byTeam.set(homeId, [m.result.homeScore > m.result.awayScore ? "W" : "L"])
+            else if (homeList.length < 5) homeList.push(m.result.homeScore > m.result.awayScore ? "W" : "L")
+            const awayList = byTeam.get(awayId)
+            if (!awayList) byTeam.set(awayId, [m.result.awayScore > m.result.homeScore ? "W" : "L"])
+            else if (awayList.length < 5) awayList.push(m.result.awayScore > m.result.homeScore ? "W" : "L")
+        }
+        return byTeam
+    }, [completedMatches])
+
+    // Calculate rankings based on Elo (Phase 19). Uses `playerById` for O(1)
+    // roster lookup and `recentFormByTeamId` for O(1) form lookup.
     const rankedTeams = useMemo(() => {
         return [...teams]
             .sort((a, b) => (b.elo || 1000) - (a.elo || 1000))
@@ -66,27 +327,18 @@ export default function RankingsPage() {
                 const worldRanking = index + 1
                 const tier = calculateTeamTier(worldRanking)
 
-                // Calculate team overall rating
-                const roster = team.rosterIds
-                    .map(id => players.find(p => p.id === id))
-                    .filter(Boolean)
-                const avgRating = roster.length > 0
-                    ? Math.round(roster.reduce((sum, player) => {
-                        const evaluation = evaluatePlayer(player as any)
-                        return sum + evaluation.overallRating
-                    }, 0) / roster.length)
-                    : 0
+                // Calculate team overall rating via O(1) playerById lookups.
+                let ratingSum = 0
+                let ratingCount = 0
+                for (const id of team.rosterIds) {
+                    const player = playerById.get(id)
+                    if (!player) continue
+                    ratingSum += evaluatePlayer(player as any).overallRating
+                    ratingCount++
+                }
+                const avgRating = ratingCount > 0 ? Math.round(ratingSum / ratingCount) : 0
 
-                // Calculate recent form (last 5 matches)
-                const teamMatches = completedMatches
-                    .filter(m => m.homeTeamId === team.id || m.awayTeamId === team.id)
-                    .sort((a, b) => b.week - a.week)
-                    .slice(0, 5)
-                const recentForm = teamMatches.map(m => {
-                    const isHome = m.homeTeamId === team.id
-                    const won = isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-                    return won ? 'W' : 'L'
-                })
+                const recentForm = recentFormByTeamId.get(team.id) ?? []
 
                 return {
                     ...team,
@@ -96,40 +348,66 @@ export default function RankingsPage() {
                     recentForm,
                 }
             })
-    }, [teams, players, completedMatches])
+    }, [teams, playerById, recentFormByTeamId])
 
-    // Get teams by league tier
-    const getTeamsByLeagueTier = (tier: LeagueTier) => {
-        return rankedTeams
-            .filter(t => t.leagueTier === tier)
-            .sort((a, b) => (b.elo || 1000) - (a.elo || 1000))
-    }
+    // Precompute:
+    //   - teamsByLeagueTier: O(1) tier-filtered list + per-tier counts
+    //   - posInTierByTeamId:  O(1) "which position is team X within its tier?"
+    //   - teamFlagByTeamId:   O(1) majority-region flag (replaces the
+    //     getTeamFlag(rosterIds, players) scan that previously ran per row
+    //     with O(roster × players) cost).
+    // Single O(rankedTeams) pass per data change replaces an O(rankedTeams²)
+    // inline computation on every render.
+    const rankingMeta = useMemo(() => {
+        const teamsByLeagueTier: Record<LeagueTier, typeof rankedTeams> = {
+            S_TIER: [],
+            A_TIER: [],
+            B_TIER: [],
+        }
+        for (const t of rankedTeams) {
+            const tier = t.leagueTier as LeagueTier
+            if (teamsByLeagueTier[tier]) teamsByLeagueTier[tier].push(t)
+        }
+        const posInTierByTeamId = new Map<string, { posInTier: number; tierSize: number }>()
+        for (const tier of Object.keys(teamsByLeagueTier) as LeagueTier[]) {
+            const list = teamsByLeagueTier[tier]
+            list.forEach((t, i) => posInTierByTeamId.set(t.id, { posInTier: i + 1, tierSize: list.length }))
+        }
+        const teamFlagByTeamId = new Map<string, string>()
+        for (const t of rankedTeams) {
+            teamFlagByTeamId.set(t.id, getTeamFlag(t.rosterIds, players as any))
+        }
+        return {
+            teamsByLeagueTier,
+            posInTierByTeamId,
+            teamFlagByTeamId,
+            counts: {
+                S_TIER: teamsByLeagueTier.S_TIER.length,
+                A_TIER: teamsByLeagueTier.A_TIER.length,
+                B_TIER: teamsByLeagueTier.B_TIER.length,
+            },
+        }
+    }, [rankedTeams, players])
+
+    const leagueTierCounts = rankingMeta.counts
 
     // Filter teams for display
     const displayTeams = useMemo(() => {
-        let filtered = rankedTeams
+        let filtered: typeof rankedTeams = rankedTeams
 
         // Apply league tier filter
         if (activeTab === "S_TIER" || activeTab === "A_TIER" || activeTab === "B_TIER") {
-            filtered = getTeamsByLeagueTier(activeTab as LeagueTier)
+            filtered = rankingMeta.teamsByLeagueTier[activeTab as LeagueTier]
         }
 
         // Apply search filter
         if (debouncedSearch) {
-            filtered = filtered.filter(t =>
-                t.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-            )
+            const q = debouncedSearch.toLowerCase()
+            filtered = filtered.filter(t => t.name.toLowerCase().includes(q))
         }
 
         return filtered
-    }, [rankedTeams, activeTab, debouncedSearch])
-
-    // Count teams by league tier
-    const leagueTierCounts = useMemo(() => ({
-        S_TIER: rankedTeams.filter(t => t.leagueTier === "S_TIER").length,
-        A_TIER: rankedTeams.filter(t => t.leagueTier === "A_TIER").length,
-        B_TIER: rankedTeams.filter(t => t.leagueTier === "B_TIER").length,
-    }), [rankedTeams])
+    }, [rankedTeams, rankingMeta, activeTab, debouncedSearch])
 
     // Season info
     const seasonInfo = useMemo(() => ({
@@ -296,148 +574,14 @@ export default function RankingsPage() {
                             </div>
                         </div>
 
-                        {/* Rankings Table */}
-                        <div className="glass-panel p-0 border-white/5 overflow-hidden">
-                            <GlassTable>
-                                <GlassTableHeader>
-                                    <GlassTableRow>
-                                        <GlassTableHead className="w-20">Rank</GlassTableHead>
-                                        <GlassTableHead>Team</GlassTableHead>
-                                        <GlassTableHead className="text-center">League</GlassTableHead>
-                                        <GlassTableHead className="text-center">Elo</GlassTableHead>
-                                        <GlassTableHead className="text-center">OVR</GlassTableHead>
-                                        <GlassTableHead className="text-center">Form</GlassTableHead>
-                                        <GlassTableHead className="text-right"></GlassTableHead>
-                                    </GlassTableRow>
-                                </GlassTableHeader>
-                                <tbody>
-                                    <AnimatePresence mode="popLayout">
-                                        {displayTeams.map((team: any, idx: number) => {
-                                            const tierStyle = getTierStyle(team.tier)
-                                            const leagueTierInfo = TIER_DISPLAY[team.leagueTier as LeagueTier]
-                                            const tierTeams = rankedTeams.filter(t => t.leagueTier === team.leagueTier)
-                                            const posInTier = tierTeams.findIndex(t => t.id === team.id) + 1
-                                            const isPromotionZone = posInTier <= 3 && team.leagueTier !== "S_TIER"
-                                            const isRelegationZone = posInTier > tierTeams.length - 3 && team.leagueTier !== "B_TIER"
-                                            return (
-                                                <motion.tr
-                                                    key={team.id}
-                                                    layout
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: idx * 0.02 }}
-                                                    onClick={() => setSelectedTeam(team)}
-                                                    className={cn(
-                                                        "group border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer",
-                                                        team.id === playerTeamId && "bg-primary/5 border-l-2 border-l-primary",
-                                                        isPromotionZone && "bg-emerald-500/5",
-                                                        isRelegationZone && "bg-red-500/5"
-                                                    )}
-                                                >
-                                                    <GlassTableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className={cn(
-                                                                "text-xl font-normal italic",
-                                                                team.worldRanking === 1 ? "text-amber-400" :
-                                                                    team.worldRanking === 2 ? "text-slate-300" :
-                                                                        team.worldRanking === 3 ? "text-amber-700" : "text-white/30"
-                                                            )}>
-                                                                #{team.worldRanking}
-                                                            </span>
-                                                        </div>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell>
-                                                        <div className="flex items-center gap-4">
-                                                            {/* Team Logo */}
-                                                            <div className={cn(
-                                                                "w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform",
-                                                                team.id === playerTeamId
-                                                                    ? "bg-amber-500/20 border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]"
-                                                                    : "bg-white/5 border border-white/10"
-                                                            )}>
-                                                                <TeamLogoImage
-                                                                    src={team.logoPath}
-                                                                    alt={team.name}
-                                                                    size={36}
-                                                                    team={team}
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="font-bold text-white uppercase tracking-tight">{team.name}</span>
-                                                                    {team.id === playerTeamId && <Crown className="w-4 h-4 text-amber-400 fill-amber-400/20 ml-2" />}
-                                                                </div>
-                                                                <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
-                                                                    <CountryFlag country={getTeamFlag(team.rosterIds, players)} showName={false} size={16} />
-                                                                    <span className={cn("font-normal uppercase ml-1", tierStyle.color)}>{tierStyle.label}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell className="text-center">
-                                                        <Badge className={cn("text-[9px] font-normal px-2 py-0.5", leagueTierInfo?.bgColor, leagueTierInfo?.color, "border-none")}>
-                                                            {team.leagueTier === "S_TIER" && <Crown size={10} className="mr-1" />}
-                                                            {team.leagueTier === "A_TIER" && <Shield size={10} className="mr-1" />}
-                                                            {team.leagueTier === "B_TIER" && <TrendingUp size={10} className="mr-1" />}
-                                                            {leagueTierInfo?.label || "?"}
-                                                        </Badge>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell className="text-center">
-                                                        <span className={cn(
-                                                            "text-lg font-mono font-bold",
-                                                            (team.elo || 1000) >= 1400 ? "text-amber-400" :
-                                                                (team.elo || 1000) >= 1100 ? "text-blue-400" : "text-emerald-400"
-                                                        )}>
-                                                            {team.elo || 1000}
-                                                        </span>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell className="text-center">
-                                                        <span className={cn(
-                                                            "text-lg font-normal",
-                                                            team.avgRating >= 80 ? "text-emerald-400" :
-                                                                team.avgRating >= 70 ? "text-blue-400" :
-                                                                    team.avgRating >= 60 ? "text-amber-400" : "text-white/50"
-                                                        )}>
-                                                            {team.avgRating}
-                                                        </span>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell className="text-center">
-                                                        <div className="flex items-center justify-center gap-1">
-                                                            {(team.recentForm || []).length > 0 ? (
-                                                                team.recentForm.map((result: string, i: number) => (
-                                                                    <div
-                                                                        key={i}
-                                                                        className={cn(
-                                                                            "w-4 h-4 rounded-full text-[8px] font-normal flex items-center justify-center",
-                                                                            result === 'W' ? "bg-emerald-500 text-black" : "bg-red-500 text-white"
-                                                                        )}
-                                                                    >
-                                                                        {result}
-                                                                    </div>
-                                                                ))
-                                                            ) : (
-                                                                <span className="text-[10px] text-muted-foreground">--</span>
-                                                            )}
-                                                        </div>
-                                                    </GlassTableCell>
-                                                    <GlassTableCell className="text-right">
-                                                        <button className="p-2 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-white transition-colors">
-                                                            <ChevronRight size={18} />
-                                                        </button>
-                                                    </GlassTableCell>
-                                                </motion.tr>
-                                            )
-                                        })}
-                                    </AnimatePresence>
-                                </tbody>
-                            </GlassTable>
-                        </div>
-
-                        {displayTeams.length > 50 && (
-                            <p className="text-center text-muted-foreground text-sm">
-                                Showing 50 of {displayTeams.length} teams
-                            </p>
-                        )}
+                        {/* Rankings Table — virtualized */}
+                        <VirtualizedRankingsList
+                            displayTeams={displayTeams}
+                            playerTeamId={playerTeamId}
+                            posInTierByTeamId={rankingMeta.posInTierByTeamId}
+                            teamFlagByTeamId={rankingMeta.teamFlagByTeamId}
+                            onSelectTeam={setSelectedTeam}
+                        />
                     </motion.div>
                 ) : activeTab === "TROPHIES" ? (
                     <motion.div
@@ -683,7 +827,7 @@ export default function RankingsPage() {
                                 <h3 className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4">Active Roster</h3>
                                 <div className="space-y-2">
                                     {selectedTeam.rosterIds.map((id: string) => {
-                                        const player = players.find(p => p.id === id)
+                                        const player = playerById.get(id)
                                         if (!player) return null
                                         const ev = evaluatePlayer(player as any)
                                         const pTier = getDisplayPlayerTier(ev.overallRating, selectedTeam?.tier as TierLevel)
