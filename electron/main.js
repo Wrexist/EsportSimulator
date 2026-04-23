@@ -758,6 +758,10 @@ async function createWindow() {
             webPreferences: {
                 nodeIntegration: false,
                 contextIsolation: true,
+                sandbox: true,
+                webSecurity: true,
+                allowRunningInsecureContent: false,
+                experimentalFeatures: false,
                 preload: path.join(__dirname, 'preload.js'),
             },
             show: false,
@@ -765,27 +769,80 @@ async function createWindow() {
             backgroundColor: '#000000',
         });
 
-        // Content Security Policy — restrict renderer to localhost only
+        // Content Security Policy — the renderer is served from http://localhost:$PORT,
+        // so 'self' already matches every legitimate request. No external domains are
+        // loaded by the game (verified: no external fetch, img, font, or script targets).
+        // 'unsafe-eval' remains because Next.js's production runtime evaluates modules
+        // through Function()/eval; removing it breaks the bundle. 'unsafe-inline' for
+        // style-src is required by React's inline style prop.
         mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
             callback({
                 responseHeaders: {
                     ...details.responseHeaders,
                     'Content-Security-Policy': [
-                        "default-src 'self' http://localhost:*; " +
-                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*; " +
-                        "style-src 'self' 'unsafe-inline' http://localhost:*; " +
-                        "img-src 'self' data: blob: http://localhost:*; " +
-                        "media-src 'self' data: blob: http://localhost:*; " +
-                        "connect-src 'self' http://localhost:* ws://localhost:*; " +
-                        "font-src 'self' data: http://localhost:*;"
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+                        "style-src 'self' 'unsafe-inline'; " +
+                        "img-src 'self' data: blob:; " +
+                        "media-src 'self' data: blob:; " +
+                        "connect-src 'self'; " +
+                        "font-src 'self' data:; " +
+                        "object-src 'none'; " +
+                        "base-uri 'self'; " +
+                        "form-action 'self'; " +
+                        "frame-ancestors 'none';"
                     ]
                 }
             });
         });
 
-        // Block any child/popup windows from being created (prevents ghost Alt-Tab entries)
+        // Deny every permission request (geolocation, notifications, media, midi,
+        // pointerLock, clipboard-read, etc.) — the game does not need any of them.
+        mainWindow.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
+            debugLog(`[Security] Denied permission request: ${permission}`);
+            callback(false);
+        });
+        mainWindow.webContents.session.setPermissionCheckHandler((_webContents, permission) => {
+            debugLog(`[Security] Denied permission check: ${permission}`);
+            return false;
+        });
+
+        // Block any child/popup windows from being created (prevents ghost Alt-Tab entries,
+        // also prevents `window.open` from opening an un-isolated child window).
         mainWindow.webContents.setWindowOpenHandler(() => {
             return { action: 'deny' };
+        });
+
+        // Block full-page navigation to anything outside the local Next.js server.
+        // In-app SPA routing uses history.pushState and does not trigger this event.
+        mainWindow.webContents.on('will-navigate', (navEvent, navigationUrl) => {
+            let allowed = false;
+            try {
+                const parsed = new URL(navigationUrl);
+                allowed = parsed.protocol === 'http:' &&
+                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+            } catch (_) { /* malformed URL — stays disallowed */ }
+            if (!allowed) {
+                debugLog(`[Security] Blocked navigation to ${navigationUrl}`);
+                navEvent.preventDefault();
+            }
+        });
+        mainWindow.webContents.on('will-redirect', (redirectEvent, redirectUrl) => {
+            let allowed = false;
+            try {
+                const parsed = new URL(redirectUrl);
+                allowed = parsed.protocol === 'http:' &&
+                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+            } catch (_) { /* malformed URL — stays disallowed */ }
+            if (!allowed) {
+                debugLog(`[Security] Blocked redirect to ${redirectUrl}`);
+                redirectEvent.preventDefault();
+            }
+        });
+        mainWindow.webContents.on('will-attach-webview', (attachEvent) => {
+            // <webview> is disabled via webPreferences (default), but block defensively.
+            debugLog('[Security] Blocked <webview> attach');
+            attachEvent.preventDefault();
         });
 
         if (windowState.maximized) {
@@ -1104,6 +1161,22 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
         isCreatingWindow = false;
     }
 }
+
+// Defense-in-depth: apply the same navigation / popup / webview restrictions to
+// any webContents that might be created outside of the main BrowserWindow flow.
+app.on('web-contents-created', (_event, contents) => {
+    contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    contents.on('will-navigate', (navEvent, navigationUrl) => {
+        let allowed = false;
+        try {
+            const parsed = new URL(navigationUrl);
+            allowed = parsed.protocol === 'http:' &&
+                (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+        } catch (_) { /* malformed URL — stays disallowed */ }
+        if (!allowed) navEvent.preventDefault();
+    });
+    contents.on('will-attach-webview', (attachEvent) => attachEvent.preventDefault());
+});
 
 app.on('second-instance', () => {
     if (mainWindow) {
