@@ -19,12 +19,14 @@ import {
     GameEventSaveData,
     CompletedMatchSaveData,
     TournamentSaveData,
+    StaffSaveData,
     getResumeStep,
     CURRENT_SAVE_VERSION,
     repairSave,
 } from "./save-types"
 import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
+import { perfTrace } from "./perf-trace"
 import { WeaponMasteryManager } from "@/engine/weapon-mastery-system"
 import { WEAPONS } from "@/engine/economy-manager"
 import { AIManager } from "./ai-manager"
@@ -109,6 +111,8 @@ export class AtomicWeekProcessor {
         config: WeekProcessorConfig,
         rng: SeededRNG
     ): Promise<WeekProcessorResult> {
+        const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
+        const __perfWeek = save.currentWeek + 1
         // Check for incomplete transaction
         let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
         let resumeStep = 1
@@ -128,8 +132,11 @@ export class AtomicWeekProcessor {
             transaction = await this.saveManager.beginWeekTick(save)
         }
 
-        // Create backup before processing
-        await this.saveManager.saveGame(save)
+        // Pre-tick checkpoint. The authoritative end-of-last-week save is
+        // already on disk as the primary key (written by the previous tick's
+        // final saveGame). A cheap checkpoint is enough to mark "tick in
+        // progress" without paying for clone/hash/rotate/verify.
+        await this.saveManager.saveGameCheckpoint(save)
 
         // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
         const idx = buildSaveIndexes(save)
@@ -155,44 +162,64 @@ export class AtomicWeekProcessor {
             // ===== STEP 1: Training Effects =====
             if (resumeStep <= 1) {
                 debugLog(`[Week ${save.currentWeek}] Step 1: Training...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 TrainingProcessor.processTraining(save, config.trainingFocus)
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
+                perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 2: Fatigue Recovery =====
             if (resumeStep <= 2) {
                 debugLog(`[Week ${save.currentWeek}] Step 2: Fatigue recovery...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 TrainingProcessor.processFatigueRecovery(save, rng)
+                perfTrace.step("step.2_fatigue", __s)
                 await this.saveManager.markStepComplete(transaction, "fatigueRecoveryComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 3: Injury Checks =====
             if (resumeStep <= 3) {
                 debugLog(`[Week ${save.currentWeek}] Step 3: Injury checks...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 result.injuriesOccurred = EventProcessor.processInjuryChecks(save, rng)
+                perfTrace.step("step.3_injuries", __s)
                 await this.saveManager.markStepComplete(transaction, "injuryChecksComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4: Finance Processing =====
             if (resumeStep <= 4) {
                 debugLog(`[Week ${save.currentWeek}] Step 4: Finance...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 FinanceProcessor.processContractExpiry(save, config.playerTeamId) // Process expiring contracts
                 result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId)
+                perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4.5: Tournament Processing (MOVED BEFORE MATCHES) =====
             // This must run before matches so tournament matches are scheduled first
             if (resumeStep <= 5) {
                 debugLog(`[Week ${save.currentWeek}] Step 4.5: Tournament Processing...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.processTournaments(save, config.playerTeamId, rng, idx, eventIdSet, ledgerIdSet)
+                perfTrace.step("step.5_tournaments", __s)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 5: Match Simulation =====
@@ -229,14 +256,19 @@ export class AtomicWeekProcessor {
                     }
                 }
 
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet)
+                perfTrace.step("step.6_matches", __s)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 6: Standings Update =====
             if (resumeStep <= 7) {
                 debugLog(`[Week ${save.currentWeek}] Step 6: Standings...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.updateStandings(save, idx, eventIdSet, ledgerIdSet)
 
                 // Sync all team league tiers based on current Elo
@@ -261,13 +293,17 @@ export class AtomicWeekProcessor {
                     addHLTVAwardsEvent(save, awards)
                 }
 
+                perfTrace.step("step.7_standings", __s)
                 await this.saveManager.markStepComplete(transaction, "standingsUpdateComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7: Event Generation =====
             if (resumeStep <= 8) {
                 debugLog(`[Week ${save.currentWeek}] Step 7: Events...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 result.eventsGenerated = await EventProcessor.generateEvents(save, transaction, rng, config.playerTeamId, this.saveManager)
 
                 // Phase 23: Legend Events (Mentorship, Coach Opportunities)
@@ -282,13 +318,17 @@ export class AtomicWeekProcessor {
                 // Phase 60: Job Market - Generate job offers based on performance
                 JobOfferGenerator.processWeeklyJobOffers(save, rng)
 
+                perfTrace.step("step.8_events", __s)
                 await this.saveManager.markStepComplete(transaction, "eventGenerationComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7.5: AI World Logic (Phase 19/24) =====
             if (resumeStep <= 9) {
                 debugLog(`[Week ${save.currentWeek}] Step 7.5: World Logic (AI / Fans)...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.processAIWorldLogic(save, config.playerTeamId, rng)
                 this.processFanbaseGrowth(save, rng)
                 this.processWeeklySponsorGoals(save, eventIdSet, ledgerIdSet)
@@ -314,16 +354,23 @@ export class AtomicWeekProcessor {
                     if (player?.isLegendary) save.legendaryPlayers.push({ ...player })
                 })
 
+                perfTrace.step("step.9_worldAI", __s)
                 await this.saveManager.markStepComplete(transaction, "worldLogicComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 8: Rest Day Processing =====
             if (resumeStep <= 10) {
                 debugLog(`[Week ${save.currentWeek}] Step 8: Rest days...`)
+                const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 TrainingProcessor.processRestDays(save, config.playerTeamId)
+                perfTrace.step("step.10_restDays", __s)
                 await this.saveManager.markStepComplete(transaction, "restDayProcessingComplete")
-                await this.saveManager.saveGame(save)
+                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                await this.saveManager.saveGameCheckpoint(save)
+                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 9: Finalize =====
@@ -385,7 +432,9 @@ export class AtomicWeekProcessor {
             save.lastRngSeed = rng.getState()
 
             // Final save
+            const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
             const saveResult = await this.saveManager.saveGame(save)
+            perfTrace.step("step.save", __sv)
             if (!saveResult.success) {
                 throw new Error(saveResult.error || "Failed to save")
             }
@@ -394,6 +443,13 @@ export class AtomicWeekProcessor {
             await this.saveManager.completeWeekTick(save.saveId)
 
             result.success = true
+            if (perfTrace.enabled) {
+                perfTrace.record("processWeek", __perfT0, {
+                    week: __perfWeek,
+                    matches: result.matchesPlayed,
+                    events: result.eventsGenerated,
+                })
+            }
             return result
 
         } catch (error) {
@@ -410,6 +466,13 @@ export class AtomicWeekProcessor {
             // Preserve incomplete transaction for exact-once resume on next tick.
             // Explicit rollback remains available through rollback() when requested.
 
+            if (perfTrace.enabled) {
+                perfTrace.record("processWeek", __perfT0, {
+                    week: __perfWeek,
+                    matches: 0,
+                    failed: 1,
+                })
+            }
             return {
                 success: false,
                 error: errorMessage,
@@ -459,7 +522,24 @@ export class AtomicWeekProcessor {
             debugLog(`[Matches] First match: ${weekMatches[0].id} (Week ${weekMatches[0].week})`)
         }
 
+        // Index staff by teamId once for this tick so the per-match
+        // save.staff.filter(s => s.teamId === …) scans (3 per match — twice for
+        // getTacticalBonus + once each for home/away roster) become O(1) lookups.
+        const staffByTeamId = new Map<string, StaffSaveData[]>()
+        for (const s of save.staff) {
+            const teamId = s.teamId
+            if (!teamId) continue
+            const list = staffByTeamId.get(teamId)
+            if (list) list.push(s)
+            else staffByTeamId.set(teamId, [s])
+        }
+
         let matchesPlayed = 0
+
+        // Collect IDs of matches processed this week and filter scheduledMatches
+        // once at the end, instead of rebuilding the array on every iteration
+        // (which was O(matches × scheduled) — ~50 × 1000 = 50k element touches/week).
+        const removedMatchIds = new Set<string>()
 
         for (const match of weekMatches) {
             const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
@@ -504,7 +584,7 @@ export class AtomicWeekProcessor {
                 }
 
                 save.completedMatches.push(forfeitResult)
-                save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
+                removedMatchIds.add(match.id)
 
                 // Update form (already resolved, use directly)
                 const wTeam = winningTeam
@@ -545,8 +625,13 @@ export class AtomicWeekProcessor {
                 let bonus = 0
 
                 // 1. Analyst Stats
-                const analysts = save.staff.filter(s => s.teamId === teamId && s.role === "analyst")
-                const statSum = analysts.reduce((sum, s) => sum + (s.stats?.analysis || 50), 0)
+                const teamStaff = staffByTeamId.get(teamId)
+                let statSum = 0
+                if (teamStaff) {
+                    for (const s of teamStaff) {
+                        if (s.role === "analyst") statSum += s.stats?.analysis || 50
+                    }
+                }
                 bonus += (statSum / 100) * 5
 
                 // 2. Strategy Triangle (Rock-Paper-Scissors)
@@ -570,8 +655,8 @@ export class AtomicWeekProcessor {
             const awayBonus = getTacticalBonus(awayTeam.id, homeTeam.playstyle ?? "", awayTeam.playstyle ?? "")
 
             // Collect team staff for talent bonus application in match sim
-            const homeTeamStaff = save.staff.filter(s => s.teamId === homeTeam.id)
-            const awayTeamStaff = save.staff.filter(s => s.teamId === awayTeam.id)
+            const homeTeamStaff = staffByTeamId.get(homeTeam.id) ?? []
+            const awayTeamStaff = staffByTeamId.get(awayTeam.id) ?? []
 
             // Simulate using full engine
             const result = this.matchEngine.simulateMatch(
@@ -663,7 +748,7 @@ export class AtomicWeekProcessor {
             }
 
             save.completedMatches.push(completedMatch)
-            save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
+            removedMatchIds.add(match.id)
 
             // Detect comeback win (team was down by 9+ rounds on a map but won it)
             let hasComebackWin = false
@@ -892,6 +977,12 @@ export class AtomicWeekProcessor {
 
             await this.saveManager.recordMatchComplete(transaction, match.id)
             matchesPlayed++
+        }
+
+        // Drop processed matches from scheduledMatches in a single pass
+        // (replaces the per-iteration `save.scheduledMatches = …filter(…)`).
+        if (removedMatchIds.size > 0) {
+            save.scheduledMatches = save.scheduledMatches.filter(m => !removedMatchIds.has(m.id))
         }
 
         return matchesPlayed

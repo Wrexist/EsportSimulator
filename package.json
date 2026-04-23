@@ -9,6 +9,7 @@
     "clean": "node scripts/clean-build.js",
     "clean:all": "node scripts/clean-build.js --all",
     "build": "npm run clean && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "analyze": "npm run clean && cross-env ANALYZE=true NODE_OPTIONS=--max-old-space-size=4096 next build",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
     "dev:all": "concurrently -k \"cross-env PORT=3001 npm run dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && cross-env NEXT_SERVER_PORT=3001 ESM_STABILITY_MODE=1 electron .\"",
     "lint": "next lint",
@@ -29,6 +30,7 @@
     "screenshots:capture": "concurrently -k -s first -n \"server,capture\" \"cross-env PORT=3001 next dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && tsx scripts/capture-screenshots.ts\"",
     "release:verify": "npm run check:conflicts && npm run type-check && npm run release:hardening && npm run compliance:steam:strict && npm run build",
     "generate:radar-nav": "tsx scripts/generate-radar-nav-data.ts",
+    "perf:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsx scripts/perf-baseline.ts",
     "test": "npx jest --passWithNoTests",
     "test:watch": "npx jest --watch",
     "optimize:images": "node scripts/optimize-images.js"
@@ -63,6 +65,7 @@
     "@radix-ui/react-toggle": "^1.1.1",
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
+    "@tanstack/react-virtual": "^3.13.24",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -90,6 +93,7 @@
     "zustand": "5.0.9"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
     "@types/canvas-confetti": "^1.9.0",
     "@types/jest": "^29.5.14",
     "@types/node": "25.0.3",

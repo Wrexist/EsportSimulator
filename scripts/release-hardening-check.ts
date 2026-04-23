@@ -75,6 +75,18 @@ class FaultInjectSaveManager extends SaveManager {
     }
     return super.saveGame(save)
   }
+
+  // Intermediate persistence inside processWeek now goes through
+  // saveGameCheckpoint (see engine/save-manager.ts). The crash-resume
+  // contract still requires the injected fault to fire at the same
+  // step boundaries, so mirror the throw here.
+  async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
+    if (!this.injected && this.currentStep === this.failStep) {
+      this.injected = true
+      throw new Error(`Injected crash after ${this.failStep}`)
+    }
+    return super.saveGameCheckpoint(save)
+  }
 }
 
 function createPlayer(id: string, name: string, role: string, tier = "PRO"): PlayerSaveData {

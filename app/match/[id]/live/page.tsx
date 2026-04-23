@@ -116,6 +116,14 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
     const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
 
+    // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
+    // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
+    // React.memo. Now it only gets a new object when a/b actually change.
+    const sitePositions = useMemo(
+        () => (radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined),
+        [radarData?.aSite, radarData?.bSite]
+    )
+
     if (!matchData.current || !simState) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
             <div className="text-center">
@@ -295,7 +303,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                             bombState={radarData?.bomb}
                             killLines={radarData?.killLines}
                             smokes={radarData?.smokes}
-                            sitePositions={radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined}
+                            sitePositions={sitePositions}
                             currentTime={gameState.time}
                         />
 

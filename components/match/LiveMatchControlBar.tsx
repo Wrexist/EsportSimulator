@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +19,7 @@ interface LiveMatchControlBarProps {
     onSimulateMatch: () => void
 }
 
-export function LiveMatchControlBar({
+function LiveMatchControlBarComponent({
     gameState,
     isAutoTactics,
     setIsAutoTactics,
@@ -136,3 +137,7 @@ export function LiveMatchControlBar({
         </div>
     )
 }
+
+// memo'd so it skips re-renders when its props (all primitives or stable
+// callbacks from useLiveMatch) haven't changed between parent paints.
+export const LiveMatchControlBar = memo(LiveMatchControlBarComponent)
