@@ -219,7 +219,9 @@ class Analytics {
             const limited = this.events.slice(-1000)
             localStorage.setItem('analytics-events', JSON.stringify(limited))
         } catch (error) {
-            console.error('Failed to store analytics events:', error)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('Failed to store analytics events:', error)
+            }
         }
     }
 
@@ -250,7 +252,9 @@ class Analytics {
                 this.metrics = parsed
             }
         } catch (error) {
-            console.error('Failed to load metrics:', error)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('Failed to load metrics:', error)
+            }
         }
     }
 
@@ -268,7 +272,9 @@ class Analytics {
             }
             localStorage.setItem('game-metrics', JSON.stringify(toStore))
         } catch (error) {
-            console.error('Failed to store metrics:', error)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('Failed to store metrics:', error)
+            }
         }
     }
 

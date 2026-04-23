@@ -131,7 +131,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                                     saved = true
                                     setExitDialog(null)
                                 } catch (err) {
-                                    console.error(`[GameShell] Close-save attempt ${attempt + 1} failed:`, err instanceof Error ? err.message : err)
+                                    if (process.env.NODE_ENV !== 'production') {
+                                        console.error(`[GameShell] Close-save attempt ${attempt + 1} failed:`, err instanceof Error ? err.message : err)
+                                    }
                                     if (attempt < 2) {
                                         await new Promise(r => setTimeout(r, 300))
                                     }

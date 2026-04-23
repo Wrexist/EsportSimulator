@@ -38,7 +38,8 @@ import {
   QualificationStatus,
   CircuitPointsEntry,
   SynergyCalculator,
-  FOUNDING_LEGENDS
+  FOUNDING_LEGENDS,
+  type SaveErrorCode
 } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
@@ -327,6 +328,7 @@ interface GameStoreState {
   managerDetails: ManagerDetails
   isLoading: boolean
   error: string | null
+  lastLoadError: { saveId: string; errorCode: SaveErrorCode; message: string } | null
   isInitialized: boolean
   _hasHydrated: boolean
 
@@ -488,6 +490,8 @@ interface GameStoreActions {
   switchSave: (saveId: string) => Promise<boolean>
   deleteSaveInSlot: (saveId: string) => Promise<void>
   deleteAllSaves: () => Promise<void>
+  attemptSaveRecovery: (saveId: string) => Promise<boolean>
+  clearLoadError: () => void
 
   // Phase 22: Professional Polish
   completeOnboarding: () => void
@@ -1180,6 +1184,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       playerTeamId: null,
       isLoading: false,
       error: null,
+      lastLoadError: null,
       isInitialized: false,
       _hasHydrated: false,
 
@@ -2071,7 +2076,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           get().refreshStaffMarket()
         } catch (err) {
-          console.error("Failed to create custom team:", err)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("Failed to create custom team:", err)
+          }
           set({ isLoading: false, error: err instanceof Error ? err.message : "Failed to create team" })
         }
       },
@@ -2097,12 +2104,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       loadGame: async (saveId) => {
-        set({ isLoading: true, error: null })
+        set({ isLoading: true, error: null, lastLoadError: null })
         try {
-          const { save, error, restoredFromBackup } = await saveManager.loadGame(saveId)
+          const { save, error, errorCode, restoredFromBackup } = await saveManager.loadGame(saveId)
 
           if (error || !save) {
-            throw new Error(error || "Save not found")
+            const message = error || "Save not found"
+            set({ lastLoadError: { saveId, errorCode: errorCode || "UNKNOWN", message } })
+            throw new Error(message)
           }
 
           await steamAchievements.setActiveSave(save.saveId)
@@ -2371,7 +2380,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           const saveResult = await saveManager.saveGame(gameSave)
           if (!saveResult.success) {
-            console.error("[saveGame] SaveManager failed:", saveResult.error)
+            if (process.env.NODE_ENV !== 'production') {
+              console.error("[saveGame] SaveManager failed:", saveResult.error)
+            }
             throw new Error(saveResult.error || "Save failed")
           }
           if (saveResult.repairs && saveResult.repairs.length > 0) {
@@ -2379,7 +2390,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Save failed"
-          console.error("[saveGame] Error:", message)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("[saveGame] Error:", message)
+          }
           throw new Error(message)
         }
       },
@@ -3097,7 +3110,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Advance failed"
-          console.error("[advanceWeek] Failed:", err)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("[advanceWeek] Failed:", err)
+          }
           set({ isLoading: false, error: message })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
           get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
@@ -4604,6 +4619,47 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           teams: [],
           players: [],
         })
+      },
+
+      attemptSaveRecovery: async (saveId) => {
+        set({ isLoading: true, error: null, lastLoadError: null })
+        const recovery = await saveManager.attemptRecovery(saveId)
+        if (!recovery.save) {
+          set({
+            isLoading: false,
+            lastLoadError: {
+              saveId,
+              errorCode: recovery.errorCode || "UNKNOWN",
+              message: recovery.error || "Recovery failed",
+            },
+          })
+          return false
+        }
+        // attemptRecovery has already promoted the recovered candidate to the
+        // primary key, so a normal loadGame() will now find clean data.
+        try {
+          await get().loadGame(saveId)
+          await asyncStorage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, saveId)
+          get().addToast({
+            message: "Save recovered from backup. Some recent progress may be lost.",
+            type: "warning",
+            duration: 10000,
+          })
+          return true
+        } catch (err) {
+          set({
+            lastLoadError: {
+              saveId,
+              errorCode: "UNKNOWN",
+              message: err instanceof Error ? err.message : "Recovery hydration failed",
+            },
+          })
+          return false
+        }
+      },
+
+      clearLoadError: () => {
+        set({ lastLoadError: null, error: null })
       },
 
       completeOnboarding: () => {
@@ -6167,12 +6223,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       skipHydration: false,
       partialize: (state) => {
         // Exclude transient UI state and entity indexes from persistence
-        const { isLoading, error, toasts, _hasHydrated, _teamIndex, _playerIndex, _contractByPlayerIndex, _staffIndex, _completedMatchIds, ...rest } = state
+        const { isLoading, error, lastLoadError, toasts, _hasHydrated, _teamIndex, _playerIndex, _contractByPlayerIndex, _staffIndex, _completedMatchIds, ...rest } = state
         return rest as typeof state
       },
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          console.error('[Store] Rehydration failed:', error)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[Store] Rehydration failed:', error)
+          }
         }
         // Always mark hydrated — even on error — so the UI doesn't hang forever
         if (state) {

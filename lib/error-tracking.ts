@@ -158,7 +158,9 @@ class ErrorTracker {
             const limited = stored.slice(-50)
             localStorage.setItem('error-reports', JSON.stringify(limited))
         } catch (error) {
-            console.error('Failed to store error report:', error)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('Failed to store error report:', error)
+            }
         }
     }
 

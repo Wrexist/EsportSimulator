@@ -88,7 +88,9 @@ export function BulkActionsBar<T>({
             await action.onClick(selectedIds)
             onDeselectAll()
         } catch (error) {
-            console.error('Bulk action failed:', error)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('Bulk action failed:', error)
+            }
         } finally {
             setLoading(false)
         }

@@ -166,6 +166,8 @@ export interface CoreGameActions {
   switchSave: (saveId: string) => Promise<boolean>
   deleteSaveInSlot: (saveId: string) => Promise<void>
   deleteAllSaves: () => Promise<void>
+  attemptSaveRecovery: (saveId: string) => Promise<boolean>
+  clearLoadError: () => void
 }
 
 export interface EntitiesActions {

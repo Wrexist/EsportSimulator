@@ -23,8 +23,17 @@ const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTraini
 const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
 const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export default function SquadPage() {
+  return (
+    <ErrorBoundary section="Squad / Roster">
+      <SquadPageInner />
+    </ErrorBoundary>
+  )
+}
+
+function SquadPageInner() {
   const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
     getPlayerTeam: state.getPlayerTeam,
     players: state.players,

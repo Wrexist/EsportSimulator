@@ -171,7 +171,9 @@ class IndexedDBAdapter implements AsyncStorage {
 
         if (typeof window !== "undefined" && typeof indexedDB !== "undefined") {
             this.dbPromise = this.openDB().catch((err) => {
-                console.error("[Storage] IndexedDB failed to open, falling back:", err)
+                if (process.env.NODE_ENV !== 'production') {
+                    console.error("[Storage] IndexedDB failed to open, falling back:", err)
+                }
                 this.dbFailed = true
                 return null
             })
@@ -211,7 +213,9 @@ class IndexedDBAdapter implements AsyncStorage {
             return await this.dbPromise
         } catch (err) {
             this.dbFailed = true
-            console.error("[Storage] IndexedDB unavailable, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB unavailable, falling back:", err)
+            }
             return null
         }
     }
@@ -229,7 +233,9 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve(request.result || null)
             })
         } catch (err) {
-            console.error("[Storage] IndexedDB getItem failed, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB getItem failed, falling back:", err)
+            }
             this.dbFailed = true
             return this.fallback.getItem(key)
         }
@@ -249,7 +255,9 @@ class IndexedDBAdapter implements AsyncStorage {
                 transaction.onerror = () => reject(transaction.error ?? new Error("[Storage] setItem transaction failed"))
             })
         } catch (err) {
-            console.error("[Storage] IndexedDB setItem failed, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB setItem failed, falling back:", err)
+            }
             this.dbFailed = true
             await this.fallback.setItem(key, value)
         }
@@ -268,7 +276,9 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve()
             })
         } catch (err) {
-            console.error("[Storage] IndexedDB removeItem failed, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB removeItem failed, falling back:", err)
+            }
             this.dbFailed = true
             await this.fallback.removeItem(key)
         }
@@ -287,7 +297,9 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve()
             })
         } catch (err) {
-            console.error("[Storage] IndexedDB clear failed, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB clear failed, falling back:", err)
+            }
             this.dbFailed = true
             await this.fallback.clear()
         }
@@ -306,7 +318,9 @@ class IndexedDBAdapter implements AsyncStorage {
                 request.onsuccess = () => resolve((request.result as string[]) || [])
             })
         } catch (err) {
-            console.error("[Storage] IndexedDB getAllKeys failed, falling back:", err)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("[Storage] IndexedDB getAllKeys failed, falling back:", err)
+            }
             this.dbFailed = true
             return this.fallback.getAllKeys()
         }
