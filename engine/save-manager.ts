@@ -210,7 +210,7 @@ export class SaveManager {
         }
 
         if (!(await this.verifyIntegrityHash(parsed))) {
-            return { ok: false, error: "INTEGRITY_FAILED", message: "Save signature does not match contents" }
+            return { ok: false, error: "INTEGRITY_FAILED", message: "Save integrity check failed (signature does not match contents)" }
         }
 
         let migrated: GameSave
