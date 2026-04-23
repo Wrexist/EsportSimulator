@@ -1225,7 +1225,10 @@ export function useLiveMatch(id: string) {
 
 
     // --- HANDLERS ---
-    const simulateRoundInstant = () => {
+    // Wrapped in useCallback so identity is stable across renders. Without this
+    // any child that takes these as props (e.g. LiveMatchControlBar) re-renders
+    // on every parent tick, defeating React.memo.
+    const simulateRoundInstant = useCallback(() => {
         if (isSimulatingRef.current) return
         isSimulatingRef.current = true
         if (isWaitingForStrategy) startNextRound()
@@ -1244,20 +1247,20 @@ export function useLiveMatch(id: string) {
         setSpeed(100)
         setIsPlaying(true)
         isSimulatingRef.current = false
-    }
+    }, [isWaitingForStrategy, startNextRound, processNextEvent])
 
-    const simulateMatchInstant = () => {
+    const simulateMatchInstant = useCallback(() => {
         setSpeed(100)
         setIsAutoTactics(true)
         setIsPlaying(true)
-    }
+    }, [])
 
-    const handleFinish = () => {
+    const handleFinish = useCallback(() => {
         if (!matchData.current) return
         saveMatchResult(matchData.current.match.id, matchData.current.result)
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
-    }
+    }, [id, saveMatchResult, clearActiveMatchState, router])
 
     return {
         gameState,
