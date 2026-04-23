@@ -29,8 +29,17 @@ import {
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { SaveSlotMetadata } from "@/engine"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export default function LoadGamePage() {
+    return (
+        <ErrorBoundary section="Save / Load">
+            <LoadGamePageInner />
+        </ErrorBoundary>
+    )
+}
+
+function LoadGamePageInner() {
     const router = useRouter()
     const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId } = useGameStore(useShallow(state => ({
         listSaves: state.listSaves,

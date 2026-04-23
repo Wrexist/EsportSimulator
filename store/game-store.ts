@@ -2071,7 +2071,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           get().refreshStaffMarket()
         } catch (err) {
-          console.error("Failed to create custom team:", err)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("Failed to create custom team:", err)
+          }
           set({ isLoading: false, error: err instanceof Error ? err.message : "Failed to create team" })
         }
       },
@@ -2371,7 +2373,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           const saveResult = await saveManager.saveGame(gameSave)
           if (!saveResult.success) {
-            console.error("[saveGame] SaveManager failed:", saveResult.error)
+            if (process.env.NODE_ENV !== 'production') {
+              console.error("[saveGame] SaveManager failed:", saveResult.error)
+            }
             throw new Error(saveResult.error || "Save failed")
           }
           if (saveResult.repairs && saveResult.repairs.length > 0) {
@@ -2379,7 +2383,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Save failed"
-          console.error("[saveGame] Error:", message)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("[saveGame] Error:", message)
+          }
           throw new Error(message)
         }
       },
@@ -3097,7 +3103,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Advance failed"
-          console.error("[advanceWeek] Failed:", err)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error("[advanceWeek] Failed:", err)
+          }
           set({ isLoading: false, error: message })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
           get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
@@ -6172,7 +6180,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          console.error('[Store] Rehydration failed:', error)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[Store] Rehydration failed:', error)
+          }
         }
         // Always mark hydrated — even on error — so the UI doesn't hang forever
         if (state) {

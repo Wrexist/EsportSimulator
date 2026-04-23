@@ -67,10 +67,12 @@ class Logger {
     }
 
     /**
-     * Error - Always logged
+     * Error - Logged only in development; tracked in history regardless
      */
     error(message: string, error?: Error | unknown, ...args: unknown[]) {
-        console.error(this.formatMessage('error', message), error, ...args)
+        if (process.env.NODE_ENV !== 'production') {
+            console.error(this.formatMessage('error', message), error, ...args)
+        }
         this.addToHistory('error', message, { error, args })
 
         // Could integrate with error tracking service here

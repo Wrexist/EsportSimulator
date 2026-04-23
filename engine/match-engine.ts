@@ -206,7 +206,9 @@ export class MatchEngine {
             awayStaff
         )
       } catch (error) {
-        console.error('[MatchEngine] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[MatchEngine] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
+        }
         throw error
       }
     }
