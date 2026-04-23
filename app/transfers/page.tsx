@@ -28,8 +28,17 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export default function TransfersPage() {
+  return (
+    <ErrorBoundary section="Transfers / Roster Management">
+      <TransfersPageInner />
+    </ErrorBoundary>
+  )
+}
+
+function TransfersPageInner() {
   const { players, teams, getPlayerTeam, transferPlayer, currentWeek } = useGameStore(useShallow(state => ({
     players: state.players,
     teams: state.teams,

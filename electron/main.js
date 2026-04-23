@@ -184,7 +184,13 @@ const resolveWindowIconPath = () => {
 
 const initStore = async () => {
     const { default: Store } = await import('electron-store');
+    // Pin save storage to app.getPath('userData'). electron-store already
+    // defaults to this directory, but stating it explicitly prevents anything
+    // from ever writing into the install/Resources folder (which is read-only
+    // on macOS Steam installs and gets blown away on Windows upgrades).
+    const userDataDir = app.getPath('userData');
     store = new Store({
+        cwd: userDataDir,
         defaults: {
             window: {
                 width: 1280,
@@ -194,6 +200,9 @@ const initStore = async () => {
             }
         }
     });
+    if (!STABILITY_MODE) {
+        console.log('[Electron] Save storage pinned to', userDataDir);
+    }
 };
 
 

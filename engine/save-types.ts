@@ -1250,7 +1250,9 @@ export function repairSave(save: unknown): string[] | null {
 export function validateSaveStructure(save: unknown): save is GameSave {
     const errors = collectValidationErrors(save)
     if (errors.length > 0) {
-        console.error(`Save validation failed (${errors.length} issues):`, errors.join("; "))
+        if (process.env.NODE_ENV !== 'production') {
+            console.error(`Save validation failed (${errors.length} issues):`, errors.join("; "))
+        }
         return false
     }
     return true

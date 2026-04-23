@@ -31,6 +31,30 @@ import {
     PlayerPreview,
     QualificationStatus,
 } from "./save-types"
+import { validateSaveSchema } from "./save-schema"
+
+// ===== LOAD/SAVE ERROR CODES =====
+
+/**
+ * Discriminator for SaveManager.loadGame failures so the UI can route to the
+ * right recovery dialog.
+ *
+ * - NOT_FOUND: no data at the requested key
+ * - CORRUPTED: parse/schema/structure validation failed
+ * - INTEGRITY_FAILED: hash mismatch (tampering or partial write)
+ * - NEWER_VERSION: save was written by a build with a higher saveVersion
+ * - WRITE_FAILED: write-side failure surfaced from saveGame
+ * - UNKNOWN: anything else
+ */
+export type SaveErrorCode =
+    | "NOT_FOUND"
+    | "CORRUPTED"
+    | "INTEGRITY_FAILED"
+    | "NEWER_VERSION"
+    | "WRITE_FAILED"
+    | "UNKNOWN"
+
+const TMP_SUFFIX = ".tmp"
 import {
     dedupeQualifications,
     normalizeQualificationStatus,
@@ -158,29 +182,80 @@ export class SaveManager {
     private async parseAndValidateSaveCandidate(
         data: string,
         expectedSaveId: string
-    ): Promise<{ migrated: GameSave; updatedAtMs: number } | null> {
+    ): Promise<
+        | { ok: true; migrated: GameSave; updatedAtMs: number }
+        | { ok: false; error: SaveErrorCode; message?: string }
+    > {
+        let parsed: Record<string, unknown>
         try {
-            const parsed = JSON.parse(data) as Record<string, unknown>
-            if (parsed?.saveId && parsed.saveId !== expectedSaveId) {
-                return null
-            }
-
-            if (!(await this.verifyIntegrityHash(parsed))) {
-                return null
-            }
-
-            const migrated = this.migrateSave(parsed)
-            if (!validateSaveStructure(migrated)) {
-                return null
-            }
-
-            const updatedAtMs = Number.isFinite(new Date(migrated.updatedAt).getTime())
-                ? new Date(migrated.updatedAt).getTime()
-                : 0
-
-            return { migrated, updatedAtMs }
+            parsed = JSON.parse(data) as Record<string, unknown>
         } catch {
-            return null
+            return { ok: false, error: "CORRUPTED", message: "Save file is not valid JSON" }
+        }
+
+        if (parsed?.saveId && parsed.saveId !== expectedSaveId) {
+            return { ok: false, error: "CORRUPTED", message: "Save ID mismatch" }
+        }
+
+        // Schema check happens before integrity check so we can detect a
+        // forward-version save (a v8 save that arrived in a v6 build) before
+        // we waste time hashing it.
+        const schema = validateSaveSchema(parsed)
+        if (!schema.ok && schema.newerVersion) {
+            return {
+                ok: false,
+                error: "NEWER_VERSION",
+                message: schema.issues[0],
+            }
+        }
+
+        if (!(await this.verifyIntegrityHash(parsed))) {
+            return { ok: false, error: "INTEGRITY_FAILED", message: "Save integrity check failed (signature does not match contents)" }
+        }
+
+        let migrated: GameSave
+        try {
+            migrated = this.migrateSave(parsed)
+        } catch (err) {
+            return {
+                ok: false,
+                error: "CORRUPTED",
+                message: err instanceof Error ? err.message : "Migration failed",
+            }
+        }
+
+        // Re-validate after migration in case migration produced an inconsistent
+        // structure (defensive — should not happen, but cheap to check).
+        const postSchema = validateSaveSchema(migrated)
+        if (!postSchema.ok) {
+            return {
+                ok: false,
+                error: "CORRUPTED",
+                message: postSchema.issues[0],
+            }
+        }
+
+        if (!validateSaveStructure(migrated)) {
+            const errors = collectValidationErrors(migrated)
+            return { ok: false, error: "CORRUPTED", message: errors[0] || "Structural validation failed" }
+        }
+
+        const updatedAtMs = Number.isFinite(new Date(migrated.updatedAt).getTime())
+            ? new Date(migrated.updatedAt).getTime()
+            : 0
+
+        return { ok: true, migrated, updatedAtMs }
+    }
+
+    /**
+     * Discard any leftover .tmp staging file for a save key. Called on load
+     * to clean up after a crash mid-write.
+     */
+    private async clearStaleTmp(key: string): Promise<void> {
+        const tmpKey = key + TMP_SUFFIX
+        const tmp = await this.storage.getItem(tmpKey)
+        if (tmp !== null) {
+            await this.storage.removeItem(tmpKey)
         }
     }
 
@@ -300,12 +375,13 @@ export class SaveManager {
             save.integrityHash = await this.computeIntegrityHash(save as unknown as Record<string, unknown>)
 
             const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+            const tmpKey = key + TMP_SUFFIX
             const backupKey = STORAGE_KEYS.BACKUP_PREFIX + save.saveId
 
-            // 1. Rotate backups (keep last 3) before overwriting
+            // 1. Rotate backups (keep last 3) before overwriting. The previous
+            //    primary becomes backup_1 — equivalent to slot-N.backup.json.
             const existing = await this.storage.getItem(key)
             if (existing) {
-                // Shift backup_2 -> backup_3, backup_1 -> backup_2, current backup -> backup_1
                 const backup3 = await this.storage.getItem(backupKey + "_2")
                 if (backup3) await this.storage.setItem(backupKey + "_3", backup3)
                 const backup2 = await this.storage.getItem(backupKey + "_1")
@@ -313,30 +389,53 @@ export class SaveManager {
                 await this.storage.setItem(backupKey + "_1", existing)
             }
 
-            // 2. Serialize and save new data
+            // 2. Atomic write: stage to <key>.tmp first. If we crash between
+            //    here and step 4, the existing primary is untouched and the
+            //    stale .tmp will be discarded by clearStaleTmp() on next load.
             const serialized = JSON.stringify(save)
+            await this.storage.setItem(tmpKey, serialized)
+
+            // 3. Verify staging succeeded before committing. Concurrent IDB
+            //    transactions can delay reads — retry once on mismatch.
+            let stagingVerified = false
+            for (let vAttempt = 0; vAttempt < 2 && !stagingVerified; vAttempt++) {
+                const verification = await this.storage.getItem(tmpKey)
+                if (verification === serialized) {
+                    stagingVerified = true
+                } else if (vAttempt === 0) {
+                    await new Promise(r => setTimeout(r, 50))
+                    await this.storage.setItem(tmpKey, serialized)
+                }
+            }
+            if (!stagingVerified) {
+                await this.storage.removeItem(tmpKey)
+                return { success: false, error: "Staging write verification failed" }
+            }
+
+            // 4. Commit: copy tmp into primary key, then drop tmp. Underlying
+            //    storage (electron-store / IndexedDB) provides atomicity at
+            //    the per-key level, so this is effectively a rename.
             await this.storage.setItem(key, serialized)
 
-            // 3. Verify write succeeded (retry once on mismatch - concurrent
-            //    IndexedDB transactions from Zustand persist can delay reads)
             let verified = false
             for (let vAttempt = 0; vAttempt < 2 && !verified; vAttempt++) {
                 const verification = await this.storage.getItem(key)
                 if (verification === serialized) {
                     verified = true
                 } else if (vAttempt === 0) {
-                    // First mismatch: retry write + verify after a short yield
                     await new Promise(r => setTimeout(r, 50))
                     await this.storage.setItem(key, serialized)
                 }
             }
             if (!verified) {
-                // Restore from backup
                 if (existing) {
                     await this.storage.setItem(key, existing)
                 }
-                return { success: false, error: "Write verification failed" }
+                await this.storage.removeItem(tmpKey)
+                return { success: false, error: "Commit verification failed" }
             }
+
+            await this.storage.removeItem(tmpKey)
 
             // 4. Update current save ID
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
@@ -365,13 +464,25 @@ export class SaveManager {
     }
 
     /**
-     * Load game from storage
+     * Load game from storage.
+     *
+     * The error code on failure tells callers which dialog to surface:
+     *   NEWER_VERSION → "update the game"
+     *   CORRUPTED / INTEGRITY_FAILED → "this save appears corrupted, skip or attempt recovery"
      */
-    async loadGame(saveId: string): Promise<{ save: GameSave | null; error?: string; restoredFromBackup?: boolean }> {
+    async loadGame(saveId: string): Promise<{
+        save: GameSave | null
+        error?: string
+        errorCode?: SaveErrorCode
+        restoredFromBackup?: boolean
+    }> {
         try {
             const key = STORAGE_KEYS.SAVE_PREFIX + saveId
             const backupKey = STORAGE_KEYS.BACKUP_PREFIX + saveId
             let restoredFromBackup = false
+
+            // Discard any stale staging file from an interrupted previous write.
+            await this.clearStaleTmp(key)
 
             // Try primary save
             let localData = await this.storage.getItem(key)
@@ -405,7 +516,7 @@ export class SaveManager {
             }
 
             if (!localData) {
-                return { save: null, error: "Save not found" }
+                return { save: null, error: "Save not found", errorCode: "NOT_FOUND" }
             }
 
             const localCandidate = await this.parseAndValidateSaveCandidate(localData, saveId)
@@ -413,19 +524,51 @@ export class SaveManager {
                 ? await this.parseAndValidateSaveCandidate(cloudData, saveId)
                 : null
 
-            let selected = localCandidate
+            // Track the strongest signal across attempted candidates so we can
+            // surface a precise error if everything fails.
+            let bestErrorCode: SaveErrorCode = "CORRUPTED"
+            let bestErrorMessage: string | undefined
+
+            const recordError = (
+                candidate: { ok: false; error: SaveErrorCode; message?: string }
+            ) => {
+                // NEWER_VERSION dominates everything — if any candidate is from
+                // the future, that's the most actionable signal.
+                if (candidate.error === "NEWER_VERSION") {
+                    bestErrorCode = "NEWER_VERSION"
+                    bestErrorMessage = candidate.message
+                    return
+                }
+                if (bestErrorCode === "NEWER_VERSION") return
+                if (candidate.error === "INTEGRITY_FAILED" && bestErrorCode !== "INTEGRITY_FAILED") {
+                    bestErrorCode = "INTEGRITY_FAILED"
+                    bestErrorMessage = candidate.message
+                } else if (!bestErrorMessage) {
+                    bestErrorMessage = candidate.message
+                }
+            }
+
+            let selected: { ok: true; migrated: GameSave; updatedAtMs: number } | null = null
             let selectedSource: "local" | "cloud" = "local"
 
-            if (!selected && cloudCandidate) {
-                selected = cloudCandidate
-                selectedSource = "cloud"
-            } else if (
-                selected &&
-                cloudCandidate &&
-                cloudCandidate.updatedAtMs > selected.updatedAtMs + 1000
-            ) {
-                selected = cloudCandidate
-                selectedSource = "cloud"
+            if (localCandidate.ok) {
+                selected = localCandidate
+            } else {
+                recordError(localCandidate)
+            }
+
+            if (cloudCandidate) {
+                if (cloudCandidate.ok) {
+                    if (!selected) {
+                        selected = cloudCandidate
+                        selectedSource = "cloud"
+                    } else if (cloudCandidate.updatedAtMs > selected.updatedAtMs + 1000) {
+                        selected = cloudCandidate
+                        selectedSource = "cloud"
+                    }
+                } else {
+                    recordError(cloudCandidate)
+                }
             }
 
             // If primary + cloud both failed validation, try backup slots for corruption recovery
@@ -434,20 +577,25 @@ export class SaveManager {
                     const backupData = await this.storage.getItem(backupKey + suffix)
                     if (!backupData) continue
                     const backupCandidate = await this.parseAndValidateSaveCandidate(backupData, saveId)
-                    if (backupCandidate) {
+                    if (backupCandidate.ok) {
                         selected = backupCandidate
                         selectedSource = "local"
                         restoredFromBackup = true
                         debug.warn(`Restored from backup${suffix || " (legacy)"} - primary save was corrupted`)
-                        // Promote backup as new primary so future loads are fast
                         await this.storage.setItem(key, backupData)
                         break
+                    } else {
+                        recordError(backupCandidate)
                     }
                 }
             }
 
             if (!selected) {
-                return { save: null, error: "Save integrity check failed (possible tampering/corruption)" }
+                return {
+                    save: null,
+                    error: bestErrorMessage || "Save integrity check failed (possible tampering/corruption)",
+                    errorCode: bestErrorCode,
+                }
             }
 
             if (selectedSource === "cloud" && cloudData && cloudData !== localData) {
@@ -463,6 +611,83 @@ export class SaveManager {
             return {
                 save: null,
                 error: error instanceof Error ? error.message : "Unknown load error",
+                errorCode: "UNKNOWN",
+            }
+        }
+    }
+
+    /**
+     * Explicitly walk all backup slots and the cloud copy for a save, ignoring
+     * the (presumed corrupted) primary. Used by the "Attempt Recovery" UI
+     * action when the user opts in after a corrupted-load dialog.
+     *
+     * Promotes the recovered candidate to primary on success.
+     */
+    async attemptRecovery(saveId: string): Promise<{
+        save: GameSave | null
+        error?: string
+        errorCode?: SaveErrorCode
+    }> {
+        try {
+            const key = STORAGE_KEYS.SAVE_PREFIX + saveId
+            const backupKey = STORAGE_KEYS.BACKUP_PREFIX + saveId
+
+            await this.clearStaleTmp(key)
+
+            let bestErrorCode: SaveErrorCode = "NOT_FOUND"
+            let bestErrorMessage: string | undefined
+
+            // Backups, newest → oldest, then legacy.
+            for (const suffix of ["_1", "_2", "_3", ""]) {
+                const data = await this.storage.getItem(backupKey + suffix)
+                if (!data) continue
+                const candidate = await this.parseAndValidateSaveCandidate(data, saveId)
+                if (candidate.ok) {
+                    await this.storage.setItem(key, data)
+                    debug.warn(`[SaveManager] Recovered save ${saveId} from backup${suffix || " (legacy)"}`)
+                    return { save: candidate.migrated }
+                }
+                if (candidate.error === "NEWER_VERSION") {
+                    bestErrorCode = "NEWER_VERSION"
+                    bestErrorMessage = candidate.message
+                } else if (bestErrorCode !== "NEWER_VERSION") {
+                    bestErrorCode = candidate.error
+                    bestErrorMessage = candidate.message
+                }
+            }
+
+            // Last resort: cloud.
+            try {
+                const cloud = await steamService.downloadSaveFromCloud(saveId)
+                if (cloud) {
+                    const candidate = await this.parseAndValidateSaveCandidate(cloud, saveId)
+                    if (candidate.ok) {
+                        await this.storage.setItem(key, cloud)
+                        debug.warn(`[SaveManager] Recovered save ${saveId} from Steam Cloud`)
+                        return { save: candidate.migrated }
+                    }
+                    if (candidate.error === "NEWER_VERSION") {
+                        bestErrorCode = "NEWER_VERSION"
+                        bestErrorMessage = candidate.message
+                    } else if (bestErrorCode !== "NEWER_VERSION") {
+                        bestErrorCode = candidate.error
+                        bestErrorMessage = candidate.message
+                    }
+                }
+            } catch {
+                // Cloud unavailable — already captured the on-disk state above.
+            }
+
+            return {
+                save: null,
+                error: bestErrorMessage || "No recoverable backup or cloud copy was found.",
+                errorCode: bestErrorCode,
+            }
+        } catch (error) {
+            return {
+                save: null,
+                error: error instanceof Error ? error.message : "Unknown recovery error",
+                errorCode: "UNKNOWN",
             }
         }
     }

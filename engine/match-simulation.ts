@@ -250,7 +250,9 @@ export class SimulationEngineV2 {
             winnerId: homeScore > awayScore ? homeTeam.id : awayTeam.id
         }
       } catch (error) {
-        console.error('[SimulationEngineV2] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[SimulationEngineV2] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
+        }
         throw error
       }
     }
