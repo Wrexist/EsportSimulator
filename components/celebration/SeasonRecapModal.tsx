@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Trophy, Star, TrendingUp, Crown, Calendar, Users, DollarSign, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { TeamLogoImage } from "@/components/ui/asset-images"
+import { PlayerCard } from "@/components/ui/PlayerCard"
 
 interface SeasonRecapModalProps {
     isOpen: boolean
@@ -113,17 +114,22 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
 
                                 {stats.bestPlayer ? (
                                     <>
-                                        <div className="w-32 h-32 rounded-[2rem] bg-black/40 border border-primary/30 overflow-hidden mb-6 relative">
-                                            <PlayerPortrait
-                                                src={stats.bestPlayer.portraitPath}
-                                                alt={stats.bestPlayer.nickname}
-                                                size={128}
-                                            />
-                                            <div className="absolute bottom-0 inset-x-0 bg-primary/90 text-[10px] font-black py-1 text-black">
+                                        <PlayerCard
+                                            player={{
+                                                id: stats.bestPlayer.nickname,
+                                                nickname: stats.bestPlayer.nickname,
+                                                portraitPath: stats.bestPlayer.portraitPath,
+                                            }}
+                                            size="lg"
+                                            variant="reveal"
+                                            href={null}
+                                            accent="brand"
+                                            className="mb-6"
+                                        >
+                                            <div className="mt-3 inline-block bg-primary/90 text-[10px] font-black py-1 px-3 text-black rounded">
                                                 {stats.bestPlayer.rating.toFixed(2)} RATING
                                             </div>
-                                        </div>
-                                        <h3 className="text-2xl font-normal text-white mb-2">{stats.bestPlayer.nickname}</h3>
+                                        </PlayerCard>
                                         <p className="text-sm text-white/40">The engine of your success this year.</p>
                                     </>
                                 ) : (
