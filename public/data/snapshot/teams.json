@@ -531,7 +531,7 @@
       "player_26_bk_kame_s7mple"
     ],
     "reputation": 90,
-    "fanbase": -600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -951,24 +951,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_48_majyc",
-    "name": "majyc",
-    "shortName": "MAJYC",
-    "tier": "PRO",
-    "region": "CIS",
-    "logoPath": "/assets/teams/majyc/logo.svg",
-    "rosterIds": [
-      "player_48_majyc_h7te",
-      "player_48_majyc_maswal",
-      "player_48_majyc_zfade8",
-      "player_48_majyc_tensy"
-    ],
-    "reputation": 81,
-    "fanbase": 3500,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_49_vuqa",
     "name": "Vuqa",
     "shortName": "VUQA",
@@ -1063,42 +1045,6 @@
     ],
     "reputation": 79,
     "fanbase": 4700,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_54_xalesieium",
-    "name": "XALESIEium",
-    "shortName": "XALE",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/xalesieium/logo.svg",
-    "rosterIds": [
-      "player_54_xalesieium_b7elany",
-      "player_54_xalesieium_innokent",
-      "player_54_xalesieium_glokuu",
-      "player_54_xalesieium_zobol"
-    ],
-    "reputation": 78,
-    "fanbase": 7840,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_54_vanamor",
-    "name": "Vanamor",
-    "shortName": "VANA",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/vanamor/logo.svg",
-    "rosterIds": [
-      "player_54_vanamor_fzlayy",
-      "player_54_vanamor_innokent",
-      "player_54_vanamor_glokuu",
-      "player_54_vanamor_zobol"
-    ],
-    "reputation": 78,
-    "fanbase": 4600,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -1216,7 +1162,7 @@
       "player_60_arcredra_zynyx"
     ],
     "reputation": 76,
-    "fanbase": -3000,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -1419,24 +1365,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_71_shindan",
-    "name": "ShindaN",
-    "shortName": "SHIN",
-    "tier": "SEMI_PRO",
-    "region": "BR",
-    "logoPath": "/assets/teams/shindan/logo.svg",
-    "rosterIds": [
-      "player_71_shindan_abiss",
-      "player_71_shindan_ivs",
-      "player_71_shindan_nas",
-      "player_71_shindan_tom7jed"
-    ],
-    "reputation": 72,
-    "fanbase": 7160,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_72_33or",
     "name": "33or",
     "shortName": "33OR",
@@ -1490,24 +1418,6 @@
     ],
     "reputation": 71,
     "fanbase": 3100,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_74_firaphlox",
-    "name": "Fira Phlox",
-    "shortName": "FIRA",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/fira_phlox/logo.svg",
-    "rosterIds": [
-      "player_74_vira_bxanjo",
-      "player_74_vira_finiqan",
-      "player_74_vira_pas",
-      "player_74_vira_zhield"
-    ],
-    "reputation": 70,
-    "fanbase": 2600,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -1818,24 +1728,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_90_furziyxralaad",
-    "name": "FURZIyx Ralaad",
-    "shortName": "FURZ",
-    "tier": "SEMI_PRO",
-    "region": "CIS",
-    "logoPath": "/assets/teams/furziyx_ralaad/logo.svg",
-    "rosterIds": [
-      "player_90_surge_cusme",
-      "player_90_surge_zomethinq",
-      "player_90_surge_zpirit",
-      "player_90_surge_svetzi"
-    ],
-    "reputation": 64,
-    "fanbase": 1400,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_91_ruby",
     "name": "RUBY",
     "shortName": "RUBY",
@@ -1869,7 +1761,7 @@
       "player_91_unidyor_vooszzi"
     ],
     "reputation": 64,
-    "fanbase": -2100,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -1927,7 +1819,7 @@
       "player_94_bozz_ztanizlaw"
     ],
     "reputation": 62,
-    "fanbase": -3100,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -1947,7 +1839,7 @@
       "player_95_iroptionra_xenisation"
     ],
     "reputation": 62,
-    "fanbase": -2600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2044,7 +1936,7 @@
       "player_99_thunder_txjp"
     ],
     "reputation": 60,
-    "fanbase": -1800,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2065,7 +1957,7 @@
       "player_100_facero_xzureba"
     ],
     "reputation": 60,
-    "fanbase": -1600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2161,7 +2053,7 @@
       "player_103_fomalic_znoviee"
     ],
     "reputation": 59,
-    "fanbase": -300,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2181,24 +2073,6 @@
     ],
     "reputation": 58,
     "fanbase": 4000,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_105_dipa",
-    "name": "DIPA",
-    "shortName": "DIPA",
-    "tier": "SEMI_PRO",
-    "region": "CIS",
-    "logoPath": "/assets/teams/dipa/logo.svg",
-    "rosterIds": [
-      "player_105_dipa_fr8c",
-      "player_105_dipa_icywl8ne",
-      "player_105_dipa_shoxz",
-      "player_105_dipa_vetfy"
-    ],
-    "reputation": 58,
-    "fanbase": -4400,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2282,7 +2156,7 @@
       "player_109_eeb_zsen"
     ],
     "reputation": 56,
-    "fanbase": -2800,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2301,7 +2175,7 @@
       "player_110_phantom_zyph0"
     ],
     "reputation": 56,
-    "fanbase": -1000,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2339,7 +2213,7 @@
       "player_111_ravero_valco"
     ],
     "reputation": 56,
-    "fanbase": -800,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2358,7 +2232,7 @@
       "player_112_impulsa_ztepa"
     ],
     "reputation": 55,
-    "fanbase": -1200,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2378,7 +2252,7 @@
       "player_112_mone_zener1"
     ],
     "reputation": 55,
-    "fanbase": -3400,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2473,7 +2347,7 @@
       "player_117_wopa_santo"
     ],
     "reputation": 53,
-    "fanbase": -1700,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2492,7 +2366,7 @@
       "player_117_yowera_txele"
     ],
     "reputation": 53,
-    "fanbase": -2400,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2530,7 +2404,7 @@
       "player_119_rebels_tmcj"
     ],
     "reputation": 52,
-    "fanbase": -4300,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2549,7 +2423,7 @@
       "player_120_hevy_uxli"
     ],
     "reputation": 52,
-    "fanbase": -4800,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2569,7 +2443,7 @@
       "player_121_omeja_znc"
     ],
     "reputation": 52,
-    "fanbase": -4900,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2588,7 +2462,7 @@
       "player_122_calaoskurnos_mzattymyimb"
     ],
     "reputation": 51,
-    "fanbase": -1300,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2707,23 +2581,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_129_9buomprara",
-    "name": "9BUOMPRAra",
-    "shortName": "9BUO",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/9buomprara/logo.svg",
-    "rosterIds": [
-      "player_129_9buomprara_ax7le",
-      "player_129_9buomprara_zhalfey",
-      "player_129_9buomprara_sorte"
-    ],
-    "reputation": 48,
-    "fanbase": 4840,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_129_sow",
     "name": "SOW",
     "shortName": "SOW",
@@ -2801,7 +2658,7 @@
       "player_132_enfuryty_zirius"
     ],
     "reputation": 47,
-    "fanbase": -1500,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2820,7 +2677,7 @@
       "player_133_mindfraak_sune"
     ],
     "reputation": 47,
-    "fanbase": -2500,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2841,7 +2698,7 @@
       "player_134_xpurtsbetexpert_tr8jn"
     ],
     "reputation": 46,
-    "fanbase": -4600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2861,25 +2718,7 @@
       "player_135_aymclub_sevts"
     ],
     "reputation": 46,
-    "fanbase": -1900,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_135_wildqardecodemy",
-    "name": "Wildqard Ecodemy",
-    "shortName": "WILD",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/wildqard_ecodemy/logo.svg",
-    "rosterIds": [
-      "player_135_wild_ace_amzalem",
-      "player_135_wild_ace_dxoni",
-      "player_135_wild_ace_zsen",
-      "player_135_wild_ace_tripex77"
-    ],
-    "reputation": 46,
-    "fanbase": 4600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2917,7 +2756,7 @@
       "player_137_sampervi_zhadiy"
     ],
     "reputation": 45,
-    "fanbase": -1400,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2936,7 +2775,7 @@
       "player_138_borinjex_sdr"
     ],
     "reputation": 45,
-    "fanbase": -3800,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2955,7 +2794,7 @@
       "player_138_masonicia_nzoruyp"
     ],
     "reputation": 45,
-    "fanbase": -3700,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2974,7 +2813,7 @@
       "player_139_vuejo_vsn"
     ],
     "reputation": 44,
-    "fanbase": -3900,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -2993,7 +2832,7 @@
       "player_139_gruyndex_wizion"
     ],
     "reputation": 44,
-    "fanbase": -2000,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3012,7 +2851,7 @@
       "player_140_lpex_smb"
     ],
     "reputation": 44,
-    "fanbase": -400,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3050,7 +2889,7 @@
       "player_142_falconry_weno"
     ],
     "reputation": 43,
-    "fanbase": -4200,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3131,24 +2970,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_146_yoongnynjos",
-    "name": "Yoong Nynjos",
-    "shortName": "YOON",
-    "tier": "SEMI_PRO",
-    "region": "EU",
-    "logoPath": "/assets/teams/yoong_nynjos/logo.svg",
-    "rosterIds": [
-      "player_146_yaung_mzahar",
-      "player_146_yaung_miztem",
-      "player_146_yaung_rzud",
-      "player_146_yaung_sl7m3"
-    ],
-    "reputation": 42,
-    "fanbase": -500,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_147_besimentbays",
     "name": "BESIMENT BAYS",
     "shortName": "BESI",
@@ -3164,7 +2985,7 @@
       "player_147_bazamentor_tr8uble"
     ],
     "reputation": 41,
-    "fanbase": -4500,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3183,7 +3004,7 @@
       "player_148_raoxter_wiridian"
     ],
     "reputation": 41,
-    "fanbase": -3200,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3203,24 +3024,6 @@
     ],
     "reputation": 40,
     "fanbase": 4040,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_150_autfyt49",
-    "name": "Autfyt 49",
-    "shortName": "AUTF",
-    "tier": "SEMI_PRO",
-    "region": "NA",
-    "logoPath": "/assets/teams/autfyt_49/logo.svg",
-    "rosterIds": [
-      "player_150_ootfit_qabe",
-      "player_150_ootfit_h8nezt",
-      "player_150_ootfit_mdz",
-      "player_150_ootfit_walter0k"
-    ],
-    "reputation": 40,
-    "fanbase": 4000,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3258,25 +3061,7 @@
       "player_152_wetermelon_zexyvowa"
     ],
     "reputation": 39,
-    "fanbase": -4100,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_153_rigaenro",
-    "name": "rigaenro",
-    "shortName": "RIGA",
-    "tier": "ACADEMY",
-    "region": "NA",
-    "logoPath": "/assets/teams/rigaenro/logo.svg",
-    "rosterIds": [
-      "player_153_rigaenro_dvrc",
-      "player_153_rigaenro_marekiev",
-      "player_153_rigaenro_zazha",
-      "player_153_rigaenro_zukar"
-    ],
-    "reputation": 39,
-    "fanbase": 3880,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3300,23 +3085,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_155_vppradygy",
-    "name": "VP.Pradygy",
-    "shortName": "VPPR",
-    "tier": "ACADEMY",
-    "region": "CIS",
-    "logoPath": "/assets/teams/vp_pradygy/logo.svg",
-    "rosterIds": [
-      "player_155_vp_pradygy_aquarz",
-      "player_155_vp_pradygy_f8r9ver",
-      "player_155_vp_pradygy_triborqg1"
-    ],
-    "reputation": 38,
-    "fanbase": 3800,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_156_fengdoal",
     "name": "FengDoal",
     "shortName": "FENG",
@@ -3331,7 +3099,7 @@
       "player_156_fengdoal_trazh"
     ],
     "reputation": 38,
-    "fanbase": -3300,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3388,7 +3156,7 @@
       "player_159_byshedo_wej"
     ],
     "reputation": 36,
-    "fanbase": -2300,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3430,7 +3198,7 @@
       "player_161_edernel_voro2k"
     ],
     "reputation": 36,
-    "fanbase": -3600,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3489,23 +3257,6 @@
     ],
     "reputation": 34,
     "fanbase": 3440,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_165_bebop",
-    "name": "Bebop",
-    "shortName": "BEBOP",
-    "tier": "ACADEMY",
-    "region": "CIS",
-    "logoPath": "/assets/teams/bebop/logo.svg",
-    "rosterIds": [
-      "player_165_bebop_dvushka",
-      "player_165_bebop_fzaydett",
-      "player_165_bebop_h7kan"
-    ],
-    "reputation": 34,
-    "fanbase": 3400,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3585,7 +3336,7 @@
       "player_169_keydor_t3rnay"
     ],
     "reputation": 32,
-    "fanbase": -100,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3642,25 +3393,7 @@
       "player_172_xenquro_zamppa"
     ],
     "reputation": 31,
-    "fanbase": -2700,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_173_vesqo",
-    "name": "Vesqo",
-    "shortName": "VESQO",
-    "tier": "ACADEMY",
-    "region": "BR",
-    "logoPath": "/assets/teams/vesqo/logo.svg",
-    "rosterIds": [
-      "player_173_vesqo_mavth",
-      "player_173_vesqo_n7kks",
-      "player_173_vesqo_renansin",
-      "player_173_vesqo_tatasin"
-    ],
-    "reputation": 31,
-    "fanbase": 3080,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3679,7 +3412,7 @@
       "player_174_ellinnars_nxoni"
     ],
     "reputation": 30,
-    "fanbase": -5000,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3718,42 +3451,6 @@
     ],
     "reputation": 30,
     "fanbase": 2960,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_177_rethync",
-    "name": "ReThync",
-    "shortName": "RETH",
-    "tier": "ACADEMY",
-    "region": "EU",
-    "logoPath": "/assets/teams/rethync/logo.svg",
-    "rosterIds": [
-      "player_177_rethync_cing",
-      "player_177_rethync_p7ke",
-      "player_177_rethync_racc",
-      "player_177_rethync_zeac"
-    ],
-    "reputation": 29,
-    "fanbase": 2920,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_178_bruti",
-    "name": "BRUTI",
-    "shortName": "BRUTI",
-    "tier": "ACADEMY",
-    "region": "EU",
-    "logoPath": "/assets/teams/bruti/logo.svg",
-    "rosterIds": [
-      "player_178_bruti_kad7m",
-      "player_178_bruti_realsen",
-      "player_178_bruti_ziko",
-      "player_178_bruti_v6rden"
-    ],
-    "reputation": 29,
-    "fanbase": 2880,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3810,7 +3507,7 @@
       "player_181_kono_keos"
     ],
     "reputation": 28,
-    "fanbase": -1100,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3829,7 +3526,7 @@
       "player_182_lastium_rxoninbaby"
     ],
     "reputation": 27,
-    "fanbase": -4000,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -3949,23 +3646,6 @@
     "startingBudget": 500000
   },
   {
-    "id": "team_189_prisonbreaxerx",
-    "name": "Prison Breaxerx",
-    "shortName": "PRIS",
-    "tier": "ACADEMY",
-    "region": "BR",
-    "logoPath": "/assets/teams/prison_breaxerx/logo.svg",
-    "rosterIds": [
-      "player_189_prysan_mzallby",
-      "player_189_prysan_r9ct",
-      "player_189_prysan_ztax"
-    ],
-    "reputation": 24,
-    "fanbase": 2440,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
     "id": "team_190_fuuryxmogiq",
     "name": "Fuuryx Mogiq",
     "shortName": "FUUR",
@@ -4075,7 +3755,7 @@
       "player_195_ance_tzeme"
     ],
     "reputation": 22,
-    "fanbase": -4700,
+    "fanbase": 0,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },
@@ -4133,24 +3813,6 @@
     ],
     "reputation": 21,
     "fanbase": 2080,
-    "facilitiesLevel": 1,
-    "startingBudget": 500000
-  },
-  {
-    "id": "team_199_weshengton",
-    "name": "Weshengton",
-    "shortName": "WESH",
-    "tier": "ACADEMY",
-    "region": "EU",
-    "logoPath": "/assets/teams/weshengton/logo.svg",
-    "rosterIds": [
-      "player_199_weshengton_artizt",
-      "player_199_weshengton_bewwe",
-      "player_199_weshengton_extinkt",
-      "player_199_weshengton_vakancy"
-    ],
-    "reputation": 20,
-    "fanbase": 2040,
     "facilitiesLevel": 1,
     "startingBudget": 500000
   },

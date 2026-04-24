@@ -81,6 +81,16 @@ function shortNameFor(name: string): string {
     return clean.slice(0, 4).toUpperCase() || "TM"
 }
 
+// Integrity floors enforced by the pipeline. See scripts/validateData.mjs.
+const MIN_COMPETITIVE_AGE = 16
+const MAX_COMPETITIVE_AGE = 50
+const MIN_ROSTER_SIZE = 5
+const MIN_FANBASE = 0
+
+function clamp(v: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, v))
+}
+
 function tournamentSlug(name: string): string {
     const base = safeTournamentName(name)
         .toLowerCase()
@@ -209,6 +219,8 @@ function main(): void {
         const logoSvg = renderLogoSVG(newId, newName)
         writeFile(path.join(OUT_ASSETS_DIR, newSlug, "logo.svg"), logoSvg)
 
+        const fanbase = typeof t.fanbase === "number" ? Math.max(MIN_FANBASE, t.fanbase) : t.fanbase
+
         return {
             ...t,
             id: newId,
@@ -217,6 +229,7 @@ function main(): void {
             logoPath: `/assets/teams/${newSlug}/logo.svg`,
             description: typeof t.description === "string" ? safeDescription(t.description) : t.description,
             rosterIds: Array.isArray(t.rosterIds) ? [...t.rosterIds] : [],
+            fanbase,
         }
     })
 
@@ -250,12 +263,17 @@ function main(): void {
             portraitSvg
         )
 
+        const age = typeof p.age === "number"
+            ? clamp(p.age, MIN_COMPETITIVE_AGE, MAX_COMPETITIVE_AGE)
+            : p.age
+
         return {
             ...p,
             id: newId,
             name: newNick,
             nickname: newNick,
             portraitPath,
+            age,
         }
     })
 
@@ -264,11 +282,25 @@ function main(): void {
         t.rosterIds = t.rosterIds.map((oid: string) => playerIdRemap.get(oid) || oid)
     }
 
+    // --- Drop teams that can't field a full CS2 lineup ---
+    // Players stay in players.json as free agents.
+    const validPlayerIds = new Set(playersOut.map(p => p.id))
+    const teamsBeforeFilter = teamsOut.length
+    const teamsFiltered = teamsOut.filter(t => {
+        const roster = (t.rosterIds as string[]).filter(id => validPlayerIds.has(id))
+        t.rosterIds = roster
+        return roster.length >= MIN_ROSTER_SIZE
+    })
+    const droppedTeams = teamsBeforeFilter - teamsFiltered.length
+    if (droppedTeams > 0) {
+        console.log(`Dropped ${droppedTeams} team(s) with fewer than ${MIN_ROSTER_SIZE} players`)
+    }
+
     // --- Tournaments pass (snapshot) ---
     const tournamentsOut = tournamentsIn.map(t => sanitizeTournament(t))
 
     // --- Write snapshot JSON ---
-    writeJson(path.join(OUT_SNAPSHOT_DIR, "teams.json"), teamsOut)
+    writeJson(path.join(OUT_SNAPSHOT_DIR, "teams.json"), teamsFiltered)
     writeJson(path.join(OUT_SNAPSHOT_DIR, "players.json"), playersOut)
     writeJson(path.join(OUT_SNAPSHOT_DIR, "tournaments.json"), tournamentsOut)
 
@@ -303,7 +335,7 @@ function main(): void {
     }
 
     console.log("")
-    console.log(`Teams:         ${teamsOut.length}`)
+    console.log(`Teams:         ${teamsFiltered.length}`)
     console.log(`Players:       ${playersOut.length}`)
     console.log(`Tournaments:   ${tournamentsOut.length}`)
     console.log(`Logos SVG:     ${teamsOut.length}`)
