@@ -154,6 +154,16 @@ export default function SettingsPage() {
   const importInputRef = useRef<HTMLInputElement>(null)
   const [licensesOpen, setLicensesOpen] = useState(false)
 
+  // Esc dismisses the licenses dialog. Needs a local handler because the
+  // global GameShell keydown handler bails out whenever a [role="dialog"]
+  // is present on the page.
+  useEffect(() => {
+    if (!licensesOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLicensesOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [licensesOpen])
+
   // Achievements state
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [achievementsProgress, setAchievementsProgress] = useState({ unlocked: 0, total: 0, percentage: 0 })
