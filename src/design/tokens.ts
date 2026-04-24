@@ -144,10 +144,10 @@ export const fontWeight = {
   bold: '700',
 } as const
 
-export const fontFamily = {
+export const fontFamily: Record<string, string[]> = {
   sans: ['var(--font-archivo)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
   mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-} as const
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Elevation (box-shadow) — elev-0 through elev-3
