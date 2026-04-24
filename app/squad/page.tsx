@@ -9,6 +9,9 @@ import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerCard } from "@/components/ui/PlayerCard"
+import { StatTile } from "@/src/components/ui/StatTile"
+import { SectionHeader } from "@/src/components/ui/SectionHeader"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -269,20 +272,13 @@ function SquadPageInner() {
         </motion.div>
 
         <div className="flex items-center gap-4">
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Active</span>
-            <span className="text-xl font-normal text-white">{activeRoster.length} / 5</span>
-          </div>
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Bench</span>
-            <span className="text-xl font-normal text-white/60">{benchRoster.length}</span>
-          </div>
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Rating</span>
-            <span className="text-xl font-normal text-emerald-400">
-              {activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0}
-            </span>
-          </div>
+          <StatTile label="Active" value={`${activeRoster.length} / 5`} />
+          <StatTile label="Bench" value={benchRoster.length} />
+          <StatTile
+            label="Rating"
+            tone="success"
+            value={activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0}
+          />
         </div>
       </div>
 
@@ -292,12 +288,11 @@ function SquadPageInner() {
         <div className="lg:col-span-2 space-y-8">
           {/* Active Roster */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-                <Zap size={16} className="text-primary" /> Starting Lineup
-              </h3>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">Top 5 Players</span>
-            </div>
+            <SectionHeader
+              icon={Zap}
+              title="Starting Lineup"
+              actions={<span className="text-[10px] font-bold text-muted-foreground uppercase">Top 5 Players</span>}
+            />
 
             <div className="space-y-3">
               {activeRoster.length > 0 ? (
@@ -305,30 +300,27 @@ function SquadPageInner() {
                   <RosterCard key={player.id} player={player} index={player.originalIndex} />
                 ))
               ) : (
-                <div className="glass-panel p-12 text-center border-dashed border-white/10">
-                  <Users size={32} className="text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No active players</p>
-                  <p className="text-xs text-muted-foreground/60 mt-2">Sign free agents to build your starting lineup</p>
-                  <Link href="/transfers">
-                    <Button variant="outline" size="sm" className="mt-4">
-                      Browse Transfers
-                    </Button>
-                  </Link>
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="No active players"
+                  description="Sign free agents to build your starting lineup"
+                  action={{ label: "Browse Transfers", href: "/transfers" }}
+                />
               )}
             </div>
           </div>
 
           {/* Bench Roster */}
           <div className="space-y-4 pt-4 border-t border-white/5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-normal uppercase tracking-widest text-white/60 flex items-center gap-2">
-                <Users size={16} /> Bench & Reserve
-              </h3>
-              {selectedSwapIndex !== null && (
+            <SectionHeader
+              icon={Users}
+              iconClassName="text-white/60"
+              tone="muted"
+              title="Bench & Reserve"
+              actions={selectedSwapIndex !== null ? (
                 <span className="text-xs font-bold text-primary animate-pulse">Select a starting player to swap with</span>
-              )}
-            </div>
+              ) : undefined}
+            />
 
             <div className="space-y-3">
               {benchRoster.length > 0 ? (
@@ -336,9 +328,7 @@ function SquadPageInner() {
                   <RosterCard key={player.id} player={player} index={player.originalIndex} isBench />
                 ))
               ) : (
-                <div className="glass-panel p-8 text-center border-dashed border-white/5 bg-white/[0.01]">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bench is empty</p>
-                </div>
+                <EmptyState title="Bench is empty" framed />
               )}
             </div>
           </div>
@@ -351,9 +341,7 @@ function SquadPageInner() {
 
         {/* Right Side: Chemistry & Tactics */}
         <div className="space-y-6">
-          <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-            <Users size={16} className="text-primary" /> Synergy Analysis (Active)
-          </h3>
+          <SectionHeader icon={Users} title="Synergy Analysis (Active)" />
           {/* Only show synergy for active roster */}
           <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
 
@@ -365,19 +353,17 @@ function SquadPageInner() {
 
           {/* Youth Academy */}
           <div className="glass-panel p-6 border-white/5 bg-white/[0.02]">
-            <div className="flex justify-between items-center mb-6">
-              <div className="space-y-1">
-                <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-                  <Users size={16} className="text-primary" /> Youth Academy
-                </h3>
-                <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider">Developing the next generation</p>
-              </div>
-              <Link href="/desktop?app=academy">
+            <SectionHeader
+              className="mb-6"
+              icon={Users}
+              title="Youth Academy"
+              subtitle="Developing the next generation"
+              actions={<Link href="/desktop?app=academy">
                 <Button variant="ghost" size="sm" className="h-8 text-[10px] font-normal uppercase text-primary hover:bg-primary/10 border border-primary/20">
                   <ArrowUpRight size={12} className="mr-1" /> Manage
                 </Button>
-              </Link>
-            </div>
+              </Link>}
+            />
 
             <div className="space-y-3">
               {academyPlayers && academyPlayers.length > 0 ? (
@@ -420,14 +406,10 @@ function SquadPageInner() {
                   )
                 })
               ) : (
-                <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-xl bg-white/[0.01]">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No prospects in training</p>
-                  <Link href="/desktop?app=academy">
-                    <Button variant="ghost" size="sm" className="mt-2 h-7 text-[9px] font-normal uppercase text-white/40 hover:text-white">
-                      Start Scouting
-                    </Button>
-                  </Link>
-                </div>
+                <EmptyState
+                  title="No prospects in training"
+                  action={{ label: "Start Scouting", href: "/desktop?app=academy" }}
+                />
               )}
             </div>
           </div>

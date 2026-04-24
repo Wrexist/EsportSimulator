@@ -6,6 +6,9 @@ import { Trophy, Star, Crown, Heart, Hourglass, Wand2, Brain, Shield, Activity, 
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { PlayerCard } from "@/components/ui/PlayerCard"
+import { SectionHeader } from "@/src/components/ui/SectionHeader"
+import { EmptyState } from "@/src/components/ui/EmptyState"
+import { StatTile } from "@/src/components/ui/StatTile"
 
 // Icon Map for dynamic rendering
 const iconMap: Record<string, any> = {
@@ -51,15 +54,13 @@ export default function HallOfFamePage() {
             {/* Founding Legends Section */}
             {foundingLegends.length > 0 && (
                 <section className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <Award className="text-amber-400" size={20} />
-                        <div>
-                            <h2 className="text-xs font-normal uppercase tracking-widest text-white">Founding Legends</h2>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">
-                                Players who shaped the early history of esports
-                            </p>
-                        </div>
-                    </div>
+                    <SectionHeader
+                        icon={Award}
+                        iconClassName="text-amber-400"
+                        size="lg"
+                        title="Founding Legends"
+                        subtitle="Players who shaped the early history of esports"
+                    />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <AnimatePresence mode="popLayout">
                             {foundingLegends.map((legend, idx) => (
@@ -79,23 +80,18 @@ export default function HallOfFamePage() {
 
             {/* Inducted Legends Section */}
             <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <Trophy className="text-primary" size={20} />
-                    <div>
-                        <h2 className="text-xs font-normal uppercase tracking-widest text-white">Inducted Legends</h2>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">
-                            Players inducted through your simulation
-                        </p>
-                    </div>
-                </div>
+                <SectionHeader
+                    icon={Trophy}
+                    size="lg"
+                    title="Inducted Legends"
+                    subtitle="Players inducted through your simulation"
+                />
                 {inductedLegends.length === 0 ? (
-                    <div className="glass-panel p-12 border-white/5 flex flex-col items-center text-center">
-                        <Trophy size={48} className="text-white/10 mb-4" />
-                        <h3 className="text-lg font-normal text-white uppercase tracking-tight">No Legends Yet</h3>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-2 max-w-md">
-                            Players who achieve greatness through Major wins, MVP awards, and exceptional careers will be immortalized here upon retirement.
-                        </p>
-                    </div>
+                    <EmptyState
+                        icon={Trophy}
+                        title="No Legends Yet"
+                        description="Players who achieve greatness through Major wins, MVP awards, and exceptional careers will be immortalized here upon retirement."
+                    />
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <AnimatePresence mode="popLayout">
@@ -123,16 +119,9 @@ export default function HallOfFamePage() {
                         <p className="text-xs">100+ matches, 2+ major achievements (Major Win, MVP, Top 3 Rank, Longevity)</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-6">
-                    <div className="text-center">
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Founding</p>
-                        <p className="text-sm font-bold text-amber-400">{foundingLegends.length}</p>
-                    </div>
-                    <div className="h-10 w-px bg-white/10" />
-                    <div className="text-center">
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Inducted</p>
-                        <p className="text-sm font-bold text-primary">{inductedLegends.length}</p>
-                    </div>
+                <div className="flex items-center gap-3">
+                    <StatTile size="sm" label="Founding" tone="warning" value={foundingLegends.length} />
+                    <StatTile size="sm" label="Inducted" tone="brand" value={inductedLegends.length} />
                 </div>
             </div>
         </div>

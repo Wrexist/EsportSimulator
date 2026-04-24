@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
+import { ProgressBar } from "@/src/components/ui/ProgressBar"
 import { getTierStyle, type TierLevel } from "@/engine/tier-system"
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -139,38 +140,6 @@ function ovrColor(rating: number | undefined) {
   if (rating >= 90) return "text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600"
   if (rating >= 80) return "text-emerald-400"
   return "text-white/80"
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// LiquidBar — form/morale/energy meter
-// ────────────────────────────────────────────────────────────────────────────
-
-function LiquidBar({ value, label, subColor }: { value: number; label: string; subColor: string }) {
-  return (
-    <div className="flex flex-col gap-1 w-full group/meter">
-      <div className="flex items-center justify-between px-0.5">
-        <span className="text-[9px] font-normal uppercase tracking-widest text-muted-foreground/60">
-          {label}
-        </span>
-        <span className={cn(
-          "text-[9px] font-bold tabular-nums",
-          value >= 80 ? "text-emerald-400" : value >= 60 ? "text-white/80" : "text-rose-400",
-        )}>
-          {Math.round(value)}%
-        </span>
-      </div>
-      <div className="relative w-full h-1.5 rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${Math.max(0, Math.min(100, value))}%` }}
-          className={cn("absolute inset-y-0 left-0 h-full rounded-full transition-all duration-700 ease-out", subColor)}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-80" />
-          <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-        </motion.div>
-      </div>
-    </div>
-  )
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -309,21 +278,9 @@ export function PlayerCard({
 
           {overlays?.form && !isReveal && (
             <div className="flex-1 w-full grid grid-cols-1 gap-1.5 mt-2">
-              <LiquidBar
-                label="Morale"
-                value={player.morale ?? 75}
-                subColor="bg-gradient-to-r from-emerald-600 to-emerald-400"
-              />
-              <LiquidBar
-                label="Form"
-                value={player.form ?? 70}
-                subColor="bg-gradient-to-r from-blue-600 to-blue-400"
-              />
-              <LiquidBar
-                label="Energy"
-                value={Math.max(0, 100 - (player.fatigue ?? 0))}
-                subColor="bg-gradient-to-r from-amber-600 to-amber-400"
-              />
+              <ProgressBar label="Morale" value={player.morale ?? 75} tone="success" />
+              <ProgressBar label="Form" value={player.form ?? 70} tone="brand" />
+              <ProgressBar label="Energy" value={Math.max(0, 100 - (player.fatigue ?? 0))} tone="warning" />
             </div>
           )}
         </div>

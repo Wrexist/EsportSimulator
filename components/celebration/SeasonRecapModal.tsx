@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { PlayerCard } from "@/components/ui/PlayerCard"
+import { StatTile } from "@/src/components/ui/StatTile"
 
 interface SeasonRecapModalProps {
     isOpen: boolean
@@ -77,34 +78,10 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {/* Key Stats */}
                             <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                                <div className="p-8 rounded-[2rem] bg-white/[0.03] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.05] transition-colors">
-                                    <Trophy className="text-amber-400 mb-4" size={32} />
-                                    <div>
-                                        <p className="text-4xl font-normal text-white">{stats.trophies}</p>
-                                        <p className="text-xs text-white/30 uppercase tracking-widest font-bold mt-1">Trophies Won</p>
-                                    </div>
-                                </div>
-                                <div className="p-8 rounded-[2rem] bg-white/[0.03] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.05] transition-colors">
-                                    <TrendingUp className="text-emerald-400 mb-4" size={32} />
-                                    <div>
-                                        <p className="text-4xl font-normal text-white">{winRate}%</p>
-                                        <p className="text-xs text-white/30 uppercase tracking-widest font-bold mt-1">Win Rate ({stats.wins}-{stats.losses})</p>
-                                    </div>
-                                </div>
-                                <div className="p-8 rounded-[2rem] bg-white/[0.03] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.05] transition-colors">
-                                    <DollarSign className="text-cyan-400 mb-4" size={32} />
-                                    <div>
-                                        <p className="text-4xl font-normal text-white">${(stats.budgetGrowth / 1000).toFixed(0)}k</p>
-                                        <p className="text-xs text-white/30 uppercase tracking-widest font-bold mt-1">Budget Growth</p>
-                                    </div>
-                                </div>
-                                <div className="p-8 rounded-[2rem] bg-white/[0.03] border border-white/5 flex flex-col justify-between group hover:bg-white/[0.05] transition-colors">
-                                    <Users className="text-purple-400 mb-4" size={32} />
-                                    <div>
-                                        <p className="text-4xl font-normal text-white">52</p>
-                                        <p className="text-xs text-white/30 uppercase tracking-widest font-bold mt-1">Weeks Active</p>
-                                    </div>
-                                </div>
+                                <StatTile size="lg" label="Trophies Won" tone="warning" icon={Trophy} value={stats.trophies} />
+                                <StatTile size="lg" label={`Win Rate (${stats.wins}-${stats.losses})`} tone="success" icon={TrendingUp} value={`${winRate}%`} />
+                                <StatTile size="lg" label="Budget Growth" tone="brand" icon={DollarSign} value={`$${(stats.budgetGrowth / 1000).toFixed(0)}k`} />
+                                <StatTile size="lg" label="Weeks Active" icon={Users} value={52} />
                             </div>
 
                             {/* MVP Spotlights */}

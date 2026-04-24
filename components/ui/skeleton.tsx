@@ -1,13 +1,3 @@
-import { cn } from '@/lib/utils'
-
-function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="skeleton"
-      className={cn('bg-accent animate-pulse rounded-md', className)}
-      {...props}
-    />
-  )
-}
-
-export { Skeleton }
+// Re-export from the canonical skeleton module so existing shadcn-style
+// `@/components/ui/skeleton` imports resolve to the consolidated primitive.
+export { Skeleton } from '@/src/components/ui/Skeleton'
