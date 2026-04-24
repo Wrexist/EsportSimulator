@@ -8,8 +8,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { PlayerCard } from "@/components/ui/PlayerCard"
+import { StatTile } from "@/src/components/ui/StatTile"
+import { SectionHeader } from "@/src/components/ui/SectionHeader"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
-import { AlertCircle, TrendingUp, Zap, Gamepad2, Heart, ArrowUpRight, User as UserIcon, Users, Target, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
+import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
@@ -111,266 +115,115 @@ function SquadPageInner() {
     setSelectedSwapIndex(null)
   }
 
-  const getRoleIcon = (role: string) => {
-    switch (role?.toUpperCase()) {
-      case "AWPER": return <Target size={12} className="text-red-400" />
-      case "RIFLER": return <Gamepad2 size={12} className="text-blue-400" />
-      case "IGL": return <TrendingUp size={12} className="text-amber-400" />
-      case "SUPPORT": return <Heart size={12} className="text-emerald-400" />
-      case "ENTRY":
-      case "ENTRY_FRAGGER": return <Zap size={12} className="text-orange-400" />
-      default: return <UserIcon size={12} />
-    }
-  }
-
-  // Format role for display (converts ENTRY_FRAGGER to "Entry")
-  const formatRole = (role: string) => {
-    if (!role) return ""
-    if (role.toUpperCase() === "ENTRY_FRAGGER") return "Entry"
-    return role
-  }
-
-  const LiquidBar = ({ value, label, color, subColor }: { value: number, label: string, color: string, subColor: string }) => (
-    <div className="flex flex-col gap-1 w-full group/meter">
-      <div className="flex items-center justify-between px-0.5">
-        <span className="text-[9px] font-normal uppercase tracking-widest text-muted-foreground/60">{label}</span>
-        <span className={cn("text-[9px] font-bold font-sans tabular-nums",
-          value >= 80 ? "text-emerald-400" : value >= 60 ? "text-white/80" : "text-rose-400"
-        )}>{Math.round(value)}%</span>
-      </div>
-
-      <div className="relative w-full h-1.5 rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${value}%` }}
-          className={cn(
-            "absolute inset-y-0 left-0 h-full rounded-full transition-all duration-700 ease-out",
-            subColor
-          )}
-        >
-          {/* Glass Shine */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-80" />
-          {/* Shimmer */}
-          <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-        </motion.div>
-      </div>
-    </div>
-  )
-
-  const PlayerCard = ({ player, index, isBench = false }: { player: any, index: number, isBench?: boolean }) => {
-    const tierStyle = getTierStyle(player.playerTier)
+  const RosterCard = ({ player, index, isBench = false }: { player: any, index: number, isBench?: boolean }) => {
     const isSelected = selectedSwapIndex === index
     const isSwapTarget = selectedSwapIndex !== null && !isBench && !isSelected
-
     const contract = contracts.find(c => c.playerId === player.id)
     const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-    const yearsLeft = weeksLeft > 0 ? (weeksLeft / 52).toFixed(1) : "0.0"
+    const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
     const salary = contract ? contract.salaryPerWeek : 0
 
     return (
-      <div className="relative group">
-        <motion.div
-          layoutId={`player-${player.id}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            scale: isSelected ? 1.01 : 1,
-            backgroundColor: isSelected ? "rgba(59, 130, 246, 0.08)" : isSwapTarget ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.3)",
-            borderColor: isSelected ? "rgba(59, 130, 246, 0.4)" : isSwapTarget ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)"
-          }}
-          className={cn(
-            "p-1 rounded-2xl border transition-all duration-300 relative overflow-hidden backdrop-blur-md",
-            !isSwapTarget && !isBench ? "hover:scale-[1.01] hover:border-white/20 hover:bg-white/[0.04] shadow-lg" : "",
-            player.injury ? "border-red-500/30 bg-red-500/[0.02]" : ""
-          )}
-          onClick={() => { if (isSwapTarget) handleSwapExecute(index) }}
-        >
-          {/* Injury Overlay (Click-through for Profile, but blocks interaction if needed) */}
-          {player.injury && (
-            <div className="absolute top-2 right-12 z-20 flex items-center gap-2">
-              <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
-                <Activity size={10} className="stroke-[3]" />
-                <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
-              </Badge>
-            </div>
-          )}
-          {/* INJURY OVERLAY */}
-          {player.injury && (
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
-              <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
-              <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
-              <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
-                Out for {player.injury.weeksRemaining} Weeks
-              </Badge>
-              <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">
-                {player.injury.description}
-              </p>
+      <PlayerCard
+        key={player.id}
+        player={{
+          id: player.id,
+          nickname: player.nickname,
+          portraitPath: player.portraitPath,
+          role: player.role,
+          secondaryRole: player.secondaryRole,
+          nationality: player.nationality,
+          tier: player.playerTier,
+          overallRating: player.evaluation.overallRating,
+          morale: player.morale,
+          form: player.form,
+          fatigue: player.fatigue,
+          salaryPerWeek: salary,
+          contractYearsLeft: yearsLeft,
+        }}
+        size="lg"
+        variant="default"
+        overlays={{ stats: true, contract: true, form: !isBench }}
+        href={!isSwapTarget && selectedSwapIndex === null ? `/player/${player.id}` : null}
+        onClick={isSwapTarget ? () => handleSwapExecute(index) : undefined}
+        selected={isSelected}
+        accent={player.injury ? "danger" : "default"}
+        layoutId={`player-${player.id}`}
+      >
+        {/* Injury badge */}
+        {player.injury && (
+          <div className="absolute top-2 right-12 z-20">
+            <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
+              <Activity size={10} className="stroke-[3]" />
+              <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
+            </Badge>
+          </div>
+        )}
 
-              <div className="flex flex-col gap-2 w-full max-w-[180px]">
-                <Link
-                  href={`/player/${player.id}`}
-                  className="inline-flex items-center justify-center h-8 border border-white/20 text-white/80 hover:bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View Profile
-                </Link>
-                <ConfirmDialog
-                  title="Hire Medical Specialist?"
-                  description="This will cost $5,000 and reduce recovery time by 2 weeks."
-                  onConfirm={() => treatInjury(player.id)}
-                  confirmText="Hire Specialist"
-                  icon="info"
-                >
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full text-[10px] font-bold uppercase tracking-widest"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Plus size={12} className="mr-2" />
-                    Specialist ($5k)
-                  </Button>
-                </ConfirmDialog>
-              </div>
-
-              <p className="mt-2 text-[9px] text-white/30 italic">Reduces recovery time by 2 weeks</p>
-            </div>
-          )}
-
-          {/* Inner Content Container */}
-          <div className="flex flex-col md:flex-row items-center gap-3 p-2 rounded-xl relative z-10">
-
-            {/* Link Overlay */}
-            {!isSwapTarget && selectedSwapIndex === null && (
-              <Link href={`/player/${player.id}`} className="absolute inset-0 z-20" />
-            )}
-
-            {isSelected && <div className="absolute top-3 right-3 text-primary animate-pulse z-30"><ArrowRightLeft size={20} /></div>}
-
-            {/* Swap/Cancel Buttons */}
-            {(isBench && selectedSwapIndex === null) || isSelected ? (
-              <div className="absolute top-3 right-3 z-30">
+        {/* Injury overlay with specialist-hire */}
+        {player.injury && (
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
+            <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
+            <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
+            <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
+              Out for {player.injury.weeksRemaining} Weeks
+            </Badge>
+            <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">{player.injury.description}</p>
+            <div className="flex flex-col gap-2 w-full max-w-[180px]">
+              <Link
+                href={`/player/${player.id}`}
+                className="inline-flex items-center justify-center h-8 border border-white/20 text-white/80 hover:bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View Profile
+              </Link>
+              <ConfirmDialog
+                title="Hire Medical Specialist?"
+                description="This will cost $5,000 and reduce recovery time by 2 weeks."
+                onConfirm={() => treatInjury(player.id)}
+                confirmText="Hire Specialist"
+                icon="info"
+              >
                 <Button
                   size="sm"
-                  variant={isSelected ? "destructive" : "secondary"}
-                  className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isSelected ? handleCancelSwap() : handleSwapInitiate(index)
-                  }}
+                  variant="outline"
+                  className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full text-[10px] font-bold uppercase tracking-widest"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {isSelected ? "Cancel" : "Swap"}
+                  <Plus size={12} className="mr-2" />
+                  Specialist ($5k)
                 </Button>
-              </div>
-            ) : null}
-
-            {/* LEFT: Portrait & Core Identity */}
-            <div className="flex items-center gap-5 shrink-0 w-72">
-              <div className={cn(
-                "w-20 h-20 rounded-2xl border-2 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative group-hover:scale-105 transition-transform duration-500",
-                isSelected ? "bg-primary/10 border-primary" : player.injury ? "bg-red-500/10 border-red-500/40" : "bg-gradient-to-br from-white/10 to-transparent border-white/10"
-              )}>
-                {/* Background Glow behind head */}
-                <div className={cn("absolute inset-0 blur-2xl transition-opacity",
-                  player.injury ? "bg-red-500/20 opacity-100" : "bg-primary/20 opacity-0 group-hover:opacity-100"
-                )} />
-                <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={80} />
-              </div>
-
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <div className="flex items-center gap-3">
-                  <span className={cn(
-                    "font-normal text-2xl tracking-tighter leading-none transition-colors",
-                    isSelected ? "text-primary" : player.injury ? "text-red-400" : "text-white group-hover:text-white"
-                  )}>
-                    {player.nickname}
-                  </span>
-                  {player.injury ? (
-                    <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">
-                      {player.injury.name}
-                    </span>
-                  ) : (
-                    <Badge className={cn("text-[9px] px-2 py-0.5 border-none shadow-lg", tierStyle.bgColor, tierStyle.color)}>
-                      {tierStyle.shortLabel}
-                    </Badge>
-                  )}
-                  {(player.talentPoints ?? 0) > 0 && (
-                    <span className="relative flex h-5 w-5" title={`${player.talentPoints} skill point${(player.talentPoints ?? 0) > 1 ? "s" : ""} available`}>
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-50" />
-                      <span className="relative inline-flex rounded-full h-5 w-5 bg-amber-500 text-black text-[10px] font-bold items-center justify-center">
-                        {player.talentPoints}
-                      </span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 opacity-90">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5">
-                    {getRoleIcon(player.role)}
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-white/80">{formatRole(player.role)}</span>
-                    {player.secondaryRole && (
-                      <span className="text-[9px] text-white/40 uppercase">+{formatRole(player.secondaryRole)}</span>
-                    )}
-                  </div>
-                  <CountryFlag country={player.nationality} showName={false} size={16} />
-                  {player.traits && player.traits.length > 0 && (
-                    <span className="text-[8px] text-white/30 italic">{(player.traits[0] as string).replace(/_/g, " ")}</span>
-                  )}
-                </div>
-
-                {/* Contract Pill */}
-                <div className="flex items-center gap-2 text-[9px] font-sans font-medium text-white/40 mt-1">
-                  <span className="text-emerald-400 font-bold">${(salary / 1000).toFixed(1)}k/wk</span>
-                  <span className="w-1 h-1 rounded-full bg-white/20" />
-                  <span>{yearsLeft}y left</span>
-                </div>
-              </div>
+              </ConfirmDialog>
             </div>
-
-            {/* CENTER: Bars (Flexible Width - Fills Empty Space) */}
-            {!isBench && (
-              <div className="flex-1 w-full grid grid-cols-1 gap-1.5 px-2">
-                <LiquidBar
-                  label="Morale"
-                  value={player.morale || 75}
-                  color="bg-emerald-500"
-                  subColor="bg-gradient-to-r from-emerald-600 to-emerald-400"
-                />
-                <LiquidBar
-                  label="Form"
-                  value={player.form || 70}
-                  color="bg-blue-500"
-                  subColor="bg-gradient-to-r from-blue-600 to-blue-400"
-                />
-                <LiquidBar
-                  label="Energy"
-                  value={Math.max(0, 100 - (player.fatigue || 0))}
-                  color="bg-amber-500"
-                  subColor="bg-gradient-to-r from-amber-600 to-amber-400"
-                />
-              </div>
-            )}
-
-            {/* RIGHT: OVR */}
-            <div className="shrink-0 w-[90px] flex flex-col items-center justify-center gap-0">
-              <div className="relative">
-                <span className={cn(
-                  "text-5xl font-normal tracking-tighter leading-none drop-shadow-2xl",
-                  player.evaluation.overallRating >= 90 ? "text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600 filter drop-shadow-[0_4px_4px_rgba(245,158,11,0.5)]" :
-                    player.evaluation.overallRating >= 80 ? "text-emerald-400" :
-                      "text-white/80"
-                )}>
-                  {player.evaluation.overallRating}
-                </span>
-              </div>
-              <span className="text-[10px] font-normal text-muted-foreground uppercase mt-1 tracking-[0.2em] opacity-60">
-                OVR
-              </span>
-            </div>
+            <p className="mt-2 text-[9px] text-white/30 italic">Reduces recovery time by 2 weeks</p>
           </div>
-        </motion.div>
-      </div>
+        )}
+
+        {/* Swap active indicator */}
+        {isSelected && (
+          <div className="absolute top-3 right-3 text-primary animate-pulse z-30">
+            <ArrowRightLeft size={20} />
+          </div>
+        )}
+
+        {/* Swap / cancel controls */}
+        {((isBench && selectedSwapIndex === null) || isSelected) && (
+          <div className="absolute top-3 right-3 z-30">
+            <Button
+              size="sm"
+              variant={isSelected ? "destructive" : "secondary"}
+              className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (isSelected) handleCancelSwap()
+                else handleSwapInitiate(index)
+              }}
+            >
+              {isSelected ? "Cancel" : "Swap"}
+            </Button>
+          </div>
+        )}
+      </PlayerCard>
     )
   }
 
@@ -419,20 +272,13 @@ function SquadPageInner() {
         </motion.div>
 
         <div className="flex items-center gap-4">
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Active</span>
-            <span className="text-xl font-normal text-white">{activeRoster.length} / 5</span>
-          </div>
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Bench</span>
-            <span className="text-xl font-normal text-white/60">{benchRoster.length}</span>
-          </div>
-          <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 bg-white/[0.02]">
-            <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block mb-0.5">Rating</span>
-            <span className="text-xl font-normal text-emerald-400">
-              {activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0}
-            </span>
-          </div>
+          <StatTile label="Active" value={`${activeRoster.length} / 5`} />
+          <StatTile label="Bench" value={benchRoster.length} />
+          <StatTile
+            label="Rating"
+            tone="success"
+            value={activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0}
+          />
         </div>
       </div>
 
@@ -442,53 +288,47 @@ function SquadPageInner() {
         <div className="lg:col-span-2 space-y-8">
           {/* Active Roster */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-                <Zap size={16} className="text-primary" /> Starting Lineup
-              </h3>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">Top 5 Players</span>
-            </div>
+            <SectionHeader
+              icon={Zap}
+              title="Starting Lineup"
+              actions={<span className="text-[10px] font-bold text-muted-foreground uppercase">Top 5 Players</span>}
+            />
 
             <div className="space-y-3">
               {activeRoster.length > 0 ? (
                 activeRoster.map((player) => (
-                  <PlayerCard key={player.id} player={player} index={player.originalIndex} />
+                  <RosterCard key={player.id} player={player} index={player.originalIndex} />
                 ))
               ) : (
-                <div className="glass-panel p-12 text-center border-dashed border-white/10">
-                  <Users size={32} className="text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No active players</p>
-                  <p className="text-xs text-muted-foreground/60 mt-2">Sign free agents to build your starting lineup</p>
-                  <Link href="/transfers">
-                    <Button variant="outline" size="sm" className="mt-4">
-                      Browse Transfers
-                    </Button>
-                  </Link>
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="No active players"
+                  description="Sign free agents to build your starting lineup"
+                  action={{ label: "Browse Transfers", href: "/transfers" }}
+                />
               )}
             </div>
           </div>
 
           {/* Bench Roster */}
           <div className="space-y-4 pt-4 border-t border-white/5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-normal uppercase tracking-widest text-white/60 flex items-center gap-2">
-                <Users size={16} /> Bench & Reserve
-              </h3>
-              {selectedSwapIndex !== null && (
+            <SectionHeader
+              icon={Users}
+              iconClassName="text-white/60"
+              tone="muted"
+              title="Bench & Reserve"
+              actions={selectedSwapIndex !== null ? (
                 <span className="text-xs font-bold text-primary animate-pulse">Select a starting player to swap with</span>
-              )}
-            </div>
+              ) : undefined}
+            />
 
             <div className="space-y-3">
               {benchRoster.length > 0 ? (
                 benchRoster.map((player) => (
-                  <PlayerCard key={player.id} player={player} index={player.originalIndex} isBench />
+                  <RosterCard key={player.id} player={player} index={player.originalIndex} isBench />
                 ))
               ) : (
-                <div className="glass-panel p-8 text-center border-dashed border-white/5 bg-white/[0.01]">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bench is empty</p>
-                </div>
+                <EmptyState title="Bench is empty" framed />
               )}
             </div>
           </div>
@@ -501,9 +341,7 @@ function SquadPageInner() {
 
         {/* Right Side: Chemistry & Tactics */}
         <div className="space-y-6">
-          <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-            <Users size={16} className="text-primary" /> Synergy Analysis (Active)
-          </h3>
+          <SectionHeader icon={Users} title="Synergy Analysis (Active)" />
           {/* Only show synergy for active roster */}
           <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
 
@@ -515,19 +353,17 @@ function SquadPageInner() {
 
           {/* Youth Academy */}
           <div className="glass-panel p-6 border-white/5 bg-white/[0.02]">
-            <div className="flex justify-between items-center mb-6">
-              <div className="space-y-1">
-                <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-                  <Users size={16} className="text-primary" /> Youth Academy
-                </h3>
-                <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider">Developing the next generation</p>
-              </div>
-              <Link href="/desktop?app=academy">
+            <SectionHeader
+              className="mb-6"
+              icon={Users}
+              title="Youth Academy"
+              subtitle="Developing the next generation"
+              actions={<Link href="/desktop?app=academy">
                 <Button variant="ghost" size="sm" className="h-8 text-[10px] font-normal uppercase text-primary hover:bg-primary/10 border border-primary/20">
                   <ArrowUpRight size={12} className="mr-1" /> Manage
                 </Button>
-              </Link>
-            </div>
+              </Link>}
+            />
 
             <div className="space-y-3">
               {academyPlayers && academyPlayers.length > 0 ? (
@@ -536,35 +372,29 @@ function SquadPageInner() {
                   if (!prospect) return null
                   const rating = Math.round((prospect.skill + prospect.rifle + prospect.tactic + prospect.teamwork) / 4)
                   return (
-                    <div key={ap.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between group/prospect">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center font-normal text-primary border border-primary/20 overflow-hidden shrink-0">
-                          <PlayerPortrait
-                            src={prospect.portraitPath}
-                            alt={prospect.nickname}
-                            size={40}
-                          />
+                    <PlayerCard
+                      key={ap.id}
+                      player={{
+                        id: prospect.id,
+                        nickname: prospect.nickname,
+                        portraitPath: prospect.portraitPath,
+                        role: prospect.role,
+                        nationality: prospect.nationality,
+                        overallRating: rating,
+                      }}
+                      size="sm"
+                      variant="compact"
+                      overlays={{ stats: true }}
+                      href={null}
+                    >
+                      <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-3 z-20">
+                        <div className="flex items-center gap-1 text-[8px] font-normal text-amber-400">
+                          <Star size={8} className="fill-amber-400" />
+                          <span>{prospect.potential || 80}+</span>
                         </div>
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                          <span className="text-white font-normal text-sm truncate">{prospect.nickname}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[8px] font-bold text-muted-foreground uppercase">{prospect.role?.replace("_", " ") || "Rifler"}</span>
-                            <div className="flex items-center gap-1">
-                              <Star size={8} className="text-amber-400 fill-amber-400" />
-                              <span className="text-[8px] font-normal text-amber-400">{prospect.potential || 80}+</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className="text-lg font-normal text-white/70 leading-none">{rating}</div>
-                          <div className="text-[7px] text-white/30 uppercase mt-1">OVR</div>
-                        </div>
-
                         {ap.readyForPromotion && (
                           <Button
-                            onClick={() => setPromotingProspectId(ap.id)}
+                            onClick={(e) => { e.stopPropagation(); setPromotingProspectId(ap.id) }}
                             size="sm"
                             className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-sm"
                           >
@@ -572,18 +402,14 @@ function SquadPageInner() {
                           </Button>
                         )}
                       </div>
-                    </div>
+                    </PlayerCard>
                   )
                 })
               ) : (
-                <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-xl bg-white/[0.01]">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No prospects in training</p>
-                  <Link href="/desktop?app=academy">
-                    <Button variant="ghost" size="sm" className="mt-2 h-7 text-[9px] font-normal uppercase text-white/40 hover:text-white">
-                      Start Scouting
-                    </Button>
-                  </Link>
-                </div>
+                <EmptyState
+                  title="No prospects in training"
+                  action={{ label: "Start Scouting", href: "/desktop?app=academy" }}
+                />
               )}
             </div>
           </div>
