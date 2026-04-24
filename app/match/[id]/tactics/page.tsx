@@ -708,7 +708,22 @@ export default function TacticalHQPage() {
                                     </div>
                                 </div>
                             )}
-                            <div className="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors" onClick={handleMentalPrep}>
+                            <div
+                                role="button"
+                                tabIndex={isMentalResetUnlocked ? 0 : -1}
+                                aria-disabled={!isMentalResetUnlocked}
+                                aria-label="Apply Mental Reset ($5,000) to boost morale"
+                                aria-pressed={mentalBoosted}
+                                className="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
+                                onClick={() => { if (isMentalResetUnlocked) handleMentalPrep() }}
+                                onKeyDown={(e) => {
+                                    if (!isMentalResetUnlocked) return
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault()
+                                        handleMentalPrep()
+                                    }
+                                }}
+                            >
                                 <div className="flex items-center gap-3">
                                     <Brain size={18} className={cn("transition-colors", mentalBoosted ? "text-pink-400" : "text-white/60")} />
                                     <div>

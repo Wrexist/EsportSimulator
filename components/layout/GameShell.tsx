@@ -263,9 +263,12 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         }
 
         const handler = (e: KeyboardEvent) => {
-            // Don't intercept when typing in inputs, textareas, or content-editable
+            // Don't intercept when a form control owns keyboard handling.
+            // SELECT matters for number keys: the Gameplay auto-save interval
+            // select has numeric options (2/5/10/15/30) that would otherwise
+            // double as both a select type-ahead and a route shortcut.
             const tag = (e.target as HTMLElement)?.tagName
-            if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return
+            if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target as HTMLElement)?.isContentEditable) return
             // Don't intercept when a dialog/modal is open — the open dialog owns
             // keyboard handling (Esc, Ctrl+Enter) via its own listeners.
             if (document.querySelector('[role="dialog"]')) return

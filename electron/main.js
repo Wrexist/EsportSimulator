@@ -294,6 +294,15 @@ steam.initializeSteam({
 });
 
 // Window Control IPC Handlers
+ipcMain.handle('app-get-user-data-path', () => {
+    try {
+        return app.getPath('userData');
+    } catch (e) {
+        console.error('[Electron] Error getting userData path:', e);
+        return null;
+    }
+});
+
 ipcMain.handle('window-set-fullscreen', (event, fullscreen) => {
     if (!mainWindow) return false;
     try {
