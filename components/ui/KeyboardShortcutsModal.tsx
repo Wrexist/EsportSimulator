@@ -1,30 +1,12 @@
 "use client"
 
 import { useEffect } from "react"
+import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 
 interface KeyboardShortcutsModalProps {
   open: boolean
   onClose: () => void
 }
-
-const SHORTCUT_GROUPS = [
-  {
-    label: "General",
-    shortcuts: [
-      { keys: ["Ctrl", "S"], description: "Save game" },
-      { keys: ["Space"], description: "Advance time" },
-      { keys: ["Esc"], description: "Go back / Close modal" },
-      { keys: ["?"], description: "Show keyboard shortcuts" },
-    ],
-  },
-  {
-    label: "Modals",
-    shortcuts: [
-      { keys: ["Ctrl", "Enter"], description: "Confirm action" },
-      { keys: ["Esc"], description: "Cancel / Close" },
-    ],
-  },
-]
 
 export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModalProps) {
   useEffect(() => {
@@ -44,7 +26,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title-keyboard-shortcuts"
-        className="w-full max-w-md mx-4 glass-panel rounded-2xl p-6 space-y-5"
+        className="w-full max-w-lg mx-4 glass-panel rounded-2xl p-6 space-y-5 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="modal-title-keyboard-shortcuts" className="text-lg font-bold text-white">
@@ -58,9 +40,9 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
             </h3>
             <div className="space-y-1.5">
               {group.shortcuts.map((shortcut) => (
-                <div key={shortcut.description} className="flex items-center justify-between">
+                <div key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4">
                   <span className="text-sm text-white/70">{shortcut.description}</span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     {shortcut.keys.map((key, i) => (
                       <span key={i}>
                         <kbd className="px-2 py-0.5 rounded bg-white/10 border border-white/10 text-xs font-mono text-white/80">
@@ -79,6 +61,8 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
         ))}
 
         <p className="text-[11px] text-white/30 text-center pt-2">
+          macOS users: use <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">⌘</kbd> in place of <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Ctrl</kbd>
+          <br />
           Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Esc</kbd> to close
         </p>
       </div>

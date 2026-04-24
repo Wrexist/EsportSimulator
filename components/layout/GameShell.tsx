@@ -12,6 +12,7 @@ import type { ExitDialogVariant } from "./ExitConfirmDialog"
 import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
 import { debouncedStorage } from "@/engine/storage-adapter"
+import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -237,22 +238,101 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Global Keyboard Shortcuts (consolidated — TopBar no longer registers its own handlers)
     const router = useRouter()
     useEffect(() => {
+        const quickSave = async () => {
+            const state = useGameStore.getState()
+            if (!state.saveId || state.isLoading) return
+            try {
+                await debouncedStorage.flush()
+                await state.saveGame()
+                soundManager.play('weekAdvance')
+            } catch {
+                // Save errors surface via the exit-save path; swallow here so a hotkey
+                // press doesn't throw into the window-level keydown listener.
+            }
+        }
+
+        const toggleFullscreen = async () => {
+            const w = (window as typeof window & { electron?: { window?: { isFullscreen: () => Promise<boolean>; setFullscreen: (fs: boolean) => Promise<boolean> } } }).electron?.window
+            if (!w) return
+            try {
+                const fs = await w.isFullscreen()
+                await w.setFullscreen(!fs)
+            } catch {
+                // Non-Electron (dev browser) — ignore
+            }
+        }
+
         const handler = (e: KeyboardEvent) => {
             // Don't intercept when typing in inputs, textareas, or content-editable
             const tag = (e.target as HTMLElement)?.tagName
             if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return
-            // Don't intercept when a dialog/modal is open
+            // Don't intercept when a dialog/modal is open — the open dialog owns
+            // keyboard handling (Esc, Ctrl+Enter) via its own listeners.
             if (document.querySelector('[role="dialog"]')) return
+
+            const mod = e.ctrlKey || e.metaKey
+
+            // Ctrl/Cmd+S — save
+            if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") {
+                e.preventDefault()
+                void quickSave()
+                return
+            }
+            // Ctrl/Cmd+L — load screen
+            if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "l") {
+                e.preventDefault()
+                router.push("/load-game")
+                return
+            }
+
+            // F-keys
+            if (e.key === "F1") {
+                e.preventDefault()
+                setShortcutsOpen(prev => !prev)
+                return
+            }
+            if (e.key === "F2") {
+                e.preventDefault()
+                void quickSave()
+                return
+            }
+            if (e.key === "F3") {
+                e.preventDefault()
+                router.push("/load-game")
+                return
+            }
+            if (e.key === "F10") {
+                e.preventDefault()
+                router.push("/settings")
+                return
+            }
+            if (e.key === "F11") {
+                e.preventDefault()
+                void toggleFullscreen()
+                return
+            }
 
             if (e.key === "Escape") {
                 e.preventDefault()
                 router.back()
+                return
             }
             if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
                 e.preventDefault()
                 setShortcutsOpen(prev => !prev)
                 return
             }
+
+            // 1–9 section shortcuts. Require no modifiers so Ctrl+1 etc. stay free.
+            if (!mod && !e.altKey && !e.shiftKey && /^[1-9]$/.test(e.key)) {
+                const route = NUMBER_KEY_ROUTES[e.key]
+                if (route && !hideChrome) {
+                    e.preventDefault()
+                    router.push(route)
+                    return
+                }
+            }
+
             if (e.key === " " && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
                 // Don't advance on non-gameplay pages
                 const path = window.location.pathname
