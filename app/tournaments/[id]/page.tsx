@@ -1129,7 +1129,20 @@ export default function TournamentDetailPage() {
                                                             const winner = teams.find(team => team.id === t.winnerId)
                                                             const seasonNum = t.id.split('_s')[1]
                                                             return (
-                                                                <div key={t.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group hover:bg-white/10 transition-colors cursor-pointer" onClick={() => setSelectedSeason(t.id)}>
+                                                                <div
+                                                                    key={t.id}
+                                                                    role="button"
+                                                                    tabIndex={0}
+                                                                    aria-label={`View Season ${seasonNum} results`}
+                                                                    className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group hover:bg-white/10 transition-colors cursor-pointer"
+                                                                    onClick={() => setSelectedSeason(t.id)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === "Enter" || e.key === " ") {
+                                                                            e.preventDefault()
+                                                                            setSelectedSeason(t.id)
+                                                                        }
+                                                                    }}
+                                                                >
                                                                     <div>
                                                                         <div className="text-[9px] text-white/40 font-bold uppercase tracking-wider mb-1">Season {seasonNum}</div>
                                                                         <div className="flex items-center gap-2">

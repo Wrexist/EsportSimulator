@@ -15,10 +15,30 @@
   /* Chrome, Safari, Opera */
 }
 
-/* Custom Focus Styles */
+/* Custom Focus Styles
+   High-contrast double-ring (solid outline + soft outer glow) so focus is
+   visible on every background the UI uses: glass panels, dark backdrops,
+   bright accent chips, and the Steam Deck handheld screen in varied
+   lighting. `:focus-visible` (not `:focus`) keeps the ring off for mouse
+   clicks, showing it only for keyboard/gamepad traversal. */
 :focus-visible {
   outline: 2px solid theme('colors.cyan.400');
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
+  border-radius: inherit;
+}
+
+/* Steam Input maps gamepad to keyboard, so anything marked interactive via
+   role or tabindex must receive the same visible ring as native buttons. */
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="option"]:focus-visible,
+[role="tab"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid theme('colors.cyan.400');
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
 }
 
 /* Reduce motion for users who prefer it (OS-level or in-game setting) */
@@ -225,6 +245,7 @@ body[data-scroll-locked] {
   button:focus-visible {
     outline: 2px solid theme('colors.cyan.400') !important;
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25) !important;
   }
 
   button:active {

@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useGameStore } from "@/store/game-store"
+import { useSettingsStore } from "@/lib/settings-store"
+import { soundManager } from "@/lib/sound-manager"
 import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -31,6 +33,12 @@ import {
   Eye,
   EyeOff,
   Keyboard,
+  Upload,
+  FolderOpen,
+  FileText,
+  Gauge,
+  Accessibility as AccessibilityIcon,
+  Copy,
   Settings as SettingsIcon,
   Flame,
   Medal,
@@ -66,8 +74,6 @@ export default function SettingsPage() {
   const {
     saveGame, deleteAllSaves, soundEnabled, setSoundEnabled, showTutorialOnNewGame, setShowTutorialOnNewGame,
     resolution, setResolution,
-    masterVolume, setMasterVolume,
-    musicVolume, setMusicVolume,
     gameSpeed, setGameSpeed,
     difficulty, setDifficulty,
     autoSave, setAutoSave,
@@ -82,10 +88,6 @@ export default function SettingsPage() {
     setShowTutorialOnNewGame: state.setShowTutorialOnNewGame,
     resolution: state.resolution,
     setResolution: state.setResolution,
-    masterVolume: state.masterVolume,
-    setMasterVolume: state.setMasterVolume,
-    musicVolume: state.musicVolume,
-    setMusicVolume: state.setMusicVolume,
     gameSpeed: state.gameSpeed,
     setGameSpeed: state.setGameSpeed,
     difficulty: state.difficulty,
@@ -100,6 +102,33 @@ export default function SettingsPage() {
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<SettingsTab>("SETTINGS")
 
+  // Graphics + Audio live through useSettingsStore (that's where soundManager
+  // and the global html-class reduced-motion rule read from on mount).
+  const {
+    windowMode, setWindowMode,
+    uiScale, setUiScale,
+    reducedMotion, setReducedMotion,
+    masterVolumeS, setMasterVolumeS,
+    musicVolumeS, setMusicVolumeS,
+    sfxVolumeS, setSfxVolumeS,
+    autoSaveInterval, setAutoSaveInterval,
+  } = useSettingsStore(useShallow(state => ({
+    windowMode: state.windowMode,
+    setWindowMode: state.setWindowMode,
+    uiScale: state.uiScale,
+    setUiScale: state.setUiScale,
+    reducedMotion: state.reducedMotion,
+    setReducedMotion: state.setReducedMotion,
+    masterVolumeS: state.masterVolume,
+    setMasterVolumeS: state.setMasterVolume,
+    musicVolumeS: state.musicVolume,
+    setMusicVolumeS: state.setMusicVolume,
+    sfxVolumeS: state.sfxVolume,
+    setSfxVolumeS: state.setSfxVolume,
+    autoSaveInterval: state.autoSaveInterval,
+    setAutoSaveInterval: state.setAutoSaveInterval,
+  })))
+
   // Accessibility: colorblind mode — persisted to localStorage
   const [colorblindMode, setColorblindMode] = useState<string>(() => {
     if (typeof window === 'undefined') return 'off'
@@ -111,6 +140,29 @@ export default function SettingsPage() {
     html.classList.remove('colorblind-deuteranopia', 'colorblind-protanopia', 'colorblind-tritanopia', 'high-contrast')
     if (colorblindMode !== 'off') html.classList.add(colorblindMode)
   }, [colorblindMode])
+
+  // Save location (Electron). Resolved once on mount.
+  const [saveLocation, setSaveLocation] = useState<string | null>(null)
+  useEffect(() => {
+    const bridge = (typeof window !== 'undefined' ? (window as any).electron?.app : null)
+    if (bridge?.getUserDataPath) {
+      bridge.getUserDataPath().then((p: string | null) => setSaveLocation(p)).catch(() => {})
+    }
+  }, [])
+
+  // Import save — hidden file input triggered by button
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const [licensesOpen, setLicensesOpen] = useState(false)
+
+  // Esc dismisses the licenses dialog. Needs a local handler because the
+  // global GameShell keydown handler bails out whenever a [role="dialog"]
+  // is present on the page.
+  useEffect(() => {
+    if (!licensesOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLicensesOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [licensesOpen])
 
   // Achievements state
   const [achievements, setAchievements] = useState<Achievement[]>([])
@@ -141,6 +193,41 @@ export default function SettingsPage() {
         description: error instanceof Error ? error.message : "Unable to save game.",
         variant: "destructive"
       })
+    }
+  }
+
+  // Audio setters that both persist to settings-store and apply live so the
+  // user hears the change immediately without a reload.
+  const applyMasterVolume = (v: number) => { setMasterVolumeS(v); soundManager.setMasterVolume(v) }
+  const applyMusicVolume = (v: number) => { setMusicVolumeS(v); soundManager.setMusicVolume(v) }
+  const applySfxVolume = (v: number) => { setSfxVolumeS(v); soundManager.setSfxVolume(v) }
+
+  const handleCopySaveLocation = async () => {
+    if (!saveLocation) return
+    try {
+      await navigator.clipboard.writeText(saveLocation)
+      toast({ title: "Copied", description: "Save location copied to clipboard." })
+    } catch {
+      toast({ title: "Copy Failed", description: "Clipboard not available.", variant: "destructive" })
+    }
+  }
+
+  const handleImportSave = async (file: File) => {
+    try {
+      const text = await file.text()
+      const { save, error } = saveManager.importSave(text)
+      if (!save || error) {
+        toast({ title: "Import Failed", description: error || "Invalid save file.", variant: "destructive" })
+        return
+      }
+      const result = await saveManager.saveGame(save)
+      if (!result.success) {
+        toast({ title: "Import Failed", description: result.error || "Could not persist imported save.", variant: "destructive" })
+        return
+      }
+      toast({ title: "Save Imported", description: `Load "${save.saveName}" from the Load Game screen.` })
+    } catch (e) {
+      toast({ title: "Import Failed", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" })
     }
   }
 
@@ -319,16 +406,16 @@ export default function SettingsPage() {
             exit={{ opacity: 0, y: -10 }}
             className="grid gap-6 max-w-3xl mx-auto w-full"
           >
-            {/* Display Settings */}
+            {/* Graphics */}
             <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-lg font-normal">
                   <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
                     <Eye className="h-5 w-5" />
                   </div>
-                  Display
+                  Graphics
                 </CardTitle>
-                <CardDescription>Window and display settings</CardDescription>
+                <CardDescription>Window, resolution, UI scale, and motion</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
@@ -337,26 +424,27 @@ export default function SettingsPage() {
                     <p className="text-xs text-muted-foreground">Fullscreen, Windowed, or Borderless</p>
                   </div>
                   <select
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={windowMode}
                     onChange={(e) => {
-                      const mode = e.target.value
-                      if (typeof window !== 'undefined' && (window as any).electron) {
-                        (window as any).electron.window.setFullscreen(mode === 'fullscreen')
-                        toast({
-                          title: "Display Mode Changed",
-                          description: `Window mode set to ${mode}`,
-                        })
-                      }
+                      const mode = e.target.value as "windowed" | "fullscreen" | "borderless"
+                      setWindowMode(mode)
+                      // "borderless" = fullscreen from Electron's perspective (no OS chrome);
+                      // we persist the user's intent separately so a later frame toggle works.
+                      const fs = mode === "fullscreen" || mode === "borderless"
+                      ;(window as any).electron?.window?.setFullscreen?.(fs)
+                      toast({ title: "Display Mode Changed", description: `Window mode set to ${mode}` })
                     }}
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="windowed" className="bg-[#1a1f2e]">Windowed</option>
+                    <option value="borderless" className="bg-[#1a1f2e]">Borderless</option>
                     <option value="fullscreen" className="bg-[#1a1f2e]">Fullscreen</option>
                   </select>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Resolution</p>
-                    <p className="text-xs text-muted-foreground">Screen resolution</p>
+                    <p className="text-xs text-muted-foreground">Applied when not in fullscreen/borderless</p>
                   </div>
                   <select
                     value={resolution}
@@ -368,10 +456,33 @@ export default function SettingsPage() {
                     <option value="1280x720" className="bg-[#1a1f2e]">1280 × 720</option>
                   </select>
                 </div>
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-bold text-white">UI Scale</p>
+                      <p className="text-xs text-muted-foreground">Scales fonts and spacing across the whole UI</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{uiScale}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="80" max="120" step="5"
+                    value={uiScale}
+                    onChange={(e) => setUiScale(parseInt(e.target.value))}
+                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div>
+                    <p className="text-sm font-bold text-white">Reduced Motion</p>
+                    <p className="text-xs text-muted-foreground">Disables transitions and decorative animations</p>
+                  </div>
+                  <Switch checked={reducedMotion} onCheckedChange={setReducedMotion} />
+                </div>
               </CardContent>
             </Card>
 
-            {/* Audio Settings */}
+            {/* Audio */}
             <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-lg font-normal">
@@ -380,7 +491,7 @@ export default function SettingsPage() {
                   </div>
                   Audio
                 </CardTitle>
-                <CardDescription>Sound and music settings</CardDescription>
+                <CardDescription>Master, music, and SFX levels</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
@@ -395,66 +506,66 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground">Clicks, chimes, and feedback sounds</p>
                     </div>
                   </div>
-                  <Switch
-                    checked={soundEnabled}
-                    onCheckedChange={setSoundEnabled}
-                  />
+                  <Switch checked={soundEnabled} onCheckedChange={setSoundEnabled} />
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-white">Master Volume</p>
-                    <span className="text-xs text-muted-foreground">{masterVolume}%</span>
+                    <span className="text-xs text-muted-foreground">{masterVolumeS}%</span>
                   </div>
                   <input
                     type="range"
                     min="0" max="100"
-                    value={masterVolume}
-                    onChange={(e) => setMasterVolume(parseInt(e.target.value))}
+                    value={masterVolumeS}
+                    onChange={(e) => applyMasterVolume(parseInt(e.target.value))}
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-white">Music Volume</p>
-                    <span className="text-xs text-muted-foreground">{musicVolume}%</span>
+                    <span className="text-xs text-muted-foreground">{musicVolumeS}%</span>
                   </div>
                   <input
                     type="range"
                     min="0" max="100"
-                    value={musicVolume}
-                    onChange={(e) => setMusicVolume(parseInt(e.target.value))}
+                    value={musicVolumeS}
+                    onChange={(e) => applyMusicVolume(parseInt(e.target.value))}
+                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-bold text-white">SFX Volume</p>
+                    <span className="text-xs text-muted-foreground">{sfxVolumeS}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0" max="100"
+                    value={sfxVolumeS}
+                    onChange={(e) => applySfxVolume(parseInt(e.target.value))}
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Game Settings */}
+            {/* Gameplay */}
             <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-lg font-normal">
                   <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
-                    <SettingsIcon className="h-5 w-5" />
+                    <Gauge className="h-5 w-5" />
                   </div>
-                  Game
+                  Gameplay
                 </CardTitle>
-                <CardDescription>Gameplay preferences</CardDescription>
+                <CardDescription>Simulation speed, difficulty, auto-save</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
-                    <p className="text-sm font-bold text-white">Auto-Save</p>
-                    <p className="text-xs text-muted-foreground">Automatically save game progress</p>
-                  </div>
-                  <Switch
-                    checked={autoSave}
-                    onCheckedChange={setAutoSave}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-                  <div>
                     <p className="text-sm font-bold text-white">Game Speed</p>
-                    <p className="text-xs text-muted-foreground">Simulation speed</p>
+                    <p className="text-xs text-muted-foreground">Simulation tick rate</p>
                   </div>
                   <select
                     value={gameSpeed}
@@ -484,43 +595,69 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
-                    <p className="text-sm font-bold text-white">Notifications</p>
-                    <p className="text-xs text-muted-foreground">Show game notifications</p>
+                    <p className="text-sm font-bold text-white">Auto-Save</p>
+                    <p className="text-xs text-muted-foreground">Automatically save game progress</p>
                   </div>
-                  <Switch
-                    checked={notifications}
-                    onCheckedChange={setNotifications}
-                  />
+                  <Switch checked={autoSave} onCheckedChange={setAutoSave} />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div>
+                    <p className="text-sm font-bold text-white">Auto-Save Interval</p>
+                    <p className="text-xs text-muted-foreground">How often the game writes a background save</p>
+                  </div>
+                  <select
+                    value={autoSaveInterval}
+                    onChange={(e) => setAutoSaveInterval(parseInt(e.target.value))}
+                    disabled={!autoSave}
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+                  >
+                    <option value={2} className="bg-[#1a1f2e]">Every 2 min</option>
+                    <option value={5} className="bg-[#1a1f2e]">Every 5 min</option>
+                    <option value={10} className="bg-[#1a1f2e]">Every 10 min</option>
+                    <option value={15} className="bg-[#1a1f2e]">Every 15 min</option>
+                    <option value={30} className="bg-[#1a1f2e]">Every 30 min</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div>
+                    <p className="text-sm font-bold text-white">Notifications</p>
+                    <p className="text-xs text-muted-foreground">Show in-game event notifications</p>
+                  </div>
+                  <Switch checked={notifications} onCheckedChange={setNotifications} />
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Show Tutorial on New Game</p>
                     <p className="text-xs text-muted-foreground">Display the tutorial guide when starting a new career</p>
                   </div>
-                  <Switch
-                    checked={showTutorialOnNewGame}
-                    onCheckedChange={setShowTutorialOnNewGame}
-                  />
+                  <Switch checked={showTutorialOnNewGame} onCheckedChange={setShowTutorialOnNewGame} />
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Bug Report Button</p>
                     <p className="text-xs text-muted-foreground">Show floating bug report button on screen</p>
                   </div>
-                  <Switch
-                    checked={showBugReportButton}
-                    onCheckedChange={setShowBugReportButton}
-                  />
+                  <Switch checked={showBugReportButton} onCheckedChange={setShowBugReportButton} />
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Accessibility */}
-                <div className="pt-2">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3 px-1">Accessibility</p>
-                </div>
+            {/* Accessibility */}
+            <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg font-normal">
+                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                    <AccessibilityIcon className="h-5 w-5" />
+                  </div>
+                  Accessibility
+                </CardTitle>
+                <CardDescription>Colorblind palettes and high-contrast mode</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
-                    <p className="text-sm font-bold text-white">Colorblind Mode</p>
-                    <p className="text-xs text-muted-foreground">Adjust colors for color vision deficiency</p>
+                    <p className="text-sm font-bold text-white">Colorblind / Contrast Mode</p>
+                    <p className="text-xs text-muted-foreground">Adjust colors for color vision deficiency, or switch to high contrast</p>
                   </div>
                   <select
                     value={colorblindMode}
@@ -538,19 +675,24 @@ export default function SettingsPage() {
                     <option value="high-contrast" className="bg-[#1a1f2e]">High Contrast</option>
                   </select>
                 </div>
+                <p className="text-[11px] text-muted-foreground px-1">
+                  For text size, adjust <strong className="text-white/70">UI Scale</strong> in the Graphics section. Reduced-motion lives there too.
+                </p>
               </CardContent>
             </Card>
 
-            {/* Keyboard Shortcuts */}
+            {/* Controls */}
             <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-3 text-lg font-normal">
                   <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
                     <Keyboard className="h-5 w-5" />
                   </div>
-                  Keyboard Shortcuts
+                  Controls
                 </CardTitle>
-                <CardDescription>Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">F1</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">?</kbd> any time to show this list</CardDescription>
+                <CardDescription>
+                  Keyboard shortcuts. Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">F1</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">?</kbd> any time to show this list.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
                 {SHORTCUT_GROUPS.map((group) => (
@@ -576,11 +718,152 @@ export default function SettingsPage() {
                   </div>
                 ))}
                 <p className="text-[11px] text-white/30 pt-1">
-                  macOS users: use <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">⌘</kbd> in place of <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Ctrl</kbd>.
+                  macOS users: use <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">⌘</kbd> in place of <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Ctrl</kbd>. Shortcut remapping is planned for a future update — rebind via Steam Input for now.
                 </p>
               </CardContent>
             </Card>
+
+            {/* Data */}
+            <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg font-normal">
+                  <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                    <FolderOpen className="h-5 w-5" />
+                  </div>
+                  Data
+                </CardTitle>
+                <CardDescription>Save files, import/export, clear data</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <p className="text-sm font-bold text-white mb-1">Save Location</p>
+                  <p className="text-xs text-muted-foreground break-all font-mono">
+                    {saveLocation ?? "Browser storage (IndexedDB)"}
+                  </p>
+                  {saveLocation && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopySaveLocation}
+                      className="mt-3 h-8 bg-white/5 border-white/10 hover:bg-white/10"
+                    >
+                      <Copy className="mr-2 h-3.5 w-3.5" /> Copy path
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button onClick={handleExport} variant="outline" className="h-12 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Save
+                  </Button>
+                  <Button
+                    onClick={() => importInputRef.current?.click()}
+                    variant="outline"
+                    className="h-12 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import Save
+                  </Button>
+                </div>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) void handleImportSave(file)
+                    e.target.value = ""
+                  }}
+                />
+                <ConfirmDialog
+                  title="Clear all save data?"
+                  description="Deletes every save on this machine. The current session returns to the main menu. This cannot be undone."
+                  onConfirm={handleNewGame}
+                  destructive
+                  confirmText="Delete all saves"
+                  icon="danger"
+                >
+                  <Button variant="destructive" className="w-full h-12 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20">
+                    <RefreshCcw className="mr-2 h-4 w-4" /> Clear all data
+                  </Button>
+                </ConfirmDialog>
+              </CardContent>
+            </Card>
+
+            {/* About */}
+            <Card className="glass-panel border-white/5 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-lg font-normal">
+                  <div className="p-2 rounded-xl bg-white/5 text-white/70">
+                    <Info className="h-5 w-5" />
+                  </div>
+                  About
+                </CardTitle>
+                <CardDescription>Version, credits, and licenses</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  <strong className="text-white">Esports Manager Simulator</strong>
+                  <span className="text-white/40"> · v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
+                </p>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <Link href="/credits" className="w-full">
+                    <Button variant="outline" className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl">
+                      <Heart className="mr-2 h-4 w-4" /> Credits
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    onClick={() => setLicensesOpen(true)}
+                    className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
+                  >
+                    <FileText className="mr-2 h-4 w-4" /> Licenses
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
+        )}
+
+        {licensesOpen && (
+          <div
+            className="fixed inset-0 z-overlay flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setLicensesOpen(false)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="licenses-title"
+              className="glass-panel rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 id="licenses-title" className="text-lg font-bold text-white">Third-party licenses</h2>
+              <p className="text-xs text-muted-foreground">
+                This game is built with the following open-source components. Full license texts ship in <span className="font-mono">THIRD_PARTY_LICENSES.txt</span> alongside the executable.
+              </p>
+              <ul className="space-y-2 text-xs text-white/70">
+                <li><strong className="text-white">Electron</strong> — MIT</li>
+                <li><strong className="text-white">Chromium</strong> — BSD</li>
+                <li><strong className="text-white">Node.js</strong> — MIT</li>
+                <li><strong className="text-white">Next.js</strong> — MIT</li>
+                <li><strong className="text-white">React</strong> — MIT</li>
+                <li><strong className="text-white">Zustand</strong> — MIT</li>
+                <li><strong className="text-white">Radix UI primitives</strong> — MIT</li>
+                <li><strong className="text-white">Tailwind CSS</strong> — MIT</li>
+                <li><strong className="text-white">Framer Motion</strong> — MIT</li>
+                <li><strong className="text-white">Lucide icons</strong> — ISC</li>
+                <li><strong className="text-white">Sonner</strong> — MIT</li>
+                <li><strong className="text-white">steamworks.js</strong> — MIT</li>
+                <li><strong className="text-white">Archivo Black</strong> (font) — SIL OFL 1.1</li>
+              </ul>
+              <div className="flex justify-end pt-2">
+                <Button variant="outline" onClick={() => setLicensesOpen(false)} className="bg-white/5 border-white/10 hover:bg-white/10">
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
 
         {devToolsEnabled && activeTab === "DEV_TOOLS" && (
