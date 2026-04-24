@@ -1,15 +1,13 @@
 "use client"
 
-import React, { useMemo, useState, useRef, useCallback } from "react"
+import React, { useMemo, useState, useRef } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import Image from "next/image"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import {
     TrendingUp,
-    TrendingDown,
     Award,
     Shield,
     Globe,
@@ -17,11 +15,11 @@ import {
     ChevronRight,
     Search,
     X,
-    User,
     Crown,
-    Calendar,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    Users,
+    Trophy,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -36,10 +34,15 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { calculateTeamTier, getTierStyle, getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getTeamFlag, getTeamRegion } from "@/engine/region-logic"
+import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { LeagueEngine, LEAGUE_TIERS, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
+import { LeagueEngine, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { SectionHeader } from "@/src/components/ui/SectionHeader"
+import { EmptyState } from "@/src/components/ui/EmptyState"
+import { StatTile } from "@/src/components/ui/StatTile"
+import { PlayerCardSkeleton } from "@/src/components/ui/Skeleton"
 
 type RankingsRowProps = {
     team: any
@@ -273,6 +276,14 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
 })
 
 export default function RankingsPage() {
+    return (
+        <ErrorBoundary section="Rankings">
+            <RankingsPageInner />
+        </ErrorBoundary>
+    )
+}
+
+function RankingsPageInner() {
     const { teams, playerTeamId, players, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
@@ -574,14 +585,31 @@ export default function RankingsPage() {
                             </div>
                         </div>
 
-                        {/* Rankings Table — virtualized */}
-                        <VirtualizedRankingsList
-                            displayTeams={displayTeams}
-                            playerTeamId={playerTeamId}
-                            posInTierByTeamId={rankingMeta.posInTierByTeamId}
-                            teamFlagByTeamId={rankingMeta.teamFlagByTeamId}
-                            onSelectTeam={setSelectedTeam}
-                        />
+                        {/* Rankings Table — virtualized, with state-aware fallbacks */}
+                        {rankedTeams.length === 0 ? (
+                            <div className="glass-panel p-0 border-white/5 overflow-hidden">
+                                <div className="p-6 space-y-3">
+                                    {Array.from({ length: 6 }).map((_, i) => (
+                                        <PlayerCardSkeleton key={i} />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : displayTeams.length === 0 ? (
+                            <EmptyState
+                                icon={Search}
+                                title="No teams match your search"
+                                description={debouncedSearch ? `We couldn't find any team named "${debouncedSearch}". Try a different query.` : "Adjust the filter to see results."}
+                                action={debouncedSearch ? { label: "Clear search", onClick: () => setSearchTerm("") } : undefined}
+                            />
+                        ) : (
+                            <VirtualizedRankingsList
+                                displayTeams={displayTeams}
+                                playerTeamId={playerTeamId}
+                                posInTierByTeamId={rankingMeta.posInTierByTeamId}
+                                teamFlagByTeamId={rankingMeta.teamFlagByTeamId}
+                                onSelectTeam={setSelectedTeam}
+                            />
+                        )}
                     </motion.div>
                 ) : activeTab === "TROPHIES" ? (
                     <motion.div
@@ -605,10 +633,12 @@ export default function RankingsPage() {
                                 </div>
                             ))
                         ) : (
-                            <div className="col-span-full py-20 flex flex-col items-center text-center">
-                                <Award size={64} className="text-white/5 mb-6" />
-                                <h3 className="text-xl font-normal text-white uppercase">Your legacy begins</h3>
-                                <p className="text-xs text-muted-foreground uppercase tracking-[0.1em] mt-2">Win tournaments to fill your trophy cabinet.</p>
+                            <div className="col-span-full">
+                                <EmptyState
+                                    icon={Award}
+                                    title="Your legacy begins"
+                                    description="Win tournaments to fill your trophy cabinet."
+                                />
                             </div>
                         )}
                     </motion.div>
@@ -723,10 +753,13 @@ export default function RankingsPage() {
                                             )
                                         }) : (
                                             <tr>
-                                                <GlassTableCell colSpan={5} className="text-center py-12">
-                                                    <Zap size={48} className="mx-auto text-white/10 mb-4" />
-                                                    <p className="text-muted-foreground">No circuit points awarded yet</p>
-                                                    <p className="text-xs text-muted-foreground mt-1">Play in tournaments to earn circuit points</p>
+                                                <GlassTableCell colSpan={5} className="py-0">
+                                                    <EmptyState
+                                                        icon={Zap}
+                                                        title="No circuit points awarded yet"
+                                                        description="Play in tournaments to earn circuit points."
+                                                        framed={false}
+                                                    />
                                                 </GlassTableCell>
                                             </tr>
                                         )}
@@ -736,25 +769,18 @@ export default function RankingsPage() {
                         </div>
 
                         {/* Circuit Points Info */}
-                        <div className="glass-panel p-6 border-white/5">
-                            <h3 className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4">How Circuit Points Work</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                                <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                                    <p className="text-2xl font-bold text-amber-400">2000</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">S-Tier 1st</p>
-                                </div>
-                                <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                                    <p className="text-2xl font-bold text-blue-400">500</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">A-Tier 1st</p>
-                                </div>
-                                <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-500/20">
-                                    <p className="text-2xl font-bold text-purple-400">150</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">B-Tier 1st</p>
-                                </div>
-                                <div className="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                                    <p className="text-2xl font-bold text-emerald-400">50</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">C-Tier 1st</p>
-                                </div>
+                        <div className="glass-panel p-6 border-white/5 space-y-4">
+                            <SectionHeader
+                                icon={Zap}
+                                title="How Circuit Points Work"
+                                tone="muted"
+                                size="sm"
+                            />
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <StatTile size="md" tone="warning" label="S-Tier 1st" value="2000" />
+                                <StatTile size="md" tone="brand" label="A-Tier 1st" value="500" />
+                                <StatTile size="md" tone="brand" label="B-Tier 1st" value="150" />
+                                <StatTile size="md" tone="success" label="C-Tier 1st" value="50" />
                             </div>
                         </div>
                     </motion.div>
@@ -763,23 +789,15 @@ export default function RankingsPage() {
 
             {/* Footer Stats */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 glass-panel p-6 border-white/5">
-                <div className="flex items-center gap-4 text-muted-foreground">
-                    <Zap size={20} className="text-primary" />
-                    <div>
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-white">Ranking System</p>
-                        <p className="text-xs">Based on team reputation and tournament performance</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-6">
-                    <div className="text-center">
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Week</p>
-                        <p className="text-sm font-bold text-white">{currentWeek || 1} / 52</p>
-                    </div>
-                    <div className="h-10 w-px bg-white/10" />
-                    <div className="text-center">
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Total Teams</p>
-                        <p className="text-sm font-bold font-mono text-primary">{rankedTeams.length}</p>
-                    </div>
+                <SectionHeader
+                    icon={Zap}
+                    size="sm"
+                    title="Ranking System"
+                    subtitle="Based on team reputation and tournament performance"
+                />
+                <div className="flex items-center gap-3">
+                    <StatTile size="sm" label="Week" value={`${currentWeek || 1} / 52`} />
+                    <StatTile size="sm" tone="brand" label="Total Teams" value={rankedTeams.length} />
                 </div>
             </div>
 
@@ -823,8 +841,8 @@ export default function RankingsPage() {
                             </div>
 
                             {/* Modal Content - Scrollable */}
-                            <div className="p-6 overflow-y-auto custom-scrollbar">
-                                <h3 className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4">Active Roster</h3>
+                            <div className="p-6 overflow-y-auto custom-scrollbar space-y-4">
+                                <SectionHeader icon={Users} size="sm" tone="muted" title="Active Roster" />
                                 <div className="space-y-2">
                                     {selectedTeam.rosterIds.map((id: string) => {
                                         const player = playerById.get(id)
