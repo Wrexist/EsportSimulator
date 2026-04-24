@@ -31,6 +31,9 @@ contextBridge.exposeInMainWorld('electron', {
         getSize: () => ipcRenderer.invoke('window-get-size'),
         isFullscreen: () => ipcRenderer.invoke('window-is-fullscreen'),
     },
+    app: {
+        getUserDataPath: () => ipcRenderer.invoke('app-get-user-data-path'),
+    },
     gpu: {
         getMode: () => ipcRenderer.invoke('gpu-get-mode'),
         setMode: (mode) => ipcRenderer.invoke('gpu-set-mode', mode),
