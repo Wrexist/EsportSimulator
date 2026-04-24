@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, nativeImage, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
@@ -166,6 +166,40 @@ let closePending = false;
 let store;
 let isCreatingWindow = false;
 
+// Below 1024x640 the management UI (tables, roster grids, side panels) wraps
+// badly. Enforced via BrowserWindow minWidth/minHeight.
+const MIN_WIDTH = 1024;
+const MIN_HEIGHT = 640;
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
+
+// Validate saved bounds against currently connected displays. If the window's
+// center would land outside every display's work area (monitor unplugged,
+// resolution changed), fall back to a centered default — prevents the window
+// from restoring offscreen.
+const resolveInitialBounds = (saved) => {
+    const width = Math.max(MIN_WIDTH, Number(saved?.width) || DEFAULT_WIDTH);
+    const height = Math.max(MIN_HEIGHT, Number(saved?.height) || DEFAULT_HEIGHT);
+    const x = Number.isFinite(saved?.x) ? Math.floor(saved.x) : null;
+    const y = Number.isFinite(saved?.y) ? Math.floor(saved.y) : null;
+
+    if (x === null || y === null) {
+        return { width, height };
+    }
+
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    const onDisplay = screen.getAllDisplays().some((d) => {
+        const { x: dx, y: dy, width: dw, height: dh } = d.workArea;
+        return centerX >= dx && centerX < dx + dw && centerY >= dy && centerY < dy + dh;
+    });
+
+    if (!onDisplay) {
+        return { width, height };
+    }
+    return { width, height, x, y };
+};
+
 const resolveWindowIconPath = () => {
     const candidatePaths = [
         path.join(process.resourcesPath, 'public', 'logo.png'),
@@ -195,6 +229,8 @@ const initStore = async () => {
             window: {
                 width: 1280,
                 height: 720,
+                x: null,
+                y: null,
                 fullscreen: false,
                 maximized: false
             }
@@ -275,11 +311,16 @@ ipcMain.handle('window-set-fullscreen', (event, fullscreen) => {
 ipcMain.handle('window-set-size', (event, width, height) => {
     if (!mainWindow) return false;
     try {
-        mainWindow.setSize(width, height);
+        const w = Math.max(MIN_WIDTH, Number(width) || DEFAULT_WIDTH);
+        const h = Math.max(MIN_HEIGHT, Number(height) || DEFAULT_HEIGHT);
+        mainWindow.setSize(w, h);
         mainWindow.center();
         if (store) {
-            store.set('window.width', width);
-            store.set('window.height', height);
+            const bounds = mainWindow.getBounds();
+            store.set('window.width', bounds.width);
+            store.set('window.height', bounds.height);
+            store.set('window.x', bounds.x);
+            store.set('window.y', bounds.y);
         }
         return true;
     } catch (e) {
@@ -537,9 +578,20 @@ async function createWindow() {
         const iconImage = iconPath ? nativeImage.createFromPath(iconPath) : null;
         const windowIcon = iconImage && !iconImage.isEmpty() ? iconImage : undefined;
 
+        // Native title bar with menu bar hidden — standard for Steam management
+        // sims. A custom title bar would require drag regions, OS-specific
+        // traffic-light handling, and complicates Steam overlay / fullscreen
+        // toggling; not worth it for the ergonomics gained.
+        if (process.platform !== 'darwin') {
+            Menu.setApplicationMenu(null);
+        }
+
+        const initialBounds = resolveInitialBounds(windowState);
+
         mainWindow = new BrowserWindow({
-            width: windowState.width || 1280,
-            height: windowState.height || 720,
+            ...initialBounds,
+            minWidth: MIN_WIDTH,
+            minHeight: MIN_HEIGHT,
             fullscreen: windowState.fullscreen || false,
             icon: windowIcon,
             webPreferences: {
@@ -640,20 +692,26 @@ async function createWindow() {
             mainWindow.setIcon(windowIcon);
         }
 
-        // Save window state listener
+        // Save window state listener. Only persist size/position when the
+        // window is in its normal (non-maximized, non-fullscreen) state —
+        // otherwise we'd store the maximized bounds and lose the user's
+        // preferred restore size.
         const saveState = () => {
             if (!mainWindow || !store) return;
             try {
                 const isMaximized = mainWindow.isMaximized();
                 const isFullScreen = mainWindow.isFullScreen();
-                const [width, height] = mainWindow.getSize();
+                const isMinimized = mainWindow.isMinimized();
 
                 store.set('window.maximized', isMaximized);
                 store.set('window.fullscreen', isFullScreen);
 
-                if (!isMaximized && !isFullScreen) {
-                    store.set('window.width', width);
-                    store.set('window.height', height);
+                if (!isMaximized && !isFullScreen && !isMinimized) {
+                    const bounds = mainWindow.getBounds();
+                    store.set('window.width', bounds.width);
+                    store.set('window.height', bounds.height);
+                    store.set('window.x', bounds.x);
+                    store.set('window.y', bounds.y);
                 }
             } catch (e) {
                 console.error('[Electron] Error saving window state:', e);
