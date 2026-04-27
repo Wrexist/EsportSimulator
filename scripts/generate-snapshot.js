@@ -55,6 +55,16 @@ function getRegion(nationality) {
     return REGION_MAP[nationality] || 'EU';
 }
 
+// Data integrity floors. Kept in sync with scripts/validateData.mjs.
+const MIN_COMPETITIVE_AGE = 16;
+const MAX_COMPETITIVE_AGE = 50;
+const MIN_ROSTER_SIZE = 5;
+const MIN_FANBASE = 0;
+
+function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+}
+
 // ============================================================
 // TIER ASSIGNMENT (HLTV rank → PlayerTier)
 // ============================================================
@@ -281,7 +291,7 @@ function generateSnapshot() {
                 const portraitPath = `/assets/teams/${tDir}/players/${pFile.replace('.json', '.png')}`;
 
                 // Age-based potential adjustment
-                const age = pData.age || 22;
+                const age = clamp(pData.age || 22, MIN_COMPETITIVE_AGE, MAX_COMPETITIVE_AGE);
                 let potential = stats.potential;
                 if (age < 21) potential = Math.min(99, potential + 15);
                 else if (age < 24) potential = Math.min(99, potential + 5);
@@ -360,6 +370,8 @@ function generateSnapshot() {
             ? tData.name.toUpperCase()
             : tData.name.replace(/[^A-Z0-9]/gi, '').substring(0, 4).toUpperCase();
 
+        const fanbase = existing ? existing.fanbase : Math.max(500, 10000 - rank * 40);
+
         teams.push({
             id: teamId,
             name: tData.name,
@@ -369,7 +381,7 @@ function generateSnapshot() {
             logoPath: `/assets/teams/${tDir}/logo.png`,
             rosterIds: rosterIds,
             reputation: Math.max(5, Math.round(100 - rank * 0.4)),
-            fanbase: existing ? existing.fanbase : Math.max(500, 10000 - rank * 40),
+            fanbase: Math.max(MIN_FANBASE, fanbase),
             facilitiesLevel: existing ? existing.facilitiesLevel : 1,
             startingBudget: existing ? existing.startingBudget : 500000,
         });
@@ -429,10 +441,16 @@ function generateSnapshot() {
 
     // Filter: only teams ranked 1-200 are active (compete in game)
     // Teams 201+ are inactive — their players stay in players.json as free agents
+    // Also drop teams with too few players to field a CS2 lineup.
     const ACTIVE_RANK_CUTOFF = 200;
     const activeTeams = teams.filter(t => {
         const rank = parseInt(t.id.split('_')[1]) || 999;
-        return rank <= ACTIVE_RANK_CUTOFF;
+        if (rank > ACTIVE_RANK_CUTOFF) return false;
+        if (t.rosterIds.length < MIN_ROSTER_SIZE) {
+            console.log(`  Dropping ${t.id} (${t.name}): ${t.rosterIds.length} players, need ≥ ${MIN_ROSTER_SIZE}`);
+            return false;
+        }
+        return true;
     });
     const inactiveTeams = teams.filter(t => {
         const rank = parseInt(t.id.split('_')[1]) || 999;
