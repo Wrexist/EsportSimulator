@@ -172,11 +172,12 @@ export const PHRASE_REPLACEMENTS: Array<[RegExp, string]> = [
     [/Barclays Center/gi, "Metro Center"],
     [/Copper Box/gi, "Copper Hall"],
     [/Avalanche/gi, "Avalanche"],
-    [/Counter-Strike 2/gi, "Counter-Strike 2"],
-    [/Counter-Strike: Global Offensive/gi, "Counter-Strike 2"],
-    [/\bCS2\b/g, "CS2"],
-    [/\bCS:GO\b/gi, "CS2"],
-    [/\bCSGO\b/gi, "CS2"],
+    [/Counter-Strike 2/gi, "Tactical Strike"],
+    [/Counter-Strike: Global Offensive/gi, "Tactical Strike"],
+    [/\bCounter-Strike\b/gi, "Tactical Strike"],
+    [/\bCS2\b/g, "TS"],
+    [/\bCS:GO\b/gi, "TS"],
+    [/\bCSGO\b/gi, "TS"],
 ]
 
 // ============================================================

@@ -4,7 +4,7 @@
  * 
  * Features:
  * - Nationality-based name pools (Nordic, Slavic, Western, Brazilian, etc.)
- * - CS2 nickname generation patterns
+ * - Esports nickname generation patterns
  * - Age-weighted stat generation (younger = lower base, higher potential)
  * - Role-based stat biasing
  * - Personality archetypes affecting mental stats
@@ -172,7 +172,7 @@ function pick<T>(array: readonly T[], rng?: SeededRNG): T {
     return array[randomInt(0, array.length - 1, rng)]
 }
 
-// Generate a realistic CS2 nickname
+// Generate a realistic esports nickname
 function generateNickname(firstName: string, rng?: SeededRNG): string {
     const rand = random(rng)
 

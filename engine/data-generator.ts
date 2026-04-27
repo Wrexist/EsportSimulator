@@ -1,4 +1,4 @@
-// Generates initial game data for CS2 esports manager
+// Generates initial game data for the tactical FPS esports manager
 import type {
   Team,
   Player,

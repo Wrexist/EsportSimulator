@@ -1,6 +1,6 @@
-// Core game types for CS2 esports manager simulation
+// Core game types for the tactical FPS esports manager simulation
 
-export type Game = "cs2"
+export type Game = "tactical_fps"
 
 export type Role = "awper" | "rifler" | "igl" | "support" | "entry"
 

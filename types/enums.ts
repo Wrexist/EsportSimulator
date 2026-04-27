@@ -1,21 +1,24 @@
 /**
- * Core enums for CS2 Esports Manager Simulation
- * Phase 3: Strict, gameplay-meaningful type definitions
+ * Core enums for the Tactical FPS Esports Manager Simulation.
+ * Phase 3: Strict, gameplay-meaningful type definitions.
  */
 
 /**
- * Supported games in the simulation
+ * Supported games in the simulation.
  */
 export enum GameId {
-  CS2 = "CS2"
+  TACTICAL_FPS = "Tactical FPS"
 }
 
 /**
- * Player roles in CS2
- * - AWPER: Primary AWP player, long-range specialist
- * - RIFLER: Versatile rifle player
- * - IGL: In-Game Leader, calls strategies
- * - SUPPORT: Utility-focused, enables teammates
+ * Player roles in a 5v5 tactical shooter.
+ * - SNIPER: Long-range specialist with the team's heavy sniper rifle.
+ * - RIFLER: Versatile rifle player.
+ * - IGL: In-Game Leader, calls strategies.
+ * - SUPPORT: Utility-focused, enables teammates.
+ * - ENTRY_FRAGGER: First through the door, opens up sites.
+ *
+ * Note: AWPER is retained as an alias for legacy compatibility with saves.
  */
 export enum PlayerRole {
   AWPER = "AWPER",
@@ -26,8 +29,8 @@ export enum PlayerRole {
 }
 
 /**
- * Player tier classification
- * Affects salary expectations, transfer value, and tournament eligibility
+ * Player tier classification.
+ * Affects salary expectations, transfer value, and tournament eligibility.
  */
 export enum PlayerTier {
   ELITE = "ELITE",       // Top 50 players globally
@@ -46,17 +49,21 @@ export enum MatchFormat {
 }
 
 /**
- * Official CS2 competitive map pool
+ * Active competitive map pool (fictional).
+ *
+ * Enum keys are kept stable for code/IO compatibility, but display values
+ * use fictional map names so the shipped build does not reference any
+ * third-party map trademarks.
  */
 export enum MapId {
-  DUST2 = "Dust2",
-  MIRAGE = "Mirage",
-  INFERNO = "Inferno",
-  NUKE = "Nuke",
-  OVERPASS = "Overpass",
-  VERTIGO = "Vertigo",
-  ANCIENT = "Ancient",
-  ANUBIS = "Anubis"
+  DUST2 = "Outpost",
+  MIRAGE = "Citadel",
+  INFERNO = "Refinery",
+  NUKE = "Reactor",
+  OVERPASS = "Junction",
+  VERTIGO = "Skyline",
+  ANCIENT = "Ruins",
+  ANUBIS = "Temple"
 }
 
 /**

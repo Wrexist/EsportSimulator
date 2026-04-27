@@ -5,7 +5,7 @@ All notable changes to Esports Manager: FPS will be documented in this file.
 ## [1.0.0] - 2026-03-18
 
 ### Added
-- Complete esports manager simulation with 200+ real CS2 teams and players
+- Complete esports manager simulation with 200+ teams and players
 - Full tournament system: Majors, A-Tier, B-Tier, C-Tier with circuit points
 - Match simulation engine with round-by-round tactical simulation
 - Live match viewer with radar visualization

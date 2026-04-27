@@ -8,9 +8,23 @@ Take control of your own professional esports organization in **Esports Manager:
 
 ## Early Access Q&A
 
+### Why Early Access?
+"We're releasing in Early Access because the simulation depth of an esports manager only gets better with player feedback. The core gameplay loop is complete and stable, but we want to fine-tune the AI, balance long-term economy, and expand tournaments based on how real players engage with the game. Early Access lets us build that polish openly with the community."
+
+### Approximately how long will this game be in Early Access?
+"We expect the Early Access period to last between 6 and 12 months. The duration will depend on community feedback and how quickly we can refine systems and ship planned content."
+
+### How is the full version planned to differ from the Early Access version?
+"The 1.0 release will expand on the Early Access build with: deeper AI manager behaviors, additional tournament formats, more staff and academy progression, expanded localization, controller support, and ongoing balance updates driven by community feedback."
+
 ### What is the current state of the Early Access version?
-The current Early Access build already includes the full core gameplay loop. You can create and run an esports organization, recruit and train players, manage schedules and finances, scout prospects, set tactics, and compete in leagues and tournaments from regular season progression to championship outcomes. Match simulation, tactical adjustments, roster chemistry, and long-term management systems are all playable in the current version.  
-If you want the full feature breakdown, refer to the **About This Game** section above.
+"The Early Access build is feature-complete and fully playable. It includes all of the core systems described in the **About This Game** section above: full season management, round-by-round match simulation with economy and tactics, the transfer market and contract negotiation, training and player development, S/A/B/C tier tournaments with Swiss and bracket formats, staff hiring (coaches, analysts, scouts), finances and sponsorships, the youth academy, save/load with Steam Cloud sync, and 30 Steam achievements. For the full feature list, please refer to the **About This Game** section above."
+
+### Will the game be priced differently during and after Early Access?
+"The price may increase modestly when we exit Early Access, reflecting the additional content and polish added during the EA period. Players who buy during Early Access will receive all updates at no additional cost."
+
+### How are you planning on involving the Community in your development process?
+"We will gather feedback through the Steam Community Hub, our public roadmap, and surveys. Player feedback will directly influence balance, AI improvements, and content priorities. We'll publish regular update notes and respond to threads on the discussion boards."
 
 ### Key Features:
 *   **Deep Tactical Simulation**: Watch matches unfold in real-time with our detailed 2D match engine. Adjust strategies on the fly—call for a "Rush B", set up a "Double AWP" defense, or manage your economy to break the opponent's bank.

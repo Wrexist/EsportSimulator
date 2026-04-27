@@ -1,5 +1,5 @@
 /**
- * Events and Training models for CS2 Esports Manager Simulation
+ * Events and Training models for the Tactical FPS Esports Manager Simulation
  * Phase 3: Event system and training progression
  */
 

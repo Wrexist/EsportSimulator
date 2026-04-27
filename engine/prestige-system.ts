@@ -1,6 +1,6 @@
 /**
- * Prestige System for CS2 Esports Manager (Phase 6)
- * Implements the user-defined "HLTV Prestige" model.
+ * Prestige System for the Tactical FPS Esports Manager (Phase 6)
+ * Implements the in-game "Scene Prestige" model.
  * 
  * CORE RULES:
  * - 7-year rolling window (0-6 years ago)

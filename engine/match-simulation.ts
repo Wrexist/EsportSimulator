@@ -1,6 +1,6 @@
 /**
  * Phase 4 Simulation Engine
- * Deterministic, inspectable match simulation for CS2
+ * Deterministic, inspectable match simulation for the tactical FPS
  * 
  * FEATURES:
  * - Seeded RNG passed explicitly (no global randomness)
@@ -65,7 +65,7 @@ export interface MatchStats {
 
 // ===== CONSTANTS =====
 const T_SIDE_ADVANTAGE_MAPS: MapId[] = [MapId.ANUBIS, MapId.ANCIENT]
-const T_SIDE_ADVANTAGE = 0.02 // T side slight advantage in CS2 economy transition? (actually CT more expensive)
+const T_SIDE_ADVANTAGE = 0.02 // T side slight economy-transition advantage (CT loadouts cost more)
 const CT_SIDE_ADVANTAGE = 0.03 // Standard map balance
 const MOMENTUM_WEIGHT = 0.02
 const MOMENTUM_MAX_ROUNDS = 5
@@ -536,7 +536,7 @@ export class SimulationEngineV2 {
                 // Regulation: swap at 12
                 homeIsCT = roundNum <= REGULATION_MAX_ROUNDS / 2 ? homeStartsCT : !homeStartsCT
 
-                // HALF-TIME RESET (Round 13) - CS2 resets economy and equipment at half-time
+                // HALF-TIME RESET (Round 13) - economy and equipment reset at half-time
                 if (roundNum === REGULATION_MAX_ROUNDS / 2 + 1) {
                     [currentCTTeam, currentTTeam] = [currentTTeam, currentCTTeam]
 
@@ -586,9 +586,9 @@ export class SimulationEngineV2 {
             const isOTStart = roundNum === 25 || (isOvertime && (roundNum - 24 - 1) % 6 === 0)
             const isOTHalf = isOvertime && (roundNum - 24 - 1) % 3 === 0 && (roundNum - 24 - 1) % 6 !== 0
 
-            // Standard CS2: Reset at start of OT (Round 25) and Half (Round 28)
+            // Reset at start of OT (Round 25) and Half (Round 28)
             if (isOTStart || isOTHalf) {
-                Object.values(homeEconomy).forEach(p => p.cash = 10000) // CS2 OT money is 10k usually
+                Object.values(homeEconomy).forEach(p => p.cash = 10000) // Standard OT starting cash
                 Object.values(awayEconomy).forEach(p => p.cash = 10000)
             }
 
@@ -1485,7 +1485,7 @@ export class SimulationEngineV2 {
                 })
 
                 if (hasValuableGun) {
-                    // 7% chance to save in 1v5+ — realistic CS2 save rate
+                    // 7% chance to save in 1v5+ — realistic save rate
                     if (rng.bool(0.07)) {
                         const names = losersAlive.map(p => p.nickname).join(", ")
                         events.push({ type: "SAVE", time: currentTime, details: `${names} saving` })

@@ -3,16 +3,19 @@ import { SeededRNG } from "./rng"
 import type { TeamSaveData, SponsorSaveData, FacilitySaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "./save-types"
 
 /**
- * EconomyManager handles all CS2-specific financial logic including
+ * EconomyManager handles all in-match financial logic including
  * round bonuses, kill rewards, equipment costs, and strategic team buying behavior.
- * Updated to July 2025 Meta (CT Team-wide kill bonus).
+ *
+ * Weapon names below are fictional and intentionally do not reference any
+ * real-world firearm trademark. Internal `id` values are retained for
+ * save compatibility.
  */
 
 export enum WeaponType {
   PISTOL = "PISTOL",
   SMG = "SMG",
   RIFLE = "RIFLE",
-  SNIPER = "SNIPER", // AWP
+  SNIPER = "SNIPER",
   SHOTGUN = "SHOTGUN",
   KNIFE = "KNIFE",
   UTILITY = "UTILITY"
@@ -29,39 +32,39 @@ export interface Weapon {
 
 export const WEAPONS: Record<string, Weapon> = {
   // Pistols
-  GLOCK: { id: "glock", name: "Glock-18", type: WeaponType.PISTOL, price: 0, killReward: 300, power: 15 },
-  USP: { id: "usp", name: "USP-S", type: WeaponType.PISTOL, price: 0, killReward: 300, power: 18 },
-  P250: { id: "p250", name: "P250", type: WeaponType.PISTOL, price: 300, killReward: 300, power: 25 },
-  DEAGLE: { id: "deagle", name: "Desert Eagle", type: WeaponType.PISTOL, price: 700, killReward: 300, power: 42 },
-  DUALIES: { id: "dualies", name: "Dual Berettas", type: WeaponType.PISTOL, price: 300, killReward: 300, power: 22 },
-  TEC9: { id: "tec9", name: "Tec-9", type: WeaponType.PISTOL, price: 500, killReward: 300, power: 35 },
-  FIVESEVEN: { id: "fiveseven", name: "Five-SeveN", type: WeaponType.PISTOL, price: 500, killReward: 300, power: 35 },
+  GLOCK: { id: "glock", name: "Sidearm-18", type: WeaponType.PISTOL, price: 0, killReward: 300, power: 15 },
+  USP: { id: "usp", name: "Tactical-S", type: WeaponType.PISTOL, price: 0, killReward: 300, power: 18 },
+  P250: { id: "p250", name: "P-250", type: WeaponType.PISTOL, price: 300, killReward: 300, power: 25 },
+  DEAGLE: { id: "deagle", name: "Hand Cannon", type: WeaponType.PISTOL, price: 700, killReward: 300, power: 42 },
+  DUALIES: { id: "dualies", name: "Twin Pistols", type: WeaponType.PISTOL, price: 300, killReward: 300, power: 22 },
+  TEC9: { id: "tec9", name: "T-9 Auto", type: WeaponType.PISTOL, price: 500, killReward: 300, power: 35 },
+  FIVESEVEN: { id: "fiveseven", name: "5-7 Sidearm", type: WeaponType.PISTOL, price: 500, killReward: 300, power: 35 },
 
   // SMGs
-  MAC10: { id: "mac10", name: "MAC-10", type: WeaponType.SMG, price: 1050, killReward: 600, power: 45 },
-  MP9: { id: "mp9", name: "MP9", type: WeaponType.SMG, price: 1250, killReward: 600, power: 48 },
-  MP7: { id: "mp7", name: "MP7", type: WeaponType.SMG, price: 1500, killReward: 600, power: 50 },
-  UMP45: { id: "ump45", name: "UMP-45", type: WeaponType.SMG, price: 1200, killReward: 600, power: 48 },
-  PPBIZON: { id: "ppbizon", name: "PP-Bizon", type: WeaponType.SMG, price: 1400, killReward: 600, power: 42 },
-  P90: { id: "p90", name: "P90", type: WeaponType.SMG, price: 2350, killReward: 300, power: 55 },
+  MAC10: { id: "mac10", name: "MC-10", type: WeaponType.SMG, price: 1050, killReward: 600, power: 45 },
+  MP9: { id: "mp9", name: "SMG-9", type: WeaponType.SMG, price: 1250, killReward: 600, power: 48 },
+  MP7: { id: "mp7", name: "SMG-7", type: WeaponType.SMG, price: 1500, killReward: 600, power: 50 },
+  UMP45: { id: "ump45", name: "UMG-45", type: WeaponType.SMG, price: 1200, killReward: 600, power: 48 },
+  PPBIZON: { id: "ppbizon", name: "Coil SMG", type: WeaponType.SMG, price: 1400, killReward: 600, power: 42 },
+  P90: { id: "p90", name: "P-90", type: WeaponType.SMG, price: 2350, killReward: 300, power: 55 },
 
   // Rifles
-  AK47: { id: "ak47", name: "AK-47", type: WeaponType.RIFLE, price: 2700, killReward: 300, power: 85 },
-  M4A4: { id: "m4a4", name: "M4A4", type: WeaponType.RIFLE, price: 3000, killReward: 300, power: 82 },
-  M4A1S: { id: "m4a1s", name: "M4A1-S", type: WeaponType.RIFLE, price: 2900, killReward: 300, power: 82 },
-  GALIL: { id: "galil", name: "Galil AR", type: WeaponType.RIFLE, price: 1800, killReward: 300, power: 65 },
-  FAMAS: { id: "famas", name: "FAMAS", type: WeaponType.RIFLE, price: 2050, killReward: 300, power: 62 },
-  AUG: { id: "aug", name: "AUG", type: WeaponType.RIFLE, price: 3300, killReward: 300, power: 85 },
-  SG553: { id: "sg553", name: "SG 553", type: WeaponType.RIFLE, price: 3000, killReward: 300, power: 85 },
+  AK47: { id: "ak47", name: "AR-47", type: WeaponType.RIFLE, price: 2700, killReward: 300, power: 85 },
+  M4A4: { id: "m4a4", name: "AR-4", type: WeaponType.RIFLE, price: 3000, killReward: 300, power: 82 },
+  M4A1S: { id: "m4a1s", name: "AR-4S", type: WeaponType.RIFLE, price: 2900, killReward: 300, power: 82 },
+  GALIL: { id: "galil", name: "Light Rifle", type: WeaponType.RIFLE, price: 1800, killReward: 300, power: 65 },
+  FAMAS: { id: "famas", name: "Burst Rifle", type: WeaponType.RIFLE, price: 2050, killReward: 300, power: 62 },
+  AUG: { id: "aug", name: "Scoped Rifle", type: WeaponType.RIFLE, price: 3300, killReward: 300, power: 85 },
+  SG553: { id: "sg553", name: "Marksman Rifle", type: WeaponType.RIFLE, price: 3000, killReward: 300, power: 85 },
 
   // Sniper
-  AWP: { id: "awp", name: "AWP", type: WeaponType.SNIPER, price: 4750, killReward: 100, power: 95 },
-  SSG08: { id: "ssg08", name: "SSG 08", type: WeaponType.SNIPER, price: 1700, killReward: 300, power: 55 },
+  AWP: { id: "awp", name: "Long Rifle", type: WeaponType.SNIPER, price: 4750, killReward: 100, power: 95 },
+  SSG08: { id: "ssg08", name: "Scout Rifle", type: WeaponType.SNIPER, price: 1700, killReward: 300, power: 55 },
 
   // Shotguns
-  NOVA: { id: "nova", name: "Nova", type: WeaponType.SHOTGUN, price: 1050, killReward: 900, power: 35 },
-  XM1014: { id: "xm1014", name: "XM1014", type: WeaponType.SHOTGUN, price: 2000, killReward: 900, power: 50 },
-  MAG7: { id: "mag7", name: "MAG-7", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
+  NOVA: { id: "nova", name: "Pump Shotgun", type: WeaponType.SHOTGUN, price: 1050, killReward: 900, power: 35 },
+  XM1014: { id: "xm1014", name: "Auto Shotgun", type: WeaponType.SHOTGUN, price: 2000, killReward: 900, power: 50 },
+  MAG7: { id: "mag7", name: "Tactical Shotgun", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
 }
 
 export class EconomyManager {
@@ -69,7 +72,7 @@ export class EconomyManager {
   static ROUND_START_CASH = 800
 
   static getLossBonus(streak: number): number {
-    // CS2 2023+ rules: First loss = $1900, progression +$500 each up to $3400 max
+    // First loss = $1900, progression +$500 each up to $3400 max
     // Both teams start with an implicit 1-round "loss streak" in competitive mode
     const levels = [1900, 2400, 2900, 3400, 3400]
     const index = Math.max(0, Math.min(streak, 4))

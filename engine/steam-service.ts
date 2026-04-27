@@ -26,7 +26,7 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlocked' | 'unlock
     FIRST_TOURNAMENT: { id: "FIRST_TOURNAMENT", name: "Into the Arena", description: "Enter your first tournament", icon: "crosshair", hidden: false },
     WIN_B_TIER: { id: "WIN_B_TIER", name: "Proving Grounds", description: "Win a B-Tier tournament", icon: "award", hidden: false },
     WIN_A_TIER: { id: "WIN_A_TIER", name: "Premier Champion", description: "Win an A-Tier tournament", icon: "award", hidden: false },
-    WIN_MAJOR: { id: "WIN_MAJOR", name: "Major Champion", description: "Lift the trophy at a CS2 Major", icon: "crown", hidden: false },
+    WIN_MAJOR: { id: "WIN_MAJOR", name: "Major Champion", description: "Lift the trophy at a Major championship", icon: "crown", hidden: false },
     GRAND_SLAM: { id: "GRAND_SLAM", name: "Grand Slam", description: "Win all 3 Majors in a single year", icon: "gem", hidden: true },
     DYNASTY: { id: "DYNASTY", name: "Dynasty", description: "Win 3 Major championships across your career", icon: "crown", hidden: false },
     PERFECT_TOURNAMENT: { id: "PERFECT_TOURNAMENT", name: "Flawless", description: "Win a tournament without dropping a single map", icon: "shield", hidden: false },

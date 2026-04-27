@@ -18,30 +18,30 @@ export interface SocialPost {
 }
 
 const FANS = [
-    { name: "CS2 Insider", handle: "@cs2insider", avatar: "CS", verified: true },
-    { name: "S1mpleFan", handle: "@goat_enjoyer", avatar: "SF" },
-    { name: "HLTV Confirmed", handle: "@HLTVconfirmed", avatar: "H", verified: true },
+    { name: "Scene Insider", handle: "@scene_insider", avatar: "SI", verified: true },
+    { name: "GoatFan", handle: "@goat_enjoyer", avatar: "GF" },
+    { name: "StatCentral Confirmed", handle: "@statconfirmed", avatar: "S", verified: true },
     { name: "Toxic Player", handle: "@tilt_lord_", avatar: "T" },
     { name: "Tactical Tim", handle: "@strat_god", avatar: "TT" },
-    { name: "The Analyst", handle: "@analyst_cs", avatar: "A", verified: true },
+    { name: "The Analyst", handle: "@analyst_pro", avatar: "A", verified: true },
 ]
 
 const WIN_TEMPLATES = [
     "Unreal performance by {team}! They looked completely dominant today. {hashtag}",
     "How did {player} even hit that shot? Pure insanity. {team} on fire! 🔥",
-    "GGEZ for {team}. The other guys didn't stand a chance. #CS2",
+    "GGEZ for {team}. The other guys didn't stand a chance. #ProScene",
     "Finally a win for {team}. Hopefully they can keep this momentum going into the Major.",
 ]
 
 const LOSS_TEMPLATES = [
     "Another loss for {team}. Changes are needed. This roster isn't working. 📉",
     "Bench {player}. Missing every easy shot today. Disastrous performance from {team}.",
-    "I've seen silver stacks play better than {team} did on Mirage. Truly tragic.",
+    "I've seen silver stacks play better than {team} did on Citadel. Truly tragic.",
     "Pain. Just pain. {team} had it and threw at the last round. #Tilt",
 ]
 
 const GENERAL_TEMPLATES = [
-    "The meta is changing and {team} needs to adapt quickly. #CS2",
+    "The meta is changing and {team} needs to adapt quickly. #ProScene",
     "Seeing rumors about {team} looking for a new tactical coach. Big if true!",
     "Anyone else thinks {player} is the most underrated rifler in the scene right now?",
 ]

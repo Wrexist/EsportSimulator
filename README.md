@@ -1,6 +1,6 @@
 # Esports Simulator Game
 
-A CS2 esports team management simulation game built with Next.js 14, Electron, and Steam SDK. Manage your team, compete in tournaments, develop players, and climb the world rankings.
+A tactical-FPS esports team management simulation game built with Next.js 14, Electron, and Steam SDK. Manage your team, compete in tournaments, develop players, and climb the world rankings.
 
 **Steam App ID:** 4326170
 
@@ -19,10 +19,10 @@ This script will:
 ## Features
 
 ### Core Gameplay
-- **Team Management**: Build and manage a CS2 roster with 20+ player attributes
+- **Team Management**: Build and manage a 5v5 tactical-FPS roster with 20+ player attributes
 - **Match Simulation**: Deterministic round-by-round match engine with economy, kills, and utility
 - **Tournament System**: Full tournament calendar with S/A/B/C tiers, Swiss format, and bracket stages
-- **Transfer Market**: Scout, negotiate, and sign players from 100+ real teams
+- **Transfer Market**: Scout, negotiate, and sign players from 100+ teams
 - **Training & Drills**: Weapon mastery, role training, tactical drills, and bootcamps
 - **Staff System**: Hire coaches, analysts, and scouts with talent trees
 - **Youth Academy**: Scout and develop prospects for your roster
@@ -100,9 +100,9 @@ esports-simulator-game/
 
 ### Match Engine
 
-Round-by-round CS2 match simulation with economy, side selection, and player performance:
+Round-by-round tactical-FPS match simulation with economy, side selection, and player performance:
 
-- Player ratings derived from 20+ attributes (rifle, AWP, pistol, grenades, clutch, etc.)
+- Player ratings derived from 20+ attributes (rifle, sniper, pistol, grenades, clutch, etc.)
 - Modified by form, morale, fatigue, and team chemistry
 - Economy system with buy rounds, eco rounds, and force buys
 - Map veto system with team-specific map pools

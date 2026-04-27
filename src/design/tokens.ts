@@ -87,8 +87,8 @@ export const colors = {
   'tier-elite': `hsl(${hue.tierElite})`,
   'tier-legendary': `hsl(${hue.tierLegendary})`,
 
-  // Game-type palette (single-game today: CS2; keyed for future expansion)
-  'game-cs2': `hsl(${hue.warning})`,
+  // Game-type palette (single-game today; keyed for future expansion)
+  'game-tactical-fps': `hsl(${hue.warning})`,
 } as const
 
 // ────────────────────────────────────────────────────────────────────────────

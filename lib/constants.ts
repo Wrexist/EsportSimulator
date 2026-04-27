@@ -75,7 +75,7 @@ export const MATCH_CONSTANTS = {
     MAX_MONEY: 16000,
 
     // Win bonuses
-    ELIMINATION_BONUS: 300, // CS2 kill reward
+    ELIMINATION_BONUS: 300, // Per-kill cash reward
 
     // Loss bonuses (progressive)
     LOSS_BONUS_1: 1900,
