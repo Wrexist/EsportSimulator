@@ -95,7 +95,7 @@ export function generateSocialPosts(
 
         for (let i = 0; i < 2; i++) {
             const fan = fans[i]
-            let content = templates[Math.floor(Math.random() * templates.length)]
+            const content = templates[Math.floor(Math.random() * templates.length)]
                 .replace(/{team}/g, playerTeam.name)
                 .replace(/{player}/g, mvp?.nickname || "their carry")
                 .replace(/{hashtag}/g, `#${playerTeam.name.replace(/\s/g, "")}`)

@@ -562,11 +562,14 @@ export class TournamentManager {
                 const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
                 const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
 
-                // Mark as complete
+                // Mark as complete - use winnerId from result as source of truth
+                // Determine winner - result.winnerId should always be set, but fallback to score comparison
+                const winnerId = result.winnerId || (result.homeScore > result.awayScore ? homeTeam.id : awayTeam.id)
+                const loserId = winnerId === homeTeam.id ? awayTeam.id : homeTeam.id
+                
                 bracketMatch.isCompleted = true
-                const homeWon = result.homeScore > result.awayScore
-                bracketMatch.winnerId = homeWon ? homeTeam.id : awayTeam.id
-                bracketMatch.loserId = homeWon ? awayTeam.id : homeTeam.id
+                bracketMatch.winnerId = winnerId
+                bracketMatch.loserId = loserId
 
                 // Add to completed matches
                 const completedMatch: CompletedMatchSaveData = {
@@ -581,10 +584,10 @@ export class TournamentManager {
 
                 // Update ELO
                 const scoreDiff = Math.abs(result.homeScore - result.awayScore)
-                LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined)
+                LeagueEngine.updateEloAfterMatch(save, winnerId, loserId, scoreDiff, tournament.tier, undefined, undefined)
 
                 // Process progression (assigns winner to next round)
-                this.handlePlayoffProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
+                this.handlePlayoffProgression(save, tournament, bracketMatch, winnerId, loserId)
 
                 simulatedCount++
                 madeProgress = true
@@ -834,11 +837,14 @@ export class TournamentManager {
         const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
         const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
 
-        // Mark bracket match as complete
+        // Mark bracket match as complete - use winnerId from result as source of truth
+        // Determine winner - result.winnerId should always be set, but fallback to score comparison
+        const winnerId = result.winnerId || (result.homeScore > result.awayScore ? homeTeam.id : awayTeam.id)
+        const loserId = winnerId === homeTeam.id ? awayTeam.id : homeTeam.id
+
         bracketMatch.isCompleted = true
-        const homeWon = result.homeScore > result.awayScore
-        bracketMatch.winnerId = homeWon ? homeTeam.id : awayTeam.id
-        bracketMatch.loserId = homeWon ? awayTeam.id : homeTeam.id
+        bracketMatch.winnerId = winnerId
+        bracketMatch.loserId = loserId
 
         // Create completed match record
         const completedMatch: CompletedMatchSaveData = {
@@ -855,8 +861,8 @@ export class TournamentManager {
         const scoreDiff = Math.abs(result.homeScore - result.awayScore)
         LeagueEngine.updateEloAfterMatch(
             save,
-            bracketMatch.winnerId,
-            bracketMatch.loserId!,
+            winnerId,
+            loserId,
             scoreDiff,
             tournament.tier,
             undefined,
@@ -864,7 +870,7 @@ export class TournamentManager {
         )
 
         // Process this match's progression (will add winner to next round)
-        this.handlePlayoffProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
+        this.handlePlayoffProgression(save, tournament, bracketMatch, winnerId, loserId)
     }
 
     /**

@@ -386,10 +386,15 @@ export class AIManager {
 
                 // Calculate Market Value (Base Value)
                 // Potential is more heavily weighted for aggressive scouting
-                let baseValue = (player.skill * 100) + (player.potential * 150) // Increased potential weight
+                const skill = player.skill ?? 10
+                const potential = player.potential ?? 10
+                let baseValue = (skill * 100) + (potential * 150) // Increased potential weight
                 if (player.tier === "ELITE") baseValue *= 50
                 else if (player.tier === "PRO") baseValue *= 20
                 else baseValue *= 5
+
+                // Ensure baseValue is never zero to prevent division issues
+                baseValue = Math.max(baseValue, 1000) // Minimum $1000 value
 
                 // Determine interest based on price ratio
                 // listingPrice vs baseValue (Market Value)

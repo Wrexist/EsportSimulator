@@ -204,7 +204,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         }
 
         // Step 2: Check salary
-        let baseSalary = evaluation.transferValue / 150
+        const baseSalary = evaluation.transferValue / 150
 
         // Deterministic variance blocks re-roll abuse via reload/reopen.
         const variance = getNegotiationRng("CONTRACT_THRESHOLD").range(0.9, 1.2)

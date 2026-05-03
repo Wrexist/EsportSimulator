@@ -685,7 +685,7 @@ export default function TournamentDetailPage() {
                                                 <div className="flex items-end justify-center gap-4 md:gap-8 min-h-[280px]">
                                                     {(() => {
                                                         // Determine Winners
-                                                        let podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
+                                                        const podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
 
                                                         // 1. Bracket Logic (Most reliable for single elim)
                                                         const finalMatch = completedMatches.find(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage === "Grand Final")
@@ -747,7 +747,7 @@ export default function TournamentDetailPage() {
                                                                         entry.place === 1 ? "border-amber-400 w-28 h-28" : entry.place === 2 ? "border-gray-300" : "border-amber-800"
                                                                     )}>
                                                                         {entry.team.logoPath ? (
-                                                                            <img src={entry.team.logoPath} className="w-[70%] h-[70%] object-contain" />
+                                                                            <img src={entry.team.logoPath} alt={entry.team.name} className="w-[70%] h-[70%] object-contain" />
                                                                         ) : (
                                                                             <span className="text-2xl font-bold">{entry.team.name[0]}</span>
                                                                         )}
@@ -822,7 +822,7 @@ export default function TournamentDetailPage() {
                                             // --------------------------------------------------------------------------------
                                             if (isCompleted) {
                                                 // Determine Standings
-                                                let standings: { team: any, place: number, prize: number, share: string }[] = []
+                                                const standings: { team: any, place: number, prize: number, share: string }[] = []
 
                                                 // A. Bracket Logic
                                                 if (displayTournament?.format !== "league") {
@@ -1151,7 +1151,7 @@ export default function TournamentDetailPage() {
                                                                         </div>
                                                                     </div>
                                                                     {winner?.logoPath && (
-                                                                        <img src={winner.logoPath} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                                        <img src={winner.logoPath} alt={winner.name} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" />
                                                                     )}
                                                                 </div>
                                                             )
@@ -1215,7 +1215,7 @@ export default function TournamentDetailPage() {
                                                                 <tr key={entry.team?.id || idx} className="hover:bg-white/[0.02] transition-colors">
                                                                     <td className="px-6 py-4 font-mono text-white/40">#{idx + 1}</td>
                                                                     <td className="px-6 py-4 font-bold flex items-center gap-3">
-                                                                        {entry.team?.logoPath ? <img src={entry.team.logoPath} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
+                                                                        {entry.team?.logoPath ? <img src={entry.team.logoPath} alt={entry.team?.name || "Team"} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
                                                                         {entry.team?.name || "Unknown Team"}
                                                                     </td>
                                                                     <td className="px-6 py-4">
@@ -1241,7 +1241,7 @@ export default function TournamentDetailPage() {
                                                                                                 isWin ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500" : "bg-red-500/10 border-red-500/50 text-red-500"
                                                                                             )}>
                                                                                                 {opponent?.logoPath ? (
-                                                                                                    <img src={opponent.logoPath} className="w-4 h-4 object-contain opacity-80" />
+                                                                                                    <img src={opponent.logoPath} alt={opponent?.name || "Opponent"} className="w-4 h-4 object-contain opacity-80" />
                                                                                                 ) : (
                                                                                                     <span className="text-[8px] font-normal">{isWin ? "W" : "L"}</span>
                                                                                                 )}

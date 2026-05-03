@@ -26,21 +26,26 @@ function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, d
     const [displayValue, setDisplayValue] = useState(0)
 
     useEffect(() => {
+        let timer: ReturnType<typeof setInterval> | null = null
+        
         const timeout = setTimeout(() => {
             let start = 0
             const increment = value / (duration * 60)
-            const timer = setInterval(() => {
+            timer = setInterval(() => {
                 start += increment
                 if (start >= value) {
                     setDisplayValue(value)
-                    clearInterval(timer)
+                    if (timer) clearInterval(timer)
                 } else {
                     setDisplayValue(Math.floor(start))
                 }
             }, 1000 / 60)
-            return () => clearInterval(timer)
         }, delay * 1000)
-        return () => clearTimeout(timeout)
+        
+        return () => {
+            clearTimeout(timeout)
+            if (timer) clearInterval(timer)
+        }
     }, [value, duration, delay])
 
     return <>{displayValue}</>
@@ -174,7 +179,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                  !nextMatch.stage.toLowerCase().includes("quarter"))
 
             // Delay showing the advancement animation to let victory confetti play first
-            setTimeout(() => {
+            const advancementTimer = setTimeout(() => {
                 setAdvancementData({
                     fromStage: currentBracketMatch.stage || "Current Round",
                     toStage: nextMatch.stage || "Next Round",
@@ -183,6 +188,8 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                 })
                 setShowAdvancement(true)
             }, 2000) // Wait 2 seconds after page load
+
+            return () => clearTimeout(advancementTimer)
         }
     }, [match, playerTeamId, tournaments])
 

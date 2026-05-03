@@ -134,6 +134,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         }
     }
 
+    // Track if initial setup has been done to avoid re-running
+    const initialSetupDone = useRef(false)
+
     useEffect(() => {
         // Hydrate data
         const foundMatch = scheduledMatches.find(m => m.id === id)
@@ -150,8 +153,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         setHomeTeam(hTeam || null)
         setAwayTeam(aTeam || null)
 
-        // Initialize Maps & Sequence only if not set
-        if (availableMaps.length === 0 && vetoSequence.length === 0) {
+        // Initialize Maps & Sequence only once
+        if (!initialSetupDone.current) {
+            initialSetupDone.current = true
             setAvailableMaps(Object.values(MapId))
             setVetoSequence(generateVetoSequence(foundMatch.format || "BO3"))
             setStatus("Ready to start veto")
@@ -159,64 +163,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
 
     }, [scheduledMatches, teams, id])
 
-    // AI Logic Hook
-    useEffect(() => {
-        if (!match || !homeTeam || !awayTeam) return
-
-        // Auto-redirect with delay when complete
-        if (vetoSequence.length > 0 && vetoHistory.length >= vetoSequence.length) {
-            const timer = setTimeout(() => {
-                handleCompletion()
-            }, 2000)
-            return () => clearTimeout(timer)
-        }
-
-        if (vetoSequence.length === 0) return
-
-        const turnIndex = vetoHistory.length
-        const currentTurn = vetoSequence[turnIndex]
-
-        // Check if DECIDER (Auto)
-        if (currentTurn?.action === "DECIDER" && !processingRef.current) {
-            // Auto pick last remaining
-            const lastMap = availableMaps[0]
-            if (lastMap) {
-                // Small delay for visual effect
-                processingRef.current = true
-                setTimeout(() => {
-                    commitAction("auto", "DECIDER", lastMap)
-                    processingRef.current = false
-                }, 1000)
-            }
-            return
-        }
-
-        const activeTeamId = currentTurn.team === "home" ? homeTeam.id : awayTeam.id
-        const isUserTeam = activeTeamId === playerTeamId
-
-        if (!isUserTeam && !processingRef.current) {
-            // AI TURN
-            setIsAiTurn(true)
-            setStatus(`${currentTurn.team === "home" ? homeTeam.name : awayTeam.name} is thinking...`)
-            processingRef.current = true
-
-            setTimeout(() => {
-                executeAiTurn(currentTurn.team as "home" | "away", currentTurn.action as "BAN" | "PICK" | "SIDE_PICK")
-            }, 1000)
-        } else if (isUserTeam) {
-            setIsAiTurn(false)
-            setStatus(`Your turn to ${currentTurn.action.replace("_", " ")}`)
-
-            // If it's a side pick or decider pick, we might need a specific UI trigger
-            if (currentTurn.action === "SIDE_PICK") {
-                const prevAction = vetoHistory[vetoHistory.length - 1]
-                if (prevAction?.mapId) {
-                    setShowSideSelection(prevAction.mapId)
-                }
-            }
-        }
-
-    }, [vetoHistory, match, availableMaps])
+    // Refs for callbacks to avoid stale closures - must be typed as any initially
+    const handleCompletionRef = useRef<() => void>(() => {})
+    const executeAiTurnRef = useRef<(side: "home" | "away", action: "BAN" | "PICK" | "SIDE_PICK") => void>(() => {})
 
     const executeAiTurn = (side: "home" | "away", action: "BAN" | "PICK" | "SIDE_PICK") => {
         if (!homeTeam || !awayTeam || !match) return
@@ -317,6 +266,83 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         // Redirect to Hub
         router.push(`/match/${id}/tactics`)
     }
+
+    // Keep refs updated with latest function references
+    handleCompletionRef.current = handleCompletion
+    executeAiTurnRef.current = executeAiTurn
+
+    // AI Logic Hook
+    useEffect(() => {
+        if (!match || !homeTeam || !awayTeam) return
+
+        let completionTimer: ReturnType<typeof setTimeout> | null = null
+        let deciderTimer: ReturnType<typeof setTimeout> | null = null
+        let aiTimer: ReturnType<typeof setTimeout> | null = null
+
+        // Auto-redirect with delay when complete
+        if (vetoSequence.length > 0 && vetoHistory.length >= vetoSequence.length) {
+            completionTimer = setTimeout(() => {
+                handleCompletionRef.current()
+            }, 2000)
+            return () => {
+                if (completionTimer) clearTimeout(completionTimer)
+            }
+        }
+
+        if (vetoSequence.length === 0) return
+
+        const turnIndex = vetoHistory.length
+        const currentTurn = vetoSequence[turnIndex]
+        if (!currentTurn) return
+
+        // Check if DECIDER (Auto)
+        if (currentTurn.action === "DECIDER" && !processingRef.current) {
+            // Auto pick last remaining
+            const lastMap = availableMaps[0]
+            if (lastMap) {
+                // Small delay for visual effect
+                processingRef.current = true
+                deciderTimer = setTimeout(() => {
+                    commitAction("auto", "DECIDER", lastMap)
+                    processingRef.current = false
+                }, 1000)
+            }
+            return () => {
+                if (deciderTimer) clearTimeout(deciderTimer)
+            }
+        }
+
+        const activeTeamId = currentTurn.team === "home" ? homeTeam.id : awayTeam.id
+        const isUserTeam = activeTeamId === playerTeamId
+
+        if (!isUserTeam && !processingRef.current) {
+            // AI TURN
+            setIsAiTurn(true)
+            setStatus(`${currentTurn.team === "home" ? homeTeam.name : awayTeam.name} is thinking...`)
+            processingRef.current = true
+
+            aiTimer = setTimeout(() => {
+                executeAiTurnRef.current(currentTurn.team as "home" | "away", currentTurn.action as "BAN" | "PICK" | "SIDE_PICK")
+            }, 1000)
+        } else if (isUserTeam) {
+            setIsAiTurn(false)
+            setStatus(`Your turn to ${currentTurn.action.replace("_", " ")}`)
+
+            // If it's a side pick or decider pick, we might need a specific UI trigger
+            if (currentTurn.action === "SIDE_PICK") {
+                const prevAction = vetoHistory[vetoHistory.length - 1]
+                if (prevAction?.mapId) {
+                    setShowSideSelection(prevAction.mapId)
+                }
+            }
+        }
+
+        return () => {
+            if (completionTimer) clearTimeout(completionTimer)
+            if (deciderTimer) clearTimeout(deciderTimer)
+            if (aiTimer) clearTimeout(aiTimer)
+        }
+    }, [vetoHistory, match, availableMaps, vetoSequence, homeTeam, awayTeam, playerTeamId])
 
     if (!match || !homeTeam || !awayTeam) return <div className="p-8 text-center text-muted-foreground">{status}</div>
 

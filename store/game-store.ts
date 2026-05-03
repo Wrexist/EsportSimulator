@@ -3449,6 +3449,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
             // ADD TO COMPLETED
             state.completedMatches.push(completedMatch)
+            // Update completed match index for consistency
+            if (state._completedMatchIds) {
+              state._completedMatchIds.add(matchId)
+            }
 
             const xpGains: Record<string, number> = {}
 

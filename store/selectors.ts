@@ -7,7 +7,7 @@
 import type { TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "@/engine/save-types"
 
 interface StoreState {
-  playerTeamId: string
+  playerTeamId: string | null
   teams: TeamSaveData[]
   players: PlayerSaveData[]
   contracts: ContractSaveData[]
@@ -19,8 +19,10 @@ interface StoreState {
 }
 
 /** Select the player's team (O(1) with index) */
-export const selectPlayerTeam = (state: StoreState): TeamSaveData | undefined =>
-  state._teamIndex?.get(state.playerTeamId) ?? state.teams.find(t => t.id === state.playerTeamId)
+export const selectPlayerTeam = (state: StoreState): TeamSaveData | undefined => {
+  if (!state.playerTeamId) return undefined
+  return state._teamIndex?.get(state.playerTeamId) ?? state.teams.find(t => t.id === state.playerTeamId)
+}
 
 /** Select a team by ID (O(1) with index) */
 export const selectTeamById = (id: string) => (state: StoreState): TeamSaveData | undefined =>

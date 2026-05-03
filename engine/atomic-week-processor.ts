@@ -558,10 +558,17 @@ export class AtomicWeekProcessor {
             const awayPlayers = selectActivePlayers(awayTeam.rosterIds)
 
             if (homePlayers.length < 5 || awayPlayers.length < 5) {
-                // Forfeit: team with fewer than 5 healthy players loses the match
-                const forfeitingTeam = homePlayers.length < 5 ? homeTeam : awayTeam
-                const winningTeam = homePlayers.length < 5 ? awayTeam : homeTeam
-                const homeForfeits = homePlayers.length < 5
+                // Forfeit: team with fewer healthy players loses
+                // If both have <5, the team with fewer players forfeits; if equal, away forfeits
+                let homeForfeits: boolean
+                if (homePlayers.length < 5 && awayPlayers.length < 5) {
+                    // Both teams have insufficient players
+                    homeForfeits = homePlayers.length <= awayPlayers.length
+                } else {
+                    homeForfeits = homePlayers.length < 5
+                }
+                const forfeitingTeam = homeForfeits ? homeTeam : awayTeam
+                const winningTeam = homeForfeits ? awayTeam : homeTeam
 
                 // Create a forfeit result
                 const forfeitResult: CompletedMatchSaveData = {
@@ -780,7 +787,8 @@ export class AtomicWeekProcessor {
             if (hasUnderdogWin) completedMatch._underdogWin = true
 
             // Update player stats
-            const homeWon = result.homeScore > result.awayScore
+            // In CS matches, ties are rare but possible. Use winnerId from result as source of truth.
+            const homeWon = result.winnerId === homeTeam.id
 
             // Resolve tournament tier for fatigue/morale scaling and XP
             let matchTournamentTier: string | undefined

@@ -281,12 +281,15 @@ export function useLiveMatch(id: string) {
     useEffect(() => {
         if (hasInitialized.current) return
         if (!isMountedRef.current) return
+
+        const foundMatch = scheduledMatches.find(m => m.id === id)
+        // Wait for match data to be available before initializing
+        if (!foundMatch) return
+
+        // Only mark as initialized after we confirm match exists
         hasInitialized.current = true
 
         setActiveMatch(id)
-
-        const foundMatch = scheduledMatches.find(m => m.id === id)
-        if (!foundMatch) return
 
         const hTeam = teams.find(t => t.id === foundMatch.homeTeamId)
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)

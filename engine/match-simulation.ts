@@ -225,9 +225,11 @@ export class SimulationEngineV2 {
 
             if (mapResult.finalScore.team1 > mapResult.finalScore.team2) {
                 homeScore++
-            } else {
+            } else if (mapResult.finalScore.team2 > mapResult.finalScore.team1) {
                 awayScore++
             }
+            // Note: In CS2, ties on a map are extremely rare due to overtime rules,
+            // but if they occur, neither team gets a point (match continues)
         }
 
         // Generate player stats
@@ -250,13 +252,25 @@ export class SimulationEngineV2 {
                 maps: mapResults.length,
             })
         }
+        // Determine winner - in best-of formats, ties are very rare but possible
+        let winnerId: string
+        if (homeScore > awayScore) {
+            winnerId = homeTeam.id
+        } else if (awayScore > homeScore) {
+            winnerId = awayTeam.id
+        } else {
+            // In case of tie (extremely rare), home team gets the tiebreaker
+            // This matches traditional sports conventions
+            winnerId = homeTeam.id
+        }
+
         return {
             homeScore,
             awayScore,
             maps: mapResults,
             mvpPlayerId,
             playerStats,
-            winnerId: homeScore > awayScore ? homeTeam.id : awayTeam.id
+            winnerId
         }
       } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
@@ -387,9 +401,17 @@ export class SimulationEngineV2 {
         // Higher analyst = less randomness in decision
         const randomFactor = (6 - analystLevel) * 0.1 // 0.5 at level 1, 0.1 at level 5
 
+        if (availableMaps.length === 0) {
+            throw new Error("[selectMapForVeto] No maps available for veto")
+        }
+
+        // Clamp analyst level to valid range (1-5) to prevent negative randomFactor
+        const clampedAnalystLevel = Math.max(1, Math.min(5, analystLevel))
+        const safeRandomFactor = (6 - clampedAnalystLevel) * 0.1
+
         const scored = availableMaps.map(map => ({
             map,
-            score: (targetStrengths.get(map) || 50) + rng.range(-randomFactor * 20, randomFactor * 20)
+            score: (targetStrengths.get(map) || 50) + rng.range(-safeRandomFactor * 20, safeRandomFactor * 20)
         }))
 
         // BAN: Target opponent's best (highest score)
@@ -592,8 +614,10 @@ export class SimulationEngineV2 {
                 Object.values(awayEconomy).forEach(p => p.cash = 10000)
             }
 
-            const homeAvgCash = Object.values(homeEconomy).reduce((s, p) => s + p.cash, 0) / 5
-            const awayAvgCash = Object.values(awayEconomy).reduce((s, p) => s + p.cash, 0) / 5
+            const homeEcoValues = Object.values(homeEconomy)
+            const awayEcoValues = Object.values(awayEconomy)
+            const homeAvgCash = homeEcoValues.length > 0 ? homeEcoValues.reduce((s, p) => s + p.cash, 0) / homeEcoValues.length : 0
+            const awayAvgCash = awayEcoValues.length > 0 ? awayEcoValues.reduce((s, p) => s + p.cash, 0) / awayEcoValues.length : 0
 
             // In OT, strategy is always FULL
             const homeStrategy = isOvertime ? "FULL" : EconomyManager.getTeamStrategy(homeAvgCash, homeTeam.economyStyle)
@@ -1181,7 +1205,7 @@ export class SimulationEngineV2 {
                 }
 
                 return s + finalPower
-            }, 0) / 5
+            }, 0) / (players.length || 1)
         }
 
         // Pass opponent's targetPlayerId to apply antistratting penalty
