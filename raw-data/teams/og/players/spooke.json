@@ -1,0 +1,20 @@
+{
+  "name": "spooke",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "OG",
+  "teamRank": "52",
+  "age": 24,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 64,
+    "entrying": 90,
+    "trading": 31,
+    "opening": 78,
+    "clutching": 36,
+    "sniping": 41,
+    "utility": 74
+  },
+  "matchesPlayed": 94,
+  "hltvHistory": []
+}

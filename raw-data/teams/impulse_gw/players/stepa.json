@@ -1,0 +1,20 @@
+{
+  "name": "Stepa",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Impulse GW",
+  "teamRank": "112",
+  "age": 23,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 36,
+    "entrying": 61,
+    "trading": 54,
+    "opening": 39,
+    "clutching": 32,
+    "sniping": 1,
+    "utility": 35
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

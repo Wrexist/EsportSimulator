@@ -1,0 +1,20 @@
+{
+  "name": "KaonGod",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Ascend",
+  "teamRank": "231",
+  "age": 36,
+  "rating": 0.59,
+  "stats": {
+    "firepower": 1,
+    "entrying": 82,
+    "trading": 41,
+    "opening": 58,
+    "clutching": 1,
+    "sniping": 1,
+    "utility": 74
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "DSSj",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "ARCRED",
+  "teamRank": "60",
+  "age": 27,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 51,
+    "entrying": 25,
+    "trading": 22,
+    "opening": 68,
+    "clutching": 77,
+    "sniping": 91,
+    "utility": 23
+  },
+  "matchesPlayed": 93,
+  "hltvHistory": []
+}

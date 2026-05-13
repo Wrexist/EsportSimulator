@@ -1,0 +1,20 @@
+{
+  "name": "rx",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MAGICOS",
+  "teamRank": "207",
+  "age": 21,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 34,
+    "entrying": 95,
+    "trading": 61,
+    "opening": 48,
+    "clutching": 44,
+    "sniping": 35,
+    "utility": 35
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

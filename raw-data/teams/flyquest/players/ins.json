@@ -1,0 +1,20 @@
+{
+  "name": "INS",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "FlyQuest",
+  "teamRank": "29",
+  "age": 27,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 42,
+    "entrying": 75,
+    "trading": 42,
+    "opening": 60,
+    "clutching": 69,
+    "sniping": 59,
+    "utility": 93
+  },
+  "matchesPlayed": 193,
+  "hltvHistory": []
+}

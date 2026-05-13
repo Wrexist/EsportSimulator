@@ -1,0 +1,20 @@
+{
+  "name": "Kaide",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "RUBY",
+  "teamRank": "91",
+  "age": 25,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 95,
+    "entrying": 55,
+    "trading": 53,
+    "opening": 90,
+    "clutching": 37,
+    "sniping": 3,
+    "utility": 77
+  },
+  "matchesPlayed": 190,
+  "hltvHistory": []
+}

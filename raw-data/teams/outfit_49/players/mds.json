@@ -1,0 +1,20 @@
+{
+  "name": "mds",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Outfit 49",
+  "teamRank": "150",
+  "age": 33,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 31,
+    "entrying": 71,
+    "trading": 23,
+    "opening": 78,
+    "clutching": 27,
+    "sniping": 18,
+    "utility": 67
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

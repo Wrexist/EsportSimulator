@@ -1,0 +1,24 @@
+{
+  "name": "clockzi",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Falcons Force",
+  "teamRank": "142",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 14,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.79,
+  "stats": {
+    "firepower": 19,
+    "entrying": 36,
+    "trading": 86,
+    "opening": 22,
+    "clutching": 21,
+    "sniping": 0,
+    "utility": 39
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

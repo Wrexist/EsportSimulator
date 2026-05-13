@@ -1,0 +1,20 @@
+{
+  "name": "lattykk",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "1win",
+  "teamRank": "77",
+  "age": 20,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 70,
+    "entrying": 23,
+    "trading": 42,
+    "opening": 75,
+    "clutching": 75,
+    "sniping": 95,
+    "utility": 59
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

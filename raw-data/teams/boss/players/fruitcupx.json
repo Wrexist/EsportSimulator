@@ -1,0 +1,20 @@
+{
+  "name": "Fruitcupx",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "BOSS",
+  "teamRank": "94",
+  "age": 24,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 67,
+    "entrying": 37,
+    "trading": 94,
+    "opening": 27,
+    "clutching": 80,
+    "sniping": 48,
+    "utility": 41
+  },
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

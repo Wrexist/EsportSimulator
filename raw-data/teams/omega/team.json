@@ -1,0 +1,34 @@
+{
+  "name": "Omega",
+  "hltvRank": "121",
+  "nationality": "Kazakhstan",
+  "players": [
+    {
+      "name": "SNk",
+      "country": "Kyrgyzstan",
+      "countryCode": "ky"
+    },
+    {
+      "name": "Maison",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "adai",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "Botpa1",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "dan4o",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

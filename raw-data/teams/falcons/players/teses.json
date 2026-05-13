@@ -1,0 +1,20 @@
+{
+  "name": "TeSeS",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Falcons",
+  "teamRank": "3",
+  "age": 25,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 13,
+    "entrying": 54,
+    "trading": 25,
+    "opening": 27,
+    "clutching": 73,
+    "sniping": 1,
+    "utility": 52
+  },
+  "matchesPlayed": 267,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "8Juho8",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "CSDIILIT",
+  "teamRank": "179",
+  "age": 21,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 91,
+    "entrying": 23,
+    "trading": 29,
+    "opening": 86,
+    "clutching": 39,
+    "sniping": 21,
+    "utility": 53
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

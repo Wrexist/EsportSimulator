@@ -1,0 +1,20 @@
+{
+  "name": "hallzerk",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "Passion UA",
+  "teamRank": "17",
+  "age": 25,
+  "rating": 1,
+  "stats": {
+    "firepower": 35,
+    "entrying": 28,
+    "trading": 78,
+    "opening": 52,
+    "clutching": 81,
+    "sniping": 91,
+    "utility": 71
+  },
+  "matchesPlayed": 206,
+  "hltvHistory": []
+}

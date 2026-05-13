@@ -1,0 +1,20 @@
+{
+  "name": "zame",
+  "country": "Norway",
+  "countryCode": "no",
+  "team": "777",
+  "teamRank": "225",
+  "age": 24,
+  "rating": 0.81,
+  "stats": {
+    "firepower": 7,
+    "entrying": 68,
+    "trading": 68,
+    "opening": 16,
+    "clutching": 75,
+    "sniping": 63,
+    "utility": 54
+  },
+  "matchesPlayed": 32,
+  "hltvHistory": []
+}

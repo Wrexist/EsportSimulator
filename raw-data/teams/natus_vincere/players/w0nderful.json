@@ -1,0 +1,20 @@
+{
+  "name": "w0nderful",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Natus Vincere",
+  "teamRank": "8",
+  "age": 21,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 68,
+    "entrying": 31,
+    "trading": 78,
+    "opening": 44,
+    "clutching": 75,
+    "sniping": 91,
+    "utility": 53
+  },
+  "matchesPlayed": 279,
+  "hltvHistory": []
+}

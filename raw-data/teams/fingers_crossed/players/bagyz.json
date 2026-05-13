@@ -1,0 +1,24 @@
+{
+  "name": "BaGyZ",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Fingers Crossed",
+  "teamRank": "82",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 23,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.12,
+  "stats": {
+    "firepower": 42,
+    "entrying": 78,
+    "trading": 98,
+    "opening": 18,
+    "clutching": 66,
+    "sniping": 0,
+    "utility": 81
+  },
+  "matchesPlayed": 160,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "hf",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "Legion",
+  "teamRank": "200",
+  "age": 21,
+  "rating": 1.32,
+  "stats": {
+    "firepower": 97,
+    "entrying": 66,
+    "trading": 80,
+    "opening": 83,
+    "clutching": 67,
+    "sniping": 83,
+    "utility": 61
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

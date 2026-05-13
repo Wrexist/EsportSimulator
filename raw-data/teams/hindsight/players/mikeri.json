@@ -1,0 +1,20 @@
+{
+  "name": "mikeri",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "hindsight",
+  "teamRank": "224",
+  "age": 26,
+  "rating": 0.79,
+  "stats": {
+    "firepower": 6,
+    "entrying": 37,
+    "trading": 6,
+    "opening": 51,
+    "clutching": 57,
+    "sniping": 33,
+    "utility": 30
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

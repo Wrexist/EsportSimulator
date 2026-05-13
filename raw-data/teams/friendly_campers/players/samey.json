@@ -1,0 +1,20 @@
+{
+  "name": "SaMey",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Friendly Campers",
+  "teamRank": "62",
+  "age": 26,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 57,
+    "entrying": 40,
+    "trading": 59,
+    "opening": 52,
+    "clutching": 84,
+    "sniping": 88,
+    "utility": 57
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

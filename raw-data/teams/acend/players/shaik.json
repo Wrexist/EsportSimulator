@@ -1,0 +1,20 @@
+{
+  "name": "shaiK",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "Acend",
+  "teamRank": "103",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 27,
+    "entrying": 88,
+    "trading": 46,
+    "opening": 34,
+    "clutching": 64,
+    "sniping": 30,
+    "utility": 41
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

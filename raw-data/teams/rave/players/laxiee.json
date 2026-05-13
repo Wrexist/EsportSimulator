@@ -1,0 +1,20 @@
+{
+  "name": "laxiee",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Rave",
+  "teamRank": "111",
+  "age": 21,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 57,
+    "entrying": 53,
+    "trading": 57,
+    "opening": 58,
+    "clutching": 28,
+    "sniping": 58,
+    "utility": 22
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

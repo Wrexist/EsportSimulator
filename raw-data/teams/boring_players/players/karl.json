@@ -1,0 +1,23 @@
+{
+  "name": "karl",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "BORING PLAYERS",
+  "teamRank": "138",
+  "role": "Rifler, AWPer, Coach, Riflers, AWPers, Coaches",
+  "status": "Active",
+  "age": 37,
+  "birthDate": "April 23, 1988",
+  "rating": 0.76,
+  "stats": {
+    "firepower": 1,
+    "entrying": 57,
+    "trading": 39,
+    "opening": 5,
+    "clutching": 66,
+    "sniping": 22,
+    "utility": 77
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

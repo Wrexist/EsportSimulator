@@ -1,0 +1,34 @@
+{
+  "name": "Timewaves",
+  "hltvRank": "216",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "Harbor",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "ElephanT",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Kezza",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "camille",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "lawlkay",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

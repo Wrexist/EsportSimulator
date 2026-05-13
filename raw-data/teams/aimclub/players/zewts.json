@@ -1,0 +1,20 @@
+{
+  "name": "zewts",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "aimclub",
+  "teamRank": "135",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 89,
+    "entrying": 21,
+    "trading": 41,
+    "opening": 90,
+    "clutching": 48,
+    "sniping": 24,
+    "utility": 60
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "P3R3IIRA",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Famalicão",
+  "teamRank": "103",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 24,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.97,
+  "stats": {
+    "firepower": 31,
+    "entrying": 32,
+    "trading": 41,
+    "opening": 67,
+    "clutching": 58,
+    "sniping": 2,
+    "utility": 84
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

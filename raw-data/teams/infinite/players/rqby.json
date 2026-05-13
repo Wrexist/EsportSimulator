@@ -1,0 +1,20 @@
+{
+  "name": "RQBY",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "INFINITE",
+  "teamRank": "162",
+  "age": 18,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 12,
+    "entrying": 40,
+    "trading": 48,
+    "opening": 34,
+    "clutching": 24,
+    "sniping": 19,
+    "utility": 21
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

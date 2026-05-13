@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Bad Lykk logo">
+  <circle cx="128" cy="128" r="108" fill="#14B8A6" stroke="#042F2E" stroke-width="8"/>
+  <line x1="63" y1="80" x2="209" y2="80" stroke="#042F2E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <line x1="73" y1="184" x2="199" y2="184" stroke="#042F2E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="128" y="161.33333333333334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100" fill="#F0FDFA" letter-spacing="-2">BL</text>
+</svg>

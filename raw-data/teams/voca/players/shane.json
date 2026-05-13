@@ -1,0 +1,20 @@
+{
+  "name": "shane",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Voca",
+  "teamRank": "49",
+  "age": 22,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 55,
+    "entrying": 51,
+    "trading": 63,
+    "opening": 34,
+    "clutching": 41,
+    "sniping": 19,
+    "utility": 31
+  },
+  "matchesPlayed": 153,
+  "hltvHistory": []
+}

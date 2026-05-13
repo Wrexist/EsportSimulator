@@ -1,0 +1,20 @@
+{
+  "name": "drg",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Galorys",
+  "teamRank": "185",
+  "age": 27,
+  "rating": 0.83,
+  "stats": {
+    "firepower": 6,
+    "entrying": 62,
+    "trading": 79,
+    "opening": 2,
+    "clutching": 33,
+    "sniping": 30,
+    "utility": 56
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

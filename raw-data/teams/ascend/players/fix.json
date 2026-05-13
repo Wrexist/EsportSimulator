@@ -1,0 +1,20 @@
+{
+  "name": "fix",
+  "country": "Spain",
+  "countryCode": "es",
+  "team": "Ascend",
+  "teamRank": "231",
+  "age": 18,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 45,
+    "entrying": 97,
+    "trading": 100,
+    "opening": 29,
+    "clutching": 43,
+    "sniping": 28,
+    "utility": 16
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

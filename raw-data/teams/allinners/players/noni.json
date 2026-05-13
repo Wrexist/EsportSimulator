@@ -1,0 +1,20 @@
+{
+  "name": "noni",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALLINNERS",
+  "teamRank": "174",
+  "age": 20,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 16,
+    "entrying": 31,
+    "trading": 28,
+    "opening": 42,
+    "clutching": 33,
+    "sniping": 62,
+    "utility": 33
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

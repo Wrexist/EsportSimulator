@@ -1,0 +1,34 @@
+{
+  "name": "1win",
+  "hltvRank": "77",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "HObbit",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "interz",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "lattykk",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "cronuss",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "oz1k",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 106,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Malkiss",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Leo",
+  "teamRank": "130",
+  "age": 24,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 26,
+    "entrying": 20,
+    "trading": 25,
+    "opening": 55,
+    "clutching": 78,
+    "sniping": 91,
+    "utility": 62
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

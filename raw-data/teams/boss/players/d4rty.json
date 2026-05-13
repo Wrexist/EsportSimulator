@@ -1,0 +1,23 @@
+{
+  "name": "d4rty",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "BOSS",
+  "teamRank": "131",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 21,
+  "birthDate": "September 13, 2004",
+  "rating": 1.04,
+  "stats": {
+    "firepower": 52,
+    "entrying": 88,
+    "trading": 49,
+    "opening": 67,
+    "clutching": 37,
+    "sniping": 0,
+    "utility": 32
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

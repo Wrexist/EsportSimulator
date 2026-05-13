@@ -1,0 +1,20 @@
+{
+  "name": "LyttleZ",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Atrix",
+  "teamRank": "234",
+  "age": 21,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 65,
+    "entrying": 62,
+    "trading": 38,
+    "opening": 72,
+    "clutching": 83,
+    "sniping": 94,
+    "utility": 72
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

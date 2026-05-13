@@ -1,0 +1,20 @@
+{
+  "name": "sk0R",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The Huns",
+  "teamRank": "67",
+  "age": 23,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 80,
+    "entrying": 10,
+    "trading": 41,
+    "opening": 64,
+    "clutching": 39,
+    "sniping": 6,
+    "utility": 52
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "nilo",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "HEROIC",
+  "teamRank": "22",
+  "age": 21,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 86,
+    "entrying": 41,
+    "trading": 87,
+    "opening": 36,
+    "clutching": 88,
+    "sniping": 45,
+    "utility": 41
+  },
+  "matchesPlayed": 209,
+  "hltvHistory": []
+}

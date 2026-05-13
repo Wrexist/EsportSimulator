@@ -1,0 +1,20 @@
+{
+  "name": "cairne",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Ninjas in Pyjamas",
+  "teamRank": "21",
+  "age": 23,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 91,
+    "entrying": 50,
+    "trading": 78,
+    "opening": 81,
+    "clutching": 25,
+    "sniping": 39,
+    "utility": 43
+  },
+  "matchesPlayed": 152,
+  "hltvHistory": []
+}

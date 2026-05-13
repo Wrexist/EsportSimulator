@@ -1,0 +1,20 @@
+{
+  "name": "Folke",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Prestige",
+  "teamRank": "149",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 55,
+    "entrying": 67,
+    "trading": 76,
+    "opening": 57,
+    "clutching": 60,
+    "sniping": 85,
+    "utility": 65
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

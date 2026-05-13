@@ -1,0 +1,20 @@
+{
+  "name": "ultimate",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Liquid",
+  "teamRank": "15",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 48,
+    "entrying": 40,
+    "trading": 51,
+    "opening": 53,
+    "clutching": 80,
+    "sniping": 88,
+    "utility": 47
+  },
+  "matchesPlayed": 221,
+  "hltvHistory": []
+}

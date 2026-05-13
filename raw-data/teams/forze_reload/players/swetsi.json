@@ -1,0 +1,24 @@
+{
+  "name": "swetsi",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "FORZE Reload",
+  "teamRank": "86",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 19,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.02,
+  "stats": {
+    "firepower": 55,
+    "entrying": 30,
+    "trading": 52,
+    "opening": 51,
+    "clutching": 75,
+    "sniping": 93,
+    "utility": 57
+  },
+  "matchesPlayed": 110,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "keegaN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "eLITenergy",
+  "teamRank": "170",
+  "age": 22,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 59,
+    "entrying": 81,
+    "trading": 99,
+    "opening": 52,
+    "clutching": 78,
+    "sniping": 85,
+    "utility": 72
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

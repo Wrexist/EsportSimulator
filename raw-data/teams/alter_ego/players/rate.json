@@ -1,0 +1,20 @@
+{
+  "name": "rate",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Alter Ego",
+  "teamRank": "229",
+  "age": 23,
+  "rating": 0.67,
+  "stats": {
+    "firepower": 1,
+    "entrying": 51,
+    "trading": 89,
+    "opening": 9,
+    "clutching": 57,
+    "sniping": 3,
+    "utility": 20
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

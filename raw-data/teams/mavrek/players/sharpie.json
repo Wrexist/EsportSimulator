@@ -1,0 +1,20 @@
+{
+  "name": "Sharpie",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Mavrek",
+  "teamRank": "102",
+  "age": 23,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 93,
+    "entrying": 89,
+    "trading": 12,
+    "opening": 67,
+    "clutching": 39,
+    "sniping": 11,
+    "utility": 25
+  },
+  "matchesPlayed": 150,
+  "hltvHistory": []
+}

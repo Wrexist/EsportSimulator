@@ -1,0 +1,20 @@
+{
+  "name": "Boombl4",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BetBoom",
+  "teamRank": "32",
+  "age": 27,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 18,
+    "entrying": 86,
+    "trading": 39,
+    "opening": 48,
+    "clutching": 24,
+    "sniping": 40,
+    "utility": 78
+  },
+  "matchesPlayed": 113,
+  "hltvHistory": []
+}

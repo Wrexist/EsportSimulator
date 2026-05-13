@@ -1,0 +1,20 @@
+{
+  "name": "Few",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Prestige",
+  "teamRank": "149",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 33,
+    "entrying": 50,
+    "trading": 44,
+    "opening": 30,
+    "clutching": 59,
+    "sniping": 24,
+    "utility": 21
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Mokuj1n",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "CYBERSHOKE",
+  "teamRank": "58",
+  "age": 17,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 62,
+    "entrying": 66,
+    "trading": 61,
+    "opening": 51,
+    "clutching": 52,
+    "sniping": 53,
+    "utility": 54
+  },
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

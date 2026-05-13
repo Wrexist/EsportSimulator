@@ -1,0 +1,28 @@
+{
+  "name": "Fire Flux",
+  "hltvRank": "74",
+  "players": [
+    {
+      "name": "paz",
+      "country": "Turkey",
+      "countryCode": "tr"
+    },
+    {
+      "name": "shield",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "FinigaN",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Banjo",
+      "country": "Finland",
+      "countryCode": "fi"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

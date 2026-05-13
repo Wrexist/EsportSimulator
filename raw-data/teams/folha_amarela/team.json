@@ -1,0 +1,34 @@
+{
+  "name": "FOLHA AMARELA",
+  "hltvRank": "175",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "f4stzin",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "ckzao",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "mello",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "xureba",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "cerolzin",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

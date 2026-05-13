@@ -1,0 +1,20 @@
+{
+  "name": "trindade",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Crashers",
+  "teamRank": "217",
+  "age": 19,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 72,
+    "entrying": 47,
+    "trading": 52,
+    "opening": 66,
+    "clutching": 67,
+    "sniping": 59,
+    "utility": 29
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

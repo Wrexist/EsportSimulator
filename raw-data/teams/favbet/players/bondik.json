@@ -1,0 +1,20 @@
+{
+  "name": "bondik",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "FAVBET",
+  "teamRank": "68",
+  "age": 32,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 29,
+    "entrying": 68,
+    "trading": 82,
+    "opening": 31,
+    "clutching": 62,
+    "sniping": 34,
+    "utility": 94
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

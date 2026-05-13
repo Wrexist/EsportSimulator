@@ -1,0 +1,20 @@
+{
+  "name": "Djoko",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "GenOne",
+  "teamRank": "56",
+  "age": 28,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 42,
+    "entrying": 60,
+    "trading": 79,
+    "opening": 41,
+    "clutching": 72,
+    "sniping": 59,
+    "utility": 71
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

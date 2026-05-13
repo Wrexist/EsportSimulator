@@ -1,0 +1,20 @@
+{
+  "name": "KusMe",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "FORZE Reload",
+  "teamRank": "90",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 54,
+    "entrying": 63,
+    "trading": 75,
+    "opening": 31,
+    "clutching": 46,
+    "sniping": 2,
+    "utility": 90
+  },
+  "matchesPlayed": 99,
+  "hltvHistory": []
+}

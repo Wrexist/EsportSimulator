@@ -1,0 +1,20 @@
+{
+  "name": "nardes",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ODDIK",
+  "teamRank": "47",
+  "age": 22,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 61,
+    "entrying": 58,
+    "trading": 72,
+    "opening": 71,
+    "clutching": 60,
+    "sniping": 93,
+    "utility": 42
+  },
+  "matchesPlayed": 106,
+  "hltvHistory": []
+}

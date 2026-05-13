@@ -1,0 +1,20 @@
+{
+  "name": "Caleyy",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "112",
+  "age": 24,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 95,
+    "entrying": 56,
+    "trading": 68,
+    "opening": 74,
+    "clutching": 40,
+    "sniping": 3,
+    "utility": 43
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "protado",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Charrados",
+  "teamRank": "249",
+  "age": 20,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 43,
+    "entrying": 84,
+    "trading": 53,
+    "opening": 28,
+    "clutching": 23,
+    "sniping": 8,
+    "utility": 62
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "yungher",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR fe",
+  "teamRank": "202",
+  "age": 28,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 54,
+    "entrying": 18,
+    "trading": 43,
+    "opening": 57,
+    "clutching": 52,
+    "sniping": 92,
+    "utility": 68
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

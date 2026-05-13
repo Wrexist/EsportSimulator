@@ -1,0 +1,20 @@
+{
+  "name": "ALENNNCAR",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Bad Luck",
+  "teamRank": "192",
+  "age": 24,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 74,
+    "entrying": 4,
+    "trading": 22,
+    "opening": 58,
+    "clutching": 67,
+    "sniping": 92,
+    "utility": 55
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

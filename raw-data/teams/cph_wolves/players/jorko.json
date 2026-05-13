@@ -1,0 +1,24 @@
+{
+  "name": "Jorko",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "CPH Wolves",
+  "teamRank": "99",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 17,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.12,
+  "stats": {
+    "firepower": 80,
+    "entrying": 16,
+    "trading": 35,
+    "opening": 66,
+    "clutching": 83,
+    "sniping": 92,
+    "utility": 58
+  },
+  "matchesPlayed": 160,
+  "hltvHistory": []
+}

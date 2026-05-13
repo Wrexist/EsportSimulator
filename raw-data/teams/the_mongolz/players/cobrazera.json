@@ -1,0 +1,20 @@
+{
+  "name": "cobrazera",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The MongolZ",
+  "teamRank": "10",
+  "age": 20,
+  "rating": 1,
+  "stats": {
+    "firepower": 62,
+    "entrying": 44,
+    "trading": 50,
+    "opening": 57,
+    "clutching": 35,
+    "sniping": 3,
+    "utility": 52
+  },
+  "matchesPlayed": 253,
+  "hltvHistory": []
+}

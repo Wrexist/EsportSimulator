@@ -1,0 +1,20 @@
+{
+  "name": "prisma",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Players",
+  "teamRank": "196",
+  "age": 19,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 17,
+    "entrying": 61,
+    "trading": 35,
+    "opening": 17,
+    "clutching": 34,
+    "sniping": 48,
+    "utility": 35
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

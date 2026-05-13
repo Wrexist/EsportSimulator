@@ -1,0 +1,21 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "no-unused-vars": "off",
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "prefer-const": "warn",
+    "no-var": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "react-hooks/rules-of-hooks": "warn",
+    "react/no-unescaped-entities": "warn"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "dist/",
+    "SteamBuild/",
+    "remotion/",
+    "electron/",
+    "scripts/"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "f4stzin",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FOLHA AMARELA",
+  "teamRank": "175",
+  "age": 27,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 60,
+    "entrying": 39,
+    "trading": 19,
+    "opening": 25,
+    "clutching": 51,
+    "sniping": 1,
+    "utility": 29
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

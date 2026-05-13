@@ -1,0 +1,34 @@
+{
+  "name": "Nemiga",
+  "hltvRank": "55",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "shalfey",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "KaiR0N-",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "sowalio",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "khaN",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "syph0",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 102,
+  "hltvHistory": []
+}

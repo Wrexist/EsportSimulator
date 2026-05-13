@@ -1,0 +1,34 @@
+{
+  "name": "Ursa",
+  "hltvRank": "85",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "torox",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "4X1s",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Alv",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "deeN",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "Salazar",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Kaoday",
+  "country": "France",
+  "countryCode": "fr",
+  "team": "hindsight",
+  "teamRank": "224",
+  "age": 28,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 86,
+    "entrying": 16,
+    "trading": 62,
+    "opening": 71,
+    "clutching": 42,
+    "sniping": 2,
+    "utility": 68
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "tuxa",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "EXSAD",
+  "teamRank": "107",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 22,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.06,
+  "stats": {
+    "firepower": 66,
+    "entrying": 5,
+    "trading": 87,
+    "opening": 51,
+    "clutching": 97,
+    "sniping": 67,
+    "utility": 55
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

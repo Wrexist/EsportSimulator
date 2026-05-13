@@ -1,0 +1,20 @@
+{
+  "name": "ADDICT",
+  "country": "New Zealand",
+  "countryCode": "nz",
+  "team": "SemperFi",
+  "teamRank": "137",
+  "age": 25,
+  "rating": 1.1,
+  "stats": {
+    "firepower": 76,
+    "entrying": 30,
+    "trading": 24,
+    "opening": 32,
+    "clutching": 85,
+    "sniping": 60,
+    "utility": 75
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

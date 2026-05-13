@@ -1,0 +1,34 @@
+{
+  "name": "BIG EQUIPA",
+  "hltvRank": "194",
+  "nationality": "France",
+  "players": [
+    {
+      "name": "ASTRA",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "Hanka",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "aiM",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "Emmsan",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "sosya",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

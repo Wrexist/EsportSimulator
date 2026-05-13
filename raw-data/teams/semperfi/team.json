@@ -1,0 +1,34 @@
+{
+  "name": "SemperFi",
+  "hltvRank": "137",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "hazr",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "keen",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "shadiy",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "ADDICT",
+      "country": "New Zealand",
+      "countryCode": "nz"
+    },
+    {
+      "name": "SaVage",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

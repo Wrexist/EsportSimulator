@@ -1,0 +1,20 @@
+{
+  "name": "naitte",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ODDIK",
+  "teamRank": "47",
+  "age": 28,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 69,
+    "entrying": 57,
+    "trading": 43,
+    "opening": 60,
+    "clutching": 50,
+    "sniping": 38,
+    "utility": 63
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

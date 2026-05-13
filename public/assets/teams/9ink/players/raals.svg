@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="raals portrait">
+  <defs>
+    <linearGradient id="bghxxnfc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E1065"/>
+      <stop offset="1" stop-color="#5B21B6"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bghxxnfc)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#0F766E"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#D4A373"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#D4A373"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#D4A373"/>
+  <ellipse cx="128" cy="128" rx="46" ry="62" fill="#D4A373"/>
+  <!-- Face features -->
+  <path d="M98 116 Q108 110 118 116" stroke="#C89B5B" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    <path d="M138 116 Q148 110 158 116" stroke="#C89B5B" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M101 132 Q108 135 115 132" stroke="#7C2D12" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M141 132 Q148 135 155 132" stroke="#7C2D12" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <path d="M116 164 Q128 174 140 164" stroke="#3A1F1A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M68 108 Q68 58 128 58 Q188 58 188 108 L188 124 Q172 100 128 100 Q84 100 68 124 Z" fill="#C89B5B"/>
+                    <path d="M188 116 Q210 132 206 168 Q200 188 184 184 Q184 156 184 132 Z" fill="#C89B5B" opacity="0.95"/>
+  <!-- Accessory layer -->
+  
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

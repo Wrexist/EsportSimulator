@@ -1,0 +1,20 @@
+{
+  "name": "junior",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Rave",
+  "teamRank": "111",
+  "age": 25,
+  "rating": 1.24,
+  "stats": {
+    "firepower": 94,
+    "entrying": 9,
+    "trading": 40,
+    "opening": 73,
+    "clutching": 74,
+    "sniping": 92,
+    "utility": 67
+  },
+  "matchesPlayed": 58,
+  "hltvHistory": []
+}

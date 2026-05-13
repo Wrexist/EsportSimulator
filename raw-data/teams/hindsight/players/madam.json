@@ -1,0 +1,20 @@
+{
+  "name": "Madam",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "hindsight",
+  "teamRank": "224",
+  "age": 26,
+  "rating": 1,
+  "stats": {
+    "firepower": 47,
+    "entrying": 42,
+    "trading": 68,
+    "opening": 23,
+    "clutching": 23,
+    "sniping": 43,
+    "utility": 28
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

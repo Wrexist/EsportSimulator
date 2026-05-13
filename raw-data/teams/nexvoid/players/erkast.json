@@ -1,0 +1,20 @@
+{
+  "name": "erkaSt",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "NEXVOID",
+  "teamRank": "74",
+  "age": 30,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 91,
+    "entrying": 47,
+    "trading": 54,
+    "opening": 40,
+    "clutching": 68,
+    "sniping": 14,
+    "utility": 75
+  },
+  "matchesPlayed": 96,
+  "hltvHistory": []
+}

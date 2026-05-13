@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Lucen portrait">
+  <defs>
+    <linearGradient id="bg1bjulqx" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#052E16"/>
+      <stop offset="1" stop-color="#14532D"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg1bjulqx)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#6B21A8"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#A66E48"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#A66E48"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#A66E48"/>
+  <ellipse cx="128" cy="128" rx="50" ry="60" fill="#A66E48"/>
+  <!-- Face features -->
+  <path d="M98 119 L120 114" stroke="#E1C07E" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M158 119 L136 114" stroke="#E1C07E" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="108" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <ellipse cx="148" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <circle cx="108" cy="132" r="2.6" fill="#92400E"/>
+                    <circle cx="148" cy="132" r="2.6" fill="#92400E"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <ellipse cx="128" cy="167" rx="9" ry="3" fill="#2A140F" opacity="0.85"/>
+                    <rect x="119" y="167" width="18" height="1" fill="#FFFFFF" opacity="0.12"/>
+  <path d="M118 172 Q128 192 138 172 L136 178 Q128 188 120 178 Z" fill="#E1C07E"/>
+  <!-- Hair / headwear -->
+  <path d="M68 110 Q68 56 128 56 Q188 56 188 110 L188 122 Q176 102 128 102 Q80 102 68 122 Z" fill="#E1C07E"/>
+                    <rect x="64" y="118" width="8" height="38" rx="4" fill="#E1C07E"/>
+                    <rect x="80" y="120" width="8" height="44" rx="4" fill="#E1C07E"/>
+                    <rect x="96" y="118" width="8" height="38" rx="4" fill="#E1C07E" opacity="0.9"/>
+                    <rect x="152" y="118" width="8" height="38" rx="4" fill="#E1C07E" opacity="0.9"/>
+                    <rect x="168" y="120" width="8" height="44" rx="4" fill="#E1C07E"/>
+                    <rect x="184" y="118" width="8" height="38" rx="4" fill="#E1C07E"/>
+  <!-- Accessory layer -->
+  <rect x="60" y="106" width="136" height="12" rx="3" fill="#7F1D1D"/>
+                    <rect x="60" y="110" width="136" height="3" rx="1" fill="#FFFFFF" opacity="0.18"/>
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

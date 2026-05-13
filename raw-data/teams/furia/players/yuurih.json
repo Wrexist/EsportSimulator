@@ -1,0 +1,20 @@
+{
+  "name": "yuurih",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FURIA",
+  "teamRank": "2",
+  "age": 26,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 26,
+    "entrying": 54,
+    "trading": 60,
+    "opening": 18,
+    "clutching": 52,
+    "sniping": 23,
+    "utility": 64
+  },
+  "matchesPlayed": 299,
+  "hltvHistory": []
+}

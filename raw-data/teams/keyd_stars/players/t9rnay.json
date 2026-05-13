@@ -1,0 +1,20 @@
+{
+  "name": "t9rnay",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Keyd Stars",
+  "teamRank": "169",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 38,
+    "entrying": 26,
+    "trading": 70,
+    "opening": 36,
+    "clutching": 56,
+    "sniping": 1,
+    "utility": 38
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

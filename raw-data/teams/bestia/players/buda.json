@@ -1,0 +1,20 @@
+{
+  "name": "buda",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "BESTIA",
+  "teamRank": "37",
+  "age": 22,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 72,
+    "entrying": 96,
+    "trading": 70,
+    "opening": 86,
+    "clutching": 44,
+    "sniping": 46,
+    "utility": 35
+  },
+  "matchesPlayed": 112,
+  "hltvHistory": []
+}

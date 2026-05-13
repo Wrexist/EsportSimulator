@@ -1,0 +1,34 @@
+{
+  "name": "GameHunters",
+  "hltvRank": "124",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "prt",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "bnc",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "abr",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "bsd",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "nyezin",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

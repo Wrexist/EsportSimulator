@@ -1,0 +1,20 @@
+{
+  "name": "shield",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "9INE",
+  "teamRank": "41",
+  "age": 23,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 70,
+    "entrying": 11,
+    "trading": 23,
+    "opening": 59,
+    "clutching": 82,
+    "sniping": 94,
+    "utility": 61
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

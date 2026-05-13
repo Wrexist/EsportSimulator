@@ -1,0 +1,20 @@
+{
+  "name": "Kiyo",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Vantage",
+  "teamRank": "236",
+  "age": 24,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 60,
+    "entrying": 43,
+    "trading": 23,
+    "opening": 86,
+    "clutching": 33,
+    "sniping": 90,
+    "utility": 43
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

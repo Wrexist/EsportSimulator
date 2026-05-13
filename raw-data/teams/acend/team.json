@@ -1,0 +1,34 @@
+{
+  "name": "Acend",
+  "hltvRank": "103",
+  "nationality": "Bulgaria",
+  "players": [
+    {
+      "name": "SPELLAN",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "KalubeR",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "shaiK",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "AwaykeN",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "Skrimo",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "corn",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Fisher College",
+  "teamRank": "142",
+  "age": 23,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 25,
+    "entrying": 79,
+    "trading": 34,
+    "opening": 14,
+    "clutching": 88,
+    "sniping": 12,
+    "utility": 35
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

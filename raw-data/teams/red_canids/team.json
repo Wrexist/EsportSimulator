@@ -1,0 +1,34 @@
+{
+  "name": "RED Canids",
+  "hltvRank": "38",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "dav1deuS",
+      "country": "Chile",
+      "countryCode": "cl"
+    },
+    {
+      "name": "drop",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "chayJESUS",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "kauez",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "history",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 122,
+  "hltvHistory": []
+}

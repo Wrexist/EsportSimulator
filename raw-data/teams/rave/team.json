@@ -1,0 +1,34 @@
+{
+  "name": "Rave",
+  "hltvRank": "111",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "MarKE",
+      "country": "Mexico",
+      "countryCode": "mx"
+    },
+    {
+      "name": "junior",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Cryptic",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Walco",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "laxiee",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    }
+  ],
+  "matchesPlayed": 52,
+  "hltvHistory": []
+}

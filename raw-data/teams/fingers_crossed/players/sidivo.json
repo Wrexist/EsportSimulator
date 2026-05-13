@@ -1,0 +1,24 @@
+{
+  "name": "Sidivo",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Fingers Crossed",
+  "teamRank": "82",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 26,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.05,
+  "stats": {
+    "firepower": 64,
+    "entrying": 29,
+    "trading": 42,
+    "opening": 45,
+    "clutching": 44,
+    "sniping": 0,
+    "utility": 65
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

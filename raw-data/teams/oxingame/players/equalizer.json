@@ -1,0 +1,20 @@
+{
+  "name": "Equalizer",
+  "country": "Iran",
+  "countryCode": "ir",
+  "team": "OxinGame",
+  "teamRank": "233",
+  "age": 25,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 34,
+    "entrying": 58,
+    "trading": 6,
+    "opening": 64,
+    "clutching": 9,
+    "sniping": 31,
+    "utility": 24
+  },
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

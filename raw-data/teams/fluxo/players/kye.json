@@ -1,0 +1,20 @@
+{
+  "name": "kye",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fluxo",
+  "teamRank": "66",
+  "age": 21,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 19,
+    "entrying": 81,
+    "trading": 42,
+    "opening": 25,
+    "clutching": 44,
+    "sniping": 48,
+    "utility": 40
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

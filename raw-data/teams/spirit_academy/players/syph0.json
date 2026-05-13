@@ -1,0 +1,20 @@
+{
+  "name": "syph0",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "Spirit Academy",
+  "teamRank": "110",
+  "age": 17,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 77,
+    "entrying": 49,
+    "trading": 53,
+    "opening": 23,
+    "clutching": 28,
+    "sniping": 0,
+    "utility": 48
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "HUASOPEEK",
+  "country": "Chile",
+  "countryCode": "cl",
+  "team": "9z",
+  "teamRank": "42",
+  "age": 22,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 72,
+    "entrying": 91,
+    "trading": 56,
+    "opening": 64,
+    "clutching": 38,
+    "sniping": 47,
+    "utility": 51
+  },
+  "matchesPlayed": 143,
+  "hltvHistory": []
+}

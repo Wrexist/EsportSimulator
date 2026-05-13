@@ -1,0 +1,34 @@
+{
+  "name": "aimclub",
+  "hltvRank": "135",
+  "nationality": "Romania",
+  "players": [
+    {
+      "name": "zewts",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "Ed1m",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "ERSIN",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "RoberttMP",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "BRK",
+      "country": "Romania",
+      "countryCode": "ro"
+    }
+  ],
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

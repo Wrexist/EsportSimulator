@@ -1,0 +1,20 @@
+{
+  "name": "gafolo",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Sharks",
+  "teamRank": "39",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 24,
+    "entrying": 98,
+    "trading": 73,
+    "opening": 40,
+    "clutching": 53,
+    "sniping": 3,
+    "utility": 85
+  },
+  "matchesPlayed": 137,
+  "hltvHistory": []
+}

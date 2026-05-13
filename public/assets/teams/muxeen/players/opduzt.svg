@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="opduzt portrait">
+  <defs>
+    <linearGradient id="bg13w8hnq" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#042F2E"/>
+      <stop offset="1" stop-color="#134E4A"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg13w8hnq)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#1E293B"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#E5B888"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#E5B888"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#E5B888"/>
+  <rect x="74" y="72" width="108" height="112" rx="22" fill="#E5B888"/>
+  <!-- Face features -->
+  <path d="M98 119 L120 114" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M158 119 L136 114" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="108" cy="132" r="3" fill="#7C2D12"/>
+                    <circle cx="148" cy="132" r="3" fill="#7C2D12"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <path d="M116 164 Q128 174 140 164" stroke="#3A1F1A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M70 110 Q70 60 128 60 Q186 60 186 110 L186 122 Q172 100 128 100 Q84 100 70 122 Z" fill="#22D3EE"/>
+                    <circle cx="128" cy="48" r="14" fill="#22D3EE"/>
+                    <circle cx="128" cy="48" r="10" fill="#22D3EE" opacity="0.7"/>
+  <!-- Accessory layer -->
+  
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

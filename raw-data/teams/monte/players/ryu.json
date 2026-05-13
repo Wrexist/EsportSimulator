@@ -1,0 +1,20 @@
+{
+  "name": "ryu",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Monte",
+  "teamRank": "40",
+  "age": 21,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 72,
+    "entrying": 14,
+    "trading": 78,
+    "opening": 31,
+    "clutching": 62,
+    "sniping": 0,
+    "utility": 32
+  },
+  "matchesPlayed": 185,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Bounty Hunters",
+  "hltvRank": "88",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "ponter",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "KAISER",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "ninjaZ",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "zock",
+      "country": "Uruguay",
+      "countryCode": "uy"
+    },
+    {
+      "name": "fREQ",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

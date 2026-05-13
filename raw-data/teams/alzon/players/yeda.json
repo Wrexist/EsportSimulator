@@ -1,0 +1,20 @@
+{
+  "name": "yeda",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ALZON",
+  "teamRank": "243",
+  "age": 21,
+  "rating": 0.65,
+  "stats": {
+    "firepower": 3,
+    "entrying": 18,
+    "trading": 69,
+    "opening": 1,
+    "clutching": 93,
+    "sniping": 26,
+    "utility": 21
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

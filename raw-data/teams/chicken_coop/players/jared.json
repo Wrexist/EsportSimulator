@@ -1,0 +1,20 @@
+{
+  "name": "jared",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Chicken Coop",
+  "teamRank": "197",
+  "age": 25,
+  "rating": 0.96,
+  "stats": {
+    "firepower": 40,
+    "entrying": 53,
+    "trading": 62,
+    "opening": 31,
+    "clutching": 32,
+    "sniping": 65,
+    "utility": 54
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

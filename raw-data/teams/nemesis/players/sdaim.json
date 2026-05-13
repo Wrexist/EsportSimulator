@@ -1,0 +1,20 @@
+{
+  "name": "Sdaim",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Nemesis",
+  "teamRank": "45",
+  "age": 20,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 69,
+    "entrying": 56,
+    "trading": 24,
+    "opening": 64,
+    "clutching": 59,
+    "sniping": 1,
+    "utility": 52
+  },
+  "matchesPlayed": 124,
+  "hltvHistory": []
+}

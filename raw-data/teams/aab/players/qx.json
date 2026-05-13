@@ -1,0 +1,20 @@
+{
+  "name": "qx",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "109",
+  "age": 19,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 54,
+    "entrying": 74,
+    "trading": 49,
+    "opening": 70,
+    "clutching": 48,
+    "sniping": 26,
+    "utility": 69
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

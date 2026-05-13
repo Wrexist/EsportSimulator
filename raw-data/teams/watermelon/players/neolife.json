@@ -1,0 +1,20 @@
+{
+  "name": "NeoLife",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "WATERMELON",
+  "teamRank": "152",
+  "age": 25,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 21,
+    "entrying": 79,
+    "trading": 48,
+    "opening": 31,
+    "clutching": 36,
+    "sniping": 28,
+    "utility": 56
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

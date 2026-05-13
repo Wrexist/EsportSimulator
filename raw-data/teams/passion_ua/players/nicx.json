@@ -1,0 +1,20 @@
+{
+  "name": "nicx",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Passion UA",
+  "teamRank": "17",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 30,
+    "entrying": 48,
+    "trading": 47,
+    "opening": 15,
+    "clutching": 71,
+    "sniping": 59,
+    "utility": 28
+  },
+  "matchesPlayed": 197,
+  "hltvHistory": []
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="aqt portrait">
+  <defs>
+    <linearGradient id="bg1dlawb2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#450A0A"/>
+      <stop offset="1" stop-color="#7F1D1D"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg1dlawb2)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#5B21B6"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#C68B5F"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#C68B5F"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#C68B5F"/>
+  <rect x="74" y="72" width="108" height="112" rx="22" fill="#C68B5F"/>
+  <!-- Face features -->
+  <path d="M98 119 L120 114" stroke="#A7F3D0" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M158 119 L136 114" stroke="#A7F3D0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="108" cy="132" r="3" fill="#166534"/>
+                    <circle cx="148" cy="132" r="3" fill="#166534"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <rect x="118" y="164" width="20" height="5" rx="1.5" fill="#2A140F"/>
+                    <rect x="120" y="165" width="3" height="3" fill="#FFFFFF" opacity="0.8"/>
+                    <rect x="125" y="165" width="3" height="3" fill="#FFFFFF" opacity="0.8"/>
+                    <rect x="130" y="165" width="3" height="3" fill="#FFFFFF" opacity="0.8"/>
+                    <rect x="135" y="165" width="3" height="3" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M40 152 Q40 76 128 76 Q216 76 216 152 L216 180 L40 180 Z" fill="#A7F3D0"/>
+  <!-- Accessory layer -->
+  
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

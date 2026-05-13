@@ -1,0 +1,34 @@
+{
+  "name": "SPARTA",
+  "hltvRank": "106",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "Krad",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "sol",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Djon8",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "yuramyata",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "k4nfuz",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

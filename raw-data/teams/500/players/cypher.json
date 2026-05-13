@@ -1,0 +1,23 @@
+{
+  "name": "CYPHER",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "500",
+  "teamRank": "70",
+  "role": "Entry fraggers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "December 31, 2002",
+  "rating": 1.07,
+  "stats": {
+    "firepower": 70,
+    "entrying": 69,
+    "trading": 33,
+    "opening": 87,
+    "clutching": 24,
+    "sniping": 0,
+    "utility": 51
+  },
+  "matchesPlayed": 135,
+  "hltvHistory": []
+}

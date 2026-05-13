@@ -1,0 +1,20 @@
+{
+  "name": "hypex",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "GamerLegion",
+  "teamRank": "20",
+  "age": 22,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 44,
+    "entrying": 50,
+    "trading": 43,
+    "opening": 42,
+    "clutching": 75,
+    "sniping": 91,
+    "utility": 60
+  },
+  "matchesPlayed": 173,
+  "hltvHistory": []
+}

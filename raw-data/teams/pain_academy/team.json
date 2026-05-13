@@ -1,0 +1,29 @@
+{
+  "name": "paiN Academy",
+  "hltvRank": "215",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "Tatu",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "Markz",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "futoi",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "tsug",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

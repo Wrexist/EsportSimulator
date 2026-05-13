@@ -1,0 +1,20 @@
+{
+  "name": "ChipaaN",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "OlyBet",
+  "teamRank": "123",
+  "age": 22,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 35,
+    "entrying": 71,
+    "trading": 67,
+    "opening": 28,
+    "clutching": 79,
+    "sniping": 76,
+    "utility": 72
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

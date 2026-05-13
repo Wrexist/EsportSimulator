@@ -1,0 +1,34 @@
+{
+  "name": "DXA",
+  "hltvRank": "240",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "Supers",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Zacheraay",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Zoot",
+      "country": "New Zealand",
+      "countryCode": "nz"
+    },
+    {
+      "name": "c4put",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "JLB",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

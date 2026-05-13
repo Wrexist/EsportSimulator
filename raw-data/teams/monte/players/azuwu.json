@@ -1,0 +1,20 @@
+{
+  "name": "AZUWU",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "Monte",
+  "teamRank": "31",
+  "age": 22,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 58,
+    "entrying": 82,
+    "trading": 36,
+    "opening": 83,
+    "clutching": 36,
+    "sniping": 80,
+    "utility": 49
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

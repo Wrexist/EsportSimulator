@@ -1,0 +1,20 @@
+{
+  "name": "venomzera",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids",
+  "teamRank": "64",
+  "age": 21,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 64,
+    "entrying": 95,
+    "trading": 46,
+    "opening": 67,
+    "clutching": 58,
+    "sniping": 0,
+    "utility": 47
+  },
+  "matchesPlayed": 175,
+  "hltvHistory": []
+}

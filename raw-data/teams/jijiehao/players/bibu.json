@@ -1,0 +1,20 @@
+{
+  "name": "Bibu",
+  "country": "Iraq",
+  "countryCode": "iq",
+  "team": "JiJieHao",
+  "teamRank": "79",
+  "age": 24,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 37,
+    "entrying": 33,
+    "trading": 49,
+    "opening": 17,
+    "clutching": 53,
+    "sniping": 2,
+    "utility": 67
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

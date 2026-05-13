@@ -1,0 +1,21 @@
+{
+  "name": "olofmeister",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 32,
+  "birthDate": "January 31, 1992",
+  "rating": 1.22,
+  "stats": {
+    "firepower": 92,
+    "entrying": 85,
+    "trading": 90,
+    "opening": 88,
+    "clutching": 91,
+    "sniping": 68,
+    "utility": 89
+  }
+}

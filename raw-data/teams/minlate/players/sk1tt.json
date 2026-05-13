@@ -1,0 +1,20 @@
+{
+  "name": "sk1tt",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "MINLATE",
+  "teamRank": "116",
+  "age": 23,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 44,
+    "entrying": 44,
+    "trading": 40,
+    "opening": 43,
+    "clutching": 31,
+    "sniping": 17,
+    "utility": 80
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

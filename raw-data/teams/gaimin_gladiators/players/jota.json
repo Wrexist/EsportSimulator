@@ -1,0 +1,20 @@
+{
+  "name": "JOTA",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Gaimin Gladiators",
+  "teamRank": "64",
+  "age": 28,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 81,
+    "entrying": 44,
+    "trading": 58,
+    "opening": 40,
+    "clutching": 66,
+    "sniping": 2,
+    "utility": 77
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

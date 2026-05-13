@@ -1,0 +1,20 @@
+{
+  "name": "bsover",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Lilmix",
+  "teamRank": "184",
+  "age": 20,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 63,
+    "entrying": 17,
+    "trading": 34,
+    "opening": 74,
+    "clutching": 45,
+    "sniping": 13,
+    "utility": 67
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

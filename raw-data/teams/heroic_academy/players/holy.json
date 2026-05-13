@@ -1,0 +1,20 @@
+{
+  "name": "HOLY",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "HEROIC Academy",
+  "teamRank": "96",
+  "age": 16,
+  "rating": 1,
+  "stats": {
+    "firepower": 67,
+    "entrying": 85,
+    "trading": 70,
+    "opening": 85,
+    "clutching": 60,
+    "sniping": 41,
+    "utility": 72
+  },
+  "matchesPlayed": 96,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "eskyy",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Betclic",
+  "teamRank": "93",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 39,
+    "entrying": 67,
+    "trading": 77,
+    "opening": 33,
+    "clutching": 39,
+    "sniping": 60,
+    "utility": 40
+  },
+  "matchesPlayed": 95,
+  "hltvHistory": []
+}

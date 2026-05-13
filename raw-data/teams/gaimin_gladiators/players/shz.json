@@ -1,0 +1,20 @@
+{
+  "name": "shz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Gaimin Gladiators",
+  "teamRank": "85",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 52,
+    "entrying": 48,
+    "trading": 46,
+    "opening": 38,
+    "clutching": 29,
+    "sniping": 0,
+    "utility": 60
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

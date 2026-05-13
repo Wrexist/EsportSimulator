@@ -1,0 +1,34 @@
+{
+  "name": "FURIA",
+  "hltvRank": "2",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "FalleN",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "yuurih",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "YEKINDAR",
+      "country": "Latvia",
+      "countryCode": "lv"
+    },
+    {
+      "name": "KSCERATO",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "molodoy",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 217,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Lekzi",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "BESTIA Academy",
+  "teamRank": "183",
+  "age": 20,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 21,
+    "entrying": 70,
+    "trading": 45,
+    "opening": 43,
+    "clutching": 36,
+    "sniping": 56,
+    "utility": 52
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "TMB",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "50",
+  "age": 24,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 29,
+    "entrying": 72,
+    "trading": 50,
+    "opening": 52,
+    "clutching": 19,
+    "sniping": 33,
+    "utility": 86
+  },
+  "matchesPlayed": 139,
+  "hltvHistory": []
+}

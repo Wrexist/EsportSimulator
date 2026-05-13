@@ -1,0 +1,20 @@
+{
+  "name": "sugaR",
+  "country": "Azerbaijan",
+  "countryCode": "az",
+  "team": "TDK",
+  "teamRank": "248",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 36,
+    "entrying": 22,
+    "trading": 21,
+    "opening": 32,
+    "clutching": 55,
+    "sniping": 1,
+    "utility": 63
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

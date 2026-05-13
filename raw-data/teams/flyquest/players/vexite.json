@@ -1,0 +1,20 @@
+{
+  "name": "Vexite",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "FlyQuest",
+  "teamRank": "29",
+  "age": 21,
+  "rating": 1.31,
+  "stats": {
+    "firepower": 99,
+    "entrying": 89,
+    "trading": 25,
+    "opening": 94,
+    "clutching": 28,
+    "sniping": 91,
+    "utility": 64
+  },
+  "matchesPlayed": 183,
+  "hltvHistory": []
+}

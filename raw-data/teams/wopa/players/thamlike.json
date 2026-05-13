@@ -1,0 +1,20 @@
+{
+  "name": "thamlike",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "WOPA",
+  "teamRank": "117",
+  "age": 27,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 80,
+    "entrying": 28,
+    "trading": 79,
+    "opening": 27,
+    "clutching": 73,
+    "sniping": 1,
+    "utility": 72
+  },
+  "matchesPlayed": 170,
+  "hltvHistory": []
+}

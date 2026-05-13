@@ -1,0 +1,20 @@
+{
+  "name": "upE",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "76",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 25,
+    "entrying": 77,
+    "trading": 22,
+    "opening": 19,
+    "clutching": 50,
+    "sniping": 90,
+    "utility": 73
+  },
+  "matchesPlayed": 67,
+  "hltvHistory": []
+}

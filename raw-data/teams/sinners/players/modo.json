@@ -1,0 +1,20 @@
+{
+  "name": "MoDo",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "SINNERS",
+  "teamRank": "65",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 45,
+    "entrying": 36,
+    "trading": 48,
+    "opening": 66,
+    "clutching": 44,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 71,
+  "hltvHistory": []
+}

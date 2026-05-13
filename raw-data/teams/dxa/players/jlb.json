@@ -1,0 +1,20 @@
+{
+  "name": "JLB",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "DXA",
+  "teamRank": "240",
+  "age": 21,
+  "rating": 0.63,
+  "stats": {
+    "firepower": 1,
+    "entrying": 81,
+    "trading": 24,
+    "opening": 61,
+    "clutching": 6,
+    "sniping": 49,
+    "utility": 7
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

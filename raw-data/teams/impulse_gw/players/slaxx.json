@@ -1,0 +1,20 @@
+{
+  "name": "Slaxx",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Impulse GW",
+  "teamRank": "112",
+  "age": 24,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 59,
+    "entrying": 72,
+    "trading": 93,
+    "opening": 30,
+    "clutching": 87,
+    "sniping": 0,
+    "utility": 40
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

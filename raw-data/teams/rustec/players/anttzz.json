@@ -1,0 +1,20 @@
+{
+  "name": "anttzz",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "RUSTEC",
+  "teamRank": "98",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 35,
+    "entrying": 34,
+    "trading": 34,
+    "opening": 57,
+    "clutching": 59,
+    "sniping": 19,
+    "utility": 36
+  },
+  "matchesPlayed": 103,
+  "hltvHistory": []
+}

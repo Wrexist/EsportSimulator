@@ -1,0 +1,20 @@
+{
+  "name": "Lcs",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MAGICOS",
+  "teamRank": "207",
+  "age": 22,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 69,
+    "entrying": 81,
+    "trading": 36,
+    "opening": 58,
+    "clutching": 92,
+    "sniping": 73,
+    "utility": 62
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

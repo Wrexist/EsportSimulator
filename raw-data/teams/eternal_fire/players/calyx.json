@@ -1,0 +1,24 @@
+{
+  "name": "Calyx",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Eternal Fire",
+  "teamRank": "136",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 27,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.06,
+  "stats": {
+    "firepower": 61,
+    "entrying": 18,
+    "trading": 33,
+    "opening": 25,
+    "clutching": 70,
+    "sniping": 0,
+    "utility": 36
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

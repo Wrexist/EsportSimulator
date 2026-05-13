@@ -1,0 +1,24 @@
+{
+  "name": "Banjo",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "Fire Flux",
+  "teamRank": "74",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 21,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.2,
+  "stats": {
+    "firepower": 75,
+    "entrying": 34,
+    "trading": 64,
+    "opening": 38,
+    "clutching": 43,
+    "sniping": 0,
+    "utility": 69
+  },
+  "matchesPlayed": 200,
+  "hltvHistory": []
+}

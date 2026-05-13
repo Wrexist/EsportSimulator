@@ -1,0 +1,20 @@
+{
+  "name": "Westmelon",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Lynn Vision",
+  "teamRank": "36",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 77,
+    "entrying": 86,
+    "trading": 46,
+    "opening": 81,
+    "clutching": 25,
+    "sniping": 22,
+    "utility": 85
+  },
+  "matchesPlayed": 112,
+  "hltvHistory": []
+}

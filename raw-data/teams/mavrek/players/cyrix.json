@@ -1,0 +1,19 @@
+{
+  "name": "Cyrix",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Mavrek",
+  "teamRank": "102",
+  "age": 23,
+  "stats": {
+    "firepower": 0,
+    "entrying": 0,
+    "trading": 0,
+    "opening": 0,
+    "clutching": 0,
+    "sniping": 0,
+    "utility": 0
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

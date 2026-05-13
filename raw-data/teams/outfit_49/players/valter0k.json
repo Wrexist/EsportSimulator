@@ -1,0 +1,20 @@
+{
+  "name": "Valter0k",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Outfit 49",
+  "teamRank": "150",
+  "age": 21,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 14,
+    "entrying": 13,
+    "trading": 61,
+    "opening": 20,
+    "clutching": 79,
+    "sniping": 11,
+    "utility": 35
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

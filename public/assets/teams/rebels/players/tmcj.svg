@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="TMCj portrait">
+  <defs>
+    <linearGradient id="bg23h5bh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#450A0A"/>
+      <stop offset="1" stop-color="#7F1D1D"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg23h5bh)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#6B21A8"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#C68B5F"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#C68B5F"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#C68B5F"/>
+  <ellipse cx="128" cy="128" rx="50" ry="60" fill="#C68B5F"/>
+  <!-- Face features -->
+  <rect x="100" y="117" width="18" height="1.6" rx="0.8" fill="#B04A3C" opacity="0.8"/>
+                    <rect x="138" y="117" width="18" height="1.6" rx="0.8" fill="#B04A3C" opacity="0.8"/>
+  <ellipse cx="108" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <ellipse cx="148" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <circle cx="108" cy="132" r="2.6" fill="#4338CA"/>
+                    <circle cx="148" cy="132" r="2.6" fill="#4338CA"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <path d="M116 164 Q128 174 140 164" stroke="#3A1F1A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M76 112 Q76 78 128 78 Q180 78 180 112 L180 120 Q172 110 128 110 Q84 110 76 120 Z" fill="#B04A3C" opacity="0.85"/>
+                    <path d="M86 84 L96 110 L82 110 Z" fill="#B04A3C"/>
+                    <path d="M108 70 L118 110 L100 110 Z" fill="#B04A3C"/>
+                    <path d="M128 64 L138 110 L120 110 Z" fill="#B04A3C"/>
+                    <path d="M148 70 L158 110 L140 110 Z" fill="#B04A3C"/>
+                    <path d="M170 84 L176 110 L160 110 Z" fill="#B04A3C"/>
+  <!-- Accessory layer -->
+  
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

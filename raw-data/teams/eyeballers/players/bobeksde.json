@@ -1,0 +1,20 @@
+{
+  "name": "bobeksde",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "EYEBALLERS",
+  "teamRank": "34",
+  "age": 22,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 92,
+    "entrying": 23,
+    "trading": 10,
+    "opening": 86,
+    "clutching": 60,
+    "sniping": 62,
+    "utility": 73
+  },
+  "matchesPlayed": 152,
+  "hltvHistory": []
+}

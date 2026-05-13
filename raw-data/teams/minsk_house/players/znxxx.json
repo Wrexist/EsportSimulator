@@ -1,0 +1,20 @@
+{
+  "name": "znxxX",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Minsk House",
+  "teamRank": "136",
+  "age": 24,
+  "rating": 1.3,
+  "stats": {
+    "firepower": 90,
+    "entrying": 24,
+    "trading": 84,
+    "opening": 31,
+    "clutching": 98,
+    "sniping": 79,
+    "utility": 35
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

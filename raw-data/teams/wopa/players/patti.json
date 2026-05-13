@@ -1,0 +1,20 @@
+{
+  "name": "Patti",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "WOPA",
+  "teamRank": "117",
+  "age": 27,
+  "rating": 0.87,
+  "stats": {
+    "firepower": 12,
+    "entrying": 87,
+    "trading": 29,
+    "opening": 47,
+    "clutching": 35,
+    "sniping": 0,
+    "utility": 78
+  },
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

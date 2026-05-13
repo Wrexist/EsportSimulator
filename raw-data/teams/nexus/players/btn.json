@@ -1,0 +1,20 @@
+{
+  "name": "BTN",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "Nexus",
+  "teamRank": "76",
+  "age": 36,
+  "rating": 0.8,
+  "stats": {
+    "firepower": 6,
+    "entrying": 86,
+    "trading": 50,
+    "opening": 21,
+    "clutching": 40,
+    "sniping": 0,
+    "utility": 68
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

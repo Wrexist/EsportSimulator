@@ -1,0 +1,24 @@
+{
+  "name": "Moretz",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "EXSAD",
+  "teamRank": "107",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.05,
+  "stats": {
+    "firepower": 55,
+    "entrying": 98,
+    "trading": 58,
+    "opening": 64,
+    "clutching": 84,
+    "sniping": 0,
+    "utility": 50
+  },
+  "matchesPlayed": 125,
+  "hltvHistory": []
+}

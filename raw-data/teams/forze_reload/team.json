@@ -1,0 +1,24 @@
+{
+  "name": "FORZE Reload",
+  "hltvRank": "90",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "spirit",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Something",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "KusMe",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

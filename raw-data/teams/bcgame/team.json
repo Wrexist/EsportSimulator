@@ -1,0 +1,34 @@
+{
+  "name": "BC.Game",
+  "hltvRank": "26",
+  "nationality": "Portugal",
+  "players": [
+    {
+      "name": "MUTiRiS",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "s1mple",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "electroNic",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "aragornN",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "krazy",
+      "country": "Portugal",
+      "countryCode": "pt"
+    }
+  ],
+  "matchesPlayed": 179,
+  "hltvHistory": []
+}

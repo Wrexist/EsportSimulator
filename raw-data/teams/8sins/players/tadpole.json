@@ -1,0 +1,20 @@
+{
+  "name": "Tadpole",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "8Sins",
+  "teamRank": "226",
+  "age": 22,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 8,
+    "entrying": 86,
+    "trading": 68,
+    "opening": 11,
+    "clutching": 81,
+    "sniping": 41,
+    "utility": 38
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

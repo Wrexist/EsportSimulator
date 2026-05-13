@@ -1,0 +1,20 @@
+{
+  "name": "Prism",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Betclic",
+  "teamRank": "93",
+  "age": 27,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 49,
+    "entrying": 67,
+    "trading": 18,
+    "opening": 62,
+    "clutching": 41,
+    "sniping": 76,
+    "utility": 70
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

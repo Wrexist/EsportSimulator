@@ -1,0 +1,20 @@
+{
+  "name": "meetyoxanaji",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Aurora Young Blud",
+  "teamRank": "176",
+  "age": 17,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 89,
+    "entrying": 98,
+    "trading": 87,
+    "opening": 91,
+    "clutching": 16,
+    "sniping": 23,
+    "utility": 22
+  },
+  "matchesPlayed": 50,
+  "hltvHistory": []
+}

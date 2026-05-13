@@ -1,0 +1,34 @@
+{
+  "name": "Wanted Goons",
+  "hltvRank": "210",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Magic",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "JDubs",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "febreeze",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Johan",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "killerPandas",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

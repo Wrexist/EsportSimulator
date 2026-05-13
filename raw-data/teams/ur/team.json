@@ -1,0 +1,34 @@
+{
+  "name": "UR",
+  "hltvRank": "206",
+  "nationality": "China",
+  "players": [
+    {
+      "name": "madness",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "gLong",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "4ever",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "drace",
+      "country": "China",
+      "countryCode": "cn"
+    },
+    {
+      "name": "yoi",
+      "country": "China",
+      "countryCode": "cn"
+    }
+  ],
+  "matchesPlayed": 35,
+  "hltvHistory": []
+}

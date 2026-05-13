@@ -1,0 +1,20 @@
+{
+  "name": "oskar",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "Fingers Crossed",
+  "teamRank": "108",
+  "age": 34,
+  "rating": 1.17,
+  "stats": {
+    "firepower": 90,
+    "entrying": 1,
+    "trading": 29,
+    "opening": 77,
+    "clutching": 81,
+    "sniping": 94,
+    "utility": 63
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

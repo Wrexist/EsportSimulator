@@ -1,0 +1,20 @@
+{
+  "name": "Hack1ng",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Change The Game",
+  "teamRank": "102",
+  "age": 22,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 16,
+    "entrying": 26,
+    "trading": 13,
+    "opening": 47,
+    "clutching": 58,
+    "sniping": 68,
+    "utility": 75
+  },
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

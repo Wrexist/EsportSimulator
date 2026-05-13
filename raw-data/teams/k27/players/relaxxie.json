@@ -1,0 +1,20 @@
+{
+  "name": "relaxxie",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "K27",
+  "teamRank": "40",
+  "age": 21,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 63,
+    "entrying": 52,
+    "trading": 73,
+    "opening": 33,
+    "clutching": 58,
+    "sniping": 24,
+    "utility": 50
+  },
+  "matchesPlayed": 134,
+  "hltvHistory": []
+}

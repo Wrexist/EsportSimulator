@@ -1,0 +1,24 @@
+{
+  "name": "snowiee",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Famalicão",
+  "teamRank": "103",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.03,
+  "stats": {
+    "firepower": 42,
+    "entrying": 76,
+    "trading": 61,
+    "opening": 49,
+    "clutching": 62,
+    "sniping": 0,
+    "utility": 26
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

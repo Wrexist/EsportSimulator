@@ -1,0 +1,34 @@
+{
+  "name": "Legacy",
+  "hltvRank": "25",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "arT",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "dumau",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "latto",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "n1ssim",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "saadzin",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 224,
+  "hltvHistory": []
+}

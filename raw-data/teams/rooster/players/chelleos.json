@@ -1,0 +1,20 @@
+{
+  "name": "chelleos",
+  "country": "New Zealand",
+  "countryCode": "nz",
+  "team": "Rooster",
+  "teamRank": "148",
+  "age": 25,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 66,
+    "entrying": 17,
+    "trading": 26,
+    "opening": 83,
+    "clutching": 55,
+    "sniping": 91,
+    "utility": 76
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

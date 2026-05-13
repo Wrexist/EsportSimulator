@@ -1,0 +1,20 @@
+{
+  "name": "DayMake",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Deep Cross",
+  "teamRank": "114",
+  "age": 26,
+  "rating": 0.72,
+  "stats": {
+    "firepower": 3,
+    "entrying": 98,
+    "trading": 31,
+    "opening": 26,
+    "clutching": 16,
+    "sniping": 27,
+    "utility": 79
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

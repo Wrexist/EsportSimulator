@@ -1,0 +1,20 @@
+{
+  "name": "AiM",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Steel Helmet",
+  "teamRank": "242",
+  "age": 24,
+  "rating": 0.69,
+  "stats": {
+    "firepower": 46,
+    "entrying": 26,
+    "trading": 45,
+    "opening": 57,
+    "clutching": 44,
+    "sniping": 31,
+    "utility": 6
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

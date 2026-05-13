@@ -1,0 +1,20 @@
+{
+  "name": "ReFuZR",
+  "country": "Netherlands",
+  "countryCode": "nl",
+  "team": "Fisher College",
+  "teamRank": "142",
+  "age": 22,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 83,
+    "entrying": 48,
+    "trading": 64,
+    "opening": 80,
+    "clutching": 32,
+    "sniping": 2,
+    "utility": 32
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "senka",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "Nuclear TigeRES",
+  "teamRank": "43",
+  "age": 20,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 26,
+    "entrying": 53,
+    "trading": 20,
+    "opening": 51,
+    "clutching": 56,
+    "sniping": 24,
+    "utility": 94
+  },
+  "matchesPlayed": 141,
+  "hltvHistory": []
+}

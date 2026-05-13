@@ -1,0 +1,34 @@
+{
+  "name": "Underground",
+  "hltvRank": "180",
+  "nationality": "Australia",
+  "players": [
+    {
+      "name": "N1ghtraid",
+      "country": "Vietnam",
+      "countryCode": "vn"
+    },
+    {
+      "name": "Mechanical",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Jynx",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "74LOR",
+      "country": "Australia",
+      "countryCode": "au"
+    },
+    {
+      "name": "Kras",
+      "country": "Australia",
+      "countryCode": "au"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

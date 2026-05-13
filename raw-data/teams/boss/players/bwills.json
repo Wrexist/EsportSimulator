@@ -1,0 +1,20 @@
+{
+  "name": "Bwills",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "BOSS",
+  "teamRank": "94",
+  "age": 24,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 84,
+    "entrying": 94,
+    "trading": 97,
+    "opening": 53,
+    "clutching": 81,
+    "sniping": 70,
+    "utility": 62
+  },
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

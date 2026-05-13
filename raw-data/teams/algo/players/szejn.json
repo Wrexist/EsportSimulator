@@ -1,0 +1,20 @@
+{
+  "name": "szejn",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "ALGO",
+  "teamRank": "128",
+  "age": 24,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 55,
+    "entrying": 41,
+    "trading": 62,
+    "opening": 22,
+    "clutching": 63,
+    "sniping": 39,
+    "utility": 27
+  },
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

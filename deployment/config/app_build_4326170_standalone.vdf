@@ -1,0 +1,13 @@
+"appbuild"
+{
+	"appid" "4326170"
+	"desc" "Esports Manager standalone Node.js build"
+	"buildoutput" "..\build_output"
+	// For standalone builds (build_release.bat) — output goes to SteamBuild/
+	"contentroot" "..\..\SteamBuild"
+	"preview" "0"
+	"depots"
+	{
+		"4326171" "depot_build_4326171.vdf"
+	}
+}

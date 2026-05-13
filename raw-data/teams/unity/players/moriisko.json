@@ -1,0 +1,20 @@
+{
+  "name": "MoriiSko",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "UNiTY",
+  "teamRank": "91",
+  "age": 24,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 36,
+    "entrying": 75,
+    "trading": 24,
+    "opening": 30,
+    "clutching": 39,
+    "sniping": 31,
+    "utility": 52
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

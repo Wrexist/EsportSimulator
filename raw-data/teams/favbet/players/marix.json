@@ -1,0 +1,20 @@
+{
+  "name": "Marix",
+  "country": "Luxembourg",
+  "countryCode": "lu",
+  "team": "FAVBET",
+  "teamRank": "68",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 68,
+    "entrying": 75,
+    "trading": 61,
+    "opening": 50,
+    "clutching": 33,
+    "sniping": 24,
+    "utility": 72
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

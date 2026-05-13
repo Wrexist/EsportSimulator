@@ -1,0 +1,20 @@
+{
+  "name": "qqGOD",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Just Swing",
+  "teamRank": "171",
+  "age": 23,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 90,
+    "entrying": 49,
+    "trading": 73,
+    "opening": 67,
+    "clutching": 29,
+    "sniping": 50,
+    "utility": 62
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

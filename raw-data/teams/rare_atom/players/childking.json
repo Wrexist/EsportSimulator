@@ -1,0 +1,20 @@
+{
+  "name": "ChildKing",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Rare Atom",
+  "teamRank": "72",
+  "age": 25,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 74,
+    "entrying": 60,
+    "trading": 55,
+    "opening": 43,
+    "clutching": 72,
+    "sniping": 1,
+    "utility": 54
+  },
+  "matchesPlayed": 70,
+  "hltvHistory": []
+}

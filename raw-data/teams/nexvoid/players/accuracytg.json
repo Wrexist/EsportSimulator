@@ -1,0 +1,20 @@
+{
+  "name": "AccuracyTG",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "NEXVOID",
+  "teamRank": "74",
+  "age": 25,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 81,
+    "entrying": 13,
+    "trading": 36,
+    "opening": 79,
+    "clutching": 88,
+    "sniping": 65,
+    "utility": 79
+  },
+  "matchesPlayed": 96,
+  "hltvHistory": []
+}

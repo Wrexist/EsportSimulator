@@ -1,0 +1,20 @@
+{
+  "name": "snav",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Voca",
+  "teamRank": "49",
+  "age": 25,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 69,
+    "entrying": 41,
+    "trading": 36,
+    "opening": 49,
+    "clutching": 39,
+    "sniping": 17,
+    "utility": 71
+  },
+  "matchesPlayed": 155,
+  "hltvHistory": []
+}

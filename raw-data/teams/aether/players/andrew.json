@@ -1,0 +1,20 @@
+{
+  "name": "Andrew",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Aether",
+  "teamRank": "131",
+  "age": 25,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 77,
+    "entrying": 35,
+    "trading": 49,
+    "opening": 73,
+    "clutching": 75,
+    "sniping": 93,
+    "utility": 46
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

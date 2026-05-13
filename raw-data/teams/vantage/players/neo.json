@@ -1,0 +1,20 @@
+{
+  "name": "neo",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Vantage",
+  "teamRank": "236",
+  "age": 23,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 88,
+    "entrying": 5,
+    "trading": 12,
+    "opening": 88,
+    "clutching": 9,
+    "sniping": 55,
+    "utility": 52
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

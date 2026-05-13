@@ -1,0 +1,20 @@
+{
+  "name": "Yoghi",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "HEROIC Academy",
+  "teamRank": "96",
+  "age": 18,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 2,
+    "entrying": 100,
+    "trading": 53,
+    "opening": 11,
+    "clutching": 36,
+    "sniping": 33,
+    "utility": 68
+  },
+  "matchesPlayed": 88,
+  "hltvHistory": []
+}

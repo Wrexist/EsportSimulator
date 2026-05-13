@@ -1,0 +1,20 @@
+{
+  "name": "AMSALEM",
+  "country": "Israel",
+  "countryCode": "il",
+  "team": "Wildcard Academy",
+  "teamRank": "135",
+  "age": 23,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 41,
+    "entrying": 61,
+    "trading": 80,
+    "opening": 38,
+    "clutching": 31,
+    "sniping": 0,
+    "utility": 57
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "MUTiRiS",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "20",
+  "age": 33,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 36,
+    "entrying": 19,
+    "trading": 44,
+    "opening": 29,
+    "clutching": 56,
+    "sniping": 0,
+    "utility": 92
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

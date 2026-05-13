@@ -1,0 +1,20 @@
+{
+  "name": "WOOD7",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "ODDIK",
+  "teamRank": "47",
+  "age": 30,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 50,
+    "entrying": 35,
+    "trading": 17,
+    "opening": 50,
+    "clutching": 53,
+    "sniping": 13,
+    "utility": 73
+  },
+  "matchesPlayed": 132,
+  "hltvHistory": []
+}

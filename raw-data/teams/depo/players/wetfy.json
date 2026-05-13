@@ -1,0 +1,20 @@
+{
+  "name": "wetfy",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "DEPO",
+  "teamRank": "105",
+  "age": 21,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 87,
+    "entrying": 68,
+    "trading": 87,
+    "opening": 83,
+    "clutching": 54,
+    "sniping": 89,
+    "utility": 41
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

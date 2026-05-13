@@ -1,0 +1,20 @@
+{
+  "name": "history",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids",
+  "teamRank": "38",
+  "age": 21,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 72,
+    "entrying": 11,
+    "trading": 45,
+    "opening": 56,
+    "clutching": 88,
+    "sniping": 90,
+    "utility": 57
+  },
+  "matchesPlayed": 113,
+  "hltvHistory": []
+}

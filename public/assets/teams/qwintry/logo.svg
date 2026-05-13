@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="QWINTRY logo">
+  <polygon points="128,16 232,128 128,240 24,128" fill="#22C55E" stroke="#052E16" stroke-width="6"/>
+  <line x1="71" y1="80" x2="182" y2="80" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <line x1="81" y1="184" x2="172" y2="184" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#ECFDF5" letter-spacing="-2">Q</text>
+</svg>

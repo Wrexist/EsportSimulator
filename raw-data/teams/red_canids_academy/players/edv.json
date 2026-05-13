@@ -1,0 +1,20 @@
+{
+  "name": "edv",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "RED Canids Academy",
+  "teamRank": "212",
+  "age": 21,
+  "rating": 0.94,
+  "stats": {
+    "firepower": 41,
+    "entrying": 21,
+    "trading": 7,
+    "opening": 61,
+    "clutching": 42,
+    "sniping": 90,
+    "utility": 50
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "v1z3r",
+  "country": "Hungary",
+  "countryCode": "hu",
+  "team": "WiLD",
+  "teamRank": "198",
+  "age": 26,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 98,
+    "entrying": 88,
+    "trading": 50,
+    "opening": 45,
+    "clutching": 21,
+    "sniping": 25,
+    "utility": 31
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

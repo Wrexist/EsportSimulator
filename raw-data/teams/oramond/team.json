@@ -1,0 +1,34 @@
+{
+  "name": "Oramond",
+  "hltvRank": "51",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "fanatyk",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "suonko",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Frontsiderr",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "AntyVirus",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "SpavaQu",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

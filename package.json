@@ -1,0 +1,243 @@
+{
+  "name": "esports-manager-sim",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Esports Manager: FPS",
+  "author": "IsacC",
+  "main": "electron/main.js",
+  "scripts": {
+    "clean": "node scripts/clean-build.js",
+    "clean:all": "node scripts/clean-build.js --all",
+    "build": "npm run clean && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "analyze": "npm run clean && cross-env ANALYZE=true NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
+    "dev:all": "concurrently -k \"cross-env PORT=3001 npm run dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && cross-env NEXT_SERVER_PORT=3001 ESM_STABILITY_MODE=1 electron .\"",
+    "lint": "next lint",
+    "start": "next start",
+    "electron:dev": "concurrently -k \"cross-env BROWSER=none PORT=3001 npm run dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && cross-env NEXT_SERVER_PORT=3001 ESM_STABILITY_MODE=1 electron .\"",
+    "electron:build": "npm run clean:all && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build && electron-builder",
+    "dist": "npm run clean:all && npm run optimize:images && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build && node scripts/run-dist-builder.js",
+    "type-check": "tsc --noEmit --pretty false",
+    "validate:circuit-calendar": "tsx scripts/circuit-calendar-validate.ts",
+    "release:hardening": "tsx scripts/release-hardening-check.ts",
+    "check:conflicts": "tsx scripts/check-conflict-markers.ts",
+    "resolve:conflicts": "tsx scripts/resolve-merge-conflicts.ts",
+    "compliance:steam": "tsx scripts/steam-compliance-audit.ts",
+    "compliance:steam:baseline": "tsx scripts/steam-compliance-audit.ts --write-baseline",
+    "compliance:steam:strict": "tsx scripts/steam-compliance-audit.ts --strict-medium",
+    "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
+    "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
+    "bake:portraits": "tsx scripts/bake-portraits.ts",
+    "bake:portraits:test": "cross-env PORTRAIT_LIMIT=1 tsx scripts/bake-portraits.ts",
+    "screenshots:capture": "concurrently -k -s first -n \"server,capture\" \"cross-env PORT=3001 next dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && tsx scripts/capture-screenshots.ts\"",
+    "release:verify": "npm run check:conflicts && npm run type-check && npm run release:hardening && npm run compliance:steam:strict && npm run build",
+    "generate:radar-nav": "tsx scripts/generate-radar-nav-data.ts",
+    "perf:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsx scripts/perf-baseline.ts",
+    "test": "npx jest --passWithNoTests",
+    "test:watch": "npx jest --watch",
+    "audit:portraits": "node scripts/audit-portraits.js",
+    "optimize:images": "node scripts/optimize-images.js"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@huggingface/transformers": "^4.2.0",
+    "@imgly/background-removal-node": "^1.4.5",
+    "@radix-ui/react-accordion": "^1.2.2",
+    "@radix-ui/react-alert-dialog": "^1.1.4",
+    "@radix-ui/react-aspect-ratio": "^1.1.1",
+    "@radix-ui/react-avatar": "^1.1.2",
+    "@radix-ui/react-checkbox": "^1.1.3",
+    "@radix-ui/react-collapsible": "^1.1.2",
+    "@radix-ui/react-context-menu": "^2.2.4",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-hover-card": "^1.1.4",
+    "@radix-ui/react-icons": "^1.3.2",
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-menubar": "^1.1.4",
+    "@radix-ui/react-navigation-menu": "^1.2.3",
+    "@radix-ui/react-popover": "^1.1.4",
+    "@radix-ui/react-progress": "^1.1.1",
+    "@radix-ui/react-radio-group": "^1.2.2",
+    "@radix-ui/react-scroll-area": "^1.2.2",
+    "@radix-ui/react-select": "^2.1.4",
+    "@radix-ui/react-separator": "^1.1.1",
+    "@radix-ui/react-slider": "^1.2.2",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.1.2",
+    "@radix-ui/react-tabs": "^1.1.4",
+    "@radix-ui/react-toast": "^1.2.4",
+    "@radix-ui/react-toggle": "^1.1.1",
+    "@radix-ui/react-toggle-group": "^1.1.1",
+    "@radix-ui/react-tooltip": "^1.1.6",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@tanstack/react-virtual": "^3.13.24",
+    "@types/pngjs": "^6.0.5",
+    "canvas-confetti": "^1.9.4",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "cmdk": "^1.0.4",
+    "date-fns": "^4.1.0",
+    "electron-store": "^11.0.2",
+    "embla-carousel-react": "^8.5.2",
+    "framer-motion": "^12.23.26",
+    "immer": "10.1.1",
+    "input-otp": "^1.4.2",
+    "lucide-react": "0.562.0",
+    "next": "14.2.35",
+    "next-themes": "^0.4.6",
+    "pngjs": "^7.0.0",
+    "react": "18.2.0",
+    "react-day-picker": "^9.13.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.54.2",
+    "react-resizable-panels": "^4.4.1",
+    "recharts": "^2.15.4",
+    "replicate": "^1.4.0",
+    "sonner": "^1.7.4",
+    "steamworks.js": "^0.4.0",
+    "tailwind-merge": "3.4.0",
+    "three": "^0.160.1",
+    "vaul": "^1.1.2",
+    "zod": "^3.24.2",
+    "zustand": "5.0.9"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "25.0.3",
+    "@types/react": "~18.2.0",
+    "@types/react-dom": "~18.2.0",
+    "@types/three": "^0.160.0",
+    "autoprefixer": "^10.4.23",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^39.8.9",
+    "electron-builder": "^26.4.0",
+    "electron-builder-notarize": "^1.5.2",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.18",
+    "fs-extra": "^11.3.3",
+    "jest": "^29.7.0",
+    "node-fetch": "^2.7.0",
+    "playwright": "^1.59.1",
+    "postcss": "8.5.6",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-animate": "^1.0.7",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.20.5",
+    "typescript": "~5.3.0",
+    "wait-on": "^9.0.3",
+    "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "com.esportssim.game",
+    "productName": "Esports Manager: FPS",
+    "executableName": "EsportsManager",
+    "copyright": "© 2026 IsacC. All rights reserved.",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "publish": null,
+    "asar": true,
+    "asarUnpack": [
+      ".next/**/*",
+      "next.config.js",
+      "package.json",
+      "postcss.config.mjs",
+      "public/**/*",
+      "steam_appid.txt",
+      "node_modules/steamworks.js/**/*"
+    ],
+    "files": [
+      "electron/**/*",
+      "public/**/*",
+      ".next/**/*",
+      "!.next/cache/**/*",
+      "node_modules/**/*",
+      "!node_modules/@types/**",
+      "!node_modules/typescript/**",
+      "!node_modules/eslint/**",
+      "!node_modules/eslint-*/**",
+      "!node_modules/jest/**",
+      "!node_modules/ts-jest/**",
+      "!node_modules/@jest/**",
+      "!node_modules/puppeteer*/**",
+      "!node_modules/playwright*/**",
+      "!node_modules/xlsx/**",
+      "!node_modules/@typescript-eslint/**",
+      "!node_modules/prettier/**",
+      "!node_modules/@babel/**",
+      "!public/assets/teams/morningstar/players/ruben.png",
+      "!public/assets/teams/morningstar/players/rage.png",
+      "!public/assets/teams/morningstar/players/expsasiki.png",
+      "!public/assets/teams/chinggis_warriors/players/tikuak.png",
+      "package.json",
+      "next.config.js",
+      "postcss.config.mjs",
+      "steam_appid.txt"
+    ],
+    "compression": "maximum",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Game",
+      "maintainer": "IsacC"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.simulation-games",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "forceCodeSigning": false,
+    "afterSign": "electron-builder-notarize"
+  }
+}

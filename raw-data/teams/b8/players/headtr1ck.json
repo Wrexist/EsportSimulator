@@ -1,0 +1,23 @@
+{
+  "name": "headtr1ck",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "B8",
+  "teamRank": "11",
+  "role": "Rifler, AWPer, Riflers, AWPers",
+  "status": "Active",
+  "age": 21,
+  "birthDate": "June 30, 2004",
+  "rating": 0.96,
+  "stats": {
+    "firepower": 23,
+    "entrying": 26,
+    "trading": 55,
+    "opening": 34,
+    "clutching": 62,
+    "sniping": 89,
+    "utility": 56
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

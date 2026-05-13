@@ -1,0 +1,20 @@
+{
+  "name": "vision",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "Ground Zero",
+  "teamRank": "139",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 63,
+    "entrying": 54,
+    "trading": 68,
+    "opening": 45,
+    "clutching": 75,
+    "sniping": 77,
+    "utility": 60
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mello",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "FOLHA AMARELA",
+  "teamRank": "175",
+  "age": 23,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 51,
+    "entrying": 2,
+    "trading": 65,
+    "opening": 73,
+    "clutching": 72,
+    "sniping": 91,
+    "utility": 55
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

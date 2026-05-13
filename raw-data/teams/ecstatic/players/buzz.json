@@ -1,0 +1,20 @@
+{
+  "name": "Buzz",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ECSTATIC",
+  "teamRank": "50",
+  "age": 22,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 46,
+    "entrying": 63,
+    "trading": 24,
+    "opening": 64,
+    "clutching": 22,
+    "sniping": 47,
+    "utility": 27
+  },
+  "matchesPlayed": 115,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Chr1zN",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "HEROIC",
+  "teamRank": "22",
+  "age": 19,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 16,
+    "entrying": 30,
+    "trading": 18,
+    "opening": 45,
+    "clutching": 86,
+    "sniping": 1,
+    "utility": 53
+  },
+  "matchesPlayed": 205,
+  "hltvHistory": []
+}

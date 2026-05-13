@@ -1,0 +1,20 @@
+{
+  "name": "thamlike",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "STATE",
+  "teamRank": "110",
+  "age": 27,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 65,
+    "entrying": 52,
+    "trading": 88,
+    "opening": 19,
+    "clutching": 91,
+    "sniping": 41,
+    "utility": 69
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

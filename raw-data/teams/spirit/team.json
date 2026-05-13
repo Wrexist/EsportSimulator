@@ -1,0 +1,34 @@
+{
+  "name": "Spirit",
+  "hltvRank": "5",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "sh1ro",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "magixx",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "tN1R",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "zont1x",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "donk",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 238,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "blazekiNho",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "EC BANGA",
+  "teamRank": "151",
+  "age": 29,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 68,
+    "entrying": 88,
+    "trading": 9,
+    "opening": 22,
+    "clutching": 42,
+    "sniping": 5,
+    "utility": 17
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

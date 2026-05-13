@@ -1,0 +1,34 @@
+{
+  "name": "Nuclear TigeRES",
+  "hltvRank": "43",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "senka",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "m1QUSE",
+      "country": "Belarus",
+      "countryCode": "by"
+    },
+    {
+      "name": "z1k4",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "flouzer",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "ayuki",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

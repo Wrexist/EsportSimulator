@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="MoriiZco portrait">
+  <defs>
+    <linearGradient id="bgq0eyad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#374151"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bgq0eyad)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#374151"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#A66E48"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#A66E48"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#A66E48"/>
+  <ellipse cx="128" cy="128" rx="52" ry="54" fill="#A66E48"/>
+  <!-- Face features -->
+  <path d="M98 116 Q108 110 118 116" stroke="#3D2B1F" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    <path d="M138 116 Q148 110 158 116" stroke="#3D2B1F" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <ellipse cx="108" cy="132" rx="6" ry="5" fill="#F1F5F9"/>
+                    <ellipse cx="148" cy="132" rx="6" ry="5" fill="#F1F5F9"/>
+                    <circle cx="108" cy="132" r="2.8" fill="#166534"/>
+                    <circle cx="148" cy="132" r="2.8" fill="#166534"/>
+                    <circle cx="109" cy="131" r="0.9" fill="#FFFFFF"/>
+                    <circle cx="149" cy="131" r="0.9" fill="#FFFFFF"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <rect x="118" y="166" width="20" height="2" rx="1" fill="#3A1F1A" opacity="0.85"/>
+  <ellipse cx="128" cy="170" rx="36" ry="12" fill="#3D2B1F" opacity="0.18"/>
+  <!-- Hair / headwear -->
+  <path d="M118 100 Q118 56 128 36 Q138 56 138 100 Z" fill="#3D2B1F"/>
+                    <path d="M76 116 Q98 110 118 110 L118 124 Q100 120 76 124 Z" fill="#3D2B1F" opacity="0.55"/>
+                    <path d="M180 116 Q158 110 138 110 L138 124 Q156 120 180 124 Z" fill="#3D2B1F" opacity="0.55"/>
+  <!-- Accessory layer -->
+  <path d="M62 124 Q62 76 128 76 Q194 76 194 124" stroke="#0F1116" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <rect x="56" y="120" width="14" height="22" rx="5" fill="#0F1116"/>
+                    <rect x="186" y="120" width="14" height="22" rx="5" fill="#0F1116"/>
+                    <rect x="58" y="124" width="10" height="14" rx="3" fill="#134E4A" opacity="0.95"/>
+                    <rect x="188" y="124" width="10" height="14" rx="3" fill="#134E4A" opacity="0.95"/>
+                    <path d="M194 138 Q210 162 196 188" stroke="#0F1116" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <circle cx="196" cy="190" r="4" fill="#0F1116"/>
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

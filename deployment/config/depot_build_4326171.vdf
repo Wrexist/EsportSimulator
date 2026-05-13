@@ -1,0 +1,44 @@
+"DepotBuild"
+{
+	"DepotID" "4326171"
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"recursive" "1"
+	}
+	
+	// Development files
+	"FileExclusion" "*.pdb"
+	"FileExclusion" "*.lib"
+	"FileExclusion" "*.exp"
+	"FileExclusion" "*.log"
+	"FileExclusion" "*.lock"
+	"FileExclusion" "*.map"
+	"FileExclusion" "*.d.ts"
+	"FileExclusion" ".DS_Store"
+	"FileExclusion" ".gitignore"
+	"FileExclusion" ".eslintrc*"
+	"FileExclusion" "tsconfig*.json"
+	
+	// Steam tools (should not be in depot)
+	"FileExclusion" "steamcmd.exe"
+	"FileExclusion" "steamclient.dll"
+	"FileExclusion" "steamclient64.dll"
+	"FileExclusion" "steamservice.exe"
+	"FileExclusion" "steam_appid.txt"
+	
+	// Secrets and credentials
+	"FileExclusion" "*.pem"
+	"FileExclusion" "*.key"
+	"FileExclusion" "*.p12"
+	"FileExclusion" "*.pfx"
+	"FileExclusion" ".env"
+	"FileExclusion" ".env.*"
+	"FileExclusion" "credentials.json"
+
+	// Test files
+	"FileExclusion" "*.test.ts"
+	"FileExclusion" "*.spec.ts"
+	"FileExclusion" "playwright.config.ts"
+}

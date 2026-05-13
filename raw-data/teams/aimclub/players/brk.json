@@ -1,0 +1,20 @@
+{
+  "name": "BRK",
+  "country": "Romania",
+  "countryCode": "ro",
+  "team": "aimclub",
+  "teamRank": "135",
+  "age": 21,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 48,
+    "entrying": 33,
+    "trading": 35,
+    "opening": 44,
+    "clutching": 52,
+    "sniping": 26,
+    "utility": 54
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

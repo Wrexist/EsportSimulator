@@ -1,0 +1,20 @@
+{
+  "name": "nikitea",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Lazer Cats",
+  "teamRank": "92",
+  "age": 19,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 51,
+    "entrying": 58,
+    "trading": 80,
+    "opening": 49,
+    "clutching": 68,
+    "sniping": 19,
+    "utility": 46
+  },
+  "matchesPlayed": 85,
+  "hltvHistory": []
+}

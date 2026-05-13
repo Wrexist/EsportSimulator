@@ -1,0 +1,20 @@
+{
+  "name": "Kiy0o",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Lazer Cats",
+  "teamRank": "92",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 71,
+    "entrying": 78,
+    "trading": 53,
+    "opening": 77,
+    "clutching": 32,
+    "sniping": 19,
+    "utility": 33
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

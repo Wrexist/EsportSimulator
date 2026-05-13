@@ -1,0 +1,20 @@
+{
+  "name": "Liazz",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "THUNDER dOWNUNDER",
+  "teamRank": "99",
+  "age": 28,
+  "rating": 1.31,
+  "stats": {
+    "firepower": 91,
+    "entrying": 48,
+    "trading": 39,
+    "opening": 53,
+    "clutching": 83,
+    "sniping": 39,
+    "utility": 63
+  },
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

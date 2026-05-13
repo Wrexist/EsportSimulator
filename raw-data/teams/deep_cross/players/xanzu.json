@@ -1,0 +1,20 @@
+{
+  "name": "xanzu",
+  "country": "Philippines",
+  "countryCode": "ph",
+  "team": "Deep Cross",
+  "teamRank": "114",
+  "age": 20,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 34,
+    "entrying": 46,
+    "trading": 100,
+    "opening": 17,
+    "clutching": 56,
+    "sniping": 18,
+    "utility": 31
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

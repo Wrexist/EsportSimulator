@@ -1,0 +1,20 @@
+{
+  "name": "DeDe",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "JUMBO",
+  "teamRank": "125",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 74,
+    "entrying": 77,
+    "trading": 96,
+    "opening": 26,
+    "clutching": 44,
+    "sniping": 30,
+    "utility": 32
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

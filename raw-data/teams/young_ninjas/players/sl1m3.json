@@ -1,0 +1,20 @@
+{
+  "name": "sL1m3",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "Young Ninjas",
+  "teamRank": "146",
+  "age": 20,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 95,
+    "entrying": 44,
+    "trading": 51,
+    "opening": 31,
+    "clutching": 72,
+    "sniping": 3,
+    "utility": 13
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

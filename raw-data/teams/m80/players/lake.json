@@ -1,0 +1,20 @@
+{
+  "name": "Lake",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "M80",
+  "teamRank": "24",
+  "age": 21,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 86,
+    "entrying": 92,
+    "trading": 31,
+    "opening": 89,
+    "clutching": 30,
+    "sniping": 37,
+    "utility": 52
+  },
+  "matchesPlayed": 182,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "BOROS",
+  "country": "Jordan",
+  "countryCode": "jo",
+  "team": "JiJieHao",
+  "teamRank": "83",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 88,
+    "entrying": 42,
+    "trading": 14,
+    "opening": 84,
+    "clutching": 15,
+    "sniping": 0,
+    "utility": 16
+  },
+  "matchesPlayed": 130,
+  "hltvHistory": []
+}

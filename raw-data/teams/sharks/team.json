@@ -1,0 +1,34 @@
+{
+  "name": "Sharks",
+  "hltvRank": "39",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "gafolo",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "koala",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "maxxkor",
+      "country": "Argentina",
+      "countryCode": "ar"
+    },
+    {
+      "name": "rdnzao",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "doc",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 107,
+  "hltvHistory": []
+}

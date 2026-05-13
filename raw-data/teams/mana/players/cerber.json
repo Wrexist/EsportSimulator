@@ -1,0 +1,20 @@
+{
+  "name": "cerber",
+  "country": "Kosovo",
+  "countryCode": "xk",
+  "team": "MANA",
+  "teamRank": "112",
+  "age": 27,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 51,
+    "entrying": 40,
+    "trading": 49,
+    "opening": 18,
+    "clutching": 53,
+    "sniping": 40,
+    "utility": 58
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

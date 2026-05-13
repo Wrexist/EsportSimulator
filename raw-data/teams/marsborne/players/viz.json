@@ -1,0 +1,20 @@
+{
+  "name": "viz",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Marsborne",
+  "teamRank": "53",
+  "age": 24,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 71,
+    "entrying": 69,
+    "trading": 38,
+    "opening": 59,
+    "clutching": 28,
+    "sniping": 0,
+    "utility": 62
+  },
+  "matchesPlayed": 140,
+  "hltvHistory": []
+}

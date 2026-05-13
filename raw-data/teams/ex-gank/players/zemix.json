@@ -1,0 +1,20 @@
+{
+  "name": "zemix",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "ex-GANK",
+  "teamRank": "188",
+  "age": 18,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 26,
+    "entrying": 63,
+    "trading": 12,
+    "opening": 62,
+    "clutching": 15,
+    "sniping": 4,
+    "utility": 43
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

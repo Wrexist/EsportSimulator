@@ -1,0 +1,20 @@
+{
+  "name": "shoxs",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "DEPO",
+  "teamRank": "105",
+  "age": 20,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 41,
+    "entrying": 97,
+    "trading": 79,
+    "opening": 49,
+    "clutching": 37,
+    "sniping": 40,
+    "utility": 35
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

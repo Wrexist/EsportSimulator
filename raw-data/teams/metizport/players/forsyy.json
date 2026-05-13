@@ -1,0 +1,20 @@
+{
+  "name": "forsyy",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "Metizport",
+  "teamRank": "163",
+  "age": 24,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 66,
+    "entrying": 23,
+    "trading": 72,
+    "opening": 49,
+    "clutching": 90,
+    "sniping": 91,
+    "utility": 55
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Sandman",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "LAG",
+  "teamRank": "144",
+  "age": 24,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 70,
+    "entrying": 93,
+    "trading": 24,
+    "opening": 85,
+    "clutching": 29,
+    "sniping": 1,
+    "utility": 55
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

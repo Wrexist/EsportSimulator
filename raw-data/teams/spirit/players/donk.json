@@ -1,0 +1,20 @@
+{
+  "name": "donk",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Spirit",
+  "teamRank": "5",
+  "age": 19,
+  "rating": 1.41,
+  "stats": {
+    "firepower": 100,
+    "entrying": 58,
+    "trading": 64,
+    "opening": 93,
+    "clutching": 49,
+    "sniping": 3,
+    "utility": 30
+  },
+  "matchesPlayed": 272,
+  "hltvHistory": []
+}

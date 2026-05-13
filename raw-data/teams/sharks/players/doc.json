@@ -1,0 +1,20 @@
+{
+  "name": "doc",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Sharks",
+  "teamRank": "39",
+  "age": 23,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 75,
+    "entrying": 94,
+    "trading": 58,
+    "opening": 85,
+    "clutching": 37,
+    "sniping": 47,
+    "utility": 66
+  },
+  "matchesPlayed": 106,
+  "hltvHistory": []
+}

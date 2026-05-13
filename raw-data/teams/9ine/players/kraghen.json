@@ -1,0 +1,20 @@
+{
+  "name": "kraghen",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "9INE",
+  "teamRank": "41",
+  "age": 23,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 54,
+    "entrying": 24,
+    "trading": 44,
+    "opening": 51,
+    "clutching": 56,
+    "sniping": 44,
+    "utility": 59
+  },
+  "matchesPlayed": 129,
+  "hltvHistory": []
+}

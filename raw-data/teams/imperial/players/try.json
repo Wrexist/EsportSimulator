@@ -1,0 +1,20 @@
+{
+  "name": "try",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Imperial",
+  "teamRank": "23",
+  "age": 21,
+  "rating": 1.15,
+  "stats": {
+    "firepower": 87,
+    "entrying": 25,
+    "trading": 40,
+    "opening": 84,
+    "clutching": 67,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 197,
+  "hltvHistory": []
+}

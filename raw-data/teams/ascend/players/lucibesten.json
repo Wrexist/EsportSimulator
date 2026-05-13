@@ -1,0 +1,20 @@
+{
+  "name": "lucibesten",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "Ascend",
+  "teamRank": "231",
+  "age": 31,
+  "rating": 0.69,
+  "stats": {
+    "firepower": 3,
+    "entrying": 98,
+    "trading": 73,
+    "opening": 56,
+    "clutching": 32,
+    "sniping": 2,
+    "utility": 34
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

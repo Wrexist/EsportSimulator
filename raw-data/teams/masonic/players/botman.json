@@ -1,0 +1,20 @@
+{
+  "name": "Botman",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "MASONIC",
+  "teamRank": "138",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 68,
+    "entrying": 28,
+    "trading": 81,
+    "opening": 28,
+    "clutching": 68,
+    "sniping": 96,
+    "utility": 32
+  },
+  "matchesPlayed": 42,
+  "hltvHistory": []
+}

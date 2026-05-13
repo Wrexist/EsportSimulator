@@ -1,0 +1,34 @@
+{
+  "name": "Sakura",
+  "hltvRank": "227",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "alicerawr",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Stx",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "empathy",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "raven",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "Serendipity",
+      "country": "United States",
+      "countryCode": "us"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

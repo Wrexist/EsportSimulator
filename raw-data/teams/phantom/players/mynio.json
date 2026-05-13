@@ -1,0 +1,20 @@
+{
+  "name": "mynio",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Phantom",
+  "teamRank": "126",
+  "age": 30,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 29,
+    "entrying": 73,
+    "trading": 18,
+    "opening": 47,
+    "clutching": 43,
+    "sniping": 37,
+    "utility": 88
+  },
+  "matchesPlayed": 40,
+  "hltvHistory": []
+}

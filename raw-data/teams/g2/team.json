@@ -1,0 +1,34 @@
+{
+  "name": "G2",
+  "hltvRank": "9",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "huNter-",
+      "country": "Bosnia and Herzegovina",
+      "countryCode": "ba"
+    },
+    {
+      "name": "malbsMd",
+      "country": "Guatemala",
+      "countryCode": "gu"
+    },
+    {
+      "name": "SunPayus",
+      "country": "Spain",
+      "countryCode": "es"
+    },
+    {
+      "name": "HeavyGod",
+      "country": "Israel",
+      "countryCode": "il"
+    },
+    {
+      "name": "MATYS",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    }
+  ],
+  "matchesPlayed": 231,
+  "hltvHistory": []
+}

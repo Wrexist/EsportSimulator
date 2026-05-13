@@ -1,0 +1,20 @@
+{
+  "name": "frozen",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "FaZe",
+  "teamRank": "7",
+  "age": 23,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 82,
+    "entrying": 30,
+    "trading": 60,
+    "opening": 75,
+    "clutching": 73,
+    "sniping": 27,
+    "utility": 51
+  },
+  "matchesPlayed": 299,
+  "hltvHistory": []
+}

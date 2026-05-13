@@ -1,0 +1,20 @@
+{
+  "name": "krazy",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "BC.Game",
+  "teamRank": "26",
+  "age": 22,
+  "rating": 1.07,
+  "stats": {
+    "firepower": 67,
+    "entrying": 71,
+    "trading": 67,
+    "opening": 32,
+    "clutching": 56,
+    "sniping": 1,
+    "utility": 25
+  },
+  "matchesPlayed": 189,
+  "hltvHistory": []
+}

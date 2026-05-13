@@ -1,0 +1,34 @@
+{
+  "name": "Tricked",
+  "hltvRank": "59",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "IceBerg",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "salazar",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "leakz",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Boye",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "NickyB",
+      "country": "Denmark",
+      "countryCode": "dk"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

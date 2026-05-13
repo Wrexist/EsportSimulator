@@ -1,0 +1,20 @@
+{
+  "name": "Miami",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Last Bullet",
+  "teamRank": "182",
+  "age": 23,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 41,
+    "entrying": 15,
+    "trading": 50,
+    "opening": 16,
+    "clutching": 21,
+    "sniping": 76,
+    "utility": 8
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

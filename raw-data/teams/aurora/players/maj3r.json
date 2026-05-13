@@ -1,0 +1,20 @@
+{
+  "name": "MAJ3R",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Aurora",
+  "teamRank": "11",
+  "age": 35,
+  "rating": 0.91,
+  "stats": {
+    "firepower": 8,
+    "entrying": 56,
+    "trading": 22,
+    "opening": 10,
+    "clutching": 36,
+    "sniping": 1,
+    "utility": 90
+  },
+  "matchesPlayed": 176,
+  "hltvHistory": []
+}

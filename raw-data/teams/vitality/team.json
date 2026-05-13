@@ -1,0 +1,34 @@
+{
+  "name": "Vitality",
+  "hltvRank": "1",
+  "nationality": "Europe",
+  "players": [
+    {
+      "name": "apEX",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "ropz",
+      "country": "Estonia",
+      "countryCode": "ee"
+    },
+    {
+      "name": "ZywOo",
+      "country": "France",
+      "countryCode": "fr"
+    },
+    {
+      "name": "flameZ",
+      "country": "Israel",
+      "countryCode": "il"
+    },
+    {
+      "name": "mezii",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    }
+  ],
+  "matchesPlayed": 282,
+  "hltvHistory": []
+}

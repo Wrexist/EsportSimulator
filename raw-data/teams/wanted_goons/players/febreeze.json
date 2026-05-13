@@ -1,0 +1,20 @@
+{
+  "name": "febreeze",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Wanted Goons",
+  "teamRank": "210",
+  "age": 24,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 96,
+    "entrying": 70,
+    "trading": 79,
+    "opening": 28,
+    "clutching": 61,
+    "sniping": 44,
+    "utility": 13
+  },
+  "matchesPlayed": 61,
+  "hltvHistory": []
+}

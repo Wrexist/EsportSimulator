@@ -1,0 +1,20 @@
+{
+  "name": "JBOEN",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "BIG Academy",
+  "teamRank": "81",
+  "age": 20,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 84,
+    "entrying": 7,
+    "trading": 39,
+    "opening": 78,
+    "clutching": 92,
+    "sniping": 94,
+    "utility": 58
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

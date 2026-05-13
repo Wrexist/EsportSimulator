@@ -1,0 +1,20 @@
+{
+  "name": "benog",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "TNC",
+  "teamRank": "201",
+  "age": 20,
+  "rating": 0.8,
+  "stats": {
+    "firepower": 5,
+    "entrying": 97,
+    "trading": 17,
+    "opening": 21,
+    "clutching": 79,
+    "sniping": 33,
+    "utility": 49
+  },
+  "matchesPlayed": 34,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "ICY",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "ALLINNERS",
+  "teamRank": "150",
+  "role": "AWPer",
+  "status": "Active",
+  "age": 20,
+  "birthDate": null,
+  "debug": [],
+  "rating": 1.05,
+  "stats": {
+    "firepower": 31,
+    "entrying": 85,
+    "trading": 64,
+    "opening": 64,
+    "clutching": 39,
+    "sniping": 92,
+    "utility": 63
+  },
+  "matchesPlayed": 462,
+  "hltvHistory": []
+}

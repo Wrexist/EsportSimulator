@@ -1,0 +1,20 @@
+{
+  "name": "Bloody",
+  "country": "Pakistan",
+  "countryCode": "pk",
+  "team": "Legion",
+  "teamRank": "200",
+  "age": 20,
+  "rating": 1.3,
+  "stats": {
+    "firepower": 99,
+    "entrying": 94,
+    "trading": 36,
+    "opening": 92,
+    "clutching": 46,
+    "sniping": 26,
+    "utility": 35
+  },
+  "matchesPlayed": 31,
+  "hltvHistory": []
+}

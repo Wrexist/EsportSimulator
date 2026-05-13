@@ -1,0 +1,34 @@
+{
+  "name": "FAVBET",
+  "hltvRank": "68",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "bondik",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "Smash",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "s4ltovsk1yy",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "Marix",
+      "country": "Luxembourg",
+      "countryCode": "lu"
+    },
+    {
+      "name": "j3kie",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

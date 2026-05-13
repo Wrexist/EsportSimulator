@@ -1,0 +1,20 @@
+{
+  "name": "Mercury",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "TYLOO",
+  "teamRank": "30",
+  "age": 25,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 59,
+    "entrying": 55,
+    "trading": 49,
+    "opening": 36,
+    "clutching": 78,
+    "sniping": 44,
+    "utility": 75
+  },
+  "matchesPlayed": 159,
+  "hltvHistory": []
+}

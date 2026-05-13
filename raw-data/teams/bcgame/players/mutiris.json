@@ -1,0 +1,20 @@
+{
+  "name": "MUTiRiS",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "BC.Game",
+  "teamRank": "26",
+  "age": 33,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 24,
+    "entrying": 74,
+    "trading": 51,
+    "opening": 27,
+    "clutching": 53,
+    "sniping": 26,
+    "utility": 90
+  },
+  "matchesPlayed": 185,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Flierax",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Inner Circle",
+  "teamRank": "44",
+  "age": 20,
+  "rating": 1,
+  "stats": {
+    "firepower": 45,
+    "entrying": 34,
+    "trading": 35,
+    "opening": 55,
+    "clutching": 66,
+    "sniping": 92,
+    "utility": 62
+  },
+  "matchesPlayed": 136,
+  "hltvHistory": []
+}

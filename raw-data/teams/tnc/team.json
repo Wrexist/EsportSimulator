@@ -1,0 +1,34 @@
+{
+  "name": "TNC",
+  "hltvRank": "201",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "Kamo",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "elem",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "benog",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "patrikinho",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Arielek",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "yab0ku-",
+  "country": "Ukraine",
+  "countryCode": "ua",
+  "team": "Lazer Cats",
+  "teamRank": "92",
+  "age": 19,
+  "rating": 0.8,
+  "stats": {
+    "firepower": 5,
+    "entrying": 72,
+    "trading": 40,
+    "opening": 5,
+    "clutching": 67,
+    "sniping": 23,
+    "utility": 56
+  },
+  "matchesPlayed": 109,
+  "hltvHistory": []
+}

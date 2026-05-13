@@ -1,0 +1,20 @@
+{
+  "name": "rage",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Morningstar",
+  "teamRank": "82",
+  "age": 26,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 71,
+    "entrying": 38,
+    "trading": 31,
+    "opening": 91,
+    "clutching": 64,
+    "sniping": 76,
+    "utility": 64
+  },
+  "matchesPlayed": 104,
+  "hltvHistory": []
+}

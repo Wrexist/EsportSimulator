@@ -1,0 +1,20 @@
+{
+  "name": "sideffect",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "Eruption",
+  "teamRank": "95",
+  "age": 19,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 55,
+    "entrying": 30,
+    "trading": 89,
+    "opening": 36,
+    "clutching": 26,
+    "sniping": 1,
+    "utility": 50
+  },
+  "matchesPlayed": 69,
+  "hltvHistory": []
+}

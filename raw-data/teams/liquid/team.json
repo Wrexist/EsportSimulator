@@ -1,0 +1,34 @@
+{
+  "name": "Liquid",
+  "hltvRank": "15",
+  "nationality": "Other",
+  "players": [
+    {
+      "name": "NAF",
+      "country": "Canada",
+      "countryCode": "ca"
+    },
+    {
+      "name": "EliGE",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "NertZ",
+      "country": "Israel",
+      "countryCode": "il"
+    },
+    {
+      "name": "siuhy",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "ultimate",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 186,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "MaiL09",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "76",
+  "age": 16,
+  "rating": 1.19,
+  "stats": {
+    "firepower": 84,
+    "entrying": 79,
+    "trading": 84,
+    "opening": 56,
+    "clutching": 70,
+    "sniping": 72,
+    "utility": 61
+  },
+  "matchesPlayed": 81,
+  "hltvHistory": []
+}

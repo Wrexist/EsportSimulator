@@ -1,0 +1,20 @@
+{
+  "name": "MaLLby",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Prison Breakers",
+  "teamRank": "189",
+  "age": 24,
+  "rating": 1.03,
+  "stats": {
+    "firepower": 55,
+    "entrying": 54,
+    "trading": 19,
+    "opening": 32,
+    "clutching": 40,
+    "sniping": 1,
+    "utility": 59
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

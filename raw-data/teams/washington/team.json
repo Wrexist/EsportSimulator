@@ -1,0 +1,29 @@
+{
+  "name": "Washington",
+  "hltvRank": "199",
+  "nationality": "Ireland",
+  "players": [
+    {
+      "name": "arTisT",
+      "country": "Ireland",
+      "countryCode": "ie"
+    },
+    {
+      "name": "Extinct",
+      "country": "Ireland",
+      "countryCode": "ie"
+    },
+    {
+      "name": "bevve",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "Vacancy",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    }
+  ],
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

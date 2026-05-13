@@ -1,0 +1,34 @@
+{
+  "name": "NAVI Junior",
+  "hltvRank": "237",
+  "nationality": "Ukraine",
+  "players": [
+    {
+      "name": "FAZERY",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "satsu",
+      "country": "Romania",
+      "countryCode": "ro"
+    },
+    {
+      "name": "R3ZLOO",
+      "country": "Finland",
+      "countryCode": "fi"
+    },
+    {
+      "name": "yoki",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "kodak",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 45,
+  "hltvHistory": []
+}

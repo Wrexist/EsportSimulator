@@ -1,0 +1,34 @@
+{
+  "name": "Yawara",
+  "hltvRank": "117",
+  "nationality": "Brazil",
+  "players": [
+    {
+      "name": "j0w",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "deemO",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "revoltz",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "aNgelo",
+      "country": "Brazil",
+      "countryCode": "br"
+    },
+    {
+      "name": "tele",
+      "country": "Brazil",
+      "countryCode": "br"
+    }
+  ],
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

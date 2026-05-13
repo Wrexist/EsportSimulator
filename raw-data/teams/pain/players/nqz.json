@@ -1,0 +1,20 @@
+{
+  "name": "nqz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "paiN",
+  "teamRank": "18",
+  "age": 21,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 46,
+    "entrying": 13,
+    "trading": 37,
+    "opening": 41,
+    "clutching": 79,
+    "sniping": 93,
+    "utility": 59
+  },
+  "matchesPlayed": 201,
+  "hltvHistory": []
+}

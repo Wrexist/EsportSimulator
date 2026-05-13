@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Qabe portrait">
+  <defs>
+    <linearGradient id="bgq3zsf3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E1B4B"/>
+      <stop offset="1" stop-color="#312E81"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bgq3zsf3)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#075985"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#E5B888"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#E5B888"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#E5B888"/>
+  <rect x="74" y="72" width="108" height="112" rx="22" fill="#E5B888"/>
+  <!-- Face features -->
+  <path d="M98 116 Q108 110 118 116" stroke="#2B2420" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    <path d="M138 116 Q148 110 158 116" stroke="#2B2420" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M101 132 Q108 135 115 132" stroke="#92400E" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M141 132 Q148 135 155 132" stroke="#92400E" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <path d="M116 164 Q128 174 140 164" stroke="#3A1F1A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M76 110 Q76 78 128 78 Q180 78 180 110 L180 120 Q156 102 128 102 Q100 102 76 120 Z" fill="#2B2420" opacity="0.85"/>
+  <!-- Accessory layer -->
+  <rect x="92" y="124" width="32" height="18" rx="5" stroke="#0F1116" stroke-width="2.5" fill="#F1F5F9" fill-opacity="0.06"/>
+                    <rect x="132" y="124" width="32" height="18" rx="5" stroke="#0F1116" stroke-width="2.5" fill="#F1F5F9" fill-opacity="0.06"/>
+                    <line x1="124" y1="132" x2="132" y2="132" stroke="#0F1116" stroke-width="2.5"/>
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

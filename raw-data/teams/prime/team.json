@@ -1,0 +1,34 @@
+{
+  "name": "PRIME",
+  "hltvRank": "145",
+  "nationality": "Portugal",
+  "players": [
+    {
+      "name": "pr",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "Slaxx",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "rafaxF",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "Stepa",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Mané",
+      "country": "Portugal",
+      "countryCode": "pt"
+    }
+  ],
+  "matchesPlayed": 64,
+  "hltvHistory": []
+}

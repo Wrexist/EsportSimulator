@@ -1,0 +1,20 @@
+{
+  "name": "Santuriano",
+  "country": "Lithuania",
+  "countryCode": "lt",
+  "team": "Galaxy",
+  "teamRank": "219",
+  "age": 17,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 8,
+    "entrying": 91,
+    "trading": 96,
+    "opening": 10,
+    "clutching": 40,
+    "sniping": 1,
+    "utility": 25
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "kl1m",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "MIBR",
+  "teamRank": "28",
+  "age": 20,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 96,
+    "entrying": 13,
+    "trading": 71,
+    "opening": 67,
+    "clutching": 66,
+    "sniping": 75,
+    "utility": 35
+  },
+  "matchesPlayed": 171,
+  "hltvHistory": []
+}

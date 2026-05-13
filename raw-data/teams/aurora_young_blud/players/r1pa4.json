@@ -1,0 +1,20 @@
+{
+  "name": "r1pa4",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Aurora Young Blud",
+  "teamRank": "176",
+  "age": 17,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 31,
+    "entrying": 96,
+    "trading": 22,
+    "opening": 65,
+    "clutching": 41,
+    "sniping": 2,
+    "utility": 14
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

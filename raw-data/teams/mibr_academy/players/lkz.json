@@ -1,0 +1,20 @@
+{
+  "name": "lkz",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "MIBR Academy",
+  "teamRank": "245",
+  "age": 17,
+  "rating": 0.56,
+  "stats": {
+    "firepower": 37,
+    "entrying": 2,
+    "trading": 37,
+    "opening": 15,
+    "clutching": 21,
+    "sniping": 5,
+    "utility": 32
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

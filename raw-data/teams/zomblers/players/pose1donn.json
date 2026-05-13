@@ -1,0 +1,20 @@
+{
+  "name": "Pose1doNN",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "Zomblers",
+  "teamRank": "160",
+  "age": 23,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 91,
+    "entrying": 39,
+    "trading": 98,
+    "opening": 38,
+    "clutching": 62,
+    "sniping": 58,
+    "utility": 56
+  },
+  "matchesPlayed": 36,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Bebop",
+  "hltvRank": "165",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "faydett",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "dwushka",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "h1kaN",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 57,
+  "hltvHistory": []
+}

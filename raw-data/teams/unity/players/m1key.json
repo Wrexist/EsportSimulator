@@ -1,0 +1,20 @@
+{
+  "name": "M1key",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "UNiTY",
+  "teamRank": "91",
+  "age": 21,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 86,
+    "entrying": 58,
+    "trading": 35,
+    "opening": 71,
+    "clutching": 65,
+    "sniping": 2,
+    "utility": 70
+  },
+  "matchesPlayed": 63,
+  "hltvHistory": []
+}

@@ -1,0 +1,33 @@
+{
+  "name": "100 Thieves",
+  "hltvRank": "15",
+  "players": [
+    {
+      "name": "device",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "rain",
+      "country": "Norway",
+      "countryCode": "no"
+    },
+    {
+      "name": "Ag1l",
+      "country": "Portugal",
+      "countryCode": "pt"
+    },
+    {
+      "name": "sirah",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "poiii",
+      "country": "Sweden",
+      "countryCode": "se"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

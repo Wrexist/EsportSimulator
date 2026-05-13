@@ -1,0 +1,20 @@
+{
+  "name": "Sapec",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Johnny Speeds",
+  "teamRank": "73",
+  "age": 23,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 45,
+    "entrying": 58,
+    "trading": 18,
+    "opening": 63,
+    "clutching": 23,
+    "sniping": 74,
+    "utility": 60
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

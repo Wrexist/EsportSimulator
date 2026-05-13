@@ -1,0 +1,20 @@
+{
+  "name": "icyvl0ne",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "DEPO",
+  "teamRank": "105",
+  "age": 22,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 71,
+    "entrying": 91,
+    "trading": 86,
+    "opening": 80,
+    "clutching": 1,
+    "sniping": 1,
+    "utility": 15
+  },
+  "matchesPlayed": 43,
+  "hltvHistory": []
+}

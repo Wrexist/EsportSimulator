@@ -1,0 +1,20 @@
+{
+  "name": "L1haNg",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "Rare Atom",
+  "teamRank": "72",
+  "age": 22,
+  "rating": 1.12,
+  "stats": {
+    "firepower": 84,
+    "entrying": 65,
+    "trading": 44,
+    "opening": 84,
+    "clutching": 50,
+    "sniping": 21,
+    "utility": 72
+  },
+  "matchesPlayed": 84,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "PARIVISION",
+  "hltvRank": "6",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "Jame",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "BELCHONOKK",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "xiELO",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "nota",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "zweih",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 229,
+  "hltvHistory": []
+}

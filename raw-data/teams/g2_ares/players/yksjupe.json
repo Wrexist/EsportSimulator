@@ -1,0 +1,20 @@
+{
+  "name": "yksjupe",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "G2 Ares",
+  "teamRank": "84",
+  "age": 19,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 29,
+    "entrying": 71,
+    "trading": 19,
+    "opening": 81,
+    "clutching": 40,
+    "sniping": 67,
+    "utility": 51
+  },
+  "matchesPlayed": 108,
+  "hltvHistory": []
+}

@@ -1,0 +1,29 @@
+{
+  "name": "BRUTE",
+  "hltvRank": "178",
+  "nationality": "Czech Republic",
+  "players": [
+    {
+      "name": "KAD1M",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "Siko",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    },
+    {
+      "name": "w4rden",
+      "country": "Czech Republic",
+      "countryCode": "cz"
+    },
+    {
+      "name": "realzen",
+      "country": "Slovakia",
+      "countryCode": "sk"
+    }
+  ],
+  "matchesPlayed": 68,
+  "hltvHistory": []
+}

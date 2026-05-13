@@ -1,0 +1,20 @@
+{
+  "name": "YumsaN",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "ex-RUBY",
+  "teamRank": "57",
+  "age": 21,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 32,
+    "entrying": 18,
+    "trading": 53,
+    "opening": 35,
+    "clutching": 82,
+    "sniping": 87,
+    "utility": 78
+  },
+  "matchesPlayed": 87,
+  "hltvHistory": []
+}

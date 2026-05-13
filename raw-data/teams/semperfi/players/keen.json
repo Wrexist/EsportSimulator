@@ -1,0 +1,20 @@
+{
+  "name": "keen",
+  "country": "Latvia",
+  "countryCode": "lv",
+  "team": "SemperFi",
+  "teamRank": "137",
+  "age": 25,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 51,
+    "entrying": 32,
+    "trading": 21,
+    "opening": 82,
+    "clutching": 38,
+    "sniping": 91,
+    "utility": 75
+  },
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

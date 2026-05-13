@@ -1,0 +1,20 @@
+{
+  "name": "kamaz1k",
+  "country": "Kyrgyzstan",
+  "countryCode": "ky",
+  "team": "ALTAY",
+  "teamRank": "218",
+  "age": 30,
+  "rating": 0.86,
+  "stats": {
+    "firepower": 9,
+    "entrying": 38,
+    "trading": 27,
+    "opening": 23,
+    "clutching": 57,
+    "sniping": 27,
+    "utility": 69
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "SELLTER",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Nemesis",
+  "teamRank": "45",
+  "age": 23,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 46,
+    "entrying": 66,
+    "trading": 45,
+    "opening": 34,
+    "clutching": 45,
+    "sniping": 3,
+    "utility": 88
+  },
+  "matchesPlayed": 122,
+  "hltvHistory": []
+}

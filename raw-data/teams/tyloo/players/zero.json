@@ -1,0 +1,20 @@
+{
+  "name": "Zero",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "TYLOO",
+  "teamRank": "30",
+  "age": 20,
+  "rating": 1.2,
+  "stats": {
+    "firepower": 78,
+    "entrying": 80,
+    "trading": 70,
+    "opening": 51,
+    "clutching": 41,
+    "sniping": 1,
+    "utility": 14
+  },
+  "matchesPlayed": 175,
+  "hltvHistory": []
+}

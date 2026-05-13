@@ -1,0 +1,20 @@
+{
+  "name": "KIRO",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "BET-M",
+  "teamRank": "80",
+  "age": 23,
+  "rating": 1.11,
+  "stats": {
+    "firepower": 65,
+    "entrying": 24,
+    "trading": 56,
+    "opening": 40,
+    "clutching": 90,
+    "sniping": 91,
+    "utility": 67
+  },
+  "matchesPlayed": 106,
+  "hltvHistory": []
+}

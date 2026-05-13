@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="CaonQod portrait">
+  <defs>
+    <linearGradient id="bg1dm3wbi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#052E16"/>
+      <stop offset="1" stop-color="#14532D"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg1dm3wbi)"/>
+  <!-- Shoulders / shirt -->
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#78350F"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
+  <!-- Neck -->
+  <rect x="114" y="150" width="28" height="28" fill="#F1C9A5"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#F1C9A5"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#F1C9A5"/>
+  <ellipse cx="128" cy="128" rx="58" ry="52" fill="#F1C9A5"/>
+  <!-- Face features -->
+  <path d="M98 119 L120 114" stroke="#7A4B1F" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M158 119 L136 114" stroke="#7A4B1F" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="108" cy="132" r="3" fill="#92400E"/>
+                    <circle cx="148" cy="132" r="3" fill="#92400E"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <rect x="118" y="166" width="20" height="2" rx="1" fill="#3A1F1A" opacity="0.85"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M68 108 Q68 60 128 60 Q188 60 188 108 L188 124 Q176 100 128 100 Q80 100 68 124 Z" fill="#7A4B1F"/>
+  <!-- Accessory layer -->
+  <rect x="60" y="106" width="136" height="12" rx="3" fill="#312E81"/>
+                    <rect x="60" y="110" width="136" height="3" rx="1" fill="#FFFFFF" opacity="0.18"/>
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
+</svg>

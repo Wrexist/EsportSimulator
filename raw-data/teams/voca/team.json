@@ -1,0 +1,34 @@
+{
+  "name": "Voca",
+  "hltvRank": "49",
+  "nationality": "United States",
+  "players": [
+    {
+      "name": "Infinite",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "nosraC",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "shane",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "snav",
+      "country": "United States",
+      "countryCode": "us"
+    },
+    {
+      "name": "dea",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 129,
+  "hltvHistory": []
+}

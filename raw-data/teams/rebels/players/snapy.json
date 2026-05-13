@@ -1,0 +1,20 @@
+{
+  "name": "snapy",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "Rebels",
+  "teamRank": "119",
+  "age": 24,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 58,
+    "entrying": 72,
+    "trading": 28,
+    "opening": 82,
+    "clutching": 23,
+    "sniping": 58,
+    "utility": 86
+  },
+  "matchesPlayed": 37,
+  "hltvHistory": []
+}

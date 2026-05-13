@@ -1,0 +1,20 @@
+{
+  "name": "yvro",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "los kogutos",
+  "teamRank": "89",
+  "age": 21,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 84,
+    "entrying": 43,
+    "trading": 52,
+    "opening": 60,
+    "clutching": 37,
+    "sniping": 22,
+    "utility": 46
+  },
+  "matchesPlayed": 70,
+  "hltvHistory": []
+}

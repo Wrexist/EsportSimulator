@@ -1,0 +1,20 @@
+{
+  "name": "ayaneuu",
+  "country": "United States",
+  "countryCode": "us",
+  "team": "InControl",
+  "teamRank": "214",
+  "age": 22,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 21,
+    "entrying": 5,
+    "trading": 63,
+    "opening": 8,
+    "clutching": 74,
+    "sniping": 38,
+    "utility": 14
+  },
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

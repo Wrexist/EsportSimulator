@@ -1,0 +1,20 @@
+{
+  "name": "Scr0b",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "ALGO",
+  "teamRank": "128",
+  "age": 21,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 58,
+    "entrying": 78,
+    "trading": 41,
+    "opening": 78,
+    "clutching": 50,
+    "sniping": 91,
+    "utility": 52
+  },
+  "matchesPlayed": 46,
+  "hltvHistory": []
+}

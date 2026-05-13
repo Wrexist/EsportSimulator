@@ -1,0 +1,20 @@
+{
+  "name": "dav1deuS",
+  "country": "Chile",
+  "countryCode": "cl",
+  "team": "RED Canids",
+  "teamRank": "38",
+  "age": 25,
+  "rating": 1.13,
+  "stats": {
+    "firepower": 83,
+    "entrying": 60,
+    "trading": 55,
+    "opening": 72,
+    "clutching": 31,
+    "sniping": 35,
+    "utility": 46
+  },
+  "matchesPlayed": 138,
+  "hltvHistory": []
+}

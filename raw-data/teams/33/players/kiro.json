@@ -1,0 +1,23 @@
+{
+  "name": "KIRO",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "33",
+  "teamRank": "72",
+  "role": "AWPer, AWPers",
+  "status": "Active",
+  "age": 23,
+  "birthDate": "May 17, 2002",
+  "rating": 1.04,
+  "stats": {
+    "firepower": 50,
+    "entrying": 17,
+    "trading": 48,
+    "opening": 47,
+    "clutching": 81,
+    "sniping": 91,
+    "utility": 66
+  },
+  "matchesPlayed": 120,
+  "hltvHistory": []
+}

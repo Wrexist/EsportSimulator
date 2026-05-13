@@ -1,0 +1,20 @@
+{
+  "name": "twist",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Alliance",
+  "teamRank": "76",
+  "age": 31,
+  "rating": 1.04,
+  "stats": {
+    "firepower": 41,
+    "entrying": 78,
+    "trading": 26,
+    "opening": 39,
+    "clutching": 54,
+    "sniping": 52,
+    "utility": 92
+  },
+  "matchesPlayed": 105,
+  "hltvHistory": []
+}

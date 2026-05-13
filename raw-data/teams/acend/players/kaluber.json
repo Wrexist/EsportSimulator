@@ -1,0 +1,20 @@
+{
+  "name": "KalubeR",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "Acend",
+  "teamRank": "103",
+  "age": 25,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 71,
+    "entrying": 51,
+    "trading": 69,
+    "opening": 38,
+    "clutching": 44,
+    "sniping": 1,
+    "utility": 58
+  },
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

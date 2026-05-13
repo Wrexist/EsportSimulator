@@ -1,0 +1,24 @@
+{
+  "name": "arT",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fluxo",
+  "teamRank": "35",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 29,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.96,
+  "stats": {
+    "firepower": 30,
+    "entrying": 63,
+    "trading": 15,
+    "opening": 71,
+    "clutching": 54,
+    "sniping": 9,
+    "utility": 62
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "tO0RO",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "Virtus.pro",
+  "teamRank": "22",
+  "age": 18,
+  "rating": 0.92,
+  "stats": {
+    "firepower": 10,
+    "entrying": 75,
+    "trading": 45,
+    "opening": 48,
+    "clutching": 25,
+    "sniping": 1,
+    "utility": 36
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

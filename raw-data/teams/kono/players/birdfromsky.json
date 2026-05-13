@@ -1,0 +1,20 @@
+{
+  "name": "birdfromsky",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "kONO",
+  "teamRank": "181",
+  "age": 32,
+  "rating": 0.82,
+  "stats": {
+    "firepower": 7,
+    "entrying": 27,
+    "trading": 48,
+    "opening": 13,
+    "clutching": 43,
+    "sniping": 41,
+    "utility": 97
+  },
+  "matchesPlayed": 30,
+  "hltvHistory": []
+}

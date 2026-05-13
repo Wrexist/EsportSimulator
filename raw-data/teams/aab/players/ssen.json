@@ -1,0 +1,20 @@
+{
+  "name": "sSen",
+  "country": "Denmark",
+  "countryCode": "dk",
+  "team": "AaB",
+  "teamRank": "109",
+  "age": 18,
+  "rating": 0.97,
+  "stats": {
+    "firepower": 43,
+    "entrying": 83,
+    "trading": 49,
+    "opening": 53,
+    "clutching": 34,
+    "sniping": 1,
+    "utility": 31
+  },
+  "matchesPlayed": 48,
+  "hltvHistory": []
+}

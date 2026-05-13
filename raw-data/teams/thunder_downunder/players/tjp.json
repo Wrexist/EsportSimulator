@@ -1,0 +1,20 @@
+{
+  "name": "TjP",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "THUNDER dOWNUNDER",
+  "teamRank": "99",
+  "age": 23,
+  "rating": 1.02,
+  "stats": {
+    "firepower": 37,
+    "entrying": 88,
+    "trading": 33,
+    "opening": 39,
+    "clutching": 29,
+    "sniping": 43,
+    "utility": 64
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

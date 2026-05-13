@@ -1,0 +1,20 @@
+{
+  "name": "MattyMyimb",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "CALAOSCORNOS",
+  "teamRank": "122",
+  "age": 21,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 81,
+    "entrying": 49,
+    "trading": 33,
+    "opening": 72,
+    "clutching": 40,
+    "sniping": 72,
+    "utility": 81
+  },
+  "matchesPlayed": 56,
+  "hltvHistory": []
+}

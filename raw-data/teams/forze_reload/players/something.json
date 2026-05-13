@@ -1,0 +1,20 @@
+{
+  "name": "Something",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "FORZE Reload",
+  "teamRank": "90",
+  "age": 22,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 50,
+    "entrying": 77,
+    "trading": 41,
+    "opening": 63,
+    "clutching": 30,
+    "sniping": 2,
+    "utility": 30
+  },
+  "matchesPlayed": 90,
+  "hltvHistory": []
+}

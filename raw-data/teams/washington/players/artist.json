@@ -1,0 +1,20 @@
+{
+  "name": "arTisT",
+  "country": "Ireland",
+  "countryCode": "ie",
+  "team": "Washington",
+  "teamRank": "199",
+  "age": 28,
+  "rating": 0.99,
+  "stats": {
+    "firepower": 49,
+    "entrying": 50,
+    "trading": 23,
+    "opening": 53,
+    "clutching": 84,
+    "sniping": 45,
+    "utility": 84
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

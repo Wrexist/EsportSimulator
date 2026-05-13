@@ -1,0 +1,20 @@
+{
+  "name": "xeedo",
+  "country": "Belarus",
+  "countryCode": "by",
+  "team": "K27",
+  "teamRank": "40",
+  "age": 19,
+  "rating": 1.16,
+  "stats": {
+    "firepower": 86,
+    "entrying": 65,
+    "trading": 56,
+    "opening": 68,
+    "clutching": 41,
+    "sniping": 26,
+    "utility": 48
+  },
+  "matchesPlayed": 124,
+  "hltvHistory": []
+}

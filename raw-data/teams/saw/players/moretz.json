@@ -1,0 +1,20 @@
+{
+  "name": "Moretz",
+  "country": "Portugal",
+  "countryCode": "pt",
+  "team": "SAW",
+  "teamRank": "129",
+  "age": 20,
+  "rating": 1,
+  "stats": {
+    "firepower": 47,
+    "entrying": 77,
+    "trading": 14,
+    "opening": 57,
+    "clutching": 56,
+    "sniping": 44,
+    "utility": 40
+  },
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

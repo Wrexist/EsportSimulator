@@ -1,0 +1,20 @@
+{
+  "name": "king",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "ReThink",
+  "teamRank": "177",
+  "age": 26,
+  "rating": 1,
+  "stats": {
+    "firepower": 30,
+    "entrying": 4,
+    "trading": 80,
+    "opening": 44,
+    "clutching": 87,
+    "sniping": 81,
+    "utility": 70
+  },
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

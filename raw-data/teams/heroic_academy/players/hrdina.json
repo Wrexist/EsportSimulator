@@ -1,0 +1,20 @@
+{
+  "name": "Hrdina",
+  "country": "Slovakia",
+  "countryCode": "sk",
+  "team": "HEROIC Academy",
+  "teamRank": "96",
+  "age": 15,
+  "rating": 0.89,
+  "stats": {
+    "firepower": 12,
+    "entrying": 96,
+    "trading": 86,
+    "opening": 33,
+    "clutching": 6,
+    "sniping": 60,
+    "utility": 14
+  },
+  "matchesPlayed": 75,
+  "hltvHistory": []
+}

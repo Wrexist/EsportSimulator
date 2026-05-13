@@ -1,0 +1,20 @@
+{
+  "name": "SaVage",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "SemperFi",
+  "teamRank": "137",
+  "age": 21,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 46,
+    "entrying": 20,
+    "trading": 52,
+    "opening": 41,
+    "clutching": 90,
+    "sniping": 78,
+    "utility": 77
+  },
+  "matchesPlayed": 44,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "adamb",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "OG",
+  "teamRank": "52",
+  "age": 21,
+  "rating": 1.26,
+  "stats": {
+    "firepower": 95,
+    "entrying": 45,
+    "trading": 94,
+    "opening": 38,
+    "clutching": 44,
+    "sniping": 24,
+    "utility": 50
+  },
+  "matchesPlayed": 89,
+  "hltvHistory": []
+}

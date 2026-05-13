@@ -1,0 +1,20 @@
+{
+  "name": "lux",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Legacy",
+  "teamRank": "17",
+  "age": 23,
+  "rating": 0.98,
+  "stats": {
+    "firepower": 43,
+    "entrying": 70,
+    "trading": 16,
+    "opening": 64,
+    "clutching": 57,
+    "sniping": 0,
+    "utility": 85
+  },
+  "matchesPlayed": 90,
+  "hltvHistory": []
+}

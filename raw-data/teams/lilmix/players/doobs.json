@@ -1,0 +1,20 @@
+{
+  "name": "doobs",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Lilmix",
+  "teamRank": "184",
+  "age": 23,
+  "rating": 0.82,
+  "stats": {
+    "firepower": 9,
+    "entrying": 88,
+    "trading": 71,
+    "opening": 8,
+    "clutching": 64,
+    "sniping": 28,
+    "utility": 42
+  },
+  "matchesPlayed": 55,
+  "hltvHistory": []
+}

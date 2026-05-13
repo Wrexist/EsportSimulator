@@ -1,0 +1,20 @@
+{
+  "name": "def1zer",
+  "country": "Kazakhstan",
+  "countryCode": "kz",
+  "team": "NOVAQ",
+  "teamRank": "143",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 44,
+    "entrying": 75,
+    "trading": 86,
+    "opening": 15,
+    "clutching": 88,
+    "sniping": 1,
+    "utility": 92
+  },
+  "matchesPlayed": 54,
+  "hltvHistory": []
+}

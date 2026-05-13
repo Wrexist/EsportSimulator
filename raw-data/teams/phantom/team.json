@@ -1,0 +1,34 @@
+{
+  "name": "Phantom",
+  "hltvRank": "126",
+  "nationality": "Poland",
+  "players": [
+    {
+      "name": "mynio",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "KEi",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Kylar",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "DGL",
+      "country": "Poland",
+      "countryCode": "pl"
+    },
+    {
+      "name": "Kunai",
+      "country": "Poland",
+      "countryCode": "pl"
+    }
+  ],
+  "matchesPlayed": 66,
+  "hltvHistory": []
+}

@@ -1,0 +1,33 @@
+{
+  "name": "500",
+  "hltvRank": "70",
+  "players": [
+    {
+      "name": "hampus",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "CeRq",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "Rainwaker",
+      "country": "Bulgaria",
+      "countryCode": "bg"
+    },
+    {
+      "name": "CYPHER",
+      "country": "United Kingdom",
+      "countryCode": "gb"
+    },
+    {
+      "name": "volt",
+      "country": "Romania",
+      "countryCode": "ro"
+    }
+  ],
+  "matchesPlayed": 100,
+  "hltvHistory": []
+}

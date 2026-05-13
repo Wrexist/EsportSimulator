@@ -1,0 +1,20 @@
+{
+  "name": "SPELLAN",
+  "country": "Bulgaria",
+  "countryCode": "bg",
+  "team": "Acend",
+  "teamRank": "103",
+  "age": 28,
+  "rating": 0.95,
+  "stats": {
+    "firepower": 28,
+    "entrying": 38,
+    "trading": 28,
+    "opening": 61,
+    "clutching": 65,
+    "sniping": 1,
+    "utility": 90
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "pr1metapz",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "Sangal",
+  "teamRank": "97",
+  "age": 25,
+  "rating": 0.93,
+  "stats": {
+    "firepower": 16,
+    "entrying": 98,
+    "trading": 19,
+    "opening": 21,
+    "clutching": 39,
+    "sniping": 33,
+    "utility": 21
+  },
+  "matchesPlayed": 80,
+  "hltvHistory": []
+}

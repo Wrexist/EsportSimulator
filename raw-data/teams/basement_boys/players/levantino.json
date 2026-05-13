@@ -1,0 +1,20 @@
+{
+  "name": "levantino",
+  "country": "Germany",
+  "countryCode": "de",
+  "team": "BASEMENT BOYS",
+  "teamRank": "147",
+  "age": 22,
+  "rating": 0.84,
+  "stats": {
+    "firepower": 20,
+    "entrying": 34,
+    "trading": 10,
+    "opening": 52,
+    "clutching": 44,
+    "sniping": 59,
+    "utility": 55
+  },
+  "matchesPlayed": 51,
+  "hltvHistory": []
+}

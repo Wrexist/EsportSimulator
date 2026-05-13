@@ -1,0 +1,20 @@
+{
+  "name": "Schwarzkopf",
+  "country": "Uzbekistan",
+  "countryCode": "uz",
+  "team": "EGOISTO",
+  "teamRank": "166",
+  "age": 21,
+  "rating": 1.14,
+  "stats": {
+    "firepower": 75,
+    "entrying": 46,
+    "trading": 82,
+    "opening": 81,
+    "clutching": 81,
+    "sniping": 92,
+    "utility": 45
+  },
+  "matchesPlayed": 53,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Prime",
+  "country": "United Kingdom",
+  "countryCode": "gb",
+  "team": "8Sins",
+  "teamRank": "226",
+  "age": 26,
+  "rating": 1.18,
+  "stats": {
+    "firepower": 73,
+    "entrying": 100,
+    "trading": 75,
+    "opening": 68,
+    "clutching": 21,
+    "sniping": 46,
+    "utility": 60
+  },
+  "matchesPlayed": 49,
+  "hltvHistory": []
+}

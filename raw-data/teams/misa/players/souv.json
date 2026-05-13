@@ -1,0 +1,20 @@
+{
+  "name": "souv",
+  "country": "Turkey",
+  "countryCode": "tr",
+  "team": "Misa",
+  "teamRank": "186",
+  "age": 21,
+  "rating": 0.88,
+  "stats": {
+    "firepower": 43,
+    "entrying": 4,
+    "trading": 36,
+    "opening": 7,
+    "clutching": 77,
+    "sniping": 20,
+    "utility": 33
+  },
+  "matchesPlayed": 60,
+  "hltvHistory": []
+}

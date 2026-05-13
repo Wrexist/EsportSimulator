@@ -1,0 +1,34 @@
+{
+  "name": "Chinggis Warriors",
+  "hltvRank": "83",
+  "nationality": "Mongolia",
+  "players": [
+    {
+      "name": "ROUX",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "yAmi",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "cool4st",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "Efire",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    },
+    {
+      "name": "tikuak",
+      "country": "Mongolia",
+      "countryCode": "mn"
+    }
+  ],
+  "matchesPlayed": 62,
+  "hltvHistory": []
+}

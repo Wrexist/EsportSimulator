@@ -1,0 +1,21 @@
+{
+  "name": "pashaBiceps",
+  "country": "Poland",
+  "countryCode": "pl",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 36,
+  "birthDate": "April 11, 1988",
+  "rating": 1.12,
+  "stats": {
+    "firepower": 84,
+    "entrying": 78,
+    "trading": 82,
+    "opening": 80,
+    "clutching": 85,
+    "sniping": 58,
+    "utility": 79
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "zevy",
+  "country": "Brazil",
+  "countryCode": "br",
+  "team": "Fluxo",
+  "teamRank": "66",
+  "age": 24,
+  "rating": 1.01,
+  "stats": {
+    "firepower": 48,
+    "entrying": 30,
+    "trading": 55,
+    "opening": 55,
+    "clutching": 47,
+    "sniping": 92,
+    "utility": 44
+  },
+  "matchesPlayed": 74,
+  "hltvHistory": []
+}

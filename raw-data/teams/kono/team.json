@@ -1,0 +1,29 @@
+{
+  "name": "kONO",
+  "hltvRank": "181",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "b0RUP",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "birdfromsky",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Keoz",
+      "country": "Belgium",
+      "countryCode": "be"
+    },
+    {
+      "name": "Burmylov",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    }
+  ],
+  "matchesPlayed": 41,
+  "hltvHistory": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Blick",
+  "country": "Iceland",
+  "countryCode": "is",
+  "team": "ENCE Academy",
+  "teamRank": "147",
+  "role": "Unknown",
+  "status": "Unknown",
+  "age": 17,
+  "birthDate": null,
+  "debug": [],
+  "rating": 0.84,
+  "stats": {
+    "firepower": 5,
+    "entrying": 85,
+    "trading": 45,
+    "opening": 17,
+    "clutching": 31,
+    "sniping": 0,
+    "utility": 44
+  },
+  "matchesPlayed": 20,
+  "hltvHistory": []
+}

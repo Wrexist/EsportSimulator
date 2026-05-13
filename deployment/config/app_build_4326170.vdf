@@ -1,0 +1,14 @@
+"appbuild"
+{
+	"appid" "4326170"
+	"desc" "Esports Manager playable packaged build"
+	"buildoutput" "..\build_output"
+	// For Electron builds (npm run dist): use dist\win-unpacked
+	// For standalone builds (build_release.bat): use SteamBuild
+	"contentroot" "..\..\dist\win-unpacked"
+	"preview" "0"
+	"depots"
+	{
+		"4326171" "depot_build_4326171.vdf"
+	}
+}

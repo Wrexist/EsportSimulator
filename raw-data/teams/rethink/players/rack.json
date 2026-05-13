@@ -1,0 +1,20 @@
+{
+  "name": "Rack",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "ReThink",
+  "teamRank": "177",
+  "age": 21,
+  "rating": 1.05,
+  "stats": {
+    "firepower": 69,
+    "entrying": 93,
+    "trading": 19,
+    "opening": 86,
+    "clutching": 12,
+    "sniping": 46,
+    "utility": 30
+  },
+  "matchesPlayed": 65,
+  "hltvHistory": []
+}

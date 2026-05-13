@@ -1,0 +1,20 @@
+{
+  "name": "Jee",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "TYLOO",
+  "teamRank": "30",
+  "age": 21,
+  "rating": 1.08,
+  "stats": {
+    "firepower": 76,
+    "entrying": 17,
+    "trading": 88,
+    "opening": 36,
+    "clutching": 73,
+    "sniping": 91,
+    "utility": 69
+  },
+  "matchesPlayed": 161,
+  "hltvHistory": []
+}

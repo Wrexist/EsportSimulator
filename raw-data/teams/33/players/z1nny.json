@@ -1,0 +1,23 @@
+{
+  "name": "z1Nny",
+  "country": "Russia",
+  "countryCode": "ru",
+  "team": "33",
+  "teamRank": "72",
+  "role": "Rifler, Riflers",
+  "status": "Active",
+  "age": 22,
+  "birthDate": "May 29, 2003",
+  "rating": 1.14,
+  "stats": {
+    "firepower": 78,
+    "entrying": 78,
+    "trading": 33,
+    "opening": 68,
+    "clutching": 58,
+    "sniping": 1,
+    "utility": 53
+  },
+  "matchesPlayed": 170,
+  "hltvHistory": []
+}

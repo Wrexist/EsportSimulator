@@ -1,0 +1,34 @@
+{
+  "name": "Astralis",
+  "hltvRank": "12",
+  "nationality": "Denmark",
+  "players": [
+    {
+      "name": "HooXi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "phzy",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "jabbi",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "Staehr",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "ryu",
+      "country": "Lithuania",
+      "countryCode": "lt"
+    }
+  ],
+  "matchesPlayed": 225,
+  "hltvHistory": []
+}

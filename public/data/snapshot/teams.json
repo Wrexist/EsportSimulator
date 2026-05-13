@@ -1,0 +1,3838 @@
+[
+  {
+    "id": "team_1_vitalis",
+    "name": "Vitalis",
+    "shortName": "VITA",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/vitalis/logo.svg",
+    "rosterIds": [
+      "player_1_vitalis_axpex",
+      "player_1_vitalis_flames",
+      "player_1_vitalis_mesii",
+      "player_1_vitalis_rops",
+      "player_1_vitalis_syvoo"
+    ],
+    "reputation": 100,
+    "fanbase": 9900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_2_foria",
+    "name": "FORIA",
+    "shortName": "FORIA",
+    "tier": "ELITE",
+    "region": "BR",
+    "logoPath": "/assets/teams/foria/logo.svg",
+    "rosterIds": [
+      "player_2_foria_fxallen",
+      "player_2_foria_czcerato",
+      "player_2_foria_mzolodoy",
+      "player_2_foria_yecindar",
+      "player_2_foria_yxuurih"
+    ],
+    "reputation": 99,
+    "fanbase": 9800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_3_falconry",
+    "name": "Falconry",
+    "shortName": "FALC",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/falconry/logo.svg",
+    "rosterIds": [
+      "player_3_falconry_cyousuce",
+      "player_3_falconry_kyxzan",
+      "player_3_falconry_m8nesy",
+      "player_3_falconry_nico",
+      "player_3_falconry_tesez"
+    ],
+    "reputation": 99,
+    "fanbase": 9700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_4_muxeen",
+    "name": "Mouzen",
+    "shortName": "MOUZ",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/muxeen/logo.svg",
+    "rosterIds": [
+      "player_4_muxeen_bxrollan",
+      "player_4_muxeen_jzimpphat",
+      "player_4_muxeen_zpinx",
+      "player_4_muxeen_torszi",
+      "player_4_muxeen_xzertion"
+    ],
+    "reputation": 98,
+    "fanbase": 9600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_5_phantom",
+    "name": "Phantom",
+    "shortName": "PHAN",
+    "tier": "ELITE",
+    "region": "CIS",
+    "logoPath": "/assets/teams/phantom/logo.svg",
+    "rosterIds": [
+      "player_5_phantom_donc",
+      "player_5_phantom_maqixx",
+      "player_5_phantom_sh7ro",
+      "player_5_phantom_tn7r",
+      "player_5_phantom_zont7x"
+    ],
+    "reputation": 98,
+    "fanbase": 9200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_6_perivesion",
+    "name": "PERIVESION",
+    "shortName": "PERI",
+    "tier": "ELITE",
+    "region": "CIS",
+    "logoPath": "/assets/teams/perivesion/logo.svg",
+    "rosterIds": [
+      "player_6_perivesion_av",
+      "player_6_perivesion_belkhonock",
+      "player_6_perivesion_jzame",
+      "player_6_perivesion_nxota",
+      "player_6_perivesion_xzielo",
+      "player_6_perivesion_sweih"
+    ],
+    "reputation": 98,
+    "fanbase": 8200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_7_phaze",
+    "name": "Phaze",
+    "shortName": "PHAZE",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/phaze/logo.svg",
+    "rosterIds": [
+      "player_7_phaze_brocy",
+      "player_7_phaze_frosen",
+      "player_7_phaze_jkobbb",
+      "player_7_phaze_carriqan",
+      "player_7_phaze_tviztzz"
+    ],
+    "reputation": 97,
+    "fanbase": 9500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_8_natusvincera",
+    "name": "Natus Vincera",
+    "shortName": "NATU",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/natus_vincera/logo.svg",
+    "rosterIds": [
+      "player_8_natoz_aleczib",
+      "player_8_natoz_b7t",
+      "player_8_natoz_ixm",
+      "player_8_natoz_macazze",
+      "player_8_natoz_v8nderful"
+    ],
+    "reputation": 97,
+    "fanbase": 9300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_9_gtwo",
+    "name": "G-Two",
+    "shortName": "G-TWO",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "/assets/teams/g_two/logo.svg",
+    "rosterIds": [
+      "player_9_g_two_heawyqod",
+      "player_9_g_two_hzunter",
+      "player_9_g_two_malbzmd",
+      "player_9_g_two_matyz",
+      "player_9_g_two_sunpayuz"
+    ],
+    "reputation": 96,
+    "fanbase": 9100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_10_thenomads",
+    "name": "The Nomads",
+    "shortName": "THEN",
+    "tier": "ELITE",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/the_nomads/logo.svg",
+    "rosterIds": [
+      "player_10_tha_978",
+      "player_10_tha_blits",
+      "player_10_tha_kobrasera",
+      "player_10_tha_msinho",
+      "player_10_tha_tekhno"
+    ],
+    "reputation": 96,
+    "fanbase": 9400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_11_eurora",
+    "name": "Eurora",
+    "shortName": "EURO",
+    "tier": "PRO",
+    "region": "MENA",
+    "logoPath": "/assets/teams/eurora/logo.svg",
+    "rosterIds": [
+      "player_11_eurora_maj9r",
+      "player_11_eurora_zoulfly",
+      "player_11_eurora_vikadia",
+      "player_11_eurora_voxik",
+      "player_11_eurora_xantarez"
+    ],
+    "reputation": 96,
+    "fanbase": 9000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_12_astraflux",
+    "name": "Astraflux",
+    "shortName": "ASTR",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/astraflux/logo.svg",
+    "rosterIds": [
+      "player_12_astraflux_hzooxi",
+      "player_12_astraflux_jxabbi",
+      "player_12_astraflux_phsy",
+      "player_12_astraflux_rxyu",
+      "player_12_astraflux_ztaehr"
+    ],
+    "reputation": 95,
+    "fanbase": 8600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_13_3dmax",
+    "name": "3DMAX",
+    "shortName": "3DMAX",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/3dmax/logo.svg",
+    "rosterIds": [
+      "player_13_3dmax_bzodyy",
+      "player_13_3dmax_ex3rcike",
+      "player_13_3dmax_grawiti",
+      "player_13_3dmax_lukcy",
+      "player_13_3dmax_maca"
+    ],
+    "reputation": 95,
+    "fanbase": 8800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_14_fut",
+    "name": "FUT",
+    "shortName": "FUT",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/fut/logo.svg",
+    "rosterIds": [
+      "player_14_fut_kmtry",
+      "player_14_fut_dem8n",
+      "player_14_fut_dsiuqss",
+      "player_14_fut_crabeni",
+      "player_14_fut_lxaunx"
+    ],
+    "reputation": 94,
+    "fanbase": 7300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_15_centuryrogues",
+    "name": "Century Rogues",
+    "shortName": "CENT",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/century_rogues/logo.svg",
+    "rosterIds": [
+      "player_15_100_ag7l",
+      "player_15_100_devike",
+      "player_15_100_pxoiii",
+      "player_15_100_rxain",
+      "player_15_100_zirah"
+    ],
+    "reputation": 94,
+    "fanbase": 8500,
+    "facilitiesLevel": 2,
+    "startingBudget": 1000000
+  },
+  {
+    "id": "team_15_tide",
+    "name": "Tide",
+    "shortName": "TIDE",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/tide/logo.svg",
+    "rosterIds": [
+      "player_15_tide_eliqe",
+      "player_15_tide_nzaf",
+      "player_15_tide_nerts",
+      "player_15_tide_ziuhy",
+      "player_15_tide_uzltimate"
+    ],
+    "reputation": 94,
+    "fanbase": 8500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_16_b8",
+    "name": "B8",
+    "shortName": "B8",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/b8/logo.svg",
+    "rosterIds": [
+      "player_16_b8_axlex666",
+      "player_16_b8_ezenthial",
+      "player_16_b8_headtr7ck",
+      "player_16_b8_censisor",
+      "player_16_b8_nxpl",
+      "player_16_b8_s1zsi"
+    ],
+    "reputation": 94,
+    "fanbase": 8900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_17_pazsyonoa",
+    "name": "Pazsyon OA",
+    "shortName": "PAZS",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/pazsyon_oa/logo.svg",
+    "rosterIds": [
+      "player_17_poxsion_qrim",
+      "player_17_poxsion_hallserc",
+      "player_17_poxsion_jxt",
+      "player_17_poxsion_cwem",
+      "player_17_poxsion_nikx"
+    ],
+    "reputation": 93,
+    "fanbase": 8400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_18_sting",
+    "name": "Sting",
+    "shortName": "STING",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/sting/logo.svg",
+    "rosterIds": [
+      "player_18_sting_bigusera",
+      "player_18_sting_ngs",
+      "player_18_sting_pziriajr",
+      "player_18_sting_snov",
+      "player_18_sting_wzm"
+    ],
+    "reputation": 93,
+    "fanbase": 8700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_19_nrg",
+    "name": "NRG",
+    "shortName": "NRG",
+    "tier": "PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/nrg/logo.svg",
+    "rosterIds": [
+      "player_19_nrg_br8",
+      "player_19_nrg_jeorqe",
+      "player_19_nrg_nitr8",
+      "player_19_nrg_ozee",
+      "player_19_nrg_zonik"
+    ],
+    "reputation": 92,
+    "fanbase": 6600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_20_gamerleague",
+    "name": "Gamer League",
+    "shortName": "GAME",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/gamer_league/logo.svg",
+    "rosterIds": [
+      "player_20_gamer_league_hxypex",
+      "player_20_gamer_league_pxr",
+      "player_20_gamer_league_res",
+      "player_20_gamer_league_znax",
+      "player_20_gamer_league_tauzon"
+    ],
+    "reputation": 92,
+    "fanbase": 7700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_21_novainvaders",
+    "name": "Nova Invaders",
+    "shortName": "NOVA",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/nova_invaders/logo.svg",
+    "rosterIds": [
+      "player_21_ninjas_kairne",
+      "player_21_ninjas_r7ncle",
+      "player_21_ninjas_sjuuzh",
+      "player_21_ninjas_znappi",
+      "player_21_ninjas_xkacperscy"
+    ],
+    "reputation": 92,
+    "fanbase": 7600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_22_valiant",
+    "name": "Valiant",
+    "shortName": "VALI",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/valiant/logo.svg",
+    "rosterIds": [
+      "player_22_valiant_alcaren",
+      "player_22_valiant_khr1zn",
+      "player_22_valiant_nxilo",
+      "player_22_valiant_zusp",
+      "player_22_valiant_xfl8ud",
+      "player_22_valiant_yxnqstxr"
+    ],
+    "reputation": 91,
+    "fanbase": 8100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_22_virtusnova",
+    "name": "Virtus Nova",
+    "shortName": "VIRT",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/virtus_nova/logo.svg",
+    "rosterIds": [
+      "player_22_vyrtusor_b7zt",
+      "player_22_vyrtusor_fzame",
+      "player_22_vyrtusor_fl7t",
+      "player_22_vyrtusor_perfekto",
+      "player_22_vyrtusor_to8ro"
+    ],
+    "reputation": 91,
+    "fanbase": 7800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_23_imperius",
+    "name": "Imperius",
+    "shortName": "IMPE",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/imperius/logo.svg",
+    "rosterIds": [
+      "player_23_imperius_khelo",
+      "player_23_imperius_novay",
+      "player_23_imperius_zkullz",
+      "player_23_imperius_tzry",
+      "player_23_imperius_wini"
+    ],
+    "reputation": 91,
+    "fanbase": 7900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_24_a81",
+    "name": "A81",
+    "shortName": "A81",
+    "tier": "PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/a81/logo.svg",
+    "rosterIds": [
+      "player_24_a81_jzba",
+      "player_24_a81_lace",
+      "player_24_a81_s7n",
+      "player_24_a81_zlaxs",
+      "player_24_a81_zvisher"
+    ],
+    "reputation": 90,
+    "fanbase": 7500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_25_lineage",
+    "name": "Lineage",
+    "shortName": "LINE",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/lineage/logo.svg",
+    "rosterIds": [
+      "player_25_lineage_azrt",
+      "player_25_lineage_dxumau",
+      "player_25_lineage_lxatto",
+      "player_25_lineage_lzux",
+      "player_25_lineage_n7zsim",
+      "player_25_lineage_zaadzin"
+    ],
+    "reputation": 90,
+    "fanbase": 8300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_26_bkkame",
+    "name": "BK.Kame",
+    "shortName": "BKKA",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/bk_kame/logo.svg",
+    "rosterIds": [
+      "player_26_bk_kame_araqornn",
+      "player_26_bk_kame_electronik",
+      "player_26_bk_kame_crasy",
+      "player_26_bk_kame_mutiriz",
+      "player_26_bk_kame_s7mple"
+    ],
+    "reputation": 90,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_27_gantlemotex",
+    "name": "Gantle Motex",
+    "shortName": "GANT",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/gantle_motex/logo.svg",
+    "rosterIds": [
+      "player_27_gendla_axlex",
+      "player_27_gendla_daw7g",
+      "player_27_gendla_martinesza",
+      "player_27_gendla_mopos",
+      "player_27_gendla_zausol"
+    ],
+    "reputation": 89,
+    "fanbase": 7400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_28_mbesports",
+    "name": "MB Esports",
+    "shortName": "MBES",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/mb_esports/logo.svg",
+    "rosterIds": [
+      "player_28_mb_esports_brnz6n",
+      "player_28_mb_esports_exxit",
+      "player_28_mb_esports_inzani",
+      "player_28_mb_esports_cl7m",
+      "player_28_mb_esports_lns",
+      "player_28_mb_esports_gicert",
+      "player_28_mb_esports_venomsera"
+    ],
+    "reputation": 89,
+    "fanbase": 3800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_29_flycrest",
+    "name": "FlyCrest",
+    "shortName": "FLYC",
+    "tier": "PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/flycrest/logo.svg",
+    "rosterIds": [
+      "player_29_flycrest_inz",
+      "player_29_flycrest_jcs",
+      "player_29_flycrest_nettic",
+      "player_29_flycrest_reqali",
+      "player_29_flycrest_ztory",
+      "player_29_flycrest_wexite"
+    ],
+    "reputation": 88,
+    "fanbase": 7000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_30_taroo",
+    "name": "TAROO",
+    "shortName": "TAROO",
+    "tier": "PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/taroo/logo.svg",
+    "rosterIds": [
+      "player_30_taroo_attakcer",
+      "player_30_taroo_jamyounq",
+      "player_30_taroo_jxee",
+      "player_30_taroo_merkury",
+      "player_30_taroo_mozeyuh",
+      "player_30_taroo_sero"
+    ],
+    "reputation": 88,
+    "fanbase": 6900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_31_argongra",
+    "name": "Montegra",
+    "shortName": "MONT",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/argongra/logo.svg",
+    "rosterIds": [
+      "player_31_argongra_axfro",
+      "player_31_argongra_asuvu",
+      "player_31_argongra_bymaz",
+      "player_31_argongra_qizmy",
+      "player_31_argongra_rxyu"
+    ],
+    "reputation": 88,
+    "fanbase": 6000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_32_boombyte",
+    "name": "BoomByte",
+    "shortName": "BOOM",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/boombyte/logo.svg",
+    "rosterIds": [
+      "player_32_boombyte_artfr0zt",
+      "player_32_boombyte_boombl6",
+      "player_32_boombyte_d7ledes",
+      "player_32_boombyte_maqnojez",
+      "player_32_boombyte_z1ren"
+    ],
+    "reputation": 87,
+    "fanbase": 6800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_33_phanatic",
+    "name": "Phanatic",
+    "shortName": "PHAN",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/phanatic/logo.svg",
+    "rosterIds": [
+      "player_33_phanatic_bzlamef",
+      "player_33_phanatic_fxear",
+      "player_33_phanatic_jakcasmo",
+      "player_33_phanatic_jzambo",
+      "player_33_phanatic_crimz",
+      "player_33_phanatic_mzaden"
+    ],
+    "reputation": 87,
+    "fanbase": 7100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_34_iyeballars",
+    "name": "IYEBALLARS",
+    "shortName": "IYEB",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/iyeballars/logo.svg",
+    "rosterIds": [
+      "player_34_iyeballars_bobeczde",
+      "player_34_iyeballars_dzex",
+      "player_34_iyeballars_jv",
+      "player_34_iyeballars_maxzter",
+      "player_34_iyeballars_ro7f"
+    ],
+    "reputation": 86,
+    "fanbase": 6700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_35_hatual",
+    "name": "HATUal",
+    "shortName": "HATU",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/hatual/logo.svg",
+    "rosterIds": [
+      "player_35_hatual_dukefizzura",
+      "player_35_hatual_frontalez",
+      "player_35_hatual_calash",
+      "player_35_hatual_misu",
+      "player_35_hatual_n8rb3r7"
+    ],
+    "reputation": 86,
+    "fanbase": 6400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_36_lynxvision",
+    "name": "Lynx Vision",
+    "shortName": "LYNX",
+    "tier": "PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/lynx_vision/logo.svg",
+    "rosterIds": [
+      "player_36_lynnra_c4llm3zu9",
+      "player_36_lynnra_emiliaqag",
+      "player_36_lynnra_ztarry",
+      "player_36_lynnra_weztmelon",
+      "player_36_lynnra_z4cr"
+    ],
+    "reputation": 86,
+    "fanbase": 7200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_37_besteayx",
+    "name": "BESTEAyx",
+    "shortName": "BEST",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/besteayx/logo.svg",
+    "rosterIds": [
+      "player_37_besteayx_bxuda",
+      "player_37_besteayx_kass1n",
+      "player_37_besteayx_noctse",
+      "player_37_besteayx_tzimo",
+      "player_37_besteayx_tomazsin"
+    ],
+    "reputation": 85,
+    "fanbase": 5400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_38_redwolves",
+    "name": "RED Wolves",
+    "shortName": "REDW",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/red_wolves/logo.svg",
+    "rosterIds": [
+      "player_38_red_chayjesuz",
+      "player_38_red_daw1deus",
+      "player_38_red_dzrop",
+      "player_38_red_hiztory",
+      "player_38_red_cauez",
+      "player_38_red_venomsera"
+    ],
+    "reputation": 85,
+    "fanbase": 3600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_39_hammerheads",
+    "name": "Hammerheads",
+    "shortName": "HAMM",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/hammerheads/logo.svg",
+    "rosterIds": [
+      "player_39_hammerheads_dok",
+      "player_39_hammerheads_qafolo",
+      "player_39_hammerheads_coala",
+      "player_39_hammerheads_maxxcor",
+      "player_39_hammerheads_rdnsao"
+    ],
+    "reputation": 84,
+    "fanbase": 5700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_40_x27",
+    "name": "X27",
+    "shortName": "X27",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/x27/logo.svg",
+    "rosterIds": [
+      "player_40_x27_cashl1d",
+      "player_40_x27_qw7nk1",
+      "player_40_x27_rxelaxxie",
+      "player_40_x27_x2q7v",
+      "player_40_x27_xzeedo"
+    ],
+    "reputation": 84,
+    "fanbase": 5600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_41_9ink",
+    "name": "9INK",
+    "shortName": "9INK",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/9ink/logo.svg",
+    "rosterIds": [
+      "player_41_9ink_bznox",
+      "player_41_9ink_kej8t",
+      "player_41_9ink_kraqhen",
+      "player_41_9ink_phsy",
+      "player_41_9ink_raals",
+      "player_41_9ink_zhield"
+    ],
+    "reputation": 84,
+    "fanbase": 4300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_42_9zed",
+    "name": "9ZED",
+    "shortName": "9ZED",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/9zed/logo.svg",
+    "rosterIds": [
+      "player_42_9zed_dqt",
+      "player_42_9zed_huazopeec",
+      "player_42_9zed_lukhow",
+      "player_42_9zed_lucen",
+      "player_42_9zed_mxax",
+      "player_42_9zed_mxeyern"
+    ],
+    "reputation": 83,
+    "fanbase": 4100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_43_nocliartijeres",
+    "name": "Nocliar TijeRES",
+    "shortName": "NOCL",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/nocliar_tijeres/logo.svg",
+    "rosterIds": [
+      "player_43_nucleer_ayuci",
+      "player_43_nucleer_flouser",
+      "player_43_nucleer_m7quze",
+      "player_43_nucleer_re7gn",
+      "player_43_nucleer_zenca",
+      "player_43_nucleer_s7k4"
+    ],
+    "reputation": 83,
+    "fanbase": 5100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_44_ennarcercla",
+    "name": "Ennar Cercla",
+    "shortName": "ENNA",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ennar_cercla/logo.svg",
+    "rosterIds": [
+      "player_44_enner_kairne",
+      "player_44_enner_cptkurtka823",
+      "player_44_enner_davy",
+      "player_44_enner_fzlierax",
+      "player_44_enner_onik",
+      "player_44_enner_serrofix"
+    ],
+    "reputation": 82,
+    "fanbase": 6100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_45_nimeses",
+    "name": "Nimeses",
+    "shortName": "NIME",
+    "tier": "PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/nimeses/logo.svg",
+    "rosterIds": [
+      "player_45_nimeses_kruc1al",
+      "player_45_nimeses_mag1c9y",
+      "player_45_nimeses_n8te",
+      "player_45_nimeses_nexiuz",
+      "player_45_nimeses_zdaim",
+      "player_45_nimeses_zellter",
+      "player_45_nimeses_txein",
+      "player_45_nimeses_tex7y",
+      "player_45_nimeses_thomaz",
+      "player_45_nimeses_yiksreso"
+    ],
+    "reputation": 82,
+    "fanbase": 8200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_46_illwill",
+    "name": "illwill",
+    "shortName": "ILLW",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/illwill/logo.svg",
+    "rosterIds": [
+      "player_46_illwill_7cick",
+      "player_46_illwill_adamz",
+      "player_46_illwill_foztar",
+      "player_46_illwill_hxadji",
+      "player_46_illwill_nxemanha",
+      "player_46_illwill_voro2k"
+    ],
+    "reputation": 82,
+    "fanbase": 3700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_47_oddyx",
+    "name": "ODDYX",
+    "shortName": "ODDYX",
+    "tier": "PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/oddyx/logo.svg",
+    "rosterIds": [
+      "player_47_oddyx_diosera",
+      "player_47_oddyx_kslokz",
+      "player_47_oddyx_nzaitte",
+      "player_47_oddyx_nardez",
+      "player_47_oddyx_vood1"
+    ],
+    "reputation": 81,
+    "fanbase": 8120,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_49_vuqa",
+    "name": "Vuqa",
+    "shortName": "VUQA",
+    "tier": "PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/vuqa/logo.svg",
+    "rosterIds": [
+      "player_49_vuqa_dxea",
+      "player_49_vuqa_ixnfinite",
+      "player_49_vuqa_nozrac",
+      "player_49_vuqa_zhane",
+      "player_49_vuqa_znaw"
+    ],
+    "reputation": 80,
+    "fanbase": 800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_50_iqstatical",
+    "name": "IQSTATICal",
+    "shortName": "IQST",
+    "tier": "PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/iqstatical/logo.svg",
+    "rosterIds": [
+      "player_50_iqstatical_akor",
+      "player_50_iqstatical_axnlelele",
+      "player_50_iqstatical_buss",
+      "player_50_iqstatical_nikoodoz",
+      "player_50_iqstatical_nxutnut",
+      "player_50_iqstatical_zirah",
+      "player_50_iqstatical_tzmb"
+    ],
+    "reputation": 80,
+    "fanbase": 6300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_51_aramund",
+    "name": "Aramund",
+    "shortName": "ARAM",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/aramund/logo.svg",
+    "rosterIds": [
+      "player_51_aramund_antyviruz",
+      "player_51_aramund_fanatyc",
+      "player_51_aramund_frontziderr",
+      "player_51_aramund_spawagu",
+      "player_51_aramund_zuonco"
+    ],
+    "reputation": 80,
+    "fanbase": 5800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_52_overgrowth",
+    "name": "OverGrowth",
+    "shortName": "OVER",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/overgrowth/logo.svg",
+    "rosterIds": [
+      "player_52_overgrowth_azdamb",
+      "player_52_overgrowth_arrosdoke",
+      "player_52_overgrowth_kadian",
+      "player_52_overgrowth_fl4muz",
+      "player_52_overgrowth_zpooke"
+    ],
+    "reputation": 79,
+    "fanbase": 5300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_53_morsborni",
+    "name": "Morsborni",
+    "shortName": "MORS",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/morsborni/logo.svg",
+    "rosterIds": [
+      "player_53_morsborni_khop",
+      "player_53_morsborni_kxsi",
+      "player_53_morsborni_griss",
+      "player_53_morsborni_mzotm",
+      "player_53_morsborni_wis",
+      "player_53_morsborni_volfy"
+    ],
+    "reputation": 79,
+    "fanbase": 4700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_55_namega",
+    "name": "Namega",
+    "shortName": "NAME",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/namega/logo.svg",
+    "rosterIds": [
+      "player_55_namega_7eer",
+      "player_55_namega_cair0n",
+      "player_55_namega_chan",
+      "player_55_namega_riscyb0b",
+      "player_55_namega_zhalfey",
+      "player_55_namega_zovalio",
+      "player_55_namega_zyph0",
+      "player_55_namega_xant9r"
+    ],
+    "reputation": 78,
+    "fanbase": 4200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_56_kinone",
+    "name": "KinOne",
+    "shortName": "KINO",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/kinone/logo.svg",
+    "rosterIds": [
+      "player_56_kinone_brooxzy",
+      "player_56_kinone_khukky",
+      "player_56_kinone_djoco",
+      "player_56_kinone_mizutaaa",
+      "player_56_kinone_nbc"
+    ],
+    "reputation": 78,
+    "fanbase": 3900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_57_ixrubyel",
+    "name": "ix-RUBYel",
+    "shortName": "IXRU",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ix_rubyel/logo.svg",
+    "rosterIds": [
+      "player_57_ix_rubyel_fosil",
+      "player_57_ix_rubyel_h4san6tor",
+      "player_57_ix_rubyel_caide",
+      "player_57_ix_rubyel_sh7nejezzz",
+      "player_57_ix_rubyel_yumzan"
+    ],
+    "reputation": 77,
+    "fanbase": 7720,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_58_cybershoci",
+    "name": "CYBERSHOCI",
+    "shortName": "CYBE",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/cybershoci/logo.svg",
+    "rosterIds": [
+      "player_58_cybershoci_axlpha",
+      "player_58_cybershoci_bl7x7",
+      "player_58_cybershoci_fxenomen",
+      "player_58_cybershoci_gloviinq",
+      "player_58_cybershoci_mokuj7n",
+      "player_58_cybershoci_notineci"
+    ],
+    "reputation": 77,
+    "fanbase": 6200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_59_trycked",
+    "name": "Trycked",
+    "shortName": "TRYC",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/trycked/logo.svg",
+    "rosterIds": [
+      "player_59_trycked_bzoye",
+      "player_59_trycked_iceberq",
+      "player_59_trycked_leacs",
+      "player_59_trycked_niccyb",
+      "player_59_trycked_zalazar"
+    ],
+    "reputation": 76,
+    "fanbase": 2700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_60_arcredra",
+    "name": "ARCREDra",
+    "shortName": "ARCR",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/arcredra/logo.svg",
+    "rosterIds": [
+      "player_60_arcredra_dzzj",
+      "player_60_arcredra_qetjeka",
+      "player_60_arcredra_rzaijin",
+      "player_60_arcredra_rzyujin",
+      "player_60_arcredra_zynyx"
+    ],
+    "reputation": 76,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_62_vriendlycampirs",
+    "name": "Vriendly Campirs",
+    "shortName": "VRIE",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/vriendly_campirs/logo.svg",
+    "rosterIds": [
+      "player_62_fryindly_bzajmi",
+      "player_62_fryindly_moonwalc",
+      "player_62_fryindly_ozlimp",
+      "player_62_fryindly_reico",
+      "player_62_fryindly_zamey"
+    ],
+    "reputation": 75,
+    "fanbase": 4800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_63_bigkings",
+    "name": "BIG Kings",
+    "shortName": "BIGK",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/big_kings/logo.svg",
+    "rosterIds": [
+      "player_63_big_kings_bzlamef",
+      "player_63_big_kings_fawen",
+      "player_63_big_kings_freese",
+      "player_63_big_kings_qr1ks",
+      "player_63_big_kings_jdk",
+      "player_63_big_kings_prozuz",
+      "player_63_big_kings_tabzen"
+    ],
+    "reputation": 75,
+    "fanbase": 5000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_64_goimingladiaturs",
+    "name": "Goimin Gladiaturs",
+    "shortName": "GOIM",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/goimin_gladiaturs/logo.svg",
+    "rosterIds": [
+      "player_64_gaimyn_bzd",
+      "player_64_gaimyn_felpz",
+      "player_64_gaimyn_hen7",
+      "player_64_gaimyn_jxota",
+      "player_64_gaimyn_lucen",
+      "player_64_gaimyn_necis",
+      "player_64_gaimyn_zhs"
+    ],
+    "reputation": 74,
+    "fanbase": 1500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_65_xennersia",
+    "name": "XENNERSia",
+    "shortName": "XENN",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/xennersia/logo.svg",
+    "rosterIds": [
+      "player_65_xennersia_beaztic",
+      "player_65_xennersia_cisserek",
+      "player_65_xennersia_mzodo",
+      "player_65_xennersia_zhock",
+      "player_65_xennersia_strezzarn"
+    ],
+    "reputation": 74,
+    "fanbase": 3200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_66_fluxion",
+    "name": "Fluxion",
+    "shortName": "FLUX",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/fluxion/logo.svg",
+    "rosterIds": [
+      "player_66_fluxion_azrt",
+      "player_66_fluxion_dekenty",
+      "player_66_fluxion_exxit",
+      "player_66_fluxion_cye",
+      "player_66_fluxion_lucaosy",
+      "player_66_fluxion_sewy"
+    ],
+    "reputation": 74,
+    "fanbase": 6500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_67_thahonz",
+    "name": "Tha Honz",
+    "shortName": "THAH",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/tha_honz/logo.svg",
+    "rosterIds": [
+      "player_67_tha_bart6k",
+      "player_67_tha_kobrasera",
+      "player_67_tha_kontrolez",
+      "player_67_tha_nin3",
+      "player_67_tha_zk8r",
+      "player_67_tha_xzerolte"
+    ],
+    "reputation": 73,
+    "fanbase": 5200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_68_vavbator",
+    "name": "VAVBATor",
+    "shortName": "VAVB",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/vavbator/logo.svg",
+    "rosterIds": [
+      "player_68_vavbator_bondic",
+      "player_68_vavbator_j9kie",
+      "player_68_vavbator_mzarix",
+      "player_68_vavbator_s4ltovsc7yy",
+      "player_68_vavbator_smazh"
+    ],
+    "reputation": 73,
+    "fanbase": 600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_69_muxenxd",
+    "name": "MOUZ NXD",
+    "shortName": "MOUZ",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/muxe_nxd/logo.svg",
+    "rosterIds": [
+      "player_69_muxeen_ay0c",
+      "player_69_muxeen_jzoey",
+      "player_69_muxeen_nicodeon",
+      "player_69_muxeen_opduzt",
+      "player_69_muxeen_xxelexq"
+    ],
+    "reputation": 72,
+    "fanbase": 2300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_70_500ro",
+    "name": "500ro",
+    "shortName": "500RO",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/500ro/logo.svg",
+    "rosterIds": [
+      "player_70_500ro_kerg",
+      "player_70_500ro_kypher",
+      "player_70_500ro_hampuz",
+      "player_70_500ro_rainvaker",
+      "player_70_500ro_wolt"
+    ],
+    "reputation": 72,
+    "fanbase": 3000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_70_ance",
+    "name": "ANCE",
+    "shortName": "ANCE",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/ance/logo.svg",
+    "rosterIds": [
+      "player_70_ance_f7ku",
+      "player_70_ance_craznal",
+      "player_70_ance_myltzi",
+      "player_70_ance_nxeityu",
+      "player_70_ance_pxodi",
+      "player_70_ance_riqon",
+      "player_70_ance_zdy"
+    ],
+    "reputation": 72,
+    "fanbase": 5900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_72_33or",
+    "name": "33or",
+    "shortName": "33OR",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/33or/logo.svg",
+    "rosterIds": [
+      "player_72_33or_bluewh7te",
+      "player_72_33or_exekutor",
+      "player_72_33or_cingie",
+      "player_72_33or_ciro",
+      "player_72_33or_s7nny"
+    ],
+    "reputation": 71,
+    "fanbase": 2800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_72_rareelement",
+    "name": "Rare Element",
+    "shortName": "RARE",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/rare_element/logo.svg",
+    "rosterIds": [
+      "player_72_rari_khenqking",
+      "player_72_rari_childcinq",
+      "player_72_rari_l1hanq",
+      "player_72_rari_zummer",
+      "player_72_rari_tiqer"
+    ],
+    "reputation": 71,
+    "fanbase": 4500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_73_jahnnyspieds",
+    "name": "Jahnny Spieds",
+    "shortName": "JAHN",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/jahnny_spieds/logo.svg",
+    "rosterIds": [
+      "player_73_johnny_dracen",
+      "player_73_johnny_hxeap",
+      "player_73_johnny_jokab",
+      "player_73_johnny_lecr8",
+      "player_73_johnny_zapek"
+    ],
+    "reputation": 71,
+    "fanbase": 3100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_74_naxvaid",
+    "name": "NAXVAID",
+    "shortName": "NAXV",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/naxvaid/logo.svg",
+    "rosterIds": [
+      "player_74_naxvaid_ackuracytg",
+      "player_74_naxvaid_diezen",
+      "player_74_naxvaid_ercast",
+      "player_74_naxvaid_okeana",
+      "player_74_naxvaid_sezta"
+    ],
+    "reputation": 70,
+    "fanbase": 7040,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_75_wildace",
+    "name": "Wild Ace",
+    "shortName": "WILD",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/wild_ace/logo.svg",
+    "rosterIds": [
+      "player_75_wild_ace_clazia",
+      "player_75_wild_ace_hzext",
+      "player_75_wild_ace_mzhl",
+      "player_75_wild_ace_peepinq",
+      "player_75_wild_ace_rekk"
+    ],
+    "reputation": 70,
+    "fanbase": 7000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_76_alliankaia",
+    "name": "Alliankaia",
+    "shortName": "ALLI",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/alliankaia/logo.svg",
+    "rosterIds": [
+      "player_76_alliankaia_awid",
+      "player_76_alliankaia_ezraa",
+      "player_76_alliankaia_mail83",
+      "player_76_alliankaia_pxoiii",
+      "player_76_alliankaia_tvist",
+      "player_76_alliankaia_uxpe"
+    ],
+    "reputation": 70,
+    "fanbase": 5500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_77_1win",
+    "name": "1win",
+    "shortName": "1WIN",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/1win/logo.svg",
+    "rosterIds": [
+      "player_77_1win_cronusz",
+      "player_77_1win_hxobbit",
+      "player_77_1win_inters",
+      "player_77_1win_lattykc",
+      "player_77_1win_oz1c"
+    ],
+    "reputation": 69,
+    "fanbase": 2000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_78_xashy",
+    "name": "Xashy",
+    "shortName": "XASHY",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/xashy/logo.svg",
+    "rosterIds": [
+      "player_78_xashy_akor",
+      "player_78_xashy_bekcie",
+      "player_78_xashy_kabbi",
+      "player_78_xashy_miztr",
+      "player_78_xashy_syphon"
+    ],
+    "reputation": 69,
+    "fanbase": 4400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_79_jijyahao",
+    "name": "JiJyaHao",
+    "shortName": "JIJY",
+    "tier": "SEMI_PRO",
+    "region": "MENA",
+    "logoPath": "/assets/teams/jijyahao/logo.svg",
+    "rosterIds": [
+      "player_79_jijyahao_0samaz",
+      "player_79_jijyahao_bxibu",
+      "player_79_jijyahao_boroz",
+      "player_79_jijyahao_m7n7",
+      "player_79_jijyahao_sinnopzyy"
+    ],
+    "reputation": 68,
+    "fanbase": 1700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_80_batm",
+    "name": "BAT-M",
+    "shortName": "BAT-M",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/bat_m/logo.svg",
+    "rosterIds": [
+      "player_80_bat_m_bluewh7te",
+      "player_80_bat_m_exekutor",
+      "player_80_bat_m_cingie",
+      "player_80_bat_m_ciro",
+      "player_80_bat_m_s7nny"
+    ],
+    "reputation": 68,
+    "fanbase": 6800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_81_begiaacademy",
+    "name": "BEGia Academy",
+    "shortName": "BEGI",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/begia_academy/logo.svg",
+    "rosterIds": [
+      "player_81_big_kings_dxoni",
+      "player_81_big_kings_jxboen",
+      "player_81_big_kings_prozuz",
+      "player_81_big_kings_tripex77",
+      "player_81_big_kings_v1dov"
+    ],
+    "reputation": 68,
+    "fanbase": 6760,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_82_marnengstar",
+    "name": "Marnengstar",
+    "shortName": "MARN",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/marnengstar/logo.svg",
+    "rosterIds": [
+      "player_82_marnengstar_expzaziki",
+      "player_82_marnengstar_raqe",
+      "player_82_marnengstar_rxuben",
+      "player_82_marnengstar_zpine",
+      "player_82_marnengstar_zuci"
+    ],
+    "reputation": 67,
+    "fanbase": 1600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_83_chinjkiswarryars",
+    "name": "Chinjkis Warryars",
+    "shortName": "CHIN",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/chinjkis_warryars/logo.svg",
+    "rosterIds": [
+      "player_83_qhinggix_cool6zt",
+      "player_83_qhinggix_ezfire",
+      "player_83_qhinggix_rxoux",
+      "player_83_qhinggix_tikuac",
+      "player_83_qhinggix_yxami"
+    ],
+    "reputation": 67,
+    "fanbase": 2900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_84_k2erex",
+    "name": "K2 Erex",
+    "shortName": "K2ER",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/k2_erex/logo.svg",
+    "rosterIds": [
+      "player_84_g_two_fnc",
+      "player_84_g_two_hzitori",
+      "player_84_g_two_jxunyme",
+      "player_84_g_two_tac",
+      "player_84_g_two_yczjupe"
+    ],
+    "reputation": 66,
+    "fanbase": 200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_85_urso",
+    "name": "Urso",
+    "shortName": "URSO",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/urso/logo.svg",
+    "rosterIds": [
+      "player_85_urso_6x1z",
+      "player_85_urso_alw",
+      "player_85_urso_dxeen",
+      "player_85_urso_zalazar",
+      "player_85_urso_txorox"
+    ],
+    "reputation": 66,
+    "fanbase": 6600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_86_whitebird",
+    "name": "WHITEBIRD",
+    "shortName": "WHIT",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/whitebird/logo.svg",
+    "rosterIds": [
+      "player_86_whitebird_el7an",
+      "player_86_whitebird_forezter",
+      "player_86_whitebird_lakc1",
+      "player_86_whitebird_nickelbakk",
+      "player_86_whitebird_trawiz"
+    ],
+    "reputation": 66,
+    "fanbase": 6560,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_87_aztralor",
+    "name": "AZTRALor",
+    "shortName": "AZTR",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/aztralor/logo.svg",
+    "rosterIds": [
+      "player_87_aztralor_aztr",
+      "player_87_aztralor_meovpop",
+      "player_87_aztralor_negy",
+      "player_87_aztralor_r7kh",
+      "player_87_aztralor_ray2ive"
+    ],
+    "reputation": 65,
+    "fanbase": 400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_88_coinhunters",
+    "name": "Coin Hunters",
+    "shortName": "COIN",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/coin_hunters/logo.svg",
+    "rosterIds": [
+      "player_88_buynty_freg",
+      "player_88_buynty_caizer",
+      "player_88_buynty_ninjas",
+      "player_88_buynty_pziriajr",
+      "player_88_buynty_pxonter",
+      "player_88_buynty_sokk"
+    ],
+    "reputation": 65,
+    "fanbase": 2100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_89_loxxojutos",
+    "name": "lox xojutos",
+    "shortName": "LOXX",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/lox_xojutos/logo.svg",
+    "rosterIds": [
+      "player_89_loxrix_azdrien",
+      "player_89_loxrix_mzaaryy",
+      "player_89_loxrix_marco",
+      "player_89_loxrix_nzami",
+      "player_89_loxrix_ywro"
+    ],
+    "reputation": 64,
+    "fanbase": 6440,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_91_ruby",
+    "name": "RUBY",
+    "shortName": "RUBY",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/ruby/logo.svg",
+    "rosterIds": [
+      "player_91_ruby_fosil",
+      "player_91_ruby_h4san6tor",
+      "player_91_ruby_caide",
+      "player_91_ruby_maguein",
+      "player_91_ruby_sh7nejezzz"
+    ],
+    "reputation": 64,
+    "fanbase": 900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_91_unidyor",
+    "name": "UNiDYor",
+    "shortName": "UNID",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/unidyor/logo.svg",
+    "rosterIds": [
+      "player_91_unidyor_c7fida",
+      "player_91_unidyor_m1cey",
+      "player_91_unidyor_moriizco",
+      "player_91_unidyor_neofraq",
+      "player_91_unidyor_vooszzi"
+    ],
+    "reputation": 64,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_92_lazerrocadz",
+    "name": "Lazerro Cadz",
+    "shortName": "LAZE",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/lazerro_cadz/logo.svg",
+    "rosterIds": [
+      "player_92_lezir_br6tco",
+      "player_92_lezir_ciy8o",
+      "player_92_lezir_maqik",
+      "player_92_lezir_nicitea",
+      "player_92_lezir_yab8ku"
+    ],
+    "reputation": 63,
+    "fanbase": 1300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_93_bitclic",
+    "name": "Bitclic",
+    "shortName": "BITC",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/bitclic/logo.svg",
+    "rosterIds": [
+      "player_93_bitclic_dzemho",
+      "player_93_bitclic_dr9nguu",
+      "player_93_bitclic_ezcyy",
+      "player_93_bitclic_hadez",
+      "player_93_bitclic_prizm"
+    ],
+    "reputation": 63,
+    "fanbase": 6280,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_94_bozz",
+    "name": "BOZZ",
+    "shortName": "BOZZ",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/bozz/logo.svg",
+    "rosterIds": [
+      "player_94_bozz_bvillz",
+      "player_94_bozz_d6rty",
+      "player_94_bozz_fanq",
+      "player_94_bozz_fruitkupx",
+      "player_94_bozz_zlight",
+      "player_94_bozz_ztanizlaw"
+    ],
+    "reputation": 62,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_95_iroptionra",
+    "name": "Iroptionra",
+    "shortName": "IROP",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/iroptionra/logo.svg",
+    "rosterIds": [
+      "player_95_iroptionra_fury5c",
+      "player_95_iroptionra_maqnums",
+      "player_95_iroptionra_zideffekt",
+      "player_95_iroptionra_wizcera",
+      "player_95_iroptionra_wonderzke",
+      "player_95_iroptionra_xenisation"
+    ],
+    "reputation": 62,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_96_hiroeciumacedemy",
+    "name": "HIROECium Acedemy",
+    "shortName": "HIRO",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/hiroecium_acedemy/logo.svg",
+    "rosterIds": [
+      "player_96_valiant_hxoly",
+      "player_96_valiant_hxrdina",
+      "player_96_valiant_mukiec",
+      "player_96_valiant_st0m6c",
+      "player_96_valiant_yoqhi"
+    ],
+    "reputation": 62,
+    "fanbase": 1000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_97_xengal",
+    "name": "Xengal",
+    "shortName": "XENG",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/xengal/logo.svg",
+    "rosterIds": [
+      "player_97_xengal_klax",
+      "player_97_xengal_daniztsz",
+      "player_97_xengal_norvi",
+      "player_97_xengal_patzi",
+      "player_97_xengal_pr7metapz",
+      "player_97_xengal_r9zalt",
+      "player_97_xengal_r6dyx"
+    ],
+    "reputation": 61,
+    "fanbase": 3300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_98_ryxtecrix",
+    "name": "RYXTECrix",
+    "shortName": "RYXT",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ryxtecrix/logo.svg",
+    "rosterIds": [
+      "player_98_ryxtecrix_anttss",
+      "player_98_ryxtecrix_brillianke",
+      "player_98_ryxtecrix_jakeces",
+      "player_98_ryxtecrix_zupra",
+      "player_98_ryxtecrix_youca"
+    ],
+    "reputation": 61,
+    "fanbase": 6080,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_99_cphwolvez",
+    "name": "CPH Wolvez",
+    "shortName": "CPHW",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/cph_wolvez/logo.svg",
+    "rosterIds": [
+      "player_99_cph_b7elany",
+      "player_99_cph_jorco",
+      "player_99_cph_matheoz",
+      "player_99_cph_n7xen",
+      "player_99_cph_tapevaare"
+    ],
+    "reputation": 60,
+    "fanbase": 6040,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_99_thundereldawnynder",
+    "name": "THUNDERel dAWNYNDER",
+    "shortName": "THUN",
+    "tier": "SEMI_PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/thunderel_dawnynder/logo.svg",
+    "rosterIds": [
+      "player_99_thunder_aliztair",
+      "player_99_thunder_azap",
+      "player_99_thunder_dxexter",
+      "player_99_thunder_liasz",
+      "player_99_thunder_txjp"
+    ],
+    "reputation": 60,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_100_vekedoberu",
+    "name": "Veke do Beru",
+    "shortName": "VEKE",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/veke_do_beru/logo.svg",
+    "rosterIds": [
+      "player_100_facero_koldsera",
+      "player_100_facero_detr8ittj",
+      "player_100_facero_hardsao",
+      "player_100_facero_lucis",
+      "player_100_facero_pezadelo",
+      "player_100_facero_pcl",
+      "player_100_facero_xzureba"
+    ],
+    "reputation": 60,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_101_nexoz",
+    "name": "Nexoz",
+    "shortName": "NEXOZ",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/nexoz/logo.svg",
+    "rosterIds": [
+      "player_101_nexoz_blyts",
+      "player_101_nexoz_bxtn",
+      "player_101_nexoz_fnc",
+      "player_101_nexoz_fxnl",
+      "player_101_nexoz_z0und",
+      "player_101_nexoz_xellov"
+    ],
+    "reputation": 60,
+    "fanbase": 2400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_102_chongedhegame",
+    "name": "Chonge Dhe Game",
+    "shortName": "CHON",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/chonge_dhe_game/logo.svg",
+    "rosterIds": [
+      "player_102_qhonge_327",
+      "player_102_qhonge_hakk1nq",
+      "player_102_qhonge_laicexu",
+      "player_102_qhonge_vancekc",
+      "player_102_qhonge_sero"
+    ],
+    "reputation": 59,
+    "fanbase": 2500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_102_mevrik",
+    "name": "Mevrik",
+    "shortName": "MEVR",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/mevrik/logo.svg",
+    "rosterIds": [
+      "player_102_mevrik_brawkkzz",
+      "player_102_mevrik_kyrix",
+      "player_102_mevrik_jakhro",
+      "player_102_mevrik_zharpie",
+      "player_102_mevrik_toazty"
+    ],
+    "reputation": 59,
+    "fanbase": 5920,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_103_akend",
+    "name": "Akend",
+    "shortName": "AKEND",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/akend/logo.svg",
+    "rosterIds": [
+      "player_103_akend_avayken",
+      "player_103_akend_caluber",
+      "player_103_akend_shaic",
+      "player_103_akend_zcrimo",
+      "player_103_akend_zpellan"
+    ],
+    "reputation": 59,
+    "fanbase": 4900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_103_famaliku",
+    "name": "Famalikãu",
+    "shortName": "FAMA",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/famalik_u/logo.svg",
+    "rosterIds": [
+      "player_103_fomalic_h8t",
+      "player_103_fomalic_m1ca",
+      "player_103_fomalic_p9r9iira",
+      "player_103_fomalic_seabraes",
+      "player_103_fomalic_znoviee"
+    ],
+    "reputation": 59,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_104_em",
+    "name": "EM",
+    "shortName": "EM",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/em/logo.svg",
+    "rosterIds": [
+      "player_104_em_altecs",
+      "player_104_em_dxelle",
+      "player_104_em_c1to",
+      "player_104_em_cyuubii",
+      "player_104_em_pxzl"
+    ],
+    "reputation": 58,
+    "fanbase": 4000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_106_sporteyx",
+    "name": "SPORTEyx",
+    "shortName": "SPOR",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/sporteyx/logo.svg",
+    "rosterIds": [
+      "player_106_sporteyx_1nwisiblee",
+      "player_106_sporteyx_dzjon8",
+      "player_106_sporteyx_k4nfus",
+      "player_106_sporteyx_crad",
+      "player_106_sporteyx_zol",
+      "player_106_sporteyx_zolb",
+      "player_106_sporteyx_yzuramyata"
+    ],
+    "reputation": 58,
+    "fanbase": 3400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_108_finjerskrozsed",
+    "name": "Finjers Krozsed",
+    "shortName": "FINJ",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/finjers_krozsed/logo.svg",
+    "rosterIds": [
+      "player_108_vinjers_baqyz",
+      "player_108_vinjers_fxello",
+      "player_108_vinjers_creas",
+      "player_108_vinjers_maqila",
+      "player_108_vinjers_nbgg",
+      "player_108_vinjers_ozkar",
+      "player_108_vinjers_zidiwo",
+      "player_108_vinjers_zpardauz",
+      "player_108_vinjers_usman"
+    ],
+    "reputation": 57,
+    "fanbase": 1800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_108_skynrava",
+    "name": "SkynRava",
+    "shortName": "SKYN",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/skynrava/logo.svg",
+    "rosterIds": [
+      "player_108_skynrava_cryptik",
+      "player_108_skynrava_jzunior",
+      "player_108_skynrava_lxaxiee",
+      "player_108_skynrava_marce",
+      "player_108_skynrava_valco"
+    ],
+    "reputation": 57,
+    "fanbase": 5680,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_109_eeb",
+    "name": "EeB",
+    "shortName": "EEB",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/eeb/logo.svg",
+    "rosterIds": [
+      "player_109_eeb_beccer",
+      "player_109_eeb_mase",
+      "player_109_eeb_mol071",
+      "player_109_eeb_n7xen",
+      "player_109_eeb_n6xx1s",
+      "player_109_eeb_gx",
+      "player_109_eeb_zsen"
+    ],
+    "reputation": 56,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_110_spirytoracodemy",
+    "name": "Spirytor Acodemy",
+    "shortName": "SPIR",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/spirytor_acodemy/logo.svg",
+    "rosterIds": [
+      "player_110_phantom_ciryazoo",
+      "player_110_phantom_kurosze",
+      "player_110_phantom_mokuj7n",
+      "player_110_phantom_rxobo",
+      "player_110_phantom_zyph0"
+    ],
+    "reputation": 56,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_110_sdeteal",
+    "name": "SDETEal",
+    "shortName": "SDET",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/sdeteal/logo.svg",
+    "rosterIds": [
+      "player_110_sdeteal_kvesz",
+      "player_110_sdeteal_pxatti",
+      "player_110_sdeteal_zink",
+      "player_110_sdeteal_thamlice",
+      "player_110_sdeteal_santo"
+    ],
+    "reputation": 56,
+    "fanbase": 5600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_111_ravero",
+    "name": "Ravero",
+    "shortName": "RAVE",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/ravero/logo.svg",
+    "rosterIds": [
+      "player_111_ravero_cryptik",
+      "player_111_ravero_jzunior",
+      "player_111_ravero_lxaxiee",
+      "player_111_ravero_marce",
+      "player_111_ravero_valco"
+    ],
+    "reputation": 56,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_112_impulzigw",
+    "name": "Impulzi GW",
+    "shortName": "IMPU",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/impulzi_gw/logo.svg",
+    "rosterIds": [
+      "player_112_impulsa_pxr",
+      "player_112_impulsa_rxafaxf",
+      "player_112_impulsa_zlaxx",
+      "player_112_impulsa_zprayy",
+      "player_112_impulsa_ztepa"
+    ],
+    "reputation": 55,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_112_mone",
+    "name": "MONE",
+    "shortName": "MONE",
+    "tier": "SEMI_PRO",
+    "region": "MENA",
+    "logoPath": "/assets/teams/mone/logo.svg",
+    "rosterIds": [
+      "player_112_mone_axmmar",
+      "player_112_mone_bxledard",
+      "player_112_mone_kaleyy",
+      "player_112_mone_kerber",
+      "player_112_mone_gejmsilla",
+      "player_112_mone_zener1"
+    ],
+    "reputation": 55,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_113_ww",
+    "name": "WW",
+    "shortName": "WW",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ww/logo.svg",
+    "rosterIds": [
+      "player_113_ww_ct8m",
+      "player_113_ww_deco",
+      "player_113_ww_celien",
+      "player_113_ww_m3vsu",
+      "player_113_ww_ztrogo"
+    ],
+    "reputation": 55,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_114_diepcrass",
+    "name": "Diep Crass",
+    "shortName": "DIEP",
+    "tier": "SEMI_PRO",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/diep_crass/logo.svg",
+    "rosterIds": [
+      "player_114_diipor_clyd7e",
+      "player_114_diipor_daymace",
+      "player_114_diipor_w1zely",
+      "player_114_diipor_wazteofammo",
+      "player_114_diipor_xansu"
+    ],
+    "reputation": 54,
+    "fanbase": 500,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_115_mekushort",
+    "name": "mekushort",
+    "shortName": "MEKU",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/mekushort/logo.svg",
+    "rosterIds": [
+      "player_115_mekushort_mogw",
+      "player_115_mekushort_nawwc",
+      "player_115_mekushort_rzobiin",
+      "player_115_mekushort_tituluz",
+      "player_115_mekushort_tvincey"
+    ],
+    "reputation": 54,
+    "fanbase": 5400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_116_menlete",
+    "name": "MENLETE",
+    "shortName": "MENL",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/menlete/logo.svg",
+    "rosterIds": [
+      "player_116_menlete_amanec",
+      "player_116_menlete_ex7st",
+      "player_116_menlete_pxolo",
+      "player_116_menlete_zbt",
+      "player_116_menlete_zk7tt"
+    ],
+    "reputation": 54,
+    "fanbase": 5360,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_117_wopa",
+    "name": "WOPA",
+    "shortName": "WOPA",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/wopa/logo.svg",
+    "rosterIds": [
+      "player_117_wopa_kvesz",
+      "player_117_wopa_pxatti",
+      "player_117_wopa_zink",
+      "player_117_wopa_thamlice",
+      "player_117_wopa_santo"
+    ],
+    "reputation": 53,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_117_yowera",
+    "name": "Yowera",
+    "shortName": "YOWE",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/yowera/logo.svg",
+    "rosterIds": [
+      "player_117_yowera_anqelo",
+      "player_117_yowera_dxeemo",
+      "player_117_yowera_j8w",
+      "player_117_yowera_rewolts",
+      "player_117_yowera_txele"
+    ],
+    "reputation": 53,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_118_riiknraabove",
+    "name": "Riiknra Above",
+    "shortName": "RIIK",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/riiknra_above/logo.svg",
+    "rosterIds": [
+      "player_118_raegn_kobalt",
+      "player_118_raegn_kolin",
+      "player_118_raegn_zayyouwill",
+      "player_118_raegn_zerkera",
+      "player_118_raegn_svayu"
+    ],
+    "reputation": 53,
+    "fanbase": 300,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_119_rebels",
+    "name": "Rebels",
+    "shortName": "REBE",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/rebels/logo.svg",
+    "rosterIds": [
+      "player_119_rebels_ikaruz",
+      "player_119_rebels_nzopeej",
+      "player_119_rebels_znapy",
+      "player_119_rebels_ztadodo",
+      "player_119_rebels_tmcj"
+    ],
+    "reputation": 52,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_120_hevy",
+    "name": "HEVY",
+    "shortName": "HEVY",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/hevy/logo.svg",
+    "rosterIds": [
+      "player_120_hevy_alxk",
+      "player_120_hevy_oxttob",
+      "player_120_hevy_p3kco",
+      "player_120_hevy_pzuuha",
+      "player_120_hevy_uxli"
+    ],
+    "reputation": 52,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_121_omeja",
+    "name": "Omeja",
+    "shortName": "OMEJA",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/omeja/logo.svg",
+    "rosterIds": [
+      "player_121_omeja_azdai",
+      "player_121_omeja_aldicon",
+      "player_121_omeja_botpa7",
+      "player_121_omeja_dan6o",
+      "player_121_omeja_maizon",
+      "player_121_omeja_znc"
+    ],
+    "reputation": 52,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_122_calaoskurnos",
+    "name": "CALAOSKURNOS",
+    "shortName": "CALA",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/calaoskurnos/logo.svg",
+    "rosterIds": [
+      "player_122_calaoskurnos_c8mplex",
+      "player_122_calaoskurnos_jayy2z",
+      "player_122_calaoskurnos_cunana",
+      "player_122_calaoskurnos_mzan",
+      "player_122_calaoskurnos_mzattymyimb"
+    ],
+    "reputation": 51,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_123_olybet",
+    "name": "OlyBet",
+    "shortName": "OLYB",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/olybet/logo.svg",
+    "rosterIds": [
+      "player_123_olybet_khipaan",
+      "player_123_olybet_dizkplex",
+      "player_123_olybet_fzrip",
+      "player_123_olybet_hexog",
+      "player_123_olybet_yaancs"
+    ],
+    "reputation": 51,
+    "fanbase": 5080,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_124_gomehynters",
+    "name": "GomeHynters",
+    "shortName": "GOME",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/gomehynters/logo.svg",
+    "rosterIds": [
+      "player_124_gomehynters_azbr",
+      "player_124_gomehynters_bnk",
+      "player_124_gomehynters_bzd",
+      "player_124_gomehynters_nyesin",
+      "player_124_gomehynters_pxrt"
+    ],
+    "reputation": 50,
+    "fanbase": 5040,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_125_jumboex",
+    "name": "JUMBOex",
+    "shortName": "JUMB",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/jumboex/logo.svg",
+    "rosterIds": [
+      "player_125_jumboex_dxede",
+      "player_125_jumboex_matuzic",
+      "player_125_jumboex_pxroper",
+      "player_125_jumboex_renic",
+      "player_125_jumboex_znoob"
+    ],
+    "reputation": 50,
+    "fanbase": 5000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_126_phantum",
+    "name": "Phantum",
+    "shortName": "PHAN",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/phantum/logo.svg",
+    "rosterIds": [
+      "player_126_phantum_dql",
+      "player_126_phantum_cei",
+      "player_126_phantum_cunai",
+      "player_126_phantum_cylar",
+      "player_126_phantum_mxynio"
+    ],
+    "reputation": 50,
+    "fanbase": 1100,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_127_hyperspiryd",
+    "name": "HyperSpiryd",
+    "shortName": "HYPE",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/hyperspiryd/logo.svg",
+    "rosterIds": [
+      "player_127_hyperspiryd_axdron",
+      "player_127_hyperspiryd_kiocardau",
+      "player_127_hyperspiryd_d7maje",
+      "player_127_hyperspiryd_raqqa",
+      "player_127_hyperspiryd_starplajers"
+    ],
+    "reputation": 49,
+    "fanbase": 4920,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_128_aljayx",
+    "name": "ALJAyx",
+    "shortName": "ALJA",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/aljayx/logo.svg",
+    "rosterIds": [
+      "player_128_aljayx_axnber",
+      "player_128_aljayx_nopsy",
+      "player_128_aljayx_nuckye",
+      "player_128_aljayx_zcr0b",
+      "player_128_aljayx_zsejn"
+    ],
+    "reputation": 49,
+    "fanbase": 4880,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_129_sow",
+    "name": "SOW",
+    "shortName": "SOW",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/sow/logo.svg",
+    "rosterIds": [
+      "player_129_sow_ag7l",
+      "player_129_sow_araqornn",
+      "player_129_sow_blase",
+      "player_129_sow_jayy2z",
+      "player_129_sow_jerk8z",
+      "player_129_sow_crasy",
+      "player_129_sow_morets",
+      "player_129_sow_mutiriz",
+      "player_129_sow_ztory",
+      "player_129_sow_txuxa"
+    ],
+    "reputation": 48,
+    "fanbase": 8000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_130_lia",
+    "name": "Lia",
+    "shortName": "LIA",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/lia/logo.svg",
+    "rosterIds": [
+      "player_130_lia_amzter",
+      "player_130_lia_kl7o",
+      "player_130_lia_malkisz",
+      "player_130_lia_marat2c",
+      "player_130_lia_oneun1gue"
+    ],
+    "reputation": 48,
+    "fanbase": 700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_131_aedhar",
+    "name": "Aedhar",
+    "shortName": "AEDH",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/aedhar/logo.svg",
+    "rosterIds": [
+      "player_131_aedhar_andrev",
+      "player_131_aedhar_bzrett",
+      "player_131_aedhar_z9rum",
+      "player_131_aedhar_zeb",
+      "player_131_aedhar_xxalerv"
+    ],
+    "reputation": 48,
+    "fanbase": 4760,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_132_enfuryty",
+    "name": "ENFURYTY",
+    "shortName": "ENFU",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/enfuryty/logo.svg",
+    "rosterIds": [
+      "player_132_enfuryty_hxenu",
+      "player_132_enfuryty_nolw7n",
+      "player_132_enfuryty_ozontoma",
+      "player_132_enfuryty_rxinji",
+      "player_132_enfuryty_zhyyne",
+      "player_132_enfuryty_zirius"
+    ],
+    "reputation": 47,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_133_mindfraak",
+    "name": "Mindfraak",
+    "shortName": "MIND",
+    "tier": "SEMI_PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/mindfraak/logo.svg",
+    "rosterIds": [
+      "player_133_mindfraak_dxpr",
+      "player_133_mindfraak_zwersien",
+      "player_133_mindfraak_txexta",
+      "player_133_mindfraak_tuckz",
+      "player_133_mindfraak_sune"
+    ],
+    "reputation": 47,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_134_xpurtsbetexpert",
+    "name": "XpurtsBetExpert",
+    "shortName": "XPUR",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/xpurtsbetexpert/logo.svg",
+    "rosterIds": [
+      "player_134_xpurtsbetexpert_ewan",
+      "player_134_xpurtsbetexpert_frezhie",
+      "player_134_xpurtsbetexpert_ogvisard",
+      "player_134_xpurtsbetexpert_rekk",
+      "player_134_xpurtsbetexpert_zml",
+      "player_134_xpurtsbetexpert_zteel",
+      "player_134_xpurtsbetexpert_tr8jn"
+    ],
+    "reputation": 46,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_135_aymclub",
+    "name": "aymclub",
+    "shortName": "AYMC",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/aymclub/logo.svg",
+    "rosterIds": [
+      "player_135_aymclub_brc",
+      "player_135_aymclub_ed7m",
+      "player_135_aymclub_erzin",
+      "player_135_aymclub_rzoberttmp",
+      "player_135_aymclub_wazs",
+      "player_135_aymclub_sevts"
+    ],
+    "reputation": 46,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_136_minxkhauze",
+    "name": "Minxk Hauze",
+    "shortName": "MINX",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/minxk_hauze/logo.svg",
+    "rosterIds": [
+      "player_136_minsk_f1nkh",
+      "player_136_minsk_czolter",
+      "player_136_minsk_lollipop27k",
+      "player_136_minsk_mzenddel",
+      "player_136_minsk_snxxx"
+    ],
+    "reputation": 46,
+    "fanbase": 4560,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_137_sampervi",
+    "name": "SamperVi",
+    "shortName": "SAMP",
+    "tier": "SEMI_PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/sampervi/logo.svg",
+    "rosterIds": [
+      "player_137_sampervi_addikt",
+      "player_137_sampervi_hasr",
+      "player_137_sampervi_ceen",
+      "player_137_sampervi_savaqe",
+      "player_137_sampervi_zhadiy"
+    ],
+    "reputation": 45,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_138_buringplayers",
+    "name": "BURING PLAYERS",
+    "shortName": "BURI",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/buring_players/logo.svg",
+    "rosterIds": [
+      "player_138_borinjex_jun1",
+      "player_138_borinjex_carl",
+      "player_138_borinjex_mizsary",
+      "player_138_borinjex_txutu",
+      "player_138_borinjex_sdr"
+    ],
+    "reputation": 45,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_138_masonicia",
+    "name": "MASONICia",
+    "shortName": "MASO",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/masonicia/logo.svg",
+    "rosterIds": [
+      "player_138_masonicia_awou",
+      "player_138_masonicia_bzotman",
+      "player_138_masonicia_bukhawez",
+      "player_138_masonicia_crallej",
+      "player_138_masonicia_nzoruyp"
+    ],
+    "reputation": 45,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_139_vuejo",
+    "name": "Vuejo",
+    "shortName": "VUEJO",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/vuejo/logo.svg",
+    "rosterIds": [
+      "player_139_vuejo_alennnkar",
+      "player_139_vuejo_lucita",
+      "player_139_vuejo_zakamoto",
+      "player_139_vuejo_thuizter",
+      "player_139_vuejo_vsn"
+    ],
+    "reputation": 44,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_139_groondzaro",
+    "name": "Groond Zaro",
+    "shortName": "GROO",
+    "tier": "SEMI_PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/groond_zaro/logo.svg",
+    "rosterIds": [
+      "player_139_gruyndex_apokdud",
+      "player_139_gruyndex_dxamyo",
+      "player_139_gruyndex_omikhella",
+      "player_139_gruyndex_ps",
+      "player_139_gruyndex_wizion"
+    ],
+    "reputation": 44,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_140_lpex",
+    "name": "LPex",
+    "shortName": "LPEX",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/lpex/logo.svg",
+    "rosterIds": [
+      "player_140_lpex_alizzon",
+      "player_140_lpex_diwine",
+      "player_140_lpex_hzapp",
+      "player_140_lpex_leomonzter",
+      "player_140_lpex_smb"
+    ],
+    "reputation": 44,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_141_izyrus",
+    "name": "Izyrus",
+    "shortName": "IZYR",
+    "tier": "SEMI_PRO",
+    "region": "BR",
+    "logoPath": "/assets/teams/izyrus/logo.svg",
+    "rosterIds": [
+      "player_141_izyrus_atarax7a",
+      "player_141_izyrus_deko",
+      "player_141_izyrus_dott7",
+      "player_141_izyrus_fraquty",
+      "player_141_izyrus_hess"
+    ],
+    "reputation": 44,
+    "fanbase": 4360,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_142_folqonspharce",
+    "name": "Folqons Pharce",
+    "shortName": "FOLQ",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/folqons_pharce/logo.svg",
+    "rosterIds": [
+      "player_142_falconry_clocksi",
+      "player_142_falconry_qrecu",
+      "player_142_falconry_nucleons",
+      "player_142_falconry_oxlaie",
+      "player_142_falconry_weno"
+    ],
+    "reputation": 43,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_142_vishercallege",
+    "name": "Visher Callege",
+    "shortName": "VISH",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/visher_callege/logo.svg",
+    "rosterIds": [
+      "player_142_fisher_alecz",
+      "player_142_fisher_korn",
+      "player_142_fisher_crepov",
+      "player_142_fisher_refusr",
+      "player_142_fisher_th8r"
+    ],
+    "reputation": 43,
+    "fanbase": 4320,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_143_nuveq",
+    "name": "NUVEQ",
+    "shortName": "NUVEQ",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/nuveq/logo.svg",
+    "rosterIds": [
+      "player_143_nuveq_def7ser",
+      "player_143_nuveq_iky",
+      "player_143_nuveq_nzealan",
+      "player_143_nuveq_pxump",
+      "player_143_nuveq_tazman"
+    ],
+    "reputation": 43,
+    "fanbase": 1200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_144_legor",
+    "name": "LEGor",
+    "shortName": "LEGOR",
+    "tier": "SEMI_PRO",
+    "region": "NA",
+    "logoPath": "/assets/teams/legor/logo.svg",
+    "rosterIds": [
+      "player_144_legor_konsti",
+      "player_144_legor_dxjay",
+      "player_144_legor_cmrn",
+      "player_144_legor_zandman",
+      "player_144_legor_volffe"
+    ],
+    "reputation": 42,
+    "fanbase": 4240,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_145_prime",
+    "name": "PRIME",
+    "shortName": "PRIME",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/prime/logo.svg",
+    "rosterIds": [
+      "player_145_prime_mzan",
+      "player_145_prime_pxr",
+      "player_145_prime_rxafaxf",
+      "player_145_prime_zlaxx",
+      "player_145_prime_ztepa"
+    ],
+    "reputation": 42,
+    "fanbase": 4200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_147_besimentbays",
+    "name": "BESIMENT BAYS",
+    "shortName": "BESI",
+    "tier": "SEMI_PRO",
+    "region": "CIS",
+    "logoPath": "/assets/teams/besiment_bays/logo.svg",
+    "rosterIds": [
+      "player_147_bazamentor_bambozh",
+      "player_147_bazamentor_facerealityy",
+      "player_147_bazamentor_lewantino",
+      "player_147_bazamentor_maqqent",
+      "player_147_bazamentor_ovner",
+      "player_147_bazamentor_tr8uble"
+    ],
+    "reputation": 41,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_148_raoxter",
+    "name": "Raoxter",
+    "shortName": "RAOX",
+    "tier": "SEMI_PRO",
+    "region": "OCE",
+    "logoPath": "/assets/teams/raoxter/logo.svg",
+    "rosterIds": [
+      "player_148_raoxter_adc",
+      "player_148_raoxter_khelleoz",
+      "player_148_raoxter_ju7kes",
+      "player_148_raoxter_txerryyy",
+      "player_148_raoxter_wiridian"
+    ],
+    "reputation": 41,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_149_prezdigeel",
+    "name": "Prezdigeel",
+    "shortName": "PREZ",
+    "tier": "SEMI_PRO",
+    "region": "EU",
+    "logoPath": "/assets/teams/prezdigeel/logo.svg",
+    "rosterIds": [
+      "player_149_prezdigeel_fejts",
+      "player_149_prezdigeel_fev",
+      "player_149_prezdigeel_folce",
+      "player_149_prezdigeel_hz",
+      "player_149_prezdigeel_misi"
+    ],
+    "reputation": 40,
+    "fanbase": 4040,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_151_ecbongo",
+    "name": "EC BONGO",
+    "shortName": "ECBO",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ec_bongo/logo.svg",
+    "rosterIds": [
+      "player_151_ic_blasecinho",
+      "player_151_ic_dansz",
+      "player_151_ic_labreenk",
+      "player_151_ic_macaroff",
+      "player_151_ic_zgreet"
+    ],
+    "reputation": 40,
+    "fanbase": 3960,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_152_wetermelon",
+    "name": "WETERMELON",
+    "shortName": "WETE",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/wetermelon/logo.svg",
+    "rosterIds": [
+      "player_152_wetermelon_due7yant",
+      "player_152_wetermelon_qleb86ruz",
+      "player_152_wetermelon_laczheri",
+      "player_152_wetermelon_nxeolife",
+      "player_152_wetermelon_zexyvowa"
+    ],
+    "reputation": 39,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_154_oxojy",
+    "name": "Oxojy",
+    "shortName": "OXOJY",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/oxojy/logo.svg",
+    "rosterIds": [
+      "player_154_oxojy_axyano",
+      "player_154_oxojy_fxluffy",
+      "player_154_oxojy_heccbnk",
+      "player_154_oxojy_k1zsly",
+      "player_154_oxojy_sealot"
+    ],
+    "reputation": 38,
+    "fanbase": 3840,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_156_fengdoal",
+    "name": "FengDoal",
+    "shortName": "FENG",
+    "tier": "ACADEMY",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/fengdoal/logo.svg",
+    "rosterIds": [
+      "player_156_fengdoal_9ql",
+      "player_156_fengdoal_biukkmt",
+      "player_156_fengdoal_p2p",
+      "player_156_fengdoal_zalmon",
+      "player_156_fengdoal_trazh"
+    ],
+    "reputation": 38,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_157_procyon",
+    "name": "Procyon",
+    "shortName": "PROC",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/procyon/logo.svg",
+    "rosterIds": [
+      "player_157_procyon_aql",
+      "player_157_procyon_lenki",
+      "player_157_procyon_mzaxoff",
+      "player_157_procyon_nzext",
+      "player_157_procyon_pavw"
+    ],
+    "reputation": 37,
+    "fanbase": 3720,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_158_qwintry",
+    "name": "QWINTRY",
+    "shortName": "QWIN",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/qwintry/logo.svg",
+    "rosterIds": [
+      "player_158_qwintry_axbiraju",
+      "player_158_qwintry_eights999",
+      "player_158_qwintry_facecrakc",
+      "player_158_qwintry_pzychodoctor",
+      "player_158_qwintry_zlaxejeszz"
+    ],
+    "reputation": 37,
+    "fanbase": 3680,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_159_bushydowildcods",
+    "name": "Bushydo Wildcods",
+    "shortName": "BUSH",
+    "tier": "ACADEMY",
+    "region": "MENA",
+    "logoPath": "/assets/teams/bushydo_wildcods/logo.svg",
+    "rosterIds": [
+      "player_159_byshedo_kadnyx",
+      "player_159_byshedo_dxarendeli",
+      "player_159_byshedo_enz",
+      "player_159_byshedo_zkollen",
+      "player_159_byshedo_wej"
+    ],
+    "reputation": 36,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_160_zomblirs",
+    "name": "Zomblirs",
+    "shortName": "ZOMB",
+    "tier": "ACADEMY",
+    "region": "NA",
+    "logoPath": "/assets/teams/zomblirs/logo.svg",
+    "rosterIds": [
+      "player_160_zomblirs_kajun",
+      "player_160_zomblirs_koolcoms",
+      "player_160_zomblirs_qrape",
+      "player_160_zomblirs_pol8",
+      "player_160_zomblirs_pose7donn"
+    ],
+    "reputation": 36,
+    "fanbase": 3600,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_161_everblaze",
+    "name": "Everblaze",
+    "shortName": "EVER",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/everblaze/logo.svg",
+    "rosterIds": [
+      "player_161_edernel_kalyx",
+      "player_161_edernel_demgg",
+      "player_161_edernel_emztar",
+      "player_161_edernel_izmorr",
+      "player_161_edernel_jxottaaa",
+      "player_161_edernel_jrezy",
+      "player_161_edernel_luqzen",
+      "player_161_edernel_riqon",
+      "player_161_edernel_voro2k"
+    ],
+    "reputation": 36,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_162_enphinite",
+    "name": "ENPhINITE",
+    "shortName": "ENPH",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/enphinite/logo.svg",
+    "rosterIds": [
+      "player_162_enphinite_lcz",
+      "player_162_enphinite_mhn7",
+      "player_162_enphinite_ra7n",
+      "player_162_enphinite_rgby",
+      "player_162_enphinite_welnik"
+    ],
+    "reputation": 35,
+    "fanbase": 3520,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_163_metezpurt",
+    "name": "Metezpurt",
+    "shortName": "METE",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/metezpurt/logo.svg",
+    "rosterIds": [
+      "player_163_metezpurt_draqon",
+      "player_163_metezpurt_forzyy",
+      "player_163_metezpurt_izak",
+      "player_163_metezpurt_jakcinho",
+      "player_163_metezpurt_mail83",
+      "player_163_metezpurt_plopzci"
+    ],
+    "reputation": 35,
+    "fanbase": 2200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_164_tryckdrivirx",
+    "name": "Tryck Drivirx",
+    "shortName": "TRYC",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/tryck_drivirx/logo.svg",
+    "rosterIds": [
+      "player_164_trukk_h1qlain",
+      "player_164_trukk_mil6nnn",
+      "player_164_trukk_nzaiter",
+      "player_164_trukk_obsvard",
+      "player_164_trukk_xadoxq8d"
+    ],
+    "reputation": 34,
+    "fanbase": 3440,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_166_ikoisto",
+    "name": "IKOISTO",
+    "shortName": "IKOI",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ikoisto/logo.svg",
+    "rosterIds": [
+      "player_166_ikoisto_havachi",
+      "player_166_ikoisto_jaw7ko",
+      "player_166_ikoisto_zkhwarzkopf",
+      "player_166_ikoisto_zh1seido",
+      "player_166_ikoisto_zlazh"
+    ],
+    "reputation": 34,
+    "fanbase": 3360,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_167_f5",
+    "name": "F5",
+    "shortName": "F5",
+    "tier": "ACADEMY",
+    "region": "NA",
+    "logoPath": "/assets/teams/f5/logo.svg",
+    "rosterIds": [
+      "player_167_f5_bonez",
+      "player_167_f5_kmrn",
+      "player_167_f5_cermi",
+      "player_167_f5_neiqht",
+      "player_167_f5_ziqnal"
+    ],
+    "reputation": 33,
+    "fanbase": 3320,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_168_exzod",
+    "name": "EXZOD",
+    "shortName": "EXZOD",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/exzod/logo.svg",
+    "rosterIds": [
+      "player_168_exzod_blase",
+      "player_168_exzod_jerk8z",
+      "player_168_exzod_kimbarreiroz",
+      "player_168_exzod_cwaur",
+      "player_168_exzod_morets",
+      "player_168_exzod_rzafity",
+      "player_168_exzod_ruy2c",
+      "player_168_exzod_thosor",
+      "player_168_exzod_txuxa"
+    ],
+    "reputation": 33,
+    "fanbase": 3280,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_169_xeydstars",
+    "name": "Xeyd Stars",
+    "shortName": "XEYD",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/xeyd_stars/logo.svg",
+    "rosterIds": [
+      "player_169_keydor_b6rtin",
+      "player_169_keydor_cutzmerets",
+      "player_169_keydor_danoko",
+      "player_169_keydor_lazh",
+      "player_169_keydor_t3rnay"
+    ],
+    "reputation": 32,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_170_ilidenergy",
+    "name": "iLIDenergy",
+    "shortName": "ILID",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ilidenergy/logo.svg",
+    "rosterIds": [
+      "player_170_ilidenergy_finv",
+      "player_170_ilidenergy_qooddeph",
+      "player_170_ilidenergy_k0z",
+      "player_170_ilidenergy_c1zlll",
+      "player_170_ilidenergy_ceeqan"
+    ],
+    "reputation": 32,
+    "fanbase": 3200,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_171_justexswing",
+    "name": "Justex Swing",
+    "shortName": "JUST",
+    "tier": "ACADEMY",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/justex_swing/logo.svg",
+    "rosterIds": [
+      "player_171_jyxt_gaz",
+      "player_171_jyxt_pzurely",
+      "player_171_jyxt_gqqod",
+      "player_171_jyxt_zator7",
+      "player_171_jyxt_zcrr"
+    ],
+    "reputation": 32,
+    "fanbase": 3160,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_172_xenquro",
+    "name": "XENQUro",
+    "shortName": "XENQ",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/xenquro/logo.svg",
+    "rosterIds": [
+      "player_172_xenquro_qeni",
+      "player_172_xenquro_j8nnev",
+      "player_172_xenquro_capiw",
+      "player_172_xenquro_lxene",
+      "player_172_xenquro_zamppa"
+    ],
+    "reputation": 31,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_174_ellinnars",
+    "name": "ELLINNARS",
+    "shortName": "ELLI",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/ellinnars/logo.svg",
+    "rosterIds": [
+      "player_174_ellinnars_buzter",
+      "player_174_ellinnars_iky",
+      "player_174_ellinnars_cade8",
+      "player_174_ellinnars_cumao",
+      "player_174_ellinnars_nxoni"
+    ],
+    "reputation": 30,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_175_fulhaomarila",
+    "name": "FULHA OMARILA",
+    "shortName": "FULH",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/fulha_omarila/logo.svg",
+    "rosterIds": [
+      "player_175_volha_kerolsin",
+      "player_175_volha_kczao",
+      "player_175_volha_f6stsin",
+      "player_175_volha_mzello",
+      "player_175_volha_xzureba"
+    ],
+    "reputation": 30,
+    "fanbase": 3000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_176_aururayuunjblod",
+    "name": "Aurura Yuunj Blod",
+    "shortName": "AURU",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/aurura_yuunj_blod/logo.svg",
+    "rosterIds": [
+      "player_176_eurora_c1nko",
+      "player_176_eurora_mxeetyoxanaji",
+      "player_176_eurora_r7pa4",
+      "player_176_eurora_redsed",
+      "player_176_eurora_ztarmie"
+    ],
+    "reputation": 30,
+    "fanbase": 2960,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_179_csdiylyt",
+    "name": "CSDIYLYT",
+    "shortName": "CSDI",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/csdiylyt/logo.svg",
+    "rosterIds": [
+      "player_179_csdiylyt_8jxuho8",
+      "player_179_csdiylyt_arwid",
+      "player_179_csdiylyt_mzelty",
+      "player_179_csdiylyt_mygqis",
+      "player_179_csdiylyt_oxopee"
+    ],
+    "reputation": 28,
+    "fanbase": 2840,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_180_undergroond",
+    "name": "Undergroond",
+    "shortName": "UNDE",
+    "tier": "ACADEMY",
+    "region": "OCE",
+    "logoPath": "/assets/teams/undergroond/logo.svg",
+    "rosterIds": [
+      "player_180_undergroond_76lor",
+      "player_180_undergroond_jzynx",
+      "player_180_undergroond_craz",
+      "player_180_undergroond_mechanikal",
+      "player_180_undergroond_n7qhtraid"
+    ],
+    "reputation": 28,
+    "fanbase": 2800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_181_kono",
+    "name": "kONO",
+    "shortName": "KONO",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/kono/logo.svg",
+    "rosterIds": [
+      "player_181_kono_b8rup",
+      "player_181_kono_birdfromzcy",
+      "player_181_kono_burmylow",
+      "player_181_kono_cptkurtka823",
+      "player_181_kono_keos"
+    ],
+    "reputation": 28,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_182_lestbyllet",
+    "name": "Lest Byllet",
+    "shortName": "LEST",
+    "tier": "ACADEMY",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/lest_byllet/logo.svg",
+    "rosterIds": [
+      "player_182_lastium_b1nqo",
+      "player_182_lastium_flyinq",
+      "player_182_lastium_lzan",
+      "player_182_lastium_mziami",
+      "player_182_lastium_rxoninbaby"
+    ],
+    "reputation": 27,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_183_bistiaaqedemy",
+    "name": "BISTIA Aqedemy",
+    "shortName": "BIST",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/bistia_aqedemy/logo.svg",
+    "rosterIds": [
+      "player_183_besteayx_aqt",
+      "player_183_besteayx_jotaq9",
+      "player_183_besteayx_k7not1",
+      "player_183_besteayx_leczi",
+      "player_183_besteayx_susu"
+    ],
+    "reputation": 27,
+    "fanbase": 2680,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_184_lilmix",
+    "name": "Lilmix",
+    "shortName": "LILM",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/lilmix/logo.svg",
+    "rosterIds": [
+      "player_184_lilmix_bzover",
+      "player_184_lilmix_doobz",
+      "player_184_lilmix_guix",
+      "player_184_lilmix_sn8w",
+      "player_184_lilmix_vallen"
+    ],
+    "reputation": 26,
+    "fanbase": 2640,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_185_golarysel",
+    "name": "Golarysel",
+    "shortName": "GOLA",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/golarysel/logo.svg",
+    "rosterIds": [
+      "player_185_golarysel_kard",
+      "player_185_golarysel_deztiny",
+      "player_185_golarysel_drq",
+      "player_185_golarysel_qbb",
+      "player_185_golarysel_nxython",
+      "player_185_golarysel_txomate"
+    ],
+    "reputation": 26,
+    "fanbase": 1900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_186_mesa",
+    "name": "Mesa",
+    "shortName": "MESA",
+    "tier": "ACADEMY",
+    "region": "MENA",
+    "logoPath": "/assets/teams/mesa/logo.svg",
+    "rosterIds": [
+      "player_186_mesa_ccanik",
+      "player_186_mesa_mertowzc1",
+      "player_186_mesa_rim9",
+      "player_186_mesa_zouv",
+      "player_186_mesa_suedzta"
+    ],
+    "reputation": 26,
+    "fanbase": 2560,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_187_wewillwen",
+    "name": "WeWillWen",
+    "shortName": "WEWI",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/wewillwen/logo.svg",
+    "rosterIds": [
+      "player_187_wewillwen_bixz",
+      "player_187_wewillwen_dod82c",
+      "player_187_wewillwen_txajinio",
+      "player_187_wewillwen_vhiplazh1",
+      "player_187_wewillwen_xxadev"
+    ],
+    "reputation": 25,
+    "fanbase": 2520,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_188_exjonk",
+    "name": "ex-JONK",
+    "shortName": "EXJO",
+    "tier": "ACADEMY",
+    "region": "MENA",
+    "logoPath": "/assets/teams/ex_jonk/logo.svg",
+    "rosterIds": [
+      "player_188_ex_jonk_kizsx",
+      "player_188_ex_jonk_guality",
+      "player_188_ex_jonk_xzeternalxx",
+      "player_188_ex_jonk_semix",
+      "player_188_ex_jonk_zer8uky"
+    ],
+    "reputation": 25,
+    "fanbase": 2480,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_190_fuuryxmogiq",
+    "name": "Fuuryx Mogiq",
+    "shortName": "FUUR",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/fuuryx_mogiq/logo.svg",
+    "rosterIds": [
+      "player_190_voorro_brocen",
+      "player_190_voorro_kld",
+      "player_190_voorro_klon1",
+      "player_190_voorro_lts",
+      "player_190_voorro_rzemix"
+    ],
+    "reputation": 24,
+    "fanbase": 2400,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_191_myertaex",
+    "name": "MYERTAex",
+    "shortName": "MYER",
+    "tier": "ACADEMY",
+    "region": "CIS",
+    "logoPath": "/assets/teams/myertaex/logo.svg",
+    "rosterIds": [
+      "player_191_myertaex_hukkler",
+      "player_191_myertaex_lezswill",
+      "player_191_myertaex_lxumier",
+      "player_191_myertaex_semzys",
+      "player_191_myertaex_xzepover"
+    ],
+    "reputation": 24,
+    "fanbase": 2360,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_192_badlykk",
+    "name": "Bad Lykk",
+    "shortName": "BADL",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/bad_lykk/logo.svg",
+    "rosterIds": [
+      "player_192_bad_alennnkar",
+      "player_192_bad_zakamoto",
+      "player_192_bad_zpace",
+      "player_192_bad_talksyn",
+      "player_192_bad_thuizter"
+    ],
+    "reputation": 23,
+    "fanbase": 2320,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_193_mazroea",
+    "name": "MAZROEA",
+    "shortName": "MAZR",
+    "tier": "ACADEMY",
+    "region": "NA",
+    "logoPath": "/assets/teams/mazroea/logo.svg",
+    "rosterIds": [
+      "player_193_mazroea_baqel",
+      "player_193_mazroea_k8c0",
+      "player_193_mazroea_cms",
+      "player_193_mazroea_no7nx",
+      "player_193_mazroea_tvigs"
+    ],
+    "reputation": 23,
+    "fanbase": 2280,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_194_bijaqoipa",
+    "name": "BIJ AQOIPA",
+    "shortName": "BIJA",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/bij_aqoipa/logo.svg",
+    "rosterIds": [
+      "player_194_big_kings_azim",
+      "player_194_big_kings_aztra",
+      "player_194_big_kings_emmzan",
+      "player_194_big_kings_hanca",
+      "player_194_big_kings_zozya"
+    ],
+    "reputation": 22,
+    "fanbase": 2240,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_195_enceacodamy",
+    "name": "ENCE Acodamy",
+    "shortName": "ENCE",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/ence_acodamy/logo.svg",
+    "rosterIds": [
+      "player_195_ance_blikc",
+      "player_195_ance_cligg",
+      "player_195_ance_mzillert",
+      "player_195_ance_zchwarz",
+      "player_195_ance_tzeme"
+    ],
+    "reputation": 22,
+    "fanbase": 0,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_196_players",
+    "name": "Players",
+    "shortName": "PLAY",
+    "tier": "ACADEMY",
+    "region": "BR",
+    "logoPath": "/assets/teams/players/logo.svg",
+    "rosterIds": [
+      "player_196_players_likh",
+      "player_196_players_mzithputtini",
+      "player_196_players_prizma",
+      "player_196_players_zpinnie",
+      "player_196_players_xnz"
+    ],
+    "reputation": 22,
+    "fanbase": 2160,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_197_qhikkencaup",
+    "name": "Qhikken Caup",
+    "shortName": "QHIK",
+    "tier": "ACADEMY",
+    "region": "NA",
+    "logoPath": "/assets/teams/qhikken_caup/logo.svg",
+    "rosterIds": [
+      "player_197_chykkenra_krizp",
+      "player_197_chykkenra_dzrop",
+      "player_197_chykkenra_jxared",
+      "player_197_chykkenra_panik",
+      "player_197_chykkenra_recmeister"
+    ],
+    "reputation": 21,
+    "fanbase": 2120,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_198_wildrix",
+    "name": "WiLDrix",
+    "shortName": "WILD",
+    "tier": "ACADEMY",
+    "region": "EU",
+    "logoPath": "/assets/teams/wildrix/logo.svg",
+    "rosterIds": [
+      "player_198_wildrix_flazi",
+      "player_198_wildrix_macszi",
+      "player_198_wildrix_nonz9ns",
+      "player_198_wildrix_ztrong9r",
+      "player_198_wildrix_v1z9r"
+    ],
+    "reputation": 21,
+    "fanbase": 2080,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  },
+  {
+    "id": "team_200_ligianal",
+    "name": "Ligianal",
+    "shortName": "LIGI",
+    "tier": "ACADEMY",
+    "region": "ASIA",
+    "logoPath": "/assets/teams/ligianal/logo.svg",
+    "rosterIds": [
+      "player_200_ligianal_bzloody",
+      "player_200_ligianal_hxf",
+      "player_200_ligianal_hsi",
+      "player_200_ligianal_pawazt4r",
+      "player_200_ligianal_pocemon"
+    ],
+    "reputation": 20,
+    "fanbase": 2000,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000
+  }
+]

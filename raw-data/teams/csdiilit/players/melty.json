@@ -1,0 +1,20 @@
+{
+  "name": "melty",
+  "country": "Finland",
+  "countryCode": "fi",
+  "team": "CSDIILIT",
+  "teamRank": "179",
+  "age": 20,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 8,
+    "entrying": 23,
+    "trading": 42,
+    "opening": 43,
+    "clutching": 37,
+    "sniping": 82,
+    "utility": 33
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

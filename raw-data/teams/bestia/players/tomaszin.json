@@ -1,0 +1,20 @@
+{
+  "name": "tomaszin",
+  "country": "Argentina",
+  "countryCode": "ar",
+  "team": "BESTIA",
+  "teamRank": "37",
+  "age": 21,
+  "rating": 1.25,
+  "stats": {
+    "firepower": 93,
+    "entrying": 87,
+    "trading": 71,
+    "opening": 66,
+    "clutching": 48,
+    "sniping": 36,
+    "utility": 46
+  },
+  "matchesPlayed": 146,
+  "hltvHistory": []
+}

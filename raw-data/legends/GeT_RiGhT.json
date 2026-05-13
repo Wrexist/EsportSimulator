@@ -1,0 +1,21 @@
+{
+  "name": "GeT_RiGhT",
+  "country": "Sweden",
+  "countryCode": "se",
+  "team": "Hall of Fame",
+  "teamRank": "—",
+  "role": "Rifler",
+  "status": "Legend",
+  "age": 34,
+  "birthDate": "May 29, 1990",
+  "rating": 1.28,
+  "stats": {
+    "firepower": 96,
+    "entrying": 88,
+    "trading": 94,
+    "opening": 90,
+    "clutching": 98,
+    "sniping": 65,
+    "utility": 92
+  }
+}

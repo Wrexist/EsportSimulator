@@ -1,0 +1,20 @@
+{
+  "name": "n0te",
+  "country": "Belgium",
+  "countryCode": "be",
+  "team": "Nemesis",
+  "teamRank": "109",
+  "age": 19,
+  "rating": 1.09,
+  "stats": {
+    "firepower": 71,
+    "entrying": 25,
+    "trading": 77,
+    "opening": 44,
+    "clutching": 35,
+    "sniping": 0,
+    "utility": 44
+  },
+  "matchesPlayed": 145,
+  "hltvHistory": []
+}

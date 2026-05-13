@@ -1,0 +1,20 @@
+{
+  "name": "madness",
+  "country": "China",
+  "countryCode": "cn",
+  "team": "UR",
+  "teamRank": "206",
+  "age": 24,
+  "rating": 1.06,
+  "stats": {
+    "firepower": 48,
+    "entrying": 88,
+    "trading": 64,
+    "opening": 30,
+    "clutching": 74,
+    "sniping": 53,
+    "utility": 96
+  },
+  "matchesPlayed": 33,
+  "hltvHistory": []
+}

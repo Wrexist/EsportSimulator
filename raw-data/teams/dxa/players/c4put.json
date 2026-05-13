@@ -1,0 +1,20 @@
+{
+  "name": "c4put",
+  "country": "Australia",
+  "countryCode": "au",
+  "team": "DXA",
+  "teamRank": "240",
+  "age": 19,
+  "rating": 0.74,
+  "stats": {
+    "firepower": 2,
+    "entrying": 15,
+    "trading": 36,
+    "opening": 17,
+    "clutching": 16,
+    "sniping": 37,
+    "utility": 53
+  },
+  "matchesPlayed": 59,
+  "hltvHistory": []
+}

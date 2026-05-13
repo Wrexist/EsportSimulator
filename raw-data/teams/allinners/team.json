@@ -1,0 +1,24 @@
+{
+  "name": "ALLINNERS",
+  "hltvRank": "174",
+  "nationality": "Kazakhstan",
+  "players": [
+    {
+      "name": "kade0",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "kumao",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "noni",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    }
+  ],
+  "matchesPlayed": 38,
+  "hltvHistory": []
+}

@@ -1,0 +1,34 @@
+{
+  "name": "AM",
+  "hltvRank": "104",
+  "nationality": "Germany",
+  "players": [
+    {
+      "name": "k1to",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "Altekz",
+      "country": "Denmark",
+      "countryCode": "dk"
+    },
+    {
+      "name": "kyuubii",
+      "country": "Germany",
+      "countryCode": "de"
+    },
+    {
+      "name": "delle",
+      "country": "Sweden",
+      "countryCode": "se"
+    },
+    {
+      "name": "pxsl",
+      "country": "Germany",
+      "countryCode": "de"
+    }
+  ],
+  "matchesPlayed": 39,
+  "hltvHistory": []
+}

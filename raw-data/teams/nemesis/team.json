@@ -1,0 +1,34 @@
+{
+  "name": "Nemesis",
+  "hltvRank": "45",
+  "nationality": "Russia",
+  "players": [
+    {
+      "name": "SELLTER",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "mag1k3Y",
+      "country": "Kazakhstan",
+      "countryCode": "kz"
+    },
+    {
+      "name": "tex1y",
+      "country": "Russia",
+      "countryCode": "ru"
+    },
+    {
+      "name": "Sdaim",
+      "country": "Ukraine",
+      "countryCode": "ua"
+    },
+    {
+      "name": "yiksrezo",
+      "country": "Russia",
+      "countryCode": "ru"
+    }
+  ],
+  "matchesPlayed": 128,
+  "hltvHistory": []
+}

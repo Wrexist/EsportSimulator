@@ -1,0 +1,20 @@
+{
+  "name": "MahaR",
+  "country": "Czech Republic",
+  "countryCode": "cz",
+  "team": "Young Ninjas",
+  "teamRank": "146",
+  "age": 17,
+  "rating": 1.23,
+  "stats": {
+    "firepower": 79,
+    "entrying": 71,
+    "trading": 86,
+    "opening": 37,
+    "clutching": 62,
+    "sniping": 4,
+    "utility": 39
+  },
+  "matchesPlayed": 47,
+  "hltvHistory": []
+}

@@ -1,0 +1,20 @@
+{
+  "name": "bLitz",
+  "country": "Mongolia",
+  "countryCode": "mn",
+  "team": "The MongolZ",
+  "teamRank": "10",
+  "age": 24,
+  "rating": 0.9,
+  "stats": {
+    "firepower": 30,
+    "entrying": 55,
+    "trading": 15,
+    "opening": 32,
+    "clutching": 52,
+    "sniping": 31,
+    "utility": 96
+  },
+  "matchesPlayed": 297,
+  "hltvHistory": []
+}

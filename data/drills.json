@@ -1,0 +1,122 @@
+[
+    {
+        "id": "recoil_master",
+        "name": "Recoil Master",
+        "description": "Master the spray patterns of AK-47 and M4A4. Controlled bursts and transfers.",
+        "focus": "Mechanical Control",
+        "iconName": "Target",
+        "fatigueCost": 15,
+        "rewards": [
+            {
+                "stat": "Rifle",
+                "value": 3
+            },
+            {
+                "stat": "Skill",
+                "value": 1
+            }
+        ],
+        "steps": [
+            {
+                "message": "Initial burst control...",
+                "difficulty": 30,
+                "statCheck": "skill"
+            },
+            {
+                "message": "Pulling down for spray...",
+                "difficulty": 50,
+                "statCheck": "skill"
+            },
+            {
+                "message": "Transferring to second target...",
+                "difficulty": 70,
+                "statCheck": "reaction"
+            },
+            {
+                "message": "Resetting accuracy...",
+                "difficulty": 40,
+                "statCheck": "skill"
+            }
+        ]
+    },
+    {
+        "id": "surf_utopia",
+        "name": "Surf Utopia",
+        "description": "Smooth movement practice on the legendary tier 1 surf map.",
+        "focus": "Movement & Flow",
+        "iconName": "Wind",
+        "fatigueCost": 10,
+        "rewards": [
+            {
+                "stat": "Agility",
+                "value": 2
+            },
+            {
+                "stat": "Focus",
+                "value": 2
+            }
+        ],
+        "steps": [
+            {
+                "message": "Strafing into the first ramp...",
+                "difficulty": 40,
+                "statCheck": "reaction"
+            },
+            {
+                "message": "Maintaining velocity through the spiral...",
+                "difficulty": 60,
+                "statCheck": "skill"
+            },
+            {
+                "message": "Landing the skip jump...",
+                "difficulty": 80,
+                "statCheck": "reaction"
+            },
+            {
+                "message": "Final smooth landing...",
+                "difficulty": 30,
+                "statCheck": "skill"
+            }
+        ]
+    },
+    {
+        "id": "yprac_prefire",
+        "name": "Yprac Pre-fire",
+        "description": "Practice clearing common angles on Mirage and Inferno.",
+        "focus": "Crosshair Placement",
+        "iconName": "Crosshair",
+        "fatigueCost": 20,
+        "rewards": [
+            {
+                "stat": "Entry",
+                "value": 3
+            },
+            {
+                "stat": "Tactic",
+                "value": 1
+            }
+        ],
+        "steps": [
+            {
+                "message": "Clearing Palace angle...",
+                "difficulty": 50,
+                "statCheck": "tactic"
+            },
+            {
+                "message": "Checking Sandwich...",
+                "difficulty": 60,
+                "statCheck": "reaction"
+            },
+            {
+                "message": "Isolating the CT spawn angle...",
+                "difficulty": 75,
+                "statCheck": "tactic"
+            },
+            {
+                "message": "Jiggle peaking Connector...",
+                "difficulty": 65,
+                "statCheck": "skill"
+            }
+        ]
+    }
+]
