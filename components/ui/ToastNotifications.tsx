@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
 import { useEffect } from "react"
+import { liquidSpring, quickEase } from "@/lib/motion"
 
 export interface ToastData {
     id: string
@@ -30,11 +31,11 @@ export function ToastNotifications() {
 
     const getToastStyle = (toast: ToastData) => {
         switch (toast.type) {
-            case "level_up": return "border-emerald-500/30 bg-emerald-500/10"
-            case "xp_gain": return "border-amber-500/30 bg-amber-500/10"
-            case "achievement": return "border-purple-500/30 bg-purple-500/10"
-            case "warning": return "border-red-500/30 bg-red-500/10"
-            default: return "border-cyan-500/30 bg-cyan-500/10"
+            case "level_up": return "border-emerald-300/25"
+            case "xp_gain": return "border-amber-300/25"
+            case "achievement": return "border-violet-300/25"
+            case "warning": return "border-red-300/25"
+            default: return "border-cyan-200/25"
         }
     }
 
@@ -73,19 +74,19 @@ function ToastItem({
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
+            initial={{ opacity: 0, x: 28, scale: 0.98, filter: "blur(6px)" }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 50, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border backdrop-blur-lg shadow-xl ${getStyle(toast)}`}
+            exit={{ opacity: 0, x: 18, scale: 0.98, filter: "blur(6px)" }}
+            transition={toast.duration ? quickEase : liquidSpring}
+            className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg ${getStyle(toast)}`}
         >
-            <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-white/[0.08] flex items-center justify-center shrink-0">
                 {getIcon(toast)}
             </div>
-            <p className="text-sm font-bold text-white/90">{toast.message}</p>
+            <p className="text-sm font-semibold text-white/90">{toast.message}</p>
             <button
                 onClick={onRemove}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors opacity-60 hover:opacity-100"
+                className="p-1 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
             >
                 <X size={14} />
             </button>

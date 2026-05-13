@@ -260,7 +260,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             <div
                                 key={idx}
                                 className={cn(
-                                    "w-full p-4 rounded-3xl border transition-all text-left group relative",
+                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
                                     isSelected
                                         ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40" : "bg-orange-500/20 border-orange-500/40")
                                         : "bg-white/[0.02] border-white/5 hover:bg-white/5"
@@ -272,7 +272,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 >
                                     {/* Player Image or Fallback */}
                                     <div className={cn(
-                                        "w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg transition-transform group-hover:scale-105",
+                                        "w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden shadow-lg",
                                         loadout.roleHint === "AWPER" ? "bg-amber-500/20" :
                                             loadout.roleHint === "IGL" ? "bg-purple-500/20" :
                                                 "bg-white/10"
@@ -281,7 +281,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                             src={playerImages[idx]}
                                             alt={playerNames[idx]}
                                             size={48}
-                                            className="w-full h-full object-cover"
+                                            variant="card"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -359,7 +359,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={opt.id}
                                                 onClick={() => opt.tier ? handleSelectArmor(opt.tier) : (opt.special === "KIT" ? handleToggleKit() : null)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-all duration-300 text-center relative flex flex-col items-center gap-3 overflow-hidden group",
+                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-3 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-lg shadow-emerald-500/10"
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
@@ -401,7 +401,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, false)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-all duration-300 text-center relative flex flex-col items-center gap-2 overflow-hidden group",
+                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-blue-500/20 border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/10"
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
@@ -445,7 +445,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-all duration-300 text-center relative flex flex-col items-center gap-2 overflow-hidden group",
+                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40 text-blue-400" : "bg-orange-500/20 border-orange-500/40 text-orange-400")
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
@@ -489,7 +489,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-all duration-300 text-center relative flex flex-col items-center gap-2 overflow-hidden group",
+                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40 text-blue-400" : "bg-orange-500/20 border-orange-500/40 text-orange-400")
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
@@ -532,7 +532,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={id}
                                                 onClick={() => handleToggleGrenade(id)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-all text-center relative group min-h-[120px] flex flex-col justify-between",
+                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow] duration-100 ease-out text-center relative group min-h-[120px] flex flex-col justify-between select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-lg shadow-purple-500/10"
                                                         : "bg-white/5 border-white/5 text-white/30 hover:bg-white/10"

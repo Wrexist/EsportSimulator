@@ -256,15 +256,9 @@ export function BugReportButton() {
   return (
     <>
       {/* Floating Bug Button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.5 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-devtools group"
+        className="fixed bottom-6 right-6 z-devtools group transition-transform duration-75 ease-out will-change-transform hover:scale-110 active:scale-95 active:duration-0 select-none touch-manipulation"
         title="Report a Bug"
       >
         <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-black/30 hover:bg-white/15 hover:border-white/30 transition-colors cursor-pointer">
@@ -276,7 +270,7 @@ export function BugReportButton() {
         <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-sm border border-white/10 text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           Report a Bug
         </div>
-      </motion.button>
+      </button>
 
       {/* Bug Report Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
@@ -307,7 +301,7 @@ export function BugReportButton() {
               <select
                 value={form.category}
                 onChange={e => updateField("category", e.target.value as Category)}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-all ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
                   errors.category ? "border-red-500/50" : "border-white/10"
                 }`}
               >
@@ -332,7 +326,7 @@ export function BugReportButton() {
                 onChange={e => updateField("title", e.target.value)}
                 placeholder="Brief summary of the issue..."
                 maxLength={120}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-all ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
                   errors.title ? "border-red-500/50" : "border-white/10"
                 }`}
               />
@@ -349,7 +343,7 @@ export function BugReportButton() {
                 onChange={e => updateField("description", e.target.value)}
                 placeholder="What happened? What did you expect to happen?"
                 rows={4}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-all resize-none ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
                   errors.description ? "border-red-500/50" : "border-white/10"
                 }`}
               />
@@ -366,7 +360,7 @@ export function BugReportButton() {
                 onChange={e => updateField("steps", e.target.value)}
                 placeholder={"1. Go to...\n2. Click on...\n3. Notice that..."}
                 rows={3}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-all resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
               />
             </div>
 
@@ -384,7 +378,7 @@ export function BugReportButton() {
                   />
                   <button
                     onClick={() => updateField("screenshot", null)}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white/60 hover:text-white hover:bg-red-500/30 transition-all"
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white/60 hover:text-white hover:bg-red-500/30 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -392,7 +386,7 @@ export function BugReportButton() {
               ) : (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04] transition-all cursor-pointer"
+                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04] transition-colors duration-100 ease-out cursor-pointer active:scale-[0.99] active:duration-0"
                 >
                   <ImagePlus className="w-6 h-6 text-white/30" />
                   <div className="text-center">
@@ -468,7 +462,7 @@ export function BugReportButton() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/20 text-red-400 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-bold"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/20 text-red-400 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-100 ease-out text-sm font-bold active:scale-[0.98] active:duration-0"
             >
               <Clipboard className="w-4 h-4" />
               {submitting ? "Copying..." : "Copy Report to Clipboard"}

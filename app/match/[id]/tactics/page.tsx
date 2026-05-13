@@ -302,14 +302,14 @@ export default function TacticalHQPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="glass-panel p-10 rounded-[40px] border border-white/5 bg-white/[0.01] backdrop-blur-2xl relative overflow-hidden"
+                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/[0.01] backdrop-blur-2xl relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
 
                     <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
                         {/* Player Team */}
                         <div className="flex flex-col items-center text-center gap-4">
-                            <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-xl">
+                        <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-glass-soft">
                                 <TeamLogoDisplay team={myTeam} size={64} />
                             </div>
                             <div>
@@ -331,7 +331,7 @@ export default function TacticalHQPage() {
 
                         {/* Opponent Team */}
                         <div className="flex flex-col items-center text-center gap-4">
-                            <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-xl relative group">
+                        <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-glass-soft relative group">
                                 <TeamLogoDisplay team={opponent} size={64} />
                                 <div className="absolute -bottom-3 px-3 py-1 bg-red-500 text-white text-[8px] font-normal uppercase tracking-widest rounded-full shadow-lg">
                                     ENEMY
@@ -374,7 +374,7 @@ export default function TacticalHQPage() {
                             prizePool={tournamentDef?.prizePool}
                             isElimination={tournamentDef?.format === "bracket"}
                             nextStage={nextStage}
-                            className="rounded-[40px]"
+                        className="rounded-xl"
                         />
                     )
                 })()}
@@ -416,25 +416,25 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                            className="absolute -inset-[1px] rounded-[41px] bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"
+                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                        <div className="glass-panel p-8 rounded-[40px] border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
 
                             <div className="flex items-center gap-4 mb-8 relative z-10">
                                 <motion.div
-                                    className="relative w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500"
+                        className="relative w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     {/* Pulse ring */}
                                     <motion.div
-                                        className="absolute inset-0 rounded-2xl border border-blue-500/30"
+                                className="absolute inset-0 rounded-lg border border-blue-500/30"
                                         animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     />
@@ -470,11 +470,11 @@ export default function TacticalHQPage() {
                                 )}
                             </div>
 
-                        <div className="relative overflow-hidden rounded-2xl group border border-white/5 bg-[#0a0a0a]">
+                        <div className="relative overflow-hidden rounded-lg group border border-white/5 bg-[#0a0a0a]">
                             {!isVodUnlocked && (
                                 <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-                                    <div className="bg-black/90 px-8 py-6 rounded-3xl border border-white/10 text-center shadow-2xl transform scale-100">
-                                        <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
+                        <div className="bg-black/70 px-8 py-6 rounded-xl border border-white/10 text-center shadow-glass-soft transform scale-100">
+                            <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-white/10">
                                             <Lock size={24} className="text-white/40" />
                                         </div>
                                         <h3 className="text-white font-normal uppercase tracking-wider mb-1">Feature Locked</h3>
@@ -493,7 +493,7 @@ export default function TacticalHQPage() {
                                 {/* Visual Header */}
                                 <div className="relative h-48 w-full group overflow-hidden">
                                     <div className="absolute inset-0 flex items-center justify-center z-20">
-                                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-white/20 shadow-xl">
+                        <div className="w-16 h-16 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center transition-transform duration-300 border border-white/20 shadow-glass-soft">
                                             <Play size={24} className="ml-1 text-white fill-white" />
                                         </div>
                                     </div>
@@ -579,26 +579,26 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                            className="absolute -inset-[1px] rounded-[41px] bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"
+                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                        <div className="glass-panel p-8 rounded-[40px] border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none" />
                             <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] pointer-events-none" />
 
                             <div className="flex items-center gap-4 mb-8 relative z-10">
                                 <motion.div
-                                    className="relative w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500"
+                        className="relative w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500"
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     {/* Pulse ring */}
                                     <motion.div
-                                        className="absolute inset-0 rounded-2xl border border-emerald-500/30"
+                                className="absolute inset-0 rounded-lg border border-emerald-500/30"
                                         animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     />
@@ -714,7 +714,7 @@ export default function TacticalHQPage() {
                                 aria-disabled={!isMentalResetUnlocked}
                                 aria-label="Apply Mental Reset ($5,000) to boost morale"
                                 aria-pressed={mentalBoosted}
-                                className="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
+                    className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
                                 onClick={() => { if (isMentalResetUnlocked) handleMentalPrep() }}
                                 onKeyDown={(e) => {
                                     if (!isMentalResetUnlocked) return
@@ -742,11 +742,11 @@ export default function TacticalHQPage() {
 
                         <div className="mt-auto space-y-3">
                             {isFuture ? (
-                                <Button disabled className="w-full h-16 rounded-2xl bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
+                    <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
                                     <Lock size={16} className="mr-2" /> Match is in Week {match.week}
                                 </Button>
                             ) : isPast ? (
-                                <Button disabled className="w-full h-16 rounded-2xl bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
+                    <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
                                     Match Expired
                                 </Button>
                             ) : match.vetoComplete ? (
@@ -781,13 +781,13 @@ export default function TacticalHQPage() {
                                         <motion.div className="flex-1 relative" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                             {/* Animated glow behind button */}
                                             <motion.div
-                                                className="absolute inset-0 rounded-2xl bg-emerald-500/50 blur-xl"
+                    className="absolute inset-0 rounded-lg bg-emerald-500/25 blur-xl"
                                                 animate={{ opacity: [0.3, 0.6, 0.3] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
                                             />
                                             <Button
                                                 onClick={handleStartMatch}
-                                                className="relative w-full h-16 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500 hover:from-emerald-400 hover:via-emerald-300 hover:to-emerald-400 text-black font-bold text-lg uppercase tracking-widest shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all"
+                    className="relative w-full h-16 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-black font-bold text-lg uppercase tracking-widest transition-all"
                                             >
                                                 <span className="flex items-center gap-3">
                                                     <motion.span
@@ -804,7 +804,7 @@ export default function TacticalHQPage() {
                                             onClick={handleQuickSim}
                                             disabled={isQuickSimulating}
                                             variant="outline"
-                                            className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all font-normal flex items-center justify-center shadow-lg"
+                    className="h-14 w-14 rounded-lg border-white/10 bg-white/5 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all font-normal flex items-center justify-center shadow-glass-soft"
                                             title="Simulate Result Instantly"
                                         >
                                             {isQuickSimulating ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/20 border-t-white" /> : <Zap size={24} className="fill-current" />}
@@ -815,14 +815,14 @@ export default function TacticalHQPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <Button
                                         onClick={handleManualVeto}
-                                        className="h-16 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
+                    className="h-16 rounded-lg bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
                                     >
                                         Start Manual Veto
                                     </Button>
                                     <Button
                                         onClick={handleAutoVeto}
                                         disabled={isSimulatingVeto}
-                                        className="h-16 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
+                    className="h-16 rounded-lg bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
                                     >
                                         {isSimulatingVeto ? (
                                             <span className="animate-pulse">Simulating...</span>

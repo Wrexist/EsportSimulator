@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Minus, Square } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { liquidSpring } from "@/lib/motion"
 
 interface AppWindowProps {
     id: string
@@ -230,18 +231,15 @@ export function AppWindow({
                     }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     // Instant transition during interaction usually feels best, spring for maximize/snap
-                    transition={isDragging || isResizing ? { duration: 0 } : { type: "spring", damping: 30, stiffness: 300, layout: { duration: 0.2 } }}
+                    transition={isDragging || isResizing ? { duration: 0 } : { ...liquidSpring, layout: { duration: 0.2 } }}
                     style={{
                         zIndex,
                         position: "absolute",
                     }}
                     onClick={onFocus}
                     className={cn(
-                        "flex flex-col rounded-xl overflow-hidden",
-                        "bg-[rgba(20,20,25,0.85)] backdrop-blur-xl",
-                        "border border-white/10",
-                        "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]",
-                        isFocused && "ring-1 ring-cyan-500/30 shadow-[0_0_40px_rgba(6,182,212,0.1)]",
+                        "liquid-panel flex flex-col rounded-xl overflow-hidden",
+                        isFocused && "ring-1 ring-white/20 shadow-glass-float",
                         // Ensure handles are clickable
                         !isMaximized && "border-transparent"
                     )}
@@ -270,7 +268,7 @@ export function AppWindow({
                             "h-10 flex items-center justify-between px-3 relative",
                             !isMaximized && "cursor-grab",
                             isDragging && "cursor-grabbing",
-                            "bg-white/[0.03] border-b border-white/5",
+                            "bg-white/[0.045] border-b border-white/10",
                             "select-none shrink-0"
                         )}
                     >
@@ -278,19 +276,19 @@ export function AppWindow({
                         <div className="flex items-center gap-2 z-10">
                             <button
                                 onClick={(e) => { e.stopPropagation(); onClose(); }}
-                                className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors flex items-center justify-center group"
+                                className="w-3 h-3 rounded-full bg-rose-400/80 hover:bg-rose-400 active:bg-rose-500 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >
                                 <X size={8} className="opacity-0 group-hover:opacity-100 text-rose-900" />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onMinimize(); }}
-                                className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors flex items-center justify-center group"
+                                className="w-3 h-3 rounded-full bg-amber-300/80 hover:bg-amber-300 active:bg-amber-400 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >
                                 <Minus size={8} className="opacity-0 group-hover:opacity-100 text-amber-900" />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); toggleMaximize(); }}
-                                className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors flex items-center justify-center group"
+                                className="w-3 h-3 rounded-full bg-emerald-300/80 hover:bg-emerald-300 active:bg-emerald-400 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >
                                 <Square size={6} className="opacity-0 group-hover:opacity-100 text-emerald-900" />
                             </button>

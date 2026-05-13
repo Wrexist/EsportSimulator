@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import confetti from "canvas-confetti"
+import { panelTransition } from "@/lib/motion"
 
 interface TournamentWinCelebrationProps {
     data: {
@@ -52,8 +53,6 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
     if (!mounted) return null
 
     const tierColor = data.tier === "S_TIER" ? "text-amber-400" : data.tier === "A_TIER" ? "text-purple-400" : "text-blue-400"
-    const tierBg = data.tier === "S_TIER" ? "from-amber-500/20" : data.tier === "A_TIER" ? "from-purple-500/20" : "from-blue-500/20"
-
     return (
         <AnimatePresence>
             <motion.div
@@ -68,45 +67,26 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="absolute inset-0 bg-[#080a0e]/95 backdrop-blur-[20px]"
+                    className="absolute inset-0 liquid-app-bg opacity-95 backdrop-blur-xl"
                     onClick={onClose}
                 />
 
-                {/* Animated Background Gradients */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0],
-                            opacity: [0.1, 0.2, 0.1]
-                        }}
-                        transition={{ duration: 10, repeat: Infinity }}
-                        className={cn("absolute -top-1/4 -right-1/4 w-[100vw] h-[100vw] rounded-full blur-[150px] bg-gradient-to-br", tierBg, "to-transparent")}
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -45, 0],
-                            opacity: [0.05, 0.15, 0.05]
-                        }}
-                        transition={{ duration: 15, repeat: Infinity }}
-                        className={cn("absolute -bottom-1/4 -left-1/4 w-[80vw] h-[80vw] rounded-full blur-[120px] bg-gradient-to-tr", tierBg, "to-transparent")}
-                    />
-                </div>
+                <div className="absolute inset-0 liquid-noise pointer-events-none" />
 
                 {/* Celebration Card */}
                 <motion.div
-                    initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                    className="relative w-full max-w-4xl glass-panel rounded-[40px] overflow-hidden border-white/5 shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+                    variants={panelTransition}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="relative w-full max-w-4xl liquid-panel rounded-xl overflow-hidden border-white/10"
                 >
                     <div className="absolute top-6 right-6 z-20">
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={onClose}
-                            className="rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white"
+                            className="rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white"
                         >
                             <X className="w-5 h-5" />
                         </Button>
@@ -121,7 +101,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 transition={{ delay: 0.3, type: "spring", damping: 12 }}
                                 className="relative z-10 w-48 h-48 mx-auto"
                             >
-                                <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
+                                <div className="absolute inset-0 bg-cyan-200/[0.08] blur-[56px] rounded-full" />
                                 {data.trophyPath ? (
                                     <Image
                                         src={data.trophyPath}
@@ -137,17 +117,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 )}
                             </motion.div>
 
-                            {/* Orbiting Elements */}
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                            >
-                                <Star className="absolute top-0 text-amber-500/40 w-6 h-6" />
-                                <Star className="absolute right-0 text-purple-500/40 w-4 h-4" />
-                                <Star className="absolute bottom-0 text-blue-500/40 w-5 h-5" />
-                                <Star className="absolute left-0 text-emerald-500/40 w-3 h-3" />
-                            </motion.div>
+                            <Star className="absolute left-1/2 top-0 -translate-x-1/2 text-amber-300/50 w-5 h-5" />
                         </div>
 
                         {/* Text Content */}
@@ -176,9 +146,9 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.8 }}
-                                className="glass-card p-6 rounded-[24px] border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
                             >
-                                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                <div className="w-14 h-14 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                                     <DollarSign className="w-8 h-8" />
                                 </div>
                                 <div className="text-left">
@@ -191,9 +161,9 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9 }}
-                                className="glass-card p-6 rounded-[24px] border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
                             >
-                                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+                                <div className="w-14 h-14 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                                     <Users className="w-8 h-8" />
                                 </div>
                                 <div className="text-left">
@@ -206,9 +176,9 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 1 }}
-                                className="glass-card p-6 rounded-[24px] border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
                             >
-                                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                <div className="w-14 h-14 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
                                     <TrendingUp className="w-8 h-8" />
                                 </div>
                                 <div className="text-left">
@@ -228,7 +198,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                             <Button
                                 size="lg"
                                 onClick={onClose}
-                                className="h-16 px-12 rounded-2xl bg-white text-black font-normal uppercase tracking-widest hover:bg-white/90 shadow-[0_20px_40px_rgba(255,255,255,0.1)] transition-all active:scale-95"
+                                className="h-16 px-12 rounded-lg bg-white text-black font-normal uppercase tracking-widest hover:bg-white/90"
                             >
                                 CLAIM VICTORY
                             </Button>

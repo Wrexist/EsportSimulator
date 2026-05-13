@@ -1,6 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect, useMemo } from "react"
 import { format } from "date-fns"
@@ -13,20 +14,42 @@ import { getTeamColors } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 
 export function TopBar() {
-    const currentWeek = useGameStore(s => s.currentWeek)
-    const currentDay = useGameStore(s => s.currentDay)
-    const timeMode = useGameStore(s => s.timeMode)
-    const getDateForWeek = useGameStore(s => s.getDateForWeek)
-    const advanceDay = useGameStore(s => s.advanceDay)
-    const advanceToWeekEnd = useGameStore(s => s.advanceToWeekEnd)
-    const advanceWeek = useGameStore(s => s.advanceWeek)
-    const isLoading = useGameStore(s => s.isLoading)
-    const theme = useGameStore(s => s.theme)
-    const setTheme = useGameStore(s => s.setTheme)
-    const setTimeMode = useGameStore(s => s.setTimeMode)
-    const scheduledMatches = useGameStore(s => s.scheduledMatches)
-    const teams = useGameStore(s => s.teams)
-    const playerTeamId = useGameStore(s => s.playerTeamId)
+    // Single shallow-equality selector instead of 14 individual subscriptions.
+    // Without this, every store mutation (every match tick, transfer, ledger
+    // entry) re-renders the TopBar and cascades through child components.
+    const {
+        currentWeek,
+        currentDay,
+        timeMode,
+        getDateForWeek,
+        advanceDay,
+        advanceToWeekEnd,
+        advanceWeek,
+        isLoading,
+        theme,
+        setTheme,
+        setTimeMode,
+        scheduledMatches,
+        teams,
+        playerTeamId,
+    } = useGameStore(
+        useShallow(s => ({
+            currentWeek: s.currentWeek,
+            currentDay: s.currentDay,
+            timeMode: s.timeMode,
+            getDateForWeek: s.getDateForWeek,
+            advanceDay: s.advanceDay,
+            advanceToWeekEnd: s.advanceToWeekEnd,
+            advanceWeek: s.advanceWeek,
+            isLoading: s.isLoading,
+            theme: s.theme,
+            setTheme: s.setTheme,
+            setTimeMode: s.setTimeMode,
+            scheduledMatches: s.scheduledMatches,
+            teams: s.teams,
+            playerTeamId: s.playerTeamId,
+        }))
+    )
 
     const router = useRouter()
 
@@ -50,10 +73,10 @@ export function TopBar() {
     }, [])
 
     return (
-        <header className="h-16 border-b border-white/10 bg-black/20 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
+        <header className="h-16 border-b border-white/[0.06] liquid-chrome px-6 flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl">
             <div className="flex items-center gap-8">
                 {/* Team Identity */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-[170px]">
                     {/* Team Logo */}
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
                         {isMounted ? (
@@ -64,7 +87,7 @@ export function TopBar() {
                     </div>
 
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Current Team</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold whitespace-nowrap leading-none mb-1">Current Team</span>
                         <div className="flex items-center gap-1.5">
                             {/* Region Flag */}
                             {isMounted ? (
@@ -81,7 +104,7 @@ export function TopBar() {
                             ) : (
                                 <div className="w-[14px] h-[11px] bg-white/10 rounded-sm animate-pulse" />
                             )}
-                            <span className="text-sm font-semibold text-white">
+                            <span className="text-sm font-semibold text-white whitespace-nowrap">
                                 {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
                             </span>
                         </div>
@@ -89,8 +112,8 @@ export function TopBar() {
                 </div>
 
                 {/* Finances */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                    <div className="p-1 rounded-md bg-emerald-500/20 text-emerald-500">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
+                    <div className="p-1 rounded-md bg-emerald-400/[0.14] text-emerald-300">
                         <DollarSign size={14} />
                     </div>
                     <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
@@ -99,11 +122,11 @@ export function TopBar() {
                 </div>
 
                 {/* World Ranking */}
-                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                    <div className="p-1 rounded-md bg-blue-500/20 text-blue-500">
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
+                    <div className="p-1 rounded-md bg-cyan-400/[0.14] text-cyan-300">
                         <Trophy size={14} />
                     </div>
-                    <span suppressHydrationWarning className="text-sm font-medium text-blue-300">
+                        <span suppressHydrationWarning className="text-sm font-medium text-cyan-200">
                         {isMounted
                             ? (playerTeam?.worldRanking
                                 ? `#${playerTeam.worldRanking} World`
@@ -117,14 +140,14 @@ export function TopBar() {
                 {/* Date / Time */}
                 <div className="flex items-center gap-3 text-right">
                     <div className="flex flex-col">
-                        <span suppressHydrationWarning className="text-sm font-bold text-white uppercase tracking-tight">
+                        <span suppressHydrationWarning className="text-sm font-bold text-white uppercase tracking-tight whitespace-nowrap">
                             {format(currentDate, "EEE, dd MMM yyyy")}
                         </span>
-                        <span className="text-[10px] text-muted-foreground font-medium">
+                        <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
                             WEEK {currentWeek} {timeMode === "HYBRID_DAILY" ? `• DAY ${currentDay + 1}` : ""}
                         </span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white/5 border border-white/5 text-muted-foreground">
+                    <div className="p-2 rounded-lg liquid-button text-white/60">
                         <Clock size={16} />
                     </div>
                 </div>
@@ -135,7 +158,7 @@ export function TopBar() {
                     size="icon"
                     aria-label={theme === "crystal" ? "Switch to dark theme" : "Switch to light theme"}
                     onClick={() => setTheme(theme === "crystal" ? "onyx" : "crystal")}
-                    className="rounded-xl border border-white/10 hover:bg-white/5"
+                    className="rounded-lg border border-white/10 hover:bg-white/[0.08]"
                 >
                     {theme === "crystal" ? <Sun size={18} /> : <Moon size={18} />}
                 </Button>
@@ -144,7 +167,7 @@ export function TopBar() {
                     variant="outline"
                     size="sm"
                     onClick={() => setTimeMode(timeMode === "HYBRID_DAILY" ? "WEEKLY" : "HYBRID_DAILY")}
-                    className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-bold tracking-wider"
+                    className="rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-bold tracking-wider"
                 >
                     {timeMode === "HYBRID_DAILY" ? "DAILY" : "WEEKLY"}
                 </Button>
@@ -163,7 +186,7 @@ export function TopBar() {
                             <Button
                                 onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
                                 disabled={isLoading}
-                                className="bg-amber-500 hover:bg-amber-400 text-black font-normal h-10 px-6 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] animate-[pulse_2s_ease-in-out_3]"
+                                className="bg-amber-400 hover:bg-amber-300 text-black font-normal h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(245,158,11,0.7)]"
                             >
                                 <div className="flex items-center gap-2">
                                     <span className="tracking-wide">PLAY MATCH</span>
@@ -179,7 +202,7 @@ export function TopBar() {
                                 <Button
                                     onClick={() => advanceDay()}
                                     disabled={isLoading}
-                                    className="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white active:text-white/90 font-bold h-10 px-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                    className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-4 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
                                 >
                                     {isLoading ? (
                                         <motion.div
@@ -199,7 +222,7 @@ export function TopBar() {
                                     onClick={() => advanceToWeekEnd()}
                                     disabled={isLoading}
                                     variant="outline"
-                                    className="h-10 px-4 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-[11px] tracking-wider"
+                                    className="h-10 px-4 rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-[11px] tracking-wider"
                                 >
                                     SKIP WEEK
                                 </Button>
@@ -211,7 +234,7 @@ export function TopBar() {
                         <Button
                             onClick={() => advanceWeek()}
                             disabled={isLoading}
-                            className="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white active:text-white/90 font-bold h-10 px-6 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
                         >
                             {isLoading ? (
                                 <motion.div

@@ -852,12 +852,13 @@ function RankingsPageInner() {
                                         const pStyle = getTierStyle(pTier)
 
                                         return (
-                                            <div key={id} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                            <div key={id} className="group flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                                                <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 relative">
                                                     <PlayerPortrait
                                                         src={player.portraitPath}
                                                         alt={player.nickname}
                                                         size={48}
+                                                        variant="card"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">

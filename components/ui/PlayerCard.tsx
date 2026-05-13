@@ -1,13 +1,20 @@
 "use client"
 
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 import {
   Target, Gamepad2, TrendingUp, Heart, Zap, User as UserIcon,
 } from "lucide-react"
-import type { ReactNode } from "react"
+import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
+
+// Lazy three.js so cards that don't enable 3D never pull the bundle.
+const Player3DPortrait = dynamic(
+  () => import("@/components/ui/Player3DPortrait").then(m => m.Player3DPortrait),
+  { ssr: false, loading: () => null },
+)
 import { Badge } from "@/components/ui/badge"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -72,6 +79,13 @@ export interface PlayerCardProps {
   /** framer-motion layoutId for shared-element transitions */
   layoutId?: string
   className?: string
+  /**
+   * Render a live three.js 3D head instead of the static portrait. Off by
+   * default because each enabled card spins up its own WebGL context — only
+   * turn this on for views with ≤6 cards visible at once (e.g. starting
+   * lineup, hero/reveal).
+   */
+  enable3DPortrait?: boolean
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -146,7 +160,7 @@ function ovrColor(rating: number | undefined) {
 // PlayerCard
 // ────────────────────────────────────────────────────────────────────────────
 
-export function PlayerCard({
+function PlayerCardImpl({
   player,
   size = "md",
   variant = "default",
@@ -159,6 +173,7 @@ export function PlayerCard({
   children,
   layoutId,
   className,
+  enable3DPortrait = false,
 }: PlayerCardProps) {
   const isCompact = variant === "compact" || size === "xs"
   const isReveal = variant === "reveal"
@@ -171,14 +186,25 @@ export function PlayerCard({
 
   const linkUrl = href ?? (href === null ? null : `/player/${player.id}`)
 
+  // Skip the spring entrance for non-reveal cards — it re-fires every time the
+  // parent list re-renders and adds visible jitter at scale. Keep it for the
+  // hero/reveal variant where the card is the focal point.
+  const Wrapper: any = isReveal ? motion.div : "div"
+  const wrapperProps = isReveal
+    ? {
+        layoutId,
+        initial: { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+      }
+    : {}
+
   const card = (
-    <motion.div
-      layoutId={layoutId}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+    <Wrapper
+      {...wrapperProps}
       onClick={onClick}
       className={cn(
-        "relative rounded-2xl border backdrop-blur-md transition-all duration-300 overflow-hidden",
+        "group relative rounded-2xl border backdrop-blur-md overflow-hidden",
+        "transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out",
         PADDING_CLASS[size],
         ACCENT_CLASS[accent],
         selected && "border-primary/60 bg-primary/[0.08] scale-[1.01]",
@@ -193,10 +219,11 @@ export function PlayerCard({
         "relative z-10 flex items-center gap-3",
         isReveal && size === "lg" && "flex-col text-center gap-4",
       )}>
-        {/* Portrait */}
+        {/* Portrait — when 3D is enabled, the SVG underlay shows instantly
+            while WebGL warms up, then the 3D canvas overlays it. */}
         <div
           className={cn(
-            "relative shrink-0 rounded-2xl border-2 overflow-hidden shadow-xl",
+            "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
             accent === "danger"
               ? "bg-red-500/10 border-red-500/40"
               : selected
@@ -205,7 +232,14 @@ export function PlayerCard({
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >
-          <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} />
+          <div className="absolute inset-0">
+            <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
+          </div>
+          {enable3DPortrait && (
+            <div className="absolute inset-0">
+              <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
+            </div>
+          )}
         </div>
 
         {/* Identity + bars */}
@@ -307,7 +341,7 @@ export function PlayerCard({
 
       {/* Feature-specific overlays (injury, swap controls, award ribbons, …) */}
       {children}
-    </motion.div>
+    </Wrapper>
   )
 
   if (linkUrl && !onClick) {
@@ -320,3 +354,5 @@ export function PlayerCard({
 
   return card
 }
+
+export const PlayerCard = memo(PlayerCardImpl)

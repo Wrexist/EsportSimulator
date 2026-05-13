@@ -52,6 +52,13 @@ export const colors = {
   'bg-raised': `hsl(${hue.slate850})`,
   'bg-overlay': `hsl(${hue.slate800})`,
   'bg-muted': `hsl(${hue.slate700})`,
+  'glass-surface': 'rgb(255 255 255 / 0.075)',
+  'glass-surface-strong': 'rgb(255 255 255 / 0.12)',
+  'glass-surface-muted': 'rgb(255 255 255 / 0.045)',
+  'glass-border': 'rgb(255 255 255 / 0.12)',
+  'glass-border-strong': 'rgb(255 255 255 / 0.2)',
+  'glass-highlight': 'rgb(255 255 255 / 0.42)',
+  'glass-shadow': 'rgb(0 0 0 / 0.42)',
 
   // Text
   'text-primary': `hsl(${hue.slate100})`,
@@ -158,6 +165,32 @@ export const elevation = {
   'elev-1': '0 1px 2px 0 rgb(0 0 0 / 0.35), 0 1px 3px 0 rgb(0 0 0 / 0.25)',
   'elev-2': '0 4px 8px -2px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.30)',
   'elev-3': '0 16px 32px -8px rgb(0 0 0 / 0.55), 0 8px 16px -8px rgb(0 0 0 / 0.35)',
+  'glass-soft': '0 1px 0 rgb(255 255 255 / 0.08) inset, 0 18px 45px -28px rgb(0 0 0 / 0.72)',
+  'glass-float': '0 1px 0 rgb(255 255 255 / 0.12) inset, 0 26px 70px -34px rgb(0 0 0 / 0.82)',
+  /** Restrained highlight for selected nav / focus — not a loud cyan bloom */
+  'glass-active': '0 1px 0 rgb(255 255 255 / 0.14) inset, 0 14px 40px -28px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(34 211 238 / 0.14)',
+} as const
+
+// ────────────────────────────────────────────────────────────────────────────
+// Motion (align with `app/globals.css` --motion-*)
+// ────────────────────────────────────────────────────────────────────────────
+
+export const motion = {
+  durationMs: {
+    instant: 0,
+    fast: 120,
+    base: 180,
+    deliberate: 280,
+    page: 420,
+  },
+  /** CSS easing — cubic bezier */
+  easeOutExpo: [0.22, 1, 0.36, 1] as const,
+  /** Spring presets consumed by Framer Motion config objects */
+  spring: {
+    liquid: { type: 'spring' as const, stiffness: 360, damping: 34, mass: 0.8 },
+    soft: { type: 'spring' as const, stiffness: 260, damping: 28, mass: 0.9 },
+    snappy: { type: 'spring' as const, stiffness: 420, damping: 38, mass: 0.75 },
+  },
 } as const
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -172,6 +205,7 @@ export const tokens = {
   fontWeight,
   fontFamily,
   boxShadow: elevation,
+  motion,
 } as const
 
 export type DesignTokens = typeof tokens

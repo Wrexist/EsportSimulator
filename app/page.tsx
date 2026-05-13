@@ -255,7 +255,7 @@ export default function Page() {
 
       {/* HLTV Awards Banner */}
       {latestHLTVEvent && !isHLTVModalOpen && (
-        <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/20 p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="liquid-panel rounded-lg border-amber-300/20 p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
               <Trophy size={20} className="text-amber-400" />
@@ -295,9 +295,9 @@ export default function Page() {
         </div>
 
         {playerTeam && (
-          <div className="glass-panel p-4 flex items-center gap-6 border-white/5 backdrop-blur-xl bg-white/[0.02] shadow-2xl rounded-3xl">
+          <div className="glass-panel p-4 flex items-center gap-6 border-white/5 rounded-lg">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden shadow-inner">
+              <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden shadow-inner">
                 <TeamLogoDisplay team={playerTeam} size={32} />
               </div>
               <div>
@@ -328,15 +328,15 @@ export default function Page() {
         <div className="lg:col-span-2 space-y-8">
           {/* Next Match Card */}
           {nextMatch ? (
-            <Card className="glass-panel overflow-hidden border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent backdrop-blur-2xl relative group shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem]">
-              <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-3xl rounded-full translate-x-12 -translate-y-12 group-hover:bg-primary/10 transition-colors" />
+            <Card className="glass-panel overflow-hidden border-white/10 relative group rounded-lg">
+              <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
               <CardHeader className="pb-2 relative z-10">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-3">
                     <Badge className={cn(
                       "uppercase tracking-widest text-[10px] border-none px-4 py-1.5 rounded-full font-bold",
                       isMatchLive
-                        ? "bg-red-500 text-white animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]"
+                        ? "bg-red-500/85 text-white"
                         : "bg-primary/20 text-primary"
                     )}>
                       {isMatchLive ? "LIVE MATCH" : "Upcoming Match"}
@@ -346,7 +346,7 @@ export default function Page() {
 
                   {tournament && (
                     <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-right-4 duration-1000">
-                      <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                      <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-md">
                         {tournament.logoPath && (
                           <div className="w-8 h-8 relative flex items-center justify-center">
                             <Image src={tournament.logoPath} alt={tournament.name} width={24} height={24} className="object-contain brightness-110" />
@@ -367,7 +367,7 @@ export default function Page() {
               <CardContent className="relative z-10 py-8">
                 <div className="flex items-center justify-between gap-8 mb-10">
                   <div className="flex-1 text-center space-y-3">
-                    <div className="w-24 h-24 mx-auto rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-2xl backdrop-blur-md transform transition-transform group-hover:scale-105 duration-500">
+                    <div className="w-24 h-24 mx-auto rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-glass-soft backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5">
                       <TeamLogoDisplay team={playerTeam} size={56} />
                     </div>
                     <p className="font-normal text-xl uppercase tracking-tight text-white/90">{playerTeam?.name}</p>
@@ -376,15 +376,15 @@ export default function Page() {
                   <div className="flex flex-col items-center gap-4">
                     <div className="relative group/vs">
                       <div className="absolute inset-0 bg-white/20 blur-2xl rounded-full opacity-0 group-hover/vs:opacity-100 transition-opacity duration-700" />
-                      <div className="px-8 py-4 rounded-[2.5rem] bg-white/10 border border-white/20 backdrop-blur-3xl font-black text-3xl italic text-white shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all duration-500 flex items-center justify-center relative z-10">
-                        <span className="drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">VS</span>
+                      <div className="px-8 py-4 rounded-xl liquid-button font-black text-3xl italic text-white transition-all duration-300 flex items-center justify-center relative z-10">
+                        <span>VS</span>
                       </div>
                     </div>
                     <Badge variant="secondary" className="text-[10px] uppercase font-bold px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">{nextMatch.format}</Badge>
                   </div>
 
                   <div className="flex-1 text-center space-y-3">
-                    <div className="w-24 h-24 mx-auto rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-2xl backdrop-blur-md transform transition-transform group-hover:scale-105 duration-500">
+                    <div className="w-24 h-24 mx-auto rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-glass-soft backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5">
                       <TeamLogoDisplay team={teams.find(t => t.id === (nextMatch.homeTeamId === playerTeamId ? nextMatch.awayTeamId : nextMatch.homeTeamId))} size={56} />
                     </div>
                     <p className="font-normal text-xl uppercase tracking-tight text-white/90">
@@ -396,7 +396,7 @@ export default function Page() {
                 <div className="flex justify-center items-center gap-5">
                   {isMatchLive ? (
                     <>
-                      <Button asChild className="h-14 px-10 bg-amber-500 hover:bg-amber-400 text-black transition-all rounded-full text-xs uppercase font-black tracking-[0.15em] shadow-[0_15px_40px_rgba(245,158,11,0.3)] hover:shadow-[0_20px_50px_rgba(245,158,11,0.5)] hover:-translate-y-1.5 active:scale-95 duration-300">
+                      <Button asChild className="h-14 px-10 bg-amber-400 hover:bg-amber-300 text-black rounded-lg text-xs uppercase font-black tracking-[0.15em]">
                         <Link href={`/match/${nextMatch.id}/tactics`}>
                           <Swords size={18} className="mr-3" /> Play Match
                         </Link>
@@ -406,12 +406,12 @@ export default function Page() {
                         onClick={handleSimulate}
                         disabled={isSimulating || storeLoading}
                         size="icon"
-                        className="h-14 w-14 border border-white/10 bg-white/5 hover:bg-white/10 rounded-full shadow-2xl backdrop-blur-md transition-all hover:-translate-y-1.5 active:scale-90 group duration-300"
+                        className="h-14 w-14 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg shadow-glass-soft backdrop-blur-md group"
                       >
                         {isSimulating ? (
                           <Loader2 size={20} className="animate-spin text-white" />
                         ) : (
-                          <Zap size={20} className="text-white fill-white group-hover:scale-125 transition-transform" />
+                          <Zap size={20} className="text-white fill-white transition-transform" />
                         )}
                       </Button>
                     </>
@@ -439,7 +439,7 @@ export default function Page() {
               </CardContent>
             </Card>
           ) : upcomingTournaments.length > 0 ? (
-            <Card className="glass-panel overflow-hidden border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-2xl relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem]">
+            <Card className="glass-panel overflow-hidden border-white/10 relative rounded-lg">
               <CardHeader className="pb-2 relative z-10">
                 <div className="space-y-3">
                   <Badge className="uppercase tracking-widest text-[10px] border-none px-4 py-1.5 rounded-full font-bold bg-amber-500/20 text-amber-400">
@@ -450,10 +450,10 @@ export default function Page() {
               </CardHeader>
               <CardContent className="relative z-10 py-6 space-y-4">
                 {upcomingTournaments.map((t) => (
-                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
                     {/* Player team */}
                     <div className="flex-1 flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                      <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
                         <TeamLogoDisplay team={playerTeam} size={36} />
                       </div>
                       <p className="font-normal text-sm uppercase tracking-tight text-white/80">{playerTeam?.name}</p>
@@ -461,7 +461,7 @@ export default function Page() {
 
                     {/* VS TBD */}
                     <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="px-4 py-2 rounded-2xl bg-white/5 border border-white/10 font-black text-lg italic text-white/40">
+                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 font-black text-lg italic text-white/40">
                         VS
                       </div>
                     </div>
@@ -469,7 +469,7 @@ export default function Page() {
                     {/* TBD opponent */}
                     <div className="flex-1 flex items-center gap-4 justify-end">
                       <p className="font-normal text-sm uppercase tracking-tight text-white/40">TBD</p>
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-dashed border-white/10 flex items-center justify-center shrink-0">
+                      <div className="w-14 h-14 rounded-lg bg-white/5 border border-dashed border-white/10 flex items-center justify-center shrink-0">
                         <HelpCircle size={24} className="text-white/15" />
                       </div>
                     </div>
@@ -503,7 +503,7 @@ export default function Page() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="glass-panel border-dashed border-white/10 p-16 text-center bg-white/[0.01] backdrop-blur-sm rounded-[2.5rem]">
+            <Card className="glass-panel border-dashed border-white/10 p-16 text-center bg-white/[0.01] backdrop-blur-sm rounded-lg">
               <Calendar size={64} className="mx-auto mb-6 opacity-10" />
               <h3 className="text-sm font-normal uppercase tracking-[0.4em] text-white/30">No Upcoming Matches</h3>
               <Button asChild variant="link" className="mt-6 text-primary hover:text-white transition-colors uppercase text-[10px] tracking-widest">
@@ -514,7 +514,7 @@ export default function Page() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-[2rem] shadow-xl overflow-hidden">
+            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-lg overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
                   <div className="p-2 bg-amber-500/10 rounded-xl">
@@ -530,13 +530,13 @@ export default function Page() {
                     <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Week {currentWeek} / 52</span>
                   </div>
                   <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                    <div className="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
+                    <div className="h-full bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-[2rem] shadow-xl overflow-hidden">
+            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-lg overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-xl">
@@ -561,7 +561,7 @@ export default function Page() {
                       <>
                         {form.map((result, i) => (
                           <div key={i} className={cn(
-                            "h-12 w-12 rounded-[1.2rem] flex items-center justify-center font-black text-sm shadow-2xl transition-transform hover:scale-110 cursor-default",
+                            "h-12 w-12 rounded-lg flex items-center justify-center font-black text-sm shadow-glass-soft transition-transform hover:-translate-y-0.5 cursor-default",
                             result === 'W' ? "bg-emerald-500/20 text-emerald-500" : "bg-red-500/20 text-red-400"
                           )}>
                             {result}
@@ -579,7 +579,7 @@ export default function Page() {
           </div>
 
           {/* Financial Hub Card */}
-          <Card className="glass-panel border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-1000">
+          <Card className="glass-panel border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-1000">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">
@@ -653,7 +653,7 @@ export default function Page() {
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-normal uppercase tracking-[0.3em] text-white/50">Intelligence Feed</h3>
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)] animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span className="text-[10px] font-black text-emerald-500/80 uppercase tracking-[0.2em]">Live</span>
             </div>
           </div>
