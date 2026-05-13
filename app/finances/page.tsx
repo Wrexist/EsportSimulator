@@ -74,6 +74,21 @@ export default function FinancesPage() {
   })))
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
+  // O(1) lookups for the salary table below — was doing `contracts.find(...)`
+  // per row plus `players.filter(...includes())` over the full league.
+  const contractByPlayerId = useMemo(() => {
+    const map = new Map<string, typeof contracts[number]>()
+    for (const c of contracts) map.set(c.playerId, c)
+    return map
+  }, [contracts])
+  const rosterPlayers = useMemo(() => {
+    if (!playerTeam) return [] as typeof players
+    const playersById = new Map(players.map(p => [p.id, p]))
+    return (playerTeam.rosterIds || [])
+      .map(id => playersById.get(id))
+      .filter(Boolean) as typeof players
+  }, [players, playerTeam])
+
   // Cast for EconomyManager since it expects the simpler Team type
   const { report, currentMoney, weeklyIncomeTotal, weeklyExpensesTotal, netCashflow, isPositiveCashflow } = useMemo(() => {
     if (!playerTeam) {
@@ -318,8 +333,8 @@ export default function FinancesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {players.filter(p => playerTeam.rosterIds.includes(p.id)).map(p => {
-                      const contract = contracts.find(c => c.playerId === p.id)
+                    {rosterPlayers.map(p => {
+                      const contract = contractByPlayerId.get(p.id)
                       const salary = contract?.salaryPerWeek || 0
                       const weeksLeft = (contract?.endWeek || currentWeek) - currentWeek
 

@@ -58,6 +58,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 
+// Hoisted: pure lookup, no closure. Was being re-created every render.
+function getIntensityStyle(intensity: string) {
+    switch (intensity) {
+        case "FIERCE": return "text-red-400 bg-red-500/20 border-red-500/30"
+        case "HEATED": return "text-orange-400 bg-orange-500/20 border-orange-500/30"
+        case "NEUTRAL": return "text-yellow-400 bg-yellow-500/20 border-yellow-500/30"
+        default: return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30"
+    }
+}
+
 export default function StatsPage() {
     const { players, teams, playerTeamId, completedMatches, contracts, currentWeek } = useGameStore(useShallow(state => ({
         players: state.players,
@@ -204,14 +214,16 @@ export default function StatsPage() {
     // Recent match results for history
     const recentMatches = teamMatches.slice(0, 20)
 
-    // Get rivalries
+    // Get rivalries. Build a teamsById index once so the rivalry list does an
+    // O(1) lookup per row instead of O(teams) on every map iteration.
     const rivalries = useMemo(() => {
         if (!playerTeam?.rivalries) return []
+        const teamsById = new Map(teams.map(t => [t.id, t]))
         return [...playerTeam.rivalries]
             .sort((a, b) => b.matchesPlayed - a.matchesPlayed)
             .map(r => ({
                 ...r,
-                opponentTeam: teams.find(t => t.id === r.opponentTeamId)
+                opponentTeam: teamsById.get(r.opponentTeamId)
             }))
     }, [playerTeam, teams])
 
@@ -221,15 +233,6 @@ export default function StatsPage() {
         { id: "TROPHIES", label: "Trophies", icon: Trophy },
         { id: "RIVALRIES", label: "Rivalries", icon: Swords },
     ]
-
-    const getIntensityStyle = (intensity: string) => {
-        switch (intensity) {
-            case "FIERCE": return "text-red-400 bg-red-500/20 border-red-500/30"
-            case "HEATED": return "text-orange-400 bg-orange-500/20 border-orange-500/30"
-            case "NEUTRAL": return "text-yellow-400 bg-yellow-500/20 border-yellow-500/30"
-            default: return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30"
-        }
-    }
 
     return (
         <ErrorBoundary section="Statistics">
@@ -633,6 +636,7 @@ export default function StatsPage() {
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: "auto", opacity: 1 }}
                                                     exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.2, ease: "easeOut" }}
                                                     className="px-4 pb-4 border-t border-white/5 bg-black/20"
                                                 >
                                                     <div className="pt-4 space-y-4">

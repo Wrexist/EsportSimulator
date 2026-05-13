@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
 
 export interface ToastData {
@@ -14,30 +14,30 @@ export interface ToastData {
     duration?: number
 }
 
+function getToastIcon(toast: ToastData) {
+    if (toast.icon) return toast.icon
+    switch (toast.type) {
+        case "level_up": return <TrendingUp size={18} className="text-emerald-400" />
+        case "xp_gain": return <Star size={18} className="text-amber-400" />
+        case "achievement": return <Award size={18} className="text-purple-400" />
+        case "warning": return <AlertTriangle size={18} className="text-red-400" />
+        default: return <Zap size={18} className="text-cyan-400" />
+    }
+}
+
+function getToastStyle(toast: ToastData) {
+    switch (toast.type) {
+        case "level_up": return "border-emerald-300/25"
+        case "xp_gain": return "border-amber-300/25"
+        case "achievement": return "border-violet-300/25"
+        case "warning": return "border-red-300/25"
+        default: return "border-cyan-200/25"
+    }
+}
+
 export function ToastNotifications() {
     const toasts = useGameStore(state => state.toasts) || []
     const removeToast = useGameStore(state => state.removeToast)
-
-    const getToastIcon = (toast: ToastData) => {
-        if (toast.icon) return toast.icon
-        switch (toast.type) {
-            case "level_up": return <TrendingUp size={18} className="text-emerald-400" />
-            case "xp_gain": return <Star size={18} className="text-amber-400" />
-            case "achievement": return <Award size={18} className="text-purple-400" />
-            case "warning": return <AlertTriangle size={18} className="text-red-400" />
-            default: return <Zap size={18} className="text-cyan-400" />
-        }
-    }
-
-    const getToastStyle = (toast: ToastData) => {
-        switch (toast.type) {
-            case "level_up": return "border-emerald-300/25"
-            case "xp_gain": return "border-amber-300/25"
-            case "achievement": return "border-violet-300/25"
-            case "warning": return "border-red-300/25"
-            default: return "border-cyan-200/25"
-        }
-    }
 
     return (
         <div aria-live="polite" role="status" className="fixed top-16 right-6 z-toast flex flex-col gap-2 pointer-events-none">
@@ -46,9 +46,7 @@ export function ToastNotifications() {
                     <ToastItem
                         key={toast.id}
                         toast={toast}
-                        onRemove={() => removeToast(toast.id)}
-                        getIcon={getToastIcon}
-                        getStyle={getToastStyle}
+                        removeToast={removeToast}
                     />
                 ))}
             </AnimatePresence>
@@ -58,30 +56,32 @@ export function ToastNotifications() {
 
 function ToastItem({
     toast,
-    onRemove,
-    getIcon,
-    getStyle
+    removeToast,
 }: {
     toast: ToastData,
-    onRemove: () => void,
-    getIcon: (t: ToastData) => React.ReactNode,
-    getStyle: (t: ToastData) => string
+    removeToast: (id: string) => void,
 }) {
+    const onRemove = useCallback(() => removeToast(toast.id), [removeToast, toast.id])
+
+    // Use toast.id (not the toast object reference) so the auto-dismiss timer
+    // does NOT reset every time the parent re-renders. Previously the inline
+    // `() => removeToast(toast.id)` prop changed identity on each render,
+    // re-triggering this effect and pushing the dismissal further out.
     useEffect(() => {
-        const timer = setTimeout(() => onRemove(), toast.duration || 4000)
+        const timer = setTimeout(() => removeToast(toast.id), toast.duration || 4000)
         return () => clearTimeout(timer)
-    }, [toast, onRemove])
+    }, [toast.id, toast.duration, removeToast])
 
     return (
         <motion.div
             initial={{ opacity: 0, x: 28, scale: 0.98, filter: "blur(6px)" }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
+            animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 18, scale: 0.98, filter: "blur(6px)" }}
             transition={toast.duration ? quickEase : liquidSpring}
-            className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg ${getStyle(toast)}`}
+            className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
         >
             <div className="w-8 h-8 rounded-lg bg-white/[0.08] flex items-center justify-center shrink-0">
-                {getIcon(toast)}
+                {getToastIcon(toast)}
             </div>
             <p className="text-sm font-semibold text-white/90">{toast.message}</p>
             <button

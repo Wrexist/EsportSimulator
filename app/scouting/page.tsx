@@ -110,6 +110,14 @@ interface SnapshotTeam {
 type SortField = "ovr" | "age" | "value" | "synergy" | "name"
 type SortDirection = "asc" | "desc"
 
+// Hoisted outside the page so it isn't rebuilt on every parent re-render.
+function SortIcon({ field, sortField, sortDirection }: { field: SortField; sortField: SortField; sortDirection: SortDirection }) {
+    if (sortField !== field) return <ArrowUpDown size={10} className="ml-1 opacity-30" />
+    return sortDirection === "asc"
+        ? <ArrowUp size={10} className="ml-1 text-primary" />
+        : <ArrowDown size={10} className="ml-1 text-primary" />
+}
+
 export default function ScoutingPage() {
     const {
         teams: gameTeams,
@@ -240,13 +248,6 @@ export default function ScoutingPage() {
             setSortField(field)
             setSortDirection(field === "name" ? "asc" : "desc")
         }
-    }
-
-    const SortIcon = ({ field }: { field: SortField }) => {
-        if (sortField !== field) return <ArrowUpDown size={10} className="ml-1 opacity-30" />
-        return sortDirection === "asc"
-            ? <ArrowUp size={10} className="ml-1 text-primary" />
-            : <ArrowDown size={10} className="ml-1 text-primary" />
     }
 
     // Filter players
@@ -671,31 +672,31 @@ export default function ScoutingPage() {
                             <GlassTableRow>
                                 <GlassTableHead>
                                     <button onClick={() => handleSort("name")} className="flex items-center hover:text-white transition-colors">
-                                        Player <SortIcon field="name" />
+                                        Player <SortIcon field="name" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead>Team</GlassTableHead>
                                 <GlassTableHead className="text-center">Role</GlassTableHead>
                                 <GlassTableHead className="text-center">
                                     <button onClick={() => handleSort("age")} className="flex items-center justify-center hover:text-white transition-colors">
-                                        Age <SortIcon field="age" />
+                                        Age <SortIcon field="age" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead className="text-center">
                                     <button onClick={() => handleSort("ovr")} className="flex items-center justify-center hover:text-white transition-colors">
-                                        OVR <SortIcon field="ovr" />
+                                        OVR <SortIcon field="ovr" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 {myRoster.length > 0 && (
                                     <GlassTableHead className="text-center">
                                         <button onClick={() => handleSort("synergy")} className="flex items-center justify-center hover:text-white transition-colors">
-                                            Syn <SortIcon field="synergy" />
+                                            Syn <SortIcon field="synergy" sortField={sortField} sortDirection={sortDirection} />
                                         </button>
                                     </GlassTableHead>
                                 )}
                                 <GlassTableHead className="text-right">
                                     <button onClick={() => handleSort("value")} className="flex items-center justify-end hover:text-white transition-colors">
-                                        Value <SortIcon field="value" />
+                                        Value <SortIcon field="value" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead className="text-center">Status</GlassTableHead>

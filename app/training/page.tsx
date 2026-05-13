@@ -361,6 +361,7 @@ export default function TrainingPage() {
                       className="h-full bg-primary"
                       initial={{ width: 0 }}
                       animate={{ width: `${activeRun.progress}%` }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
                     />
                   </div>
                 </div>

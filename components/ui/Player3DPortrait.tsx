@@ -1,8 +1,8 @@
 "use client"
 
 import { Canvas, useFrame } from "@react-three/fiber"
-import { ContactShadows, Environment, OrbitControls } from "@react-three/drei"
-import { Suspense, useMemo, useRef } from "react"
+import { ContactShadows, OrbitControls } from "@react-three/drei"
+import { useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import {
@@ -559,15 +559,19 @@ function PortraitScene({
             <color attach="background" args={[features.bg[1]]} />
             <fog attach="fog" args={[features.bg[0], 6, 12]} />
 
-            {/* Three-point lighting */}
-            <ambientLight intensity={0.55} />
+            {/* Three-point lighting. Previously we also dropped in a drei
+                <Environment preset="studio" /> here, but that pulls
+                studio_small_03_1k.hdr from a remote CDN (raw.githack.com →
+                polyhaven). When the user is offline / behind a firewall /
+                running the Electron build, the fetch fails and surfaces as
+                "Could not load studio_small_03_1k.hdr". The lights below
+                already give the portrait a clean studio look, so the HDR
+                ambient probe is not worth the network dependency. */}
+            <ambientLight intensity={0.7} />
             <directionalLight position={[3, 4, 4]} intensity={1.4} color="#fff7e6" />
             <directionalLight position={[-3, 2, 2]} intensity={0.6} color={features.accent} />
-            <directionalLight position={[0, -2, 4]} intensity={0.25} color="#b9e7ff" />
-
-            <Suspense fallback={null}>
-                <Environment preset="studio" />
-            </Suspense>
+            <directionalLight position={[0, -2, 4]} intensity={0.3} color="#b9e7ff" />
+            <hemisphereLight intensity={0.35} color="#dbeafe" groundColor="#1f2937" />
 
             <AutoRotator enabled={autoRotate}>
                 <Head features={features} />
