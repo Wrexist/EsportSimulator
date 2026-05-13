@@ -4,7 +4,7 @@ import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
-import confetti from "canvas-confetti"
+import { fireConfetti } from "@/lib/confetti-lazy"
 
 interface BracketTeam {
     id: string
@@ -265,14 +265,14 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
             confettiTriggeredForId.current = grandFinal.id
             // Fire confetti from both sides
             const colors = ["#10b981", "#3b82f6", "#f59e0b", "#ec4899"]
-            confetti({
+            fireConfetti({
                 particleCount: 150,
                 spread: 100,
                 origin: { x: 0.3, y: 0.5 },
                 colors
             })
             setTimeout(() => {
-                confetti({
+                fireConfetti({
                     particleCount: 150,
                     spread: 100,
                     origin: { x: 0.7, y: 0.5 },

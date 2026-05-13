@@ -53,6 +53,25 @@ interface WindowState {
   position: { x: number; y: number }
 }
 
+// Default window opening positions, cascading down-right so freshly opened
+// windows don't fully overlap. Hoisted to module scope so the initialiser
+// closure isn't rebuilt on every render of DesktopContent.
+const INITIAL_WINDOW_STATES: Record<AppId, WindowState> = {
+  mail:       { isOpen: false, isMinimized: false, isFocused: true,  zIndex: 10, position: { x:  40, y:  20 } },
+  social:     { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 120, y:  60 } },
+  market:     { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 200, y:  40 } },
+  calendar:   { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 280, y:  80 } },
+  news:       { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 160, y: 100 } },
+  shop:       { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 240, y: 120 } },
+  facilities: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 300, y: 140 } },
+  finance:    { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 360, y: 160 } },
+  academy:    { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 420, y: 180 } },
+}
+
+// Delays for desktop boot ambience. Names make the intent clear at call sites.
+const STARTUP_SOUND_DELAY_MS = 500
+const AUTO_OPEN_MAIL_DELAY_MS = 1500
+
 import { Suspense } from "react"
 
 
@@ -90,24 +109,14 @@ function DesktopContent() {
     selectedEventId ? eventsLog.find(e => e.id === selectedEventId) || null : null
     , [eventsLog, selectedEventId])
   const [isProcessing, setIsProcessing] = useState(false)
-  const playerTeam = teams.find(t => t.id === playerTeamId)
+  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
   // HLTV Awards Modal State
   const [hltvAwards, setHltvAwards] = useState<any>(null)
   const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
 
   // Window management state
-  const [windows, setWindows] = useState<Record<AppId, WindowState>>({
-    mail: { isOpen: false, isMinimized: false, isFocused: true, zIndex: 10, position: { x: 40, y: 20 } },
-    social: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 120, y: 60 } },
-    market: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 200, y: 40 } },
-    calendar: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 280, y: 80 } },
-    news: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 160, y: 100 } },
-    shop: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 240, y: 120 } },
-    facilities: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 300, y: 140 } },
-    finance: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 360, y: 160 } },
-    academy: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 420, y: 180 } },
-  })
+  const [windows, setWindows] = useState<Record<AppId, WindowState>>(() => INITIAL_WINDOW_STATES)
 
 
   const [nextZIndex, setNextZIndex] = useState(11)
@@ -118,10 +127,9 @@ function DesktopContent() {
 
   // Play startup sound on mount
   useEffect(() => {
-    // Small delay for effect
     const timer = setTimeout(() => {
       soundManager.play('start')
-    }, 500)
+    }, STARTUP_SOUND_DELAY_MS)
     return () => clearTimeout(timer)
   }, [])
 
@@ -135,9 +143,10 @@ function DesktopContent() {
       )
 
       if (hasUnreadImportant && !windows.mail.isOpen) {
+        // Delay slightly so any active tutorial pop-in animates first.
         setTimeout(() => {
           openWindow("mail")
-        }, 1500) // Delay slightly to let tutorial start first if active, or just after boot sound
+        }, AUTO_OPEN_MAIL_DELAY_MS)
       }
     }
   }, [appParam]) // Run once on mount (conceptually, though appParam dependency is fine)

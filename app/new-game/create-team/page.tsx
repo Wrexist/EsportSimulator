@@ -36,7 +36,7 @@ import {
     REGION_INFO,
     PRESET_COLORS
 } from "@/types/team-creator"
-import confetti from "canvas-confetti"
+import { fireConfetti } from "@/lib/confetti-lazy"
 import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 
@@ -212,7 +212,7 @@ export default function CreateTeamPage() {
             const particleCount = 50 * (timeLeft / duration)
 
             // Left side burst
-            confetti({
+            fireConfetti({
                 particleCount: Math.floor(particleCount),
                 startVelocity: 30,
                 spread: 60,
@@ -221,7 +221,7 @@ export default function CreateTeamPage() {
             })
 
             // Right side burst
-            confetti({
+            fireConfetti({
                 particleCount: Math.floor(particleCount),
                 startVelocity: 30,
                 spread: 60,

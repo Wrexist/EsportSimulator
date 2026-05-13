@@ -15,7 +15,7 @@ import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import confetti from "canvas-confetti"
+import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
@@ -101,40 +101,42 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         if (playerWon) {
             confettiTriggered.current = true
 
-            // Victory confetti burst!
-            const duration = 3000
-            const end = Date.now() + duration
+            // Preload then fire the burst — keeps canvas-confetti out of the
+            // critical bundle for non-winning paths.
+            preloadConfetti().then(() => {
+                const duration = 3000
+                const end = Date.now() + duration
 
-            const frame = () => {
-                confetti({
-                    particleCount: 3,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0, y: 0.7 },
-                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
-                })
-                confetti({
-                    particleCount: 3,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1, y: 0.7 },
-                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
-                })
+                const frame = () => {
+                    fireConfetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.7 },
+                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                    })
+                    fireConfetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.7 },
+                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                    })
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame)
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame)
+                    }
                 }
-            }
 
-            // Initial big burst
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
+                fireConfetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
+                })
+
+                setTimeout(frame, 250)
             })
-
-            setTimeout(frame, 250)
         }
 
         return () => {

@@ -38,7 +38,7 @@ import {
   TournamentDefinition
 } from "@/data/tournament-calendar"
 
-const WEEKS_PER_YEAR = 52
+import { WEEKS_PER_YEAR } from "@/lib/constants"
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
 // Helper for projected matches type
@@ -116,10 +116,9 @@ export default function SchedulePage() {
 
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Render range: Always render up to currentWeek + 52 (next year view)
-  // But strictly, we should maintain history too.
-  // Let's render from Week 1 to currentWeek + 52.
-  const TOTAL_WEEKS_TO_RENDER = Math.max(WEEKS_PER_YEAR * 2, currentWeek + 52)
+  // Render range: Always render up to one year ahead of the current week, but
+  // keep at least two full years visible so historical context isn't cut off.
+  const TOTAL_WEEKS_TO_RENDER = Math.max(WEEKS_PER_YEAR * 2, currentWeek + WEEKS_PER_YEAR)
 
   // Center view on current week initially
   useEffect(() => {

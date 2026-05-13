@@ -227,7 +227,11 @@ export default function TournamentDetailPage() {
         }
     }, [seasonalInstances, id, selectedSeason])
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+    // Index teams by id once — was being scanned 8+ times per render across the
+    // podium / playoff / standings sections.
+    const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+    const completedMatchesById = useMemo(() => new Map(completedMatches.map(m => [m.id, m])), [completedMatches])
     const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
     const isQualificationForTournament = (q: any, tournamentId: string) =>
         toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
@@ -698,9 +702,9 @@ export default function TournamentDetailPage() {
                                                                 thirdId = thirdPlaceMatch.result.winnerId || (thirdPlaceMatch.result.homeScore > thirdPlaceMatch.result.awayScore ? thirdPlaceMatch.homeTeamId : thirdPlaceMatch.awayTeamId)
                                                             }
 
-                                                            const winner = teams.find(t => t.id === winnerId)
-                                                            const runnerUp = teams.find(t => t.id === runnerUpId)
-                                                            const third = teams.find(t => t.id === thirdId)
+                                                            const winner = teamsById.get(winnerId)
+                                                            const runnerUp = teamsById.get(runnerUpId)
+                                                            const third = teamsById.get(thirdId)
 
                                                             if (winner) podium.push({ place: 1, team: winner, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
                                                             if (runnerUp) podium.push({ place: 2, team: runnerUp, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })
@@ -709,7 +713,7 @@ export default function TournamentDetailPage() {
                                                         // 2. League Logic (or fallback)
                                                         else if (displayTournament?.format === "league" || !finalMatch) {
                                                             const standings = displayTournament?.teamIds?.map((tid: string) => {
-                                                                const team = teams.find(t => t.id === tid)
+                                                                const team = teamsById.get(tid)
                                                                 const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                                 const points = wins * 3
@@ -833,8 +837,8 @@ export default function TournamentDetailPage() {
                                                     if (final) {
                                                         const winId = final.result.winnerId || (final.result.homeScore > final.result.awayScore ? final.homeTeamId : final.awayTeamId)
                                                         const loseId = winId === final.homeTeamId ? final.awayTeamId : final.homeTeamId
-                                                        const winner = teams.find(t => t.id === winId)
-                                                        const runnerUp = teams.find(t => t.id === loseId)
+                                                        const winner = teamsById.get(winId)
+                                                        const runnerUp = teamsById.get(loseId)
                                                         if (winner) standings.push({ team: winner, place: 1, prize: prizePool * 0.40, share: "High" })
                                                         if (runnerUp) standings.push({ team: runnerUp, place: 2, prize: prizePool * 0.20, share: "Medium" })
                                                     }
@@ -843,7 +847,7 @@ export default function TournamentDetailPage() {
                                                     semiFinals.forEach(m => {
                                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                            const t = teams.find(team => team.id === loserId)
+                                                            const t = teamsById.get(loserId)
                                                             if (t) standings.push({ team: t, place: 3, prize: prizePool * 0.10, share: "Low" })
                                                         }
                                                     })
@@ -852,7 +856,7 @@ export default function TournamentDetailPage() {
                                                     quarterFinals.forEach(m => {
                                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                            const t = teams.find(team => team.id === loserId)
+                                                            const t = teamsById.get(loserId)
                                                             if (t) standings.push({ team: t, place: 5, prize: prizePool * 0.05, share: "Low" })
                                                         }
                                                     })
@@ -860,7 +864,7 @@ export default function TournamentDetailPage() {
                                                 // B. League Logic
                                                 else {
                                                     const leagueSorted = displayTournament?.teamIds?.map((tid: string) => {
-                                                        const team = teams.find(t => t.id === tid)
+                                                        const team = teamsById.get(tid)
                                                         const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                         const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                         const points = wins * 3
@@ -1042,7 +1046,7 @@ export default function TournamentDetailPage() {
                                                     const participants = [...new Set(rawParticipants)]
 
                                                     const visibleParticipants = participants
-                                                        .map(tid => teams.find(t => t.id === tid))
+                                                        .map(tid => teamsById.get(tid))
                                                         .filter(t => t)
                                                         .sort((a, b) => (a?.worldRanking || 999) - (b?.worldRanking || 999))
 
@@ -1188,7 +1192,7 @@ export default function TournamentDetailPage() {
                                         {/* League Table Calculation */}
                                         {(() => {
                                             const leagueStandings = displayTournament?.teamIds?.map((tid: string) => {
-                                                const team = teams.find(t => t.id === tid)
+                                                const team = teamsById.get(tid)
                                                 // Calculate actual stats from completed matches
                                                 const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length

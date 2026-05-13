@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, ChevronRight, Sparkles, Star, Zap, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
-import confetti from "canvas-confetti"
+import { fireConfetti } from "@/lib/confetti-lazy"
 
 interface AdvancementAnimationProps {
     show: boolean
@@ -43,7 +43,7 @@ export function AdvancementAnimation({
         const celebrateTimer = setTimeout(() => {
             setPhase("celebrate")
             // Fire confetti with better positioning (above fold)
-            confetti({
+            fireConfetti({
                 particleCount: 80,
                 spread: 100,
                 origin: { x: 0.5, y: 0.35 },

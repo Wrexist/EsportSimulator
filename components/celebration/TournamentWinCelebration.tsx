@@ -6,7 +6,7 @@ import { Trophy, Star, TrendingUp, DollarSign, X, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import confetti from "canvas-confetti"
+import { fireConfetti } from "@/lib/confetti-lazy"
 import { panelTransition } from "@/lib/motion"
 
 interface TournamentWinCelebrationProps {
@@ -43,8 +43,8 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
             }
 
             const particleCount = 50 * (timeLeft / duration)
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
+            fireConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
+            fireConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
         }, 250)
 
         return () => clearInterval(interval)

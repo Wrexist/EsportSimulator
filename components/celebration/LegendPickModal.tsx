@@ -9,7 +9,7 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import confetti from "canvas-confetti"
+import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
 
@@ -34,7 +34,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
         setMounted(true)
         // Golden confetti for the Major win legend reward
         const burst = () => {
-            confetti({
+            fireConfetti({
                 particleCount: 80,
                 spread: 100,
                 origin: { y: 0.3 },
@@ -53,7 +53,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
         // Big celebration confetti
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
-                confetti({
+                fireConfetti({
                     particleCount: 120,
                     spread: 160,
                     origin: { x: 0.5, y: 0.4 },

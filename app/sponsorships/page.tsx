@@ -61,7 +61,7 @@ export default function SponsorshipsPage() {
     }
   }, [_hasHydrated, isSessionActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const playerTeam = teams.find(t => t.id === playerTeamId)
+  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
   const activeSponsors = playerTeam?.sponsors || []
   const emptySlots = MAX_SPONSORS - activeSponsors.length
   const sponsorSlotsFull = activeSponsors.length >= MAX_SPONSORS
@@ -73,33 +73,44 @@ export default function SponsorshipsPage() {
     return Math.floor(activeSponsors.reduce((sum, s) => sum + s.weeklyPayout * repFactor, 0))
   }, [activeSponsors, playerTeam])
 
-  // Determine lock state per offer
+  // Precompute lock prerequisites once (these don't depend on the offer being
+  // checked, only on team state). Was previously recalculated inside
+  // getOfferLockState for every offer, walking completedMatches × tournaments
+  // each time.
+  const lockPrereqs = useMemo(() => {
+    if (!playerTeam) return null
+    const tournamentsById = new Map(tournaments.map(t => [t.id, t]))
+    const hasMajorTrophy = (playerTeam.trophies || []).some((t: any) => t.tier === "S_TIER")
+    const hasMajorParticipation = completedMatches.some(match => {
+      if (match.homeTeamId !== playerTeamId && match.awayTeamId !== playerTeamId) return false
+      if (!match.tournamentId) return false
+      return tournamentsById.get(match.tournamentId)?.tier === "S_TIER"
+    })
+    return {
+      ranking: playerTeam.worldRanking || 999,
+      hasMajorTrophy,
+      hasMajorParticipation,
+      occupiedTiers: new Set(activeSponsors.map(s => s.tier)),
+    }
+  }, [playerTeam, tournaments, completedMatches, playerTeamId, activeSponsors])
+
+  // Determine lock state per offer (cheap now — uses precomputed prereqs).
   const getOfferLockState = (offer: SponsorSaveData) => {
-    if (!playerTeam) return { isLocked: true, lockReason: "No team found" }
-    const ranking = playerTeam.worldRanking || 999
+    if (!lockPrereqs) return { isLocked: true, lockReason: "No team found" }
+    const { ranking, hasMajorTrophy, hasMajorParticipation, occupiedTiers } = lockPrereqs
 
     if (offer.tier === "PREMIUM" && ranking > 30) {
       return { isLocked: true, lockReason: "Requires Top 30 World Ranking" }
     }
     if (offer.tier === "ELITE") {
-      const hasMajorTrophy = (playerTeam.trophies || []).some((t: any) => t.tier === "S_TIER")
-      const hasMajorParticipation = completedMatches.some(match => {
-        if (match.homeTeamId !== playerTeamId && match.awayTeamId !== playerTeamId) return false
-        if (!match.tournamentId) return false
-        const tournament = tournaments.find(t => t.id === match.tournamentId)
-        return tournament?.tier === "S_TIER"
-      })
       const isTopRanked = ranking <= 10
       if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) {
         return { isLocked: true, lockReason: "Requires Top 10 Ranking or Major Participation" }
       }
     }
-
-    // Check if tier already occupied
-    if (activeSponsors.some(s => s.tier === offer.tier)) {
+    if (occupiedTiers.has(offer.tier)) {
       return { isLocked: true, lockReason: `Already have a ${offer.tier.toLowerCase()} sponsor` }
     }
-
     return { isLocked: false, lockReason: "" }
   }
 

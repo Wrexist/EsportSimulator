@@ -22,6 +22,30 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
+// Hoisted lookup tables — were being rebuilt as fresh switch closures inside
+// the page every render. These never change at runtime.
+const ROLE_ICON: Record<string, React.ReactNode> = {
+    coach: <Users size={16} className="text-blue-400" />,
+    analyst: <TrendingUp size={16} className="text-emerald-400" />,
+    psychologist: <Brain size={16} className="text-purple-400" />,
+    scout: <Search size={16} className="text-amber-400" />,
+}
+const ROLE_ICON_FALLBACK = <User size={16} />
+
+const RARITY_COLOR: Record<string, string> = {
+    Legendary: "bg-amber-500/20 text-amber-500 border-amber-500/50",
+    Epic: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+    Rare: "bg-blue-500/20 text-blue-400 border-blue-500/50",
+}
+const RARITY_COLOR_FALLBACK = "bg-slate-500/20 text-slate-400 border-slate-500/50"
+
+function getRoleIcon(role: string) {
+    return ROLE_ICON[role] || ROLE_ICON_FALLBACK
+}
+function getRarityColor(rarity?: string) {
+    return (rarity && RARITY_COLOR[rarity]) || RARITY_COLOR_FALLBACK
+}
+
 export default function StaffPage() {
     const {
         staff,
@@ -90,27 +114,6 @@ export default function StaffPage() {
     const handleFire = (staffId: string) => {
         fireStaff(staffId)
         toast.info("Staff member released")
-    }
-
-    // Helper for Role Icons
-    const getRoleIcon = (role: string) => {
-        switch (role) {
-            case "coach": return <Users size={16} className="text-blue-400" />
-            case "analyst": return <TrendingUp size={16} className="text-emerald-400" />
-            case "psychologist": return <Brain size={16} className="text-purple-400" />
-            case "scout": return <Search size={16} className="text-amber-400" />
-            default: return <User size={16} />
-        }
-    }
-
-    // Rarity Color Helper
-    const getRarityColor = (rarity?: string) => {
-        switch (rarity) {
-            case "Legendary": return "bg-amber-500/20 text-amber-500 border-amber-500/50"
-            case "Epic": return "bg-purple-500/20 text-purple-400 border-purple-500/50"
-            case "Rare": return "bg-blue-500/20 text-blue-400 border-blue-500/50"
-            default: return "bg-slate-500/20 text-slate-400 border-slate-500/50"
-        }
     }
 
     // Helper for Stats
