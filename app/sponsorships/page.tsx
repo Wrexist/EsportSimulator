@@ -13,6 +13,7 @@ import type { SponsorSaveData } from "@/engine/save-types"
 import { ActiveSponsorCard } from "@/components/sponsorships/ActiveSponsorCard"
 import { SponsorOfferCard } from "@/components/sponsorships/SponsorOfferCard"
 import { EmptySponsorSlot } from "@/components/sponsorships/EmptySponsorSlot"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 
 const MAX_SPONSORS = 3
 
@@ -178,9 +179,11 @@ export default function SponsorshipsPage() {
           <span className="text-xs text-muted-foreground ml-2">Refreshed weekly</span>
         </h2>
         {sponsorOffers.length === 0 ? (
-          <div className="glass-panel rounded-2xl p-8 text-center text-muted-foreground">
-            <p className="text-sm">No sponsor offers available this week. Check back next week!</p>
-          </div>
+          <EmptyState
+            icon={Handshake}
+            title="No Offers This Week"
+            description="The sponsorship market refreshes weekly. Improve your team's reputation and rankings to attract better offers."
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <AnimatePresence mode="popLayout">

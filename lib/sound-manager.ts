@@ -29,17 +29,17 @@ class SoundManager {
 
                     // Master gain → destination
                     this.masterGain = this.ctx.createGain()
-                    this.masterGain.gain.value = 0.3
+                    this.masterGain.gain.value = 0.24
                     this.masterGain.connect(this.ctx.destination)
 
                     // Music sub-bus
                     this.musicGain = this.ctx.createGain()
-                    this.musicGain.gain.value = 0.4
+                    this.musicGain.gain.value = 0.32
                     this.musicGain.connect(this.masterGain)
 
                     // SFX sub-bus
                     this.sfxGain = this.ctx.createGain()
-                    this.sfxGain.gain.value = 1.0
+                    this.sfxGain.gain.value = 0.72
                     this.sfxGain.connect(this.masterGain)
                 } catch (e) {
                     // Silently degrade — all methods check for null ctx
@@ -62,13 +62,13 @@ class SoundManager {
     public setMasterVolume(value: number) {
         // value: 0-100
         if (!this.ctx || !this.masterGain) return
-        this.masterGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.5
+        this.masterGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.42
     }
 
     public setMusicVolume(value: number) {
         // value: 0-100
         if (!this.ctx || !this.musicGain) return
-        this.musicGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.6
+        this.musicGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.46
     }
 
     public setSfxVolume(value: number) {
@@ -96,12 +96,12 @@ class SoundManager {
                 osc.connect(gain)
                 gain.connect(this.sfxGain)
                 osc.type = 'sine'
-                osc.frequency.setValueAtTime(800, t)
-                osc.frequency.exponentialRampToValueAtTime(1200, t + 0.05)
-                gain.gain.setValueAtTime(0.5, t)
-                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05)
+                osc.frequency.setValueAtTime(720, t)
+                osc.frequency.exponentialRampToValueAtTime(980, t + 0.05)
+                gain.gain.setValueAtTime(0.14, t)
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.042)
                 osc.start(t)
-                osc.stop(t + 0.05)
+                osc.stop(t + 0.045)
                 this.trackNode(osc, gain)
                 break
             }
@@ -125,8 +125,8 @@ class SoundManager {
                 this.playTone(783.99, t + 0.1, 0.2)
                 break
             case 'notification':
-                this.playTone(880, t, 0.1, 'sine', 0.2)
-                this.playTone(1760, t + 0.1, 0.3, 'sine', 0.1)
+                this.playTone(880, t, 0.08, 'sine', 0.12)
+                this.playTone(1320, t + 0.08, 0.18, 'sine', 0.08)
                 break
             case 'error': {
                 const osc = this.ctx.createOscillator()
@@ -190,8 +190,8 @@ class SoundManager {
                 break
             case 'weekAdvance':
                 // Soft clock-tick progression
-                this.playTone(600, t, 0.06, 'sine', 0.2)
-                this.playTone(800, t + 0.08, 0.1, 'sine', 0.15)
+                this.playTone(520, t, 0.045, 'sine', 0.11)
+                this.playTone(740, t + 0.07, 0.08, 'sine', 0.09)
                 break
             case 'transfer':
                 // Cash register / deal sound

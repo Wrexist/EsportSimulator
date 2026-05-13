@@ -906,12 +906,17 @@ export class AtomicWeekProcessor {
                     if (tournament) tournamentTier = tournament.tier
                 }
 
-                // Calculate matches played for calibration (K=50 for first 10 matches)
+                // Calculate matches played for calibration (K=50 for first 10 matches).
+                // Bug fix: completedMatches.push(...) above included this match for
+                // both teams, so the previous count was off-by-one — a team's 10th
+                // real match read as match 11, ending the calibration window early.
+                // Subtract 1 because the current match is now in the history for both
+                // sides (this is also faster than re-scanning the whole array).
                 const getMatchesPlayed = (tid: string) =>
                     save.completedMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid).length
 
-                const winnerMatches = getMatchesPlayed(winnerId)
-                const loserMatches = getMatchesPlayed(loserId)
+                const winnerMatches = Math.max(0, getMatchesPlayed(winnerId) - 1)
+                const loserMatches = Math.max(0, getMatchesPlayed(loserId) - 1)
 
                 // Calculate Net Round Differential (Total rounds won by winner - Total rounds won by loser)
                 // result.maps contains round scores. result.homeScore is Map wins.
@@ -2304,8 +2309,18 @@ export class AtomicWeekProcessor {
     }
 
     private compactPersistentState(save: GameSave): void {
+        // Bug fix: callers mix `push` (oldest at index 0) and `unshift` (newest
+        // at index 0), so a positional slice silently drops valid recent
+        // events. Sort by week descending — and for events, keep unread before
+        // read at the same week — then take the cap from the front.
         if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
-            save.eventsLog = save.eventsLog.slice(0, ARRAY_CAPS.eventsLog)
+            save.eventsLog = [...save.eventsLog]
+                .sort((a, b) => {
+                    if (b.week !== a.week) return b.week - a.week
+                    if (a.acknowledged !== b.acknowledged) return a.acknowledged ? 1 : -1
+                    return 0
+                })
+                .slice(0, ARRAY_CAPS.eventsLog)
         }
 
         if (save.completedMatches.length > ARRAY_CAPS.completedMatches) {
@@ -2321,7 +2336,9 @@ export class AtomicWeekProcessor {
         }
 
         if (save.newsFeed.length > ARRAY_CAPS.newsFeed) {
-            save.newsFeed = save.newsFeed.slice(0, ARRAY_CAPS.newsFeed)
+            save.newsFeed = [...save.newsFeed]
+                .sort((a, b) => b.week - a.week)
+                .slice(0, ARRAY_CAPS.newsFeed)
         }
 
         if (save.tournamentQualifications.length > 0) {

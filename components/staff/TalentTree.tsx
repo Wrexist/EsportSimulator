@@ -114,7 +114,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                             onClick={() => canUnlock && onUnlock(node.id)}
                                             disabled={!canUnlock && !isUnlocked}
                                             className={cn(
-                                                "w-16 h-16 rounded-2xl border flex flex-col items-center justify-center transition-all duration-300 relative group z-10",
+                                                "w-16 h-16 rounded-2xl border flex flex-col items-center justify-center transition-[background-color,border-color,color,box-shadow,transform] duration-100 ease-out relative group z-10 select-none touch-manipulation will-change-transform active:scale-[0.96] active:duration-0",
                                                 isUnlocked
                                                     ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)] backdrop-blur-md"
                                                     : canUnlock
@@ -123,7 +123,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                             )}
                                         >
                                             <div className={cn(
-                                                "p-2.5 rounded-full transition-all duration-300 shadow-inner",
+                                                "p-2.5 rounded-full transition-colors duration-100 ease-out shadow-inner",
                                                 isUnlocked ? "bg-primary text-black" : "bg-white/5"
                                             )}>
                                                 <Icon size={isUnlocked ? 18 : 16} />
@@ -184,7 +184,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
 
                             {/* Node Name Label */}
                             <div className={cn(
-                                "mt-2 text-[9px] font-bold text-center uppercase tracking-wide leading-tight px-0.5 transition-colors duration-300",
+                                "mt-2 text-[9px] font-bold text-center uppercase tracking-wide leading-tight px-0.5 transition-colors duration-100 ease-out",
                                 isUnlocked ? "text-white" : "text-white/20"
                             )}>
                                 {node.name}

@@ -55,7 +55,7 @@ export function WeeklyFocusWidget() {
                             key={activity.type}
                             onClick={() => handleSelect(activity.type)}
                             className={cn(
-                                "w-full text-left p-3 rounded-lg border transition-all duration-200 relative group",
+                                "w-full text-left p-3 rounded-lg border transition-[border-color,background-color,box-shadow] duration-100 ease-out relative group select-none touch-manipulation will-change-transform active:scale-[0.99] active:duration-0",
                                 isSelected
                                     ? "bg-white/5 border-primary/50 shadow-[0_0_15px_rgba(34,211,238,0.1)]"
                                     : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/10"

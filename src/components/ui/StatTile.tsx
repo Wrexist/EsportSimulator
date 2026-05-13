@@ -58,7 +58,7 @@ export function StatTile({
 
   return (
     <div className={cn(
-      "rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md",
+      "glass-card rounded-lg border-white/5 bg-white/[0.02]",
       size === "sm" && "px-4 py-2",
       size === "md" && "px-6 py-3",
       size === "lg" && "px-8 py-5",

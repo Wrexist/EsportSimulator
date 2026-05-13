@@ -1731,7 +1731,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set(buildEntityIndexes(newState.teams, newState.players, newState.contracts, newState.staff, newState.completedMatches))
           get().refreshStaffMarket()
         } catch (err) {
-          set({ isLoading: false, error: err instanceof Error ? err.message : "Initialization failed" })
+          const message = err instanceof Error ? err.message : "Initialization failed"
+          set({ isLoading: false, error: message })
+          get().addToast({ message: `Could not start new game: ${message}`, type: "error", duration: 8000 })
         }
       },
 
@@ -2076,10 +2078,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           get().refreshStaffMarket()
         } catch (err) {
+          const message = err instanceof Error ? err.message : "Failed to create team"
           if (process.env.NODE_ENV !== 'production') {
             console.error("Failed to create custom team:", err)
           }
-          set({ isLoading: false, error: err instanceof Error ? err.message : "Failed to create team" })
+          set({ isLoading: false, error: message })
+          get().addToast({ message: `Could not create custom team: ${message}`, type: "error", duration: 8000 })
         }
       },
 
@@ -2300,6 +2304,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         } catch (err) {
           const message = err instanceof Error ? err.message : "Load failed"
           set({ isLoading: false, error: message })
+          get().addToast({ message: `Could not load save: ${message}`, type: "error", duration: 8000 })
           throw new Error(message)
         }
       },
@@ -2393,6 +2398,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (process.env.NODE_ENV !== 'production') {
             console.error("[saveGame] Error:", message)
           }
+          // Surface the failure so the user knows their progress wasn't
+          // persisted, instead of silently letting the catch propagate up
+          // to a caller that may or may not show a toast.
+          get().addToast({
+            message: `Save failed: ${message}`,
+            type: "error",
+            duration: 8000,
+          })
           throw new Error(message)
         }
       },
@@ -4499,6 +4512,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
             if (match.week < state.currentWeek || match.mentalPrep) return
             match.mentalPrep = true
+            match.mentalPrepTeamId = state.playerTeamId!
           }
 
           team.budget -= MENTAL_RESET_COST
@@ -4647,13 +4661,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           })
           return true
         } catch (err) {
+          const message = err instanceof Error ? err.message : "Recovery hydration failed"
           set({
             lastLoadError: {
               saveId,
               errorCode: "UNKNOWN",
-              message: err instanceof Error ? err.message : "Recovery hydration failed",
+              message,
             },
           })
+          get().addToast({ message: `Save recovery failed: ${message}`, type: "error", duration: 8000 })
           return false
         }
       },

@@ -611,15 +611,14 @@ export default function TeamSelectionPage() {
                             const requiredLevel = ManagerProgression.getRequiredLevel(team.reputation)
 
                             return (
-                                <motion.div
+                                <div
                                     key={team.id}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
                                     onClick={() => !isLocked && setSelectedTeam(team)}
                                     className={cn(
-                                        "glass-panel p-4 cursor-pointer transition-all hover:scale-[1.02] border-white/5 relative overflow-hidden",
+                                        "glass-panel p-4 cursor-pointer border-white/5 relative overflow-hidden",
+                                        "transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5",
                                         selectedTeam?.id === team.id && "border-primary ring-2 ring-primary/30",
-                                        isLocked && "opacity-60 grayscale cursor-not-allowed hover:scale-100"
+                                        isLocked && "opacity-60 grayscale cursor-not-allowed hover:translate-y-0"
                                     )}
                                 >
                                     {/* Lock Overlay */}
@@ -700,7 +699,7 @@ export default function TeamSelectionPage() {
                                             )
                                         })}
                                     </div>
-                                </motion.div>
+                                </div>
                             )
                         })}
                     </div>

@@ -31,25 +31,53 @@ const SPECIALTIES = [
 ]
 
 /**
- * Reconcile roles for a single team.
- * 1. Resets everyone to RIFLER.
- * 2. Identifies potential specialists for each role.
- * 3. Assigns roles greedily to the best qualified player.
+ * Reconcile roles for a single team — with hysteresis.
+ *
+ * Without hysteresis, this function ran every AI tick and recomputed roles
+ * from scratch, clobbering any role a player had been deliberately trained
+ * into (via considerRoleTraining or a manual assignment), and flapping
+ * between roles when stats dipped below threshold for a tick (fatigue, form
+ * penalty).
+ *
+ * Fix: a player who *already* has a specialty role keeps it as long as
+ * they still meet that role's criteria — even if a fresh candidate would
+ * currently score higher. Only roles without a qualifying incumbent are
+ * filled by the greedy pass.
  */
 export function reconcileTeamRoles(players: PlayerSaveData[]): void {
     if (!players || players.length === 0) return
 
-    // 1. Clear secondary roles only; preserve existing primary roles
+    // 1. Clear secondary roles only; primary roles are decided below.
     players.forEach(p => {
         p.secondaryRole = undefined
     })
 
-    // 2. Map potential for each role
+    const specialtyIdSet = new Set<PlayerRole>(SPECIALTIES.map(s => s.id))
+    const assignedPlayerIds = new Set<string>()
+    const remainingSpecialties: typeof SPECIALTIES = []
+
+    // 2. Hysteresis pass: keep an incumbent if they still qualify for their
+    //    current role. Their slot is locked — no other candidate competes.
+    for (const spec of SPECIALTIES) {
+        const incumbent = players.find(p =>
+            !assignedPlayerIds.has(p.id) &&
+            p.role === spec.id &&
+            spec.criteria(p)
+        )
+        if (incumbent) {
+            assignedPlayerIds.add(incumbent.id)
+        } else {
+            remainingSpecialties.push(spec)
+        }
+    }
+
+    // 3. Greedy pass for the unassigned roles only. Excludes already-locked
+    //    incumbents so their stats don't count toward another role.
     const potentialAssignments: Map<PlayerRole, { player: PlayerSaveData; score: number }[]> = new Map()
 
-    SPECIALTIES.forEach(spec => {
+    remainingSpecialties.forEach(spec => {
         const candidates = players
-            .filter(p => spec.criteria(p))
+            .filter(p => !assignedPlayerIds.has(p.id) && spec.criteria(p))
             .map(p => ({
                 player: p,
                 score: spec.calculateFit(p)
@@ -58,10 +86,6 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
 
         potentialAssignments.set(spec.id, candidates)
     })
-
-    // 3. Greedy Assignment — assign specialist roles as primary role
-    const assignedPlayerIds = new Set<string>()
-    const remainingSpecialties = [...SPECIALTIES]
 
     while (remainingSpecialties.length > 0) {
         let bestGlobalCandidate: { specId: PlayerRole; player: PlayerSaveData; score: number } | null = null
@@ -97,10 +121,14 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
         })
     }
 
-    // 4. Unassigned players default to RIFLER
+    // 4. Anyone unassigned at this point either (a) had no role at all, or
+    //    (b) held a specialty role they no longer qualify for. Both fall
+    //    back to RIFLER. Players who were already RIFLER stay RIFLER.
     players.forEach(p => {
         if (!assignedPlayerIds.has(p.id)) {
-            p.role = PlayerRole.RIFLER
+            if (specialtyIdSet.has(p.role as PlayerRole) || !p.role) {
+                p.role = PlayerRole.RIFLER
+            }
         }
     })
 }

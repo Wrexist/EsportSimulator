@@ -337,7 +337,7 @@ export function AcademyApp() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={cn(
-                                            "flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-medium transition-all",
+                                            "flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-medium transition-colors duration-75 ease-out active:scale-[0.97] active:duration-0",
                                             isActive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "text-white/50 hover:text-white/80"
                                         )}
                                     >
@@ -550,7 +550,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                 onDragLeave={() => { }}
                                 onDrop={() => onRoleDrop(role)}
                                 className={cn(
-                                    "relative aspect-[3/4] rounded-xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center p-2",
+                                    "relative aspect-[3/4] rounded-xl border-2 border-dashed transition-[border-color,background-color,transform] duration-100 ease-out flex flex-col items-center justify-center p-2",
                                     prospectData ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 hover:border-white/20",
                                     isOver && !prospectData && "border-emerald-400 bg-emerald-500/10 scale-105",
                                     draggedProspect && !prospectData && "animate-pulse"
@@ -586,13 +586,13 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                 <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
                     <button
                         onClick={() => setSortBy("ovr")}
-                        className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", sortBy === "ovr" ? "bg-cyan-500/20 text-cyan-400" : "text-white/40 hover:text-white/60")}
+                        className={cn("px-2 py-1 rounded text-[10px] font-bold transition-colors duration-75 ease-out active:scale-95 active:duration-0", sortBy === "ovr" ? "bg-cyan-500/20 text-cyan-400" : "text-white/40 hover:text-white/60")}
                     >
                         OVR ↓
                     </button>
                     <button
                         onClick={() => setSortBy("potential")}
-                        className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", sortBy === "potential" ? "bg-amber-500/20 text-amber-400" : "text-white/40 hover:text-white/60")}
+                        className={cn("px-2 py-1 rounded text-[10px] font-bold transition-colors duration-75 ease-out active:scale-95 active:duration-0", sortBy === "potential" ? "bg-amber-500/20 text-amber-400" : "text-white/40 hover:text-white/60")}
                     >
                         Potential ↓
                     </button>
@@ -604,7 +604,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                         <button
                             key={role}
                             onClick={() => setFilterRole(role)}
-                            className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", filterRole === role ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60")}
+                            className={cn("px-2 py-1 rounded text-[10px] font-bold transition-colors duration-75 ease-out active:scale-95 active:duration-0", filterRole === role ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60")}
                         >
                             {role}
                         </button>
@@ -639,7 +639,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                     onDragStart={() => onProspectDragStart(prospect.id)}
                                     onDragEnd={onProspectDragEnd}
                                     className={cn(
-                                        "relative p-3 rounded-xl border cursor-grab active:cursor-grabbing transition-all duration-200 group",
+                                        "relative p-3 rounded-xl border cursor-grab active:cursor-grabbing transition-[border-color,background-color,opacity,transform] duration-100 ease-out group",
                                         isAssigned ? "bg-emerald-500/5 border-emerald-500/20" : "bg-[#0d0d10] border-white/10 hover:border-white/20",
                                         isDragging && "opacity-50 scale-95"
                                     )}
@@ -758,7 +758,7 @@ function GraduatesTab({ players }: { players: any[] }) {
                     {graduates.map(player => {
                         const rating = Math.round((player.skill + player.rifle + player.tactic + player.teamwork) / 4)
                         return (
-                            <div key={player.id} className="p-4 rounded-2xl bg-[#0d0d10] border border-white/10 flex items-center gap-4 group hover:border-emerald-500/30 transition-all duration-300">
+                            <div key={player.id} className="p-4 rounded-2xl bg-[#0d0d10] border border-white/10 flex items-center gap-4 group hover:border-emerald-500/30 transition-colors duration-100 ease-out">
                                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 overflow-hidden">
                                     <img src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} className="w-full h-full object-cover" />
                                 </div>
@@ -830,7 +830,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 <div className="text-[9px] text-white/40 uppercase font-bold mb-1.5">{day}</div>
                                 <div
                                     className={cn(
-                                        "aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-all duration-200 relative",
+                                        "aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-[border-color,background-color,transform] duration-100 ease-out relative",
                                         drill ? `${drill.bgColor} border-transparent` : "border-white/10",
                                         isOver && !drill && "border-cyan-400 bg-cyan-500/10 scale-105",
                                         draggedDrill && !drill && "animate-pulse"
@@ -870,7 +870,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 onDragStart={() => !isLocked && onDrillDragStart(drill.id)}
                                 onDragEnd={onDrillDragEnd}
                                 className={cn(
-                                    "p-3 rounded-xl border transition-all duration-200 text-center relative overflow-hidden",
+                                    "p-3 rounded-xl border transition-[border-color,background-color,opacity,transform] duration-100 ease-out text-center relative overflow-hidden active:scale-[0.97] active:duration-0",
                                     isLocked ? "bg-white/5 border-white/5 opacity-50 gray-scale" : "bg-[#0d0d10] border-white/10 hover:border-white/20 cursor-grab active:cursor-grabbing",
                                     isDragging && "opacity-50 scale-95"
                                 )}
@@ -1094,7 +1094,7 @@ function ScoutingTab({
                     const canScout = unlocked && canAfford && !isFull && hasScout && !isActive
 
                     return (
-                        <div key={tier.id} className={cn("p-4 rounded-xl border relative overflow-hidden transition-all duration-300", unlocked ? "bg-[#0d0d10] border-white/10" : "bg-white/5 border-white/5 opacity-50")}>
+                        <div key={tier.id} className={cn("p-4 rounded-xl border relative overflow-hidden transition-colors duration-100 ease-out", unlocked ? "bg-[#0d0d10] border-white/10" : "bg-white/5 border-white/5 opacity-50")}>
                             {isActive && <div className="absolute inset-0 bg-cyan-500/5 animate-pulse" />}
                             <div className="flex items-center gap-2 mb-2 relative z-10">
                                 <Search size={16} className={unlocked ? "text-emerald-400" : "text-white/30"} />
@@ -1124,7 +1124,7 @@ function ScoutingTab({
                                 <Button
                                     onClick={() => onScout(tier.id)}
                                     disabled={!canScout}
-                                    className={cn("w-full h-8 text-[10px] font-normal uppercase tracking-wider transition-all duration-300", canScout ? "bg-emerald-500 hover:bg-emerald-400 text-black border-none shadow-[0_0_15px_-5px_rgba(16,185,129,0.4)]" : "bg-white/5 text-white/20 border-white/5")}
+                                    className={cn("w-full h-8 text-[10px] font-normal uppercase tracking-wider", canScout ? "bg-emerald-500 hover:bg-emerald-400 text-black border-none shadow-[0_0_15px_-5px_rgba(16,185,129,0.4)]" : "bg-white/5 text-white/20 border-white/5")}
                                 >
                                     ${tier.cost.toLocaleString()}
                                 </Button>
@@ -1135,6 +1135,16 @@ function ScoutingTab({
             </div>
 
             {/* Pending Results (Review Talent) */}
+            {pendingPlayers.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-6 text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">
+                        No Prospects In Review
+                    </div>
+                    <p className="text-[11px] text-white/40 max-w-sm mx-auto">
+                        Run a scouting mission above to unearth new talent. Completed missions deliver prospects here for you to enroll, train, and promote.
+                    </p>
+                </div>
+            )}
             {pendingPlayers.length > 0 && (
                 <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
@@ -1154,7 +1164,7 @@ function ScoutingTab({
                                 layout
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="p-4 rounded-xl bg-[#0d0d10] border border-white/10 flex items-center justify-between group hover:border-cyan-500/30 transition-all duration-300 relative overflow-hidden"
+                                className="p-4 rounded-xl bg-[#0d0d10] border border-white/10 flex items-center justify-between group hover:border-cyan-500/30 transition-colors duration-100 ease-out relative overflow-hidden"
                             >
                                 <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
 

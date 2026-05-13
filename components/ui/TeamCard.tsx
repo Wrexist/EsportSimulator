@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ChevronRight, Crown } from "lucide-react"
-import type { ReactNode } from "react"
+import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -116,7 +116,7 @@ function FormBubbles({ form }: { form: Array<"W" | "L" | "D"> }) {
 // TeamCard
 // ────────────────────────────────────────────────────────────────────────────
 
-export function TeamCard({
+function TeamCardImpl({
   team,
   size = "md",
   variant = "default",
@@ -139,14 +139,22 @@ export function TeamCard({
     })()
     : null
 
+  const Wrapper: any = isReveal ? motion.div : "div"
+  const wrapperProps = isReveal
+    ? {
+        layoutId,
+        initial: { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+      }
+    : {}
+
   const card = (
-    <motion.div
-      layoutId={layoutId}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+    <Wrapper
+      {...wrapperProps}
       onClick={onClick}
       className={cn(
-        "relative rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md transition-all duration-300",
+        "relative rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md",
+        "transition-[background-color,border-color,box-shadow] duration-150 ease-out",
         PADDING_CLASS[size],
         selected && "border-primary/60 bg-primary/[0.08]",
         muted && "opacity-60 grayscale",
@@ -232,7 +240,7 @@ export function TeamCard({
       </div>
 
       {children}
-    </motion.div>
+    </Wrapper>
   )
 
   if (href && !onClick) {
@@ -245,3 +253,5 @@ export function TeamCard({
 
   return card
 }
+
+export const TeamCard = memo(TeamCardImpl)

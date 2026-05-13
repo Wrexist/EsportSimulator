@@ -922,7 +922,7 @@ function DesktopContent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full overflow-hidden bg-gradient-to-b from-neutral-950 to-neutral-900">
+    <div className="flex flex-col items-center justify-center h-full w-full overflow-hidden liquid-app-bg">
       <SeasonRecapModal
         isOpen={!!pendingSeasonRecap && !!seasonRecapStats}
         onClose={clearPendingSeasonRecap}
@@ -953,13 +953,13 @@ function DesktopContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => openWindow(app.id)}
-                className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 transition-colors group"
+                className="flex flex-col items-center gap-1 p-3 rounded-lg hover:bg-white/[0.07] transition-colors group"
               >
                 <div className={cn(
-                  "w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-all",
+                  "w-12 h-12 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-all shadow-glass-soft",
                   windows[app.id].isOpen
-                    ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-400"
-                    : "bg-white/10 border-white/10 text-white/70 group-hover:text-white group-hover:border-white/20"
+                    ? "bg-cyan-300/[0.14] border-cyan-200/25 text-cyan-200"
+                    : "bg-white/[0.075] border-white/10 text-white/70 group-hover:text-white group-hover:border-white/20"
                 )}>
                   {app.icon}
                 </div>

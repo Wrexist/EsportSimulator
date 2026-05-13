@@ -19,7 +19,7 @@ export function GlassTable({
     ...props
 }: React.ComponentProps<typeof Table>) {
     return (
-        <div className="glass-panel rounded-[24px] overflow-x-auto border-white/5 bg-black/20">
+        <div className="glass-panel rounded-lg overflow-x-auto border-white/5 bg-black/20">
             <Table className={cn("border-collapse", className)} {...props}>
                 {children}
             </Table>
@@ -48,17 +48,11 @@ export function GlassTableHead({ className, ...props }: React.ComponentProps<typ
     )
 }
 
-import { motion } from "framer-motion"
-
 export function GlassTableRow({ className, ...props }: React.ComponentProps<typeof TableRow>) {
     return (
-        <motion.tr
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.005, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        <tr
             className={cn(
-                "border-b-white/5 transition-colors group cursor-default",
+                "border-b-white/5 group cursor-default transition-colors duration-75 ease-out hover:bg-white/[0.045]",
                 className
             )}
             {...(props as any)}

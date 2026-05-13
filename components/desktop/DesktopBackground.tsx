@@ -6,14 +6,12 @@ export const DesktopBackground = React.memo(function DesktopBackground() {
     return (
         <div className="absolute inset-0 pointer-events-none">
             {/* Gradient Base */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-neutral-900 to-slate-950" />
+            <div className="absolute inset-0 liquid-app-bg" />
 
-            {/* Subtle Animated Orbs */}
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
-            <div
-                className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
-                style={{ animationDelay: "1s" }}
-            />
+            {/* Glass refraction layers */}
+            <div className="absolute inset-0 liquid-noise" />
+            <div className="absolute left-8 right-8 top-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="absolute bottom-8 left-1/2 h-56 w-[min(72vw,920px)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(125,211,252,0.045),transparent_65%)]" />
 
             {/* Grid Pattern */}
             <div className="absolute inset-0 opacity-[0.03]" style={{
