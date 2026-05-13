@@ -913,8 +913,13 @@ export class SaveManager {
             worldLogicComplete: false,
             restDayProcessingComplete: false,
 
+            // Filter at the post-increment week (matches what AtomicWeekProcessor
+            // actually plays), not save.currentWeek (the pre-increment value).
+            // Using the wrong week would silently leave pendingMatchIds empty and
+            // any future code that verifies completeness via this field would
+            // treat all matches as missing.
             pendingMatchIds: save.scheduledMatches
-                .filter(m => m.week === save.currentWeek)
+                .filter(m => m.week === save.currentWeek + 1)
                 .map(m => m.id),
             completedMatchIds: [],
             generatedEventIds: [],

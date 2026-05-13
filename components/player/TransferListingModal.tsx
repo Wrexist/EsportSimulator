@@ -137,7 +137,7 @@ export function TransferListingModal({
                             </div>
 
                             <div className={cn(
-                                "flex items-start gap-3 p-4 border rounded-2xl text-left transition-colors duration-300",
+                                "flex items-start gap-3 p-4 border rounded-2xl text-left transition-colors duration-100 ease-out",
                                 priceMultiplier <= 1.1 ? "bg-emerald-500/5 border-emerald-500/20" :
                                     priceMultiplier <= 1.5 ? "bg-amber-500/5 border-amber-500/20" :
                                         "bg-red-500/5 border-red-500/20"

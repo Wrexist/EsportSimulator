@@ -2,7 +2,6 @@
 
 import React, { memo } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, CalendarClock, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -59,10 +58,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
         const displayName = truncateName(opponent?.name || "Unknown")
 
         return (
-            <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            <div
                 onClick={() => {
                     if (isLocked) return
                     if (onClick) {
@@ -74,8 +70,8 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                     }
                 }}
                 className={cn(
-                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-all w-full group/match border min-h-[52px]",
-                    isLocked && "opacity-60 cursor-not-allowed hover:scale-100",
+                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
+                    isLocked && "opacity-60 cursor-not-allowed hover:scale-100 hover:translate-y-0 active:scale-100",
                     isWin
                         ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 hover:border-emerald-500/40"
                         : isLoss
@@ -86,11 +82,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                 )}>
                 {/* Live/Upcoming Match Indicator */}
                 {isUpcoming && !isScrim && (
-                    <motion.div
-                        className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"
-                        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                    />
+                    <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 )}
 
                 <div className="flex items-center justify-between gap-3">
@@ -161,19 +153,16 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                         </div>
                     )}
                 </div>
-            </motion.div>
+            </div>
         )
     }
 
     // 2. Handle Projected Match
     if (projected) {
         return (
-            <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            <div
                 className={cn(
-                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-all w-full group/match border border-dashed min-h-[52px]",
+                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border border-dashed min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
                     "bg-amber-500/[0.02] hover:bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
                 )}
             >
@@ -202,7 +191,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                         <CalendarClock size={16} className="text-amber-500/40 group-hover/match:text-amber-500/80 transition-colors" />
                     </div>
                 </div>
-            </motion.div>
+            </div>
         )
     }
 

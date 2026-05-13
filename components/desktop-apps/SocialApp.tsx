@@ -64,7 +64,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={cn(
-                            "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] font-semibold transition-all relative",
+                            "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] font-semibold transition-colors duration-75 ease-out relative active:scale-[0.97] active:duration-0",
                             activeTab === tab.id ? "text-white" : "text-white/50 hover:text-white/70"
                         )}
                     >
@@ -118,7 +118,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     <div className="flex gap-2">
                                         <div
                                             onClick={() => post.teamId && setSelectedTeamProfile(post.teamId)}
-                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-all overflow-hidden"
+                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
                                         >
                                             {post.user.avatar ? (
                                                 <img src={post.user.avatar} alt="" className="w-full h-full object-cover" />
@@ -177,7 +177,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.05 }}
-                                        className="p-2.5 rounded-lg hover:bg-white/5 cursor-pointer transition-all group"
+                                        className="p-2.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors duration-75 ease-out group active:scale-[0.99] active:duration-0"
                                     >
                                         <div className="flex items-start justify-between">
                                             <div>
@@ -200,7 +200,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     <div
                                         key={team.id}
                                         onClick={() => setSelectedTeamProfile(team.id)}
-                                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-all"
+                                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors duration-75 ease-out active:scale-[0.99] active:duration-0"
                                     >
                                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden">
                                             {team.logoPath ? (
@@ -252,11 +252,10 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     .sort((a, b) => (b.followers || 0) - (a.followers || 0))
                                     .slice(0, 15)
                                     .map(team => (
-                                        <motion.div
+                                        <div
                                             key={team.id}
                                             onClick={() => setSelectedTeamProfile(team.id)}
-                                            whileHover={{ x: 4 }}
-                                            className="flex items-center gap-2.5 p-2.5 hover:bg-white/5 rounded-xl cursor-pointer transition-all group"
+                                            className="flex items-center gap-2.5 p-2.5 hover:bg-white/5 rounded-xl cursor-pointer transition-[background-color,transform] duration-75 ease-out group hover:translate-x-1 active:translate-x-0 active:scale-[0.99] active:duration-0"
                                         >
                                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">
                                                 {team.logoPath ? (
@@ -278,7 +277,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                                 <p className="font-bold text-[11px] text-white/80">{(team.followers || 0).toLocaleString()}</p>
                                                 <p className="text-[8px] text-white/30 uppercase tracking-wider">Followers</p>
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     ))}
                             </div>
                         </motion.div>

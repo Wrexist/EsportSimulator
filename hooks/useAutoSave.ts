@@ -41,6 +41,14 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
     const hasUnsavedChanges = Boolean(lastSavedSignatureRef.current) && dirtySignature !== lastSavedSignatureRef.current
 
     const performSave = useCallback(async () => {
+        // Bug fix: skip if a weekly tick or other store-mutating action is in
+        // flight. `advanceWeek` sets `isLoading: true` while it mutates the
+        // engine save in place; if we serialize the store mid-tick we can
+        // overwrite the on-disk save with a stale snapshot.
+        if (useGameStore.getState().isLoading) {
+            return
+        }
+
         try {
             logger.info('Auto-saving game...')
             await saveGame?.()

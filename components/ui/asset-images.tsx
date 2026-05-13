@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS, getTeamLogoUrl } from "@/lib/asset-utils";
 import { cn } from "@/lib/utils";
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
+import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";
 
 interface PlayerImageProps {
     playerName: string;
@@ -189,6 +190,9 @@ interface PlayerPortraitProps {
     size?: number;
     className?: string;
     fill?: boolean;
+    variant?: PlayerPortraitVariant;
+    teamColor?: string;
+    imageClassName?: string;
 }
 
 /**
@@ -201,32 +205,62 @@ export function PlayerPortrait({
     size = 48,
     className,
     fill = false,
+    variant = "avatar",
+    teamColor,
+    imageClassName,
 }: PlayerPortraitProps) {
-    const [imgError, setImgError] = useState(false);
-    const imageSrc = (!src || imgError) ? PLACEHOLDERS.player : src;
+    // If the snapshot points to a baked .png and it fails to load (404, network),
+    // fall back to the procedural .svg at the same path. Only THEN fall back to
+    // the static placeholder.
+    const [stage, setStage] = useState<"primary" | "svg" | "placeholder">("primary");
+
+    const svgFallbackSrc =
+        typeof src === "string" && src.endsWith(".png")
+            ? src.replace(/\.png$/, ".svg")
+            : null;
+
+    const resolvedSrc =
+        stage === "primary"
+            ? src
+            : stage === "svg" && svgFallbackSrc
+                ? svgFallbackSrc
+                : PLACEHOLDERS.player;
+
+    const onError = () => {
+        if (stage === "primary" && svgFallbackSrc) setStage("svg");
+        else setStage("placeholder");
+    };
+
+    const framedSrc =
+        !src || stage === "placeholder"
+            ? null
+            : resolvedSrc;
 
     if (fill) {
         return (
             <Image
-                src={imageSrc}
+                key={resolvedSrc || "ph"}
+                src={resolvedSrc || PLACEHOLDERS.player}
                 alt={alt}
                 fill
                 className={cn("object-cover", className)}
-                onError={() => setImgError(true)}
+                onError={onError}
                 unoptimized
             />
         );
     }
 
     return (
-        <Image
-            src={imageSrc}
+        <PlayerPortraitFrame
+            key={framedSrc || "ph"}
+            src={framedSrc}
             alt={alt}
-            width={size}
-            height={size}
-            className={cn("object-cover", className)}
-            onError={() => setImgError(true)}
-            unoptimized
+            size={size}
+            variant={variant}
+            teamColor={teamColor}
+            className={className}
+            imageClassName={imageClassName}
+            onImageError={onError}
         />
     );
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, Star, Crown, Heart, Hourglass, Wand2, Brain, Shield, Activity, Puzzle, Zap, Crosshair, Award } from "lucide-react"
@@ -29,12 +30,20 @@ export default function HallOfFamePage() {
     })
     const inductedLegends = hallOfFame.filter(l => l.category === "INDUCTED")
 
-    // Get full player data for legends
-    const getLegendPlayerData = (legendId: string) => {
-        return players.find(p => p.id === legendId)
-    }
+    // O(1) player lookup. Without this, the render path was
+    // legends.length × players.length linear scans (66 × ~2000 = 132k ops).
+    const playerById = useMemo(() => {
+        const m = new Map<string, typeof players[number]>()
+        for (const p of players) m.set(p.id, p)
+        return m
+    }, [players])
+    const getLegendPlayerData = (legendId: string) => playerById.get(legendId)
 
-    const isStillActive = (legendId: string) => activelyPlayingLegendIds.includes(legendId)
+    const activeLegendSet = useMemo(
+        () => new Set(activelyPlayingLegendIds),
+        [activelyPlayingLegendIds]
+    )
+    const isStillActive = (legendId: string) => activeLegendSet.has(legendId)
 
     return (
         <div className="p-8 space-y-8 max-w-7xl mx-auto">

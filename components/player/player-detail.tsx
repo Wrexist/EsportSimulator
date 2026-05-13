@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { PlayerSaveData } from "@/engine/save-types"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
 import { PlayerStatMeter } from "@/components/ui/player-stat-meter"
@@ -8,7 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Image from "next/image"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+
+// Three.js bundle (~150KB gzipped) is lazy-loaded so non-detail routes never
+// pay for it. SSR is disabled because R3F creates a real WebGL context.
+const Player3DPortrait = dynamic(
+    () => import("@/components/ui/Player3DPortrait").then(m => m.Player3DPortrait),
+    { ssr: false, loading: () => null },
+)
 import { Button } from "@/components/ui/button"
 import { RenewContractModal } from "./RenewContractModal"
 import { RoleTrainingModal } from "@/components/training/RoleTrainingModal"
@@ -139,8 +147,6 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
         }
     }
 
-    const [imageError, setImageError] = useState(false)
-
     return (
         <div className="space-y-6">
             {/* Header Profile Card - Redesigned & Compact */}
@@ -153,31 +159,28 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                 <div className={cn("absolute -top-12 -right-12 w-48 h-48 blur-[100px] opacity-20 pointer-events-none", tierStyle.color.replace('text-', 'bg-'))} />
 
                 <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
-                    {/* Portrait Section */}
+                    {/* Portrait Section — 3D portrait sits on top of the SVG;
+                        the SVG shows instantly while three.js warms up, then
+                        fades behind the live canvas. */}
                     <div className="flex-shrink-0 group">
-                        <div className="w-28 h-28 rounded-2xl overflow-hidden bg-white/5 border border-white/10 relative shadow-2xl transition-transform duration-300 group-hover:scale-[1.02]">
-                            {(player as any).portraitPath && !imageError ? (
-                                <Image
+                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 border border-white/10 relative shadow-2xl">
+                            <div className="absolute inset-0">
+                                <PlayerPortrait
                                     src={(player as any).portraitPath}
                                     alt={player.nickname}
-                                    width={112}
-                                    height={112}
-                                    className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
-                                    priority
-                                    onError={() => setImageError(true)}
+                                    size={112}
+                                    variant="hero"
                                 />
-                            ) : (
-                                <Image
-                                    src="/player_placeholder.png"
-                                    alt={player.nickname}
-                                    width={112}
-                                    height={112}
-                                    className="w-full h-full object-cover opacity-80"
+                            </div>
+                            <div className="absolute inset-0">
+                                <Player3DPortrait
+                                    seed={player.id}
+                                    size={112}
                                 />
-                            )}
+                            </div>
 
                             {/* Nationality Flag Over Portrait corner */}
-                            <div className="absolute bottom-1 right-1">
+                            <div className="absolute bottom-1 right-1 z-10">
                                 <CountryFlag country={player.nationality} className="scale-75 origin-bottom-right drop-shadow-md" />
                             </div>
                         </div>

@@ -24,7 +24,7 @@
 :focus-visible {
   outline: 2px solid theme('colors.cyan.400');
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
   border-radius: inherit;
 }
 
@@ -38,7 +38,25 @@
 [tabindex]:focus-visible {
   outline: 2px solid theme('colors.cyan.400');
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
+}
+
+/* Higher-contrast focus ring inside dialogs/modals/popovers. Steam Deck's
+   small bright screen washed out the standard 1px-glow + 25%-opacity ring
+   when stacked over the dialog backdrop, making gamepad navigation hard to
+   follow. Target Radix slot data-attributes so this applies app-wide
+   without per-component edits. */
+[data-slot="alert-dialog-content"] :focus-visible,
+[data-slot="dialog-content"] :focus-visible,
+[data-slot="popover-content"] :focus-visible,
+[data-slot="dropdown-menu-content"] :focus-visible,
+[data-slot="select-content"] :focus-visible,
+[data-slot="command-input"]:focus-visible {
+  outline: 3px solid theme('colors.cyan.300');
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 0 5px rgba(103, 232, 249, 0.45);
 }
 
 /* Reduce motion for users who prefer it (OS-level or in-game setting) */
@@ -52,6 +70,12 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .animate-schedule-shimmer,
+  .notification-shimmer,
+  .animate-schedule-week-pulse {
+    animation: none !important;
+  }
 }
 
 /* In-game reduced motion toggle */
@@ -64,10 +88,40 @@ html.reduce-motion *::after {
   scroll-behavior: auto !important;
 }
 
+html.reduce-motion .animate-schedule-shimmer,
+html.reduce-motion .notification-shimmer,
+html.reduce-motion .animate-schedule-week-pulse {
+  animation: none !important;
+}
+
 html,
 body {
   overflow-x: hidden;
   font-family: var(--font-archivo), sans-serif !important;
+}
+
+/* Snappy click defaults for every interactive surface.
+   - touch-action: manipulation kills the legacy 300ms tap delay on
+     touch-input devices (incl. touchscreen laptops running the Electron build).
+   - -webkit-tap-highlight removes the iOS/Android grey flash overlay.
+   - user-select on press-targets prevents accidental text selection on drag.
+   Applied broadly so plain <button>, role="button", and Radix triggers all
+   benefit without per-component edits. */
+button,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+a[href],
+summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
 }
 
 /* Prevent Radix UI Dialog from adding padding-right to body when modals open.
@@ -120,6 +174,22 @@ body[data-scroll-locked] {
   }
 
   .dark {
+    /* Liquid glass — mirrors src/design/tokens semantics */
+    --glass-bg-base: rgba(8, 11, 16, 0.72);
+    --glass-bg-raised: rgba(11, 15, 22, 0.68);
+    --glass-bg-dense: rgba(12, 16, 22, 0.58);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-edge: rgba(255, 255, 255, 0.12);
+    --glass-shine: rgba(255, 255, 255, 0.085);
+    --glass-blur: 22px;
+    --glass-saturate: 150%;
+    --motion-fast: 120ms;
+    --motion-base: 180ms;
+    --motion-slow: 280ms;
+    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --accent-glass: rgba(34, 211, 238, 0.14);
+
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -168,31 +238,118 @@ body[data-scroll-locked] {
 
 @layer utilities {
   .glass-panel {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    background:
+      linear-gradient(135deg, var(--glass-shine), rgba(255, 255, 255, 0.035) 46%, rgba(255, 255, 255, 0.02)),
+      var(--glass-bg-raised);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      0 18px 45px -28px rgba(0, 0, 0, 0.72);
+    transition:
+      opacity var(--motion-base) var(--motion-ease),
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease);
   }
 
   .glass-panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.7);
+    border-color: var(--glass-border-hover);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05) 48%, rgba(255, 255, 255, 0.025)),
+      var(--glass-bg-raised);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 22px 52px -30px rgba(0, 0, 0, 0.78);
   }
 
+  /* Dense dashboards / tables — default 8px radius via component (`rounded-md`) */
   .glass-card {
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: transform 0.12s ease-out, background-color 0.12s ease-out, border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
+      var(--glass-bg-dense);
+    backdrop-filter: blur(18px) saturate(145%);
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+    border: 1px solid rgba(255, 255, 255, 0.085);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 14px 34px -26px rgba(0, 0, 0, 0.72);
+    transition:
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease);
   }
 
   .glass-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.035)),
+      rgba(12, 16, 22, 0.62);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.11), 0 16px 38px -28px rgba(0, 0, 0, 0.78);
+  }
+
+  .glass-panel-dark,
+  .liquid-panel {
+    position: relative;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
+      var(--glass-bg-base);
+    backdrop-filter: blur(24px) saturate(155%);
+    -webkit-backdrop-filter: blur(24px) saturate(155%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      0 22px 58px -36px rgba(0, 0, 0, 0.82);
+  }
+
+  /* Shell bars — floating frosted control layer */
+  .liquid-chrome {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
+      rgba(5, 8, 13, 0.72);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border-color: rgba(255, 255, 255, 0.11);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 14px 44px -32px rgba(0, 0, 0, 0.78);
+  }
+
+  .liquid-button {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)),
+      rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 22px -18px rgba(0, 0, 0, 0.65);
+  }
+
+  /* Layered depth — no large decorative cyan orbs */
+  .liquid-app-bg {
+    background:
+      radial-gradient(ellipse 90% 45% at 50% -12%, rgba(125, 211, 252, 0.045), transparent 55%),
+      radial-gradient(ellipse 70% 40% at 85% 65%, rgba(255, 255, 255, 0.035), transparent 50%),
+      linear-gradient(165deg, #05070b 0%, #0a1017 48%, #080a0e 100%);
+  }
+
+  .liquid-noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.032;
+    mix-blend-mode: overlay;
+    background-image:
+      linear-gradient(115deg, rgba(255, 255, 255, 0.1), transparent 18%, rgba(255, 255, 255, 0.035) 36%, transparent 56%),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 3px);
+  }
+
+  /* Series indicators, live dots — no heavy bloom */
+  .shadow-dot-soft {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 0 12px rgba(255, 255, 255, 0.12);
+  }
+
+  .liquid-divider {
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .interactive-active:active {
@@ -205,6 +362,104 @@ body[data-scroll-locked] {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .portrait-realist-frame {
+    --portrait-accent: rgba(45, 212, 191, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -18px 36px rgba(0, 0, 0, 0.32),
+      0 14px 32px -24px rgba(0, 0, 0, 0.82);
+    transform: translateZ(0);
+  }
+
+  .portrait-realist-card {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -22px 42px rgba(0, 0, 0, 0.35),
+      0 18px 38px -28px rgba(0, 0, 0, 0.86);
+  }
+
+  .portrait-realist-hero {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -30px 58px rgba(0, 0, 0, 0.38),
+      0 24px 54px -34px rgba(0, 0, 0, 0.9);
+  }
+
+  .portrait-realist-backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.16), transparent 34%),
+      radial-gradient(circle at 70% 88%, var(--portrait-accent), transparent 45%),
+      linear-gradient(145deg, rgba(15, 24, 35, 0.92), rgba(6, 9, 14, 0.98));
+  }
+
+  .portrait-realist-image {
+    filter: saturate(1.05) contrast(1.02);
+  }
+
+  .portrait-realist-glass {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 24%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 28%, transparent 68%, rgba(0, 0, 0, 0.28));
+    mix-blend-mode: screen;
+    opacity: 0.34;
+  }
+
+  .portrait-realist-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 0%, transparent 36%, rgba(255, 255, 255, 0.22) 48%, transparent 60%, transparent 100%);
+    opacity: 0;
+    transform: translateX(-42%);
+    transition:
+      opacity var(--motion-base) var(--motion-ease),
+      transform var(--motion-slow) var(--motion-ease);
+  }
+
+  .group:hover .portrait-realist-shine,
+  .portrait-realist-frame:hover .portrait-realist-shine {
+    opacity: 0.26;
+    transform: translateX(42%);
+  }
+
+  .portrait-realist-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background:
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent),
+      rgba(255, 255, 255, 0.04);
+    animation: portrait-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes portrait-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portrait-realist-loading {
+      animation: none;
+    }
+
+    .portrait-realist-shine {
+      display: none;
+    }
   }
 
   /* Custom Sidebar Widths */
@@ -245,7 +500,7 @@ body[data-scroll-locked] {
   button:focus-visible {
     outline: 2px solid theme('colors.cyan.400') !important;
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25) !important;
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) !important;
   }
 
   button:active {
@@ -272,16 +527,16 @@ body[data-scroll-locked] {
   }
 }
 
-/* Glowing pulse animation for selected elements */
+/* Selection emphasis — visible but not neon-bloom */
 @keyframes pulse-glow {
 
   0%,
   100% {
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 6px 20px -8px rgba(16, 185, 129, 0.25);
   }
 
   50% {
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.6), 0 0 50px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.45), 0 8px 24px -8px rgba(16, 185, 129, 0.3);
   }
 }
 

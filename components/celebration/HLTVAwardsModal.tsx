@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { AnnualAwards, Top20Player } from "@/engine/hltv-awards-engine"
+import { panelTransition } from "@/lib/motion"
 
 interface HLTVAwardsModalProps {
     isOpen: boolean
@@ -75,53 +76,32 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal"
+                        className="fixed inset-0 top-16 bg-black/58 backdrop-blur-md z-modal"
                         onClick={onClose}
                     />
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        variants={panelTransition}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
                         className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-modal flex items-center justify-center"
                     >
-                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-hltv-awards" className="w-full max-w-5xl max-h-full bg-gradient-to-br from-[#0a0c10] via-[#0d1117] to-[#0a0c10] border border-amber-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/10 flex flex-col">
+                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-hltv-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
 
                             {/* Header */}
-                            <div className="p-6 bg-gradient-to-r from-amber-500/20 via-transparent to-amber-500/20 border-b border-amber-500/20 relative overflow-hidden shrink-0">
+                            <div className="p-6 bg-white/[0.035] border-b border-white/10 relative overflow-hidden shrink-0">
                                 {/* Sparkle Effects */}
-                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                    {[...Array(30)].map((_, i) => (
-                                        <motion.div
-                                            key={i}
-                                            className="absolute w-1 h-1 bg-amber-400 rounded-full"
-                                            initial={{
-                                                x: `${(i * 37 + 13) % 100}%`,
-                                                y: `${(i * 53 + 7) % 100}%`,
-                                                opacity: 0
-                                            }}
-                                            animate={{
-                                                opacity: [0, 1, 0],
-                                                scale: [0, 1.5, 0]
-                                            }}
-                                            transition={{
-                                                duration: 2,
-                                                repeat: Infinity,
-                                                delay: i * 0.15
-                                            }}
-                                        />
-                                    ))}
-                                </div>
+                                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-transparent pointer-events-none" />
 
                                 <div className="flex items-center justify-between relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                                            <Trophy size={32} className="text-white" />
+                                        <div className="w-16 h-16 rounded-lg bg-amber-300/14 border border-amber-200/25 flex items-center justify-center shadow-glass-soft">
+                                            <Trophy size={32} className="text-amber-200" />
                                         </div>
                                         <div>
-                                            <h1 id="modal-title-hltv-awards" className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400">
+                                            <h1 id="modal-title-hltv-awards" className="text-3xl font-bold text-white">
                                                 HLTV Top 20 Players
                                             </h1>
                                             <p className="text-amber-400/60 text-sm font-medium">
@@ -135,7 +115,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={revealAll}
-                                                className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                                            className="border-amber-500/30 text-amber-200 hover:bg-amber-500/10"
                                             >
                                                 <Sparkles size={14} className="mr-2" />
                                                 Reveal All
@@ -143,7 +123,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                         )}
                                         <button
                                             onClick={onClose}
-                                            className="p-2 rounded-xl hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                                            className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
                                         >
                                             <X size={20} />
                                         </button>
@@ -164,12 +144,12 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                                 transition={{ delay: index * 0.03 }}
                                                 onClick={() => setSelectedPlayer(player)}
                                                 className={cn(
-                                                    "flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all",
+                                                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-[background-color,box-shadow] duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.99] active:duration-0",
                                                     selectedPlayer?.playerId === player.playerId
                                                         ? "bg-gradient-to-r " + getTierColor(player.rank) + " ring-1 ring-amber-500/50"
                                                         : player.rank <= 3
                                                             ? "bg-gradient-to-r " + getTierColor(player.rank) + " hover:ring-1 hover:ring-white/20"
-                                                            : "bg-white/[0.02] hover:bg-white/[0.05] border border-white/5",
+                                                            : "bg-white/[0.03] hover:bg-white/[0.06] border border-white/5",
                                                     player.isPlayerTeam && "ring-2 ring-primary/50"
                                                 )}
                                             >
@@ -189,7 +169,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
 
                                                 {/* Player Portrait */}
                                                 <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden shrink-0">
-                                                    <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={40} />
+                                                    <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={40} variant="card" />
                                                 </div>
 
                                                 {/* Player Info */}
@@ -247,8 +227,8 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                         >
                                             {/* Player Header */}
                                             <div className="text-center">
-                                                <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden mx-auto mb-3">
-                                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={96} />
+                                                <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 overflow-hidden mx-auto mb-3">
+                                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={96} variant="hero" />
                                                 </div>
                                                 <h2 className="text-2xl font-bold text-white">{selectedPlayer.nickname}</h2>
                                                 <div className="flex items-center justify-center gap-2 mt-1">
@@ -273,19 +253,19 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
 
                                             {/* Stats Grid */}
                                             <div className="grid grid-cols-2 gap-2">
-                                                <div className="p-3 rounded-xl bg-white/5 text-center">
+                                                <div className="p-3 rounded-lg bg-white/5 text-center">
                                                     <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.hltvRating.toFixed(2)}</p>
                                                     <p className="text-[9px] text-white/40 uppercase">HLTV Rating</p>
                                                 </div>
-                                                <div className="p-3 rounded-xl bg-white/5 text-center">
+                                                <div className="p-3 rounded-lg bg-white/5 text-center">
                                                     <p className="text-2xl font-bold text-cyan-400">{selectedPlayer.impactRating.toFixed(2)}</p>
                                                     <p className="text-[9px] text-white/40 uppercase">Impact</p>
                                                 </div>
-                                                <div className="p-3 rounded-xl bg-white/5 text-center">
+                                                <div className="p-3 rounded-lg bg-white/5 text-center">
                                                     <p className="text-xl font-bold text-white">{selectedPlayer.kast.toFixed(1)}%</p>
                                                     <p className="text-[9px] text-white/40 uppercase">KAST</p>
                                                 </div>
-                                                <div className="p-3 rounded-xl bg-white/5 text-center">
+                                                <div className="p-3 rounded-lg bg-white/5 text-center">
                                                     <p className="text-xl font-bold text-white">{selectedPlayer.adr.toFixed(1)}</p>
                                                     <p className="text-[9px] text-white/40 uppercase">ADR</p>
                                                 </div>
@@ -342,7 +322,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                             </div>
 
                             {/* Footer - Special Awards */}
-                            <div className="p-4 bg-black/50 border-t border-white/5 shrink-0">
+                            <div className="p-4 bg-black/20 border-t border-white/10 shrink-0">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-6 text-sm">
                                         {awards.mvpOfTheYear && revealedCount >= 20 && (

@@ -309,7 +309,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                             isElimination={tournamentDef?.format === "bracket"}
                             nextStage={nextStageName}
                             outcome={outcome}
-                            className="rounded-[40px]"
+                            className="rounded-xl"
                         />
                     </div>
                 )
@@ -320,19 +320,18 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="glass-panel rounded-[40px] p-12 relative overflow-hidden border-white/5"
+                    className="glass-panel rounded-xl p-12 relative overflow-hidden border-white/5"
                 >
                     {/* Background Glows */}
                     <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                        <div className={`absolute top-1/2 left-0 w-1/2 h-full bg-blue-600/10 blur-[100px] -translate-y-1/2 ${homeWon ? 'opacity-30' : 'opacity-10'}`} />
-                        <div className={`absolute top-1/2 right-0 w-1/2 h-full bg-purple-600/10 blur-[100px] -translate-y-1/2 ${!homeWon ? 'opacity-30' : 'opacity-10'}`} />
+                        <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
                     </div>
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
 
                         {/* HOME TEAM */}
                         <div className="flex flex-col items-center gap-6 flex-1">
-                            <div className="w-32 h-32 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl relative group">
+                            <div className="w-32 h-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-glass-soft relative group">
                                 <TeamLogoImage
                                     src={homeTeam?.logoPath}
                                     alt={homeTeam?.name || "Home"}
@@ -399,7 +398,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
 
                         {/* AWAY TEAM */}
                         <div className="flex flex-col items-center gap-6 flex-1">
-                            <div className="w-32 h-32 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl relative group">
+                            <div className="w-32 h-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-glass-soft relative group">
                                 <TeamLogoImage
                                     src={awayTeam?.logoPath}
                                     alt={awayTeam?.name || "Away"}
@@ -438,7 +437,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                     {/* MAP RESULTS FOOTER */}
                     <div className="mt-12 flex justify-center gap-4">
                         {result.maps.filter(m => m.finalScore.team1 + m.finalScore.team2 > 0).map((m, idx) => (
-                            <div key={idx} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 min-w-[120px]">
+                            <div key={idx} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-white/5 border border-white/10 min-w-[120px]">
                                 <span className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">{m.map}</span>
                                 <div className="flex items-center gap-2 font-sans font-bold text-lg">
                                     <span className={m.finalScore.team1 > m.finalScore.team2 ? "text-emerald-400" : "text-white/50"}>{m.finalScore.team1}</span>
@@ -471,7 +470,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="glass-panel p-8 rounded-[32px] border-amber-500/20 bg-amber-500/5 relative overflow-hidden"
+                            className="glass-panel p-8 rounded-xl border-amber-500/20 bg-amber-500/5 relative overflow-hidden"
                         >
                             <div className="absolute top-0 right-0 p-4 opacity-20">
                                 <Trophy size={120} className="text-amber-500" />
@@ -483,7 +482,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 </div>
 
                                 <div className="flex items-center gap-6 mb-6">
-                                    <div className="w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center overflow-hidden">
+                                    <div className="w-20 h-20 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center overflow-hidden">
                                         <PlayerPortrait
                                             src={mvpPlayer.portraitPath}
                                             alt={mvpPlayer.nickname}
@@ -499,11 +498,11 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="p-3 bg-black/20 rounded-xl border border-white/5">
+                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Rating</p>
                                         <p className="text-2xl font-normal text-amber-400">{result.playerStats[mvpPlayer.id]?.rating.toFixed(2)}</p>
                                     </div>
-                                    <div className="p-3 bg-black/20 rounded-xl border border-white/5">
+                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">K/D Diff</p>
                                         <p className="text-2xl font-normal text-white">
                                             {result.playerStats[mvpPlayer.id] ?
@@ -512,11 +511,11 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                                 : 0}
                                         </p>
                                     </div>
-                                    <div className="p-3 bg-black/20 rounded-xl border border-white/5">
+                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">ADR</p>
                                         <p className="text-xl font-bold text-white">{Math.round(result.playerStats[mvpPlayer.id]?.adr || 0)}</p>
                                     </div>
-                                    <div className="p-3 bg-black/20 rounded-xl border border-white/5">
+                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Kills</p>
                                         <p className="text-xl font-bold text-white">{result.playerStats[mvpPlayer.id]?.kills || 0}</p>
                                     </div>
@@ -533,7 +532,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 let awayScore = 0
 
                                 return (
-                                    <div key={mapIndex} className="glass-panel p-6 rounded-[32px] border-white/5">
+                                    <div key={mapIndex} className="glass-panel p-6 rounded-xl border-white/5">
                                         {/* Map Header */}
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="text-sm font-normal text-white uppercase tracking-widest flex items-center gap-2">
@@ -587,7 +586,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                                         {/* Round block */}
                                                         <div
                                                             className={cn(
-                                                                "w-6 h-8 rounded-md flex items-center justify-center text-[9px] font-bold border transition-all hover:scale-110 cursor-default",
+                                                                "w-6 h-8 rounded-md flex items-center justify-center text-[9px] font-bold border transition-all hover:-translate-y-0.5 cursor-default",
                                                                 actuallyHomeWin
                                                                     ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
                                                                     : "bg-red-500/20 border-red-500/40 text-red-400",
@@ -637,7 +636,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="glass-panel p-8 rounded-[32px] border-white/5 bg-black/20"
+                        className="glass-panel p-8 rounded-xl border-white/5 bg-black/20"
                     >
                         <h3 className="text-lg font-normal text-white mb-6 flex items-center gap-3">
                             <Swords size={20} className="text-primary" />
@@ -702,7 +701,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="glass-panel p-6 rounded-[24px]"
+                            className="glass-panel p-6 rounded-xl"
                         >
                             <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Opening Duels</h3>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
@@ -760,7 +759,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="glass-panel p-6 rounded-[24px]"
+                            className="glass-panel p-6 rounded-xl"
                         >
                             <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">KAST % & Clutches</h3>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
@@ -837,7 +836,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="glass-panel p-6 rounded-[24px]"
+                                className="glass-panel p-6 rounded-xl"
                             >
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">
                                     Round Economy — {selectedMap.map}

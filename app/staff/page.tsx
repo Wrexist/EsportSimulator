@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { motion, AnimatePresence } from "framer-motion"
@@ -47,20 +47,38 @@ export default function StaffPage() {
         _hasHydrated: state._hasHydrated,
     })))
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
-    const currentStaff = staff.filter(s => s.teamId === playerTeamId)
+    const playerTeam = useMemo(
+        () => teams.find(t => t.id === playerTeamId),
+        [teams, playerTeamId]
+    )
+    const currentStaff = useMemo(
+        () => staff.filter(s => s.teamId === playerTeamId),
+        [staff, playerTeamId]
+    )
 
     // Negotiation State
     const [negotiatingStaffId, setNegotiatingStaffId] = useState<string | null>(null)
     const [isRenewal, setIsRenewal] = useState(false)
     const [viewingStaffId, setViewingStaffId] = useState<string | null>(null)
 
-    // Calculate Mobile Effects
-    const bonuses = {
-        xp: currentStaff.filter(s => s.role === 'coach').reduce((sum, s) => sum + (s.stats?.development || 50), 0) * 0.5, // 100 stat = 50%
-        recovery: currentStaff.filter(s => s.role === 'psychologist').reduce((sum, s) => sum + (s.stats?.mentalRecovery || 50), 0) / 10, // 100 stat = 10
-        tactical: currentStaff.filter(s => s.role === 'analyst').reduce((sum, s) => sum + (s.stats?.analysis || 50), 0) / 20 // 100 stat = 5
-    }
+    // Bonuses: previously this re-ran 3 filter() + reduce() passes on every
+    // render (every store mutation), which on the 532 kB Staff page added up.
+    // One pass over currentStaff, memoized to staff identity.
+    const bonuses = useMemo(() => {
+        let coachDev = 0
+        let psychRecovery = 0
+        let analystAnalysis = 0
+        for (const s of currentStaff) {
+            if (s.role === 'coach') coachDev += s.stats?.development || 50
+            else if (s.role === 'psychologist') psychRecovery += s.stats?.mentalRecovery || 50
+            else if (s.role === 'analyst') analystAnalysis += s.stats?.analysis || 50
+        }
+        return {
+            xp: coachDev * 0.5,        // 100 stat = 50%
+            recovery: psychRecovery / 10, // 100 stat = 10
+            tactical: analystAnalysis / 20, // 100 stat = 5
+        }
+    }, [currentStaff])
     useEffect(() => {
         // Only refresh if hydrated and market is empty
         if (_hasHydrated && marketStaff.length === 0) {

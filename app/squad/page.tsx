@@ -16,60 +16,57 @@ import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
-const chartFallback = () => <div className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
-const inlineFallback = () => <div className="h-32 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
-const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false, loading: chartFallback })
+const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
-import { useState, useMemo, memo, useCallback } from "react"
+import { useState, useMemo, useCallback, memo } from "react"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
-const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false, loading: chartFallback })
-const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false, loading: inlineFallback })
+const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
+const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
-export default function SquadPage() {
-  return (
-    <ErrorBoundary section="Squad / Roster">
-      <SquadPageInner />
-    </ErrorBoundary>
-  )
-}
-
-interface RosterCardProps {
+// Module-level + memoized so each card only re-renders when its own props
+// change. Was previously inline inside SquadPageInner which gave it a fresh
+// component identity every render — React would re-mount the whole subtree
+// (PlayerCard animations restarting, 3D portraits reloading) on every store
+// mutation, not just swap toggles.
+type RosterCardProps = {
   player: any
   index: number
   isBench?: boolean
   isSelected: boolean
   isSwapTarget: boolean
-  swapInProgress: boolean
-  salary: number
+  weeksLeft: number
   yearsLeft: number
+  salary: number
+  selectedSwapIsNull: boolean
   onSwapInitiate: (index: number) => void
-  onSwapExecute: (index: number) => void
-  onCancelSwap: () => void
-  onTreatInjury: (id: string) => void
+  onSwapExecute: (targetIndex: number) => void
+  onSwapCancel: () => void
+  onTreatInjury: (playerId: string) => void
 }
-
 const RosterCard = memo(function RosterCard({
   player,
   index,
   isBench = false,
   isSelected,
   isSwapTarget,
-  swapInProgress,
-  salary,
+  weeksLeft,
   yearsLeft,
+  salary,
+  selectedSwapIsNull,
   onSwapInitiate,
   onSwapExecute,
-  onCancelSwap,
+  onSwapCancel,
   onTreatInjury,
 }: RosterCardProps) {
   return (
     <PlayerCard
+      key={player.id}
       player={{
         id: player.id,
         nickname: player.nickname,
@@ -88,11 +85,12 @@ const RosterCard = memo(function RosterCard({
       size="lg"
       variant="default"
       overlays={{ stats: true, contract: true, form: !isBench }}
-      href={!isSwapTarget && !swapInProgress ? `/player/${player.id}` : null}
+      href={!isSwapTarget && selectedSwapIsNull ? `/player/${player.id}` : null}
       onClick={isSwapTarget ? () => onSwapExecute(index) : undefined}
       selected={isSelected}
       accent={player.injury ? "danger" : "default"}
       layoutId={`player-${player.id}`}
+      enable3DPortrait={!isBench}
     >
       {player.injury && (
         <div className="absolute top-2 right-12 z-20">
@@ -104,7 +102,7 @@ const RosterCard = memo(function RosterCard({
       )}
 
       {player.injury && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-150 pointer-events-none [&>*]:pointer-events-auto">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
           <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
           <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
           <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
@@ -147,7 +145,7 @@ const RosterCard = memo(function RosterCard({
         </div>
       )}
 
-      {((isBench && !swapInProgress) || isSelected) && (
+      {((isBench && selectedSwapIsNull) || isSelected) && (
         <div className="absolute top-3 right-3 z-30">
           <Button
             size="sm"
@@ -155,7 +153,7 @@ const RosterCard = memo(function RosterCard({
             className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
             onClick={(e) => {
               e.stopPropagation()
-              if (isSelected) onCancelSwap()
+              if (isSelected) onSwapCancel()
               else onSwapInitiate(index)
             }}
           >
@@ -166,6 +164,14 @@ const RosterCard = memo(function RosterCard({
     </PlayerCard>
   )
 })
+
+export default function SquadPage() {
+  return (
+    <ErrorBoundary section="Squad / Roster">
+      <SquadPageInner />
+    </ErrorBoundary>
+  )
+}
 
 function SquadPageInner() {
   const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
@@ -194,17 +200,13 @@ function SquadPageInner() {
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
 
+  // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
+  // scan the roster loop below was doing — O(roster × players) per render.
   const playerById = useMemo(() => {
     const map = new Map<string, typeof players[number]>()
     for (const p of players) map.set(p.id, p)
     return map
   }, [players])
-
-  const contractByPlayerId = useMemo(() => {
-    const map = new Map<string, typeof contracts[number]>()
-    for (const c of contracts) map.set(c.playerId, c)
-    return map
-  }, [contracts])
 
   // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
   const roster = useMemo(() => {
@@ -240,7 +242,8 @@ function SquadPageInner() {
 
   const handleSwapExecute = useCallback((targetIndex: number) => {
     setSelectedSwapIndex(prev => {
-      if (prev !== null) swapRosterPositions(playerTeamId!, prev, targetIndex)
+      if (prev === null) return null
+      swapRosterPositions(playerTeamId!, prev, targetIndex)
       return null
     })
   }, [swapRosterPositions, playerTeamId])
@@ -249,7 +252,12 @@ function SquadPageInner() {
     setSelectedSwapIndex(null)
   }, [])
 
-  const handleTreatInjury = useCallback((id: string) => treatInjury(id), [treatInjury])
+  // O(1) contract lookup — was O(roster × contracts) per render before.
+  const contractByPlayerId = useMemo(() => {
+    const m = new Map<string, typeof contracts[number]>()
+    for (const c of contracts) m.set(c.playerId, c)
+    return m
+  }, [contracts])
 
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-20">
@@ -275,9 +283,8 @@ function SquadPageInner() {
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div
-          initial={{ opacity: 0, x: -8 }}
+          initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.12, ease: "easeOut" }}
           className="space-y-2"
         >
           <div className="flex items-center gap-4">
@@ -322,26 +329,26 @@ function SquadPageInner() {
             <div className="space-y-3">
               {activeRoster.length > 0 ? (
                 activeRoster.map((player) => {
+                  const idx = player.originalIndex
+                  const isSelected = selectedSwapIndex === idx
+                  const isSwapTarget = selectedSwapIndex !== null && !isSelected
                   const contract = contractByPlayerId.get(player.id)
                   const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-                  const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
-                  const salary = contract ? contract.salaryPerWeek : 0
-                  const isSelected = selectedSwapIndex === player.originalIndex
-                  const isSwapTarget = selectedSwapIndex !== null && !isSelected
                   return (
                     <RosterCard
                       key={player.id}
                       player={player}
-                      index={player.originalIndex}
+                      index={idx}
                       isSelected={isSelected}
                       isSwapTarget={isSwapTarget}
-                      swapInProgress={selectedSwapIndex !== null}
-                      salary={salary}
-                      yearsLeft={yearsLeft}
+                      weeksLeft={weeksLeft}
+                      yearsLeft={weeksLeft > 0 ? weeksLeft / 52 : 0}
+                      salary={contract?.salaryPerWeek ?? 0}
+                      selectedSwapIsNull={selectedSwapIndex === null}
                       onSwapInitiate={handleSwapInitiate}
                       onSwapExecute={handleSwapExecute}
-                      onCancelSwap={handleCancelSwap}
-                      onTreatInjury={handleTreatInjury}
+                      onSwapCancel={handleCancelSwap}
+                      onTreatInjury={treatInjury}
                     />
                   )
                 })
@@ -371,27 +378,27 @@ function SquadPageInner() {
             <div className="space-y-3">
               {benchRoster.length > 0 ? (
                 benchRoster.map((player) => {
+                  const idx = player.originalIndex
+                  const isSelected = selectedSwapIndex === idx
+                  // Bench cards are never swap-targets (only starters are).
                   const contract = contractByPlayerId.get(player.id)
                   const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-                  const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
-                  const salary = contract ? contract.salaryPerWeek : 0
-                  const isSelected = selectedSwapIndex === player.originalIndex
-                  const isSwapTarget = selectedSwapIndex !== null && false
                   return (
                     <RosterCard
                       key={player.id}
                       player={player}
-                      index={player.originalIndex}
+                      index={idx}
                       isBench
                       isSelected={isSelected}
-                      isSwapTarget={isSwapTarget}
-                      swapInProgress={selectedSwapIndex !== null}
-                      salary={salary}
-                      yearsLeft={yearsLeft}
+                      isSwapTarget={false}
+                      weeksLeft={weeksLeft}
+                      yearsLeft={weeksLeft > 0 ? weeksLeft / 52 : 0}
+                      salary={contract?.salaryPerWeek ?? 0}
+                      selectedSwapIsNull={selectedSwapIndex === null}
                       onSwapInitiate={handleSwapInitiate}
                       onSwapExecute={handleSwapExecute}
-                      onCancelSwap={handleCancelSwap}
-                      onTreatInjury={handleTreatInjury}
+                      onSwapCancel={handleCancelSwap}
+                      onTreatInjury={treatInjury}
                     />
                   )
                 })
@@ -413,14 +420,14 @@ function SquadPageInner() {
           {/* Only show synergy for active roster */}
           <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
 
-          <div className="glass-panel p-6 border-white/5 bg-white/[0.02]">
+            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
             <SynergyChart players={activeRoster as any} />
           </div>
 
 
 
           {/* Youth Academy */}
-          <div className="glass-panel p-6 border-white/5 bg-white/[0.02]">
+            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
             <SectionHeader
               className="mb-6"
               icon={Users}
@@ -496,15 +503,13 @@ function SquadPageInner() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1, ease: "easeOut" }}
             className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.97, opacity: 0, y: 8 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.97, opacity: 0, y: 8 }}
-              transition={{ duration: 0.12, ease: "easeOut" }}
-              className="glass-panel max-w-md w-full p-8 border-white/10 bg-white/5 relative overflow-hidden"
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="glass-panel max-w-md w-full p-8 border-white/10 bg-white/5 relative overflow-hidden rounded-xl"
             >
               <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Users size={120} />
@@ -512,7 +517,7 @@ function SquadPageInner() {
 
               <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                     <CheckCircle2 size={32} className="text-emerald-400" />
                   </div>
                   <div>

@@ -7,13 +7,27 @@
   </defs>
   <rect width="256" height="256" fill="url(#bg1nl0ggx)"/>
   <!-- Shoulders / shirt -->
-  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#374151"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#6B21A8"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
   <!-- Neck -->
-  <rect x="112" y="148" width="32" height="32" fill="#C68B5F"/>
-  <!-- Head -->
-  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#C68B5F"/>
-  <!-- Hair -->
-  <path d="M60 104 Q60 52 128 52 Q196 52 196 104 L196 164 Q188 132 176 132 L176 176 L80 176 L80 132 Q68 132 60 164 Z" fill="#C89B5B"/>
-  <!-- Subtle shadow under chin -->
-  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+  <rect x="114" y="150" width="28" height="28" fill="#A66E48"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#A66E48"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#A66E48"/>
+  <ellipse cx="128" cy="128" rx="50" ry="60" fill="#A66E48"/>
+  <!-- Face features -->
+  <path d="M98 119 L120 114" stroke="#3D2B1F" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M158 119 L136 114" stroke="#3D2B1F" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M101 132 Q108 135 115 132" stroke="#4338CA" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M141 132 Q148 135 155 132" stroke="#4338CA" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <rect x="118" y="166" width="20" height="2" rx="1" fill="#3A1F1A" opacity="0.85"/>
+  <ellipse cx="128" cy="170" rx="36" ry="12" fill="#3D2B1F" opacity="0.18"/>
+  <!-- Hair / headwear -->
+  <path d="M64 116 Q64 56 128 56 Q192 56 192 116 Q192 128 184 128 Q186 110 172 100 Q160 122 144 110 Q140 124 124 110 Q116 124 100 110 Q88 122 76 100 Q70 110 72 128 Q64 128 64 116 Z" fill="#3D2B1F"/>
+  <!-- Accessory layer -->
+  
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
 </svg>

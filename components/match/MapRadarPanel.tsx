@@ -182,7 +182,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     if (!radarImageData || !radarSrc) return null
 
     return (
-        <div className="glass-panel-dark rounded-[24px] border border-white/5 overflow-hidden">
+        <div className="glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
             {/* Header */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}

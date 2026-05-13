@@ -242,7 +242,10 @@ export class AIManager {
 
         const salary = calculateSalary(target)
 
-        // Sign them
+        // Sign them. Defensive guard against double-add — if a stale roster
+        // somehow contains this player already, do nothing rather than
+        // creating a duplicate ID.
+        if (team.rosterIds.includes(target.id)) return
         team.rosterIds.push(target.id)
         applyRosterChangePenalty(team, save.currentWeek, 1)
 
@@ -299,7 +302,10 @@ export class AIManager {
             const terminationCost = Math.round(contract.salaryPerWeek * cappedWeeks * 0.5)
             team.budget -= terminationCost
         }
-        save.contracts = save.contracts.filter(c => c.playerId !== worst.id)
+        // Bug fix: scope by (playerId, teamId) — wiping by playerId alone
+        // can clobber unrelated historical/ghost contracts that happen to
+        // share the player ID across teams.
+        save.contracts = save.contracts.filter(c => !(c.playerId === worst.id && c.teamId === team.id))
 
         // Create Transfer Record (Release)
         if (save.transferHistory) {
@@ -583,12 +589,18 @@ export class AIManager {
 
             // Execute transfer
             candidate.team.rosterIds = candidate.team.rosterIds.filter(id => id !== candidate.player.id)
-            buyer.rosterIds.push(candidate.player.id)
+            // Bug fix: defensive guard against double-add if a buyer somehow
+            // already has the player on their roster.
+            if (!buyer.rosterIds.includes(candidate.player.id)) {
+                buyer.rosterIds.push(candidate.player.id)
+            }
             buyer.budget -= fee
             candidate.team.budget += fee
 
-            // Update contracts
-            save.contracts = save.contracts.filter(c => c.playerId !== candidate.player.id)
+            // Bug fix: scope contract removal to the seller — wiping by
+            // playerId alone can clobber unrelated historical/ghost contracts.
+            const sellerTeamId = candidate.team.id
+            save.contracts = save.contracts.filter(c => !(c.playerId === candidate.player.id && c.teamId === sellerTeamId))
             save.contracts.push({
                 playerId: candidate.player.id,
                 teamId: buyer.id,

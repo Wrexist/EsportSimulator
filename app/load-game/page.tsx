@@ -232,7 +232,7 @@ function LoadGamePageInner() {
                                                 ? "Save Appears Corrupted"
                                                 : "Load Failed"
                                         const body = isNewerVersion
-                                            ? "This save was written by a newer build of the game. Update the game to continue this career."
+                                            ? "This save was written by a newer build of the game. Update via Steam to continue this career, or skip this save and pick another to play."
                                             : isCorrupted
                                                 ? `${lastLoadError.message} You can skip this save (it will be left untouched) or attempt to recover from a backup.`
                                                 : lastLoadError.message
@@ -243,16 +243,36 @@ function LoadGamePageInner() {
                                                     <div>
                                                         <p className="text-[10px] font-bold uppercase tracking-wider mb-1">{heading}</p>
                                                         <p className="text-[10px] text-red-400/80 leading-relaxed">{body}</p>
+                                                        {isNewerVersion && (
+                                                            <p className="text-[9px] text-red-400/60 mt-1 font-mono">
+                                                                {lastLoadError.message}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 mt-3">
                                                     {isNewerVersion ? (
-                                                        <button
-                                                            onClick={handleSkip}
-                                                            className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                                                        >
-                                                            Dismiss
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={handleSkip}
+                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+                                                            >
+                                                                Skip Save
+                                                            </button>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await navigator.clipboard.writeText(
+                                                                            `Save: ${slot.saveId}\nError: ${lastLoadError.message}\nApp: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`
+                                                                        )
+                                                                    } catch { /* clipboard may be denied; fail silently */ }
+                                                                    handleSkip()
+                                                                }}
+                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors"
+                                                            >
+                                                                Copy Details
+                                                            </button>
+                                                        </>
                                                     ) : isCorrupted ? (
                                                         <>
                                                             <button

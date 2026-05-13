@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
 import { IntegrityChecker, IntegrityIssue } from "@/engine/integrity-checker"
 import { simulationEngineV2 } from "@/engine/match-simulation"
 import { Button } from "@/components/ui/button"
@@ -28,7 +29,24 @@ interface HealthCheckResult {
 
 export default function DevPage() {
     const devToolsEnabled = isDevToolsEnabled()
-    const store = useGameStore()
+    // Was `useGameStore()` (no selector), which subscribes to the entire
+    // store and re-renders Dev tools on every mutation across the whole game
+    // tick. Pull only what's read here via shallow-equality.
+    const store = useGameStore(useShallow(s => ({
+        teams: s.teams,
+        players: s.players,
+        scheduledMatches: s.scheduledMatches,
+        completedMatches: s.completedMatches,
+        tournaments: s.tournaments,
+        playerTeamId: s.playerTeamId,
+        currentWeek: s.currentWeek,
+        isInitialized: s.isInitialized,
+        saveId: s.saveId,
+        advanceWeek: s.advanceWeek,
+        deleteAllSaves: s.deleteAllSaves,
+        debugTriggerInjury: s.debugTriggerInjury,
+        clearActiveMatchState: s.clearActiveMatchState,
+    })))
     const router = useRouter()
     const [issues, setIssues] = useState<IntegrityIssue[]>([])
     const [status, setStatus] = useState("")

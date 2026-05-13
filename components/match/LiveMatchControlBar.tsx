@@ -41,7 +41,7 @@ function LiveMatchControlBarComponent({
                         exit={{ opacity: 0, scale: 0.8 }}
                         className="bg-red-500/10 border border-red-500/20 text-red-500 px-2 py-1 rounded-md flex items-center gap-1.5"
                     >
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse box-shadow-glow" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_0_1px_rgba(248,113,113,0.5)]" />
                         <span className="text-[10px] font-normal tracking-wider leading-none">LIVE</span>
                     </motion.div>
                 )}

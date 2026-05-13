@@ -732,6 +732,13 @@ export interface MatchSaveData {
     // Phase 20: Tactical Prep Persistence
     vodReviewed?: boolean
     mentalPrep?: boolean
+    /**
+     * Team ID that paid for mental prep on this match. Required for the
+     * simulator to apply the bonus to the correct side — `mentalPrep: true`
+     * alone is ambiguous when the player is the away team. If absent on
+     * legacy saves, fall back to the home side (prior behaviour).
+     */
+    mentalPrepTeamId?: string
 }
 
 /**
