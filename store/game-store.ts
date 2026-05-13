@@ -2136,7 +2136,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const inferredTeamId = save.playerTeamId || "team_navi"
-          const hydratedSave: GameSave = JSON.parse(JSON.stringify(save))
+          // structuredClone is ~10x faster than JSON parse/stringify and preserves
+          // Date, Map, Set, etc. Falls back for ancient runtimes that lack it.
+          const hydratedSave: GameSave = typeof structuredClone === "function"
+            ? structuredClone(save)
+            : JSON.parse(JSON.stringify(save))
 
           // Augment with new fields if missing (backward compatibility)
           hydratedSave.players.forEach(p => {

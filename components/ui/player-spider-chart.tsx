@@ -1,7 +1,7 @@
 "use client"
 
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from "recharts"
-import { useMemo } from "react"
+import { useMemo, memo } from "react"
 
 interface StatPoint {
     subject: string
@@ -67,7 +67,7 @@ function getAverageColor(stats: number[]): string {
     return "#93c5fd" // Lighter blue for developing
 }
 
-export function PlayerSpiderChart({
+function PlayerSpiderChartInner({
     stats,
     playerName,
     size = "md",
@@ -220,6 +220,8 @@ export function PlayerSpiderChart({
         </div>
     )
 }
+
+export const PlayerSpiderChart = memo(PlayerSpiderChartInner)
 
 // Re-export original for backwards compatibility
 export { PlayerRadarChart } from "./player-radar-chart"

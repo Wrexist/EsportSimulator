@@ -350,7 +350,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         className="flex flex-col items-center w-1/3 group"
                     >
                         <div className={cn(
-                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-all duration-500 shadow-2xl relative overflow-hidden",
+                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-[border-color,transform,box-shadow] duration-200 shadow-2xl relative overflow-hidden",
                             currentTurn.team === "home"
                                 ? "border-primary shadow-primary/20 scale-110 active-team-glow"
                                 : "border-white/10 grayscale group-hover:grayscale-0"
@@ -437,7 +437,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         className="flex flex-col items-center w-1/3 group"
                     >
                         <div className={cn(
-                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-all duration-500 shadow-2xl relative overflow-hidden",
+                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-[border-color,transform,box-shadow] duration-200 shadow-2xl relative overflow-hidden",
                             currentTurn.team === "away"
                                 ? "border-primary shadow-primary/20 scale-110 active-team-glow"
                                 : "border-white/10 grayscale group-hover:grayscale-0"
@@ -479,11 +479,11 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         return (
                             <motion.div
                                 key={mapId}
-                                initial={{ opacity: 0, y: 30 }}
+                                initial={{ opacity: 0, y: 12 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.05 }}
+                                transition={{ delay: idx * 0.025, duration: 0.18, ease: "easeOut" }}
                                 className={cn(
-                                    "relative h-64 rounded-[32px] overflow-hidden border-2 transition-all duration-500 group shadow-2xl",
+                                    "relative h-64 rounded-[32px] overflow-hidden border-2 transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
                                     canInteract ? "border-white/10 hover:border-primary/50 cursor-pointer hover:-translate-y-2 hover:shadow-primary/20" : "border-white/5 opacity-40",
                                     isPicked && "border-emerald-500 shadow-emerald-500/20 ring-4 ring-emerald-500/20",
                                     isBanned && "border-rose-500 grayscale opacity-30 shadow-none border opacity-20"

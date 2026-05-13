@@ -16,7 +16,9 @@ import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
-const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
+const chartFallback = () => <div className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
+const inlineFallback = () => <div className="h-32 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
+const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false, loading: chartFallback })
 import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
@@ -24,8 +26,8 @@ import { resolvePlayerRole } from "@/engine/role-determination"
 import { useState, useMemo, memo, useCallback } from "react"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
-const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
-const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
+const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false, loading: chartFallback })
+const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false, loading: inlineFallback })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
