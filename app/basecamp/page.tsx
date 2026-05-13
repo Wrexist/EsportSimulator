@@ -37,6 +37,55 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
+// Hoisted to module scope — this is a static config that was being recreated
+// on every render of BasecampPage, including the per-level getStat closures.
+const FACILITY_CONFIG = {
+  TRAINING: {
+    image: "/facilities/training.png",
+    label: "Performance Center",
+    description: "Optimizes player XP gain and skill development speed.",
+    statLabel: "XP Multiplier",
+    getStat: (level: number) => `+${level * 10}%`,
+    icon: Dumbbell,
+    color: "text-cyan-400",
+    bgFrom: "from-cyan-500/20",
+    border: "hover:border-cyan-500/50"
+  },
+  RECOVERY: {
+    image: "/facilities/recovery.png",
+    label: "Wellness Lounge",
+    description: "Accelerates fatigue recovery and improves morale.",
+    statLabel: "Fatigue Recovery",
+    getStat: (level: number) => `-${level * 5} pts/wk`,
+    icon: HeartPulse,
+    color: "text-emerald-400",
+    bgFrom: "from-emerald-500/20",
+    border: "hover:border-emerald-500/50"
+  },
+  TACTICAL: {
+    image: "/facilities/tactical.png",
+    label: "War Room",
+    description: "Unlocks advanced strategic tools and preparation speed.",
+    statLabel: "Prep Speed",
+    getStat: (level: number) => `+${level * 15}%`,
+    icon: ClipboardList,
+    color: "text-amber-400",
+    bgFrom: "from-amber-500/20",
+    border: "hover:border-amber-500/50"
+  },
+  FANZONE: {
+    image: "/facilities/fanzone.png",
+    label: "Fan Interaction Zone",
+    description: "Boosts merchandise revenue and fan base growth.",
+    statLabel: "Merch Revenue",
+    getStat: (level: number) => `+${level * 20}%`,
+    icon: Users,
+    color: "text-rose-400",
+    bgFrom: "from-rose-500/20",
+    border: "hover:border-rose-500/50"
+  }
+} as const
+
 export default function BasecampPage() {
   const router = useRouter()
   const {
@@ -73,53 +122,7 @@ export default function BasecampPage() {
     })
   }
 
-  // Facility Metadata configuration
-  const facilityConfig = {
-    TRAINING: {
-      image: "/facilities/training.png",
-      label: "Performance Center",
-      description: "Optimizes player XP gain and skill development speed.",
-      statLabel: "XP Multiplier",
-      getStat: (level: number) => `+${level * 10}%`,
-      icon: Dumbbell,
-      color: "text-cyan-400",
-      bgFrom: "from-cyan-500/20",
-      border: "hover:border-cyan-500/50"
-    },
-    RECOVERY: {
-      image: "/facilities/recovery.png",
-      label: "Wellness Lounge",
-      description: "Accelerates fatigue recovery and improves morale.",
-      statLabel: "Fatigue Recovery",
-      getStat: (level: number) => `-${level * 5} pts/wk`,
-      icon: HeartPulse,
-      color: "text-emerald-400",
-      bgFrom: "from-emerald-500/20",
-      border: "hover:border-emerald-500/50"
-    },
-    TACTICAL: {
-      image: "/facilities/tactical.png",
-      label: "War Room",
-      description: "Unlocks advanced strategic tools and preparation speed.",
-      statLabel: "Prep Speed",
-      getStat: (level: number) => `+${level * 15}%`,
-      icon: ClipboardList,
-      color: "text-amber-400",
-      bgFrom: "from-amber-500/20",
-      border: "hover:border-amber-500/50"
-    },
-    FANZONE: {
-      image: "/facilities/fanzone.png",
-      label: "Fan Interaction Zone",
-      description: "Boosts merchandise revenue and fan base growth.",
-      statLabel: "Merch Revenue",
-      getStat: (level: number) => `+${level * 20}%`,
-      icon: Users,
-      color: "text-rose-400",
-      bgFrom: "from-rose-500/20",
-      border: "hover:border-rose-500/50"
-    }
-  }
+  const facilityConfig = FACILITY_CONFIG
 
   return (
     <div className="min-h-screen bg-[#080a0e] text-white p-8">

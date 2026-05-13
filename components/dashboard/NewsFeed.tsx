@@ -6,8 +6,38 @@ import { motion } from "framer-motion"
 import { Newspaper, Trophy, Users, Zap, Award, Calendar, Briefcase, Building2, DollarSign, Stethoscope } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { useMemo } from "react"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+
+// Hoisted: these were being rebuilt for every news item every render
+// (newsFeed × 10 icon JSX nodes × N renders). Now built once at module load.
+const CATEGORY_ICON_MAP: Record<string, React.ReactNode> = {
+    MATCH: <Zap size={14} />,
+    TRANSFER: <Users size={14} />,
+    TOURNAMENT: <Trophy size={14} />,
+    ACHIEVEMENT: <Award size={14} />,
+    LEVEL_UP: <Zap size={14} />,
+    INJURY: <Stethoscope size={14} className="text-red-400" />,
+    FINANCE: <DollarSign size={14} className="text-emerald-400" />,
+    FACILITY: <Building2 size={14} className="text-blue-400" />,
+    STAFF: <Briefcase size={14} className="text-amber-400" />,
+    RETIREMENT: <Award size={14} className="text-purple-400" />,
+}
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+    MATCH: "text-blue-400 bg-blue-400/10",
+    TRANSFER: "text-emerald-400 bg-emerald-400/10",
+    TOURNAMENT: "text-amber-400 bg-amber-400/10",
+    ACHIEVEMENT: "text-purple-400 bg-purple-400/10",
+    LEVEL_UP: "text-cyan-400 bg-cyan-400/10",
+    INJURY: "text-red-400 bg-red-400/10",
+    FINANCE: "text-emerald-400 bg-emerald-400/10",
+    FACILITY: "text-blue-400 bg-blue-400/10",
+    STAFF: "text-amber-400 bg-amber-400/10",
+    RETIREMENT: "text-purple-400 bg-purple-400/10",
+}
+const FALLBACK_ICON = <Newspaper size={14} />
+const FALLBACK_COLOR = "text-muted-foreground bg-white/5"
 
 export function NewsFeed() {
     const { newsFeed, getDateForWeek, teams, players } = useGameStore(useShallow(state => ({
@@ -16,6 +46,19 @@ export function NewsFeed() {
         teams: state.teams,
         players: state.players,
     })))
+
+    // O(1) lookups for the render loop. Was previously doing two `teams.find`
+    // and one `players.find` per news item — O(items × (2·teams + players)).
+    // On a long save this dwarfed everything else on the dashboard.
+    const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+    const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+    const teamByRosterPlayerId = useMemo(() => {
+        const m = new Map<string, typeof teams[number]>()
+        for (const t of teams) {
+            for (const pid of t.rosterIds || []) m.set(pid, t)
+        }
+        return m
+    }, [teams])
 
     if (!newsFeed || newsFeed.length === 0) {
         return (
@@ -30,38 +73,14 @@ export function NewsFeed() {
         <div className="space-y-4">
             {newsFeed.map((item, idx) => {
                 const team = item.teamId
-                    ? teams.find(t => t.id === item.teamId)
+                    ? teamsById.get(item.teamId)
                     : item.playerId
-                        ? teams.find(t => t.rosterIds?.includes(item.playerId!))
+                        ? teamByRosterPlayerId.get(item.playerId)
                         : null
-                const player = item.playerId ? players.find(p => p.id === item.playerId) : null
+                const player = item.playerId ? playersById.get(item.playerId) : null
 
-                const categoryIcon = {
-                    MATCH: <Zap size={14} />,
-                    TRANSFER: <Users size={14} />,
-                    TOURNAMENT: <Trophy size={14} />,
-                    ACHIEVEMENT: <Award size={14} />,
-                    LEVEL_UP: <Zap size={14} />,
-                    INJURY: <Stethoscope size={14} className="text-red-400" />,
-                    FINANCE: <DollarSign size={14} className="text-emerald-400" />,
-                    FACILITY: <Building2 size={14} className="text-blue-400" />,
-                    STAFF: <Briefcase size={14} className="text-amber-400" />,
-                    RETIREMENT: <Award size={14} className="text-purple-400" />
-                }[item.category || "MATCH"] || <Newspaper size={14} />
-
-                const categoryColorMap = {
-                    MATCH: "text-blue-400 bg-blue-400/10",
-                    TRANSFER: "text-emerald-400 bg-emerald-400/10",
-                    TOURNAMENT: "text-amber-400 bg-amber-400/10",
-                    ACHIEVEMENT: "text-purple-400 bg-purple-400/10",
-                    LEVEL_UP: "text-cyan-400 bg-cyan-400/10",
-                    INJURY: "text-red-400 bg-red-400/10",
-                    FINANCE: "text-emerald-400 bg-emerald-400/10",
-                    FACILITY: "text-blue-400 bg-blue-400/10",
-                    STAFF: "text-amber-400 bg-amber-400/10",
-                    RETIREMENT: "text-purple-400 bg-purple-400/10"
-                }
-                const categoryColor = categoryColorMap[item.category as keyof typeof categoryColorMap] || "text-muted-foreground bg-white/5"
+                const categoryIcon = CATEGORY_ICON_MAP[item.category || "MATCH"] || FALLBACK_ICON
+                const categoryColor = CATEGORY_COLOR_MAP[item.category] || FALLBACK_COLOR
 
                 // Safe Date Formatting
                 let dateStr = "Recent"

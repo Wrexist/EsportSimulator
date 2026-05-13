@@ -13,6 +13,13 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { getTeamColors } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 
+// Hoisted: this lookup was being rebuilt as a fresh object on every TopBar
+// render (which fires on every game tick).
+const REGION_TO_FLAG: Record<string, string> = {
+    EU: "eu", NA: "us", SA: "br", CIS: "ru",
+    ASIA: "cn", OCEANIA: "au", MENA: "sa", INTERNATIONAL: "un",
+}
+
 export function TopBar() {
     // Single shallow-equality selector instead of 14 individual subscriptions.
     // Without this, every store mutation (every match tick, transfer, ledger
@@ -66,6 +73,19 @@ export function TopBar() {
     // Get custom team colors for styling
     const teamColors = useMemo(() => getTeamColors(playerTeam), [playerTeam])
 
+    // Precompute the pending match instead of scanning scheduledMatches in the
+    // JSX body. Was running an O(scheduledMatches) `.find()` on every TopBar
+    // render — TopBar re-renders on every game tick (currentDay, currentWeek,
+    // isLoading, etc.), so on a long season this stacked up.
+    const pendingMatch = useMemo(() => {
+        if (!scheduledMatches || !playerTeam) return null
+        return scheduledMatches.find(m =>
+            m.week === currentWeek &&
+            (m.homeTeamId === playerTeam.id || m.awayTeamId === playerTeam.id) &&
+            (timeMode === "WEEKLY" || (m.day ?? 6) <= currentDay)
+        ) || null
+    }, [scheduledMatches, playerTeam, currentWeek, currentDay, timeMode])
+
     const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
@@ -92,13 +112,7 @@ export function TopBar() {
                             {/* Region Flag */}
                             {isMounted ? (
                                 <CountryFlag
-                                    country={(() => {
-                                        const regions: Record<string, string> = {
-                                            "EU": "eu", "NA": "us", "SA": "br", "CIS": "ru",
-                                            "ASIA": "cn", "OCEANIA": "au", "MENA": "sa", "INTERNATIONAL": "un"
-                                        }
-                                        return regions[playerTeam?.region || ""] || "un"
-                                    })()}
+                                    country={REGION_TO_FLAG[playerTeam?.region || ""] || "un"}
                                     size={14}
                                 />
                             ) : (
@@ -174,13 +188,6 @@ export function TopBar() {
 
                 {/* Continue / Play Match Button */}
                 {(() => {
-                    const pendingMatch = scheduledMatches?.find(m =>
-                        m.week === currentWeek &&
-                        playerTeam &&
-                        (m.homeTeamId === playerTeam.id || m.awayTeamId === playerTeam.id) &&
-                        (timeMode === "WEEKLY" || (m.day ?? 6) <= currentDay)
-                    )
-
                     if (pendingMatch) {
                         return (
                             <Button

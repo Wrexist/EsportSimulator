@@ -21,26 +21,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
-// Animated counter component for stats
+// Animated counter component for stats.
+// Earlier version had a bug: the inner `return () => clearInterval(timer)` was
+// returning from the setTimeout callback, not from useEffect. If the component
+// unmounted while the interval was still running it kept ticking. Track the
+// interval id via ref so the real useEffect cleanup can always cancel it.
 function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, duration?: number, delay?: number }) {
     const [displayValue, setDisplayValue] = useState(0)
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     useEffect(() => {
         const timeout = setTimeout(() => {
             let start = 0
             const increment = value / (duration * 60)
-            const timer = setInterval(() => {
+            intervalRef.current = setInterval(() => {
                 start += increment
                 if (start >= value) {
                     setDisplayValue(value)
-                    clearInterval(timer)
+                    if (intervalRef.current) clearInterval(intervalRef.current)
+                    intervalRef.current = null
                 } else {
                     setDisplayValue(Math.floor(start))
                 }
             }, 1000 / 60)
-            return () => clearInterval(timer)
         }, delay * 1000)
-        return () => clearTimeout(timeout)
+        return () => {
+            clearTimeout(timeout)
+            if (intervalRef.current) clearInterval(intervalRef.current)
+            intervalRef.current = null
+        }
     }, [value, duration, delay])
 
     return <>{displayValue}</>
@@ -201,7 +210,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
 
-    const getPlayer = (id: string) => players.find(p => p.id === id)
+    // Was: `players.find` was called 3+ times in nested .map() loops over
+    // playerStats rows — O(players × rows). Index once.
+    const playersById = new Map(players.map(p => [p.id, p]))
+    const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
 
     // Helper to get stats for the current view (Overall or Specific Map)
@@ -721,7 +733,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                         </div>
                                         <div className="space-y-2">
                                             {teamStats.map((stat: any) => {
-                                                const player = players.find((p: any) => p.id === stat.playerId)
+                                                const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const fk = stat.firstKills || 0
                                                 const fd = stat.firstDeaths || 0
@@ -775,7 +787,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                         </div>
                                         <div className="space-y-2">
                                             {teamStats.map((stat: any) => {
-                                                const player = players.find((p: any) => p.id === stat.playerId)
+                                                const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const kast = stat.kast || 0
                                                 const clutches = stat.clutches || 0
@@ -953,7 +965,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                 </thead>
                 <tbody className="divide-y divide-white/5">
                     {stats.map((stat) => {
-                        const player = players.find(p => p.id === stat.playerId)
+                        const player = playersById.get(stat.playerId)
                         const diff = stat.kills - stat.deaths
                         const ratingColor = stat.rating >= 1.25 ? "text-emerald-400" : stat.rating < 0.9 ? "text-red-400" : "text-white/80"
 
