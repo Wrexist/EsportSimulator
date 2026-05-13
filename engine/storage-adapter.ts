@@ -344,7 +344,7 @@ class DebouncedStorage implements AsyncStorage {
     private pendingWrites = new Map<string, { value: string; timer: ReturnType<typeof setTimeout>; resolve: () => void; reject: (err: unknown) => void }>()
     private debounceMs: number
 
-    constructor(inner: AsyncStorage, debounceMs = 2000) {
+    constructor(inner: AsyncStorage, debounceMs = 150) {
         this.inner = inner
         this.debounceMs = debounceMs
     }

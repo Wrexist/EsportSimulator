@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { memo } from "react"
 import { motion } from "framer-motion"
 import { Trophy, Calendar, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -27,7 +27,7 @@ interface TrophyCabinetProps {
     className?: string
 }
 
-export function TrophyCabinet({ trophies, title = "Trophy Cabinet", className }: TrophyCabinetProps) {
+function TrophyCabinetInner({ trophies, title = "Trophy Cabinet", className }: TrophyCabinetProps) {
     // Group trophies by row if needed, or just a grid
     return (
         <div className={cn("space-y-6", className)}>
@@ -129,3 +129,5 @@ export function TrophyCabinet({ trophies, title = "Trophy Cabinet", className }:
         </div>
     )
 }
+
+export const TrophyCabinet = memo(TrophyCabinetInner)

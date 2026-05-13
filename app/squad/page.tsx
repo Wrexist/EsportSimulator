@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo, useCallback } from "react"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
@@ -36,6 +36,134 @@ export default function SquadPage() {
     </ErrorBoundary>
   )
 }
+
+interface RosterCardProps {
+  player: any
+  index: number
+  isBench?: boolean
+  isSelected: boolean
+  isSwapTarget: boolean
+  swapInProgress: boolean
+  salary: number
+  yearsLeft: number
+  onSwapInitiate: (index: number) => void
+  onSwapExecute: (index: number) => void
+  onCancelSwap: () => void
+  onTreatInjury: (id: string) => void
+}
+
+const RosterCard = memo(function RosterCard({
+  player,
+  index,
+  isBench = false,
+  isSelected,
+  isSwapTarget,
+  swapInProgress,
+  salary,
+  yearsLeft,
+  onSwapInitiate,
+  onSwapExecute,
+  onCancelSwap,
+  onTreatInjury,
+}: RosterCardProps) {
+  return (
+    <PlayerCard
+      player={{
+        id: player.id,
+        nickname: player.nickname,
+        portraitPath: player.portraitPath,
+        role: player.role,
+        secondaryRole: player.secondaryRole,
+        nationality: player.nationality,
+        tier: player.playerTier,
+        overallRating: player.evaluation.overallRating,
+        morale: player.morale,
+        form: player.form,
+        fatigue: player.fatigue,
+        salaryPerWeek: salary,
+        contractYearsLeft: yearsLeft,
+      }}
+      size="lg"
+      variant="default"
+      overlays={{ stats: true, contract: true, form: !isBench }}
+      href={!isSwapTarget && !swapInProgress ? `/player/${player.id}` : null}
+      onClick={isSwapTarget ? () => onSwapExecute(index) : undefined}
+      selected={isSelected}
+      accent={player.injury ? "danger" : "default"}
+      layoutId={`player-${player.id}`}
+    >
+      {player.injury && (
+        <div className="absolute top-2 right-12 z-20">
+          <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
+            <Activity size={10} className="stroke-[3]" />
+            <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
+          </Badge>
+        </div>
+      )}
+
+      {player.injury && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-150 pointer-events-none [&>*]:pointer-events-auto">
+          <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
+          <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
+          <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
+            Out for {player.injury.weeksRemaining} Weeks
+          </Badge>
+          <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">{player.injury.description}</p>
+          <div className="flex flex-col gap-2 w-full max-w-[180px]">
+            <Link
+              href={`/player/${player.id}`}
+              className="inline-flex items-center justify-center h-8 border border-white/20 text-white/80 hover:bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest"
+              onClick={(e) => e.stopPropagation()}
+            >
+              View Profile
+            </Link>
+            <ConfirmDialog
+              title="Hire Medical Specialist?"
+              description="This will cost $5,000 and reduce recovery time by 2 weeks."
+              onConfirm={() => onTreatInjury(player.id)}
+              confirmText="Hire Specialist"
+              icon="info"
+            >
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full text-[10px] font-bold uppercase tracking-widest"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Plus size={12} className="mr-2" />
+                Specialist ($5k)
+              </Button>
+            </ConfirmDialog>
+          </div>
+          <p className="mt-2 text-[9px] text-white/30 italic">Reduces recovery time by 2 weeks</p>
+        </div>
+      )}
+
+      {isSelected && (
+        <div className="absolute top-3 right-3 text-primary animate-pulse z-30">
+          <ArrowRightLeft size={20} />
+        </div>
+      )}
+
+      {((isBench && !swapInProgress) || isSelected) && (
+        <div className="absolute top-3 right-3 z-30">
+          <Button
+            size="sm"
+            variant={isSelected ? "destructive" : "secondary"}
+            className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
+            onClick={(e) => {
+              e.stopPropagation()
+              if (isSelected) onCancelSwap()
+              else onSwapInitiate(index)
+            }}
+          >
+            {isSelected ? "Cancel" : "Swap"}
+          </Button>
+        </div>
+      )}
+    </PlayerCard>
+  )
+})
 
 function SquadPageInner() {
   const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
@@ -64,13 +192,17 @@ function SquadPageInner() {
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
 
-  // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
-  // scan the roster loop below was doing — O(roster × players) per render.
   const playerById = useMemo(() => {
     const map = new Map<string, typeof players[number]>()
     for (const p of players) map.set(p.id, p)
     return map
   }, [players])
+
+  const contractByPlayerId = useMemo(() => {
+    const map = new Map<string, typeof contracts[number]>()
+    for (const c of contracts) map.set(c.playerId, c)
+    return map
+  }, [contracts])
 
   // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
   const roster = useMemo(() => {
@@ -100,132 +232,22 @@ function SquadPageInner() {
   const activeRoster = roster.slice(0, 5)
   const benchRoster = roster.slice(5)
 
-  const handleSwapInitiate = (index: number) => {
+  const handleSwapInitiate = useCallback((index: number) => {
     setSelectedSwapIndex(index)
-  }
+  }, [])
 
-  const handleSwapExecute = (targetIndex: number) => {
-    if (selectedSwapIndex !== null) {
-      swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
-      setSelectedSwapIndex(null)
-    }
-  }
+  const handleSwapExecute = useCallback((targetIndex: number) => {
+    setSelectedSwapIndex(prev => {
+      if (prev !== null) swapRosterPositions(playerTeamId!, prev, targetIndex)
+      return null
+    })
+  }, [swapRosterPositions, playerTeamId])
 
-  const handleCancelSwap = () => {
+  const handleCancelSwap = useCallback(() => {
     setSelectedSwapIndex(null)
-  }
+  }, [])
 
-  const RosterCard = ({ player, index, isBench = false }: { player: any, index: number, isBench?: boolean }) => {
-    const isSelected = selectedSwapIndex === index
-    const isSwapTarget = selectedSwapIndex !== null && !isBench && !isSelected
-    const contract = contracts.find(c => c.playerId === player.id)
-    const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-    const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
-    const salary = contract ? contract.salaryPerWeek : 0
-
-    return (
-      <PlayerCard
-        key={player.id}
-        player={{
-          id: player.id,
-          nickname: player.nickname,
-          portraitPath: player.portraitPath,
-          role: player.role,
-          secondaryRole: player.secondaryRole,
-          nationality: player.nationality,
-          tier: player.playerTier,
-          overallRating: player.evaluation.overallRating,
-          morale: player.morale,
-          form: player.form,
-          fatigue: player.fatigue,
-          salaryPerWeek: salary,
-          contractYearsLeft: yearsLeft,
-        }}
-        size="lg"
-        variant="default"
-        overlays={{ stats: true, contract: true, form: !isBench }}
-        href={!isSwapTarget && selectedSwapIndex === null ? `/player/${player.id}` : null}
-        onClick={isSwapTarget ? () => handleSwapExecute(index) : undefined}
-        selected={isSelected}
-        accent={player.injury ? "danger" : "default"}
-        layoutId={`player-${player.id}`}
-      >
-        {/* Injury badge */}
-        {player.injury && (
-          <div className="absolute top-2 right-12 z-20">
-            <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
-              <Activity size={10} className="stroke-[3]" />
-              <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
-            </Badge>
-          </div>
-        )}
-
-        {/* Injury overlay with specialist-hire */}
-        {player.injury && (
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
-            <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
-            <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
-            <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
-              Out for {player.injury.weeksRemaining} Weeks
-            </Badge>
-            <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">{player.injury.description}</p>
-            <div className="flex flex-col gap-2 w-full max-w-[180px]">
-              <Link
-                href={`/player/${player.id}`}
-                className="inline-flex items-center justify-center h-8 border border-white/20 text-white/80 hover:bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View Profile
-              </Link>
-              <ConfirmDialog
-                title="Hire Medical Specialist?"
-                description="This will cost $5,000 and reduce recovery time by 2 weeks."
-                onConfirm={() => treatInjury(player.id)}
-                confirmText="Hire Specialist"
-                icon="info"
-              >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full text-[10px] font-bold uppercase tracking-widest"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Plus size={12} className="mr-2" />
-                  Specialist ($5k)
-                </Button>
-              </ConfirmDialog>
-            </div>
-            <p className="mt-2 text-[9px] text-white/30 italic">Reduces recovery time by 2 weeks</p>
-          </div>
-        )}
-
-        {/* Swap active indicator */}
-        {isSelected && (
-          <div className="absolute top-3 right-3 text-primary animate-pulse z-30">
-            <ArrowRightLeft size={20} />
-          </div>
-        )}
-
-        {/* Swap / cancel controls */}
-        {((isBench && selectedSwapIndex === null) || isSelected) && (
-          <div className="absolute top-3 right-3 z-30">
-            <Button
-              size="sm"
-              variant={isSelected ? "destructive" : "secondary"}
-              className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
-              onClick={(e) => {
-                e.stopPropagation()
-                if (isSelected) handleCancelSwap()
-                else handleSwapInitiate(index)
-              }}
-            >
-              {isSelected ? "Cancel" : "Swap"}
-            </Button>
-          </div>
-        )}
-      </PlayerCard>
-    )
-  }
+  const handleTreatInjury = useCallback((id: string) => treatInjury(id), [treatInjury])
 
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-20">
@@ -251,8 +273,9 @@ function SquadPageInner() {
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.12, ease: "easeOut" }}
           className="space-y-2"
         >
           <div className="flex items-center gap-4">
@@ -296,9 +319,30 @@ function SquadPageInner() {
 
             <div className="space-y-3">
               {activeRoster.length > 0 ? (
-                activeRoster.map((player) => (
-                  <RosterCard key={player.id} player={player} index={player.originalIndex} />
-                ))
+                activeRoster.map((player) => {
+                  const contract = contractByPlayerId.get(player.id)
+                  const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
+                  const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
+                  const salary = contract ? contract.salaryPerWeek : 0
+                  const isSelected = selectedSwapIndex === player.originalIndex
+                  const isSwapTarget = selectedSwapIndex !== null && !isSelected
+                  return (
+                    <RosterCard
+                      key={player.id}
+                      player={player}
+                      index={player.originalIndex}
+                      isSelected={isSelected}
+                      isSwapTarget={isSwapTarget}
+                      swapInProgress={selectedSwapIndex !== null}
+                      salary={salary}
+                      yearsLeft={yearsLeft}
+                      onSwapInitiate={handleSwapInitiate}
+                      onSwapExecute={handleSwapExecute}
+                      onCancelSwap={handleCancelSwap}
+                      onTreatInjury={handleTreatInjury}
+                    />
+                  )
+                })
               ) : (
                 <EmptyState
                   icon={Users}
@@ -324,9 +368,31 @@ function SquadPageInner() {
 
             <div className="space-y-3">
               {benchRoster.length > 0 ? (
-                benchRoster.map((player) => (
-                  <RosterCard key={player.id} player={player} index={player.originalIndex} isBench />
-                ))
+                benchRoster.map((player) => {
+                  const contract = contractByPlayerId.get(player.id)
+                  const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
+                  const yearsLeft = weeksLeft > 0 ? weeksLeft / 52 : 0
+                  const salary = contract ? contract.salaryPerWeek : 0
+                  const isSelected = selectedSwapIndex === player.originalIndex
+                  const isSwapTarget = selectedSwapIndex !== null && false
+                  return (
+                    <RosterCard
+                      key={player.id}
+                      player={player}
+                      index={player.originalIndex}
+                      isBench
+                      isSelected={isSelected}
+                      isSwapTarget={isSwapTarget}
+                      swapInProgress={selectedSwapIndex !== null}
+                      salary={salary}
+                      yearsLeft={yearsLeft}
+                      onSwapInitiate={handleSwapInitiate}
+                      onSwapExecute={handleSwapExecute}
+                      onCancelSwap={handleCancelSwap}
+                      onTreatInjury={handleTreatInjury}
+                    />
+                  )
+                })
               ) : (
                 <EmptyState title="Bench is empty" framed />
               )}
@@ -428,12 +494,14 @@ function SquadPageInner() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.1, ease: "easeOut" }}
             className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.97, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              exit={{ scale: 0.97, opacity: 0, y: 8 }}
+              transition={{ duration: 0.12, ease: "easeOut" }}
               className="glass-panel max-w-md w-full p-8 border-white/10 bg-white/5 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-8 opacity-5">

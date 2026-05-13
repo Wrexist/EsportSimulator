@@ -185,7 +185,7 @@ body[data-scroll-locked] {
     background: rgba(255, 255, 255, 0.02);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.12s ease-out, background-color 0.12s ease-out, border-color 0.12s ease-out, box-shadow 0.12s ease-out;
   }
 
   .glass-card:hover {
