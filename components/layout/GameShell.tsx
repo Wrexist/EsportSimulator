@@ -358,7 +358,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [router, hideChrome])
 
     return (
-        <div className={`flex h-screen bg-[#080a0e] text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
+        <div className={`flex h-screen liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
+            <div className="pointer-events-none absolute inset-0 liquid-noise" />
             {/* Fixed Sidebar - Hidden on New Game/Main Menu */}
             {!hideChrome && <Sidebar />}
 
@@ -413,4 +414,3 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         </div >
     )
 }
-

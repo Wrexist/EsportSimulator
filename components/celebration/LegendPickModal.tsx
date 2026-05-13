@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import confetti from "canvas-confetti"
 import type { LegendPickData } from "@/engine/save-types"
+import { panelTransition } from "@/lib/motion"
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -72,18 +73,16 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/85 backdrop-blur-md"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/58 backdrop-blur-md"
             >
-                {/* Animated background glow */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-amber-500/5 blur-[120px] animate-pulse" />
-                    <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-amber-600/5 blur-[80px] animate-pulse" style={{ animationDelay: "1s" }} />
-                </div>
+                <div className="absolute inset-0 liquid-app-bg opacity-70 pointer-events-none" />
+                <div className="absolute inset-0 liquid-noise pointer-events-none" />
 
                 <motion.div
-                    initial={{ scale: 0.8, opacity: 0, y: 40 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    variants={panelTransition}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-legend-pick"
@@ -124,26 +123,26 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                     <button
                                         onClick={() => setSelectedId(legend.id)}
                                         className={cn(
-                                            "w-full text-left rounded-2xl border-2 transition-all duration-300 overflow-hidden group relative",
+                                            "w-full text-left rounded-xl transition-[border-color,box-shadow] duration-100 ease-out overflow-hidden group relative glass-card active:scale-[0.99] active:duration-0",
                                             selectedId === legend.id
-                                                ? "border-amber-400 shadow-[0_0_40px_rgba(255,215,0,0.2)] scale-[1.02]"
-                                                : "border-white/10 hover:border-white/30 hover:shadow-lg"
+                                                ? "border-amber-300/40 shadow-glass-soft ring-1 ring-amber-300/25"
+                                                : "border-white/10 hover:border-white/25"
                                         )}
                                     >
                                         {/* Card background glow on select */}
                                         {selectedId === legend.id && (
-                                            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
+                                            <div className="absolute inset-0 bg-gradient-to-b from-amber-300/[0.08] to-transparent pointer-events-none" />
                                         )}
 
                                         {/* Portrait area */}
                                         <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
-                                            <div className="w-28 h-28 rounded-2xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
-                                                <PlayerPortrait src={legend.portraitPath} alt={legend.nickname} size={112} />
+                                            <div className="w-28 h-28 rounded-xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
+                                                <PlayerPortrait src={legend.portraitPath} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
                                             {/* Skill badge */}
                                             <div className="absolute top-4 right-4">
                                                 <div className={cn(
-                                                    "w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black",
+                                                    "w-12 h-12 rounded-lg flex items-center justify-center text-lg font-black",
                                                     legend.skill >= 96 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
                                                     legend.skill >= 92 ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" :
                                                     "bg-blue-500/20 text-blue-400 border border-blue-500/30"
@@ -158,7 +157,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         </div>
 
                                         {/* Info area */}
-                                        <div className="p-5 bg-black/40 relative z-10">
+                                        <div className="p-5 bg-black/20 relative z-10">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h3 className="text-xl font-bold text-white">{legend.nickname}</h3>
                                                 <CountryFlag country={legend.nationality} />
@@ -244,9 +243,9 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                 onClick={handleConfirm}
                                 disabled={!selectedId}
                                 className={cn(
-                                    "px-12 py-4 rounded-xl text-lg font-bold uppercase tracking-wider transition-all duration-300",
+                                    "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
                                     selectedId
-                                        ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:from-amber-400 hover:to-yellow-400 shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_50px_rgba(255,215,0,0.4)]"
+                                        ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
                                         : "bg-white/5 text-white/20 cursor-not-allowed"
                                 )}
                             >

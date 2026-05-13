@@ -2,12 +2,13 @@
 
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Trophy, Star, TrendingUp, Crown, Calendar, Users, DollarSign, ArrowUpRight } from "lucide-react"
+import { X, Trophy, TrendingUp, Crown, Users, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { PlayerCard } from "@/components/ui/PlayerCard"
 import { StatTile } from "@/src/components/ui/StatTile"
+import { panelTransition } from "@/lib/motion"
 
 interface SeasonRecapModalProps {
     isOpen: boolean
@@ -40,22 +41,23 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/85 backdrop-blur-md"
+                    className="absolute inset-0 bg-black/58 backdrop-blur-md"
                     onClick={onClose}
                 />
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    variants={panelTransition}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-season-recap"
-                    className="relative w-full max-w-4xl bg-[#0a0c10] border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl"
+                    className="relative w-full max-w-4xl liquid-panel rounded-xl overflow-hidden"
                 >
                     {/* Background Effects */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/10 blur-[120px] rounded-full" />
+                        <div className="absolute inset-0 liquid-noise" />
                     </div>
 
                     {/* Content */}
@@ -70,7 +72,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                 </h1>
                                 <p className="text-white/40 mt-2 text-lg">Celebrating your organization's journey through the last 52 weeks.</p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-white/10 text-white/40">
+                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-lg hover:bg-white/10 text-white/50">
                                 <X size={24} />
                             </Button>
                         </div>
@@ -85,7 +87,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                             </div>
 
                             {/* MVP Spotlights */}
-                            <div className="p-8 rounded-[2.5rem] bg-gradient-to-b from-primary/20 to-transparent border border-primary/20 flex flex-col items-center text-center">
+                            <div className="glass-card p-8 rounded-xl border-primary/20 flex flex-col items-center text-center">
                                 <Crown className="text-primary mb-6" size={40} />
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-6">Season MVP</p>
 
@@ -114,7 +116,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                 )}
 
                                 <div className="mt-auto w-full pt-8">
-                                    <Button onClick={onClose} className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-2xl font-bold uppercase tracking-widest text-xs">
+                                    <Button onClick={onClose} className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-lg font-bold uppercase tracking-widest text-xs">
                                         Continue Journey
                                     </Button>
                                 </div>

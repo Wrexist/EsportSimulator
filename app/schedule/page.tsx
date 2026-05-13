@@ -514,7 +514,7 @@ export default function SchedulePage() {
                                 className={cn(
                                   "w-full text-[10px] uppercase font-normal px-2 py-1.5 rounded-lg",
                                   "bg-gradient-to-r border shadow-lg",
-                                  "hover:scale-[1.02] hover:shadow-xl transition-all",
+                    "hover:-translate-y-0.5 hover:shadow-glass-soft transition-all",
                                   "flex items-center justify-between gap-2",
                                   colorClass
                                 )}
@@ -845,5 +845,4 @@ export default function SchedulePage() {
     </div>
   )
 }
-
 

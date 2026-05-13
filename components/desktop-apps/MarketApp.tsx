@@ -320,7 +320,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                         )}
                                     >
                                         <div className="w-10 h-10 rounded-lg bg-black/20 overflow-hidden flex items-center justify-center shrink-0 border border-white/5 shadow-inner">
-                                            <PlayerPortrait src={p.portraitPath} alt={p.nickname} size={40} />
+                                            <PlayerPortrait src={p.portraitPath} alt={p.nickname} size={40} variant="card" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
@@ -368,7 +368,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                         <div className="p-4 border-b border-white/10 flex items-start justify-between bg-gradient-to-br from-white/5 to-transparent">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 shadow-lg">
-                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={48} />
+                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={48} variant="card" />
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-normal text-white leading-none mb-1">{selectedPlayer.nickname}</h2>

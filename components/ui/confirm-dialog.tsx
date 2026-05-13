@@ -12,7 +12,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { AlertTriangle, Trash2, UserX, LogOut } from 'lucide-react'
+import { AlertTriangle, Trash2, UserX } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface ConfirmDialogProps {
     children: ReactNode
@@ -60,20 +61,38 @@ export function ConfirmDialog({
 
     const Icon = icons[icon]
 
+    const [error, setError] = useState<string | null>(null)
+
     const handleConfirm = async () => {
         setLoading(true)
+        setError(null)
         try {
             await onConfirm()
             setOpen(false)
-        } catch {
-            // Action failed - dialog stays open for retry
+        } catch (err) {
+            // Bug fix: previously the dialog stayed open with no signal that
+            // the action failed — users would re-click Confirm and trigger a
+            // duplicate. Surface the error inline plus a toast, then let
+            // them choose to retry or cancel.
+            const message = err instanceof Error ? err.message : "Action failed"
+            setError(message)
+            toast.error(`${title}: ${message}`)
+            if (process.env.NODE_ENV !== "production") {
+                console.error("[ConfirmDialog] onConfirm failed:", err)
+            }
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialog
+            open={open}
+            onOpenChange={(next) => {
+                setOpen(next)
+                if (!next) setError(null)
+            }}
+        >
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
@@ -94,6 +113,14 @@ export function ConfirmDialog({
                         {description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
+                {error && (
+                    <div
+                        role="alert"
+                        className="mt-2 p-3 rounded-md border border-red-500/40 bg-red-500/10 text-sm text-red-300"
+                    >
+                        {error}
+                    </div>
+                )}
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={loading}>
                         {cancelText}

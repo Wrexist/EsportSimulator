@@ -38,6 +38,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -720,11 +721,12 @@ export default function ScoutingPage() {
                                                 {isWatchlisted && (
                                                     <Star size={10} className="text-amber-400 shrink-0 fill-amber-400" />
                                                 )}
-                                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
                                                     <PlayerPortrait
                                                         src={player.portraitPath}
                                                         alt={player.nickname}
                                                         size={40}
+                                                        variant="card"
                                                     />
                                                 </div>
                                                 <div className="min-w-0">
@@ -854,6 +856,16 @@ export default function ScoutingPage() {
                             })}
                         </tbody>
                     </GlassTable>
+
+                    {filteredPlayers.length === 0 && (
+                        <EmptyState
+                            icon={Search}
+                            title="No Matches"
+                            description="No players match your current filters. Try widening the search, lowering the rating bar, or scouting more regions to surface fresh talent."
+                            framed
+                            className="mt-4"
+                        />
+                    )}
 
                     {filteredPlayers.length > PAGE_SIZE && (() => {
                         const totalPages = Math.ceil(filteredPlayers.length / PAGE_SIZE)

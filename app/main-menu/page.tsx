@@ -102,12 +102,11 @@ export default function MainMenuPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col relative overflow-hidden">
+        <div className="min-h-screen flex flex-col relative overflow-hidden liquid-app-bg">
             {/* Sophisticated Background */}
-            <div className="absolute inset-0 bg-[#080a0e]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.15),transparent)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_100%_50%,rgba(59,130,246,0.08),transparent)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_50%_at_0%_100%,rgba(139,92,246,0.08),transparent)]" />
+            <div className="absolute inset-0 liquid-noise" />
+            <div className="absolute inset-x-0 top-0 h-56 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),transparent)]" />
+            <div className="absolute left-1/2 top-20 h-px w-[min(80vw,960px)] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
 
             {/* Subtle Grid Pattern */}
             <div className="absolute inset-0 opacity-[0.015]" style={{
@@ -115,34 +114,12 @@ export default function MainMenuPage() {
                 backgroundSize: '60px 60px'
             }} />
 
-            {/* Animated Orbs */}
-            <motion.div
-                className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-cyan-500/20 to-blue-500/10 rounded-full blur-[120px]"
-                animate={{
-                    scale: [1, 1.1, 1],
-                    x: [0, 50, 0],
-                    y: [0, -30, 0],
-                    opacity: [0.4, 0.6, 0.4]
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-                className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-blue-500/15 to-cyan-500/10 rounded-full blur-[100px]"
-                animate={{
-                    scale: [1.1, 1, 1.1],
-                    x: [0, -40, 0],
-                    y: [0, 40, 0],
-                    opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            />
-
             {/* Top Navigation Bar */}
             <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="relative z-20 flex items-center justify-between px-8 py-4 border-b border-white/5"
+                className="relative z-20 flex items-center justify-between px-8 py-4 border-b liquid-chrome"
             >
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl overflow-hidden">
@@ -184,7 +161,7 @@ export default function MainMenuPage() {
                             Esport Manager
                         </span>
                     </h1>
-                    <p className="text-white/30 text-sm uppercase tracking-[0.4em] font-medium">
+                    <p className="text-white/50 text-sm uppercase tracking-[0.4em] font-medium">
                         Build Your Dynasty • Conquer The World
                     </p>
                 </motion.div>
@@ -200,16 +177,13 @@ export default function MainMenuPage() {
                     >
                         <button
                             onClick={handleNewGame}
-                            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500/20 via-blue-500/10 to-transparent border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.01]"
+                            className="group liquid-panel relative overflow-hidden rounded-xl border-white/[0.1] transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-glass-float"
                         >
-                            {/* Glow Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
                             {/* Content */}
                             <div className="relative p-10 flex items-center gap-8">
                                 {/* Icon */}
                                 <div className="relative shrink-0">
-                                    <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-cyan-500/40 to-blue-500/30 flex items-center justify-center border border-cyan-400/20 shadow-2xl shadow-cyan-500/20">
+                                    <div className="w-28 h-28 rounded-xl bg-white/[0.06] flex items-center justify-center border border-white/[0.12] shadow-glass-soft ring-1 ring-inset ring-cyan-300/10">
                                         <Plus className="w-14 h-14 text-white" />
                                     </div>
                                 </div>
@@ -219,13 +193,13 @@ export default function MainMenuPage() {
                                     <h2 className="text-4xl font-normal text-white uppercase tracking-wide mb-2">
                                         New Career
                                     </h2>
-                                    <p className="text-white/40 text-sm max-w-md">
+                                    <p className="text-white/60 text-sm max-w-md">
                                         Choose your team and begin your journey to become the greatest esports manager in history. Build your roster, develop talent, and conquer the world.
                                     </p>
                                 </div>
 
                                 {/* Arrow */}
-                                <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-cyan-500/30 transition-all duration-300 border border-white/10">
+                                <div className="w-14 h-14 rounded-lg liquid-button flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300">
                                     <ChevronRight className="w-6 h-6 text-white/50 group-hover:text-white transition-colors" />
                                 </div>
                             </div>
@@ -237,15 +211,12 @@ export default function MainMenuPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.35 }}
                             onClick={() => router.push("/new-game/create-team")}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent border border-purple-500/20 hover:border-purple-400/40 transition-all duration-500 hover:scale-[1.01] text-left w-full"
+                            className="group relative overflow-hidden rounded-xl glass-card hover:border-white/[0.14] transition-[border-color,box-shadow] duration-300 text-left w-full"
                         >
-                            {/* Glow Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
                             {/* Content */}
                             <div className="relative p-6 flex items-center gap-6">
                                 {/* Icon */}
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/20 flex items-center justify-center border border-purple-400/20 shrink-0 group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-all">
+                                <div className="w-16 h-16 rounded-lg bg-violet-300/10 flex items-center justify-center border border-violet-200/[0.16] shrink-0 transition-all">
                                     <Users className="w-8 h-8 text-purple-300" />
                                 </div>
 
@@ -254,13 +225,13 @@ export default function MainMenuPage() {
                                     <h3 className="text-xl font-normal text-white uppercase tracking-wide mb-1">
                                         Build Your Team
                                     </h3>
-                                    <p className="text-white/40 text-xs max-w-sm">
+                                    <p className="text-white/60 text-xs max-w-sm">
                                         Start from scratch. Create your own organization, scout unknown talents, and build a dynasty from the ground up.
                                     </p>
                                 </div>
 
                                 {/* Arrow */}
-                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-purple-500/20 transition-all duration-300 border border-white/10">
+                                <div className="w-10 h-10 rounded-lg liquid-button flex items-center justify-center group-hover:bg-violet-300/[0.12] transition-all duration-300">
                                     <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-purple-300 transition-colors" />
                                 </div>
                             </div>
@@ -278,11 +249,11 @@ export default function MainMenuPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 + i * 0.1 }}
-                                    className="backdrop-blur-sm bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-center hover:bg-white/[0.04] transition-colors"
+                                    className="glass-card rounded-lg p-5 text-center transition-colors"
                                 >
                                     <feature.icon className="w-6 h-6 text-primary/70 mx-auto mb-3" />
                                     <p className="text-white font-normal text-2xl">{feature.value}</p>
-                                    <p className="text-white/30 text-[10px] uppercase tracking-wider mt-1">{feature.desc}</p>
+                                    <p className="text-white/50 text-[10px] uppercase tracking-wider mt-1">{feature.desc}</p>
                                 </motion.div>
                             ))}
                         </div>
@@ -293,14 +264,14 @@ export default function MainMenuPage() {
                         initial={{ opacity: 0, x: 40 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="lg:col-span-2 backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-3xl p-6 flex flex-col"
+                        className="lg:col-span-2 liquid-panel rounded-xl p-6 flex flex-col"
                     >
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                                 <Play className="w-4 h-4 text-primary" />
                                 Continue
                             </h2>
-                            <span className="text-white/30 text-xs">{saves.length} saves</span>
+                            <span className="text-white/50 text-xs">{saves.length} saves</span>
                         </div>
 
                         {/* Custom Scrollbar Styling */}
@@ -332,8 +303,8 @@ export default function MainMenuPage() {
                                     <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3">
                                         <Gamepad2 className="w-6 h-6 text-white/20" />
                                     </div>
-                                    <p className="text-white/40 text-xs font-medium">No saves yet</p>
-                                    <p className="text-white/20 text-[10px] mt-1">Start a new campaign!</p>
+                                    <p className="text-white/60 text-xs font-medium">No saves yet</p>
+                                    <p className="text-white/40 text-[10px] mt-1">Start a new campaign!</p>
                                 </div>
                             ) : (
                                 <AnimatePresence>
@@ -350,9 +321,9 @@ export default function MainMenuPage() {
                                                 transition={{ delay: idx * 0.03 }}
                                                 onClick={() => setSelectedSlot(slot.saveId || null)}
                                                 className={`
-                                                    group relative w-full p-5 rounded-3xl cursor-pointer transition-all duration-500 border mb-3 backdrop-blur-sm
+                                                    group relative w-full p-5 rounded-md cursor-pointer transition-[background,border-color,box-shadow] duration-300 border mb-3 backdrop-blur-sm
                                                     ${selectedSlot === slot.saveId
-                                                        ? "bg-gradient-to-br from-primary/10 via-white/[0.06] to-transparent border-primary/30 shadow-[0_8px_30px_rgba(59,130,246,0.12)]"
+                                                        ? "bg-white/[0.06] border-cyan-300/25 shadow-glass-soft ring-1 ring-inset ring-cyan-300/15"
                                                         : "bg-gradient-to-br from-white/[0.03] via-white/[0.01] to-transparent border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.08]"
                                                     }
                                                 `}
@@ -362,7 +333,7 @@ export default function MainMenuPage() {
                                                     <div className="flex items-center gap-4">
                                                         {/* Large Team Logo */}
                                                         <div className={`
-                                                            w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border overflow-hidden relative
+                                                            w-14 h-14 rounded-lg flex items-center justify-center shrink-0 border overflow-hidden relative
                                                             ${selectedSlot === slot.saveId ? "bg-black/30 border-primary/20 shadow-lg shadow-primary/5" : "bg-white/[0.03] border-white/[0.06]"}
                                                         `}>
                                                             <TeamLogoImage
@@ -374,7 +345,7 @@ export default function MainMenuPage() {
                                                             {selectedSlot === slot.saveId && (
                                                                 <motion.div
                                                                     layoutId="active-indicator"
-                                                                    className="absolute inset-0 border border-primary/50 rounded-2xl"
+                                                                    className="absolute inset-0 border border-primary/50 rounded-lg"
                                                                     transition={{ duration: 0.3 }}
                                                                 />
                                                             )}
@@ -543,7 +514,7 @@ export default function MainMenuPage() {
                                 onClick={handleLoadSave}
                                 disabled={!selectedSlot || isLoading}
                                 className={`
-                                    mt-4 w-full h-14 rounded-2xl font-normal uppercase tracking-[0.2em] text-sm transition-all shadow-xl
+                                    mt-4 w-full h-14 rounded-lg font-normal uppercase tracking-[0.2em] text-sm transition-all shadow-xl
                                     ${selectedSlot
                                         ? "bg-white text-black hover:bg-white/90 shadow-white/10 scale-100"
                                         : "bg-white/5 text-white/20 cursor-not-allowed border border-white/5 scale-95"

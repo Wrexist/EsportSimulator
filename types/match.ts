@@ -60,7 +60,14 @@ export interface Match {
 
     // Phase 20: Tactical Perfection
     isHighPressure?: boolean // Finals/Semi-finals
-    mentalPrep?: boolean // Mental preparation bonus for the home team
+    mentalPrep?: boolean // Mental preparation bonus (paid by player team)
+    /**
+     * Team ID that paid for mental prep on this match. Required to apply the
+     * bonus to the correct side — `mentalPrep: true` alone is ambiguous when
+     * the player is the away team. Legacy matches without this field fall
+     * back to the home side.
+     */
+    mentalPrepTeamId?: string
 }
 
 /**

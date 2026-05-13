@@ -200,6 +200,15 @@ export class SimulationEngineV2 {
         const mapsToWin = match.format === MatchFormat.BO1 ? 1 :
             match.format === MatchFormat.BO3 ? 2 : 3
 
+        // Bug fix: mentalPrep was always applied to the home team, but the
+        // player can be either side. `mentalPrepTeamId` tells the simulator
+        // which side paid for it; legacy saves without that field fall back
+        // to home (the prior behaviour).
+        const homeMentalPrep = !!match.mentalPrep && (
+            !match.mentalPrepTeamId || match.mentalPrepTeamId === homeTeam.id
+        )
+        const awayMentalPrep = !!match.mentalPrep && match.mentalPrepTeamId === awayTeam.id
+
         for (let i = 0; i < maps.length && homeScore < mapsToWin && awayScore < mapsToWin; i++) {
             const mapResult = this.simulateMap(
                 rng,
@@ -215,8 +224,8 @@ export class SimulationEngineV2 {
                 matchSeed,
                 i, // mapIndex
                 match.stage, // matchStage
-                !!match.mentalPrep, // homeMentalPrep
-                false, // awayMentalPrep
+                homeMentalPrep,
+                awayMentalPrep,
                 cachedHomeMapStrengths,
                 cachedAwayMapStrengths
             )

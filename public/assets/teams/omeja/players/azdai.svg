@@ -1,21 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="azdai portrait">
   <defs>
     <linearGradient id="bgc0giw8" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0F172A"/>
-      <stop offset="1" stop-color="#1E293B"/>
+      <stop offset="0" stop-color="#042F2E"/>
+      <stop offset="1" stop-color="#134E4A"/>
     </linearGradient>
   </defs>
   <rect width="256" height="256" fill="url(#bgc0giw8)"/>
   <!-- Shoulders / shirt -->
-  <path d="M20 256 Q20 180 128 172 Q236 180 236 256 Z" fill="#5B21B6"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#312E81"/>
+  <path d="M16 256 Q16 178 128 170 Q240 178 240 256 Z" fill="#FFFFFF" opacity="0.04"/>
   <!-- Neck -->
-  <rect x="112" y="148" width="32" height="32" fill="#D4A373"/>
-  <!-- Head -->
-  <ellipse cx="128" cy="128" rx="52" ry="58" fill="#D4A373"/>
-  <!-- Hair -->
-  <path d="M96 104 Q96 60 128 40 Q160 60 160 104 Z" fill="#E1C07E"/>
-                    <path d="M72 108 Q88 104 96 104 L96 120 Q84 120 72 124 Z" fill="#E1C07E" opacity="0.75"/>
-                    <path d="M184 108 Q168 104 160 104 L160 120 Q172 120 184 124 Z" fill="#E1C07E" opacity="0.75"/>
-  <!-- Subtle shadow under chin -->
-  <ellipse cx="128" cy="180" rx="28" ry="6" fill="#000" opacity="0.18"/>
+  <rect x="114" y="150" width="28" height="28" fill="#A66E48"/>
+  <rect x="114" y="174" width="28" height="6" fill="#000" opacity="0.18"/>
+  <!-- Head + ears -->
+  <ellipse cx="74" cy="132" rx="6" ry="9" fill="#A66E48"/>
+            <ellipse cx="182" cy="132" rx="6" ry="9" fill="#A66E48"/>
+  <ellipse cx="128" cy="128" rx="58" ry="52" fill="#A66E48"/>
+  <!-- Face features -->
+  <rect x="98" y="116" width="20" height="3" rx="1.5" fill="#67E8F9"/>
+                    <rect x="138" y="116" width="20" height="3" rx="1.5" fill="#67E8F9"/>
+  <ellipse cx="108" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <ellipse cx="148" cy="132" rx="7" ry="4" fill="#F1F5F9"/>
+                    <circle cx="108" cy="132" r="2.6" fill="#166534"/>
+                    <circle cx="148" cy="132" r="2.6" fill="#166534"/>
+  <path d="M126 152 Q128 156 130 152" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.18" fill="none"/>
+  <path d="M116 164 Q128 174 140 164" stroke="#3A1F1A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  
+  <!-- Hair / headwear -->
+  <path d="M58 108 Q58 50 128 50 Q198 50 198 108 L198 168 Q190 138 178 138 L178 188 L78 188 L78 138 Q66 138 58 168 Z" fill="#67E8F9"/>
+  <!-- Accessory layer -->
+  <path d="M62 124 Q62 76 128 76 Q194 76 194 124" stroke="#0F1116" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <rect x="56" y="120" width="14" height="22" rx="5" fill="#0F1116"/>
+                    <rect x="186" y="120" width="14" height="22" rx="5" fill="#0F1116"/>
+                    <rect x="58" y="124" width="10" height="14" rx="3" fill="#312E81" opacity="0.95"/>
+                    <rect x="188" y="124" width="10" height="14" rx="3" fill="#312E81" opacity="0.95"/>
+                    <path d="M194 138 Q210 162 196 188" stroke="#0F1116" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <circle cx="196" cy="190" r="4" fill="#0F1116"/>
+  <!-- Subtle chin shadow -->
+  <ellipse cx="128" cy="184" rx="30" ry="6" fill="#000" opacity="0.16"/>
 </svg>

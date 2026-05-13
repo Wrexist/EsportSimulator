@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
@@ -63,6 +63,140 @@ const MAP_NAMES: Record<string, string> = {
     "train": "Train",
     "cobblestone": "Cobblestone"
 }
+
+// Memoized log list. Without memo this re-evaluates every per-tick parent
+// render (~30-60Hz from useLiveMatch), iterating the full logs array and
+// recreating ~100+ log-row elements each frame even when nothing changed.
+// React.memo + a stable `logs` reference from useLiveMatch means this
+// re-runs only when a new log entry is appended.
+const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
+    return (
+        <div className="space-y-1.5 pb-4">
+            {logs.map((l, i) => {
+                const timeStr = l.time != null ? `[${Math.floor(l.time / 60)}:${(l.time % 60).toString().padStart(2, '0')}]` : ""
+
+                if (l.type === "KILL") {
+                    return (
+                        <div key={i} className={cn(
+                            "p-2 rounded-xl text-[11px] border-l-2 border border-white/5 flex items-center gap-1.5",
+                            l.killerSide === "CT"
+                                ? "bg-blue-500/10 border-l-blue-400/50"
+                                : "bg-orange-500/10 border-l-orange-400/50"
+                        )}>
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                                {l.killerImage && (
+                                    <div className="w-5 h-5 rounded overflow-hidden shrink-0">
+                                        <PlayerPortrait src={l.killerImage} alt="" size={20} variant="card" />
+                                    </div>
+                                )}
+                                <span className={cn("font-semibold truncate max-w-[60px]",
+                                    l.killerSide === "CT" ? "text-blue-300/90" : "text-orange-300/90"
+                                )}>{l.killerName}</span>
+                            </div>
+                            {l.assisterName && (
+                                <span className="text-white/30 text-[9px] shrink-0">+ {l.assisterName}</span>
+                            )}
+                            <div className="flex items-center gap-0.5 mx-0.5 shrink-0">
+                                <img src={getWeaponIcon(l.weapon)} alt="" className="h-2.5 w-auto brightness-0 invert opacity-40" />
+                                {l.isHeadshot && (
+                                    <img src="/assets/weapons/headshot.png" alt="HS" className="h-2.5 w-2.5 opacity-70" />
+                                )}
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                                <span className="font-semibold text-white/40 truncate max-w-[60px]">{l.victimName}</span>
+                                {l.victimImage && (
+                                    <div className="w-5 h-5 rounded overflow-hidden shrink-0 opacity-50">
+                                        <PlayerPortrait src={l.victimImage} alt="" size={20} variant="card" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex gap-1 ml-auto shrink-0">
+                                {l.isHeadshot && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-red-500/20 text-red-300">HS</span>}
+                                {l.isTrade && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-yellow-500/20 text-yellow-300">TRADE</span>}
+                            </div>
+                        </div>
+                    )
+                }
+
+                if (l.type === "PLANT") {
+                    return (
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-red-500/10 border-l-red-400/50 flex items-center gap-2">
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <Bomb className="w-3 h-3 text-red-400 shrink-0" />
+                            <span className="text-red-300/80 font-semibold">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "DEFUSE") {
+                    return (
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-blue-500/10 border-l-blue-400/50 flex items-center gap-2">
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <Shield className="w-3 h-3 text-blue-400 shrink-0" />
+                            <span className="text-blue-300/80 font-semibold">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "EXPLODE") {
+                    return (
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-orange-600/15 border-l-orange-500/60 flex items-center gap-2">
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <ZapIcon className="w-3 h-3 text-orange-400 shrink-0" />
+                            <span className="text-orange-300/80 font-semibold">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "ROUND_END") {
+                    return (
+                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/[0.08] border-l-white/30 flex items-center gap-2">
+                            <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                            <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "CLUTCH") {
+                    return (
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-yellow-500/10 border-l-yellow-400/50 flex items-center gap-2">
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <Sparkles className="w-3 h-3 text-yellow-400 shrink-0" />
+                            <span className="text-yellow-300/80 font-semibold">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "SAVE") {
+                    return (
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-white/3 border-l-white/10 flex items-center gap-2">
+                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                            <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
+                            <span className="text-white/40">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                if (l.type === "BUY") {
+                    return (
+                        <div key={i} className="p-1.5 rounded-lg text-[10px] border border-white/3 bg-white/[0.02] flex items-center gap-2">
+                            <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
+                            <span className="text-white/30 font-medium">{l.message}</span>
+                        </div>
+                    )
+                }
+
+                return (
+                    <div key={i} className="p-2 rounded-xl text-[11px] border border-white/5 bg-black/20 flex items-center gap-2">
+                        <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
+                        <span className="text-white/50">{l.message}</span>
+                    </div>
+                )
+            })}
+        </div>
+    )
+})
 
 export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const {
@@ -143,7 +277,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
     return (
         <ErrorBoundary section="Live Match">
-        <div className="min-h-screen bg-[#0e1217] text-white p-6 flex flex-col overflow-hidden font-sans select-none relative"
+        <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col overflow-hidden font-sans select-none relative"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
             style={{
@@ -175,7 +309,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="glass-panel-dark rounded-[24px] p-6 border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-transparent mb-4"
+                            className="glass-panel-dark rounded-xl p-6 border-emerald-500/20 mb-4"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <div>
@@ -252,16 +386,17 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                 {/* GAME AREA */}
                 <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
                     {/* HOME TEAM ROSTER */}
-                    <div className={cn("col-span-3 glass-panel-dark rounded-[40px] border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
+                    <div className={cn("col-span-3 glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
                         {homeRoster.slice(0, 5).map(p => {
                             const originalPlayer = originalHomeMap.get(p.id)
                             return (
-                                <div key={p.id} className={cn("p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
+                                <div key={p.id} className={cn("group p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
                                     <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
                                         <PlayerPortrait
                                             src={originalPlayer?.portraitPath}
                                             alt={p.name}
                                             size={40}
+                                            variant="card"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -308,155 +443,18 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                         />
 
                         {/* LOGS */}
-                        <div className="glass-panel-dark flex-1 rounded-[40px] p-6 overflow-hidden flex flex-col border border-white/5">
+                        <div className="glass-panel-dark flex-1 rounded-xl p-6 overflow-hidden flex flex-col border border-white/5">
                             <div className="flex items-center gap-2 mb-4 text-xs font-normal opacity-40 uppercase tracking-widest">
                                 <Swords className="w-4 h-4" /> SERVER LOGS
                             </div>
                             <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar h-full min-h-0 relative">
-                                <div className="space-y-1.5 pb-4">
-                                    {logs.map((l, i) => {
-                                        const timeStr = l.time != null ? `[${Math.floor(l.time / 60)}:${(l.time % 60).toString().padStart(2, '0')}]` : ""
-
-                                        {/* ── KILL EVENTS ── */}
-                                        if (l.type === "KILL") {
-                                            return (
-                                                <div key={i} className={cn(
-                                                    "p-2 rounded-xl text-[11px] border-l-2 border border-white/5 flex items-center gap-1.5",
-                                                    l.killerSide === "CT"
-                                                        ? "bg-blue-500/10 border-l-blue-400/50"
-                                                        : "bg-orange-500/10 border-l-orange-400/50"
-                                                )}>
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    {/* Killer portrait + name */}
-                                                    <div className="flex items-center gap-1 shrink-0">
-                                                        {l.killerImage && (
-                                                            <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                                                                <PlayerPortrait src={l.killerImage} alt="" size={20} />
-                                                            </div>
-                                                        )}
-                                                        <span className={cn("font-semibold truncate max-w-[60px]",
-                                                            l.killerSide === "CT" ? "text-blue-300/90" : "text-orange-300/90"
-                                                        )}>{l.killerName}</span>
-                                                    </div>
-                                                    {/* Assister */}
-                                                    {l.assisterName && (
-                                                        <span className="text-white/30 text-[9px] shrink-0">+ {l.assisterName}</span>
-                                                    )}
-                                                    {/* Weapon icon + headshot */}
-                                                    <div className="flex items-center gap-0.5 mx-0.5 shrink-0">
-                                                        <img src={getWeaponIcon(l.weapon)} alt="" className="h-2.5 w-auto brightness-0 invert opacity-40" />
-                                                        {l.isHeadshot && (
-                                                            <img src="/assets/weapons/headshot.png" alt="HS" className="h-2.5 w-2.5 opacity-70" />
-                                                        )}
-                                                    </div>
-                                                    {/* Victim name + portrait */}
-                                                    <div className="flex items-center gap-1 shrink-0">
-                                                        <span className="font-semibold text-white/40 truncate max-w-[60px]">{l.victimName}</span>
-                                                        {l.victimImage && (
-                                                            <div className="w-5 h-5 rounded overflow-hidden shrink-0 opacity-50">
-                                                                <PlayerPortrait src={l.victimImage} alt="" size={20} />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    {/* Tags */}
-                                                    <div className="flex gap-1 ml-auto shrink-0">
-                                                        {l.isHeadshot && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-red-500/20 text-red-300">HS</span>}
-                                                        {l.isTrade && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-yellow-500/20 text-yellow-300">TRADE</span>}
-                                                    </div>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── PLANT EVENT ── */}
-                                        if (l.type === "PLANT") {
-                                            return (
-                                                <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-red-500/10 border-l-red-400/50 flex items-center gap-2">
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    <Bomb className="w-3 h-3 text-red-400 shrink-0" />
-                                                    <span className="text-red-300/80 font-semibold">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── DEFUSE EVENT ── */}
-                                        if (l.type === "DEFUSE") {
-                                            return (
-                                                <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-blue-500/10 border-l-blue-400/50 flex items-center gap-2">
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    <Shield className="w-3 h-3 text-blue-400 shrink-0" />
-                                                    <span className="text-blue-300/80 font-semibold">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── EXPLODE EVENT ── */}
-                                        if (l.type === "EXPLODE") {
-                                            return (
-                                                <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-orange-600/15 border-l-orange-500/60 flex items-center gap-2">
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    <ZapIcon className="w-3 h-3 text-orange-400 shrink-0" />
-                                                    <span className="text-orange-300/80 font-semibold">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── ROUND END EVENT ── */}
-                                        if (l.type === "ROUND_END") {
-                                            return (
-                                                <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
-                                                    <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                                                    <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── CLUTCH EVENT ── */}
-                                        if (l.type === "CLUTCH") {
-                                            return (
-                                                <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-yellow-500/10 border-l-yellow-400/50 flex items-center gap-2">
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    <Sparkles className="w-3 h-3 text-yellow-400 shrink-0" />
-                                                    <span className="text-yellow-300/80 font-semibold">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── SAVE EVENT ── */}
-                                        if (l.type === "SAVE") {
-                                            return (
-                                                <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-white/3 border-l-white/10 flex items-center gap-2">
-                                                    <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                    <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
-                                                    <span className="text-white/40">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── BUY EVENTS ── */}
-                                        if (l.type === "BUY") {
-                                            return (
-                                                <div key={i} className="p-1.5 rounded-lg text-[10px] border border-white/3 bg-white/[0.02] flex items-center gap-2">
-                                                    <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
-                                                    <span className="text-white/30 font-medium">{l.message}</span>
-                                                </div>
-                                            )
-                                        }
-
-                                        {/* ── DEFAULT / SYSTEM ── */}
-                                        return (
-                                            <div key={i} className="p-2 rounded-xl text-[11px] border border-white/5 bg-black/20 flex items-center gap-2">
-                                                <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                                                <span className="text-white/50">{l.message}</span>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
+                                <LiveLogList logs={logs} />
                             </div>
                         </div>
                     </div>
 
                     {/* AWAY TEAM ROSTER */}
-                    <div className={cn("col-span-3 glass-panel-dark rounded-[40px] border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
+                    <div className={cn("col-span-3 glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
                         {awayRoster.slice(0, 5).map(p => {
                             const originalPlayer = originalAwayMap.get(p.id)
                             return (
@@ -525,10 +523,6 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             )}
 
             <style jsx global>{`
-            .glass-panel-dark {
-                background: rgba(14, 18, 23, 0.7);
-                backdrop-filter: blur(20px);
-            }
             .custom-scrollbar::-webkit-scrollbar {
                 width: 4px;
             }

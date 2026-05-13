@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { User } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { PlayerPortraitFrame, type PlayerPortraitVariant } from '@/components/ui/player-portrait-frame'
 
 interface UnifiedPortraitProps {
     src?: string | null
@@ -11,6 +12,8 @@ interface UnifiedPortraitProps {
     size?: 'sm' | 'md' | 'lg' | 'xl'
     className?: string
     fallbackType?: 'player' | 'staff' | 'team'
+    variant?: PlayerPortraitVariant
+    teamColor?: string
 }
 
 const sizeMap = {
@@ -38,7 +41,9 @@ export function UnifiedPortrait({
     alt,
     size = 'md',
     className,
-    fallbackType = 'player'
+    fallbackType = 'player',
+    variant = 'avatar',
+    teamColor
 }: UnifiedPortraitProps) {
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -47,6 +52,20 @@ export function UnifiedPortrait({
     const imageSrc = error || !src
         ? fallbackImages[fallbackType]
         : src
+
+    if (fallbackType === 'player') {
+        const sizePx = size === 'sm' ? 32 : size === 'md' ? 48 : size === 'lg' ? 64 : 96
+        return (
+            <PlayerPortraitFrame
+                src={error || !src ? null : src}
+                alt={alt}
+                size={sizePx}
+                variant={variant}
+                teamColor={teamColor}
+                className={className}
+            />
+        )
+    }
 
     return (
         <div className={cn(
@@ -90,12 +109,16 @@ export function PlayerPortrait({
     portraitPath,
     name,
     size = 'md',
-    className
+    className,
+    variant,
+    teamColor
 }: {
     portraitPath?: string
     name: string
     size?: 'sm' | 'md' | 'lg' | 'xl'
     className?: string
+    variant?: PlayerPortraitVariant
+    teamColor?: string
 }) {
     return (
         <UnifiedPortrait
@@ -104,6 +127,8 @@ export function PlayerPortrait({
             size={size}
             fallbackType="player"
             className={className}
+            variant={variant}
+            teamColor={teamColor}
         />
     )
 }

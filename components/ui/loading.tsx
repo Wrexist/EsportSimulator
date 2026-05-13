@@ -32,12 +32,12 @@ export function LoadingState({
     return (
         <div className={cn(
             'flex flex-col items-center justify-center gap-4',
-            fullScreen ? 'min-h-screen' : 'p-12',
+            fullScreen ? 'min-h-screen liquid-app-bg' : 'p-12',
             className,
         )}>
-            <Loader2 className={cn(sizeMap[size], 'animate-spin text-primary')} />
+            <Loader2 className={cn(sizeMap[size], 'animate-spin text-cyan-200')} />
             {message && (
-                <p className="text-sm text-muted-foreground animate-pulse">{message}</p>
+                <p className="text-sm text-white/55">{message}</p>
             )}
         </div>
     )

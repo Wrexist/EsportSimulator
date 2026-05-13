@@ -13,16 +13,16 @@ export function WeekProcessingOverlay() {
 
   return (
     <div
-      className="fixed inset-0 z-overlay flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-overlay flex items-center justify-center bg-black/58 backdrop-blur-md"
       role="alert"
       aria-live="assertive"
       aria-label="Processing week advancement"
     >
-      <div className="flex flex-col items-center gap-4 p-8 rounded-2xl glass-panel">
+      <div className="flex flex-col items-center gap-4 p-8 rounded-xl liquid-panel">
         {/* Spinner */}
         <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-2 border-white/10" />
-          <div className="absolute inset-0 rounded-full border-2 border-t-cyan-400 animate-spin" />
+          <div className="absolute inset-0 rounded-full border border-white/10" />
+          <div className="absolute inset-0 rounded-full border border-transparent border-t-cyan-200 animate-spin" />
         </div>
         <p className="text-sm font-medium text-white/80 tracking-wide">
           Processing week...
