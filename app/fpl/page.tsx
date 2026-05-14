@@ -45,7 +45,7 @@ export default function FPLPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [activeTab, setActiveTab] = useState("fpl")
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const myRosterIds = useMemo(() => playerTeam?.rosterIds || [], [playerTeam?.rosterIds])
 
     // Get non-pro player metadata lookup
@@ -54,25 +54,39 @@ export default function FPLPage() {
         return new Map(fplData.nonProPlayers.map(np => [np.playerId, np]))
     }, [fplData?.nonProPlayers])
 
+    // Index players by id (O(1) lookup) and players by team via roster index.
+    // Previously each standings row did `players.find()` + `teams.find(...includes())`
+    // — O(standings × (players + teams × roster)). On a 200-player FPL this was
+    // a serious hit on every render of the page.
+    const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+    const teamByRosterPlayerId = useMemo(() => {
+        const m = new Map<string, typeof teams[number]>()
+        for (const t of teams) {
+            for (const pid of t.rosterIds || []) m.set(pid, t)
+        }
+        return m
+    }, [teams])
+
     // Get FPL standings with player details
     const fplStandings = useMemo(() => {
         if (!fplData?.fplStandings) return []
 
         return fplData.fplStandings
             .map(standing => {
-                const player = players.find(p => p.id === standing.playerId)
+                const player = playersById.get(standing.playerId)
                 const stats = fplData.playerStats[standing.playerId]
-                const team = teams.find(t => t.rosterIds.includes(standing.playerId))
+                const team = teamByRosterPlayerId.get(standing.playerId)
                 const nonProMeta = nonProLookup.get(standing.playerId)
                 return player && stats ? { player, stats, team, standing, nonProMeta } : null
             })
             .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
             .filter(entry => {
                 if (!searchTerm) return true
-                return entry.player.nickname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    entry.player.name.toLowerCase().includes(searchTerm.toLowerCase())
+                const q = searchTerm.toLowerCase()
+                return entry.player.nickname.toLowerCase().includes(q) ||
+                    entry.player.name.toLowerCase().includes(q)
             })
-    }, [fplData, players, teams, nonProLookup, searchTerm])
+    }, [fplData, playersById, teamByRosterPlayerId, nonProLookup, searchTerm])
 
     // Get FPL-C standings with player details
     const fplCStandings = useMemo(() => {
@@ -80,31 +94,32 @@ export default function FPLPage() {
 
         return fplData.fplCStandings
             .map(standing => {
-                const player = players.find(p => p.id === standing.playerId)
+                const player = playersById.get(standing.playerId)
                 const stats = fplData.playerStats[standing.playerId]
-                const team = teams.find(t => t.rosterIds.includes(standing.playerId))
+                const team = teamByRosterPlayerId.get(standing.playerId)
                 const nonProMeta = nonProLookup.get(standing.playerId)
                 return player && stats ? { player, stats, team, standing, nonProMeta } : null
             })
             .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
             .filter(entry => {
                 if (!searchTerm) return true
-                return entry.player.nickname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    entry.player.name.toLowerCase().includes(searchTerm.toLowerCase())
+                const q = searchTerm.toLowerCase()
+                return entry.player.nickname.toLowerCase().includes(q) ||
+                    entry.player.name.toLowerCase().includes(q)
             })
-    }, [fplData, players, teams, nonProLookup, searchTerm])
+    }, [fplData, playersById, teamByRosterPlayerId, nonProLookup, searchTerm])
 
     // Get season leaderboard
     const seasonLeaderboard = useMemo(() => {
         if (!fplData?.currentSeason?.leaderboard) return []
 
         return fplData.currentSeason.leaderboard.map(entry => {
-            const player = players.find(p => p.id === entry.playerId)
+            const player = playersById.get(entry.playerId)
             const stats = fplData.playerStats[entry.playerId]
-            const team = teams.find(t => t.rosterIds.includes(entry.playerId))
+            const team = teamByRosterPlayerId.get(entry.playerId)
             return player && stats ? { player, stats, team, points: entry.points, winRate: entry.winRate } : null
         }).filter((entry): entry is NonNullable<typeof entry> => entry !== null)
-    }, [fplData, players, teams])
+    }, [fplData, playersById, teamByRosterPlayerId])
 
     // My players' FPL rankings
     const myPlayersInFPL = useMemo(() => {
@@ -123,11 +138,11 @@ export default function FPLPage() {
             .sort((a, b) => (b.fplChampionships || 0) - (a.fplChampionships || 0) || (b.totalFPLEarnings || 0) - (a.totalFPLEarnings || 0))
             .slice(0, 10)
             .map(stats => {
-                const player = players.find(p => p.id === stats.playerId)
+                const player = playersById.get(stats.playerId)
                 return player ? { player, stats } : null
             })
             .filter((e): e is NonNullable<typeof e> => e !== null)
-    }, [fplData?.playerStats, players])
+    }, [fplData?.playerStats, playersById])
 
     if (!fplData) {
         return (

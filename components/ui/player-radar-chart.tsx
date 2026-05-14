@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts"
 
 interface StatPoint {
@@ -13,7 +14,7 @@ interface PlayerRadarChartProps {
     color?: string
 }
 
-export function PlayerRadarChart({ data, color = "#8884d8" }: PlayerRadarChartProps) {
+function PlayerRadarChartInner({ data, color = "#8884d8" }: PlayerRadarChartProps) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -27,3 +28,5 @@ export function PlayerRadarChart({ data, color = "#8884d8" }: PlayerRadarChartPr
         </div>
     )
 }
+
+export const PlayerRadarChart = memo(PlayerRadarChartInner)

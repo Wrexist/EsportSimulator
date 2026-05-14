@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -62,15 +62,23 @@ export default function TacticalHQPage() {
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)
 
     const matchId = params.id as string
-    // Find match in upcoming OR scheduled
-    const match = getUpcomingMatches(20).find((m: any) => m.id === matchId) ||
+    // Find match in upcoming OR scheduled. Memoized so we don't re-scan three
+    // potentially-large arrays on every render of the tactics screen.
+    const match = useMemo(() => (
+        getUpcomingMatches(20).find((m: any) => m.id === matchId) ||
         scheduledMatches.find((m: any) => m.id === matchId) ||
         completedMatches.find((m: any) => m.id === matchId)
+    ), [matchId, getUpcomingMatches, scheduledMatches, completedMatches])
+
+    // O(1) player lookup so opponentPlayers / playerRoster don't scan the full
+    // league players array per render.
+    const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+    const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
 
     // Derived state
-    const myTeam = teams.find((t: any) => t.id === playerTeamId)
+    const myTeam = teamsById.get(playerTeamId as string)
     const opponentId = match?.homeTeamId === playerTeamId ? match?.awayTeamId : match?.homeTeamId
-    const opponent = teams.find((t: any) => t.id === opponentId)
+    const opponent = opponentId ? teamsById.get(opponentId) : undefined
 
     // Persisted State from Match
     const mentalBoosted = match?.mentalPrep || false
@@ -78,9 +86,9 @@ export default function TacticalHQPage() {
 
     // Opponent Roster for Antistrat
     const opponentRoster = opponent?.rosterIds || []
-    const opponentPlayers = opponentRoster
-        .map((pid: string) => players.find(p => p.id === pid))
-        .filter(Boolean) as any[]
+    const opponentPlayers = useMemo(() => (
+        opponentRoster.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
+    ), [opponentRoster, playersById])
 
     // Facility Levels for Locking
     const tacticalLevel = myTeam?.facilities?.find((f: any) => f.type === "TACTICAL")?.level || 0
@@ -132,8 +140,9 @@ export default function TacticalHQPage() {
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
 
-        const homePlayers = homeTeam?.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
-        const awayPlayers = awayTeam?.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
+        // O(1) lookup via memoized playersById map instead of N players.find()
+        const homePlayers = homeTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
+        const awayPlayers = awayTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
 
         // We will just simulate a standard ban/pick phase purely using engine logic
         // BO3 Sequence: Ban, Ban, Pick, Pick, Ban, Ban, Decider

@@ -15,32 +15,41 @@ import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import confetti from "canvas-confetti"
+import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
-// Animated counter component for stats
+// Animated counter component for stats.
+// Earlier version had a bug: the inner `return () => clearInterval(timer)` was
+// returning from the setTimeout callback, not from useEffect. If the component
+// unmounted while the interval was still running it kept ticking. Track the
+// interval id via ref so the real useEffect cleanup can always cancel it.
 function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, duration?: number, delay?: number }) {
     const [displayValue, setDisplayValue] = useState(0)
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     useEffect(() => {
         const timeout = setTimeout(() => {
             let start = 0
             const increment = value / (duration * 60)
-            const timer = setInterval(() => {
+            intervalRef.current = setInterval(() => {
                 start += increment
                 if (start >= value) {
                     setDisplayValue(value)
-                    clearInterval(timer)
+                    if (intervalRef.current) clearInterval(intervalRef.current)
+                    intervalRef.current = null
                 } else {
                     setDisplayValue(Math.floor(start))
                 }
             }, 1000 / 60)
-            return () => clearInterval(timer)
         }, delay * 1000)
-        return () => clearTimeout(timeout)
+        return () => {
+            clearTimeout(timeout)
+            if (intervalRef.current) clearInterval(intervalRef.current)
+            intervalRef.current = null
+        }
     }, [value, duration, delay])
 
     return <>{displayValue}</>
@@ -89,46 +98,60 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         const homeWon = match.result.homeScore > match.result.awayScore
         const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
 
+        // Track scheduled work so cleanup can cancel it on unmount and the
+        // RAF / timeout don't keep firing canvas-confetti against an
+        // unmounted component.
+        let cancelled = false
+        let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
+        let rafId: number | undefined
+
         if (playerWon) {
             confettiTriggered.current = true
 
-            // Victory confetti burst!
-            const duration = 3000
-            const end = Date.now() + duration
+            // Preload then fire the burst — keeps canvas-confetti out of the
+            // critical bundle for non-winning paths.
+            preloadConfetti().then(() => {
+                if (cancelled) return
+                const duration = 3000
+                const end = Date.now() + duration
 
-            const frame = () => {
-                confetti({
-                    particleCount: 3,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0, y: 0.7 },
-                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
-                })
-                confetti({
-                    particleCount: 3,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1, y: 0.7 },
-                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
-                })
+                const frame = () => {
+                    if (cancelled) return
+                    fireConfetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.7 },
+                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                    })
+                    fireConfetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.7 },
+                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                    })
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame)
+                    if (Date.now() < end) {
+                        rafId = requestAnimationFrame(frame)
+                    }
                 }
-            }
 
-            // Initial big burst
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
+                fireConfetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
+                })
+
+                initialDelayTimer = setTimeout(frame, 250)
             })
-
-            setTimeout(frame, 250)
         }
 
         return () => {
+            cancelled = true
+            if (initialDelayTimer) clearTimeout(initialDelayTimer)
+            if (rafId) cancelAnimationFrame(rafId)
             confettiTriggered.current = false
         }
     }, [match, playerTeamId, id])
@@ -201,7 +224,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
 
-    const getPlayer = (id: string) => players.find(p => p.id === id)
+    // Was: `players.find` was called 3+ times in nested .map() loops over
+    // playerStats rows — O(players × rows). Index once.
+    const playersById = new Map(players.map(p => [p.id, p]))
+    const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
 
     // Helper to get stats for the current view (Overall or Specific Map)
@@ -721,7 +747,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                         </div>
                                         <div className="space-y-2">
                                             {teamStats.map((stat: any) => {
-                                                const player = players.find((p: any) => p.id === stat.playerId)
+                                                const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const fk = stat.firstKills || 0
                                                 const fd = stat.firstDeaths || 0
@@ -775,7 +801,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                         </div>
                                         <div className="space-y-2">
                                             {teamStats.map((stat: any) => {
-                                                const player = players.find((p: any) => p.id === stat.playerId)
+                                                const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const kast = stat.kast || 0
                                                 const clutches = stat.clutches || 0
@@ -938,6 +964,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
 }
 
 function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[], players: PlayerSaveData[], result: MatchResult }) {
+    // Local lookup map — was previously a reference to `playersById` defined
+    // inside MatchResultPage which is out of scope here. Build it from the
+    // `players` prop so this component is self-contained.
+    const playersById = new Map(players.map(p => [p.id, p]))
     return (
         <div className="relative overflow-x-auto rounded-xl border border-white/5">
             <table className="w-full text-sm text-left">
@@ -953,7 +983,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                 </thead>
                 <tbody className="divide-y divide-white/5">
                     {stats.map((stat) => {
-                        const player = players.find(p => p.id === stat.playerId)
+                        const player = playersById.get(stat.playerId)
                         const diff = stat.kills - stat.deaths
                         const ratingColor = stat.rating >= 1.25 ? "text-emerald-400" : stat.rating < 0.9 ? "text-red-400" : "text-white/80"
 

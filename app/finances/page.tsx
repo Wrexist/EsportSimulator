@@ -1,8 +1,10 @@
 "use client"
 
 import { useMemo } from "react"
+import Image from "next/image"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -64,15 +66,29 @@ const HEALTH_SPONSOR_WEIGHT = 8.33
 
 export default function FinancesPage() {
   const router = useRouter()
-  const { teams, playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
-    teams: state.teams,
+  const { playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
     playerTeamId: state.playerTeamId,
     currentWeek: state.currentWeek,
     players: state.players,
     staff: state.staff,
     contracts: state.contracts,
   })))
-  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const playerTeam = useCurrentTeam()
+
+  // O(1) lookups for the salary table below — was doing `contracts.find(...)`
+  // per row plus `players.filter(...includes())` over the full league.
+  const contractByPlayerId = useMemo(() => {
+    const map = new Map<string, typeof contracts[number]>()
+    for (const c of contracts) map.set(c.playerId, c)
+    return map
+  }, [contracts])
+  const rosterPlayers = useMemo(() => {
+    if (!playerTeam) return [] as typeof players
+    const playersById = new Map(players.map(p => [p.id, p]))
+    return (playerTeam.rosterIds || [])
+      .map(id => playersById.get(id))
+      .filter(Boolean) as typeof players
+  }, [players, playerTeam])
 
   // Cast for EconomyManager since it expects the simpler Team type
   const { report, currentMoney, weeklyIncomeTotal, weeklyExpensesTotal, netCashflow, isPositiveCashflow } = useMemo(() => {
@@ -318,8 +334,8 @@ export default function FinancesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {players.filter(p => playerTeam.rosterIds.includes(p.id)).map(p => {
-                      const contract = contracts.find(c => c.playerId === p.id)
+                    {rosterPlayers.map(p => {
+                      const contract = contractByPlayerId.get(p.id)
                       const salary = contract?.salaryPerWeek || 0
                       const weeksLeft = (contract?.endWeek || currentWeek) - currentWeek
 
@@ -327,7 +343,7 @@ export default function FinancesPage() {
                         <tr key={p.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-4 flex items-center gap-3">
                             <div className="h-8 w-8 bg-zinc-800 rounded-full flex items-center justify-center overflow-hidden">
-                              {p.portraitPath ? <img src={p.portraitPath} alt={p.nickname} className="h-full w-full object-cover" /> : <span className="text-xs font-bold">{p.nickname.substring(0, 1)}</span>}
+                              {p.portraitPath ? <Image src={p.portraitPath} alt={p.nickname} width={32} height={32} className="h-full w-full object-cover" /> : <span className="text-xs font-bold">{p.nickname.substring(0, 1)}</span>}
                             </div>
                             <div>
                               <div className="font-bold">{p.nickname}</div>

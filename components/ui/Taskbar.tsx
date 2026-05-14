@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +42,7 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
                     className="w-9 h-9 rounded-lg liquid-button flex items-center justify-center hover:bg-white/10 transition-colors duration-75 ease-out overflow-hidden touch-manipulation select-none will-change-transform hover:scale-[1.02] active:scale-[0.97] active:duration-0"
                 >
                     {teamLogo ? (
-                        <img src={teamLogo} alt={teamName} className="w-6 h-6 object-contain" />
+                        <Image src={teamLogo} alt={teamName || ""} width={24} height={24} className="w-6 h-6 object-contain" unoptimized />
                     ) : (
                         <span className="text-xs font-normal text-white/60">
                             {teamName?.substring(0, 2).toUpperCase() || "ES"}

@@ -98,9 +98,9 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
                                 <span className="text-white/30 text-[9px] shrink-0">+ {l.assisterName}</span>
                             )}
                             <div className="flex items-center gap-0.5 mx-0.5 shrink-0">
-                                <img src={getWeaponIcon(l.weapon)} alt="" className="h-2.5 w-auto brightness-0 invert opacity-40" />
+                                <Image src={getWeaponIcon(l.weapon)} alt="" width={20} height={10} className="h-2.5 w-auto brightness-0 invert opacity-40" unoptimized />
                                 {l.isHeadshot && (
-                                    <img src="/assets/weapons/headshot.png" alt="HS" className="h-2.5 w-2.5 opacity-70" />
+                                    <Image src="/assets/weapons/headshot.png" alt="HS" width={10} height={10} className="h-2.5 w-2.5 opacity-70" unoptimized />
                                 )}
                             </div>
                             <div className="flex items-center gap-1 shrink-0">
@@ -258,6 +258,16 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         [radarData?.aSite, radarData?.bSite]
     )
 
+    // Memoize the root style object. With useLiveMatch ticking at 30-60Hz this
+    // was being allocated as a fresh object (and the backgroundImage URL as a
+    // fresh string) every frame, defeating any style-diffing in the renderer.
+    const rootStyle = useMemo(() => ({
+        backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.7) 0%, #0e1217 100%), url(/maps/${currentMapId}.png)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundBlendMode: "overlay" as const,
+    }), [currentMapId])
+
     if (!matchData.current || !simState) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
             <div className="text-center">
@@ -280,12 +290,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col overflow-hidden font-sans select-none relative"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
-            style={{
-                backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.7) 0%, #0e1217 100%), url(/maps/${currentMapId}.png)`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundBlendMode: "overlay"
-            }}
+            style={rootStyle}
         >
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 

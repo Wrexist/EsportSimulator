@@ -579,7 +579,7 @@ export default function Page() {
           </div>
 
           {/* Financial Hub Card */}
-          <Card className="glass-panel border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-1000">
+          <Card className="glass-panel border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">

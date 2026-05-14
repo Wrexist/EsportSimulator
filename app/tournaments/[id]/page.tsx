@@ -227,7 +227,11 @@ export default function TournamentDetailPage() {
         }
     }, [seasonalInstances, id, selectedSeason])
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+    // Index teams by id once — was being scanned 8+ times per render across the
+    // podium / playoff / standings sections.
+    const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+    const completedMatchesById = useMemo(() => new Map(completedMatches.map(m => [m.id, m])), [completedMatches])
     const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
     const isQualificationForTournament = (q: any, tournamentId: string) =>
         toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
@@ -698,9 +702,9 @@ export default function TournamentDetailPage() {
                                                                 thirdId = thirdPlaceMatch.result.winnerId || (thirdPlaceMatch.result.homeScore > thirdPlaceMatch.result.awayScore ? thirdPlaceMatch.homeTeamId : thirdPlaceMatch.awayTeamId)
                                                             }
 
-                                                            const winner = teams.find(t => t.id === winnerId)
-                                                            const runnerUp = teams.find(t => t.id === runnerUpId)
-                                                            const third = teams.find(t => t.id === thirdId)
+                                                            const winner = teamsById.get(winnerId)
+                                                            const runnerUp = teamsById.get(runnerUpId)
+                                                            const third = thirdId ? teamsById.get(thirdId) : undefined
 
                                                             if (winner) podium.push({ place: 1, team: winner, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
                                                             if (runnerUp) podium.push({ place: 2, team: runnerUp, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })
@@ -709,7 +713,7 @@ export default function TournamentDetailPage() {
                                                         // 2. League Logic (or fallback)
                                                         else if (displayTournament?.format === "league" || !finalMatch) {
                                                             const standings = displayTournament?.teamIds?.map((tid: string) => {
-                                                                const team = teams.find(t => t.id === tid)
+                                                                const team = teamsById.get(tid)
                                                                 const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                                 const points = wins * 3
@@ -747,7 +751,7 @@ export default function TournamentDetailPage() {
                                                                         entry.place === 1 ? "border-amber-400 w-28 h-28" : entry.place === 2 ? "border-gray-300" : "border-amber-800"
                                                                     )}>
                                                                         {entry.team.logoPath ? (
-                                                                            <img src={entry.team.logoPath} className="w-[70%] h-[70%] object-contain" />
+                                                                            <Image src={entry.team.logoPath} alt={entry.team.name} width={48} height={48} className="w-[70%] h-[70%] object-contain" unoptimized />
                                                                         ) : (
                                                                             <span className="text-2xl font-bold">{entry.team.name[0]}</span>
                                                                         )}
@@ -833,8 +837,8 @@ export default function TournamentDetailPage() {
                                                     if (final) {
                                                         const winId = final.result.winnerId || (final.result.homeScore > final.result.awayScore ? final.homeTeamId : final.awayTeamId)
                                                         const loseId = winId === final.homeTeamId ? final.awayTeamId : final.homeTeamId
-                                                        const winner = teams.find(t => t.id === winId)
-                                                        const runnerUp = teams.find(t => t.id === loseId)
+                                                        const winner = teamsById.get(winId)
+                                                        const runnerUp = teamsById.get(loseId)
                                                         if (winner) standings.push({ team: winner, place: 1, prize: prizePool * 0.40, share: "High" })
                                                         if (runnerUp) standings.push({ team: runnerUp, place: 2, prize: prizePool * 0.20, share: "Medium" })
                                                     }
@@ -843,7 +847,7 @@ export default function TournamentDetailPage() {
                                                     semiFinals.forEach(m => {
                                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                            const t = teams.find(team => team.id === loserId)
+                                                            const t = teamsById.get(loserId)
                                                             if (t) standings.push({ team: t, place: 3, prize: prizePool * 0.10, share: "Low" })
                                                         }
                                                     })
@@ -852,7 +856,7 @@ export default function TournamentDetailPage() {
                                                     quarterFinals.forEach(m => {
                                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                            const t = teams.find(team => team.id === loserId)
+                                                            const t = teamsById.get(loserId)
                                                             if (t) standings.push({ team: t, place: 5, prize: prizePool * 0.05, share: "Low" })
                                                         }
                                                     })
@@ -860,7 +864,7 @@ export default function TournamentDetailPage() {
                                                 // B. League Logic
                                                 else {
                                                     const leagueSorted = displayTournament?.teamIds?.map((tid: string) => {
-                                                        const team = teams.find(t => t.id === tid)
+                                                        const team = teamsById.get(tid)
                                                         const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                         const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                         const points = wins * 3
@@ -1042,7 +1046,7 @@ export default function TournamentDetailPage() {
                                                     const participants = [...new Set(rawParticipants)]
 
                                                     const visibleParticipants = participants
-                                                        .map(tid => teams.find(t => t.id === tid))
+                                                        .map(tid => teamsById.get(tid))
                                                         .filter(t => t)
                                                         .sort((a, b) => (a?.worldRanking || 999) - (b?.worldRanking || 999))
 
@@ -1052,7 +1056,7 @@ export default function TournamentDetailPage() {
                                                                 <div key={team!.id} className="group relative">
                                                                     <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center shadow-lg hover:bg-white/5 transition-colors duration-300">
                                                                         {team!.logoPath ? (
-                                                                            <img src={team!.logoPath} alt={team!.name} className="w-9 h-9 object-contain opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                                            <Image src={team!.logoPath} alt={team!.name} width={36} height={36} className="w-9 h-9 object-contain opacity-80 group-hover:opacity-100 transition-opacity" unoptimized />
                                                                         ) : (
                                                                             <span className="text-sm font-normal text-white/50">{team!.name[0]}</span>
                                                                         )}
@@ -1151,7 +1155,7 @@ export default function TournamentDetailPage() {
                                                                         </div>
                                                                     </div>
                                                                     {winner?.logoPath && (
-                                                                        <img src={winner.logoPath} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                                        <Image src={winner.logoPath} alt={winner.name} width={32} height={32} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" unoptimized />
                                                                     )}
                                                                 </div>
                                                             )
@@ -1188,7 +1192,7 @@ export default function TournamentDetailPage() {
                                         {/* League Table Calculation */}
                                         {(() => {
                                             const leagueStandings = displayTournament?.teamIds?.map((tid: string) => {
-                                                const team = teams.find(t => t.id === tid)
+                                                const team = teamsById.get(tid)
                                                 // Calculate actual stats from completed matches
                                                 const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
@@ -1215,7 +1219,7 @@ export default function TournamentDetailPage() {
                                                                 <tr key={entry.team?.id || idx} className="hover:bg-white/[0.02] transition-colors">
                                                                     <td className="px-6 py-4 font-mono text-white/40">#{idx + 1}</td>
                                                                     <td className="px-6 py-4 font-bold flex items-center gap-3">
-                                                                        {entry.team?.logoPath ? <img src={entry.team.logoPath} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
+                                                                        {entry.team?.logoPath ? <Image src={entry.team.logoPath} alt={entry.team.name} width={24} height={24} className="w-6 h-6 object-contain" unoptimized /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
                                                                         {entry.team?.name || "Unknown Team"}
                                                                     </td>
                                                                     <td className="px-6 py-4">
@@ -1241,7 +1245,7 @@ export default function TournamentDetailPage() {
                                                                                                 isWin ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500" : "bg-red-500/10 border-red-500/50 text-red-500"
                                                                                             )}>
                                                                                                 {opponent?.logoPath ? (
-                                                                                                    <img src={opponent.logoPath} className="w-4 h-4 object-contain opacity-80" />
+                                                                                                    <Image src={opponent.logoPath} alt={opponent.name} width={16} height={16} className="w-4 h-4 object-contain opacity-80" unoptimized />
                                                                                                 ) : (
                                                                                                     <span className="text-[8px] font-normal">{isWin ? "W" : "L"}</span>
                                                                                                 )}
