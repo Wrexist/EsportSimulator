@@ -546,9 +546,11 @@ export class AtomicWeekProcessor {
             const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam) continue
 
-            // Select active 5, skipping injured players and pulling from bench
-            const selectActivePlayers = (rosterIds: string[]) => {
-                const available = rosterIds
+            // Select active 5, skipping injured players and pulling from bench.
+            // Defensive `|| []` against corrupt/legacy saves where rosterIds
+            // could be missing despite the type contract.
+            const selectActivePlayers = (rosterIds: string[] | undefined) => {
+                const available = (rosterIds || [])
                     .map(id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id))
                     .filter(p => p && !p.injury) as typeof save.players
                 return available.slice(0, 5)

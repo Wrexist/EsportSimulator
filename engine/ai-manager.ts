@@ -9,6 +9,8 @@ import { PlayerRole, EventType } from "../types" // Adjust import path if needed
 import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
+import { generateProspectBatch } from "./prospect-generator"
+import { logger } from "@/lib/logger"
 
 /**
  * AI Manager
@@ -609,8 +611,17 @@ export class AIManager {
         if (team.rosterIds.length >= 7) return // Already have enough players
 
         try {
-            const { generateProspectBatch } = require("./prospect-generator")
-            const prospects = generateProspectBatch(1, team.region || "EU", rng)
+            // Bug fix: previously passed `team.region` (e.g. "EU", "NA") into
+            // the `tier: ScoutingTier` slot, which only accepts
+            // "LOCAL" | "REGIONAL" | "INTERNATIONAL". The mismatch silently
+            // fell through to the default and produced weaker prospects than
+            // intended. Pick a tier based on team prestige so big AI clubs
+            // pull stronger talent than tier-2 sides.
+            const tier: "LOCAL" | "REGIONAL" | "INTERNATIONAL" =
+                team.reputation >= 75 ? "INTERNATIONAL"
+                : team.reputation >= 40 ? "REGIONAL"
+                : "LOCAL"
+            const prospects = generateProspectBatch(1, tier, rng)
             if (prospects.length === 0) return
 
             const prospect = prospects[0]
@@ -667,7 +678,9 @@ export class AIManager {
             save.players.push(prospectPlayer)
             team.rosterIds.push(playerId)
             applyRosterChangePenalty(team, save.currentWeek, 1)
-        } catch { /* prospect-generator not available */ }
+        } catch (err) {
+            logger.error("[AI] processAcademyScouting failed", err)
+        }
     }
 
     static processAITeamLogic(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
