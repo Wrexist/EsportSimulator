@@ -79,6 +79,7 @@ import { createScoutingSlice } from "@/store/slices/scouting-slice"
 import { createDebugSlice } from "@/store/slices/debug-slice"
 import { createTournamentSlice } from "@/store/slices/tournament-slice"
 import { createEventsSlice } from "@/store/slices/events-slice"
+import { createUISlice } from "@/store/slices/ui-slice"
 
 enableMapSet()
 
@@ -657,6 +658,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createEventsSlice>[0],
         get as Parameters<typeof createEventsSlice>[1],
       ),
+      ...createUISlice(
+        set as Parameters<typeof createUISlice>[0],
+        get as Parameters<typeof createUISlice>[1],
+      ),
 
       // Initial State
       saveId: null,
@@ -763,57 +768,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       pendingLegendPick: null,
       signedLegendIds: [],
       activelyPlayingLegendIds: [],
-      clearCelebration: () => set(state => {
-        state.pendingCelebration = null
-      }),
-      clearPendingSeasonRecap: () => set(state => {
-        state.pendingSeasonRecap = null
-      }),
-      selectLegend: (legendId: string) => set(state => {
-        if (!state.pendingLegendPick) return
-        const candidates = state.pendingLegendPick.candidates
-        if (!candidates.includes(legendId)) return
-
-        // Find the legend in players array (they're pre-loaded as retired)
-        const legend = (state._playerIndex?.get(legendId) ?? state.players.find(p => p.id === legendId))
-        if (!legend) return
-
-        const myTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-        if (!myTeam) return
-
-        // Reactivate the legend
-        legend.isRetired = false
-        legend.retirementWeek = undefined
-
-        // Add to roster (prevent duplicate roster entries)
-        if (!myTeam.rosterIds.includes(legendId)) {
-          myTeam.rosterIds.push(legendId)
-        }
-
-        // Remove any existing contracts for this player before creating new one
-        state.contracts = state.contracts.filter(c => c.playerId !== legendId)
-
-        // Create contract (high salary for legends)
-        const legendSalary = Math.round(50000 + legend.skill * 500) // $50k-$100k/wk
-        state.contracts.push({
-          playerId: legendId,
-          teamId: myTeam.id,
-          salaryPerWeek: legendSalary,
-          startWeek: state.currentWeek,
-          endWeek: state.currentWeek + 104, // 2 year contract
-          buyout: legendSalary * 52,
-        })
-
-        // Track to prevent duplicates
-        if (!state.signedLegendIds) state.signedLegendIds = []
-        state.signedLegendIds.push(legendId)
-
-        // Clear the pick
-        state.pendingLegendPick = null
-      }),
-      clearLegendPick: () => set(state => {
-        state.pendingLegendPick = null
-      }),
+      // clearCelebration / clearPendingSeasonRecap / selectLegend / clearLegendPick
+      // moved to store/slices/ui-slice.ts (spread above).
       // First debug actions block (debugTriggerCelebration … debugSetPlayerAge)
       // moved to store/slices/debug-slice.ts (spread above).
 
@@ -860,15 +816,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         state.toasts.push({ id: nextDeterministicId(state, "toast_treatment_success"), message: "Treatment successful!", type: "info" });
       }),
 
-      // Toast Notifications (UI-only, transient)
+      // Toast Notifications (UI-only, transient). State only — actions
+      // (addToast / removeToast) moved to store/slices/ui-slice.ts.
       toasts: [],
-      addToast: (toast) => set(state => {
-        const id = nextDeterministicId(state, "toast")
-        state.toasts.push({ ...toast, id })
-      }),
-      removeToast: (id) => set(state => {
-        state.toasts = state.toasts.filter(t => t.id !== id)
-      }),
 
       // Phase 21: Career Narrative
       newsFeed: [],
@@ -3948,7 +3898,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return result
       },
 
-      setTheme: (theme) => set({ theme }),
+      // setTheme moved to store/slices/ui-slice.ts (spread above).
 
       upgradeMerchStore: (teamId) => {
         let result = { success: false, message: "" }
@@ -4262,43 +4212,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // store/slices/settings-slice.ts now (spread above).
 
       // Helpers
-      getPlayerTeam: () => {
-        const state = get()
-        return (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-      },
-
-      getUpcomingMatches: (limit = 5) => {
-        const state = get()
-        return state.scheduledMatches
-          .filter(m =>
-            m.week >= state.currentWeek &&
-            !m.stage?.includes("Finished") &&
-            (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId)
-          )
-          // Sort by week first, then by day within the same week (Mon=0 to Sun=6)
-          .sort((a, b) => {
-            if (a.week !== b.week) return a.week - b.week
-            // Within same week, sort by day (default to 6/Sunday if not set)
-            return (a.day ?? 6) - (b.day ?? 6)
-          })
-          .slice(0, limit)
-      },
-
-      calculateTeamRating: () => {
-        const state = get()
-        const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-        if (!playerTeam) return 0
-
-        const teamPlayers = state.players
-          .filter(p => playerTeam.rosterIds.includes(p.id))
-          .map(p => evaluatePlayer(p).overallRating)
-          .sort((a, b) => b - a)
-          .slice(0, 5)
-
-        if (teamPlayers.length === 0) return 0
-        const avg = teamPlayers.reduce((sum, r) => sum + r, 0) / teamPlayers.length
-        return parseFloat(avg.toFixed(1))
-      },
+      // getPlayerTeam / getUpcomingMatches / calculateTeamRating moved to
+      // store/slices/ui-slice.ts (spread above).
 
       runTeamDrill: (drillId, gains, cost) => {
         let result = { success: false, message: "Unknown error" }
@@ -4421,14 +4336,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return result
       },
 
-      getDateForWeek: (week) => {
-        const state = get()
-        const start = new Date(state.gameStartDate)
-        const daysToAdd = (week - 1) * 7
-        const date = new Date(start)
-        date.setDate(date.getDate() + daysToAdd)
-        return date
-      },
+      // getDateForWeek moved to store/slices/ui-slice.ts (spread above).
       // ===== DEBUG TOOLS =====
       // debugAddFunds / debugHealAll / debugMaxMorale / debugTriggerJobOffer
       // moved to store/slices/debug-slice.ts (spread above).
@@ -4480,11 +4388,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // acceptJobOffer / declineJobOffer / negotiateJobOffer moved to
       // store/slices/events-slice.ts (spread above).
 
-      setWeeklyActivity: (type) => {
-        set((state) => {
-          state.selectedWeeklyActivity = type
-        })
-      },
+      // setWeeklyActivity moved to store/slices/ui-slice.ts (spread above).
 
       unlistPlayerForTransfer: (playerId) => {
         set((state) => {
