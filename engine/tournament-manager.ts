@@ -28,6 +28,12 @@ import {
     assignMatchDay as assignMatchDayFn,
     scheduleBracketMatch as scheduleBracketMatchFn,
 } from "./tournament/bracket-scheduling"
+import {
+    handleOpeningResult as handleOpeningResultFn,
+    handleUpperSemiResult as handleUpperSemiResultFn,
+    handleUpperFinalResult as handleUpperFinalResultFn,
+    handleLowerResult as handleLowerResultFn,
+} from "./tournament/double-elim-handlers"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -1000,135 +1006,22 @@ export class TournamentManager {
     }
 
     private static handleOpeningResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_opening")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-        const semiIdx = Math.floor(matchIdx / 2)
-
-        // Winner to Upper Semi
-        const semiId = `${groupId}_upper_semi_${semiIdx}`
-        const semi = bracketMap?.get(semiId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === semiId)
-        if (semi) {
-            if (matchIdx % 2 === 0) semi.homeTeamId = winnerId
-            else semi.awayTeamId = winnerId
-            if (semi.homeTeamId && semi.awayTeamId) this.scheduleBracketMatch(save, semi)
-        }
-
-        // Loser to Lower Round 1
-        const lowerR1Id = `${groupId}_lower_r1_${semiIdx}`
-        let lowerR1 = bracketMap?.get(lowerR1Id) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerR1Id)
-        if (!lowerR1) {
-            lowerR1 = {
-                id: lowerR1Id,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Round 1`,
-                isCompleted: false,
-                week: match.week + 1,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerR1)
-        }
-        if (matchIdx % 2 === 0) lowerR1.homeTeamId = loserId
-        else lowerR1.awayTeamId = loserId
-        if (lowerR1.homeTeamId && lowerR1.awayTeamId) this.scheduleBracketMatch(save, lowerR1)
+        handleOpeningResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleUpperSemiResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_upper_semi")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-
-        // Winner to Upper Final
-        const upperFinalId = `${groupId}_upper_final`
-        const upperFinal = bracketMap?.get(upperFinalId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === upperFinalId)
-        if (upperFinal) {
-            if (matchIdx === 0) upperFinal.homeTeamId = winnerId
-            else upperFinal.awayTeamId = winnerId
-            if (upperFinal.homeTeamId && upperFinal.awayTeamId) this.scheduleBracketMatch(save, upperFinal)
-        }
-
-        // Loser to Lower Semi
-        const lowerSemiId = `${groupId}_lower_semi_${matchIdx}`
-        let lowerSemi = bracketMap?.get(lowerSemiId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerSemiId)
-        if (!lowerSemi) {
-            lowerSemi = {
-                id: lowerSemiId,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Semi`,
-                isCompleted: false,
-                week: match.week + 1,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerSemi)
-        }
-        lowerSemi.homeTeamId = loserId
-        // Find winner of corresponding lower R1
-        const lowerR1 = bracketMap?.get(`${groupId}_lower_r1_${matchIdx}`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_r1_${matchIdx}`)
-        if (lowerR1?.winnerId) {
-            lowerSemi.awayTeamId = lowerR1.winnerId
-            this.scheduleBracketMatch(save, lowerSemi)
-        }
+        handleUpperSemiResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleUpperFinalResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_upper_final")[0]
-        const lowerFinalId = `${groupId}_lower_final`
-        let lowerFinal = bracketMap?.get(lowerFinalId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerFinalId)
-        if (!lowerFinal) {
-            lowerFinal = {
-                id: lowerFinalId,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Final`,
-                isCompleted: false,
-                week: match.week + 2,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerFinal)
-        }
-        lowerFinal.homeTeamId = loserId
-        const lowerSemi = bracketMap?.get(`${groupId}_lower_semi_0`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_0`) // Simplified
-        if (lowerSemi?.winnerId) {
-            lowerFinal.awayTeamId = lowerSemi.winnerId
-            this.scheduleBracketMatch(save, lowerFinal)
-        }
+        handleUpperFinalResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleLowerResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_lower")[0]
-        if (match.id.includes("lower_r1")) {
-            const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-            const semi = bracketMap?.get(`${groupId}_lower_semi_${matchIdx}`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_${matchIdx}`)
-            if (semi) {
-                semi.awayTeamId = winnerId
-                if (semi.homeTeamId && semi.awayTeamId) this.scheduleBracketMatch(save, semi)
-            }
-        } else if (match.id.includes("lower_semi")) {
-            const final = bracketMap?.get(`${groupId}_lower_final`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_final`)
-            if (final) {
-                final.awayTeamId = winnerId
-                if (final.homeTeamId && final.awayTeamId) this.scheduleBracketMatch(save, final)
-            }
-        } else if (match.id.includes("lower_final")) {
-            this.checkAndStartPlayoffs(save, tournament.id)
-        }
-
-        // ELIMINATION CHECK (Lower Bracket)
-        // Losing in lower bracket = Eliminated
-        save.tournamentQualifications = QualificationEngine.updateStatus(
-            save.tournamentQualifications,
-            tournament.id,
-            loserId,
-            "ELIMINATED"
-        )
-        this.notifyPlayerElimination(save, tournament, loserId)
+        handleLowerResultFn(save, tournament, match, winnerId, loserId, {
+            checkAndStartPlayoffs: (s, tid) => this.checkAndStartPlayoffs(s, tid),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static handlePlayoffProgression(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId?: string): void {
