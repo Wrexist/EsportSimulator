@@ -6,6 +6,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
@@ -55,9 +56,7 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 }
 
 export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = false }: StaffNegotiationModalProps) {
-    const { teams, playerTeamId, marketStaff, staff: activeStaff, hireStaff, renewStaffContract, currentWeek, saveId } = useGameStore(useShallow(state => ({
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
+    const { marketStaff, staff: activeStaff, hireStaff, renewStaffContract, currentWeek, saveId } = useGameStore(useShallow(state => ({
         marketStaff: state.marketStaff,
         staff: state.staff,
         hireStaff: state.hireStaff,
@@ -71,7 +70,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
         ? activeStaff.find(s => s.id === staffId)
         : marketStaff.find(s => s.id === staffId)
 
-    const myTeam = teams.find(t => t.id === playerTeamId)
+    const myTeam = useCurrentTeam()
 
     // Local State
     const [stage, setStage] = useState<NegotiationStage>("OFFER")
@@ -125,7 +124,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 saveId || "local",
                 currentWeek,
                 staffId,
-                playerTeamId || "NO_TEAM",
+                myTeam?.id || "NO_TEAM",
                 isRenewal ? "renewal" : "hire"
             )
         ).range(0.95, 1.05)

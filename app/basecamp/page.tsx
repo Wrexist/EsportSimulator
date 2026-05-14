@@ -1,7 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -37,19 +37,59 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
+// Hoisted to module scope — this is a static config that was being recreated
+// on every render of BasecampPage, including the per-level getStat closures.
+const FACILITY_CONFIG = {
+  TRAINING: {
+    image: "/facilities/training.png",
+    label: "Performance Center",
+    description: "Optimizes player XP gain and skill development speed.",
+    statLabel: "XP Multiplier",
+    getStat: (level: number) => `+${level * 10}%`,
+    icon: Dumbbell,
+    color: "text-cyan-400",
+    bgFrom: "from-cyan-500/20",
+    border: "hover:border-cyan-500/50"
+  },
+  RECOVERY: {
+    image: "/facilities/recovery.png",
+    label: "Wellness Lounge",
+    description: "Accelerates fatigue recovery and improves morale.",
+    statLabel: "Fatigue Recovery",
+    getStat: (level: number) => `-${level * 5} pts/wk`,
+    icon: HeartPulse,
+    color: "text-emerald-400",
+    bgFrom: "from-emerald-500/20",
+    border: "hover:border-emerald-500/50"
+  },
+  TACTICAL: {
+    image: "/facilities/tactical.png",
+    label: "War Room",
+    description: "Unlocks advanced strategic tools and preparation speed.",
+    statLabel: "Prep Speed",
+    getStat: (level: number) => `+${level * 15}%`,
+    icon: ClipboardList,
+    color: "text-amber-400",
+    bgFrom: "from-amber-500/20",
+    border: "hover:border-amber-500/50"
+  },
+  FANZONE: {
+    image: "/facilities/fanzone.png",
+    label: "Fan Interaction Zone",
+    description: "Boosts merchandise revenue and fan base growth.",
+    statLabel: "Merch Revenue",
+    getStat: (level: number) => `+${level * 20}%`,
+    icon: Users,
+    color: "text-rose-400",
+    bgFrom: "from-rose-500/20",
+    border: "hover:border-rose-500/50"
+  }
+} as const
+
 export default function BasecampPage() {
   const router = useRouter()
-  const {
-    teams,
-    playerTeamId,
-    upgradeFacility
-  } = useGameStore(useShallow(state => ({
-    teams: state.teams,
-    playerTeamId: state.playerTeamId,
-    upgradeFacility: state.upgradeFacility,
-  })))
-
-  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const upgradeFacility = useGameStore(state => state.upgradeFacility)
+  const playerTeam = useCurrentTeam()
 
   if (!playerTeam) {
     return <div className="flex items-center justify-center h-64 text-white/40"><Loader2 size={20} className="animate-spin mr-2" /> Loading...</div>
@@ -71,54 +111,6 @@ export default function BasecampPage() {
     toast.success("Facility Upgraded", {
       description: `${type} is now level ${currentLevel + 1}!`
     })
-  }
-
-  // Facility Metadata configuration
-  const facilityConfig = {
-    TRAINING: {
-      image: "/facilities/training.png",
-      label: "Performance Center",
-      description: "Optimizes player XP gain and skill development speed.",
-      statLabel: "XP Multiplier",
-      getStat: (level: number) => `+${level * 10}%`,
-      icon: Dumbbell,
-      color: "text-cyan-400",
-      bgFrom: "from-cyan-500/20",
-      border: "hover:border-cyan-500/50"
-    },
-    RECOVERY: {
-      image: "/facilities/recovery.png",
-      label: "Wellness Lounge",
-      description: "Accelerates fatigue recovery and improves morale.",
-      statLabel: "Fatigue Recovery",
-      getStat: (level: number) => `-${level * 5} pts/wk`,
-      icon: HeartPulse,
-      color: "text-emerald-400",
-      bgFrom: "from-emerald-500/20",
-      border: "hover:border-emerald-500/50"
-    },
-    TACTICAL: {
-      image: "/facilities/tactical.png",
-      label: "War Room",
-      description: "Unlocks advanced strategic tools and preparation speed.",
-      statLabel: "Prep Speed",
-      getStat: (level: number) => `+${level * 15}%`,
-      icon: ClipboardList,
-      color: "text-amber-400",
-      bgFrom: "from-amber-500/20",
-      border: "hover:border-amber-500/50"
-    },
-    FANZONE: {
-      image: "/facilities/fanzone.png",
-      label: "Fan Interaction Zone",
-      description: "Boosts merchandise revenue and fan base growth.",
-      statLabel: "Merch Revenue",
-      getStat: (level: number) => `+${level * 20}%`,
-      icon: Users,
-      color: "text-rose-400",
-      bgFrom: "from-rose-500/20",
-      border: "hover:border-rose-500/50"
-    }
   }
 
   return (
@@ -160,7 +152,7 @@ export default function BasecampPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-0">
           {(["TRAINING", "RECOVERY", "TACTICAL", "FANZONE"] as const).map((type, i) => {
             const facility = playerTeam.facilities?.find(f => f.type === type)
-            const config = facilityConfig[type]
+            const config = FACILITY_CONFIG[type]
             const level = facility?.level || 0
             const nextLevelCost = level === 0 ? 10000 : level * 25000
             const maintenance = facility?.monthlyCost ? Math.floor(facility.monthlyCost / 4) : 0

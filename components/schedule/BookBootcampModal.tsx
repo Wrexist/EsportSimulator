@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion } from "framer-motion"
 import { X, Plane, Dumbbell, Brain, Sparkles, Coins, CalendarClock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -52,16 +52,11 @@ const BOOTCAMP_OPTIONS = {
 }
 
 export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalProps) {
-    const { scheduleActivity, teams, playerTeamId } = useGameStore(useShallow(state => ({
-        scheduleActivity: state.scheduleActivity,
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
-    })))
+    const scheduleActivity = useGameStore(state => state.scheduleActivity)
+    const playerTeam = useCurrentTeam()
     const [selectedType, setSelectedType] = useState<BootcampType>("LOCAL")
     const [duration, setDuration] = useState(1)
     const [error, setError] = useState<string | null>(null)
-
-    const playerTeam = teams.find(t => t.id === playerTeamId)
     const budget = playerTeam?.budget || 0
 
     const selectedOption = BOOTCAMP_OPTIONS[selectedType]

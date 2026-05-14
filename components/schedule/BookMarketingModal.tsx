@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion } from "framer-motion"
 import { X, Megaphone, Share2, Handshake, Sparkles, Coins, CalendarClock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -52,15 +52,10 @@ const MARKETING_OPTIONS = {
 }
 
 export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModalProps) {
-    const { scheduleActivity, teams, playerTeamId } = useGameStore(useShallow(state => ({
-        scheduleActivity: state.scheduleActivity,
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
-    })))
+    const scheduleActivity = useGameStore(state => state.scheduleActivity)
+    const playerTeam = useCurrentTeam()
     const [selectedType, setSelectedType] = useState<MarketingType>("SOCIAL")
     const [duration, setDuration] = useState(1)
-
-    const playerTeam = teams.find(t => t.id === playerTeamId)
     const budget = playerTeam?.budget || 0
     const currentFollowers = playerTeam?.followers || 0
 

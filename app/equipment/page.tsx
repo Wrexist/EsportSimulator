@@ -34,8 +34,12 @@ import {
     EquipmentType,
     EquipmentCatalogItem
 } from "@/engine/equipment-manager"
+import type { EquipmentItem } from "@/engine/save-types"
 
-const ICON_MAP: any = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
+const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
+// Derived from the display map so a future EquipmentType addition can't drift
+// — both lists stay in lock-step automatically.
+const EQUIPMENT_TYPES = Object.keys(EQUIPMENT_TYPE_DISPLAY) as EquipmentType[]
 
 export default function EquipmentPage() {
     const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({
@@ -50,27 +54,45 @@ export default function EquipmentPage() {
 
     const equipmentStatus = useMemo(() => {
         if (!playerTeam) return []
-        const types: EquipmentType[] = ["MOUSE", "KEYBOARD", "MONITOR", "HEADSET", "CHAIR", "PC"]
-        return types.map(type => ({
+        return EQUIPMENT_TYPES.map(type => ({
             type,
             ...EQUIPMENT_TYPE_DISPLAY[type],
             current: EquipmentManager.getTeamEquipment(playerTeam, type),
         }))
     }, [playerTeam])
 
+    // Index team's currently-equipped items by type for O(1) lookup in the
+    // catalog .map() below. Was doing EquipmentManager.getTeamEquipment per
+    // row × 2 (isOwned + isUpgrade) — O(catalog × team_equipment.length).
+    const equippedByType = useMemo(() => {
+        const map = new Map<EquipmentType, EquipmentItem | undefined>()
+        if (!playerTeam) return map
+        for (const type of EQUIPMENT_TYPES) {
+            map.set(type, EquipmentManager.getTeamEquipment(playerTeam, type))
+        }
+        return map
+    }, [playerTeam])
+
+    const { bonuses, weeklyCost, completeness, avgTier } = useMemo(() => {
+        if (!playerTeam) return { bonuses: null, weeklyCost: 0, completeness: 0, avgTier: 0 }
+        return {
+            bonuses: EquipmentManager.calculateBonuses(playerTeam),
+            weeklyCost: EquipmentManager.calculateWeeklyCost(playerTeam),
+            completeness: EquipmentManager.getEquipmentCompleteness(playerTeam),
+            avgTier: EquipmentManager.getAverageEquipmentTier(playerTeam),
+        }
+    }, [playerTeam])
+
+    const displayItems = useMemo(() => (
+        selectedType === "ALL"
+            ? EQUIPMENT_CATALOG
+            : EQUIPMENT_CATALOG.filter(e => e.type === selectedType)
+    ), [selectedType])
+
     if (!playerTeam) return null
 
-    const bonuses = EquipmentManager.calculateBonuses(playerTeam)
-    const weeklyCost = EquipmentManager.calculateWeeklyCost(playerTeam)
-    const completeness = EquipmentManager.getEquipmentCompleteness(playerTeam)
-    const avgTier = EquipmentManager.getAverageEquipmentTier(playerTeam)
-
-    const displayItems = selectedType === "ALL"
-        ? EQUIPMENT_CATALOG
-        : EQUIPMENT_CATALOG.filter(e => e.type === selectedType)
-
     const handlePurchase = (item: EquipmentCatalogItem) => {
-        if (!playerTeam || !purchaseEquipment) return
+        if (!purchaseEquipment) return
         const result = purchaseEquipment(item.id)
         if (result.success) {
             toast.success(`Purchased ${item.name}!`, {
@@ -82,9 +104,9 @@ export default function EquipmentPage() {
         }
     }
 
-    const isOwned = (item: EquipmentCatalogItem) => EquipmentManager.getTeamEquipment(playerTeam, item.type)?.id === item.id
+    const isOwned = (item: EquipmentCatalogItem) => equippedByType.get(item.type)?.id === item.id
     const isUpgrade = (item: EquipmentCatalogItem) => {
-        const current = EquipmentManager.getTeamEquipment(playerTeam, item.type)
+        const current = equippedByType.get(item.type)
         return !current || item.tier > current.tier
     }
 
@@ -186,16 +208,16 @@ export default function EquipmentPage() {
                                     transition={{ delay: idx * 0.05 }}
                                     onClick={() => setSelectedItem(item)}
                                     className={cn(
-                                        "group relative h-[380px] rounded-3xl overflow-hidden cursor-pointer transition-all duration-500",
+                                        "group relative h-[380px] rounded-3xl overflow-hidden cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out",
                                         "border border-white/5 hover:border-white/20 hover:shadow-2xl hover:-translate-y-1",
                                         owned ? "bg-emerald-950/20" : "bg-white/[0.02]"
                                     )}
                                 >
                                     {/* Background Image / Glow */}
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent" />
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent" />
 
                                     {/* Use the new realistic image */}
-                                    <div className="absolute inset-x-0 top-0 h-[240px] flex items-center justify-center p-8 transition-transform duration-700 group-hover:scale-110">
+                                    <div className="absolute inset-x-0 top-0 h-[240px] flex items-center justify-center p-8 transition-transform duration-300 ease-out group-hover:scale-105">
                                         <div className="relative w-full h-full">
                                             <Image
                                                 src={item.imagePath || typeDisplay.imagePath}

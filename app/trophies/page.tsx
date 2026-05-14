@@ -3,6 +3,7 @@
 import React, { useMemo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { WEEKS_PER_YEAR } from "@/lib/constants"
 import {
     Trophy,
     Star,
@@ -43,7 +44,7 @@ export default function TrophyRoomPage() {
     // Build trophy list with computed year
     const trophies = useMemo(() => {
         return (playerTeam?.trophies || []).map((t: any, i: number) => {
-            const year = Math.floor(startYear + (t.week || 0) / 52)
+            const year = Math.floor(startYear + (t.week || 0) / WEEKS_PER_YEAR)
             // Normalize tier: engine stores "S_TIER" but TIER_CONFIG uses "S"
             const tier = (t.tier || "B_TIER").replace("_TIER", "")
             return {
@@ -111,7 +112,7 @@ export default function TrophyRoomPage() {
         return { wins, losses, winRate, tournamentWins, topRival }
     }, [completedMatches, playerTeamId, teams])
 
-    const currentSeason = Math.floor((currentWeek - 1) / 52) + 1
+    const currentSeason = Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1
     const totalTrophies = trophies.length
 
     return (

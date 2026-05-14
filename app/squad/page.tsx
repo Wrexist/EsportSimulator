@@ -2,6 +2,7 @@
 
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -174,10 +175,9 @@ export default function SquadPage() {
 }
 
 function SquadPageInner() {
-  const { getPlayerTeam, players, teams, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
+  const { getPlayerTeam, players, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
     getPlayerTeam: state.getPlayerTeam,
     players: state.players,
-    teams: state.teams,
     playerTeamId: state.playerTeamId,
     academyPlayers: state.academyPlayers,
     setPlaystyle: state.setPlaystyle,
@@ -194,7 +194,7 @@ function SquadPageInner() {
     promoteProspect: state.promoteProspect,
     addToast: state.addToast,
   })))
-  const teamData = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const teamData = useCurrentTeam()
 
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)

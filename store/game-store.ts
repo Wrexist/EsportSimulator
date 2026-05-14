@@ -50,6 +50,7 @@ import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
 import { PLAYER_TALENT_TREE, collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
@@ -2140,7 +2141,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           const inferredTeamId = save.playerTeamId || "team_navi"
-          const hydratedSave: GameSave = JSON.parse(JSON.stringify(save))
+          // structuredClone is ~10x faster than JSON parse/stringify and preserves
+          // Date, Map, Set, etc. Falls back for ancient runtimes that lack it.
+          const hydratedSave: GameSave = typeof structuredClone === "function"
+            ? structuredClone(save)
+            : JSON.parse(JSON.stringify(save))
 
           // Augment with new fields if missing (backward compatibility)
           hydratedSave.players.forEach(p => {
@@ -2945,20 +2950,37 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }
           }
 
-          const result = await atomicWeekProcessor.processWeek(saveState, config, rng)
+          // Run the week off the main thread when possible. The bridge falls
+          // back to a synchronous run if the worker can't load (SSR, Electron
+          // packaged build with worker disabled, etc.) so the call is safe
+          // everywhere. The worker structured-clones `saveState` on the way in
+          // and returns a mutated copy; we use that copy below instead of the
+          // original `saveState` reference.
+          const { result, save: processedSave, rngState: postWeekRngState } =
+            await weekProcessorBridge.processWeek(saveState, config, rng)
+          processedSave.lastRngSeed = postWeekRngState
 
           if (result.success) {
             set((draft) => {
-              Object.assign(draft, { ...saveState, isLoading: false })
+              Object.assign(draft, { ...processedSave, isLoading: false })
               draft.currentDay = draft.timeMode === "HYBRID_DAILY" ? 0 : 6
               draft.selectedWeeklyActivity = null // Reset selection
 
               // Prune growing arrays to prevent unbounded memory/save growth
               pruneGameState(draft)
 
-              // Recalculate synergy for all teams (AI transfers may have changed rosters)
+              // Recalculate synergy for all teams (AI transfers may have changed rosters).
+              // Build players-by-id once so each team is O(roster) instead of
+              // O(players × roster). On a ~30 team / ~150 player league this
+              // turns ~9000 array-includes scans into ~450 map lookups.
+              const playersById = new Map<string, typeof draft.players[number]>()
+              for (const p of draft.players) playersById.set(p.id, p)
               draft.teams.forEach(t => {
-                const roster = draft.players.filter(p => t.rosterIds.includes(p.id))
+                const roster: typeof draft.players = []
+                for (const id of t.rosterIds) {
+                  const p = playersById.get(id)
+                  if (p) roster.push(p)
+                }
                 t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
               })
             })

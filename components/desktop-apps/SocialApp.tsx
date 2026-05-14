@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircle, Heart, Repeat2, Bookmark, MoreHorizontal, User } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -121,7 +122,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                             className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
                                         >
                                             {post.user.avatar ? (
-                                                <img src={post.user.avatar} alt="" className="w-full h-full object-cover" />
+                                                <Image src={post.user.avatar} alt="" width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
                                                 post.user.name.substring(0, 2).toUpperCase()
                                             )}
@@ -204,7 +205,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     >
                                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden">
                                             {team.logoPath ? (
-                                                <img src={team.logoPath || "/team_placeholder.png"} alt={team.name} className="w-full h-full object-cover" />
+                                                <Image src={team.logoPath || "/team_placeholder.png"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
                                                 team.name.substring(0, 2).toUpperCase()
                                             )}
@@ -259,7 +260,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         >
                                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">
                                                 {team.logoPath ? (
-                                                    <img src={team.logoPath || "/team_placeholder.png"} alt={team.name} className="w-full h-full object-cover" />
+                                                    <Image src={team.logoPath || "/team_placeholder.png"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                                 ) : (
                                                     team.name.substring(0, 2).toUpperCase()
                                                 )}
@@ -304,7 +305,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                 <div className="flex justify-between items-end mb-4">
                                     <div className="w-16 h-16 rounded-2xl bg-neutral-900 border-4 border-neutral-950 flex items-center justify-center text-xl font-normal shadow-2xl shadow-cyan-900/20 overflow-hidden">
                                         {playerTeam.logoPath ? (
-                                            <img src={playerTeam.logoPath || "/team_placeholder.png"} alt={playerTeam.name} className="w-full h-full object-cover" />
+                                            <Image src={playerTeam.logoPath || "/team_placeholder.png"} alt={playerTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                         ) : (
                                             playerTeam.name.substring(0, 2).toUpperCase()
                                         )}
@@ -391,7 +392,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     <div className="flex justify-between items-end mb-3">
                                         <div className="w-14 h-14 rounded-2xl bg-neutral-900 border-4 border-neutral-950 flex items-center justify-center text-lg font-normal overflow-hidden">
                                             {selectedTeam.logoPath ? (
-                                                <img src={selectedTeam.logoPath || "/team_placeholder.png"} alt={selectedTeam.name} className="w-full h-full object-cover" />
+                                                <Image src={selectedTeam.logoPath || "/team_placeholder.png"} alt={selectedTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
                                                 selectedTeam.name.substring(0, 2).toUpperCase()
                                             )}

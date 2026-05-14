@@ -2,9 +2,11 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
+import { getNotificationTheme } from "./notification-themes"
 import { GameEventSaveData } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
@@ -53,6 +55,25 @@ interface WindowState {
   position: { x: number; y: number }
 }
 
+// Default window opening positions, cascading down-right so freshly opened
+// windows don't fully overlap. Hoisted to module scope so the initialiser
+// closure isn't rebuilt on every render of DesktopContent.
+const INITIAL_WINDOW_STATES: Record<AppId, WindowState> = {
+  mail:       { isOpen: false, isMinimized: false, isFocused: true,  zIndex: 10, position: { x:  40, y:  20 } },
+  social:     { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 120, y:  60 } },
+  market:     { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 200, y:  40 } },
+  calendar:   { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 280, y:  80 } },
+  news:       { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 160, y: 100 } },
+  shop:       { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 240, y: 120 } },
+  facilities: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 300, y: 140 } },
+  finance:    { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 360, y: 160 } },
+  academy:    { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1,  position: { x: 420, y: 180 } },
+}
+
+// Delays for desktop boot ambience. Names make the intent clear at call sites.
+const STARTUP_SOUND_DELAY_MS = 500
+const AUTO_OPEN_MAIL_DELAY_MS = 1500
+
 import { Suspense } from "react"
 
 
@@ -90,23 +111,25 @@ function DesktopContent() {
     selectedEventId ? eventsLog.find(e => e.id === selectedEventId) || null : null
     , [eventsLog, selectedEventId])
   const [isProcessing, setIsProcessing] = useState(false)
-  const playerTeam = teams.find(t => t.id === playerTeamId)
+  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
   // HLTV Awards Modal State
   const [hltvAwards, setHltvAwards] = useState<any>(null)
   const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
 
-  // Window management state
-  const [windows, setWindows] = useState<Record<AppId, WindowState>>({
-    mail: { isOpen: false, isMinimized: false, isFocused: true, zIndex: 10, position: { x: 40, y: 20 } },
-    social: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 120, y: 60 } },
-    market: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 200, y: 40 } },
-    calendar: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 280, y: 80 } },
-    news: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 160, y: 100 } },
-    shop: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 240, y: 120 } },
-    facilities: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 300, y: 140 } },
-    finance: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 360, y: 160 } },
-    academy: { isOpen: false, isMinimized: false, isFocused: false, zIndex: 1, position: { x: 420, y: 180 } },
+  // Window management state.
+  // Deep-clone the module-level template so per-mount window state is isolated.
+  // Below, openWindow / focusWindow mutate `windows[appId].isFocused` directly
+  // (not via spread), so without the clone those mutations would leak into the
+  // shared INITIAL_WINDOW_STATES constant and re-mounting the desktop would
+  // resume with the previous session's open/focused state.
+  const [windows, setWindows] = useState<Record<AppId, WindowState>>(() => {
+    const fresh = {} as Record<AppId, WindowState>
+    for (const id of Object.keys(INITIAL_WINDOW_STATES) as AppId[]) {
+      const t = INITIAL_WINDOW_STATES[id]
+      fresh[id] = { ...t, position: { ...t.position } }
+    }
+    return fresh
   })
 
 
@@ -118,14 +141,14 @@ function DesktopContent() {
 
   // Play startup sound on mount
   useEffect(() => {
-    // Small delay for effect
     const timer = setTimeout(() => {
       soundManager.play('start')
-    }, 500)
+    }, STARTUP_SOUND_DELAY_MS)
     return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
+    let autoOpenTimer: ReturnType<typeof setTimeout> | undefined
     if (appParam && Object.keys(windows).includes(appParam)) {
       openWindow(appParam as AppId)
     } else {
@@ -135,10 +158,15 @@ function DesktopContent() {
       )
 
       if (hasUnreadImportant && !windows.mail.isOpen) {
-        setTimeout(() => {
+        // Delay slightly so any active tutorial pop-in animates first.
+        // Track the timer so unmount/remount doesn't double-fire openWindow.
+        autoOpenTimer = setTimeout(() => {
           openWindow("mail")
-        }, 1500) // Delay slightly to let tutorial start first if active, or just after boot sound
+        }, AUTO_OPEN_MAIL_DELAY_MS)
       }
+    }
+    return () => {
+      if (autoOpenTimer) clearTimeout(autoOpenTimer)
     }
   }, [appParam]) // Run once on mount (conceptually, though appParam dependency is fine)
 
@@ -253,12 +281,12 @@ function DesktopContent() {
   // Window management functions
   const openWindow = (appId: AppId) => {
     setWindows(prev => {
-      const newWindows = { ...prev }
-      // Unfocus all windows
-      Object.keys(newWindows).forEach(key => {
-        newWindows[key as AppId].isFocused = false
-      })
-      // Open and focus the target window
+      // Build a new record where every WindowState is a fresh object so we
+      // never mutate the previous state (or the module-level template).
+      const newWindows = {} as Record<AppId, WindowState>
+      for (const key of Object.keys(prev) as AppId[]) {
+        newWindows[key] = { ...prev[key], isFocused: false }
+      }
       newWindows[appId] = {
         ...newWindows[appId],
         isOpen: true,
@@ -287,10 +315,10 @@ function DesktopContent() {
 
   const focusWindow = (appId: AppId) => {
     setWindows(prev => {
-      const newWindows = { ...prev }
-      Object.keys(newWindows).forEach(key => {
-        newWindows[key as AppId].isFocused = false
-      })
+      const newWindows = {} as Record<AppId, WindowState>
+      for (const key of Object.keys(prev) as AppId[]) {
+        newWindows[key] = { ...prev[key], isFocused: false }
+      }
       newWindows[appId] = {
         ...newWindows[appId],
         isFocused: true,
@@ -373,26 +401,13 @@ function DesktopContent() {
     setSelectedEventId(null)
   }
 
-  // Notification theme helper - type-specific colors and effects
-  const getNotificationTheme = useCallback((type: string) => {
-    const themes: Record<string, { gradient: string; borderColor: string; iconColor: string; iconBg: string; sound: 'success' | 'notification' | 'error' }> = {
-      JOB_OFFER: { gradient: "from-emerald-500/30 via-emerald-600/20 to-transparent", borderColor: "border-emerald-500/40", iconColor: "text-emerald-400", iconBg: "bg-emerald-500/20", sound: "success" },
-      TRANSFER_OFFER: { gradient: "from-blue-500/30 via-cyan-500/20 to-transparent", borderColor: "border-blue-500/40", iconColor: "text-blue-400", iconBg: "bg-blue-500/20", sound: "notification" },
-      INJURY: { gradient: "from-red-500/30 via-rose-600/20 to-transparent", borderColor: "border-red-500/40", iconColor: "text-red-400", iconBg: "bg-red-500/20", sound: "error" },
-      CAREER_UPDATE: { gradient: "from-amber-500/30 via-yellow-500/20 to-transparent", borderColor: "border-amber-500/40", iconColor: "text-amber-400", iconBg: "bg-amber-500/20", sound: "success" },
-      TOURNAMENT: { gradient: "from-purple-500/30 via-violet-500/20 to-transparent", borderColor: "border-purple-500/40", iconColor: "text-purple-400", iconBg: "bg-purple-500/20", sound: "notification" },
-      ROSTER_UPDATE: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      AI_SIGNING: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      AI_TRANSFER: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      MEDIA: { gradient: "from-amber-500/30 via-orange-500/20 to-transparent", borderColor: "border-amber-500/40", iconColor: "text-amber-400", iconBg: "bg-amber-500/20", sound: "notification" },
-    }
-    return themes[type] || { gradient: "from-cyan-500/30 via-blue-500/20 to-transparent", borderColor: "border-cyan-500/40", iconColor: "text-cyan-400", iconBg: "bg-cyan-500/20", sound: "notification" }
-  }, [])
-
-  // Get theme for current selected event
-  const notificationTheme = useMemo(() => {
-    return selectedEvent ? getNotificationTheme(selectedEvent.type as string) : getNotificationTheme("DEFAULT")
-  }, [selectedEvent, getNotificationTheme])
+  // Get theme for current selected event. getNotificationTheme is now a pure
+  // module-level helper (see app/desktop/notification-themes.ts) so no
+  // dependency is needed beyond the event itself.
+  const notificationTheme = useMemo(
+    () => getNotificationTheme(selectedEvent ? (selectedEvent.type as string) : "DEFAULT"),
+    [selectedEvent]
+  )
 
   // Play notification sound when dialog opens
   useEffect(() => {
@@ -502,7 +517,7 @@ function DesktopContent() {
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
             {data.offeringTeamLogo ? (
-              <img src={data.offeringTeamLogo} alt={offeringTeam.name} className="w-full h-full object-cover" />
+              <Image src={data.offeringTeamLogo} alt={offeringTeam.name} width={64} height={64} className="w-full h-full object-cover" unoptimized />
             ) : (
               <span className="text-xl font-normal opacity-30">{offeringTeam.name.substring(0, 2).toUpperCase()}</span>
             )}
@@ -716,8 +731,8 @@ function DesktopContent() {
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30 overflow-hidden shrink-0 relative">
             {data.logoPath || tournament?.logoPath ? (
-              <div className="w-full h-full p-2 flex items-center justify-center">
-                <img src={data.logoPath || tournament?.logoPath} alt="Tournament" className="max-w-full max-h-full object-contain drop-shadow-lg" />
+              <div className="w-full h-full p-2 flex items-center justify-center relative">
+                <Image src={(data.logoPath || tournament?.logoPath) as string} alt="Tournament" fill className="object-contain drop-shadow-lg" unoptimized />
               </div>
             ) : (
               <Trophy size={24} className="text-indigo-400" />

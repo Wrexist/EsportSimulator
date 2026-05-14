@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
@@ -80,12 +81,10 @@ const FACILITY_LEVELS: Record<FacilityType, Record<number, { desc: string; perks
 }
 
 export function FacilitiesApp() {
-    const { teams, playerTeamId, upgradeFacility } = useGameStore(useShallow(state => ({
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
+    const { upgradeFacility } = useGameStore(useShallow(state => ({
         upgradeFacility: state.upgradeFacility,
     })))
-    const team = teams.find(t => t.id === playerTeamId)
+    const team = useCurrentTeam()
     const [upgradingId, setUpgradingId] = useState<string | null>(null)
     const [expandedId, setExpandedId] = useState<string | null>(null)
 

@@ -167,6 +167,7 @@ export function Sidebar() {
                 {isActive && (
                     <motion.div
                         layoutId="active-pill"
+                        transition={{ duration: 0.12, ease: "easeOut" }}
                         className="absolute left-0 w-1 h-6 bg-cyan-200/90 rounded-r-full"
                     />
                 )}
@@ -178,15 +179,17 @@ export function Sidebar() {
         <motion.div
             initial={false}
             animate={{ width: isCollapsed ? 70 : 240 }}
-            className="sticky top-0 h-full liquid-chrome border-r border-white/[0.06] flex flex-col pointer-events-auto transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] z-40 backdrop-blur-xl"
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="sticky top-0 h-full liquid-chrome border-r border-white/[0.06] flex flex-col pointer-events-auto z-40 backdrop-blur-xl"
         >
             <div className="p-4 flex items-center justify-between overflow-hidden">
                 <AnimatePresence mode="wait">
                     {!isCollapsed && (
                         <motion.span
-                            initial={{ opacity: 0, x: -20 }}
+                            initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
+                            exit={{ opacity: 0, x: -8 }}
+                            transition={{ duration: 0.12, ease: "easeOut" }}
                             className="font-normal text-lg text-white/90 tracking-tighter uppercase whitespace-nowrap"
                         >
                             Esports Manager

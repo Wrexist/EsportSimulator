@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Newspaper, Trophy, Users, ArrowRightLeft, Flame, TrendingDown,
@@ -114,12 +115,12 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
         const teamId = data.teamId || data.offeringTeamId || data.fromTeamId || data.toTeamId
         if (teamId) {
             const team = teams.find(t => t.id === teamId)
-            if (team?.logoPath) return <img src={team.logoPath} alt="" className="w-full h-full object-cover" />
+            if (team?.logoPath) return <Image src={team.logoPath} alt="" width={48} height={48} className="w-full h-full object-cover" unoptimized />
         }
         // Try player portrait
         if (data.playerId) {
             const player = players.find(p => p.id === data.playerId)
-            if (player?.portraitPath) return <img src={player.portraitPath} alt="" className="w-full h-full object-cover scale-110 translate-y-1" />
+            if (player?.portraitPath) return <Image src={player.portraitPath} alt="" width={48} height={48} className="w-full h-full object-cover scale-110 translate-y-1" unoptimized />
         }
 
         return getNewsIcon(event)

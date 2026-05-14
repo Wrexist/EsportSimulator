@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -122,7 +123,6 @@ const MEETING_TYPES: MeetingType[] = [
 export default function StaffMeetingPage() {
     const router = useRouter()
     const {
-        teams,
         playerTeamId,
         players,
         staff,
@@ -132,7 +132,6 @@ export default function StaffMeetingPage() {
         managerDetails,
         scheduledActivities
     } = useGameStore(useShallow(state => ({
-        teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
         staff: state.staff,
@@ -145,7 +144,7 @@ export default function StaffMeetingPage() {
 
     const [schedulingId, setSchedulingId] = useState<string | null>(null)
 
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useCurrentTeam()
     const roster = players.filter(p => playerTeam?.rosterIds.includes(p.id))
     const teamStaff = staff.filter(s => s.teamId === playerTeamId)
 

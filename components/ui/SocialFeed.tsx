@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { MessageSquare, Heart, Repeat2, Share, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -73,7 +74,7 @@ export function SocialFeed({ posts, onProfileClick }: SocialFeedProps) {
                             {/* Media (Optional) */}
                             {post.image && (
                                 <div className="mb-3 rounded-2xl overflow-hidden border border-white/10">
-                                    <img src={post.image} alt="Post content" className="w-full aspect-video object-cover" />
+                                    <Image src={post.image} alt="Post content" width={640} height={360} className="w-full aspect-video object-cover" unoptimized />
                                 </div>
                             )}
 

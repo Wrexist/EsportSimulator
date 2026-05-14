@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import {
   Dumbbell,
@@ -54,9 +55,8 @@ const getFocusIcon = (focus: string | undefined): LucideIcon => {
 }
 
 export default function TrainingPage() {
-  const { players, teams, playerTeamId, staff, startRoleTraining, cancelRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic } = useGameStore(useShallow(state => ({
+  const { players, playerTeamId, staff, startRoleTraining, cancelRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic } = useGameStore(useShallow(state => ({
     players: state.players,
-    teams: state.teams,
     playerTeamId: state.playerTeamId,
     staff: state.staff,
     startRoleTraining: state.startRoleTraining,
@@ -66,6 +66,7 @@ export default function TrainingPage() {
     customTactics: state.customTactics,
     updateCustomTactic: state.updateCustomTactic,
   })))
+  const playerTeam = useCurrentTeam()
   const [selectedDrill, setSelectedDrill] = useState("recoil_master")
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [weaponTrainingPlayer, setWeaponTrainingPlayer] = useState<any>(null)
@@ -84,7 +85,6 @@ export default function TrainingPage() {
 
   const terminalEndRef = useRef<HTMLDivElement>(null)
 
-  const playerTeam = teams.find(t => t.id === playerTeamId)
   const teamPlayers = players.filter(p => playerTeam?.rosterIds.includes(p.id))
 
   const activeStaff = staff.filter(s => s.teamId === playerTeamId)
@@ -361,6 +361,7 @@ export default function TrainingPage() {
                       className="h-full bg-primary"
                       initial={{ width: 0 }}
                       animate={{ width: `${activeRun.progress}%` }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
                     />
                   </div>
                 </div>

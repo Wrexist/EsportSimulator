@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, memo } from "react"
 import { PlayerRole } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
@@ -10,7 +10,7 @@ interface SystemBonusesProps {
     className?: string
 }
 
-export const SystemBonuses: React.FC<SystemBonusesProps> = ({ players, className }) => {
+const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }) => {
     // 1. Calculate Role Counts
     const roles = useMemo(() => {
         const counts: Record<string, number> = {
@@ -145,3 +145,5 @@ export const SystemBonuses: React.FC<SystemBonusesProps> = ({ players, className
         </div>
     )
 }
+
+export const SystemBonuses = memo(SystemBonusesInner)
