@@ -35,7 +35,7 @@ import {
     Trophy,
     Target,
     BarChart3,
-    Map,
+    Map as MapIcon,
     History as HistoryIcon,
     Swords,
     ChevronRight,
@@ -487,7 +487,7 @@ export default function StatsPage() {
                             {/* Map Mastery */}
                             <div className="glass-panel p-8 min-h-[400px]">
                                 <h3 className="text-sm font-normal uppercase tracking-widest text-white mb-8 flex items-center gap-2">
-                                    <Map size={16} className="text-amber-400" /> Map Mastery (Win %)
+                                    <MapIcon size={16} className="text-amber-400" /> Map Mastery (Win %)
                                 </h3>
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">

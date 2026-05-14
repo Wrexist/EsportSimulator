@@ -704,7 +704,7 @@ export default function TournamentDetailPage() {
 
                                                             const winner = teamsById.get(winnerId)
                                                             const runnerUp = teamsById.get(runnerUpId)
-                                                            const third = teamsById.get(thirdId)
+                                                            const third = thirdId ? teamsById.get(thirdId) : undefined
 
                                                             if (winner) podium.push({ place: 1, team: winner, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
                                                             if (runnerUp) podium.push({ place: 2, team: runnerUp, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })

@@ -34,6 +34,7 @@ import {
     EquipmentType,
     EquipmentCatalogItem
 } from "@/engine/equipment-manager"
+import type { EquipmentItem } from "@/engine/save-types"
 
 const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 // Derived from the display map so a future EquipmentType addition can't drift
@@ -64,8 +65,8 @@ export default function EquipmentPage() {
     // catalog .map() below. Was doing EquipmentManager.getTeamEquipment per
     // row × 2 (isOwned + isUpgrade) — O(catalog × team_equipment.length).
     const equippedByType = useMemo(() => {
-        if (!playerTeam) return new Map<EquipmentType, EquipmentCatalogItem | undefined>()
-        const map = new Map<EquipmentType, EquipmentCatalogItem | undefined>()
+        const map = new Map<EquipmentType, EquipmentItem | undefined>()
+        if (!playerTeam) return map
         for (const type of EQUIPMENT_TYPES) {
             map.set(type, EquipmentManager.getTeamEquipment(playerTeam, type))
         }

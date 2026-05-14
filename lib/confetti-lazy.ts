@@ -13,16 +13,25 @@
  *   fireConfetti({ particleCount: 100, spread: 70 })
  */
 
-type ConfettiOptions = Parameters<typeof import("canvas-confetti").default>[0]
-type ConfettiResult = ReturnType<typeof import("canvas-confetti").default>
+// `canvas-confetti` ships as a CommonJS module (`export = confetti`), so
+// `typeof import("canvas-confetti")` is the bare function namespace — it
+// has no `.default`. The runtime dynamic-import value, however, is wrapped
+// by esModuleInterop into `{ default: confetti, shapeFromPath, ... }`.
+// We capture both shapes separately so the typings line up with reality.
+import type confettiFn from "canvas-confetti"
 
-let modulePromise: Promise<typeof import("canvas-confetti")> | null = null
+export type ConfettiOptions = Parameters<typeof confettiFn>[0]
+export type ConfettiResult = ReturnType<typeof confettiFn>
 
-function loadConfetti() {
+type ConfettiModule = { default: typeof confettiFn }
+
+let modulePromise: Promise<ConfettiModule> | null = null
+
+function loadConfetti(): Promise<ConfettiModule> {
     if (!modulePromise) {
         // Reset on failure so a transient network/chunk error doesn't poison
         // the cache for the rest of the session.
-        modulePromise = import("canvas-confetti").catch(err => {
+        modulePromise = (import("canvas-confetti") as unknown as Promise<ConfettiModule>).catch(err => {
             modulePromise = null
             throw err
         })
@@ -40,7 +49,9 @@ function loadConfetti() {
  * `preloadConfetti()` ahead of time.
  */
 export function fireConfetti(options?: ConfettiOptions): Promise<ConfettiResult | undefined> {
-    return loadConfetti().then(mod => mod.default(options)).catch(() => undefined)
+    return loadConfetti()
+        .then(mod => mod.default(options))
+        .catch(() => undefined)
 }
 
 /**
