@@ -53,6 +53,7 @@ import {
     hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
 } from "./processors/tournament-completion"
 import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
+import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -1272,43 +1273,7 @@ export class AtomicWeekProcessor {
      * Phase 9: Process scouting missions - complete any that are done
      */
     private processScoutingMissions(save: GameSave, idx?: SaveIndexes): void {
-        if (!save.activeScoutingMission) return
-
-        const mission = save.activeScoutingMission
-
-        // Check if mission is complete
-        if (save.currentWeek >= mission.completionWeek) {
-            // Add to scouted players
-            if (!save.scoutedPlayers) {
-                save.scoutedPlayers = []
-            }
-
-            save.scoutedPlayers.push({
-                playerId: mission.playerId,
-                scoutedWeek: save.currentWeek,
-                scoutLevel: "EXPERT" as const,
-            })
-
-            // Generate news event
-            const scoutedPlayer = idx?.playerIndex.get(mission.playerId) ?? save.players.find(p => p.id === mission.playerId)
-            if (scoutedPlayer) {
-                save.eventsLog.push({
-                    id: `scouting_complete_${save.currentWeek}_${mission.playerId}`,
-                    type: "NEWS",
-                    week: save.currentWeek,
-                    data: {
-                        text: `Scouting report complete for ${scoutedPlayer.nickname}. Full stats are now visible.`,
-                        playerName: scoutedPlayer.nickname,
-                    },
-                    acknowledged: false,
-                })
-            }
-
-            // Clear active mission
-            save.activeScoutingMission = undefined
-
-            debugLog(`[Scouting] Completed mission for ${mission.playerId}`)
-        }
+        processScoutingMissionsFn(save, idx)
     }
 
     private processAIWorldLogic(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
