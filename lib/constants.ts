@@ -271,6 +271,27 @@ export const STAFF_BONUS_MULTIPLIERS = {
 } as const
 
 // ============================================
+// ARRAY CAPS (anti-bloat for long sessions)
+// ============================================
+
+/**
+ * Maximum sizes for growing game arrays. Caps prevent unbounded memory
+ * growth during long play sessions and keep save files lean. Engine
+ * compacts at these limits and the store prunes to match after each tick.
+ */
+export const ARRAY_CAPS = {
+    completedMatches: 2000,
+    eventsLog: 500,
+    financeLedger: 2000,
+    transferHistory: 1000,
+    newsFeed: 200,
+    tournamentQualifications: 2000,
+    academyMatchHistory: 200,
+    academyWeeklyReports: 100,
+    hallOfFame: 500,
+} as const
+
+// ============================================
 // MATCH SIMULATION BALANCE
 // ============================================
 
