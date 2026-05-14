@@ -52,6 +52,7 @@ import {
     isTerminalBracketStage as isTerminalBracketStageFn,
     hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
 } from "./processors/tournament-completion"
+import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -1458,60 +1459,7 @@ export class AtomicWeekProcessor {
      * Phase 24: Process performance-based follower growth
      */
     private processFanbaseGrowth(save: GameSave, rng: SeededRNG): void {
-        save.teams.forEach(team => {
-            // Organic growth based on reputation (e.g. 50-250 fans depending on 0-100 rep)
-            let dailyOrganic = (team.reputation / 100) * 15
-            let weeklyGrowth = dailyOrganic * 7
-
-            // Phase 18: Fan Zone Bonus (15% per level)
-            const fanZoneFacility = team.facilities?.find(f => f.type === "FANZONE")
-            const fanZoneBonus = 1 + (fanZoneFacility?.level || 0) * 0.15
-            weeklyGrowth *= fanZoneBonus
-
-            // Performance influence (recent matches)
-            const weekMatches = save.completedMatches.filter(m =>
-                (m.homeTeamId === team.id || m.awayTeamId === team.id) &&
-                m.week === save.currentWeek
-            )
-
-            weekMatches.forEach(m => {
-                const isHome = m.homeTeamId === team.id
-                const won = isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-
-                if (won) {
-                    // Winning matches adds followers
-                    // Elite teams gain more from wins, but have higher expectations
-                    const gain = 500 + (team.reputation * 5)
-                    weeklyGrowth += gain
-                } else {
-                    // Losing matches causes a slight stagnation or decline
-                    weeklyGrowth -= 100
-                }
-            })
-
-            // Ranking clout
-            if (team.worldRanking && team.worldRanking <= 30) {
-                // Top teams get bonus organic spread
-                const rankingBonus = (31 - team.worldRanking) * 50
-                weeklyGrowth += rankingBonus
-            }
-
-            // Marketing campaign bonus
-            const activeMarketing = save.scheduledActivities?.filter(a =>
-                a.type === "MARKETING" &&
-                save.currentWeek >= a.week &&
-                save.currentWeek < a.week + a.duration &&
-                typeof (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek === "number"
-            ) ?? []
-            for (const campaign of activeMarketing) {
-                const gain = (campaign.data as { followersPerWeek?: number })?.followersPerWeek ?? 0
-                if (typeof gain === "number" && gain > 0) {
-                    weeklyGrowth += gain
-                }
-            }
-
-            team.followers = Math.max(0, Math.floor((team.followers || 0) + weeklyGrowth))
-        })
+        processFanbaseGrowthFn(save, rng)
     }
 
     private applyMatchSponsorGoalProgress(
