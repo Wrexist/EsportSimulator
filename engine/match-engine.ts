@@ -10,6 +10,7 @@ import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/en
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
 import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "./talent-trees"
+import { logger } from "@/lib/logger"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
 
@@ -206,9 +207,7 @@ export class MatchEngine {
             awayStaff
         )
       } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.error('[MatchEngine] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
-        }
+        logger.error('[MatchEngine] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
         throw error
       }
     }

@@ -37,6 +37,7 @@ import {
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
 import { perfTrace } from "./perf-trace"
+import { MATCH_BALANCE, MATCH_STRUCTURE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK } from "@/lib/constants"
 
 // ===== TYPES =====
 
@@ -65,13 +66,13 @@ export interface MatchStats {
 
 // ===== CONSTANTS =====
 const T_SIDE_ADVANTAGE_MAPS: MapId[] = [MapId.ANUBIS, MapId.ANCIENT]
-const T_SIDE_ADVANTAGE = 0.02 // T side slight advantage in CS2 economy transition? (actually CT more expensive)
-const CT_SIDE_ADVANTAGE = 0.03 // Standard map balance
-const MOMENTUM_WEIGHT = 0.02
-const MOMENTUM_MAX_ROUNDS = 5
-const TILT_THRESHOLD = 3
-const TILT_PENALTY = 0.03
-const CLUTCH_BASE_CHANCE = 0.05
+const T_SIDE_ADVANTAGE = MATCH_BALANCE.T_SIDE_ADVANTAGE
+const CT_SIDE_ADVANTAGE = MATCH_BALANCE.CT_SIDE_ADVANTAGE
+const MOMENTUM_WEIGHT = MATCH_BALANCE.MOMENTUM_WEIGHT
+const MOMENTUM_MAX_ROUNDS = MATCH_BALANCE.MOMENTUM_MAX_ROUNDS
+const TILT_THRESHOLD = MATCH_BALANCE.TILT_THRESHOLD
+const TILT_PENALTY = MATCH_BALANCE.TILT_PENALTY
+const CLUTCH_BASE_CHANCE = MATCH_BALANCE.CLUTCH_BASE_CHANCE
 
 // ===== PLAYSTYLE COUNTER SYSTEM =====
 // Rock-Paper-Scissors tactical counters:
@@ -82,8 +83,8 @@ const CLUTCH_BASE_CHANCE = 0.05
 
 type PlaystyleType = "balanced" | "aggressive" | "structured" | "default" | undefined
 
-const PLAYSTYLE_COUNTER_BONUS = 0.04 // +4% strength when you counter opponent
-const PLAYSTYLE_COUNTER_PENALTY = 0.03 // -3% when countered
+const PLAYSTYLE_COUNTER_BONUS = MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS
+const PLAYSTYLE_COUNTER_PENALTY = MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY
 
 /**
  * Calculate playstyle counter modifier
@@ -115,13 +116,8 @@ function calculatePlaystyleCounterMod(myStyle: PlaystyleType, opponentStyle: Pla
 
 
 // ===== UTILITY POWER VALUES (class-level, not redefined per round) =====
-const UTIL_POWER: Record<string, number> = {
-    smoke: 6,
-    molotov: 8,
-    flash: 5,
-    he: 4,
-}
-const UTIL_POWER_DEFAULT = 1
+const UTIL_POWER = UTIL_POWER_MAP
+const UTIL_POWER_DEFAULT = UTIL_POWER_FALLBACK
 
 function getUtilPower(util: string[] = []): number {
     return (util || []).reduce((sum, u) => sum + (UTIL_POWER[u] ?? UTIL_POWER_DEFAULT), 0)
@@ -470,9 +466,9 @@ export class SimulationEngineV2 {
         let homeLossStreak = 0
         let awayLossStreak = 0
         // Match constants - MR12 Format
-        const REGULATION_MAX_ROUNDS = 24
-        const OT_HALF_ROUNDS = 3
-        const OT_TOTAL_ROUNDS = 6
+        const REGULATION_MAX_ROUNDS = MATCH_STRUCTURE.REGULATION_ROUNDS
+        const OT_HALF_ROUNDS = MATCH_STRUCTURE.OT_ROUNDS_PER_HALF
+        const OT_TOTAL_ROUNDS = OT_HALF_ROUNDS * 2
 
         let roundNum = 0
         let currentOTSet = 0

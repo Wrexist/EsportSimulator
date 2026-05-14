@@ -25,6 +25,53 @@ export class AIManager {
     }
 
     /**
+     * Build a player-id -> player Map once so AI sub-routines can do O(1)
+     * lookups instead of repeated O(n) `.find` on the players array. Caches
+     * the result on the GameSave for the duration of the current week so
+     * multiple AI calls share the same map.
+     */
+    private static getPlayerIndex(save: GameSave): Map<string, PlayerSaveData> {
+        const cacheKey = "__aiPlayerIndex" as const
+        const cache = (save as unknown as Record<string, unknown>)[cacheKey] as
+            | { week: number; map: Map<string, PlayerSaveData> }
+            | undefined
+        if (cache && cache.week === save.currentWeek && cache.map.size === save.players.length) {
+            return cache.map
+        }
+        const map = new Map<string, PlayerSaveData>()
+        for (const p of save.players) map.set(p.id, p)
+        ;(save as unknown as Record<string, unknown>)[cacheKey] = { week: save.currentWeek, map }
+        return map
+    }
+
+    /**
+     * Score a candidate free-agent / transfer target.
+     *
+     * Combines current skill, growth headroom (potential - skill), age bonus
+     * for youth, role-coverage bonus when the team is missing the role, and
+     * a value-for-money divisor so AI doesn't always go for the most
+     * expensive player.
+     */
+    private static scoreSigningCandidate(
+        player: PlayerSaveData,
+        weeklySalary: number,
+        missingRoles: Set<string>
+    ): number {
+        const skill = player.skill ?? 50
+        const potential = player.potential ?? skill
+        const age = player.age ?? 22
+        const growthRoom = Math.max(0, potential - skill)
+        // Youth bonus (younger = more career left, more dev). Capped at age 17.
+        const youthBonus = Math.max(0, 25 - age) * 1.5
+        // Role-gap bonus: prefer players that fill a missing role.
+        const role = (player.role ?? "RIFLER").toString().toUpperCase()
+        const roleBonus = missingRoles.has(role) ? 20 : 0
+        // Value-for-money: scale by salary inversely.
+        const valueDivisor = Math.max(500, weeklySalary) / 1000
+        return (skill + growthRoom * 0.6 + youthBonus + roleBonus) / valueDivisor
+    }
+
+    /**
      * Process weekly AI decisions for all AI-controlled teams
      */
     static processWeeklyAI(save: GameSave, playerTeamId: string, rng?: SeededRNG, isTransferWindow: boolean = true) {
@@ -111,8 +158,9 @@ export class AIManager {
             return
         }
 
+        const playerIndex = this.getPlayerIndex(save)
         const opponentPlayers = opponent.rosterIds
-            .map(pid => save.players.find(p => p.id === pid))
+            .map(pid => playerIndex.get(pid))
             .filter((p): p is PlayerSaveData => !!p)
 
         // O(n) reduce instead of O(n log n) sort to find the best player
@@ -211,14 +259,11 @@ export class AIManager {
 
         if (freeAgents.length === 0) return
 
-        // Sort by skill desc
-        freeAgents.sort((a, b) => b.skill - a.skill)
-
         // Calculate affordable salary based on team budget
         // Salary formula: skill-based with tier multiplier, ensuring it's realistic
         // AI needs at least 26 weeks of runway after signing (half a season)
         const calculateSalary = (player: PlayerSaveData): number => {
-            const baseSalary = player.skill * 50
+            const baseSalary = (player.skill ?? 50) * 50
             const tierMultiplier = player.tier === "ELITE" ? 3 : player.tier === "PRO" ? 2 : 1
             return Math.floor(baseSalary * tierMultiplier)
         }
@@ -230,13 +275,37 @@ export class AIManager {
         const staffCosts = (team.staffIds || []).length * 2000 // ~$2k/week avg per staff
         const existingWeeklyCosts = existingWageBill + staffCosts
 
-        // Find best affordable player (budget must cover ALL weekly costs + new salary for 26 weeks)
-        const target = freeAgents.find(p => {
+        // Identify missing roles on the current roster so the AI fills gaps
+        // rather than blindly stacking the highest skill regardless of role.
+        const playerIndex = this.getPlayerIndex(save)
+        const REQUIRED_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "SUPPORT", "RIFLER"]
+        const currentRoles = new Set<string>()
+        for (const id of team.rosterIds) {
+            const p = playerIndex.get(id)
+            if (p?.role) currentRoles.add(p.role.toString().toUpperCase())
+        }
+        const missingRoles = new Set(REQUIRED_ROLES.filter(r => !currentRoles.has(r)))
+
+        // Filter to affordable candidates first, then score by skill + growth
+        // + role-fit + value-for-money so AI picks the smartest signing
+        // instead of just highest raw skill (which often over-spends).
+        const affordable = freeAgents.filter(p => {
             const weeklySalary = calculateSalary(p)
             const totalWeeklyCost = existingWeeklyCosts + weeklySalary
             const runwayCost = totalWeeklyCost * 26
             return team.budget > runwayCost && team.budget > 50_000
         })
+        if (affordable.length === 0) return
+
+        let target: PlayerSaveData | undefined
+        let bestScore = -Infinity
+        for (const p of affordable) {
+            const score = this.scoreSigningCandidate(p, calculateSalary(p), missingRoles)
+            if (score > bestScore) {
+                bestScore = score
+                target = p
+            }
+        }
 
         if (!target) return
 
@@ -281,14 +350,27 @@ export class AIManager {
     }
 
     private static releaseWorstPlayer(team: TeamSaveData, save: GameSave) {
-        // Find worst player by skill
+        // Resolve roster via the cached player index so this is O(rosterSize)
+        // instead of O(rosterSize * players).
+        const playerIndex = this.getPlayerIndex(save)
         const players = team.rosterIds
-            .map(id => save.players.find(p => p.id === id))
-            .filter(p => p !== undefined) as PlayerSaveData[]
+            .map(id => playerIndex.get(id))
+            .filter((p): p is PlayerSaveData => !!p)
 
         if (players.length === 0) return
 
-        const worst = players.reduce((min, p) => (p.skill < min.skill ? p : min), players[0])
+        // Score by skill + youth + growth potential — release the player who
+        // gives the least future value, not strictly the lowest current skill.
+        // Age 30+ players get penalized so the AI doesn't permanently keep
+        // declining veterans over high-skill youngsters.
+        const valueScore = (p: PlayerSaveData) => {
+            const skill = p.skill ?? 50
+            const potential = p.potential ?? skill
+            const age = p.age ?? 22
+            const declinePenalty = Math.max(0, age - 28) * 2
+            return skill + Math.max(0, potential - skill) * 0.5 - declinePenalty
+        }
+        const worst = players.reduce((min, p) => (valueScore(p) < valueScore(min) ? p : min), players[0])
 
         // Release
         team.rosterIds = team.rosterIds.filter(id => id !== worst.id)
@@ -327,30 +409,38 @@ export class AIManager {
     }
 
     private static listPlayerForTransfer(team: TeamSaveData, save: GameSave) {
-        // Find highest value player to sell? Or "dead weight"?
-        // If Crisis, we need money. Sell highest value non-core player.
-        // Or simplification: List a random sub or low form player.
-
+        // In crisis the AI needs to dump wages fast. Pick the player whose
+        // salary-to-value ratio hurts the team the most so we get the biggest
+        // weekly relief per listing.
+        const playerIndex = this.getPlayerIndex(save)
         const players = team.rosterIds
-            .map(id => save.players.find(p => p.id === id))
-            .filter(p => p !== undefined) as PlayerSaveData[]
-
-        // Filter those already for sale
+            .map(id => playerIndex.get(id))
+            .filter((p): p is PlayerSaveData => !!p)
         const notForSale = players.filter(p => !p.forSale)
+        if (notForSale.length === 0) return
 
-        if (notForSale.length > 0) {
-            // Pick highest salary to dump wages?
-            // Need contract info.
-
-            // Pick weakest or oldest player to list for transfer (O(n) reduce instead of O(n log n) sort)
-            const scorePlayer = (p: PlayerSaveData) =>
-                (p.skill || 50) + (p.tactic || 50) - Math.max(0, (p.age || 20) - 27) * 5
-            const target = notForSale.reduce((min, p) =>
-                scorePlayer(p) < scorePlayer(min) ? p : min, notForSale[0])
-            target.forSale = true
-            target.transferListingPrice = (target.prestigeScore || 50) * 1000 // Basic value formula
-            target.weeksOnTransferList = 0
+        const contractByPlayer = new Map<string, ContractSaveData>()
+        for (const c of save.contracts) {
+            if (c.teamId === team.id) contractByPlayer.set(c.playerId, c)
         }
+
+        // Higher score = better candidate to dump.
+        const wageBurden = (p: PlayerSaveData) => {
+            const salary = contractByPlayer.get(p.id)?.salaryPerWeek ?? 0
+            const skill = p.skill ?? 50
+            const tactic = p.tactic ?? 50
+            const age = p.age ?? 22
+            const ageDecline = Math.max(0, age - 27) * 5
+            // Players with high salary but low contribution score the highest.
+            return salary / Math.max(20, skill + tactic - ageDecline)
+        }
+        const target = notForSale.reduce(
+            (worst, p) => (wageBurden(p) > wageBurden(worst) ? p : worst),
+            notForSale[0]
+        )
+        target.forSale = true
+        target.transferListingPrice = (target.prestigeScore || 50) * 1000
+        target.weeksOnTransferList = 0
     }
 
     /**
@@ -361,9 +451,10 @@ export class AIManager {
         const playerTeam = save.teams.find(t => t.id === playerTeamId)
         if (!playerTeam) return
 
+        const playerIndex = this.getPlayerIndex(save)
         const userPlayersForSale = playerTeam.rosterIds
-            .map(id => save.players.find(p => p.id === id))
-            .filter(p => p && p.forSale) as PlayerSaveData[]
+            .map(id => playerIndex.get(id))
+            .filter((p): p is PlayerSaveData => !!p && !!p.forSale)
 
         if (userPlayersForSale.length === 0) return
 
@@ -553,6 +644,7 @@ export class AIManager {
     static processAIToAITransfers(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
         const MAX_AI_TRANSFERS_PER_WEEK = 3
         let transferCount = 0
+        const playerIndex = this.getPlayerIndex(save)
 
         // Build pool of sellable players: AI teams with 6+ roster players, offering their weakest
         const availablePlayers: { player: PlayerSaveData; team: TeamSaveData }[] = []
@@ -560,7 +652,7 @@ export class AIManager {
             if (team.id === playerTeamId) continue
             if (team.rosterIds.length < 6) continue
             const roster = team.rosterIds
-                .map(id => save.players.find(p => p.id === id))
+                .map(id => playerIndex.get(id))
                 .filter((p): p is PlayerSaveData => !!p && !p.isRetired)
             if (roster.length < 6) continue
             const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
@@ -650,11 +742,12 @@ export class AIManager {
 
     static processSeasonEnd(save: GameSave) {
         // Retire old AI players (age 33+ with declining stats)
+        const playerIndex = this.getPlayerIndex(save)
         for (const team of save.teams) {
             if (team.id === save.playerTeamId) continue // Skip player team
 
             const retirementCandidates = team.rosterIds
-                .map(id => save.players.find(p => p.id === id))
+                .map(id => playerIndex.get(id))
                 .filter((p): p is PlayerSaveData => !!p && (p.age || 20) >= 33 && (p.skill || 50) < 40)
 
             for (const player of retirementCandidates) {

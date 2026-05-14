@@ -14,3 +14,27 @@ export const ACTIVE_MAP_POOL: MapId[] = [
     MapId.ANUBIS,
     MapId.DUST2,
 ]
+
+/**
+ * Display names for maps. Includes a few legacy map IDs that may still appear
+ * in saves from older versions.
+ */
+export const MAP_NAMES: Record<string, string> = {
+    [MapId.DUST2]: "Dust II",
+    [MapId.MIRAGE]: "Mirage",
+    [MapId.INFERNO]: "Inferno",
+    [MapId.NUKE]: "Nuke",
+    [MapId.OVERPASS]: "Overpass",
+    [MapId.VERTIGO]: "Vertigo",
+    [MapId.ANCIENT]: "Ancient",
+    [MapId.ANUBIS]: "Anubis",
+    cache: "Cache",
+    train: "Train",
+    cobblestone: "Cobblestone",
+}
+
+/** Resolve a map ID to its display name, falling back to the raw ID. */
+export function getMapName(mapId: string | MapId | undefined | null): string {
+    if (!mapId) return "Unknown Map"
+    return MAP_NAMES[mapId as string] ?? String(mapId)
+}

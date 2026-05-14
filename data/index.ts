@@ -29,3 +29,6 @@ export {
     getTierColor,
     getTierBgColor,
 } from "./tournament-calendar"
+
+// ===== MAPS =====
+export { ACTIVE_MAP_POOL, MAP_NAMES, getMapName } from "./map-pool"

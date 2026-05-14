@@ -13,13 +13,19 @@ import {
     getMapsToWinForFormat,
     resolveCanonicalSeriesMaps,
     resolveHomeStartsCT,
-    selectActiveRosterIds
 } from "@/lib/live-match-utils"
-
-const ACTIVE_PLAYERS_PER_TEAM = 5
-const ROUND_SECONDS = 115
-const BOMB_SECONDS = 40
-const ROUND_START_DELAY_MS = 1500
+import { MAP_NAMES } from "@/data/map-pool"
+import {
+    ACTIVE_PLAYERS_PER_TEAM,
+    ROUND_SECONDS,
+    BOMB_SECONDS,
+    ROUND_START_DELAY_MS,
+    getNormalizedSeed,
+    getActivePlayersByRosterOrder,
+    buildCanonicalResultMaps,
+    sanitizeRosterFromEconomy,
+    sanitizeEconomyForActivePlayers,
+} from "@/lib/live-match-builders"
 
 type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 
@@ -38,140 +44,6 @@ interface TeamStaffState {
     coach?: ReturnType<typeof createCoach>
     analyst?: ReturnType<typeof createAnalyst>
     psychologist?: ReturnType<typeof createPsychologist>
-}
-
-const MAP_NAMES: Record<string, string> = {
-    [MapId.DUST2]: "Dust II",
-    [MapId.MIRAGE]: "Mirage",
-    [MapId.INFERNO]: "Inferno",
-    [MapId.NUKE]: "Nuke",
-    [MapId.OVERPASS]: "Overpass",
-    [MapId.VERTIGO]: "Vertigo",
-    [MapId.ANCIENT]: "Ancient",
-    [MapId.ANUBIS]: "Anubis",
-    "cache": "Cache",
-    "train": "Train",
-    "cobblestone": "Cobblestone"
-}
-
-function getNormalizedSeed(rawSeed: unknown, matchId: string): number {
-    if (typeof rawSeed === "number" && Number.isFinite(rawSeed) && rawSeed > 0) {
-        return Math.floor(rawSeed)
-    }
-
-    const fallback = Array.from(matchId).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 0)
-    return Math.max(1, fallback)
-}
-
-function getActivePlayersByRosterOrder(
-    team: { rosterIds?: string[]; roster?: string[] },
-    allPlayers: Array<{ id: string }>,
-    playerMap?: Map<string, { id: string }>
-): Player[] {
-    const rosterIds = Array.isArray(team.rosterIds) ? team.rosterIds : (Array.isArray(team.roster) ? team.roster : [])
-    const activeRosterIds = selectActiveRosterIds(rosterIds, ACTIVE_PLAYERS_PER_TEAM)
-    const resolvedPlayers: Player[] = []
-    for (const playerId of activeRosterIds) {
-        const player = playerMap?.get(playerId) ?? allPlayers.find(p => p.id === playerId)
-        if (player) resolvedPlayers.push(player as unknown as Player)
-    }
-    return resolvedPlayers
-}
-
-function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): any {
-    return {
-        map: mapId,
-        ctStartTeamId: homeStartsCT ? homeTeamId : awayTeamId,
-        tStartTeamId: homeStartsCT ? awayTeamId : homeTeamId,
-        rounds: [],
-        finalScore: { team1: 0, team2: 0 },
-        homeScore: 0,
-        awayScore: 0,
-        mvpPlayerId: ""
-    }
-}
-
-function buildCanonicalResultMaps(
-    existingMaps: any[] | undefined,
-    canonicalMaps: MapId[],
-    homeTeamId: string,
-    awayTeamId: string,
-    mapStartingSides: Record<string, string> | undefined,
-    seed: number
-): any[] {
-    const sourceMaps = Array.isArray(existingMaps) ? existingMaps : []
-    return canonicalMaps.map((mapId, mapIndex) => {
-        const existing = sourceMaps[mapIndex]
-        if (existing && existing.map === mapId) {
-            return {
-                ...existing,
-                map: mapId,
-                rounds: Array.isArray(existing.rounds) ? existing.rounds : [],
-                homeScore: typeof existing.homeScore === "number" ? existing.homeScore : (existing.finalScore?.team1 ?? 0),
-                awayScore: typeof existing.awayScore === "number" ? existing.awayScore : (existing.finalScore?.team2 ?? 0),
-            }
-        }
-
-        const homeStartsCT = resolveHomeStartsCT({
-            mapId,
-            mapStartingSides,
-            homeTeamId,
-            awayTeamId,
-            seed,
-            mapIndex
-        })
-        return createMapResultShell(mapId, homeStartsCT, homeTeamId, awayTeamId)
-    })
-}
-
-function sanitizeRosterFromEconomy(
-    activePlayers: Player[],
-    economy: Record<string, any>,
-    isCT: boolean,
-    existingRoster?: LivePlayerState[]
-): LivePlayerState[] {
-    const existingById = new Map((existingRoster || []).map(player => [player.id, player]))
-    const defaultWeapon = isCT ? "usp" : "glock"
-
-    return activePlayers.map(player => {
-        const prev = existingById.get(player.id)
-        const econ = economy[player.id] || {}
-        return {
-            id: player.id,
-            name: player.nickname,
-            kills: prev?.kills || 0,
-            deaths: prev?.deaths || 0,
-            assists: prev?.assists || 0,
-            headshots: prev?.headshots || 0,
-            money: typeof econ.cash === "number" ? econ.cash : (prev?.money ?? EconomyManager.ROUND_START_CASH),
-            isDead: false,
-            weapon: typeof econ.weapon === "string" ? econ.weapon : (prev?.weapon || defaultWeapon),
-            hasArmor: Boolean(econ.hasArmor ?? prev?.hasArmor ?? false),
-            hasHelmet: Boolean(econ.hasHelmet ?? prev?.hasHelmet ?? false),
-            hasKit: Boolean(econ.hasKit ?? prev?.hasKit ?? false)
-        }
-    })
-}
-
-function sanitizeEconomyForActivePlayers(
-    activePlayers: Player[],
-    existingEconomy: Record<string, any> | undefined,
-    isCT: boolean
-): Record<string, any> {
-    const defaultEconomy = createRoundStartEconomy(
-        activePlayers.map(player => player.id),
-        isCT
-    )
-
-    return activePlayers.reduce<Record<string, any>>((acc, player) => {
-        const current = existingEconomy?.[player.id]
-        acc[player.id] = {
-            ...defaultEconomy[player.id],
-            ...(current || {}),
-            cash: typeof current?.cash === "number" ? Math.max(0, Math.min(EconomyManager.MAX_CASH, Math.floor(current.cash))) : defaultEconomy[player.id].cash
-        }
-        return acc
-    }, {})
 }
 
 export function useLiveMatch(id: string) {

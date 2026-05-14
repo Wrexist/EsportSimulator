@@ -271,6 +271,65 @@ export const STAFF_BONUS_MULTIPLIERS = {
 } as const
 
 // ============================================
+// MATCH SIMULATION BALANCE
+// ============================================
+
+export const MATCH_BALANCE = {
+    /** Per-side win-probability modifier for T side on standard maps. */
+    T_SIDE_ADVANTAGE: 0.02,
+    /** Per-side win-probability modifier for CT side on standard maps. */
+    CT_SIDE_ADVANTAGE: 0.03,
+    /** Weight applied to recent round momentum in win probability. */
+    MOMENTUM_WEIGHT: 0.02,
+    /** Window of rounds considered for momentum. */
+    MOMENTUM_MAX_ROUNDS: 5,
+    /** Number of consecutive lost rounds before tilt penalty triggers. */
+    TILT_THRESHOLD: 3,
+    /** Per-side win-probability penalty when a team is tilting. */
+    TILT_PENALTY: 0.03,
+    /** Baseline probability for a clutch event to occur in 1vX rounds. */
+    CLUTCH_BASE_CHANCE: 0.05,
+    /** Win-probability bonus when the team's playstyle counters opponent's. */
+    PLAYSTYLE_COUNTER_BONUS: 0.04,
+    /** Win-probability penalty when the team's playstyle is countered. */
+    PLAYSTYLE_COUNTER_PENALTY: 0.03,
+} as const
+
+/** Utility item -> impact power on round outcome. */
+export const UTIL_POWER: Record<string, number> = {
+    smoke: 6,
+    molotov: 8,
+    flash: 5,
+    he: 4,
+}
+export const UTIL_POWER_DEFAULT = 1
+
+// ============================================
+// PRESTIGE
+// ============================================
+
+export const PRESTIGE = {
+    /** Score thresholds mapping to S/A/B/C tiers (descending). */
+    SCORE_S_TIER: 90,
+    SCORE_A_TIER: 80,
+    SCORE_B_TIER: 50,
+    /** Rank-based reputation cutoffs. */
+    TOP_RANK_CUTOFF: 50,
+    MID_RANK_CUTOFF: 75,
+} as const
+
+// ============================================
+// MATCH STRUCTURE
+// ============================================
+
+export const MATCH_STRUCTURE = {
+    /** Rounds in regulation (CS2). */
+    REGULATION_ROUNDS: 24,
+    /** Overtime rounds per side. */
+    OT_ROUNDS_PER_HALF: 3,
+} as const
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
