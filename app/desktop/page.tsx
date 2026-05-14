@@ -148,6 +148,7 @@ function DesktopContent() {
   }, [])
 
   useEffect(() => {
+    let autoOpenTimer: ReturnType<typeof setTimeout> | undefined
     if (appParam && Object.keys(windows).includes(appParam)) {
       openWindow(appParam as AppId)
     } else {
@@ -158,10 +159,14 @@ function DesktopContent() {
 
       if (hasUnreadImportant && !windows.mail.isOpen) {
         // Delay slightly so any active tutorial pop-in animates first.
-        setTimeout(() => {
+        // Track the timer so unmount/remount doesn't double-fire openWindow.
+        autoOpenTimer = setTimeout(() => {
           openWindow("mail")
         }, AUTO_OPEN_MAIL_DELAY_MS)
       }
+    }
+    return () => {
+      if (autoOpenTimer) clearTimeout(autoOpenTimer)
     }
   }, [appParam]) // Run once on mount (conceptually, though appParam dependency is fine)
 

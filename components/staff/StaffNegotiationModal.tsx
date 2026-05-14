@@ -124,7 +124,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 saveId || "local",
                 currentWeek,
                 staffId,
-                playerTeamId || "NO_TEAM",
+                myTeam?.id || "NO_TEAM",
                 isRenewal ? "renewal" : "hire"
             )
         ).range(0.95, 1.05)

@@ -19,7 +19,14 @@ type ConfettiResult = ReturnType<typeof import("canvas-confetti").default>
 let modulePromise: Promise<typeof import("canvas-confetti")> | null = null
 
 function loadConfetti() {
-    if (!modulePromise) modulePromise = import("canvas-confetti")
+    if (!modulePromise) {
+        // Reset on failure so a transient network/chunk error doesn't poison
+        // the cache for the rest of the session.
+        modulePromise = import("canvas-confetti").catch(err => {
+            modulePromise = null
+            throw err
+        })
+    }
     return modulePromise
 }
 

@@ -79,8 +79,11 @@ export function NewsFeed() {
                         : null
                 const player = item.playerId ? playersById.get(item.playerId) : null
 
-                const categoryIcon = CATEGORY_ICON_MAP[item.category || "MATCH"] || FALLBACK_ICON
-                const categoryColor = CATEGORY_COLOR_MAP[item.category] || FALLBACK_COLOR
+                // Same key for both lookups so an unknown category never picks up a
+                // MATCH icon next to a "default" colour swatch.
+                const categoryKey = item.category ?? "MATCH"
+                const categoryIcon = CATEGORY_ICON_MAP[categoryKey] || FALLBACK_ICON
+                const categoryColor = CATEGORY_COLOR_MAP[categoryKey] || FALLBACK_COLOR
 
                 // Safe Date Formatting
                 let dateStr = "Recent"

@@ -68,7 +68,7 @@ function ToastItem({
     // `() => removeToast(toast.id)` prop changed identity on each render,
     // re-triggering this effect and pushing the dismissal further out.
     useEffect(() => {
-        const timer = setTimeout(() => removeToast(toast.id), toast.duration || 4000)
+        const timer = setTimeout(() => removeToast(toast.id), toast.duration ?? 4000)
         return () => clearTimeout(timer)
     }, [toast.id, toast.duration, removeToast])
 

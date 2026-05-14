@@ -52,5 +52,8 @@ export function useCurrentTeam(): TeamSaveData | undefined {
  * league updates.
  */
 export function useCurrentTeamId(): string | undefined {
-    return useGameStore(s => s.playerTeamId)
+    // Store types `playerTeamId` as `string | null`; normalise to undefined so
+    // callers can use the cleaner `if (id)` / optional-chaining patterns
+    // without juggling both nullable variants.
+    return useGameStore(s => s.playerTeamId ?? undefined)
 }
