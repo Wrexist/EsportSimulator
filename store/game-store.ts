@@ -80,6 +80,7 @@ import { createDebugSlice } from "@/store/slices/debug-slice"
 import { createTournamentSlice } from "@/store/slices/tournament-slice"
 import { createEventsSlice } from "@/store/slices/events-slice"
 import { createUISlice } from "@/store/slices/ui-slice"
+import { createSponsorshipSlice } from "@/store/slices/sponsorship-slice"
 
 enableMapSet()
 
@@ -661,6 +662,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createUISlice(
         set as Parameters<typeof createUISlice>[0],
         get as Parameters<typeof createUISlice>[1],
+      ),
+      ...createSponsorshipSlice(
+        set as Parameters<typeof createSponsorshipSlice>[0],
+        get as Parameters<typeof createSponsorshipSlice>[1],
       ),
 
       // Initial State
@@ -3863,22 +3868,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return result
       },
 
-      refreshSponsorOffers: () => {
-        set(state => {
-          const team = state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId)
-          if (!team) return
-          const rng = new SeededRNG(state.lastRngSeed + state.currentWeek * 7919)
-          state.sponsorOffers = SponsorGenerator.generateVariedOffers(team, state.currentWeek, rng)
-          state.declinedSponsorOfferIds = []
-        })
-      },
-
-      declineSponsorOffer: (offerId: string) => {
-        set(state => {
-          state.sponsorOffers = state.sponsorOffers.filter(o => o.id !== offerId)
-          state.declinedSponsorOfferIds.push(offerId)
-        })
-      },
+      // refreshSponsorOffers / declineSponsorOffer moved to
+      // store/slices/sponsorship-slice.ts (spread above).
 
       // Equipment Shop
       purchaseEquipment: (catalogId) => {
