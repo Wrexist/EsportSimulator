@@ -117,8 +117,20 @@ function DesktopContent() {
   const [hltvAwards, setHltvAwards] = useState<any>(null)
   const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
 
-  // Window management state
-  const [windows, setWindows] = useState<Record<AppId, WindowState>>(() => INITIAL_WINDOW_STATES)
+  // Window management state.
+  // Deep-clone the module-level template so per-mount window state is isolated.
+  // Below, openWindow / focusWindow mutate `windows[appId].isFocused` directly
+  // (not via spread), so without the clone those mutations would leak into the
+  // shared INITIAL_WINDOW_STATES constant and re-mounting the desktop would
+  // resume with the previous session's open/focused state.
+  const [windows, setWindows] = useState<Record<AppId, WindowState>>(() => {
+    const fresh = {} as Record<AppId, WindowState>
+    for (const id of Object.keys(INITIAL_WINDOW_STATES) as AppId[]) {
+      const t = INITIAL_WINDOW_STATES[id]
+      fresh[id] = { ...t, position: { ...t.position } }
+    }
+    return fresh
+  })
 
 
   const [nextZIndex, setNextZIndex] = useState(11)
@@ -264,12 +276,12 @@ function DesktopContent() {
   // Window management functions
   const openWindow = (appId: AppId) => {
     setWindows(prev => {
-      const newWindows = { ...prev }
-      // Unfocus all windows
-      Object.keys(newWindows).forEach(key => {
-        newWindows[key as AppId].isFocused = false
-      })
-      // Open and focus the target window
+      // Build a new record where every WindowState is a fresh object so we
+      // never mutate the previous state (or the module-level template).
+      const newWindows = {} as Record<AppId, WindowState>
+      for (const key of Object.keys(prev) as AppId[]) {
+        newWindows[key] = { ...prev[key], isFocused: false }
+      }
       newWindows[appId] = {
         ...newWindows[appId],
         isOpen: true,
@@ -298,10 +310,10 @@ function DesktopContent() {
 
   const focusWindow = (appId: AppId) => {
     setWindows(prev => {
-      const newWindows = { ...prev }
-      Object.keys(newWindows).forEach(key => {
-        newWindows[key as AppId].isFocused = false
-      })
+      const newWindows = {} as Record<AppId, WindowState>
+      for (const key of Object.keys(prev) as AppId[]) {
+        newWindows[key] = { ...prev[key], isFocused: false }
+      }
       newWindows[appId] = {
         ...newWindows[appId],
         isFocused: true,

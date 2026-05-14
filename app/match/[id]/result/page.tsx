@@ -952,6 +952,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
 }
 
 function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[], players: PlayerSaveData[], result: MatchResult }) {
+    // Local lookup map — was previously a reference to `playersById` defined
+    // inside MatchResultPage which is out of scope here. Build it from the
+    // `players` prop so this component is self-contained.
+    const playersById = new Map(players.map(p => [p.id, p]))
     return (
         <div className="relative overflow-x-auto rounded-xl border border-white/5">
             <table className="w-full text-sm text-left">
