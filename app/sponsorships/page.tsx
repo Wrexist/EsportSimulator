@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -20,7 +21,6 @@ const MAX_SPONSORS = 3
 export default function SponsorshipsPage() {
   const router = useRouter()
   const {
-    teams,
     playerTeamId,
     sponsorOffers,
     signSponsor,
@@ -32,7 +32,6 @@ export default function SponsorshipsPage() {
     _hasHydrated,
     isInitialized,
   } = useGameStore(useShallow(state => ({
-    teams: state.teams,
     playerTeamId: state.playerTeamId,
     sponsorOffers: state.sponsorOffers,
     signSponsor: state.signSponsor,
@@ -44,8 +43,9 @@ export default function SponsorshipsPage() {
     _hasHydrated: state._hasHydrated,
     isInitialized: state.isInitialized,
   })))
+  const playerTeam = useCurrentTeam()
 
-  const isSessionActive = isInitialized || (teams.length > 0 && !!playerTeamId)
+  const isSessionActive = isInitialized || (!!playerTeam && !!playerTeamId)
 
   // Session guard
   useEffect(() => {
@@ -61,7 +61,6 @@ export default function SponsorshipsPage() {
     }
   }, [_hasHydrated, isSessionActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
   const activeSponsors = playerTeam?.sponsors || []
   const emptySlots = MAX_SPONSORS - activeSponsors.length
   const sponsorSlotsFull = activeSponsors.length >= MAX_SPONSORS

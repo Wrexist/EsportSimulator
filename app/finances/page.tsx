@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -64,15 +65,14 @@ const HEALTH_SPONSOR_WEIGHT = 8.33
 
 export default function FinancesPage() {
   const router = useRouter()
-  const { teams, playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
-    teams: state.teams,
+  const { playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
     playerTeamId: state.playerTeamId,
     currentWeek: state.currentWeek,
     players: state.players,
     staff: state.staff,
     contracts: state.contracts,
   })))
-  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const playerTeam = useCurrentTeam()
 
   // O(1) lookups for the salary table below — was doing `contracts.find(...)`
   // per row plus `players.filter(...includes())` over the full league.

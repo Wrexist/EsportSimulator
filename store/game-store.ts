@@ -50,6 +50,7 @@ import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
 import { PLAYER_TALENT_TREE, collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
@@ -2949,11 +2950,19 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }
           }
 
-          const result = await atomicWeekProcessor.processWeek(saveState, config, rng)
+          // Run the week off the main thread when possible. The bridge falls
+          // back to a synchronous run if the worker can't load (SSR, Electron
+          // packaged build with worker disabled, etc.) so the call is safe
+          // everywhere. The worker structured-clones `saveState` on the way in
+          // and returns a mutated copy; we use that copy below instead of the
+          // original `saveState` reference.
+          const { result, save: processedSave, rngState: postWeekRngState } =
+            await weekProcessorBridge.processWeek(saveState, config, rng)
+          processedSave.lastRngSeed = postWeekRngState
 
           if (result.success) {
             set((draft) => {
-              Object.assign(draft, { ...saveState, isLoading: false })
+              Object.assign(draft, { ...processedSave, isLoading: false })
               draft.currentDay = draft.timeMode === "HYBRID_DAILY" ? 0 : 6
               draft.selectedWeeklyActivity = null // Reset selection
 
