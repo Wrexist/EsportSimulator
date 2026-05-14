@@ -117,6 +117,24 @@ export class AIManager {
             team.financialState === "INSOLVENT" ||
             (team.weeklyNet || 0) < 0
 
+        // Peek at the upcoming opponent so playstyle adaptation can factor
+        // in the rock-paper-scissors counter (aggressive>structured,
+        // structured>balanced, balanced>aggressive).
+        const nextMatch = save.scheduledMatches.find(m =>
+            m.week === save.currentWeek + 1 &&
+            (m.homeTeamId === team.id || m.awayTeamId === team.id)
+        )
+        const opponentId = nextMatch
+            ? (nextMatch.homeTeamId === team.id ? nextMatch.awayTeamId : nextMatch.homeTeamId)
+            : undefined
+        const opponent = opponentId ? save.teams.find(t => t.id === opponentId) : undefined
+        const counterMap: Record<string, NonNullable<TeamSaveData["playstyle"]>> = {
+            aggressive: "balanced",   // balanced beats aggressive
+            structured: "aggressive", // aggressive beats structured
+            balanced: "structured",   // structured beats balanced
+        }
+        const counterToOpponent = opponent?.playstyle ? counterMap[opponent.playstyle] : undefined
+
         // Economy adaptation
         if (inFinancialPressure || team.budget < 50_000) {
             team.economyStyle = "eco"
@@ -126,13 +144,21 @@ export class AIManager {
             team.economyStyle = this.roll(rng) < 0.25 ? "force" : "standard"
         }
 
-        // Playstyle adaptation
+        // Playstyle adaptation:
+        //  - On a hot streak, double down on aggression (it's working).
+        //  - On a cold streak, swap to structured to stabilize.
+        //  - Low chemistry → structured (less reliant on coordination).
+        //  - Otherwise: 60% chance to deliberately counter the upcoming
+        //    opponent's known playstyle, else pick from a neutral pool. The
+        //    weighted-counter behavior makes AI teams feel scout-aware.
         if (wins >= 4) {
             team.playstyle = this.roll(rng) < 0.65 ? "aggressive" : "balanced"
         } else if (losses >= 3) {
             team.playstyle = this.roll(rng) < 0.55 ? "structured" : "default"
         } else if ((team.chemistry || 50) < 50) {
             team.playstyle = "structured"
+        } else if (counterToOpponent && this.roll(rng) < 0.6) {
+            team.playstyle = counterToOpponent
         } else {
             const styles: Array<NonNullable<TeamSaveData["playstyle"]>> = ["balanced", "default", "aggressive"]
             team.playstyle = styles[Math.floor(this.roll(rng) * styles.length)]
@@ -142,17 +168,10 @@ export class AIManager {
         team.lastStrategyChangeWeek = save.currentWeek
 
         // Opponent anti-strat targeting for upcoming week.
-        const nextMatch = save.scheduledMatches.find(m =>
-            m.week === save.currentWeek + 1 &&
-            (m.homeTeamId === team.id || m.awayTeamId === team.id)
-        )
         if (!nextMatch || this.roll(rng) < 0.2) {
             team.targetPlayerId = undefined
             return
         }
-
-        const opponentId = nextMatch.homeTeamId === team.id ? nextMatch.awayTeamId : nextMatch.homeTeamId
-        const opponent = save.teams.find(t => t.id === opponentId)
         if (!opponent || opponent.rosterIds.length === 0) {
             team.targetPlayerId = undefined
             return
@@ -182,6 +201,28 @@ export class AIManager {
         // 1. Fill Gaps (Need 5 players)
         if (rosterSize < 5) {
             this.signFreeAgent(team, save)
+            return
+        }
+
+        // 1b. Critical role coverage: even at 5 players, if the team has no
+        // IGL or no AWPer, try to bring in a 6th who fills that gap. Limited
+        // to teams not in financial pressure so we don't bankrupt anyone.
+        const inFinancialPressure =
+            team.financialState === "RISK" ||
+            team.financialState === "CRISIS" ||
+            team.financialState === "INSOLVENT"
+        if (rosterSize < 7 && !inFinancialPressure && team.budget > 150_000) {
+            const playerIndex = this.getPlayerIndex(save)
+            const roles = new Set<string>()
+            for (const id of team.rosterIds) {
+                const p = playerIndex.get(id)
+                if (p?.role) roles.add(p.role.toString().toUpperCase())
+            }
+            const missingCritical = !roles.has("IGL") || !roles.has("AWPER")
+            if (missingCritical) {
+                this.signFreeAgent(team, save)
+                return
+            }
         }
 
         // 2. Trim Excess (Max 7 players)
