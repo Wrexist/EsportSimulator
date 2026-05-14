@@ -47,6 +47,7 @@ import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
+import { compactPersistentState } from "./processors/save-compactor"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -54,12 +55,11 @@ import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { generateAnnualTop20, shouldTriggerAwards, addHLTVAwardsEvent } from "./hltv-awards-engine"
-import { buildQualificationGraph, dedupeQualifications, isQualificationForTournament } from "./circuit-engine"
+import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
-import { ARRAY_CAPS } from "@/engine/constants"
 
 // ===== TYPES =====
 
@@ -426,7 +426,7 @@ export class AtomicWeekProcessor {
             }
 
             // Guard long-running saves against unbounded log growth.
-            this.compactPersistentState(save)
+            compactPersistentState(save)
 
             // Week was already incremented at start of processWeek
             save.lastRngSeed = rng.getState()
@@ -2310,52 +2310,6 @@ export class AtomicWeekProcessor {
         }
     }
 
-    private compactPersistentState(save: GameSave): void {
-        // Bug fix: callers mix `push` (oldest at index 0) and `unshift` (newest
-        // at index 0), so a positional slice silently drops valid recent
-        // events. Sort by week descending — and for events, keep unread before
-        // read at the same week — then take the cap from the front.
-        if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
-            save.eventsLog = [...save.eventsLog]
-                .sort((a, b) => {
-                    if (b.week !== a.week) return b.week - a.week
-                    if (a.acknowledged !== b.acknowledged) return a.acknowledged ? 1 : -1
-                    return 0
-                })
-                .slice(0, ARRAY_CAPS.eventsLog)
-        }
-
-        if (save.completedMatches.length > ARRAY_CAPS.completedMatches) {
-            save.completedMatches = save.completedMatches.slice(-ARRAY_CAPS.completedMatches)
-        }
-
-        if (save.financeLedger.length > ARRAY_CAPS.financeLedger) {
-            save.financeLedger = save.financeLedger.slice(-ARRAY_CAPS.financeLedger)
-        }
-
-        if (save.transferHistory.length > ARRAY_CAPS.transferHistory) {
-            save.transferHistory = save.transferHistory.slice(-ARRAY_CAPS.transferHistory)
-        }
-
-        if (save.newsFeed.length > ARRAY_CAPS.newsFeed) {
-            save.newsFeed = [...save.newsFeed]
-                .sort((a, b) => b.week - a.week)
-                .slice(0, ARRAY_CAPS.newsFeed)
-        }
-
-        if (save.tournamentQualifications.length > 0) {
-            save.tournamentQualifications = dedupeQualifications(
-                save.tournamentQualifications,
-                save.currentWeek
-            )
-            if (save.tournamentQualifications.length > ARRAY_CAPS.tournamentQualifications) {
-                save.tournamentQualifications = save.tournamentQualifications.slice(-ARRAY_CAPS.tournamentQualifications)
-            }
-        }
-
-        const knownEventIds = new Set(save.eventsLog.map(e => e.id))
-        save.acknowledgedEventIds = save.acknowledgedEventIds.filter(id => knownEventIds.has(id))
-    }
 }
 
 export const atomicWeekProcessor = new AtomicWeekProcessor(saveManager)

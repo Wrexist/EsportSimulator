@@ -626,8 +626,14 @@ export class AIManager {
 
             const prospect = prospects[0]
             const playerId = `ai_prospect_${team.id}_${save.currentWeek}_${rng.int(1000, 9999)}`
-            const baseSkill = prospect.skill || rng.int(30, 55)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prospect data from dynamic require lacks type info
+            // Bug fix: previously read `prospect.skill`, `prospect.rifle`, etc.
+            // directly. The static import surfaced what the dynamic require
+            // hid — the generator nests stats under `prospect.stats`, so every
+            // field fell through to the random fallback and AI prospects were
+            // effectively all random instead of using the curated generator
+            // output.
+            const s = prospect.stats
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prospect data composed inline
             const prospectPlayer: any = {
                 id: playerId,
                 nickname: prospect.nickname || `Rookie_${rng.int(100, 999)}`,
@@ -636,22 +642,22 @@ export class AIManager {
                 age: prospect.age || 17,
                 nationality: prospect.nationality || "Unknown",
                 role: prospect.role || "Rifler",
-                skill: baseSkill,
-                rifle: prospect.rifle || rng.int(30, 55),
-                awp: prospect.awp || rng.int(20, 45),
-                pistol: prospect.pistol || rng.int(30, 50),
-                grenades: prospect.grenades || rng.int(25, 50),
-                creativity: prospect.creativity || rng.int(25, 50),
-                clutch: prospect.clutch || rng.int(20, 50),
-                tactic: prospect.tactic || rng.int(25, 50),
-                leader: prospect.leader || rng.int(15, 45),
-                teamwork: prospect.teamwork || rng.int(40, 65),
-                morale: 75,
-                amicability: rng.int(40, 70),
-                productivity: rng.int(50, 75),
-                stressResistance: prospect.stressResistance || rng.int(30, 55),
+                skill: s?.skill ?? rng.int(30, 55),
+                rifle: s?.rifle ?? rng.int(30, 55),
+                awp: s?.awp ?? rng.int(20, 45),
+                pistol: s?.pistol ?? rng.int(30, 50),
+                grenades: s?.grenades ?? rng.int(25, 50),
+                creativity: s?.creativity ?? rng.int(25, 50),
+                clutch: s?.clutch ?? rng.int(20, 50),
+                tactic: s?.tactic ?? rng.int(25, 50),
+                leader: s?.leader ?? rng.int(15, 45),
+                teamwork: s?.teamwork ?? rng.int(40, 65),
+                morale: s?.morale ?? 75,
+                amicability: s?.amicability ?? rng.int(40, 70),
+                productivity: s?.productivity ?? rng.int(50, 75),
+                stressResistance: s?.stressResistance ?? rng.int(30, 55),
                 loyalty: rng.int(40, 70),
-                reaction: prospect.reaction || rng.int(35, 60),
+                reaction: s?.reaction ?? rng.int(35, 60),
                 eyesight: rng.int(50, 80),
                 health: rng.int(60, 90),
                 strength: rng.int(40, 70),
@@ -673,7 +679,9 @@ export class AIManager {
                 totalMVPs: 0,
                 salary: rng.int(500, 2000),
                 contractWeeks: 104,
-                potential: rng.int(60, 90),
+                // Honor the curated potential from the generator when present;
+                // fall back to a random 60-90 ceiling for legacy/missing data.
+                potential: s?.potential ?? rng.int(60, 90),
             }
             save.players.push(prospectPlayer)
             team.rosterIds.push(playerId)
@@ -694,24 +702,46 @@ export class AIManager {
     /**
      * AI-to-AI transfers: AI teams trade players with each other during transfer windows.
      * Max 3 transfers per week to prevent market chaos.
+     *
+     * Two parallel pools feed `availablePlayers`:
+     *   (a) Bench dumps — teams with 6+ roster auto-offer their weakest if
+     *       they're below the 55-skill floor. Funnel for replacing dead-weight.
+     *   (b) Explicit listings — any AI player with `forSale=true` (set by
+     *       listPlayerForTransfer during financial crisis) is offered
+     *       regardless of roster size. Previously the forSale flag was set
+     *       but never honored by the AI market, so crisis teams had nothing
+     *       to actually sell. This fix makes the wage-dump pipeline work
+     *       end-to-end.
      */
     static processAIToAITransfers(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
         const MAX_AI_TRANSFERS_PER_WEEK = 3
         let transferCount = 0
         const playerIndex = this.getPlayerIndex(save)
 
-        // Build pool of sellable players: AI teams with 6+ roster players, offering their weakest
         const availablePlayers: { player: PlayerSaveData; team: TeamSaveData }[] = []
+        const offeredIds = new Set<string>()
+
         for (const team of save.teams) {
             if (team.id === playerTeamId) continue
-            if (team.rosterIds.length < 6) continue
             const roster = team.rosterIds
                 .map(id => playerIndex.get(id))
                 .filter((p): p is PlayerSaveData => !!p && !p.isRetired)
-            if (roster.length < 6) continue
-            const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
-            if (worst && (worst.skill ?? 0) < 55) {
-                availablePlayers.push({ player: worst, team })
+
+            // (a) Bench dump: teams with 6+ healthy players offer their weakest.
+            if (roster.length >= 6) {
+                const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
+                if (worst && (worst.skill ?? 0) < 55 && !offeredIds.has(worst.id)) {
+                    availablePlayers.push({ player: worst, team })
+                    offeredIds.add(worst.id)
+                }
+            }
+
+            // (b) Explicit listings (financial crisis or strategic offload).
+            for (const p of roster) {
+                if (p.forSale && !offeredIds.has(p.id)) {
+                    availablePlayers.push({ player: p, team })
+                    offeredIds.add(p.id)
+                }
             }
         }
 
@@ -742,6 +772,12 @@ export class AIManager {
             }
             buyer.budget -= fee
             candidate.team.budget += fee
+            // Clear listing flags now that the move has settled so the new
+            // owner doesn't immediately re-receive a market offer for the
+            // same player.
+            candidate.player.forSale = false
+            candidate.player.transferListingPrice = undefined
+            candidate.player.weeksOnTransferList = undefined
 
             // Bug fix: scope contract removal to the seller — wiping by
             // playerId alone can clobber unrelated historical/ghost contracts.
