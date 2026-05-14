@@ -76,6 +76,7 @@ import {
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
 import { pruneGameState } from "@/store/utils/array-pruning"
 import { logger } from "@/lib/logger"
+import { createSettingsSlice } from "@/store/slices/settings-slice"
 
 enableMapSet()
 
@@ -632,6 +633,14 @@ interface GameStoreActions {
 export const useGameStore = create<GameStoreState & GameStoreActions>()(
   persist(
     immer((set, get) => ({
+      // Slices — extracted into /store/slices for incremental modularization
+      // of this 6k+ line store. Settings is the first slice extracted; the
+      // surface remains identical because the spread happens at construction.
+      ...createSettingsSlice(
+        set as Parameters<typeof createSettingsSlice>[0],
+        get as Parameters<typeof createSettingsSlice>[1],
+      ),
+
       // Initial State
       saveId: null,
       saveName: "",
@@ -4693,29 +4702,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set({ lastLoadError: null, error: null })
       },
 
-      completeOnboarding: () => {
-        set({ onboardingCompleted: true })
-      },
-
-      completeTutorial: () => set(state => {
-        state.tutorialCompleted = true
-      }),
-      triggerTutorial: () => set(state => {
-        state.manualTutorialTrigger = Date.now()
-        state.tutorialCompleted = false
-        state.onboardingCompleted = false
-        state.showTutorialOnNewGame = true
-      }),
-      setShowTutorialOnNewGame: (enabled) => set(state => {
-        state.showTutorialOnNewGame = enabled
-      }),
-
-      setSoundEnabled: (enabled) => {
-        set({ soundEnabled: enabled })
-        import("@/lib/sound-manager").then(({ soundManager }) => {
-          soundManager.setEnabled(enabled)
-        })
-      },
+      // completeOnboarding / completeTutorial / triggerTutorial /
+      // setShowTutorialOnNewGame / setSoundEnabled live in
+      // store/slices/settings-slice.ts now (spread above).
 
       // Helpers
       getPlayerTeam: () => {
@@ -6211,30 +6200,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
 
-      // Settings Implementation
-      setResolution: (res) => set({ resolution: res }),
-      setMasterVolume: (vol) => {
-        set({ masterVolume: vol })
-        soundManager.setMasterVolume(vol)
-      },
-      setMusicVolume: (vol) => {
-        set({ musicVolume: vol })
-        soundManager.setMusicVolume(vol)
-      },
-      setGameSpeed: (speed) => set({ gameSpeed: speed }),
-      setTimeMode: (mode) => set((state) => {
-        const wasMode = state.timeMode
-        state.timeMode = mode
-        if (mode === "HYBRID_DAILY") {
-          state.currentDay = wasMode === "HYBRID_DAILY" ? Math.max(0, Math.min(6, state.currentDay)) : 0
-        } else {
-          state.currentDay = 6
-        }
-      }),
-      setDifficulty: (difficulty) => set({ difficulty }),
-      setAutoSave: (enabled) => set({ autoSave: enabled }),
-      setNotifications: (enabled) => set({ notifications: enabled }),
-      setShowBugReportButton: (enabled) => set({ showBugReportButton: enabled }),
+      // Settings actions (setResolution / setMasterVolume / setMusicVolume /
+      // setGameSpeed / setTimeMode / setDifficulty / setAutoSave /
+      // setNotifications / setShowBugReportButton) live in
+      // store/slices/settings-slice.ts now (spread above).
 
       enrollPendingProspect: (playerId) => {
         const state = get()
