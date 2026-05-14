@@ -54,6 +54,7 @@ import {
 } from "./processors/tournament-completion"
 import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
+import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -1497,110 +1498,7 @@ export class AtomicWeekProcessor {
      * Process sponsor contract lifecycle and weekly sponsor goals exactly once per week.
      */
     private processWeeklySponsorGoals(save: GameSave, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
-        save.teams.forEach(team => {
-            if (!team.sponsors || team.sponsors.length === 0) return
-
-            const followers = team.followers || 0
-            const rosterPlayers = save.players.filter(player => team.rosterIds.includes(player.id))
-            const avgMorale = rosterPlayers.length > 0
-                ? rosterPlayers.reduce((sum, player) => sum + (player.morale || 0), 0) / rosterPlayers.length
-                : 0
-
-            const activeSponsors: typeof team.sponsors = []
-
-            team.sponsors.forEach(sponsor => {
-                // Idempotency guard for rollback/resume paths.
-                if (sponsor.lastProcessedWeek === save.currentWeek) {
-                    if (sponsor.remainingWeeks > 0) activeSponsors.push(sponsor)
-                    return
-                }
-
-                const previousFollowers = sponsor.followerCheckpoint ?? followers
-                const gainedFollowers = Math.max(0, followers - previousFollowers)
-
-                if (Array.isArray(sponsor.goals)) {
-                    sponsor.goals.forEach(goal => {
-                        if (goal.isCompleted) return
-
-                        if (goal.description.includes("Gain Followers")) {
-                            goal.current += gainedFollowers
-                        }
-
-                        if (goal.description.includes("Maintain Morale > 80") && avgMorale > 80) {
-                            goal.current += 1
-                        }
-
-                        if (goal.current >= goal.target) {
-                            goal.current = goal.target
-                            goal.isCompleted = true
-
-                            const payoutEntryId = `fin_sponsor_goal_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}`
-                            const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
-
-                            if (!alreadyPaid) {
-                                team.budget += goal.bonusPayout
-                                save.financeLedger.push({
-                                    id: payoutEntryId,
-                                    week: save.currentWeek,
-                                    teamId: team.id,
-                                    type: "INCOME",
-                                    category: "SPONSOR",
-                                    amount: goal.bonusPayout,
-                                    description: `Goal Reached: ${goal.description}`,
-                                    balance: team.budget
-                                })
-                                ledgerIdSet?.add(payoutEntryId)
-
-                                if (team.id === save.playerTeamId) {
-                                    const eventId = `evt_sponsor_goal_${save.currentWeek}_${sponsor.id}_${goal.id}`
-                                    if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
-                                        save.eventsLog.unshift({
-                                            id: eventId,
-                                            type: "SPONSOR_OFFER",
-                                            week: save.currentWeek,
-                                            data: {
-                                                title: "Sponsor Goal Met",
-                                                message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`
-                                            },
-                                            acknowledged: false
-                                        })
-                                        eventIdSet?.add(eventId)
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-
-                sponsor.followerCheckpoint = followers
-                sponsor.lastProcessedWeek = save.currentWeek
-                sponsor.remainingWeeks = Math.max(0, (sponsor.remainingWeeks || 0) - 1)
-
-                if (sponsor.remainingWeeks > 0) {
-                    activeSponsors.push(sponsor)
-                    return
-                }
-
-                if (team.id === save.playerTeamId) {
-                    const expiryEventId = `evt_sponsor_expired_${save.currentWeek}_${sponsor.id}`
-                    if (!(eventIdSet?.has(expiryEventId) ?? save.eventsLog.some(event => event.id === expiryEventId))) {
-                        save.eventsLog.unshift({
-                            id: expiryEventId,
-                            type: "SPONSOR_OFFER",
-                            week: save.currentWeek,
-                            data: {
-                                title: "Sponsor Contract Ended",
-                                message: `${sponsor.name} partnership has expired.`
-                            },
-                            acknowledged: false
-                        })
-                        eventIdSet?.add(expiryEventId)
-                    }
-                }
-            })
-
-            team.sponsors = activeSponsors
-        })
+        processWeeklySponsorGoalsFn(save, eventIdSet, ledgerIdSet)
     }
 
     /**
