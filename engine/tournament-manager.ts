@@ -17,15 +17,12 @@ import { getTournamentMVP } from "./tournament-stats"
 import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
-
-/** Deterministic numeric ID for tiebreaking — works for both numeric and string IDs */
-function stableTeamIdNumber(id: string): number {
-    const m = id.match(/\d+/)
-    if (m) return parseInt(m[0], 10)
-    let h = 0
-    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
-    return h
-}
+import {
+    stableTeamIdNumber,
+    resolveCompletedWinner as resolveCompletedWinnerFn,
+    normalizeStage as normalizeStageFn,
+    getBracketRoundNumber as getBracketRoundNumberFn,
+} from "./tournament/seeding-helpers"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -74,14 +71,9 @@ export class TournamentManager {
     private static resolveCompletedWinner(
         completed: CompletedMatchSaveData,
         homeTeamId?: string,
-        awayTeamId?: string
+        awayTeamId?: string,
     ): string | undefined {
-        if (completed.result?.winnerId) return completed.result.winnerId
-        if (!completed.result) return undefined
-        if (!homeTeamId || !awayTeamId) return undefined
-        if (completed.result.homeScore > completed.result.awayScore) return homeTeamId
-        if (completed.result.awayScore > completed.result.homeScore) return awayTeamId
-        return undefined
+        return resolveCompletedWinnerFn(completed, homeTeamId, awayTeamId)
     }
 
     static repairTournamentProgression(save: GameSave, tournamentId?: string): void {
@@ -435,53 +427,12 @@ export class TournamentManager {
         tournament.playoffBracket.push(match)
     }
 
-    /**
-     * Normalize stage name for comparison (e.g., "Round of 32 Match 1" -> "round of 32")
-     */
     private static normalizeStage(stage: string): string {
-        if (!stage) return ""
-        const lower = stage.toLowerCase()
-        // Extract base round name (e.g., "Round of 32 Match 1" -> "round of 32")
-        const roMatch = stage.match(/^(Round of \d+)/i)
-        if (roMatch) return roMatch[1].toLowerCase()
-        if (lower.includes("quarter-final")) return "quarter-final"
-        if (lower.includes("semi-final")) return "semi-final"
-        if (lower.includes("grand final")) return "grand final"
-        if (lower === "final" || lower === "finals") return "final"
-        if (lower.includes("3rd") || lower.includes("third")) return "3rd place"
-        return lower
+        return normalizeStageFn(stage)
     }
 
-    /**
-     * Get the round number for a bracket match (lower = earlier round)
-     * Returns a numeric priority: lower numbers = earlier rounds that should be simulated first
-     */
     private static getBracketRoundNumber(match: BracketMatchSaveData): number {
-        const stage = match.stage.toLowerCase()
-        const id = match.id.toLowerCase()
-
-        // Extract round number from ID like "tournament_r1_m1" or "r2_m3"
-        const roundFromId = id.match(/_r(\d+)_m/i) || id.match(/^r(\d+)_/i)
-        if (roundFromId) {
-            return parseInt(roundFromId[1], 10)
-        }
-
-        // Extract from "Round of X" stages
-        const roundOfMatch = stage.match(/round of (\d+)/i)
-        if (roundOfMatch) {
-            const size = parseInt(roundOfMatch[1], 10)
-            // Larger "Round of X" = earlier round (Round of 32 before Round of 16)
-            return Math.log2(size) // 32->5, 16->4, 8->3, etc.
-        }
-
-        // Named stages get higher numbers (later rounds)
-        if (stage.includes("quarter")) return 100
-        if (stage.includes("semi")) return 200
-        if (stage.includes("3rd") || stage.includes("third")) return 299 // 3rd place happens alongside final
-        if (stage === "final" || stage === "finals" || stage.includes("grand final")) return 300
-
-        // Default: use week as fallback
-        return match.week || 50
+        return getBracketRoundNumberFn(match)
     }
 
     /**

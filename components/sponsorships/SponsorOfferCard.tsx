@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,7 +24,7 @@ interface SponsorOfferCardProps {
   onDecline: () => void
 }
 
-export function SponsorOfferCard({ offer, index, isLocked, lockReason, sponsorSlotsFull, onAccept, onDecline }: SponsorOfferCardProps) {
+function SponsorOfferCardImpl({ offer, index, isLocked, lockReason, sponsorSlotsFull, onAccept, onDecline }: SponsorOfferCardProps) {
   const style = TIER_STYLES[offer.tier]
   const disabled = isLocked || sponsorSlotsFull
 
@@ -108,3 +109,5 @@ export function SponsorOfferCard({ offer, index, isLocked, lockReason, sponsorSl
     </motion.div>
   )
 }
+
+export const SponsorOfferCard = memo(SponsorOfferCardImpl)

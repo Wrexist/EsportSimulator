@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -90,13 +90,16 @@ function TransfersPageInner() {
     )
   }
 
-  // Pre-build roster set for O(1) exclusion check and player→team map for O(1) team lookups
-  const { rosterSet, playerTeamMap } = (() => {
+  // Pre-build roster set for O(1) exclusion check and player→team map for
+  // O(1) team lookups. Memoized so unrelated parent state changes (search
+  // input, paging) don't rebuild these whenever teams/rosterIds haven't
+  // changed. Without memo this was O(teams * roster) every render.
+  const { rosterSet, playerTeamMap } = useMemo(() => {
     const rosterSet = new Set(playerTeam.rosterIds)
     const playerTeamMap = new Map<string, typeof teams[0]>()
     teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
     return { rosterSet, playerTeamMap }
-  })()
+  }, [playerTeam.rosterIds, teams])
 
   // Filter available players (not in user team, not retired) - single-pass filter + precomputed OVR for sort
   const searchLower = debouncedSearch.toLowerCase()
