@@ -23,6 +23,11 @@ import {
     normalizeStage as normalizeStageFn,
     getBracketRoundNumber as getBracketRoundNumberFn,
 } from "./tournament/seeding-helpers"
+import {
+    addBracketMatch as addBracketMatchFn,
+    assignMatchDay as assignMatchDayFn,
+    scheduleBracketMatch as scheduleBracketMatchFn,
+} from "./tournament/bracket-scheduling"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -423,8 +428,7 @@ export class TournamentManager {
     }
 
     private static addBracketMatch(tournament: TournamentSaveData, match: BracketMatchSaveData): void {
-        if (!tournament.playoffBracket) tournament.playoffBracket = []
-        tournament.playoffBracket.push(match)
+        addBracketMatchFn(tournament, match)
     }
 
     private static normalizeStage(stage: string): string {
@@ -668,54 +672,13 @@ export class TournamentManager {
         save: GameSave,
         teamIds: string[],
         week: number,
-        preferredDays: number[] = [5, 6, 4, 3, 2, 1, 0] // Sat, Sun, Fri, Thu, Wed, Tue, Mon
+        preferredDays?: number[],
     ): number {
-        // Find days already used by these teams in this week
-        const existingDaysUsed = save.scheduledMatches
-            .filter(m => m.week === week &&
-                (teamIds.includes(m.homeTeamId) || teamIds.includes(m.awayTeamId)))
-            .map(m => m.day)
-            .filter((d): d is number => d !== undefined)
-
-        // Return first available preferred day
-        for (const day of preferredDays) {
-            if (!existingDaysUsed.includes(day)) {
-                return day
-            }
-        }
-        return 5 // Default to Saturday if all days taken (shouldn't happen with 1 match/day)
+        return assignMatchDayFn(save, teamIds, week, preferredDays)
     }
 
     private static scheduleBracketMatch(save: GameSave, match: BracketMatchSaveData): void {
-        const existing = save.scheduledMatches.find((m: MatchSaveData) => m.id === match.id)
-        if (existing) {
-            return
-        }
-
-        if (match.homeTeamId && match.awayTeamId) {
-            // Safety check: Skip if a team is playing itself
-            if (match.homeTeamId === match.awayTeamId) {
-                debug.warn(`[Match] SKIPPING - Team playing itself: ${match.id} (${match.homeTeamId} vs ${match.awayTeamId})`)
-                return
-            }
-
-            // Assign a day that doesn't conflict with either team's existing matches
-            const day = this.assignMatchDay(save, [match.homeTeamId, match.awayTeamId], match.week)
-
-            const scheduledMatch: MatchSaveData = {
-                id: match.id,
-                homeTeamId: match.homeTeamId,
-                awayTeamId: match.awayTeamId,
-                tournamentId: match.tournamentId,
-                stage: match.stage,
-                week: match.week,
-                day: day, // Added day assignment to enforce 1 game per day
-                format: match.format,
-                seed: match.seed,
-                isHighPressure: match.stage.includes("Final") || match.stage.includes("Semi")
-            }
-            save.scheduledMatches.push(scheduledMatch)
-        }
+        scheduleBracketMatchFn(save, match)
     }
 
     /**
