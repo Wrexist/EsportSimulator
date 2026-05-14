@@ -366,14 +366,20 @@ export class EconomyManager {
     // League Revenue Share (Stability)
     const leagueShare = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
 
-    // Expenses: Real Salaries
+    // Expenses: Real Salaries — pre-index contracts/staff so two reduces
+    // over the roster don't each scan O(contracts)/O(staff).
+    const contractByPlayer = new Map<string, ContractSaveData>()
+    for (const c of contracts) contractByPlayer.set(c.playerId, c)
+    const staffById = new Map<string, StaffSaveData>()
+    for (const s of staff) staffById.set(s.id, s)
+
     const playerWages = (team.rosterIds || []).reduce((sum: number, rid: string) => {
-      const contract = contracts.find(c => c.playerId === rid)
+      const contract = contractByPlayer.get(rid)
       return sum + (contract?.salaryPerWeek || 0)
     }, 0)
 
     const staffWages = (team.staffIds || []).reduce((sum: number, sid: string) => {
-      const member = staff.find(s => s.id === sid)
+      const member = staffById.get(sid)
       return sum + (member?.salaryPerWeek || 0)
     }, 0)
 
