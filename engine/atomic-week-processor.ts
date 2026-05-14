@@ -163,7 +163,7 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 1) {
                 debugLog(`[Week ${save.currentWeek}] Step 1: Training...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                TrainingProcessor.processTraining(save, config.trainingFocus)
+                TrainingProcessor.processTraining(save, config.trainingFocus, idx)
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
@@ -176,7 +176,7 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 2) {
                 debugLog(`[Week ${save.currentWeek}] Step 2: Fatigue recovery...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                TrainingProcessor.processFatigueRecovery(save, rng)
+                TrainingProcessor.processFatigueRecovery(save, rng, idx)
                 perfTrace.step("step.2_fatigue", __s)
                 await this.saveManager.markStepComplete(transaction, "fatigueRecoveryComplete")
                 const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0

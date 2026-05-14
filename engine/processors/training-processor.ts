@@ -4,14 +4,16 @@ import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
 import { getStaffPassiveBonuses, getPlayerPassiveBonuses } from "../talent-trees"
+import type { SaveIndexes } from "@/store/indexes"
 
 export class TrainingProcessor {
     static processTraining(
         save: GameSave,
-        trainingConfigs: Map<string, { focus: TrainingFocus; intensity: number }>
+        trainingConfigs: Map<string, { focus: TrainingFocus; intensity: number }>,
+        idx?: SaveIndexes
     ): void {
         trainingConfigs.forEach((config, teamId) => {
-            const team = save.teams.find(t => t.id === teamId)
+            const team = idx ? idx.teamIndex.get(teamId) : save.teams.find(t => t.id === teamId)
             if (!team) return
 
             // Pre-compute facility and coach lookups once per team
@@ -21,24 +23,25 @@ export class TrainingProcessor {
             const tacticalFacility = team.facilities?.find(f => f.type === "TACTICAL")
             const tacticalBonus = 1 + (tacticalFacility?.level || 0) * 0.2
 
-            const coaches = save.staff.filter(s => s.teamId === teamId && s.role === "coach")
-            const developmentStatSum = coaches.reduce((sum, c) => sum + (c.stats?.development || 50), 0)
-            const coachBonus = 1 + (developmentStatSum / 100) * 0.5
-
-            // Collect staff talent passive bonuses for training efficiency
-            const teamStaff = save.staff.filter(s => s.teamId === teamId)
+            // O(1) team-staff lookup via prebuilt index. Was scanning the full
+            // ~50-100 staff array twice per team (coaches filter + teamStaff
+            // filter) — O(teams × staff × 2) per week.
+            const teamStaff = idx?.staffByTeamId.get(teamId) ?? save.staff.filter(s => s.teamId === teamId)
+            let developmentStatSum = 0
             let staffTrainingEfficiency = 0
             let staffTacticMastery = 0
             for (const s of teamStaff) {
+                if (s.role === "coach") developmentStatSum += s.stats?.development || 50
                 const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
                 staffTrainingEfficiency += bonuses["training_efficiency"] || 0
                 staffTacticMastery += bonuses["tactic_mastery"] || 0
             }
+            const coachBonus = 1 + (developmentStatSum / 100) * 0.5
             const talentTrainingMod = 1 + staffTrainingEfficiency / 100
             const talentTacticMod = 1 + staffTacticMastery / 100
 
             team.rosterIds.forEach(playerId => {
-                const player = save.players.find(p => p.id === playerId)
+                const player = idx ? idx.playerIndex.get(playerId) : save.players.find(p => p.id === playerId)
                 if (!player) return
 
                 // Check if in Role Training
@@ -103,7 +106,7 @@ export class TrainingProcessor {
         })
     }
 
-    static processFatigueRecovery(save: GameSave, rng?: SeededRNG): void {
+    static processFatigueRecovery(save: GameSave, rng?: SeededRNG, idx?: SaveIndexes): void {
         // Get current year from game start date + current week
         const startYear = new Date(save.gameStartDate).getFullYear()
         // Approx 52 weeks per year
@@ -120,18 +123,20 @@ export class TrainingProcessor {
             const recoveryFacility = team?.facilities?.find(f => f.type === "RECOVERY")
             let totalRecoveryBonus = recoveryFacility?.level || 0
 
-            // Phase 57: Psychologist Bonus
+            // Phase 57: Psychologist Bonus. O(1) team-staff lookup via index;
+            // previously this re-scanned the full staff list for every player.
             if (team) {
-                const psychologists = save.staff.filter(s => s.teamId === team.id && s.role === "psychologist")
-                const psychStatSum = psychologists.reduce((sum, p) => sum + (p.stats?.mentalRecovery || 50), 0)
-                // Bonus: 100 stat = +10 Recovery
-                totalRecoveryBonus += (psychStatSum / 100) * 10
-
-                // Staff talent: psychologist "recovery_amount" passive bonus
-                for (const psych of psychologists) {
-                    const bonuses = getStaffPassiveBonuses(psych.role, psych.unlockedTalentIds || [])
-                    totalRecoveryBonus += bonuses["recovery_amount"] || 0
+                const teamStaff = idx?.staffByTeamId.get(team.id) ?? save.staff.filter(s => s.teamId === team.id)
+                let psychStatSum = 0
+                let psychRecoveryBonus = 0
+                for (const s of teamStaff) {
+                    if (s.role !== "psychologist") continue
+                    psychStatSum += s.stats?.mentalRecovery || 50
+                    const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
+                    psychRecoveryBonus += bonuses["recovery_amount"] || 0
                 }
+                // Bonus: 100 stat = +10 Recovery
+                totalRecoveryBonus += (psychStatSum / 100) * 10 + psychRecoveryBonus
             }
 
             // Player talent: "energy_recovery" passive bonus

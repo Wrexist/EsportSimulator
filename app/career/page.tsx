@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -41,7 +42,6 @@ import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 export default function CareerPage() {
     const router = useRouter()
     const {
-        teams,
         playerTeamId,
         currentWeek,
         completedMatches,
@@ -54,7 +54,6 @@ export default function CareerPage() {
         managerDetails,
         financeLedger
     } = useGameStore(useShallow(state => ({
-        teams: state.teams,
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
         completedMatches: state.completedMatches,
@@ -75,7 +74,7 @@ export default function CareerPage() {
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
     // Calculate Career Stats (Current Save)
-    const playerTeam = teams.find(t => t.id === playerTeamId)
+    const playerTeam = useCurrentTeam()
 
     // Matches managed
     const managedMatches = completedMatches.filter(m =>

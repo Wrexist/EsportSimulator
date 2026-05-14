@@ -751,7 +751,7 @@ export default function TournamentDetailPage() {
                                                                         entry.place === 1 ? "border-amber-400 w-28 h-28" : entry.place === 2 ? "border-gray-300" : "border-amber-800"
                                                                     )}>
                                                                         {entry.team.logoPath ? (
-                                                                            <img src={entry.team.logoPath} className="w-[70%] h-[70%] object-contain" />
+                                                                            <Image src={entry.team.logoPath} alt={entry.team.name} width={48} height={48} className="w-[70%] h-[70%] object-contain" unoptimized />
                                                                         ) : (
                                                                             <span className="text-2xl font-bold">{entry.team.name[0]}</span>
                                                                         )}
@@ -1056,7 +1056,7 @@ export default function TournamentDetailPage() {
                                                                 <div key={team!.id} className="group relative">
                                                                     <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center shadow-lg hover:bg-white/5 transition-colors duration-300">
                                                                         {team!.logoPath ? (
-                                                                            <img src={team!.logoPath} alt={team!.name} className="w-9 h-9 object-contain opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                                            <Image src={team!.logoPath} alt={team!.name} width={36} height={36} className="w-9 h-9 object-contain opacity-80 group-hover:opacity-100 transition-opacity" unoptimized />
                                                                         ) : (
                                                                             <span className="text-sm font-normal text-white/50">{team!.name[0]}</span>
                                                                         )}
@@ -1155,7 +1155,7 @@ export default function TournamentDetailPage() {
                                                                         </div>
                                                                     </div>
                                                                     {winner?.logoPath && (
-                                                                        <img src={winner.logoPath} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                                        <Image src={winner.logoPath} alt={winner.name} width={32} height={32} className="w-8 h-8 object-contain opacity-50 group-hover:opacity-100 transition-opacity" unoptimized />
                                                                     )}
                                                                 </div>
                                                             )
@@ -1219,7 +1219,7 @@ export default function TournamentDetailPage() {
                                                                 <tr key={entry.team?.id || idx} className="hover:bg-white/[0.02] transition-colors">
                                                                     <td className="px-6 py-4 font-mono text-white/40">#{idx + 1}</td>
                                                                     <td className="px-6 py-4 font-bold flex items-center gap-3">
-                                                                        {entry.team?.logoPath ? <img src={entry.team.logoPath} className="w-6 h-6 object-contain" /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
+                                                                        {entry.team?.logoPath ? <Image src={entry.team.logoPath} alt={entry.team.name} width={24} height={24} className="w-6 h-6 object-contain" unoptimized /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
                                                                         {entry.team?.name || "Unknown Team"}
                                                                     </td>
                                                                     <td className="px-6 py-4">
@@ -1245,7 +1245,7 @@ export default function TournamentDetailPage() {
                                                                                                 isWin ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500" : "bg-red-500/10 border-red-500/50 text-red-500"
                                                                                             )}>
                                                                                                 {opponent?.logoPath ? (
-                                                                                                    <img src={opponent.logoPath} className="w-4 h-4 object-contain opacity-80" />
+                                                                                                    <Image src={opponent.logoPath} alt={opponent.name} width={16} height={16} className="w-4 h-4 object-contain opacity-80" unoptimized />
                                                                                                 ) : (
                                                                                                     <span className="text-[8px] font-normal">{isWin ? "W" : "L"}</span>
                                                                                                 )}

@@ -23,6 +23,9 @@ export interface SaveIndexes {
   playerIndex: Map<string, PlayerSaveData>
   contractIndex: Map<string, ContractSaveData>
   staffIndex: Map<string, StaffSaveData>
+  /** Staff grouped by their employing team — lets processors avoid scanning
+   *  the full league staff list once per team. */
+  staffByTeamId: Map<string, StaffSaveData[]>
   tournamentIndex: Map<string, TournamentSaveData>
   completedMatchIndex: Map<string, CompletedMatchSaveData>
 }
@@ -45,8 +48,14 @@ export function buildSaveIndexes(save: GameSave): SaveIndexes {
   }
 
   const staffIndex = new Map<string, StaffSaveData>()
+  const staffByTeamId = new Map<string, StaffSaveData[]>()
   for (const s of save.staff) {
     staffIndex.set(s.id, s)
+    if (s.teamId) {
+      const list = staffByTeamId.get(s.teamId)
+      if (list) list.push(s)
+      else staffByTeamId.set(s.teamId, [s])
+    }
   }
 
   const tournamentIndex = new Map<string, TournamentSaveData>()
@@ -59,7 +68,7 @@ export function buildSaveIndexes(save: GameSave): SaveIndexes {
     completedMatchIndex.set(m.id, m)
   }
 
-  return { teamIndex, playerIndex, contractIndex, staffIndex, tournamentIndex, completedMatchIndex }
+  return { teamIndex, playerIndex, contractIndex, staffIndex, staffByTeamId, tournamentIndex, completedMatchIndex }
 }
 
 /**

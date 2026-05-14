@@ -465,7 +465,7 @@ export default function MainMenuPage() {
                                                                         title={t.tournamentName}
                                                                     >
                                                                         {t.logoPath ? (
-                                                                            <img src={t.logoPath} alt="" className="w-2.5 h-2.5 object-contain" />
+                                                                            <Image src={t.logoPath} alt="" width={10} height={10} className="w-2.5 h-2.5 object-contain" unoptimized />
                                                                         ) : (
                                                                             <Trophy className="w-2 h-2 text-white/40" />
                                                                         )}

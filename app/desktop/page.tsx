@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
@@ -511,7 +512,7 @@ function DesktopContent() {
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
             {data.offeringTeamLogo ? (
-              <img src={data.offeringTeamLogo} alt={offeringTeam.name} className="w-full h-full object-cover" />
+              <Image src={data.offeringTeamLogo} alt={offeringTeam.name} width={64} height={64} className="w-full h-full object-cover" unoptimized />
             ) : (
               <span className="text-xl font-normal opacity-30">{offeringTeam.name.substring(0, 2).toUpperCase()}</span>
             )}
@@ -725,8 +726,8 @@ function DesktopContent() {
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30 overflow-hidden shrink-0 relative">
             {data.logoPath || tournament?.logoPath ? (
-              <div className="w-full h-full p-2 flex items-center justify-center">
-                <img src={data.logoPath || tournament?.logoPath} alt="Tournament" className="max-w-full max-h-full object-contain drop-shadow-lg" />
+              <div className="w-full h-full p-2 flex items-center justify-center relative">
+                <Image src={(data.logoPath || tournament?.logoPath) as string} alt="Tournament" fill className="object-contain drop-shadow-lg" unoptimized />
               </div>
             ) : (
               <Trophy size={24} className="text-indigo-400" />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -88,17 +88,8 @@ const FACILITY_CONFIG = {
 
 export default function BasecampPage() {
   const router = useRouter()
-  const {
-    teams,
-    playerTeamId,
-    upgradeFacility
-  } = useGameStore(useShallow(state => ({
-    teams: state.teams,
-    playerTeamId: state.playerTeamId,
-    upgradeFacility: state.upgradeFacility,
-  })))
-
-  const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const upgradeFacility = useGameStore(state => state.upgradeFacility)
+  const playerTeam = useCurrentTeam()
 
   if (!playerTeam) {
     return <div className="flex items-center justify-center h-64 text-white/40"><Loader2 size={20} className="animate-spin mr-2" /> Loading...</div>

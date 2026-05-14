@@ -2960,9 +2960,18 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               // Prune growing arrays to prevent unbounded memory/save growth
               pruneGameState(draft)
 
-              // Recalculate synergy for all teams (AI transfers may have changed rosters)
+              // Recalculate synergy for all teams (AI transfers may have changed rosters).
+              // Build players-by-id once so each team is O(roster) instead of
+              // O(players × roster). On a ~30 team / ~150 player league this
+              // turns ~9000 array-includes scans into ~450 map lookups.
+              const playersById = new Map<string, typeof draft.players[number]>()
+              for (const p of draft.players) playersById.set(p.id, p)
               draft.teams.forEach(t => {
-                const roster = draft.players.filter(p => t.rosterIds.includes(p.id))
+                const roster: typeof draft.players = []
+                for (const id of t.rosterIds) {
+                  const p = playersById.get(id)
+                  if (p) roster.push(p)
+                }
                 t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
               })
             })
