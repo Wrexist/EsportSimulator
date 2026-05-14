@@ -31,7 +31,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useMemo } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import type { EquipmentItem } from "@/types/game"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"

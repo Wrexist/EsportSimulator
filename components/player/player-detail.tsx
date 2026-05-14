@@ -61,7 +61,7 @@ import { PlayerMatchHistory } from "./PlayerMatchHistory"
 import { WeaponMasteryManager, getMasteryInfo, WEAPON_DISPLAY, WeaponType } from "@/engine/weapon-mastery-system"
 import { WeaponTrainingModal } from "@/components/training/WeaponTrainingModal"
 import { getFPLTierColor, getFPLTierName } from "@/types/fpl"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 

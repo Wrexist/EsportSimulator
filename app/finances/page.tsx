@@ -41,7 +41,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { EconomyManager } from "@/engine/economy-manager"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { motion } from "framer-motion"
 
 const economyManager = new EconomyManager()

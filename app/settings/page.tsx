@@ -59,7 +59,7 @@ import {
 } from "lucide-react"
 import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { steamService as steamAchievements, Achievement } from "@/engine/steam-service"

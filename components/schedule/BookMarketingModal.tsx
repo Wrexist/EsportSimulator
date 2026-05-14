@@ -8,7 +8,7 @@ import { X, Megaphone, Share2, Handshake, Sparkles, Coins, CalendarClock } from 
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 
 interface BookMarketingModalProps {
     isOpen: boolean

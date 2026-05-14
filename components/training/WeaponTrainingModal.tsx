@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine/save-types"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import {
     WEAPON_TYPES,
     WEAPON_DRILLS,

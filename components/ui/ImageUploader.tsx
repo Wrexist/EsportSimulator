@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect, ChangeEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Upload, X, ZoomIn, Move } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 
 interface ImageUploaderProps {
