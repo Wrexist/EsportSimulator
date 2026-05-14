@@ -75,6 +75,7 @@ import {
 } from "@/engine/circuit-engine"
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
 import { pruneGameState } from "@/store/utils/array-pruning"
+import { logger } from "@/lib/logger"
 
 enableMapSet()
 
@@ -2080,9 +2081,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           get().refreshStaffMarket()
         } catch (err) {
           const message = err instanceof Error ? err.message : "Failed to create team"
-          if (process.env.NODE_ENV !== 'production') {
-            console.error("Failed to create custom team:", err)
-          }
+          logger.error("Failed to create custom team", err)
           set({ isLoading: false, error: message })
           get().addToast({ message: `Could not create custom team: ${message}`, type: "error", duration: 8000 })
         }
@@ -2390,9 +2389,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           const saveResult = await saveManager.saveGame(gameSave)
           if (!saveResult.success) {
-            if (process.env.NODE_ENV !== 'production') {
-              console.error("[saveGame] SaveManager failed:", saveResult.error)
-            }
+            logger.error("[saveGame] SaveManager failed", saveResult.error)
             throw new Error(saveResult.error || "Save failed")
           }
           if (saveResult.repairs && saveResult.repairs.length > 0) {
@@ -2400,9 +2397,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Save failed"
-          if (process.env.NODE_ENV !== 'production') {
-            console.error("[saveGame] Error:", message)
-          }
+          logger.error("[saveGame] Error", message)
           // Surface the failure so the user knows their progress wasn't
           // persisted, instead of silently letting the catch propagate up
           // to a caller that may or may not show a toast.
@@ -3145,9 +3140,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Advance failed"
-          if (process.env.NODE_ENV !== 'production') {
-            console.error("[advanceWeek] Failed:", err)
-          }
+          logger.error("[advanceWeek] Failed", err)
           set({ isLoading: false, error: message })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
           get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
@@ -6266,9 +6259,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          if (process.env.NODE_ENV !== 'production') {
-            console.error('[Store] Rehydration failed:', error)
-          }
+          logger.error('[Store] Rehydration failed', error)
         }
         // Always mark hydrated — even on error — so the UI doesn't hang forever
         if (state) {

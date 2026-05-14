@@ -2,6 +2,7 @@
 import { StaffSaveData, STAFF_ROLES } from "./save-types"
 import { LEGACY_STAFF_POOL } from "./staff-db"
 import { SeededRNG } from "./rng"
+import { STAFF_SALARY_RANGES } from "../lib/constants"
 
 export class StaffGenerator {
     private static NAMES = ["Anderson", "Smith", "Zhang", "Popov", "Kovac", "Muller", "Jensen", "Dubois", "Silva"]
@@ -101,11 +102,9 @@ export class StaffGenerator {
         }
 
         // Salary Calculation
-        let salary = 1000
-        if (salaryTier === "Legendary") salary = rnd(4500, 6000)
-        else if (salaryTier === "Epic") salary = rnd(3000, 4500)
-        else if (salaryTier === "High") salary = rnd(1800, 3000)
-        else salary = rnd(800, 1800)
+        const salaryRange = STAFF_SALARY_RANGES[salaryTier as keyof typeof STAFF_SALARY_RANGES]
+            ?? STAFF_SALARY_RANGES.Standard
+        const salary = rnd(salaryRange.min, salaryRange.max)
 
         return {
             id: `gen_${role}_${seed}_${name.replace(/[^a-zA-Z]/g, '')}_${rarity}`,

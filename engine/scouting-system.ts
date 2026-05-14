@@ -10,6 +10,7 @@
  */
 
 import { PlayerSaveData, ScoutedPlayerEntry, ScoutingMissionData } from "./save-types"
+import { SCOUT_LEVEL_CONFIG } from "../lib/constants"
 
 // ===== SCOUT AGENT LEVELS =====
 
@@ -22,10 +23,10 @@ export interface ScoutAgentLevel {
 }
 
 export const SCOUT_LEVELS: Record<string, ScoutAgentLevel> = {
-    BASIC: { name: "Basic Scout", duration: 4, costPerMission: 3000, upgradeCost: 0, accuracy: 0.7 },
-    ADVANCED: { name: "Advanced Scout", duration: 3, costPerMission: 5000, upgradeCost: 15000, accuracy: 0.85 },
-    EXPERT: { name: "Expert Scout", duration: 2, costPerMission: 8000, upgradeCost: 30000, accuracy: 0.95 },
-    ELITE: { name: "Elite Scout", duration: 1, costPerMission: 12000, upgradeCost: 50000, accuracy: 1.0 },
+    BASIC:    { name: "Basic Scout",    ...SCOUT_LEVEL_CONFIG.BASIC },
+    ADVANCED: { name: "Advanced Scout", ...SCOUT_LEVEL_CONFIG.ADVANCED },
+    EXPERT:   { name: "Expert Scout",   ...SCOUT_LEVEL_CONFIG.EXPERT },
+    ELITE:    { name: "Elite Scout",    ...SCOUT_LEVEL_CONFIG.ELITE },
 }
 
 // ===== STAT VISIBILITY =====

@@ -5,22 +5,16 @@ import {
     SponsorSaveData,
     ContractSaveData
 } from "./save-types"
+import {
+    ECONOMY_CONSTANTS,
+    FACILITY_CONSTANTS,
+} from "../lib/constants"
 
-/**
- * Economic Constants
- */
-const FACILITY_BASE_COST = 500
-const FACILITY_COST_EXPONENT = 1.25 // Makes high level facilities expensive
-const MAX_FACILITY_LEVEL = 5 // Matches UI upgrade cap; prevents corrupt saves from causing runaway costs
-const BASE_FAN_INCOME_PER_FAN = 0.0015 // ~$75/week for 50k followers at level 1
-const TIER_MULTIPLIERS: Record<string, number> = {
-    "S_TIER": 10.0,
-    "A_TIER": 5.0,
-    "B_TIER": 2.5,
-    "C_TIER": 1.0,
-    "D_TIER": 0.5
-}
-const LEAGUE_REVENUE_SHARE = 15000 // Base income for all teams to ensure stability
+const FACILITY_BASE_COST = ECONOMY_CONSTANTS.FACILITY_BASE_COST
+const FACILITY_COST_EXPONENT = FACILITY_CONSTANTS.COST_EXPONENT
+const MAX_FACILITY_LEVEL = FACILITY_CONSTANTS.MAX_LEVEL
+const BASE_FAN_INCOME_PER_FAN = ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN
+const LEAGUE_REVENUE_SHARE = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
 
 export type FinancialState = "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT"
 
@@ -106,7 +100,8 @@ export class EconomyEngine {
     // === INCOME LOGIC ===
 
     private static calculateSponsorIncome(team: TeamSaveData): number {
-        const repFactor = 0.7 + (team.reputation / 100) * 0.6
+        const repFactor = ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE
+            + (team.reputation / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
 
         let total = 0
         if (team.sponsors && team.sponsors.length > 0) {
@@ -132,14 +127,14 @@ export class EconomyEngine {
 
         // Phase 18: Fan Zone Facility Bonus (20% revenue boost per level)
         const fanZoneFacility = team.facilities?.find(f => f.type === "FANZONE")
-        const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * 0.2
+        const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * ECONOMY_CONSTANTS.FANZONE_LEVEL_RATE
 
         // Base income per follower * Level multiplier * Hype multiplier
         // A level 1 store with 10k followers and 10 hype gets 10,000 * 0.0015 * 1 * 1 = $15/week?
         // Wait, BASE_FAN_INCOME_PER_FAN is 0.0015. 1 million followers = $1500.
         // Let's bump it slightly for the new system.
         const effectiveRate = BASE_FAN_INCOME_PER_FAN
-        const levelMultiplier = 1 + (merchLevel - 1) * 0.4 // +40% per level
+        const levelMultiplier = 1 + (merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE
 
         // Apply difficulty multipliers for custom teams
         const fansMultiplier = team.difficultySettings?.fansMultiplier ?? 1.0

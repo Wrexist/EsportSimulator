@@ -1,6 +1,13 @@
 import { TacticalStrategy } from "@/types"
 import { SeededRNG } from "./rng"
 import type { TeamSaveData, SponsorSaveData, FacilitySaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "./save-types"
+import {
+    MATCH_CONSTANTS,
+    ECONOMY_CONSTANTS,
+    FACILITY_CONSTANTS,
+    COST_CONSTANTS,
+    getLossBonus,
+} from "../lib/constants"
 
 /**
  * EconomyManager handles all CS2-specific financial logic including
@@ -65,15 +72,11 @@ export const WEAPONS: Record<string, Weapon> = {
 }
 
 export class EconomyManager {
-  static MAX_CASH = 16000
-  static ROUND_START_CASH = 800
+  static MAX_CASH = MATCH_CONSTANTS.MAX_MONEY
+  static ROUND_START_CASH = MATCH_CONSTANTS.START_MONEY
 
   static getLossBonus(streak: number): number {
-    // CS2 2023+ rules: First loss = $1900, progression +$500 each up to $3400 max
-    // Both teams start with an implicit 1-round "loss streak" in competitive mode
-    const levels = [1900, 2400, 2900, 3400, 3400]
-    const index = Math.max(0, Math.min(streak, 4))
-    return levels[index]
+    return getLossBonus(streak)
   }
 
   /**
@@ -349,18 +352,19 @@ export class EconomyManager {
     const hypeMultiplier = (team.merchHype || 10) / 10
 
     // Sponsor Income (includes reputation factor)
-    const repFactor = 0.7 + (team.reputation / 100) * 0.6
+    const repFactor = ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE
+      + (team.reputation / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
     const sponsors = (team.sponsors || []).reduce((sum: number, s: SponsorSaveData) => sum + (s.weeklyPayout * repFactor), 0)
 
     // Fan/Merch Income
     const fanZoneFacility = team.facilities?.find((f: FacilitySaveData) => f.type === "FANZONE")
-    const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * 0.2
-    const effectiveRate = 0.0015 // Must match BASE_FAN_INCOME_PER_FAN in economy-engine.ts
-    const levelMultiplier = 1 + (merchLevel - 1) * 0.4
+    const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * ECONOMY_CONSTANTS.FANZONE_LEVEL_RATE
+    const effectiveRate = ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN
+    const levelMultiplier = 1 + (merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE
     const fanbaseBonus = Math.floor(followers * effectiveRate * levelMultiplier * hypeMultiplier * fanZoneMultiplier)
 
     // League Revenue Share (Stability)
-    const leagueShare = 15000
+    const leagueShare = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
 
     // Expenses: Real Salaries
     const playerWages = (team.rosterIds || []).reduce((sum: number, rid: string) => {
@@ -375,11 +379,11 @@ export class EconomyManager {
 
     // Expenses: Facilities Upkeep (Exponential scale)
     const facilityUpkeep = (team.facilities || []).reduce((sum: number, f: FacilitySaveData) => {
-      return sum + Math.floor(Math.pow(f.level, 1.25) * 500)
+      return sum + Math.floor(Math.pow(f.level, FACILITY_CONSTANTS.COST_EXPONENT) * ECONOMY_CONSTANTS.FACILITY_BASE_COST)
     }, 0)
 
     // Training costs: Active role training sessions
-    const trainingCost = ((team.activeRoleTraining || []).length) * 5000
+    const trainingCost = ((team.activeRoleTraining || []).length) * COST_CONSTANTS.TRAINING_MISSION_COST
 
     const weeklyIncomeTotal = Math.floor(sponsors + fanbaseBonus + leagueShare)
     const weeklyExpensesTotal = playerWages + staffWages + facilityUpkeep + trainingCost

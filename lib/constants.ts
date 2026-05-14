@@ -156,11 +156,64 @@ export const COST_CONSTANTS = {
     VOD_REVIEW_COST: 2500,
     MENTAL_RESET_COST: 5000,
     INJURY_TREATMENT_COST: 5000,
+    TRAINING_MISSION_COST: 5000,
 
     // Prospect
     PROSPECT_DEFAULT_SALARY: 2000,
     PROSPECT_DEFAULT_CONTRACT_WEEKS: 104,
     PROSPECT_RELEASE_FEE: 1000,
+} as const
+
+// ============================================
+// ECONOMY (TEAM FINANCIALS)
+// ============================================
+
+export const ECONOMY_CONSTANTS = {
+    /** Base facility upkeep cost per week, scaled by level^COST_EXPONENT. */
+    FACILITY_BASE_COST: 500,
+    /** Income per follower per week (legacy fans*7 fallback). */
+    BASE_FAN_INCOME_PER_FAN: 0.0015,
+    /** Weekly stability income that every team receives. */
+    LEAGUE_REVENUE_SHARE: 15000,
+    /** Reputation floor multiplier applied to sponsor income. */
+    SPONSOR_REP_FACTOR_BASE: 0.7,
+    /** Reputation range multiplier applied to sponsor income. */
+    SPONSOR_REP_FACTOR_RANGE: 0.6,
+    /** Per-merch-level multiplier applied to fan income (1 + (level-1) * RATE). */
+    MERCH_LEVEL_RATE: 0.4,
+    /** Per-FanZone-level bonus to fan income (1 + level * RATE). */
+    FANZONE_LEVEL_RATE: 0.2,
+} as const
+
+/** Team tier -> sponsor income multiplier. */
+export const TEAM_TIER_MULTIPLIERS: Record<string, number> = {
+    S_TIER: 10.0,
+    A_TIER: 5.0,
+    B_TIER: 2.5,
+    C_TIER: 1.0,
+    D_TIER: 0.5,
+}
+
+// ============================================
+// SCOUTING
+// ============================================
+
+export const SCOUT_LEVEL_CONFIG = {
+    BASIC:    { duration: 4, costPerMission: 3000,  upgradeCost: 0,     accuracy: 0.70 },
+    ADVANCED: { duration: 3, costPerMission: 5000,  upgradeCost: 15000, accuracy: 0.85 },
+    EXPERT:   { duration: 2, costPerMission: 8000,  upgradeCost: 30000, accuracy: 0.95 },
+    ELITE:    { duration: 1, costPerMission: 12000, upgradeCost: 50000, accuracy: 1.0  },
+} as const
+
+// ============================================
+// STAFF SALARIES (per week, by tier)
+// ============================================
+
+export const STAFF_SALARY_RANGES = {
+    Legendary: { min: 4500, max: 6000 },
+    Epic:      { min: 3000, max: 4500 },
+    High:      { min: 1800, max: 3000 },
+    Standard:  { min:  800, max: 1800 },
 } as const
 
 // ============================================
