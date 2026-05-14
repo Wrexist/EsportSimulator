@@ -25,6 +25,7 @@ import {
     AcademyScoutingMission
 } from "@/types/academy"
 import { FPLSaveData } from "@/types/fpl"
+import { logger } from "@/lib/logger"
 
 // ===== VERSION CONSTANTS =====
 
@@ -1257,9 +1258,7 @@ export function repairSave(save: unknown): string[] | null {
 export function validateSaveStructure(save: unknown): save is GameSave {
     const errors = collectValidationErrors(save)
     if (errors.length > 0) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error(`Save validation failed (${errors.length} issues):`, errors.join("; "))
-        }
+        logger.error(`Save validation failed (${errors.length} issues)`, errors.join("; "))
         return false
     }
     return true

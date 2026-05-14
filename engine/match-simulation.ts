@@ -38,6 +38,7 @@ import {
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
 import { perfTrace } from "./perf-trace"
 import { MATCH_BALANCE, MATCH_STRUCTURE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK } from "@/lib/constants"
+import { logger } from "@/lib/logger"
 
 // ===== TYPES =====
 
@@ -264,9 +265,7 @@ export class SimulationEngineV2 {
             winnerId: homeScore > awayScore ? homeTeam.id : awayTeam.id
         }
       } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.error('[SimulationEngineV2] simulateMatch failed:', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
-        }
+        logger.error('[SimulationEngineV2] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
         throw error
       }
     }
