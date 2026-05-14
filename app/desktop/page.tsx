@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
+import { getNotificationTheme } from "./notification-themes"
 import { GameEventSaveData } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
@@ -383,26 +384,13 @@ function DesktopContent() {
     setSelectedEventId(null)
   }
 
-  // Notification theme helper - type-specific colors and effects
-  const getNotificationTheme = useCallback((type: string) => {
-    const themes: Record<string, { gradient: string; borderColor: string; iconColor: string; iconBg: string; sound: 'success' | 'notification' | 'error' }> = {
-      JOB_OFFER: { gradient: "from-emerald-500/30 via-emerald-600/20 to-transparent", borderColor: "border-emerald-500/40", iconColor: "text-emerald-400", iconBg: "bg-emerald-500/20", sound: "success" },
-      TRANSFER_OFFER: { gradient: "from-blue-500/30 via-cyan-500/20 to-transparent", borderColor: "border-blue-500/40", iconColor: "text-blue-400", iconBg: "bg-blue-500/20", sound: "notification" },
-      INJURY: { gradient: "from-red-500/30 via-rose-600/20 to-transparent", borderColor: "border-red-500/40", iconColor: "text-red-400", iconBg: "bg-red-500/20", sound: "error" },
-      CAREER_UPDATE: { gradient: "from-amber-500/30 via-yellow-500/20 to-transparent", borderColor: "border-amber-500/40", iconColor: "text-amber-400", iconBg: "bg-amber-500/20", sound: "success" },
-      TOURNAMENT: { gradient: "from-purple-500/30 via-violet-500/20 to-transparent", borderColor: "border-purple-500/40", iconColor: "text-purple-400", iconBg: "bg-purple-500/20", sound: "notification" },
-      ROSTER_UPDATE: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      AI_SIGNING: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      AI_TRANSFER: { gradient: "from-indigo-500/30 via-blue-500/20 to-transparent", borderColor: "border-indigo-500/40", iconColor: "text-indigo-400", iconBg: "bg-indigo-500/20", sound: "notification" },
-      MEDIA: { gradient: "from-amber-500/30 via-orange-500/20 to-transparent", borderColor: "border-amber-500/40", iconColor: "text-amber-400", iconBg: "bg-amber-500/20", sound: "notification" },
-    }
-    return themes[type] || { gradient: "from-cyan-500/30 via-blue-500/20 to-transparent", borderColor: "border-cyan-500/40", iconColor: "text-cyan-400", iconBg: "bg-cyan-500/20", sound: "notification" }
-  }, [])
-
-  // Get theme for current selected event
-  const notificationTheme = useMemo(() => {
-    return selectedEvent ? getNotificationTheme(selectedEvent.type as string) : getNotificationTheme("DEFAULT")
-  }, [selectedEvent, getNotificationTheme])
+  // Get theme for current selected event. getNotificationTheme is now a pure
+  // module-level helper (see app/desktop/notification-themes.ts) so no
+  // dependency is needed beyond the event itself.
+  const notificationTheme = useMemo(
+    () => getNotificationTheme(selectedEvent ? (selectedEvent.type as string) : "DEFAULT"),
+    [selectedEvent]
+  )
 
   // Play notification sound when dialog opens
   useEffect(() => {

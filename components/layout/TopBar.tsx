@@ -2,6 +2,7 @@
 
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect, useMemo } from "react"
 import { format } from "date-fns"
@@ -37,8 +38,6 @@ export function TopBar() {
         setTheme,
         setTimeMode,
         scheduledMatches,
-        teams,
-        playerTeamId,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -53,8 +52,6 @@ export function TopBar() {
             setTheme: s.setTheme,
             setTimeMode: s.setTimeMode,
             scheduledMatches: s.scheduledMatches,
-            teams: s.teams,
-            playerTeamId: s.playerTeamId,
         }))
     )
 
@@ -67,7 +64,7 @@ export function TopBar() {
         date.setDate(date.getDate() + dayOffset)
         return date
     }, [getDateForWeek, currentWeek, currentDay, timeMode])
-    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+    const playerTeam = useCurrentTeam()
     const budget = playerTeam?.budget || 0
 
     // Get custom team colors for styling

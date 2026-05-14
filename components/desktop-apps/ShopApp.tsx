@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Monitor, Keyboard, Mouse, Headphones, Armchair, Cpu, ShoppingBag, Zap, ChevronRight, Check, AlertCircle, Store, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -8,15 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { EQUIPMENT_CATALOG, EQUIPMENT_TYPE_DISPLAY, EquipmentType } from "@/engine/equipment-manager"
 
 export function ShopApp() {
-    const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
+    const { purchaseEquipment } = useGameStore(useShallow(state => ({
         purchaseEquipment: state.purchaseEquipment,
     })))
-    const team = teams.find(t => t.id === playerTeamId)
+    const team = useCurrentTeam()
     const [selectedType, setSelectedType] = useState<EquipmentType>("PC")
     const [isPurchasing, setIsPurchasing] = useState(false)
 
@@ -85,7 +85,7 @@ export function ShopApp() {
                                     selectedType === type ? "ring-1 ring-indigo-500/50" : ""
                                 )}>
                                     {catalogEquipped?.imagePath ? (
-                                        <img src={catalogEquipped.imagePath} alt={type} className="w-full h-full object-contain" />
+                                        <Image src={catalogEquipped.imagePath} alt={type} width={36} height={36} className="w-full h-full object-contain" unoptimized />
                                     ) : (
                                         <Icon size={16} className="text-white/20" />
                                     )}

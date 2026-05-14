@@ -98,9 +98,9 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
                                 <span className="text-white/30 text-[9px] shrink-0">+ {l.assisterName}</span>
                             )}
                             <div className="flex items-center gap-0.5 mx-0.5 shrink-0">
-                                <img src={getWeaponIcon(l.weapon)} alt="" className="h-2.5 w-auto brightness-0 invert opacity-40" />
+                                <Image src={getWeaponIcon(l.weapon)} alt="" width={20} height={10} className="h-2.5 w-auto brightness-0 invert opacity-40" unoptimized />
                                 {l.isHeadshot && (
-                                    <img src="/assets/weapons/headshot.png" alt="HS" className="h-2.5 w-2.5 opacity-70" />
+                                    <Image src="/assets/weapons/headshot.png" alt="HS" width={10} height={10} className="h-2.5 w-2.5 opacity-70" unoptimized />
                                 )}
                             </div>
                             <div className="flex items-center gap-1 shrink-0">

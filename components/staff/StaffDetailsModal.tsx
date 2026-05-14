@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Briefcase, Zap, Star, TrendingUp, Award, Brain, Target, Shield, Users } from 'lucide-react'
@@ -95,9 +96,9 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                             <div className="relative">
                                 <div className={`w-28 h-28 rounded-2xl border-2 flex items-center justify-center bg-black/50 overflow-hidden shadow-2xl ${staff.rarity === "Legendary" ? "border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)]" : "border-white/10"}`}>
                                     {staff.portraitPath ? (
-                                        <img src={staff.portraitPath} alt={staff.name} className="w-full h-full object-cover" />
+                                        <Image src={staff.portraitPath} alt={staff.name} width={112} height={112} className="w-full h-full object-cover" unoptimized />
                                     ) : (
-                                        <img src="/staff_placeholder.png" alt={staff.name} className="w-full h-full object-cover opacity-80" />
+                                        <Image src="/staff_placeholder.png" alt={staff.name} width={112} height={112} className="w-full h-full object-cover opacity-80" unoptimized />
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                                 </div>

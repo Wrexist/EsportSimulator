@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -50,7 +51,6 @@ export default function StaffPage() {
     const {
         staff,
         players,
-        teams,
         playerTeamId,
         hireStaff,
         fireStaff,
@@ -61,7 +61,6 @@ export default function StaffPage() {
     } = useGameStore(useShallow(state => ({
         staff: state.staff,
         players: state.players,
-        teams: state.teams,
         playerTeamId: state.playerTeamId,
         hireStaff: state.hireStaff,
         fireStaff: state.fireStaff,
@@ -71,10 +70,7 @@ export default function StaffPage() {
         _hasHydrated: state._hasHydrated,
     })))
 
-    const playerTeam = useMemo(
-        () => teams.find(t => t.id === playerTeamId),
-        [teams, playerTeamId]
-    )
+    const playerTeam = useCurrentTeam()
     const currentStaff = useMemo(
         () => staff.filter(s => s.teamId === playerTeamId),
         [staff, playerTeamId]
