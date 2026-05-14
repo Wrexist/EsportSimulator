@@ -56,6 +56,7 @@ import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fan
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
+import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -1277,149 +1278,8 @@ export class AtomicWeekProcessor {
     private processScoutingMissions(save: GameSave, idx?: SaveIndexes): void {
         processScoutingMissionsFn(save, idx)
     }
-
     private processAIWorldLogic(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
-        // 1. Elo updates are now handled atomically in processMatches via LeagueEngine
-        // This prevents double-counting and ensures consistent logic.
-
-        // 2. Refresh World Rankings
-        AIManager.refreshWorldRankings(save)
-
-        // 3. Process AI Decision Logic & Academy
-        save.teams.forEach(team => {
-            AIManager.processAcademyScouting(save, team, rng)
-        })
-
-        // Process AI logic — transfers only during transfer windows
-        // Transfer windows: weeks 1-8 (pre-season) and 26-34 (mid-season)
-        const weekOfSeason = ((save.currentWeek - 1) % 52) + 1
-        const isTransferWindow = weekOfSeason <= 8 || (weekOfSeason >= 26 && weekOfSeason <= 34)
-        AIManager.processWeeklyAI(save, playerTeamId, rng, isTransferWindow)
-
-        // AI-to-AI transfers during transfer windows
-        if (isTransferWindow) {
-            AIManager.processAIToAITransfers(save, playerTeamId, rng)
-        }
-
-        // 3b. Staff market auto-refresh every 4 weeks
-        if (save.currentWeek > 0 && save.currentWeek % 4 === 0) {
-            const staffRng = new SeededRNG(rng.next() * 2147483646 || 1)
-            save.marketStaff = StaffGenerator.generateWeeklyMarket(save.currentWeek, 20, staffRng)
-            save.nextMarketRefreshWeek = save.currentWeek + 4
-        }
-
-        // 4. Seasonal logic (Season transition every 52 weeks)
-        if (save.currentWeek > 0 && save.currentWeek % 52 === 0) {
-            AIManager.processSeasonEnd(save)
-
-            // ===== YOUTH ACADEMY: Generate Prospects =====
-            // Teams with Training Center Level 3+ get 1-2 youth prospects
-            debugLog(`[Season End] Generating Youth Prospects...`)
-
-            save.teams.forEach(team => {
-                const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
-                if (!trainingFacility || trainingFacility.level < 3) return
-
-                const prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
-
-                for (let i = 0; i < prospectsToGenerate; i++) {
-                    const prospectId = `youth_${team.id}_${save.currentWeek}_${i}`
-                    const prospectAge = 16 + Math.floor(rng.next() * 3) // 16-18
-                    const potential = 60 + Math.floor(rng.next() * 30) // 60-89
-
-                    // Random nationality pool
-                    const nationalities = ["Denmark", "Sweden", "France", "Germany", "Poland", "Brazil", "USA", "Russia", "Kazakhstan", "China"]
-                    const nationality = nationalities[Math.floor(rng.next() * nationalities.length)]
-
-                    // Generate adjective-based nickname
-                    const prefixes = ["Neo", "Hyper", "Swift", "Blaze", "Frost", "Storm", "Volt", "Shadow", "Apex", "Nova"]
-                    const suffixes = ["X", "Z", "1", "Y", "Q", "0", "K", "R"]
-                    const nickname = prefixes[Math.floor(rng.next() * prefixes.length)] + suffixes[Math.floor(rng.next() * suffixes.length)]
-
-                    // Roles pool
-                    const roles: ("Rifler" | "AWPer" | "Support" | "Entry" | "Lurker")[] = ["Rifler", "AWPer", "Support", "Entry", "Lurker"]
-                    const role = roles[Math.floor(rng.next() * roles.length)]
-
-                    // Current skill is lower than potential (they need to grow)
-                    const currentSkill = Math.max(40, potential - 25 - Math.floor(rng.next() * 10))
-
-                    const newProspect: any = {
-                        id: prospectId,
-                        nickname: nickname,
-                        firstName: "Youth",
-                        lastName: "Prospect",
-                        nationality: nationality,
-                        age: prospectAge,
-                        role: role,
-                        skill: currentSkill,
-                        potential: potential,
-                        morale: 80,
-                        fatigue: 0,
-                        form: 70,
-                        health: 100,
-                        matchesPlayed: 0,
-                        isYouthPlayer: true,
-                        // Weapons Map (default values)
-                        rifle: currentSkill * 0.8,
-                        awp: role === "AWPer" ? currentSkill : currentSkill * 0.5,
-                        pistol: currentSkill * 0.7,
-                        grenades: currentSkill * 0.7,
-                        tactic: currentSkill * 0.6,
-                        creativity: currentSkill * 0.6,
-                        reaction: currentSkill * 0.7,
-                        clutch: currentSkill * 0.5,
-                        teamwork: currentSkill * 0.6,
-                        stressResistance: currentSkill * 0.5,
-                        entry: currentSkill * 0.5,
-                        trading: currentSkill * 0.5,
-                        leader: currentSkill * 0.3,
-                        amicability: currentSkill * 0.6,
-                        eyesight: currentSkill * 0.7,
-                        strength: currentSkill * 0.6,
-                        endurance: currentSkill * 0.6,
-                        portraitPath: null,
-                        xp: 0,
-                        xpToNextLevel: 1000,
-                        level: 1,
-                    }
-
-                    save.players.push(newProspect)
-
-                    // Add to academy players (Phase 70 canonical)
-                    if (!save.academyPlayers) save.academyPlayers = []
-                    save.academyPlayers.push({
-                        id: `academy_${prospectId}_${save.currentWeek}`,
-                        playerId: prospectId,
-                        enrolledWeek: save.currentWeek,
-                        trainingFocus: 'BALANCED' as const,
-                        developmentProgress: 0,
-                        potentialRevealed: false,
-                        totalXpGained: 0,
-                        academyMatchesPlayed: 0,
-                        readyForPromotion: false,
-                        scoutNotes: `Youth intake prospect for ${team.name}`,
-                        energy: 100,
-                    })
-
-                    debugLog(`[Youth Academy] ${team.name} signed prospect: ${nickname} (Skill: ${currentSkill}, Potential: ${potential})`)
-                }
-
-                // Notify player team
-                if (team.id === playerTeamId) {
-                    save.eventsLog.unshift({
-                        id: `youth_intake_${save.currentWeek}`,
-                        type: "TRAINING_COMPLETE",
-                        week: save.currentWeek,
-                        acknowledged: false,
-                        data: {
-                            title: "Youth Intake Complete",
-                            message: `${prospectsToGenerate} new prospect${prospectsToGenerate > 1 ? 's have' : ' has'} joined your Youth Academy. Check the Squad page to view and promote them.`,
-                            severity: "success"
-                        }
-                    })
-                }
-            })
-        }
+        processAIWorldLogicFn(save, playerTeamId, rng)
     }
 
     /**
