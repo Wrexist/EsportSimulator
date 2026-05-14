@@ -517,6 +517,16 @@ export class AIManager {
             if (aiTeam.budget < 50000) return
             let offersMade = 0
 
+            // Pre-compute the AI team's role coverage once so we can bias
+            // interest toward signing for missing roles. Looking at this for
+            // every sale candidate inside the inner loop would re-scan the
+            // roster N times for the same team.
+            const aiRoles = new Set<string>()
+            for (const id of aiTeam.rosterIds) {
+                const p = playerIndex.get(id)
+                if (p?.role) aiRoles.add(p.role.toString().toUpperCase())
+            }
+
             // Check each player for sale
             userPlayersForSale.forEach(player => {
                 if (offersMade >= this.MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK) return
@@ -540,11 +550,21 @@ export class AIManager {
                 // Skill 15/Potential 20 is a "Golden Boy" target
                 const potentialMultiplier = player.potential > 16 ? 1.5 : (player.potential > 14 ? 1.2 : 1.0)
 
-                // Probability scaling: 
+                // Role-fit: if the AI is missing this player's role entirely
+                // it's much more interested. If they already have somebody
+                // there it's slightly less interested (small soft penalty)
+                // to keep the market diversified rather than every team
+                // chasing the same player.
+                const playerRole = (player.role ?? "RIFLER").toString().toUpperCase()
+                const roleFitMultiplier = !aiRoles.has(playerRole) ? 1.4
+                    : aiRoles.size <= 4 ? 1.0
+                    : 0.85
+
+                // Probability scaling:
                 // Ratio 1.0 -> 30% * potentialMultiplier
                 // Ratio 0.5 -> ~80%
                 const interestMultiplier = Math.exp(2 * (1 - priceRatio))
-                const baseChance = 0.3 * potentialMultiplier
+                const baseChance = 0.3 * potentialMultiplier * roleFitMultiplier
                 const finalChance = Math.min(0.98, baseChance * interestMultiplier)
 
                 if (this.roll(rng) > finalChance) return
