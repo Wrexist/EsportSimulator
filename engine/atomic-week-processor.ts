@@ -48,6 +48,10 @@ import { TrainingProcessor } from "./processors/training-processor"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
 import { compactPersistentState } from "./processors/save-compactor"
+import {
+    isTerminalBracketStage as isTerminalBracketStageFn,
+    hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
+} from "./processors/tournament-completion"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -996,39 +1000,11 @@ export class AtomicWeekProcessor {
     }
 
     private isTerminalBracketStage(stage: string): boolean {
-        const normalized = stage.toLowerCase()
-        return normalized.includes("grand final")
-            || normalized === "final"
-            || normalized === "finals"
+        return isTerminalBracketStageFn(stage)
     }
 
     private hasTerminalTournamentCompletion(save: GameSave, tournament: TournamentSaveData): boolean {
-        const tournamentMatches = save.completedMatches.filter(m => m.tournamentId === tournament.id)
-        if (tournamentMatches.length === 0) return false
-
-        if (tournament.playoffBracket && tournament.playoffBracket.length > 0) {
-            const terminalMatch = tournament.playoffBracket
-                .filter(m => this.isTerminalBracketStage(m.stage))
-                .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-
-            if (!terminalMatch || !terminalMatch.isCompleted || !terminalMatch.winnerId) {
-                return false
-            }
-            return tournamentMatches.some(m => m.id === terminalMatch.id)
-        }
-
-        if (tournament.format === "league") {
-            const pending = save.scheduledMatches.some(
-                m => m.tournamentId === tournament.id && m.week <= save.currentWeek
-            )
-            if (pending) return false
-            return tournamentMatches.length > 0
-        }
-
-        const finalByStage = tournamentMatches
-            .filter(m => m.stage && this.isTerminalBracketStage(m.stage))
-            .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-        return !!finalByStage?.result?.winnerId
+        return hasTerminalTournamentCompletionFn(save, tournament)
     }
 
     private updateStandings(save: GameSave, idx?: SaveIndexes, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
