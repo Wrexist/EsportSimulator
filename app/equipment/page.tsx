@@ -36,7 +36,9 @@ import {
 } from "@/engine/equipment-manager"
 
 const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
-const EQUIPMENT_TYPES: EquipmentType[] = ["MOUSE", "KEYBOARD", "MONITOR", "HEADSET", "CHAIR", "PC"]
+// Derived from the display map so a future EquipmentType addition can't drift
+// — both lists stay in lock-step automatically.
+const EQUIPMENT_TYPES = Object.keys(EQUIPMENT_TYPE_DISPLAY) as EquipmentType[]
 
 export default function EquipmentPage() {
     const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({

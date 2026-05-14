@@ -113,8 +113,6 @@ export default function BasecampPage() {
     })
   }
 
-  const facilityConfig = FACILITY_CONFIG
-
   return (
     <div className="min-h-screen bg-[#080a0e] text-white p-8">
       <div className="max-w-7xl mx-auto space-y-12">
@@ -154,7 +152,7 @@ export default function BasecampPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-0">
           {(["TRAINING", "RECOVERY", "TACTICAL", "FANZONE"] as const).map((type, i) => {
             const facility = playerTeam.facilities?.find(f => f.type === type)
-            const config = facilityConfig[type]
+            const config = FACILITY_CONFIG[type]
             const level = facility?.level || 0
             const nextLevelCost = level === 0 ? 10000 : level * 25000
             const maintenance = facility?.monthlyCost ? Math.floor(facility.monthlyCost / 4) : 0

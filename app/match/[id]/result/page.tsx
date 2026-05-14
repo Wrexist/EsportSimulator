@@ -98,16 +98,25 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         const homeWon = match.result.homeScore > match.result.awayScore
         const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
 
+        // Track scheduled work so cleanup can cancel it on unmount and the
+        // RAF / timeout don't keep firing canvas-confetti against an
+        // unmounted component.
+        let cancelled = false
+        let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
+        let rafId: number | undefined
+
         if (playerWon) {
             confettiTriggered.current = true
 
             // Preload then fire the burst — keeps canvas-confetti out of the
             // critical bundle for non-winning paths.
             preloadConfetti().then(() => {
+                if (cancelled) return
                 const duration = 3000
                 const end = Date.now() + duration
 
                 const frame = () => {
+                    if (cancelled) return
                     fireConfetti({
                         particleCount: 3,
                         angle: 60,
@@ -124,7 +133,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                     })
 
                     if (Date.now() < end) {
-                        requestAnimationFrame(frame)
+                        rafId = requestAnimationFrame(frame)
                     }
                 }
 
@@ -135,11 +144,14 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                     colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
                 })
 
-                setTimeout(frame, 250)
+                initialDelayTimer = setTimeout(frame, 250)
             })
         }
 
         return () => {
+            cancelled = true
+            if (initialDelayTimer) clearTimeout(initialDelayTimer)
+            if (rafId) cancelAnimationFrame(rafId)
             confettiTriggered.current = false
         }
     }, [match, playerTeamId, id])

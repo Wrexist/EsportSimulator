@@ -343,7 +343,7 @@ export default function FinancesPage() {
                         <tr key={p.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-4 flex items-center gap-3">
                             <div className="h-8 w-8 bg-zinc-800 rounded-full flex items-center justify-center overflow-hidden">
-                              {p.portraitPath ? <Image src={p.portraitPath} alt={p.nickname} width={32} height={32} className="h-full w-full object-cover" unoptimized /> : <span className="text-xs font-bold">{p.nickname.substring(0, 1)}</span>}
+                              {p.portraitPath ? <Image src={p.portraitPath} alt={p.nickname} width={32} height={32} className="h-full w-full object-cover" /> : <span className="text-xs font-bold">{p.nickname.substring(0, 1)}</span>}
                             </div>
                             <div>
                               <div className="font-bold">{p.nickname}</div>

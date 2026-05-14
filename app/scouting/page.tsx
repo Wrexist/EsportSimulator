@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, memo } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import Image from "next/image"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -111,12 +111,13 @@ type SortField = "ovr" | "age" | "value" | "synergy" | "name"
 type SortDirection = "asc" | "desc"
 
 // Hoisted outside the page so it isn't rebuilt on every parent re-render.
-function SortIcon({ field, sortField, sortDirection }: { field: SortField; sortField: SortField; sortDirection: SortDirection }) {
+// memo'd so the 5 header cells don't reconcile on unrelated parent updates.
+const SortIcon = memo(function SortIcon({ field, sortField, sortDirection }: { field: SortField; sortField: SortField; sortDirection: SortDirection }) {
     if (sortField !== field) return <ArrowUpDown size={10} className="ml-1 opacity-30" />
     return sortDirection === "asc"
         ? <ArrowUp size={10} className="ml-1 text-primary" />
         : <ArrowDown size={10} className="ml-1 text-primary" />
-}
+})
 
 export default function ScoutingPage() {
     const {

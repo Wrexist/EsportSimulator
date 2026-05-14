@@ -45,7 +45,9 @@ export default function SponsorshipsPage() {
   })))
   const playerTeam = useCurrentTeam()
 
-  const isSessionActive = isInitialized || (!!playerTeam && !!playerTeamId)
+  // Require both initialization AND a loaded team — otherwise the session
+  // guard below short-circuits to null and the page never recovers.
+  const isSessionActive = !!playerTeam && !!playerTeamId
 
   // Session guard
   useEffect(() => {
