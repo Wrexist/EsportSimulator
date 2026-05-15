@@ -39,6 +39,11 @@ import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTER
 import { perfTrace } from "./perf-trace"
 import { MATCH_BALANCE, MATCH_STRUCTURE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK } from "@/lib/constants"
 import { logger } from "@/lib/logger"
+import {
+    calculateMapStrengths as calculateMapStrengthsFn,
+    selectMapForVeto as selectMapForVetoFn,
+    simulateMapVeto as simulateMapVetoFn,
+} from "./match/map-veto"
 
 // ===== TYPES =====
 
@@ -274,6 +279,10 @@ export class SimulationEngineV2 {
      * Simulate map veto process
      * Order: Ban, Ban, Pick, Pick, Remaining is decider
      */
+    // Veto / map-strength implementation lives in engine/match/map-veto.ts
+    // (Phase I1). Facades preserved so existing callers — useLiveMatch +
+    // match-simulation-slice + this class's own simulateMatch — keep
+    // their import paths.
     private simulateMapVeto(
         rng: SeededRNG,
         homeTeamId: string,
@@ -285,102 +294,17 @@ export class SimulationEngineV2 {
         cachedHomeMapStrengths?: Map<MapId, number>,
         cachedAwayMapStrengths?: Map<MapId, number>
     ): { veto: MapVeto[]; maps: MapId[] } {
-        const allMaps: MapId[] = [
-            MapId.DUST2, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
-            MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS
-        ]
-        let availableMaps = [...allMaps]
-        const veto: MapVeto[] = []
-        const selectedMaps: MapId[] = []
-
-        // Analyst level affects veto intelligence (1-5)
-        const homeVetoSkill = homeAnalyst ? homeAnalyst.level : 1
-        const awayVetoSkill = awayAnalyst ? awayAnalyst.level : 1
-
-        // Use cached map strengths if provided, otherwise calculate
-        const homeMapStrengths = cachedHomeMapStrengths || this.calculateMapStrengths(homePlayers)
-        const awayMapStrengths = cachedAwayMapStrengths || this.calculateMapStrengths(awayPlayers)
-
-        // BAN PHASE: Each team bans 1 map (ban opponent's best)
-        // Home team bans away's strongest map
-        const homeBan = this.selectMapForVeto(rng, availableMaps, awayMapStrengths, "BAN", awayVetoSkill)
-        veto.push({ teamId: homeTeamId, action: "BAN", map: homeBan, order: 1 })
-        availableMaps = availableMaps.filter(m => m !== homeBan)
-
-        // Away team bans home's strongest map
-        const awayBan = this.selectMapForVeto(rng, availableMaps, homeMapStrengths, "BAN", homeVetoSkill)
-        veto.push({ teamId: awayTeamId, action: "BAN", map: awayBan, order: 2 })
-        availableMaps = availableMaps.filter(m => m !== awayBan)
-
-        // PICK PHASE: Each team picks their best remaining map
-        // Home team picks their best
-        const homePick = this.selectMapForVeto(rng, availableMaps, homeMapStrengths, "PICK", homeVetoSkill)
-        veto.push({ teamId: homeTeamId, action: "PICK", map: homePick, order: 3 })
-        selectedMaps.push(homePick)
-        availableMaps = availableMaps.filter(m => m !== homePick)
-
-        // Away team picks their best
-        const awayPick = this.selectMapForVeto(rng, availableMaps, awayMapStrengths, "PICK", awayVetoSkill)
-        veto.push({ teamId: awayTeamId, action: "PICK", map: awayPick, order: 4 })
-        selectedMaps.push(awayPick)
-        availableMaps = availableMaps.filter(m => m !== awayPick)
-
-        // DECIDER: Random from remaining (or competitive balance)
-        const decider = rng.pick(availableMaps)
-        veto.push({ teamId: "SYSTEM", action: "PICK", map: decider, order: 5 })
-        selectedMaps.push(decider)
-
-        return { veto, maps: selectedMaps }
+        return simulateMapVetoFn(
+            rng, homeTeamId, awayTeamId, homePlayers, awayPlayers,
+            homeAnalyst, awayAnalyst,
+            cachedHomeMapStrengths, cachedAwayMapStrengths,
+        )
     }
 
-    /**
-     * Calculate team's strength on each map based on player skills
-     */
     public calculateMapStrengths(players: Player[]): Map<MapId, number> {
-        const strengths = new Map<MapId, number>()
-        const allMaps: MapId[] = [
-            MapId.DUST2, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
-            MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS
-        ]
-
-        if (players.length === 0) {
-            allMaps.forEach(map => strengths.set(map, 50))
-            return strengths
-        }
-
-        const avgSkill = players.reduce((sum, p) => sum + p.skill, 0) / players.length
-        const avgTactic = players.reduce((sum, p) => sum + p.tactic, 0) / players.length
-
-        allMaps.forEach(map => {
-            // Base strength from skill
-            let strength = avgSkill
-
-            // Map-specific modifiers based on tactical vs aim maps
-            switch (map) {
-                case MapId.NUKE:
-                case MapId.OVERPASS:
-                    // Tactical maps favor tactic stat
-                    strength = avgSkill * 0.4 + avgTactic * 0.6
-                    break
-                case MapId.DUST2:
-                case MapId.MIRAGE:
-                    // Aim maps favor skill
-                    strength = avgSkill * 0.7 + avgTactic * 0.3
-                    break
-                default:
-                    // Balanced maps
-                    strength = avgSkill * 0.5 + avgTactic * 0.5
-            }
-
-            strengths.set(map, strength)
-        })
-
-        return strengths
+        return calculateMapStrengthsFn(players)
     }
 
-    /**
-     * Select a map for veto based on strengths and analyst skill
-     */
     public selectMapForVeto(
         rng: SeededRNG,
         availableMaps: MapId[],
@@ -388,20 +312,7 @@ export class SimulationEngineV2 {
         action: "BAN" | "PICK",
         analystLevel: number
     ): MapId {
-        // Higher analyst = less randomness in decision
-        const randomFactor = (6 - analystLevel) * 0.1 // 0.5 at level 1, 0.1 at level 5
-
-        const scored = availableMaps.map(map => ({
-            map,
-            score: (targetStrengths.get(map) || 50) + rng.range(-randomFactor * 20, randomFactor * 20)
-        }))
-
-        // BAN: Target opponent's best (highest score)
-        // PICK: Choose own best (highest score)
-        // Both sort descending and pick first, but BAN uses opponent's strengths
-        scored.sort((a, b) => b.score - a.score)
-
-        return scored[0].map
+        return selectMapForVetoFn(rng, availableMaps, targetStrengths, action, analystLevel)
     }
 
     /**
