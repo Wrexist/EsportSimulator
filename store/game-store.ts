@@ -1127,6 +1127,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Get the selected team for welcome message
           const selectedTeam = newSave.teams.find((t: any) => t.id === playerTeamId)
+          // Snapshot the starting tier so ZERO_TO_HERO can detect a
+          // career-long climb. Set exactly once at career creation;
+          // post-tick achievement evaluation reads it without mutation.
+          if (selectedTeam && selectedTeam.startingLeagueTier == null) {
+            selectedTeam.startingLeagueTier = selectedTeam.leagueTier
+          }
           const teamRoster = newSave.players.filter((p: any) => selectedTeam?.rosterIds?.includes(p.id))
           const avgRating = teamRoster.length > 0
             ? Math.round(teamRoster.reduce((acc: number, p: any) => acc + (p.skill || 75), 0) / teamRoster.length)
@@ -1271,6 +1277,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             maxTrainingSlots: 3,
             budget: totalBudget, // Includes recruitment bonus
             leagueTier: "C_TIER",
+            startingLeagueTier: "C_TIER", // ZERO_TO_HERO baseline
             worldRanking: 150, // Start at bottom
             facilities: [
               { id: "room_train", type: "TRAINING" as const, level: 1, description: "Basic training setup", monthlyCost: 500 },

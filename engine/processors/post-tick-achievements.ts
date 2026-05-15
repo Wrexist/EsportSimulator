@@ -53,16 +53,13 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         m.week === save.currentWeek &&
         (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)
     )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hasComebackWin = thisWeekMatches.some(m => (m as any)._comebackWin)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hasUnderdogWin = thisWeekMatches.some(m => (m as any)._underdogWin)
+    const hasComebackWin = thisWeekMatches.some(m => m._comebackWin)
+    const hasUnderdogWin = thisWeekMatches.some(m => m._underdogWin)
 
     // Roster kill/headshot tallies + total matches.
     const playerTeamPlayers = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
     const totalKills = playerTeamPlayers.reduce((s, p) => s + (p.totalKills || 0), 0)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalHS = playerTeamPlayers.reduce((s, p) => s + ((p as any).totalHeadshots || 0), 0)
+    const totalHS = playerTeamPlayers.reduce((s, p) => s + (p.totalHeadshots || 0), 0)
     const matchesPlayed = save.completedMatches.filter(m =>
         m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId
     ).length
@@ -97,9 +94,7 @@ export function evaluatePostTickAchievements(save: GameSave): void {
             ? m.result.homeScore < m.result.awayScore
             : m.result.awayScore < m.result.homeScore
         if (!lost) return false
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const stage = (m as any).stage
-        if (stage !== "Grand Final") return false
+        if (m.stage !== "Grand Final") return false
         const tier = m.tournamentId ? tournamentTierById.get(m.tournamentId) : undefined
         return tier === "S_TIER"
     })
@@ -117,24 +112,21 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         if (!lost) return false
         const loserScore = isHome ? m.result.homeScore : m.result.awayScore
         const winnerScore = isHome ? m.result.awayScore : m.result.homeScore
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (m as any).stage === "Grand Final" && loserScore === 14 && winnerScore === 16
+        return m.stage === "Grand Final" && loserScore === 14 && winnerScore === 16
     })
 
     checkAchievements({
         totalWins,
         worldRanking: playerTeam.worldRanking,
         leagueTier: playerTeam.leagueTier,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        startingLeagueTier: (playerTeam as any).startingLeagueTier,
+        startingLeagueTier: playerTeam.startingLeagueTier,
         budget: playerTeam.budget,
         tournamentsWon,
         hallOfFamePlayers: save.legendaryPlayers?.length || 0,
         firstTournamentParticipation: save.completedMatches.some(
             match => !!match.tournamentId && match.tournamentId !== "SCRIM"
         ),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        developedStar: save.players.some(player => !!(player as any).isAcademyGraduate && player.skill >= 90),
+        developedStar: save.players.some(player => !!player.isAcademyGraduate && player.skill >= 90),
         majorWinsInSeason,
         totalMajorWins,
         seasonComplete: save.currentWeek > 0 && save.currentWeek % WEEKS_PER_SEASON === 0,

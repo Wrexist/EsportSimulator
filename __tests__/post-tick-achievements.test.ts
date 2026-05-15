@@ -400,6 +400,100 @@ describe("evaluatePostTickAchievements — milestone gates", () => {
         }
     })
 
+    test("ZERO_TO_HERO fires when team started at C_TIER and is now S_TIER", () => {
+        const snap = snapshotUnlocks()
+        try {
+            // Pre-fix this was unreachable: post-tick read
+            // (playerTeam as any).startingLeagueTier which was never
+            // written, leaving the gate's first conjunct always false.
+            const save = makeSave({
+                teams: [makeTeam("player", {
+                    rosterIds: ["p1"],
+                    leagueTier: "S_TIER",
+                    startingLeagueTier: "C_TIER",
+                    lastRosterChangeWeek: 1,
+                })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("ZERO_TO_HERO")).toBe(true)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("ZERO_TO_HERO does NOT fire when started at A_TIER", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                teams: [makeTeam("player", {
+                    rosterIds: ["p1"],
+                    leagueTier: "S_TIER",
+                    startingLeagueTier: "A_TIER",
+                    lastRosterChangeWeek: 1,
+                })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("ZERO_TO_HERO")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("ZERO_TO_HERO does NOT fire on legacy saves (startingLeagueTier undefined)", () => {
+        const snap = snapshotUnlocks()
+        try {
+            // Legacy save migrated forward: startingLeagueTier never
+            // captured. Achievement must stay locked rather than crash.
+            const save = makeSave({
+                teams: [makeTeam("player", {
+                    rosterIds: ["p1"],
+                    leagueTier: "S_TIER",
+                    lastRosterChangeWeek: 1,
+                })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("ZERO_TO_HERO")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("DEVELOPED_STAR fires when an academy-graduate player hits skill ≥ 90", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const graduate = makePlayer("grad")
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(graduate as any).isAcademyGraduate = true
+            graduate.skill = 92
+            const save = makeSave({
+                players: [graduate],
+                teams: [makeTeam("player", { rosterIds: ["grad"], lastRosterChangeWeek: 1 })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("DEVELOP_STAR")).toBe(true)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("DEVELOPED_STAR does NOT fire for academy graduate below 90 skill", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const graduate = makePlayer("grad")
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(graduate as any).isAcademyGraduate = true
+            graduate.skill = 89
+            const save = makeSave({
+                players: [graduate],
+                teams: [makeTeam("player", { rosterIds: ["grad"], lastRosterChangeWeek: 1 })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("DEVELOP_STAR")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
     test("save with no player team → no crash, no achievements", () => {
         const snap = snapshotUnlocks()
         try {

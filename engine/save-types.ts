@@ -325,6 +325,11 @@ export interface TeamSaveData {
     budget: number
     elo: number // Phase 19: World Ranking
     leagueTier: string // Phase 19: S_TIER, A_TIER, etc.
+    // Snapshot of the tier the team started the career in. Used by the
+    // ZERO_TO_HERO achievement (start at C_TIER → climb to S_TIER). Set
+    // exactly once at newGame time for the playerTeam; never mutated by
+    // promotion/relegation. Optional because legacy saves predate it.
+    startingLeagueTier?: string
     worldRanking?: number // Phase 19: Calculated 1-30 rank
     // Phase 17: Tactical Mastery
     synergyMatrix?: Record<string, number> // key: "id1_id2", value: 0-100
