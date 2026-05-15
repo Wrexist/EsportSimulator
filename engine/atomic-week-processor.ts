@@ -61,6 +61,7 @@ import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
 import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
 import { detectAchievementFlags } from "./processors/match-achievement-flags"
+import { processForfeitMatch } from "./processors/match-forfeit"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -594,65 +595,13 @@ export class AtomicWeekProcessor {
             const awayPlayers = selectActivePlayers(awayTeam.rosterIds)
 
             if (homePlayers.length < 5 || awayPlayers.length < 5) {
-                // Forfeit: team with fewer than 5 healthy players loses the match
-                const forfeitingTeam = homePlayers.length < 5 ? homeTeam : awayTeam
-                const winningTeam = homePlayers.length < 5 ? awayTeam : homeTeam
-                const homeForfeits = homePlayers.length < 5
-
-                // Create a forfeit result
-                const forfeitResult: CompletedMatchSaveData = {
-                    ...match,
-                    result: {
-                        homeScore: homeForfeits ? 0 : 1,
-                        awayScore: homeForfeits ? 1 : 0,
-                        maps: [],
-                        playerStats: {},
-                        winnerId: winningTeam.id,
-                        mvpPlayerId: ""
-                    },
-                    analysis: {
-                        summary: `${forfeitingTeam.name} forfeited due to insufficient healthy players (${homeForfeits ? homePlayers.length : awayPlayers.length}/5 available).`,
-                        keyFactor: "FIREPOWER",
-                        winningFactor: "Win by forfeit",
-                        losingFactor: "Insufficient healthy players",
-                        teamPerformance: { economyRating: 0, aimRating: 0, utilityRating: 0, tradingRating: 0 }
-                    },
-                }
-
-                save.completedMatches.push(forfeitResult)
-                removedMatchIds.add(match.id)
-
-                // Update form (already resolved, use directly)
-                const wTeam = winningTeam
-                const fTeam = forfeitingTeam
-                if (wTeam) {
-                    if (!wTeam.recentForm) wTeam.recentForm = []
-                    wTeam.recentForm.push("W")
-                    if (wTeam.recentForm.length > 5) wTeam.recentForm.shift()
-                }
-                if (fTeam) {
-                    if (!fTeam.recentForm) fTeam.recentForm = []
-                    fTeam.recentForm.push("L")
-                    if (fTeam.recentForm.length > 5) fTeam.recentForm.shift()
-                }
-
-                // Generate forfeit event for player team
-                if (forfeitingTeam.id === playerTeamId || winningTeam.id === playerTeamId) {
-                    save.eventsLog.unshift({
-                        id: `forfeit_${save.currentWeek}_${match.id}`,
-                        type: "MATCH_RESULT",
-                        week: save.currentWeek,
-                        data: {
-                            description: forfeitingTeam.id === playerTeamId
-                                ? `Your team forfeited against ${winningTeam.name} due to too many injured players.`
-                                : `${forfeitingTeam.name} forfeited your match — win by default!`,
-                            importance: "HIGH"
-                        },
-                        acknowledged: false
-                    })
-                }
-
-                matchesPlayed++
+                // Forfeit branch extracted to processors/match-forfeit.ts
+                // (Phase M7). Returns the matchesPlayed delta.
+                const { matchesPlayed: forfeitDelta } = processForfeitMatch({
+                    save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
+                    playerTeamId, removedMatchIds,
+                })
+                matchesPlayed += forfeitDelta
                 continue
             }
 
