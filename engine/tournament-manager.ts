@@ -40,6 +40,7 @@ import {
     handleSwissResult as handleSwissResultFn,
     generateSwissPlayoffs as generateSwissPlayoffsFn,
 } from "./tournament/swiss-handlers"
+import { setupLeagueSchedule as setupLeagueScheduleFn } from "./tournament/league-schedule"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -1143,75 +1144,9 @@ export class TournamentManager {
         save: GameSave,
         tournament: TournamentSaveData,
         teamIds: string[],
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        const teams = [...teamIds]
-        // Add dummy team if odd number of teams
-        if (teams.length % 2 !== 0) {
-            teams.push("BYE")
-        }
-
-        const numTeams = teams.length
-        const numRounds = numTeams - 1
-        const matchesPerRound = numTeams / 2
-        const startWeek = tournament.startWeek
-        const duration = Math.max(1, tournament.endWeek - tournament.startWeek)
-
-        // Circle Method for Round Robin
-        const rounds: { home: string, away: string }[][] = []
-
-        for (let round = 0; round < numRounds; round++) {
-            const roundMatches: { home: string, away: string }[] = []
-
-            for (let i = 0; i < matchesPerRound; i++) {
-                const homeIdx = i
-                const awayIdx = numTeams - 1 - i
-
-                const home = teams[homeIdx]
-                const away = teams[awayIdx]
-
-                if (home !== "BYE" && away !== "BYE") {
-                    roundMatches.push({ home, away })
-                }
-            }
-            rounds.push(roundMatches)
-
-            // Rotate teams (keep index 0 fixed)
-            // [0, 1, 2, 3] -> [0, 3, 1, 2] (example)
-            // Implementation: Move last element to index 1, shift everything else up
-            teams.splice(1, 0, teams.pop()!)
-        }
-
-        // Distribute rounds across weeks
-        // We have `numRounds` to play over `duration` weeks.
-        // Ideally 1 round per week, or multiple if short duration.
-
-        let currentMatchIndex = 0
-        rounds.forEach((roundMatches, roundIndex) => {
-            // Determine week for this round
-            // Linear mapping of rounds to weeks
-            const weekOffset = Math.floor((roundIndex / numRounds) * duration)
-            const matchWeek = startWeek + weekOffset
-
-            roundMatches.forEach(m => {
-                const matchId = `${tournament.id}_league_${currentMatchIndex++}`
-                const match: BracketMatchSaveData = {
-                    id: matchId,
-                    tournamentId: tournament.id,
-                    stage: "League Match",
-                    homeTeamId: m.home,
-                    awayTeamId: m.away,
-                    isCompleted: false,
-                    week: matchWeek,
-                    format: "BO1",
-                    seed: rng.int(0, 999999),
-                    sourceMatchIds: []
-                }
-
-                this.addBracketMatch(tournament, match)
-                this.scheduleBracketMatch(save, match)
-            })
-        })
+        setupLeagueScheduleFn(save, tournament, teamIds, rng)
     }
     private static setupSimpleBracket(save: GameSave, tournament: TournamentSaveData, teamIds: string[], rng: SeededRNG): void {
         // Fallback: Pair everyone up, give bye to last team if odd count
