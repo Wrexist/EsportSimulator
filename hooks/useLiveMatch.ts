@@ -6,6 +6,7 @@ import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGam
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
+import { pickAutoStrategy } from "@/engine/match/auto-tactics"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -1070,15 +1071,11 @@ export function useLiveMatch(id: string) {
         if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS") return
         if (simState.currentRound === 1 || simState.currentRound === 13) return
 
-        const homeCount = Math.max(1, Object.keys(simState.homeEconomy).length)
-        const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + (p?.cash || 0), 0) / homeCount)
-        let bestStrategy = "ECO"
-        if (avgCash > 4500) bestStrategy = "FULL"
-        else if (avgCash > 2000) bestStrategy = "SEMIBUY"
-        else if (avgCash > 1400) bestStrategy = "FORCE"
+        // Auto-tactics strategy pick (Phase L2 extraction).
+        const bestStrategy = pickAutoStrategy(simState.homeEconomy)
 
         const timer = setTimeout(() => {
-            startNextRound(bestStrategy as any)
+            startNextRound(bestStrategy)
         }, 500)
         return () => clearTimeout(timer)
     }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, customTactics, startNextRound])
