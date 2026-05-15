@@ -27,8 +27,6 @@ import {
 import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
 import { perfTrace } from "./perf-trace"
-import { WeaponMasteryManager } from "@/engine/weapon-mastery-system"
-import { WEAPONS } from "@/engine/economy-manager"
 import { AIManager } from "./ai-manager"
 import { processWeeklyChemistryGrowth } from "./chemistry-engine"
 import {
@@ -62,6 +60,7 @@ import { resetStaleTournamentState } from "./processors/tournament-state-cleanup
 import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
 import { detectAchievementFlags } from "./processors/match-achievement-flags"
 import { processForfeitMatch } from "./processors/match-forfeit"
+import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -629,32 +628,12 @@ export class AtomicWeekProcessor {
                 awayTeamStaff
             )
 
-            // Phase 48: Weapon Mastery XP
-            // Accumulate kills by weapon type
-            const playerWeaponStats: Record<string, { rifle: number, awp: number, pistol: number, smg: number }> = {}
-
-            const trackWeaponKill = (playerId: string, weaponId: string, kills: number) => {
-                if (!playerWeaponStats[playerId]) playerWeaponStats[playerId] = { rifle: 0, awp: 0, pistol: 0, smg: 0 }
-                const w = WEAPONS[weaponId.toUpperCase()]
-                if (!w) return
-
-                // Add based on weapon type
-                if (w.type === "RIFLE") playerWeaponStats[playerId].rifle += kills
-                else if (w.type === "SNIPER") playerWeaponStats[playerId].awp += kills
-                else if (w.type === "PISTOL") playerWeaponStats[playerId].pistol += kills
-                else if (w.type === "SMG") playerWeaponStats[playerId].smg += kills
-            }
-
-            // Iterate through every round of every map
-            result.maps.forEach(map => {
-                map.rounds.forEach(round => {
-                    round.kills.forEach(k => {
-                        if (k.weapon) {
-                            trackWeaponKill(k.playerId, k.weapon, k.kills)
-                        }
-                    })
-                })
-            })
+            // Weapon-mastery XP aggregation + application extracted to
+            // processors/match-weapon-mastery.ts (Phase M8). The function
+            // walks result.maps[].rounds[].kills[] once, buckets by weapon
+            // type, then calls WeaponMasteryManager.processMatchWeaponXP
+            // for every player with kills.
+            processMatchWeaponMastery(save, result, idx)
 
             // Manager XP & Stats
             if (save.managerDetails) {
@@ -686,20 +665,6 @@ export class AtomicWeekProcessor {
                     save.managerDetails.reputation = Math.max(0, save.managerDetails.reputation - 1)
                 }
             }
-
-            // Award XP
-            Object.entries(playerWeaponStats).forEach(([playerId, stats]) => {
-                const p = idx?.playerIndex.get(playerId) ?? save.players.find(pl => pl.id === playerId)
-                if (p) {
-                    WeaponMasteryManager.processMatchWeaponXP(
-                        p,
-                        stats.rifle,
-                        stats.awp,
-                        stats.pistol,
-                        stats.smg
-                    )
-                }
-            })
 
             // Phase 12: Analyze match
             const analysis = MatchAnalyzer.analyze(
