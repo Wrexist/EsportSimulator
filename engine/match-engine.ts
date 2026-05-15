@@ -9,7 +9,7 @@ import { PlayerTier, StaffType } from "@/types/enums"
 import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
-import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "./talent-trees"
+import { applyPreMatchTalents } from "./match/apply-talents"
 import { logger } from "@/lib/logger"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
@@ -173,34 +173,15 @@ export class MatchEngine {
             mentalPrep: match.mentalPrep ?? false,
         } as Match
 
-        // Collect staff talent passive bonuses
-        const homeTalentBonuses = collectTeamTalentBonuses(homeTeamStaff || [])
-        const awayTalentBonuses = collectTeamTalentBonuses(awayTeamStaff || [])
-
-        // anti_strat talent: reduces opponent tactic effectiveness (multiplicative)
-        const homeAntiStrat = (homeTalentBonuses["anti_strat"] || 0) / 100
-        const awayAntiStrat = (awayTalentBonuses["anti_strat"] || 0) / 100
+        // Pre-match staff-talent application (morale_floor + timeout_morale
+        // + anti_strat). Centralized in engine/match/apply-talents.ts so
+        // the slice + live-match paths stay in lockstep (H4).
+        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
+            adaptedHomePlayers, adaptedAwayPlayers,
+            homeTeamStaff, awayTeamStaff,
+        )
         awayTacticalBonus *= (1 - homeAntiStrat)
         homeTacticalBonus *= (1 - awayAntiStrat)
-
-        // morale_floor / tilt_immunity talent: enforce minimum morale for match
-        applyTalentMoraleFloor(adaptedHomePlayers, homeTalentBonuses)
-        applyTalentMoraleFloor(adaptedAwayPlayers, awayTalentBonuses)
-
-        // timeout_morale talent (Coach "Timeout Whisperer"): one-time
-        // additive morale boost applied at the start of the match,
-        // modeling the pre-match coach speech as the "tactical timeout"
-        // moment. Capped at 100. Stacks with the morale_floor enforcement
-        // above — the floor sets a minimum, this lifts everyone by the
-        // bonus value on top.
-        const homeTimeoutMorale = homeTalentBonuses["timeout_morale"] || 0
-        const awayTimeoutMorale = awayTalentBonuses["timeout_morale"] || 0
-        if (homeTimeoutMorale > 0) {
-            adaptedHomePlayers.forEach(p => { p.morale = Math.min(100, p.morale + homeTimeoutMorale) })
-        }
-        if (awayTimeoutMorale > 0) {
-            adaptedAwayPlayers.forEach(p => { p.morale = Math.min(100, p.morale + awayTimeoutMorale) })
-        }
 
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({

@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
-import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
+import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -198,15 +198,12 @@ export function useLiveMatch(id: string) {
         const homeStaff = mapStaff(hStaffData)
         const awayStaff = mapStaff(aStaffData)
 
-        // Apply staff talent passive bonuses
-        const hBonuses = collectTeamTalentBonuses(hStaffData)
-        const aBonuses = collectTeamTalentBonuses(aStaffData)
-        applyTalentMoraleFloor(homePlayers, hBonuses)
-        applyTalentMoraleFloor(awayPlayers, aBonuses)
-
-        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
-        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
-        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        // Pre-match staff-talent application (morale_floor + timeout_morale
+        // + anti_strat). Centralized in engine/match/apply-talents.ts so
+        // the slice + match-engine paths stay in lockstep.
+        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
+            homePlayers, awayPlayers, hStaffData, aStaffData,
+        )
         if (homeAntiStrat > 0 && awayStaff.coach) {
             awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
         }

@@ -38,7 +38,7 @@ import {
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
-import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
+import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { checkAchievements } from "@/engine/steam-service"
 import {
     ensureDeterministicSeed,
@@ -560,20 +560,18 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             psychologist: sData.find(s => s.role === "psychologist"),
         })
 
-        // Apply staff talent passive bonuses to both rosters' morale floor.
-        const hBonuses = collectTeamTalentBonuses(hStaffData)
-        const aBonuses = collectTeamTalentBonuses(aStaffData)
-        applyTalentMoraleFloor(hPlayers, hBonuses)
-        applyTalentMoraleFloor(aPlayers, aBonuses)
+        // Pre-match staff-talent application — morale_floor + timeout_morale
+        // + anti_strat in one call. Centralized in engine/match/apply-talents.ts
+        // so the slice + match-engine + live-match paths stay in lockstep.
+        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
+            hPlayers, aPlayers, hStaffData, aStaffData,
+        )
 
         const hStaff = mapStaff(hStaffData)
         const aStaff = mapStaff(aStaffData)
 
-        // anti_strat: each team's anti_strat talent multiplicatively
-        // reduces the *opposing* coach's tactic bonus. mapStaff returns
+        // anti_strat applied to opponent coach tactic bonus. mapStaff returns
         // raw StaffSaveData without a tacticBonus field — derive from level.
-        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
-        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
         if (homeAntiStrat > 0 && aStaff.coach) {
             const baseTactic = aStaff.coach.tacticBonus || (aStaff.coach.level || 1) * 2
             aStaff.coach.tacticBonus = Math.round(baseTactic * (1 - homeAntiStrat))
