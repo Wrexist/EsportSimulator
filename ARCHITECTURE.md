@@ -531,6 +531,48 @@ relevant subsystem arrays, and mutate the save in place. All log to
 `save.financeLedger` with category `FACILITIES` (or `WAGES_STAFF` /
 `SPONSOR` as appropriate) for visibility.
 
+### AI manager module layout (Phases H3 + K)
+
+`engine/ai-manager.ts` was 1,213 lines as a single monolithic class.
+Phases H3 → K2 → K3 → K4 broke it up into five focused modules
+while keeping `AIManager` as a public facade:
+
+```
+engine/
+├── ai-manager.ts                  (485 lines — AIManager facade)
+└── ai/
+    ├── rng-helpers.ts             (32 lines)
+    │   ├── aiRoll                 RNG draw with module fallback
+    │   └── hashTeamId             FNV-style hash for RNG salting
+    ├── player-index.ts            (39 lines)
+    │   └── getPlayerIndex         cached id→player Map per tick
+    ├── infrastructure.ts          (260 lines, H3)
+    │   ├── manageStaff            staff hire (3%/week, max 3)
+    │   ├── manageSponsors         sponsor sign (5%/week, tier-gated)
+    │   ├── manageFacilities       infra build/upgrade (4%/week)
+    │   └── manageAcademy          academy invest (3%/week)
+    ├── roster-management.ts       (263 lines, K3)
+    │   ├── scoreSigningCandidate  pure value-per-dollar scorer
+    │   ├── signFreeAgent          best-FA signing pipeline
+    │   ├── releaseWorstPlayer     bounded-cost cut decision
+    │   └── manageRoster           orchestrator decision tree
+    └── transfer-market.ts         (314 lines, K4)
+        ├── listPlayerForTransfer  crisis-mode panic flag
+        ├── processAITransferMarket AI offers vs player listings
+        └── processAIToAITransfers  AI ↔ AI trades, capped at 3/week
+```
+
+`AIManager` keeps thin facade methods so every internal caller +
+the one external caller (`ai-world-processor.ts` →
+`AIManager.processAIToAITransfers`) stays unchanged.
+
+What remains in `ai-manager.ts`: the `processWeeklyAI` orchestrator,
+`adaptTeamStrategy` (playstyle adaptation), `considerRoleTraining`
+(15%/week), `manageFinances` (panic-sell delegate), `processAcademyScouting`
+(prospect generation), `processSeasonEnd` (retire 33+ players),
+`initializeTeamData`, `refreshWorldRankings`, plus the facade
+methods for every extracted function.
+
 ### Match simulation module layout (Phases H4 + I + J)
 
 `engine/match-simulation.ts` was 2,020 lines as a single class. Phases
