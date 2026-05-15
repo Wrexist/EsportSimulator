@@ -56,6 +56,7 @@ import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fan
 import { getStaffPassiveBonuses } from "./talent-trees"
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
+import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -1069,6 +1070,9 @@ export class AtomicWeekProcessor {
         processFanbaseGrowthFn(save, rng)
     }
 
+    // Per-match sponsor goal progress extracted to
+    // engine/processors/match-sponsor-goals.ts (Phase M2). Facade kept
+    // so processMatches still calls this.applyMatchSponsorGoalProgress.
     private applyMatchSponsorGoalProgress(
         save: GameSave,
         team: TeamSaveData,
@@ -1078,61 +1082,7 @@ export class AtomicWeekProcessor {
         eventIdSet?: Set<string>,
         ledgerIdSet?: Set<string>
     ): void {
-        if (!team.sponsors || team.sponsors.length === 0) return
-
-        team.sponsors.forEach(sponsor => {
-            if (!Array.isArray(sponsor.goals)) return
-
-            sponsor.goals.forEach(goal => {
-                if (goal.isCompleted) return
-
-                if (goal.description.includes("Win Matches") && wonMatch) {
-                    goal.current += 1
-                }
-
-                if (goal.description.includes("Win Tournament maps")) {
-                    goal.current += mapsWon
-                }
-
-                if (goal.current < goal.target) return
-                goal.current = goal.target
-                goal.isCompleted = true
-
-                const payoutEntryId = `fin_sponsor_match_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}_${matchId}`
-                const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
-                if (alreadyPaid) return
-
-                team.budget += goal.bonusPayout
-                save.financeLedger.push({
-                    id: payoutEntryId,
-                    week: save.currentWeek,
-                    teamId: team.id,
-                    type: "INCOME",
-                    category: "SPONSOR",
-                    amount: goal.bonusPayout,
-                    description: `Goal Reached: ${goal.description}`,
-                    balance: team.budget
-                })
-                ledgerIdSet?.add(payoutEntryId)
-
-                if (team.id !== save.playerTeamId) return
-
-                const eventId = `evt_sponsor_match_goal_${save.currentWeek}_${sponsor.id}_${goal.id}_${matchId}`
-                if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
-                    save.eventsLog.unshift({
-                        id: eventId,
-                        type: "SPONSOR_OFFER",
-                        week: save.currentWeek,
-                        data: {
-                            title: "Sponsor Goal Met",
-                            message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`
-                        },
-                        acknowledged: false
-                    })
-                    eventIdSet?.add(eventId)
-                }
-            })
-        })
+        applyMatchSponsorGoalProgressFn(save, team, wonMatch, mapsWon, matchId, eventIdSet, ledgerIdSet)
     }
 
     /**
