@@ -17,6 +17,12 @@ import {
     manageAcademy as manageAcademyFn,
 } from "./ai/infrastructure"
 import { getPlayerIndex as getPlayerIndexFn } from "./ai/player-index"
+import {
+    scoreSigningCandidate as scoreSigningCandidateFn,
+    signFreeAgent as signFreeAgentFn,
+    releaseWorstPlayer as releaseWorstPlayerFn,
+    manageRoster as manageRosterFn,
+} from "./ai/roster-management"
 import { logger } from "@/lib/logger"
 
 /**
@@ -47,23 +53,15 @@ export class AIManager {
      * a value-for-money divisor so AI doesn't always go for the most
      * expensive player.
      */
+    // Roster management implementation extracted to
+    // engine/ai/roster-management.ts (Phase K3). Facades preserved
+    // so internal AIManager callers don't need to change.
     private static scoreSigningCandidate(
         player: PlayerSaveData,
         weeklySalary: number,
         missingRoles: Set<string>
     ): number {
-        const skill = player.skill ?? 50
-        const potential = player.potential ?? skill
-        const age = player.age ?? 22
-        const growthRoom = Math.max(0, potential - skill)
-        // Youth bonus (younger = more career left, more dev). Capped at age 17.
-        const youthBonus = Math.max(0, 25 - age) * 1.5
-        // Role-gap bonus: prefer players that fill a missing role.
-        const role = (player.role ?? "RIFLER").toString().toUpperCase()
-        const roleBonus = missingRoles.has(role) ? 20 : 0
-        // Value-for-money: scale by salary inversely.
-        const valueDivisor = Math.max(500, weeklySalary) / 1000
-        return (skill + growthRoom * 0.6 + youthBonus + roleBonus) / valueDivisor
+        return scoreSigningCandidateFn(player, weeklySalary, missingRoles)
     }
 
     /**
@@ -199,39 +197,7 @@ export class AIManager {
      * Handle Signings and Releases
      */
     private static manageRoster(team: TeamSaveData, save: GameSave) {
-        const rosterSize = team.rosterIds.length
-
-        // 1. Fill Gaps (Need 5 players)
-        if (rosterSize < 5) {
-            this.signFreeAgent(team, save)
-            return
-        }
-
-        // 1b. Critical role coverage: even at 5 players, if the team has no
-        // IGL or no AWPer, try to bring in a 6th who fills that gap. Limited
-        // to teams not in financial pressure so we don't bankrupt anyone.
-        const inFinancialPressure =
-            team.financialState === "RISK" ||
-            team.financialState === "CRISIS" ||
-            team.financialState === "INSOLVENT"
-        if (rosterSize < 7 && !inFinancialPressure && team.budget > 150_000) {
-            const playerIndex = this.getPlayerIndex(save)
-            const roles = new Set<string>()
-            for (const id of team.rosterIds) {
-                const p = playerIndex.get(id)
-                if (p?.role) roles.add(p.role.toString().toUpperCase())
-            }
-            const missingCritical = !roles.has("IGL") || !roles.has("AWPER")
-            if (missingCritical) {
-                this.signFreeAgent(team, save)
-                return
-            }
-        }
-
-        // 2. Trim Excess (Max 7 players)
-        if (rosterSize > 7) {
-            this.releaseWorstPlayer(team, save)
-        }
+        manageRosterFn(team, save)
     }
 
     /**
@@ -305,161 +271,11 @@ export class AIManager {
     // === ACTIONS ===
 
     private static signFreeAgent(team: TeamSaveData, save: GameSave) {
-        // Enforce max roster size of 7
-        if (team.rosterIds.length >= 7) return
-
-        const allRosteredIds = new Set(save.teams.flatMap(t => t.rosterIds))
-        const freeAgents = save.players.filter(p => !allRosteredIds.has(p.id) && !p.isRetired)
-
-        if (freeAgents.length === 0) return
-
-        // Calculate affordable salary based on team budget
-        // Salary formula: skill-based with tier multiplier, ensuring it's realistic
-        // AI needs at least 26 weeks of runway after signing (half a season)
-        const calculateSalary = (player: PlayerSaveData): number => {
-            const baseSalary = (player.skill ?? 50) * 50
-            const tierMultiplier = player.tier === "ELITE" ? 3 : player.tier === "PRO" ? 2 : 1
-            return Math.floor(baseSalary * tierMultiplier)
-        }
-
-        // Calculate total existing weekly costs (wages + staff + facilities)
-        const existingWageBill = save.contracts
-            .filter(c => c.teamId === team.id)
-            .reduce((sum, c) => sum + (c.salaryPerWeek || 0), 0)
-        const staffCosts = (team.staffIds || []).length * 2000 // ~$2k/week avg per staff
-        const existingWeeklyCosts = existingWageBill + staffCosts
-
-        // Identify missing roles on the current roster so the AI fills gaps
-        // rather than blindly stacking the highest skill regardless of role.
-        const playerIndex = this.getPlayerIndex(save)
-        const REQUIRED_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "SUPPORT", "RIFLER"]
-        const currentRoles = new Set<string>()
-        for (const id of team.rosterIds) {
-            const p = playerIndex.get(id)
-            if (p?.role) currentRoles.add(p.role.toString().toUpperCase())
-        }
-        const missingRoles = new Set(REQUIRED_ROLES.filter(r => !currentRoles.has(r)))
-
-        // Filter to affordable candidates first, then score by skill + growth
-        // + role-fit + value-for-money so AI picks the smartest signing
-        // instead of just highest raw skill (which often over-spends).
-        const affordable = freeAgents.filter(p => {
-            const weeklySalary = calculateSalary(p)
-            const totalWeeklyCost = existingWeeklyCosts + weeklySalary
-            const runwayCost = totalWeeklyCost * 26
-            return team.budget > runwayCost && team.budget > 50_000
-        })
-        if (affordable.length === 0) return
-
-        let target: PlayerSaveData | undefined
-        let bestScore = -Infinity
-        for (const p of affordable) {
-            const score = this.scoreSigningCandidate(p, calculateSalary(p), missingRoles)
-            if (score > bestScore) {
-                bestScore = score
-                target = p
-            }
-        }
-
-        if (!target) return
-
-        const salary = calculateSalary(target)
-
-        // Sign them. Defensive guard against double-add — if a stale roster
-        // somehow contains this player already, do nothing rather than
-        // creating a duplicate ID.
-        if (team.rosterIds.includes(target.id)) return
-        team.rosterIds.push(target.id)
-        applyRosterChangePenalty(team, save.currentWeek, 1)
-
-        // Create Contract (1 year)
-        save.contracts.push({
-            playerId: target.id,
-            teamId: team.id,
-            salaryPerWeek: salary,
-            startWeek: save.currentWeek,
-            endWeek: save.currentWeek + 52,
-            buyout: salary * 52
-        })
-
-        // Remove from transfer list if they were there
-        target.forSale = false
-        target.transferListingPrice = undefined
-
-        // Create Transfer Record
-        if (save.transferHistory) {
-            save.transferHistory.push({
-                id: `transfer_ai_${save.currentWeek}_${target.id}`,
-                week: save.currentWeek,
-                type: "SIGNING",
-                playerId: target.id,
-                playerName: target.nickname,
-                fromTeamId: null,
-                fromTeamName: "Free Agent",
-                toTeamId: team.id,
-                toTeamName: team.name,
-                fee: 0
-            })
-        }
+        signFreeAgentFn(team, save)
     }
 
     private static releaseWorstPlayer(team: TeamSaveData, save: GameSave) {
-        // Resolve roster via the cached player index so this is O(rosterSize)
-        // instead of O(rosterSize * players).
-        const playerIndex = this.getPlayerIndex(save)
-        const players = team.rosterIds
-            .map(id => playerIndex.get(id))
-            .filter((p): p is PlayerSaveData => !!p)
-
-        if (players.length === 0) return
-
-        // Score by skill + youth + growth potential — release the player who
-        // gives the least future value, not strictly the lowest current skill.
-        // Age 30+ players get penalized so the AI doesn't permanently keep
-        // declining veterans over high-skill youngsters.
-        const valueScore = (p: PlayerSaveData) => {
-            const skill = p.skill ?? 50
-            const potential = p.potential ?? skill
-            const age = p.age ?? 22
-            const declinePenalty = Math.max(0, age - 28) * 2
-            return skill + Math.max(0, potential - skill) * 0.5 - declinePenalty
-        }
-        const worst = players.reduce((min, p) => (valueScore(p) < valueScore(min) ? p : min), players[0])
-
-        // Release
-        team.rosterIds = team.rosterIds.filter(id => id !== worst.id)
-        applyRosterChangePenalty(team, save.currentWeek, 1)
-
-        // Remove contract with a bounded termination cost so AI follows similar rules to the player.
-        const contract = save.contracts.find(c => c.playerId === worst.id && c.teamId === team.id)
-        if (contract) {
-            const weeksRemaining = Math.max(0, contract.endWeek - save.currentWeek)
-            const cappedWeeks = Math.min(weeksRemaining, 26)
-            const terminationCost = Math.round(contract.salaryPerWeek * cappedWeeks * 0.5)
-            team.budget -= terminationCost
-        }
-        // Bug fix: scope by (playerId, teamId) — wiping by playerId alone
-        // can clobber unrelated historical/ghost contracts that happen to
-        // share the player ID across teams.
-        save.contracts = save.contracts.filter(c => !(c.playerId === worst.id && c.teamId === team.id))
-
-        // Create Transfer Record (Release)
-        if (save.transferHistory) {
-            save.transferHistory.push({
-                id: `release_ai_${save.currentWeek}_${worst.id}`,
-                week: save.currentWeek,
-                type: "RELEASE",
-                playerId: worst.id,
-                playerName: worst.nickname,
-                fromTeamId: team.id,
-                fromTeamName: team.name,
-                toTeamId: null,
-                toTeamName: "Free Agent",
-                fee: 0
-            })
-        }
-
-        // Log to ledger? "Contract Termination"
+        releaseWorstPlayerFn(team, save)
     }
 
     private static listPlayerForTransfer(team: TeamSaveData, save: GameSave) {
