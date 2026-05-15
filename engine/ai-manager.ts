@@ -11,6 +11,7 @@ import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
 import { generateProspectBatch } from "./prospect-generator"
 import { StaffGenerator } from "./staff-generator"
+import { SponsorGenerator } from "./economy-manager"
 import { logger } from "@/lib/logger"
 
 /**
@@ -91,6 +92,9 @@ export class AIManager {
             // AI teams now hire staff to match player options (3% per week,
             // priority order coach > analyst > psychologist > scout).
             this.manageStaff(team, save, activeRng)
+            // AI teams now sign sponsors (5% per week, tier-gated by rank +
+            // S_TIER history, max 2 per team).
+            this.manageSponsors(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
@@ -353,6 +357,76 @@ export class AIManager {
             amount: signOnFee,
             description: `AI hired ${newStaff.name} (${newStaff.role})`,
             balance: team.budget,
+        })
+    }
+
+    /**
+     * AI sponsor signing — fills empty sponsor slots from generated offers.
+     * Previously AI teams had no sponsor income beyond the bare-bones
+     * implicit fallback in EconomyEngine.calculateSponsorIncome
+     * (`reputation × 150 + 2000`). With actual sponsors signed, AI team
+     * income now scales with reputation tier just like the player's does,
+     * making top AI teams able to sustain bigger wage bills.
+     *
+     * Gates:
+     *  - 5% chance per week (sponsor market is slow but not glacial)
+     *  - At most 2 sponsors per AI team (modest vs the player's 3 cap)
+     *  - Skips teams in any financial trouble — they can't afford the
+     *    tier gating's expectations anyway.
+     *  - Tier gating mirrors the player flow exactly: PREMIUM needs
+     *    Top-30 ranking, ELITE needs Top-10 OR S_TIER trophy/participation.
+     */
+    private static manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
+        if (this.roll(rng) > 0.05) return
+        if (team.financialState === "CRISIS"
+            || team.financialState === "INSOLVENT"
+            || team.financialState === "RISK") return
+
+        const MAX_AI_SPONSORS = 2
+        if (!team.sponsors) team.sponsors = []
+        if (team.sponsors.length >= MAX_AI_SPONSORS) return
+
+        // Don't sign a sponsor of a tier we already hold.
+        const ownedTiers = new Set(team.sponsors.map(s => s.tier))
+
+        // Generate offers using the same generator the player sees.
+        const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng)
+        if (offers.length === 0) return
+
+        const ranking = team.worldRanking || 999
+
+        // Pick the best tier we qualify for. PREMIUM needs Top-30; ELITE
+        // needs Top-10 OR S_TIER trophy/participation. Tier preference:
+        // ELITE > PREMIUM > STANDARD (best income first).
+        const eligible = offers.filter(offer => {
+            if (ownedTiers.has(offer.tier)) return false
+            if (offer.tier === "PREMIUM" && ranking > 30) return false
+            if (offer.tier === "ELITE") {
+                const hasMajorTrophy = (team.trophies || []).some(t => t.tier === "S_TIER")
+                const hasMajorParticipation = save.completedMatches.some(match => {
+                    if (match.homeTeamId !== team.id && match.awayTeamId !== team.id) return false
+                    if (!match.tournamentId) return false
+                    const tournament = save.tournaments.find(t => t.id === match.tournamentId)
+                    return tournament?.tier === "S_TIER"
+                })
+                const isTopRanked = ranking <= 10
+                if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) return false
+            }
+            return true
+        })
+        if (eligible.length === 0) return
+
+        // Highest-tier first.
+        const tierRank = { ELITE: 3, PREMIUM: 2, STANDARD: 1 } as const
+        eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0))
+        const picked = eligible[0]
+
+        team.sponsors.push({
+            ...picked,
+            signedWeek: save.currentWeek,
+            followerCheckpoint: team.followers || 0,
+            lastProcessedWeek: undefined,
+            remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
         })
     }
 
