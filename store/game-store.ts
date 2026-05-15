@@ -81,6 +81,7 @@ import { createTournamentSlice } from "@/store/slices/tournament-slice"
 import { createEventsSlice } from "@/store/slices/events-slice"
 import { createUISlice } from "@/store/slices/ui-slice"
 import { createSponsorshipSlice } from "@/store/slices/sponsorship-slice"
+import { createMatchUISlice } from "@/store/slices/match-ui-slice"
 
 enableMapSet()
 
@@ -667,6 +668,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createSponsorshipSlice>[0],
         get as Parameters<typeof createSponsorshipSlice>[1],
       ),
+      ...createMatchUISlice(
+        set as Parameters<typeof createMatchUISlice>[0],
+        get as Parameters<typeof createMatchUISlice>[1],
+      ),
 
       // Initial State
       saveId: null,
@@ -832,16 +837,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Navigation Guard
       activeMatchId: null,
       activeMatchState: null,
-      setActiveMatch: (id) => set({ activeMatchId: id }),
-      updateActiveMatchState: (newState) => set({ activeMatchState: newState }),
-      clearActiveMatchState: () => set({ activeMatchState: null, activeMatchId: null }),
-
-      updateCustomTactic: (id, side, tactic) => {
-        set(state => {
-          if (!state.customTactics[id]) return
-          state.customTactics[id][side] = tactic
-        })
-      },
+      // setActiveMatch / updateActiveMatchState / clearActiveMatchState /
+      // updateCustomTactic moved to store/slices/match-ui-slice.ts (spread above).
 
       // Phase 39/43: Default Tactics with Per-Player Loadouts
       customTactics: {
