@@ -82,6 +82,7 @@ import { createEventsSlice } from "@/store/slices/events-slice"
 import { createUISlice } from "@/store/slices/ui-slice"
 import { createSponsorshipSlice } from "@/store/slices/sponsorship-slice"
 import { createMatchUISlice } from "@/store/slices/match-ui-slice"
+import { createMatchOperationsSlice } from "@/store/slices/match-operations-slice"
 
 enableMapSet()
 
@@ -671,6 +672,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createMatchUISlice(
         set as Parameters<typeof createMatchUISlice>[0],
         get as Parameters<typeof createMatchUISlice>[1],
+      ),
+      ...createMatchOperationsSlice(
+        set as Parameters<typeof createMatchOperationsSlice>[0],
+        get as Parameters<typeof createMatchOperationsSlice>[1],
       ),
 
       // Initial State
@@ -3222,68 +3227,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      updateScheduledMatch: (matchId, updates) => {
-        set((state) => {
-          const match = state.scheduledMatches.find(m => m.id === matchId)
-          if (match) {
-            const sanitizedUpdates: Partial<MatchSaveData> = {}
-
-            if (typeof updates.vetoComplete === "boolean") {
-              sanitizedUpdates.vetoComplete = updates.vetoComplete
-            }
-
-            if (Array.isArray(updates.maps)) {
-              const maxMapsForFormat = match.format === "BO1" ? 1 : match.format === "BO5" ? 5 : 3
-              const uniqueMaps = [...new Set(
-                updates.maps
-                  .filter((map): map is string => typeof map === "string" && ALLOWED_MAP_IDS.has(map))
-                  .slice(0, Math.min(MAX_MAPS_PER_SERIES, maxMapsForFormat))
-              )]
-              sanitizedUpdates.maps = uniqueMaps
-            }
-
-            if (updates.mapStartingSides && typeof updates.mapStartingSides === "object") {
-              const sanitizedSides: Record<string, string> = {}
-              const validTeamIds = new Set([match.homeTeamId, match.awayTeamId])
-              const candidateMaps = Array.isArray(sanitizedUpdates.maps)
-                ? sanitizedUpdates.maps
-                : (Array.isArray(match.maps) ? match.maps : [])
-              const allowedSeriesMaps = new Set(
-                candidateMaps.filter((map): map is string => typeof map === "string" && ALLOWED_MAP_IDS.has(map))
-              )
-              Object.entries(updates.mapStartingSides).forEach(([mapId, ctTeamId]) => {
-                const isAllowedMap = ALLOWED_MAP_IDS.has(mapId) && (allowedSeriesMaps.size === 0 || allowedSeriesMaps.has(mapId))
-                if (isAllowedMap && typeof ctTeamId === "string" && validTeamIds.has(ctTeamId)) {
-                  sanitizedSides[mapId] = ctTeamId
-                }
-              })
-              sanitizedUpdates.mapStartingSides = sanitizedSides
-            }
-
-            if (typeof updates.vodReviewed === "boolean") {
-              sanitizedUpdates.vodReviewed = updates.vodReviewed
-            }
-
-            if (typeof updates.mentalPrep === "boolean") {
-              sanitizedUpdates.mentalPrep = updates.mentalPrep
-            }
-
-            if (sanitizedUpdates.vetoComplete) {
-              const mapsForVeto = Array.isArray(sanitizedUpdates.maps)
-                ? sanitizedUpdates.maps
-                : (Array.isArray(match.maps) ? match.maps : [])
-              if (mapsForVeto.length === 0) {
-                // Never mark veto complete without a resolved map pool.
-                delete sanitizedUpdates.vetoComplete
-              }
-            }
-
-            if (Object.keys(sanitizedUpdates).length > 0) {
-              Object.assign(match, sanitizedUpdates)
-            }
-          }
-        })
-      },
+      // updateScheduledMatch moved to store/slices/match-operations-slice.ts (spread above).
 
       simulateInstantMatch: async (matchId: string) => {
         const state = get()
@@ -3987,73 +3931,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      performVODReview: (matchId) => {
-        set((state) => {
-          const match = state.scheduledMatches.find(m => m.id === matchId)
-          if (match) {
-            if (match.vodReviewed) return
-            if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
-            if (match.week < state.currentWeek) return
-
-            const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-            if (team) {
-              // Check funds
-              if (team.budget < VOD_REVIEW_COST) return
-
-              team.tacticalPrep = Math.min(100, (team.tacticalPrep || 0) + 25)
-              team.budget -= VOD_REVIEW_COST
-              match.vodReviewed = true
-              state.financeLedger.push({
-                id: nextDeterministicId(state, "fin_vod_review", matchId),
-                week: state.currentWeek,
-                teamId: team.id,
-                type: "EXPENSE",
-                category: "FACILITIES",
-                amount: VOD_REVIEW_COST,
-                description: "VOD Review Session",
-                balance: team.budget
-              })
-            }
-          }
-        })
-      },
-
-      performMentalReset: (matchId?: string) => {
-        set((state) => {
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!team || team.budget < MENTAL_RESET_COST) return
-
-          if (matchId) {
-            const match = state.scheduledMatches.find(m => m.id === matchId)
-            if (!match) return
-            if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
-            if (match.week < state.currentWeek || match.mentalPrep) return
-            match.mentalPrep = true
-            match.mentalPrepTeamId = state.playerTeamId!
-          }
-
-          team.budget -= MENTAL_RESET_COST
-
-          state.financeLedger.push({
-            id: nextDeterministicId(state, "fin_mental_reset", matchId || "weekly"),
-            week: state.currentWeek,
-            teamId: team.id,
-            type: "EXPENSE",
-            category: "WAGES_STAFF",
-            amount: MENTAL_RESET_COST,
-            description: "Mental Reset Session",
-            balance: team.budget
-          })
-
-          // Boost morale for all players in roster
-          team.rosterIds.forEach(pid => {
-            const player = (state._playerIndex?.get(pid) ?? state.players.find(p => p.id === pid))
-            if (player) {
-              player.morale = Math.min(100, (player.morale || 70) + 15)
-            }
-          })
-        })
-      },
+      // performVODReview / performMentalReset moved to
+      // store/slices/match-operations-slice.ts (spread above).
 
       swapRosterPositions: (teamId, index1, index2) => {
         set((state) => {
