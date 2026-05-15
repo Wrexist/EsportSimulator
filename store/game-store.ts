@@ -2072,17 +2072,21 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Route transient (one-shot UI) events to in-game toasts and
             // auto-acknowledge so they don't pile up in the inbox.
             const freshState = get()
-            const toastEventTypes = ["TRAINING_COMPLETE"]
+            const toastEventTypes = ["TRAINING_COMPLETE", "SPONSOR_OFFER"]
             const toastEvents = freshState.eventsLog.filter(
               e => toastEventTypes.includes(e.type as string)
                 && e.week === freshState.currentWeek
                 && !e.acknowledged
             )
             toastEvents.forEach(event => {
-              const data = event.data as { title?: string; description?: string }
+              const data = event.data as { title?: string; description?: string; message?: string }
               get().addToast({
-                message: data.title || data.description || "Event notification",
-                type: event.type === "TRAINING_COMPLETE" ? "level_up" : "info",
+                message: data.title
+                  ? `${data.title}${data.message ? ` — ${data.message}` : ""}`
+                  : data.description || data.message || "Event notification",
+                type: event.type === "TRAINING_COMPLETE" ? "level_up"
+                  : event.type === "SPONSOR_OFFER" ? "achievement"
+                  : "info",
               })
               get().acknowledgeEvent(event.id)
             })
