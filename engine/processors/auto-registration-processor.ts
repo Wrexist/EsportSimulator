@@ -67,10 +67,13 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
             )
             if (isRegistered) return
 
+            // worldRanking can be undefined for freshly-created teams; the
+            // checkEligibility signature requires a number, so fall back
+            // to 999 (matches the pattern used elsewhere in the store).
             const eligibility = QualificationEngine.checkEligibility(
                 tournamentDef,
                 myTeam,
-                myTeam.worldRanking,
+                myTeam.worldRanking ?? 999,
                 save.circuitPoints,
                 save.tournamentQualifications,
             )
