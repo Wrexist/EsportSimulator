@@ -53,7 +53,6 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
-import { PLAYER_TALENT_TREE, collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
@@ -94,6 +93,7 @@ import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achi
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
+import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 
 enableMapSet()
 
@@ -708,6 +708,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createTeamSettingsSlice>[0],
         get as Parameters<typeof createTeamSettingsSlice>[1],
       ),
+      ...createPlayerDevelopmentSlice(
+        set as Parameters<typeof createPlayerDevelopmentSlice>[0],
+        get as Parameters<typeof createPlayerDevelopmentSlice>[1],
+      ),
 
       // Initial State
       saveId: null,
@@ -971,68 +975,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
 
-      unlockPlayerTalent: (playerId: string, talentId: string) => {
-        const node = PLAYER_TALENT_TREE.find(n => n.id === talentId)
-        if (!node) return
-
-        set(state => {
-          const p = state.players.find(pl => pl.id === playerId)
-          if (!p) return
-
-          if (!p.unlockedTalentIds) p.unlockedTalentIds = []
-          if (p.unlockedTalentIds.includes(talentId)) return // Already unlocked
-
-          // Check Logic (inside set() to prevent TOCTOU)
-          const hasPoints = (p.talentPoints || 0) >= node.cost
-          const requirementsMet = node.requirements.every(req => p.unlockedTalentIds.includes(req))
-          if (!hasPoints || !requirementsMet) return
-
-          if (p) {
-            p.talentPoints -= node.cost
-            if (!p.unlockedTalentIds) p.unlockedTalentIds = []
-            p.unlockedTalentIds.push(talentId)
-
-            // Apply Effect
-            if (node.effect) {
-              const clamp = (v: number) => Math.max(0, Math.min(100, v))
-              switch (node.effect.type) {
-                case "STAT_BOOST":
-                  if (node.effect.target === "all") {
-                    // Boost specific visible stats (clamped to 0-100)
-                    p.skill = clamp(p.skill + node.effect.value)
-                    p.rifle = clamp(p.rifle + node.effect.value)
-                    p.awp = clamp(p.awp + node.effect.value)
-                    p.creativity = clamp(p.creativity + node.effect.value)
-                    p.tactic = clamp(p.tactic + node.effect.value)
-                    p.teamwork = clamp(p.teamwork + node.effect.value)
-                    p.clutch = clamp(p.clutch + node.effect.value)
-                  } else {
-                    // Properly typed stat modification (clamped to 0-100)
-                    const target = node.effect.target as keyof typeof p
-                    if (typeof p[target] === 'number') {
-                      (p[target] as number) = clamp((p[target] as number) + node.effect.value)
-                    }
-                  }
-                  break;
-                // Passive bonuses are read dynamically elsewhere, effectively "unlocked" by ID presence
-              }
-            }
-
-            // Log
-            state.eventsLog.unshift({
-              id: nextDeterministicId(state, "evt_talent", playerId, talentId),
-              type: "TRAINING_COMPLETE", // Reusing training type for positive growth
-              week: state.currentWeek,
-              data: {
-                title: "Talent Unlocked",
-                message: `${p.nickname} unlocked '${node.name}'`,
-                severity: "success"
-              },
-              acknowledged: false
-            })
-          }
-        })
-      },
+      // unlockPlayerTalent moved to store/slices/player-development-slice.ts (spread above).
 
       // registerForTournament + checkTournamentEligibility moved to
       // store/slices/tournament-slice.ts (spread above).
@@ -2558,18 +2501,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      unlockSkill: (playerId: string, skillId: string, cost: number) => {
-        set((state) => {
-          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (player && (player.availableSkillPoints || 0) >= cost) {
-            if (!player.perks) player.perks = []
-            if (!player.perks.includes(skillId)) {
-              player.perks.push(skillId)
-              player.availableSkillPoints = (player.availableSkillPoints || 0) - cost
-            }
-          }
-        })
-      },
+      // unlockSkill moved to store/slices/player-development-slice.ts (spread above).
 
       upgradeFacility: (teamId, facilityType) => {
         set(state => {
@@ -2968,14 +2900,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // startRoleTraining / cancelRoleTraining moved to
       // store/slices/training-slice.ts (spread above).
 
-      setPlayerTrainingFocus: (playerId: string, focus: string) => {
-        set((state) => {
-          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (player) {
-            (player as any).trainingFocus = focus
-          }
-        })
-      },
+      // setPlayerTrainingFocus moved to store/slices/player-development-slice.ts (spread above).
 
       listPlayerForTransfer: (playerId, price) => {
         set((state) => {
@@ -3283,42 +3208,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return result
       },
 
-      unlockStaffTalent: (staffId, talentId) => {
-        set(state => {
-          const staff = state.staff.find(s => s.id === staffId && s.teamId === state.playerTeamId)
-          if (!staff) return
-
-          // Dynamically import to avoid circular dependency issues if possible, or assume simple lookup
-          const { STAFF_TALENT_TREES } = require("@/engine/talent-trees")
-          const tree = STAFF_TALENT_TREES[staff.role] || []
-          const node = tree.find((n: any) => n.id === talentId)
-
-          if (!node) return
-          if (staff.talentPoints < node.cost) return
-          if (staff.unlockedTalentIds.includes(talentId)) return
-
-          // Check requirements
-          const meetsReq = node.requirements.every((req: string) => staff.unlockedTalentIds.includes(req))
-          if (!meetsReq) return
-
-          // Unlock
-          staff.talentPoints -= node.cost
-          staff.unlockedTalentIds.push(talentId)
-
-          // Apply Instant Effects (Stat Boosts)
-          if (node.effect && node.effect.type === "STAT_BOOST") {
-            if (staff.stats) {
-              if (node.effect.target === "all") {
-                Object.keys(staff.stats).forEach(key => {
-                  staff.stats![key] = Math.min(100, staff.stats![key] + node.effect.value)
-                })
-              } else if (staff.stats[node.effect.target] !== undefined) {
-                staff.stats[node.effect.target] = Math.min(100, staff.stats[node.effect.target] + node.effect.value)
-              }
-            }
-          }
-        })
-      },
+      // unlockStaffTalent moved to store/slices/player-development-slice.ts (spread above).
 
 
 
@@ -3326,53 +3216,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // awardCircuitPoints moved to store/slices/tournament-slice.ts (spread above).
 
-      updatePlayer: (playerId, updates) => {
-        set((state) => {
-          const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!playerTeam || !playerTeam.rosterIds.includes(playerId)) return
-
-          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (player) {
-            const numericClamp = (
-              value: unknown,
-              min: number,
-              max: number
-            ): number | undefined => {
-              if (typeof value !== "number" || !Number.isFinite(value)) return undefined
-              return Math.max(min, Math.min(max, Math.floor(value)))
-            }
-
-            const nextEnergy = numericClamp((updates as any).energy, 0, 100)
-            if (nextEnergy !== undefined) {
-              player.energy = nextEnergy
-            }
-
-            const nextFatigue = numericClamp((updates as any).fatigue, 0, 100)
-            if (nextFatigue !== undefined) {
-              player.fatigue = nextFatigue
-            }
-
-            const nextMorale = numericClamp((updates as any).morale, 0, 100)
-            if (nextMorale !== undefined) {
-              player.morale = nextMorale
-            }
-
-            const nextHealth = numericClamp((updates as any).health, 0, 100)
-            if (nextHealth !== undefined) {
-              player.health = nextHealth
-            }
-
-            const nextForm = numericClamp((updates as any).form, 0, 100)
-            if (nextForm !== undefined) {
-              player.form = nextForm
-            }
-
-            if ((updates as any).weaponMastery && typeof (updates as any).weaponMastery === "object") {
-              player.weaponMastery = (updates as any).weaponMastery
-            }
-          }
-        })
-      },
+      // updatePlayer moved to store/slices/player-development-slice.ts (spread above).
 
       // updateTeamBudget moved to store/slices/team-settings-slice.ts (spread above).
 
