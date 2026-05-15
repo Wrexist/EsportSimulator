@@ -21,6 +21,7 @@
 import type { GameSave } from "../save-types"
 import { StaffGenerator } from "../staff-generator"
 import type { SeededRNG } from "../rng"
+import { getStaffPassiveBonuses, isFeatureUnlocked } from "../talent-trees"
 
 const DEFAULT_XP_TO_NEXT = 1000
 const XP_GROWTH_MULTIPLIER = 1.5
@@ -138,6 +139,16 @@ function applyPlayerXP(draft: PreTickDraft, ctx: PreTickContext): void {
     const userTeam = draft.teams.find(t => t.id === ctx.playerTeamId)
     if (!userTeam) return
 
+    // Coach "Potential Unlocker" talent: any coach on the user team that has
+    // unlocked potential_breakthrough enables a 20% chance per level-up to
+    // bump the player's potential cap by +1. Sum doesn't stack — checked
+    // once per level-up. Capped at 100 (the absolute potential ceiling).
+    const hasBreakthrough = draft.staff.some(s =>
+        s.teamId === ctx.playerTeamId &&
+        s.role === "coach" &&
+        isFeatureUnlocked("coach", s.unlockedTalentIds, "potential_breakthrough")
+    )
+
     draft.players.forEach(p => {
         if (!userTeam.rosterIds.includes(p.id)) return
 
@@ -152,11 +163,22 @@ function applyPlayerXP(draft: PreTickDraft, ctx: PreTickContext): void {
         p.talentPoints = (p.talentPoints || 0) + 1
         p.xpToNextLevel = Math.floor(xpCap * XP_GROWTH_MULTIPLIER)
 
+        // Potential breakthrough roll on level-up.
+        let breakthrough = false
+        if (hasBreakthrough && p.potential !== undefined && p.potential < 100 && ctx.rng.next() < 0.2) {
+            p.potential = Math.min(100, p.potential + 1)
+            breakthrough = true
+        }
+
         draft.eventsLog.unshift({
             id: ctx.nextId(draft, "evt_player_levelup", p.id),
             type: "PLAYER_LEVEL_UP",
             week: ctx.currentWeek,
-            data: { playerName: p.nickname, newLevel: p.level },
+            data: {
+                playerName: p.nickname,
+                newLevel: p.level,
+                ...(breakthrough ? { breakthroughPotential: p.potential } : {}),
+            },
             acknowledged: false,
         })
     })

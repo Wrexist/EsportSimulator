@@ -39,7 +39,7 @@ import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
-import { getStaffPassiveBonuses } from "@/engine/talent-trees"
+import { getStaffPassiveBonuses, isFeatureUnlocked } from "@/engine/talent-trees"
 import {
     SCOUTING_COSTS,
     ACADEMY_LEVELS,
@@ -281,19 +281,29 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 return
             }
 
+            // Scout "Eagle Eye" talent (exact_potential) ALSO reveals
+            // potential at enrollment — short-circuits the academy level 5
+            // requirement so a Tier-2 scout investment effectively
+            // substitutes for the most expensive facility upgrade.
+            const scoutHasEagleEye = state.staff.some(s =>
+                s.teamId === state.playerTeamId &&
+                s.role === "scout" &&
+                isFeatureUnlocked("scout", s.unlockedTalentIds, "exact_potential")
+            )
+            const revealedOnEnroll = academyLevel >= MAX_ACADEMY_LEVEL || scoutHasEagleEye
+
             const academyPlayer: AcademyPlayer = {
                 id: nextDeterministicId(state, "academy", playerId),
                 playerId,
                 enrolledWeek: state.currentWeek,
                 trainingFocus: "BALANCED",
                 developmentProgress: 0,
-                // Level 5 reveals potential immediately on enrollment.
-                potentialRevealed: academyLevel >= MAX_ACADEMY_LEVEL,
+                potentialRevealed: revealedOnEnroll,
                 totalXpGained: 0,
                 academyMatchesPlayed: 0,
                 readyForPromotion: false,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                scoutNotes: AcademyEngine.generateScoutNotes(player as any, academyLevel >= MAX_ACADEMY_LEVEL),
+                scoutNotes: AcademyEngine.generateScoutNotes(player as any, revealedOnEnroll),
                 energy: 100,
             }
 
@@ -653,7 +663,24 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 mission.weeksRemaining--
                 if (mission.weeksRemaining > 0) return
 
-                const newProspect = generateProspect(mission.tier, undefined, academyRng)
+                // Scout "Hidden Gem Finder" talent (gem_chance) gives a
+                // weighted chance to upgrade the mission's prospect by
+                // generating a second candidate and keeping the
+                // higher-potential one. Scales linearly with talent value.
+                const scout = state.staff.find(s => s.id === mission.scoutId)
+                const scoutBonuses = scout
+                    ? getStaffPassiveBonuses("scout", scout.unlockedTalentIds || [])
+                    : {}
+                const gemChance = (scoutBonuses["gem_chance"] || 0) / 100
+
+                let newProspect = generateProspect(mission.tier, undefined, academyRng)
+                if (gemChance > 0 && academyRng.next() < gemChance) {
+                    const alternate = generateProspect(mission.tier, undefined, academyRng)
+                    if ((alternate.stats?.potential ?? 0) > (newProspect.stats?.potential ?? 0)) {
+                        newProspect = alternate
+                    }
+                }
+
                 const playerData = prospectToPlayerData(newProspect, state.currentWeek, academyRng) as unknown as PlayerSaveData
                 const isPoolFull = (state.academyPendingProspects || []).length >= PENDING_POOL_MAX_SIZE
 
