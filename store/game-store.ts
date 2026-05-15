@@ -89,6 +89,7 @@ import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
+import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 
 enableMapSet()
 
@@ -2125,69 +2126,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             nextId: nextDeterministicId,
           })
 
-          // Phase 20 Enhancement: Auto-Registration for Player Team
-          const pTeamId = state.playerTeamId
-          if (pTeamId) {
-            const myTeam = saveState.teams.find((t: any) => t.id === pTeamId)
-            if (myTeam) {
-              try {
-                const { QualificationEngine } = require("@/engine/tournament-qualification")
-                const upcoming = saveState.tournaments.filter((t: any) =>
-                  t.startWeek >= saveState.currentWeek &&
-                  t.startWeek <= saveState.currentWeek + 4
-                )
-
-                upcoming.forEach((t: any) => {
-                  const tournamentSeriesId = t.seriesId || getSeriesIdFromTournamentId(t.id)
-                  const tournamentDef = FULL_TOURNAMENT_CALENDAR.find(def => def.id === tournamentSeriesId)
-                  if (!tournamentDef) return
-                  if (!(tournamentDef.entryType === "INVITE" || tournamentDef.entryType === "POINTS")) return
-
-                  const isRegistered = saveState.tournamentQualifications.some(
-                    (q: any) =>
-                      q.teamId === myTeam.id &&
-                      isQualificationForTournament(q, t.id, saveState.currentWeek)
-                  )
-                  if (!isRegistered) {
-                    const eligibility = QualificationEngine.checkEligibility(
-                      tournamentDef,
-                      myTeam,
-                      myTeam.worldRanking,
-                      saveState.circuitPoints,
-                      saveState.tournamentQualifications
-                    )
-
-                    if (eligibility.canRegister) {
-                      saveState.tournamentQualifications.push(normalizeQualificationStatus({
-                        tournamentId: t.id,
-                        seriesId: tournamentSeriesId,
-                        instanceId: t.id,
-                        seasonNumber: t.seasonNumber || getSeasonFromWeek(t.startWeek || saveState.currentWeek),
-                        teamId: myTeam.id,
-                        status: "REGISTERED",
-                        qualifiedVia: "AUTO_INVITE"
-                      }, saveState.currentWeek))
-
-                      saveState.eventsLog.unshift({
-                        id: nextDeterministicId(saveState, "evt_auto_reg", t.id),
-                        type: "TOURNAMENT_UPDATE",
-                        week: saveState.currentWeek,
-                        acknowledged: false,
-                        data: {
-                          tournamentId: t.id,
-                          title: "Auto-Registration",
-                          message: `Team automatically registered for ${t.name} (Eligible via ${tournamentDef.entryType})`,
-                          severity: "success"
-                        }
-                      })
-                    }
-                  }
-                })
-              } catch {
-                // Auto-registration skipped, non-critical
-              }
-            }
-          }
+          // Auto-register the player team for upcoming INVITE/POINTS
+          // tournaments they're eligible for (look-ahead 4 weeks). Errors
+          // are swallowed inside the processor and logged.
+          applyAutoRegistration(saveState, {
+            playerTeamId: state.playerTeamId || "",
+            nextId: nextDeterministicId,
+          })
 
           // Phase 20 Enhancement: Simulate Weekly AI Registrations
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
