@@ -335,8 +335,21 @@ function TransfersPageInner() {
               })
             ) : (
               <GlassTableRow>
-                <GlassTableCell colSpan={10} className="h-48 text-center text-muted-foreground uppercase font-normal tracking-widest text-[10px]">
-                  No players found matching your criteria.
+                <GlassTableCell colSpan={10} className="h-48 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <p className="text-muted-foreground uppercase font-normal tracking-widest text-[10px]">
+                      No players match your filters
+                    </p>
+                    {(roleFilter || debouncedSearch) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setRoleFilter(null); setSearchTerm(""); setPage(0) }}
+                      >
+                        Clear filters
+                      </Button>
+                    )}
+                  </div>
                 </GlassTableCell>
               </GlassTableRow>
             )}

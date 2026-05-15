@@ -1149,6 +1149,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 `• Check the Schedule to see upcoming matches\n` +
                 `• Visit Training to start improving your players\n` +
                 `• Keep an eye on your Budget in Finances\n\n` +
+                `🔍 GROW YOUR TEAM\n` +
+                `• Transfers — sign free agents or buy from rival rosters\n` +
+                `• Scouting — research targets before you negotiate\n` +
+                `• Youth Academy — develop the next generation of pros\n` +
+                `• Sponsorships — unlock more deals as your reputation grows\n\n` +
                 `💡 KEY TIPS\n` +
                 `• Player morale affects performance — keep it high!\n` +
                 `• Don't overtrain — exhausted players perform poorly\n` +
