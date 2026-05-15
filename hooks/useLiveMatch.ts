@@ -7,6 +7,7 @@ import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentary
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
 import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
+import { buildFreshLiveResult, buildInitialSimState } from "@/engine/match/live-match-init"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -339,29 +340,16 @@ export function useLiveMatch(id: string) {
         const homeEconomy = createRoundStartEconomy(activeHomeIds, initialHomeStartsCT)
         const awayEconomy = createRoundStartEconomy(activeAwayIds, !initialHomeStartsCT)
 
-        const initialResultMaps = buildCanonicalResultMaps(
-            baseResult.maps as any[],
+        // Live result + initial sim state extracted to
+        // engine/match/live-match-init.ts (Phase L5).
+        const liveResult = buildFreshLiveResult({
+            baseResult,
             canonicalMaps,
-            hTeam.id,
-            aTeam.id,
+            homeTeamId: hTeam.id,
+            awayTeamId: aTeam.id,
             mapStartingSides,
-            seed
-        ).map((mapData: any) => ({
-            ...mapData,
-            rounds: [],
-            homeScore: 0,
-            awayScore: 0,
-            winner: undefined,
-            finalScore: { team1: 0, team2: 0 }
-        }))
-
-        const liveResult: MatchResult = {
-            ...baseResult,
-            winnerId: null,
-            homeScore: 0,
-            awayScore: 0,
-            maps: initialResultMaps
-        }
+            seed,
+        })
 
         matchData.current = {
             match: runtimeMatch,
@@ -374,25 +362,11 @@ export function useLiveMatch(id: string) {
             mapStartingSides
         }
 
-        setSimState({
+        setSimState(buildInitialSimState({
             homeEconomy,
             awayEconomy,
-            homeWinStreak: 0,
-            awayWinStreak: 0,
-            homeLossStreak: 0,
-            awayLossStreak: 0,
-            homeRounds: 0,
-            awayRounds: 0,
-            currentMapIndex: 0,
-            currentRound: 1,
-            homeSeriesScore: 0,
-            awaySeriesScore: 0,
-            isOvertime: false,
-            currentOTSet: 0,
             homeStartsCT: initialHomeStartsCT,
-            homeMomentumScore: 0,
-            awayMomentumScore: 0
-        })
+        }))
 
         setHomeRoster(sanitizeRosterFromEconomy(homePlayers, homeEconomy, initialHomeStartsCT))
         setAwayRoster(sanitizeRosterFromEconomy(awayPlayers, awayEconomy, !initialHomeStartsCT))
