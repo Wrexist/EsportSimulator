@@ -88,6 +88,7 @@ import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slic
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
+import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 
 enableMapSet()
 
@@ -2116,91 +2117,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
 
-          // Process Scheduled Activities (Staff Meetings, etc.)
-          const activeScheduled = saveState.scheduledActivities?.filter((a: any) => a.week === saveState.currentWeek) || []
-          activeScheduled.forEach((act: any) => {
-            if (act.type === "STAFF_MEETING") {
-              const team = saveState.teams.find((t: any) => t.id === state.playerTeamId)
-              if (team) {
-                const roster = saveState.players.filter((p: any) => team.rosterIds.includes(p.id))
-
-                // Get meeting effects from activity data, or use defaults
-                const effects = act.data?.effects || { morale: 10, xp: 25 }
-                const meetingName = act.name || "Staff Meeting"
-
-                // Build effect summary for event log
-                const effectParts: string[] = []
-
-                roster.forEach((p: any) => {
-                  // Apply morale effect
-                  if (effects.morale) {
-                    p.morale = Math.min(100, Math.max(0, (p.morale || 50) + effects.morale))
-                  }
-                  // Apply XP effect
-                  if (effects.xp) {
-                    p.xp = (p.xp || 0) + effects.xp
-                  }
-                  // Apply fatigue effect (negative value reduces fatigue)
-                  if (effects.fatigue) {
-                    p.fatigue = Math.min(100, Math.max(0, (p.fatigue || 0) + effects.fatigue))
-                  }
-                  // Apply stress resistance effect
-                  if (effects.stressResistance) {
-                    p.stressResistance = Math.min(100, (p.stressResistance || 50) + effects.stressResistance)
-                  }
-                  // Apply tactic XP effect
-                  if (effects.tacticXp) {
-                    p.tactic = Math.min(99, (p.tactic || 50) + Math.floor(effects.tacticXp / 5))
-                  }
-                })
-
-                // Apply team chemistry effect
-                if (effects.chemistry && team.chemistry !== undefined) {
-                  team.chemistry = Math.min(100, (team.chemistry || 50) + effects.chemistry)
-                }
-
-                // Build effect message
-                if (effects.morale) effectParts.push(`Morale +${effects.morale}`)
-                if (effects.xp) effectParts.push(`XP +${effects.xp}`)
-                if (effects.fatigue) effectParts.push(`Fatigue ${effects.fatigue}`)
-                if (effects.chemistry) effectParts.push(`Chemistry +${effects.chemistry}`)
-                if (effects.stressResistance) effectParts.push(`Stress Resistance +${effects.stressResistance}`)
-                if (effects.tacticXp) effectParts.push(`Tactic XP +${effects.tacticXp}`)
-
-                saveState.eventsLog.unshift({
-                  id: nextDeterministicId(saveState, "evt_staff_meeting"),
-                  type: "TEAM_UPDATE" as any,
-                  week: saveState.currentWeek,
-                  acknowledged: false,
-                  data: {
-                    title: meetingName,
-                    message: `The team held a ${meetingName.toLowerCase()}. ${effectParts.join(", ")}.`,
-                    severity: "success"
-                  }
-                })
-              }
-            }
-
-            // Bootcamp chemistry boost
-            if (act.type === "BOOTCAMP" || act.type === "REST" || act.type === "TRAVEL") {
-              const team = saveState.teams.find((t: any) => t.id === state.playerTeamId)
-              if (team) {
-                const bonus = applyBootcampChemistryBonus(team, act.type)
-                if (bonus > 0) {
-                  saveState.eventsLog.unshift({
-                    id: nextDeterministicId(saveState, "evt_bootcamp_chem", act.type),
-                    type: "TEAM_UPDATE" as any,
-                    week: saveState.currentWeek,
-                    acknowledged: false,
-                    data: {
-                      title: "Team Chemistry Improved",
-                      message: `The ${act.name || "bootcamp"} brought the team closer together. Chemistry +${bonus}.`,
-                      severity: "success"
-                    }
-                  })
-                }
-              }
-            }
+          // Apply this-week scheduledActivities (staff meetings, bootcamps,
+          // rest, travel). Each one applies its own effects + chemistry
+          // bonus + surfaces an event. Module owns the per-effect math.
+          applyScheduledActivities(saveState, {
+            playerTeamId: state.playerTeamId || "",
+            nextId: nextDeterministicId,
           })
 
           // Phase 20 Enhancement: Auto-Registration for Player Team
