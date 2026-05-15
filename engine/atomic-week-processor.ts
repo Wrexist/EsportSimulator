@@ -51,7 +51,6 @@ import {
     hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
 } from "./processors/tournament-completion"
 import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
-import { getStaffPassiveBonuses } from "./talent-trees"
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
@@ -61,6 +60,7 @@ import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tacti
 import { detectAchievementFlags } from "./processors/match-achievement-flags"
 import { processForfeitMatch } from "./processors/match-forfeit"
 import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
+import { applyMatchManagerXP } from "./processors/match-manager-xp"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -635,36 +635,10 @@ export class AtomicWeekProcessor {
             // for every player with kills.
             processMatchWeaponMastery(save, result, idx)
 
-            // Manager XP & Stats
-            if (save.managerDetails) {
-                let winnerId: string | null = null
-                if (result.homeScore > result.awayScore) winnerId = match.homeTeamId
-                else if (result.awayScore > result.homeScore) winnerId = match.awayTeamId
-
-                // Analyst "Demo Review" talent (xp_gain) lifts post-match XP.
-                // Stacks across multiple analysts, capped at +50% to prevent
-                // unbounded acceleration.
-                const analystXpBonus = Math.min(
-                    50,
-                    save.staff
-                        .filter(s => s.teamId === playerTeamId && s.role === "analyst")
-                        .reduce((sum, a) => {
-                            const b = getStaffPassiveBonuses("analyst", a.unlockedTalentIds || [])
-                            return sum + (b["xp_gain"] || 0)
-                        }, 0),
-                )
-                const xpMultiplier = 1 + analystXpBonus / 100
-
-                if (winnerId === playerTeamId) {
-                    save.managerDetails.careerWins++
-                    save.managerDetails.xp += Math.round(100 * xpMultiplier)
-                    save.managerDetails.reputation += 5
-                } else if (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId) {
-                    save.managerDetails.careerLosses++
-                    save.managerDetails.xp += Math.round(25 * xpMultiplier) // Participation XP
-                    save.managerDetails.reputation = Math.max(0, save.managerDetails.reputation - 1)
-                }
-            }
+            // Manager XP + win/loss + reputation extracted to
+            // processors/match-manager-xp.ts (Phase M9). Analyst
+            // "xp_gain" talent multiplier applied internally.
+            applyMatchManagerXP(save, match, result, playerTeamId)
 
             // Phase 12: Analyze match
             const analysis = MatchAnalyzer.analyze(
