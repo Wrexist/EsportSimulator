@@ -7,7 +7,7 @@ import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentary
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
 import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
-import { buildFreshLiveResult, buildInitialSimState } from "@/engine/match/live-match-init"
+import { buildFreshLiveResult, buildInitialSimState, sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -255,25 +255,14 @@ export function useLiveMatch(id: string) {
             const restoredHomeEconomy = sanitizeEconomyForActivePlayers(homePlayers, restoredSim?.homeEconomy, homeStartsCT)
             const restoredAwayEconomy = sanitizeEconomyForActivePlayers(awayPlayers, restoredSim?.awayEconomy, !homeStartsCT)
 
-            const sanitizedSimState: SimState = {
+            // Restored SimState sanitization extracted to live-match-init.ts (L5).
+            const sanitizedSimState = sanitizeRestoredSimState({
+                restoredSim,
                 homeEconomy: restoredHomeEconomy,
                 awayEconomy: restoredAwayEconomy,
-                homeWinStreak: restoredSim?.homeWinStreak ?? 0,
-                awayWinStreak: restoredSim?.awayWinStreak ?? 0,
-                homeLossStreak: restoredSim?.homeLossStreak ?? 0,
-                awayLossStreak: restoredSim?.awayLossStreak ?? 0,
-                homeRounds: restoredSim?.homeRounds ?? 0,
-                awayRounds: restoredSim?.awayRounds ?? 0,
-                currentMapIndex,
-                currentRound: Math.max(1, restoredSim?.currentRound ?? 1),
-                homeSeriesScore: restoredSim?.homeSeriesScore ?? 0,
-                awaySeriesScore: restoredSim?.awaySeriesScore ?? 0,
-                isOvertime: Boolean(restoredSim?.isOvertime ?? false),
-                currentOTSet: restoredSim?.currentOTSet ?? 0,
                 homeStartsCT,
-                homeMomentumScore: restoredSim?.homeMomentumScore ?? 0,
-                awayMomentumScore: restoredSim?.awayMomentumScore ?? 0
-            }
+                currentMapIndex,
+            })
 
             const restoredResultSource = (activeMatchState.matchResult as unknown as MatchResult | undefined) || baseResult
             const restoredResult: MatchResult = {
@@ -290,17 +279,12 @@ export function useLiveMatch(id: string) {
                 )
             }
 
-            const restoredGameState: LiveGameState = {
-                round: activeMatchState.gameState?.round ?? Math.max(1, sanitizedSimState.currentRound - 1),
-                homeScore: activeMatchState.gameState?.homeScore ?? sanitizedSimState.homeRounds,
-                awayScore: activeMatchState.gameState?.awayScore ?? sanitizedSimState.awayRounds,
-                homeSeriesScore: sanitizedSimState.homeSeriesScore,
-                awaySeriesScore: sanitizedSimState.awaySeriesScore,
-                status: activeMatchState.gameState?.status ?? "IN_PROGRESS",
-                time: typeof activeMatchState.gameState?.time === "number" ? activeMatchState.gameState.time : -1,
-                isPaused: Boolean(activeMatchState.gameState?.isPaused ?? false),
-                currentMapIndex
-            }
+            // Restored GameState build extracted to live-match-init.ts (L5).
+            const restoredGameState = buildRestoredGameState({
+                savedGameState: activeMatchState.gameState,
+                simState: sanitizedSimState,
+                currentMapIndex,
+            })
 
             matchData.current = {
                 match: runtimeMatch,

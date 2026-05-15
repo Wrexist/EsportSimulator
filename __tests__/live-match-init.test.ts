@@ -8,8 +8,13 @@
  * SimState with all streaks at zero.
  */
 
-import { buildFreshLiveResult, buildInitialSimState } from "@/engine/match/live-match-init"
-import type { MatchResult } from "@/types"
+import {
+    buildFreshLiveResult,
+    buildInitialSimState,
+    sanitizeRestoredSimState,
+    buildRestoredGameState,
+} from "@/engine/match/live-match-init"
+import type { MatchResult, SimState } from "@/types"
 
 function makeBaseResult(overrides: Partial<MatchResult> = {}): MatchResult {
     return {
@@ -119,5 +124,107 @@ describe("buildInitialSimState", () => {
         // Same reference — caller's mutations are reflected in the sim state.
         expect(state.homeEconomy).toBe(homeEcon)
         expect(state.awayEconomy).toBe(awayEcon)
+    })
+})
+
+describe("sanitizeRestoredSimState", () => {
+    test("undefined restoredSim → all defaults zero (or false), currentRound floored at 1", () => {
+        const state = sanitizeRestoredSimState({
+            restoredSim: undefined,
+            homeEconomy: {} as any,
+            awayEconomy: {} as any,
+            homeStartsCT: true,
+            currentMapIndex: 0,
+        })
+        expect(state.homeWinStreak).toBe(0)
+        expect(state.awayWinStreak).toBe(0)
+        expect(state.currentRound).toBe(1) // Math.max(1, undefined ?? 1)
+        expect(state.isOvertime).toBe(false)
+        expect(state.homeStartsCT).toBe(true)
+        expect(state.currentMapIndex).toBe(0)
+    })
+
+    test("currentRound is floored at 1 even if save shows 0", () => {
+        const state = sanitizeRestoredSimState({
+            restoredSim: { currentRound: 0 } as Partial<SimState>,
+            homeEconomy: {} as any, awayEconomy: {} as any,
+            homeStartsCT: true, currentMapIndex: 0,
+        })
+        expect(state.currentRound).toBe(1)
+    })
+
+    test("non-zero saved fields are preserved", () => {
+        const state = sanitizeRestoredSimState({
+            restoredSim: {
+                homeWinStreak: 3, awayLossStreak: 2,
+                homeRounds: 8, awayRounds: 5,
+                currentRound: 14, homeSeriesScore: 1, awaySeriesScore: 0,
+                isOvertime: true, currentOTSet: 2,
+                homeMomentumScore: 15, awayMomentumScore: -5,
+            } as Partial<SimState>,
+            homeEconomy: {} as any, awayEconomy: {} as any,
+            homeStartsCT: false, currentMapIndex: 1,
+        })
+        expect(state.homeWinStreak).toBe(3)
+        expect(state.awayLossStreak).toBe(2)
+        expect(state.homeRounds).toBe(8)
+        expect(state.currentRound).toBe(14)
+        expect(state.isOvertime).toBe(true)
+        expect(state.currentOTSet).toBe(2)
+        expect(state.homeMomentumScore).toBe(15)
+        expect(state.awayMomentumScore).toBe(-5)
+        expect(state.currentMapIndex).toBe(1) // forced from arg, not from saved
+        expect(state.homeStartsCT).toBe(false) // forced from arg
+    })
+})
+
+describe("buildRestoredGameState", () => {
+    const baseSim: SimState = {
+        homeEconomy: {} as any, awayEconomy: {} as any,
+        homeWinStreak: 0, awayWinStreak: 0, homeLossStreak: 0, awayLossStreak: 0,
+        homeRounds: 5, awayRounds: 3,
+        currentMapIndex: 0, currentRound: 9,
+        homeSeriesScore: 1, awaySeriesScore: 0,
+        isOvertime: false, currentOTSet: 0,
+        homeStartsCT: true,
+        homeMomentumScore: 0, awayMomentumScore: 0,
+    } as SimState
+
+    test("undefined savedGameState → defaults derived from simState", () => {
+        const gs = buildRestoredGameState({
+            savedGameState: undefined,
+            simState: baseSim,
+            currentMapIndex: 0,
+        })
+        // round defaults to max(1, currentRound - 1) = 8
+        expect(gs.round).toBe(8)
+        expect(gs.homeScore).toBe(5) // from homeRounds
+        expect(gs.awayScore).toBe(3) // from awayRounds
+        expect(gs.homeSeriesScore).toBe(1)
+        expect(gs.awaySeriesScore).toBe(0)
+        expect(gs.status).toBe("IN_PROGRESS")
+        expect(gs.time).toBe(-1) // default sentinel
+        expect(gs.isPaused).toBe(false)
+    })
+
+    test("saved gameState fields are preserved when present", () => {
+        const gs = buildRestoredGameState({
+            savedGameState: {
+                round: 12, homeScore: 7, awayScore: 6,
+                status: "FINISHED" as any,
+                time: 45, isPaused: true,
+            } as any,
+            simState: baseSim,
+            currentMapIndex: 1,
+        })
+        expect(gs.round).toBe(12)
+        expect(gs.homeScore).toBe(7)
+        expect(gs.awayScore).toBe(6)
+        expect(gs.status).toBe("FINISHED")
+        expect(gs.time).toBe(45)
+        expect(gs.isPaused).toBe(true)
+        expect(gs.currentMapIndex).toBe(1) // forced from arg
+        // series scores always pulled from simState (caller can't override)
+        expect(gs.homeSeriesScore).toBe(1)
     })
 })

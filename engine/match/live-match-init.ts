@@ -13,7 +13,7 @@
  * by ~40 lines and gives the data shapes direct unit-test coverage.
  */
 
-import type { MatchResult, SimState } from "@/types"
+import type { MatchResult, SimState, LiveGameState, ActiveMatchState } from "@/types"
 import { buildCanonicalResultMaps } from "@/lib/live-match-builders"
 
 /**
@@ -87,5 +87,66 @@ export function buildInitialSimState(args: {
         homeStartsCT: args.homeStartsCT,
         homeMomentumScore: 0,
         awayMomentumScore: 0,
+    }
+}
+
+/**
+ * Sanitize a restored SimState read from activeMatchState. Every
+ * field defaults to zero/false if the saved value is missing or
+ * invalid. currentRound is floored at 1 (zero is never a legal
+ * round number in CS2 scoring). currentMapIndex is passed in
+ * already clamped to canonicalMaps bounds.
+ */
+export function sanitizeRestoredSimState(args: {
+    restoredSim: Partial<SimState> | undefined
+    homeEconomy: SimState["homeEconomy"]
+    awayEconomy: SimState["awayEconomy"]
+    homeStartsCT: boolean
+    currentMapIndex: number
+}): SimState {
+    const { restoredSim, homeEconomy, awayEconomy, homeStartsCT, currentMapIndex } = args
+    return {
+        homeEconomy,
+        awayEconomy,
+        homeWinStreak: restoredSim?.homeWinStreak ?? 0,
+        awayWinStreak: restoredSim?.awayWinStreak ?? 0,
+        homeLossStreak: restoredSim?.homeLossStreak ?? 0,
+        awayLossStreak: restoredSim?.awayLossStreak ?? 0,
+        homeRounds: restoredSim?.homeRounds ?? 0,
+        awayRounds: restoredSim?.awayRounds ?? 0,
+        currentMapIndex,
+        currentRound: Math.max(1, restoredSim?.currentRound ?? 1),
+        homeSeriesScore: restoredSim?.homeSeriesScore ?? 0,
+        awaySeriesScore: restoredSim?.awaySeriesScore ?? 0,
+        isOvertime: Boolean(restoredSim?.isOvertime ?? false),
+        currentOTSet: restoredSim?.currentOTSet ?? 0,
+        homeStartsCT,
+        homeMomentumScore: restoredSim?.homeMomentumScore ?? 0,
+        awayMomentumScore: restoredSim?.awayMomentumScore ?? 0,
+    }
+}
+
+/**
+ * Build the restored LiveGameState from a paused/saved match.
+ * Falls back to derived values from the SimState when the saved
+ * gameState fields are missing — e.g., a save with no recorded
+ * gameState.round defaults to sim.currentRound-1.
+ */
+export function buildRestoredGameState(args: {
+    savedGameState: ActiveMatchState["gameState"] | undefined
+    simState: SimState
+    currentMapIndex: number
+}): LiveGameState {
+    const { savedGameState, simState, currentMapIndex } = args
+    return {
+        round: savedGameState?.round ?? Math.max(1, simState.currentRound - 1),
+        homeScore: savedGameState?.homeScore ?? simState.homeRounds,
+        awayScore: savedGameState?.awayScore ?? simState.awayRounds,
+        homeSeriesScore: simState.homeSeriesScore,
+        awaySeriesScore: simState.awaySeriesScore,
+        status: savedGameState?.status ?? "IN_PROGRESS",
+        time: typeof savedGameState?.time === "number" ? savedGameState.time : -1,
+        isPaused: Boolean(savedGameState?.isPaused ?? false),
+        currentMapIndex,
     }
 }
