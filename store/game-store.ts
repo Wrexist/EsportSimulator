@@ -83,6 +83,7 @@ import { createUISlice } from "@/store/slices/ui-slice"
 import { createSponsorshipSlice } from "@/store/slices/sponsorship-slice"
 import { createMatchUISlice } from "@/store/slices/match-ui-slice"
 import { createMatchOperationsSlice } from "@/store/slices/match-operations-slice"
+import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slice"
 
 enableMapSet()
 
@@ -677,6 +678,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createMatchOperationsSlice>[0],
         get as Parameters<typeof createMatchOperationsSlice>[1],
       ),
+      ...createMatchSchedulingSlice(
+        set as Parameters<typeof createMatchSchedulingSlice>[0],
+        get as Parameters<typeof createMatchSchedulingSlice>[1],
+      ),
 
       // Initial State
       saveId: null,
@@ -976,139 +981,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Actions
       setHasHydrated: (state) => set({ _hasHydrated: state }),
 
-      scheduleScrim: (opponentId, week, day) => {
-        const state = get()
-        const weekValidation = parseBoundedInt(week, "Scrim week", state.currentWeek, 100000)
-        if (!weekValidation.ok) {
-          return { success: false, message: weekValidation.message }
-        }
-        const normalizedWeek = weekValidation.value
-
-        let normalizedDay: number | undefined = undefined
-        if (day !== undefined) {
-          const dayValidation = parseBoundedInt(day, "Scrim day", 0, 6)
-          if (!dayValidation.ok) {
-            return { success: false, message: dayValidation.message }
-          }
-          normalizedDay = dayValidation.value
-        }
-
-        if (
-          state.timeMode === "HYBRID_DAILY" &&
-          normalizedWeek === state.currentWeek &&
-          normalizedDay !== undefined &&
-          normalizedDay < state.currentDay
-        ) {
-          return { success: false, message: "Cannot schedule events in past days of the current week." }
-        }
-
-        const weekActivities = state.scheduledActivities.filter(a => normalizedWeek >= a.week && normalizedWeek < a.week + a.duration)
-        const weekMatches = state.scheduledMatches.filter(m => m.week === normalizedWeek)
-
-        const duplicateScrim = weekMatches.some(m =>
-          m.isScrim &&
-          m.homeTeamId === state.playerTeamId &&
-          m.awayTeamId === opponentId &&
-          (normalizedDay === undefined || (m.day ?? undefined) === normalizedDay)
-        )
-        if (duplicateScrim) {
-          return { success: false, message: "Scrim already scheduled for this slot" }
-        }
-
-        // Count slots used for this specific day if provided
-        if (normalizedDay !== undefined) {
-          const dayMatches = weekMatches.filter(m => m.day === normalizedDay)
-          if (dayMatches.length >= 2) {
-            return { success: false, message: "Day schedule is full (max 2 events per day)" }
-          }
-        }
-
-        if (weekActivities.length + weekMatches.length >= 10) {
-          return { success: false, message: "Weekly schedule is full (max 10 slots)" }
-        }
-
-        set(state => {
-          const id = nextDeterministicId(state, "scrim", normalizedWeek, opponentId)
-          state.scheduledMatches.push({
-            id,
-            homeTeamId: state.playerTeamId!,
-            awayTeamId: opponentId,
-            tournamentId: "SCRIM",
-            stage: "Practice",
-            week: normalizedWeek,
-            day: normalizedDay,
-            format: "BO1",
-            seed: 0,
-            isScrim: true
-          })
-        })
-        return { success: true, message: "Scrim scheduled" }
-      },
-
-      scheduleActivity: (activity) => {
-        const state = get()
-        const weekValidation = parseBoundedInt(activity.week, "Activity week", state.currentWeek, 100000)
-        if (!weekValidation.ok) {
-          return { success: false, message: weekValidation.message }
-        }
-        const durationValidation = parseBoundedInt(activity.duration, "Activity duration", 1, 52)
-        if (!durationValidation.ok) {
-          return { success: false, message: durationValidation.message }
-        }
-        const costValidation = parseBoundedInt((activity as any).cost ?? 0, "Activity cost", 0, MAX_TRANSFER_FEE)
-        if (!costValidation.ok) {
-          return { success: false, message: costValidation.message }
-        }
-
-        const normalizedDay = activity.day
-        if (normalizedDay !== undefined) {
-          const dayValidation = parseBoundedInt(normalizedDay, "Activity day", 0, 6)
-          if (!dayValidation.ok) {
-            return { success: false, message: dayValidation.message }
-          }
-        }
-
-        const normalizedActivity = {
-          ...activity,
-          week: weekValidation.value,
-          duration: durationValidation.value,
-          cost: costValidation.value,
-          day: normalizedDay !== undefined ? Math.floor(normalizedDay) : undefined
-        }
-
-        if (
-          state.timeMode === "HYBRID_DAILY" &&
-          normalizedActivity.week === state.currentWeek &&
-          normalizedActivity.day !== undefined &&
-          normalizedActivity.day < state.currentDay
-        ) {
-          return { success: false, message: "Cannot schedule events in past days of the current week." }
-        }
-
-        const week = normalizedActivity.week
-        const weekActivities = state.scheduledActivities.filter(a => week >= a.week && week < a.week + a.duration)
-        const weekMatches = state.scheduledMatches.filter(m => m.week === week)
-
-        if (weekActivities.length + weekMatches.length >= 10) {
-          return { success: false, message: "Weekly schedule is full (max 10 slots)" }
-        }
-
-        // Fatigue check for Bootcamps
-        if (normalizedActivity.type === "BOOTCAMP" && normalizedActivity.duration >= 1) {
-          const playerTeam = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          const players = state.players.filter(p => playerTeam?.rosterIds.includes(p.id))
-          const avgFatigue = players.reduce((acc, p) => acc + p.fatigue, 0) / (players.length || 1)
-
-          if (avgFatigue > 80) {
-            return { success: false, message: "Team is too exhausted for a bootcamp (Avg Fatigue > 80)" }
-          }
-        }
-
-        set(state => {
-          state.scheduledActivities.push(normalizedActivity as ActivitySaveData)
-        })
-        return { success: true, message: "Activity scheduled" }
-      },
+      // scheduleScrim / scheduleActivity moved to
+      // store/slices/match-scheduling-slice.ts (spread above).
 
 
 
