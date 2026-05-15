@@ -92,6 +92,7 @@ import { applyScheduledActivities } from "@/engine/processors/scheduled-activiti
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
+import { createTrainingSlice } from "@/store/slices/training-slice"
 
 enableMapSet()
 
@@ -697,6 +698,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createTeamDrillsSlice(
         set as Parameters<typeof createTeamDrillsSlice>[0],
         get as Parameters<typeof createTeamDrillsSlice>[1],
+      ),
+      ...createTrainingSlice(
+        set as Parameters<typeof createTrainingSlice>[0],
+        get as Parameters<typeof createTrainingSlice>[1],
       ),
 
       // Initial State
@@ -3047,26 +3052,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // debugAddFunds / debugHealAll / debugMaxMorale / debugTriggerJobOffer
       // moved to store/slices/debug-slice.ts (spread above).
 
-      startRoleTraining: (playerId: string, targetRole: Role) => {
-        let result = { success: false, message: "Unknown error" }
-        set((state) => {
-          if (!state.playerTeamId) {
-            result = { success: false, message: "No team selected" }
-            return
-          }
-          // We must cast state to GameSave because immer proxy type issues
-          result = TrainingManager.startRoleTraining(state as unknown as GameSave, state.playerTeamId, playerId, targetRole)
-        })
-        return result
-      },
-
-      cancelRoleTraining: (playerId: string) => {
-        set((state) => {
-          if (state.playerTeamId) {
-            TrainingManager.cancelTraining(state as unknown as GameSave, state.playerTeamId, playerId)
-          }
-        })
-      },
+      // startRoleTraining / cancelRoleTraining moved to
+      // store/slices/training-slice.ts (spread above).
 
       setPlayerTrainingFocus: (playerId: string, focus: string) => {
         set((state) => {
