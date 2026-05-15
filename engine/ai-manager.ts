@@ -16,6 +16,7 @@ import {
     manageFacilities as manageFacilitiesFn,
     manageAcademy as manageAcademyFn,
 } from "./ai/infrastructure"
+import { getPlayerIndex as getPlayerIndexFn } from "./ai/player-index"
 import { logger } from "@/lib/logger"
 
 /**
@@ -32,24 +33,10 @@ export class AIManager {
         return rng ? rng.next() : this.fallbackRng.next()
     }
 
-    /**
-     * Build a player-id -> player Map once so AI sub-routines can do O(1)
-     * lookups instead of repeated O(n) `.find` on the players array. Caches
-     * the result on the GameSave for the duration of the current week so
-     * multiple AI calls share the same map.
-     */
+    // getPlayerIndex implementation extracted to engine/ai/player-index.ts
+    // (Phase K2). Facade kept so internal AIManager callers don't change.
     private static getPlayerIndex(save: GameSave): Map<string, PlayerSaveData> {
-        const cacheKey = "__aiPlayerIndex" as const
-        const cache = (save as unknown as Record<string, unknown>)[cacheKey] as
-            | { week: number; map: Map<string, PlayerSaveData> }
-            | undefined
-        if (cache && cache.week === save.currentWeek && cache.map.size === save.players.length) {
-            return cache.map
-        }
-        const map = new Map<string, PlayerSaveData>()
-        for (const p of save.players) map.set(p.id, p)
-        ;(save as unknown as Record<string, unknown>)[cacheKey] = { week: save.currentWeek, map }
-        return map
+        return getPlayerIndexFn(save)
     }
 
     /**
