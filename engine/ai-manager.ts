@@ -99,6 +99,9 @@ export class AIManager {
             // AI teams build out and upgrade facilities (STABLE-only, 4% per
             // week; missing facilities first, then upgrade lowest level).
             this.manageFacilities(team, save, activeRng)
+            // AI teams invest in their youth academy (STABLE-only, 3% per
+            // week; build first, then upgrade level by level).
+            this.manageAcademy(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
@@ -514,6 +517,80 @@ export class AIManager {
             category: "FACILITIES",
             amount: upgradeCost,
             description: `AI upgraded ${target.type} facility to Level ${target.level}`,
+            balance: team.budget,
+        })
+    }
+
+    /**
+     * AI academy investment — build/upgrade the youth academy facility.
+     *
+     * Player has 5 academy levels (Youth Camp → Legacy Factory) with build
+     * costs scaling 25k → 500k. AI teams never invested in this, so the
+     * player gained an exclusive long-term dev advantage that compounded
+     * each season.
+     *
+     * Per-team weekly behaviour:
+     *  - 3% chance to act (rarer than facility builds because academy
+     *    payoff is even longer-term).
+     *  - STABLE financial state only.
+     *  - If no academy yet: build at level 1 (\$25k).
+     *  - If academy exists and below max level: upgrade (cost from the
+     *    same ACADEMY_LEVELS table the player uses, so player + AI face
+     *    identical economics).
+     *  - Logs to financeLedger under FACILITIES so it shows up alongside
+     *    other infra spend.
+     */
+    private static manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
+        if (this.roll(rng) > 0.03) return
+        if (team.financialState !== "STABLE") return
+
+        const ACADEMY_LEVEL_BUILD_COSTS: Record<number, number> = {
+            1: 25_000,
+            2: 75_000,
+            3: 150_000,
+            4: 300_000,
+            5: 500_000,
+        }
+        const MAX_ACADEMY_LEVEL = 5
+
+        // Pass 1: build level 1 if no academy exists.
+        if (!team.academyFacility || team.academyFacility.level === 0) {
+            const cost = ACADEMY_LEVEL_BUILD_COSTS[1]
+            if (team.budget < cost) return
+            team.budget -= cost
+            team.academyFacility = { level: 1, builtWeek: save.currentWeek }
+            save.financeLedger.push({
+                id: `fin_ai_academy_${save.currentWeek}_${team.id}_build`,
+                week: save.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "FACILITIES",
+                amount: cost,
+                description: "AI built Youth Academy",
+                balance: team.budget,
+            })
+            return
+        }
+
+        // Pass 2: upgrade to next level if affordable + below max.
+        const currentLevel = team.academyFacility.level
+        if (currentLevel >= MAX_ACADEMY_LEVEL) return
+
+        const nextLevel = currentLevel + 1
+        const cost = ACADEMY_LEVEL_BUILD_COSTS[nextLevel]
+        if (team.budget < cost) return
+
+        team.budget -= cost
+        team.academyFacility.level = nextLevel
+        team.academyFacility.lastUpgradeWeek = save.currentWeek
+        save.financeLedger.push({
+            id: `fin_ai_academy_${save.currentWeek}_${team.id}_up_${nextLevel}`,
+            week: save.currentWeek,
+            teamId: team.id,
+            type: "EXPENSE",
+            category: "FACILITIES",
+            amount: cost,
+            description: `AI upgraded Youth Academy to Level ${nextLevel}`,
             balance: team.budget,
         })
     }
