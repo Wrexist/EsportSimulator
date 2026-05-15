@@ -59,6 +59,7 @@ import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./proc
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
+import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -654,39 +655,11 @@ export class AtomicWeekProcessor {
                 continue
             }
 
-            // Phase 57: Analyst Bonus (Tactical) & Strategy Triangle
-            const getTacticalBonus = (teamId: string, opponentStyle: string, myStyle: string) => {
-                let bonus = 0
-
-                // 1. Analyst Stats
-                const teamStaff = staffByTeamId.get(teamId)
-                let statSum = 0
-                if (teamStaff) {
-                    for (const s of teamStaff) {
-                        if (s.role === "analyst") statSum += s.stats?.analysis || 50
-                    }
-                }
-                bonus += (statSum / 100) * 5
-
-                // 2. Strategy Triangle (Rock-Paper-Scissors)
-                // AGGRESSIVE > STRUCTURED
-                // STRUCTURED > BALANCED
-                // BALANCED > AGGRESSIVE
-
-                // Normalize "DEFAULT" to "BALANCED"
-                const normalize = (s: string) => (!s || s === "default") ? "balanced" : s
-                const my = normalize(myStyle)
-                const opp = normalize(opponentStyle)
-
-                if (my === "aggressive" && opp === "structured") bonus += 5
-                if (my === "structured" && opp === "balanced") bonus += 5
-                if (my === "balanced" && opp === "aggressive") bonus += 5
-
-                return bonus
-            }
-
-            const homeBonus = getTacticalBonus(homeTeam.id, awayTeam.playstyle ?? "", homeTeam.playstyle ?? "")
-            const awayBonus = getTacticalBonus(awayTeam.id, homeTeam.playstyle ?? "", awayTeam.playstyle ?? "")
+            // Tactical bonus extracted to processors/match-tactical-bonus.ts
+            // (Phase M5). Takes pre-indexed staff for the team + both
+            // playstyles; returns analyst-stat-sum bonus + RPS counter bonus.
+            const homeBonus = getTacticalBonusFn(staffByTeamId.get(homeTeam.id), homeTeam.playstyle, awayTeam.playstyle)
+            const awayBonus = getTacticalBonusFn(staffByTeamId.get(awayTeam.id), awayTeam.playstyle, homeTeam.playstyle)
 
             // Collect team staff for talent bonus application in match sim
             const homeTeamStaff = staffByTeamId.get(homeTeam.id) ?? []
