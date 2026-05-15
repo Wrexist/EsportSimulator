@@ -40,6 +40,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
+import type { PlayerSaveData } from "@/engine/save-types"
 
 // ===== TYPES & CONSTANTS =====
 
@@ -736,8 +737,8 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 
 // ===== GRADUATES TAB =====
 
-function GraduatesTab({ players }: { players: any[] }) {
-    const graduates = players.filter(p => (p as any).isAcademyGraduate)
+function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
+    const graduates = players.filter(p => p.isAcademyGraduate)
 
     return (
         <motion.div key="graduates" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
