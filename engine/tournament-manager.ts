@@ -34,6 +34,12 @@ import {
     handleUpperFinalResult as handleUpperFinalResultFn,
     handleLowerResult as handleLowerResultFn,
 } from "./tournament/double-elim-handlers"
+import {
+    setupSwissStage as setupSwissStageFn,
+    generateSwissRound as generateSwissRoundFn,
+    handleSwissResult as handleSwissResultFn,
+    generateSwissPlayoffs as generateSwissPlayoffsFn,
+} from "./tournament/swiss-handlers"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -276,81 +282,18 @@ export class TournamentManager {
         save: GameSave,
         tournament: TournamentSaveData,
         teamIds: string[],
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        tournament.standings = teamIds.map(tid => ({
-            teamId: tid,
-            matchesPlayed: 0,
-            wins: 0,
-            losses: 0,
-            mapsWon: 0,
-            mapsLost: 0,
-            points: 0,
-            mapDiff: 0,
-            roundDiff: 0
-        }))
-
-        // Schedule Round 1
-        this.generateSwissRound(save, tournament, 1, rng)
+        setupSwissStageFn(save, tournament, teamIds, rng)
     }
 
     private static generateSwissRound(
         save: GameSave,
         tournament: TournamentSaveData,
         roundNum: number,
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        const teams = tournament.standings.filter(s => s.wins < 3 && s.losses < 3)
-        if (teams.length === 0) return
-
-        // Sort by record
-        const buckets: Record<string, string[]> = {}
-        teams.forEach(s => {
-            const key = `${s.wins}-${s.losses}`
-            if (!buckets[key]) buckets[key] = []
-            buckets[key].push(s.teamId)
-        })
-
-        const matchedTeams = new Set<string>()
-        const week = tournament.startWeek + roundNum - 1
-
-        Object.keys(buckets).sort().forEach(key => {
-            const bucketTeams = rng.shuffle(buckets[key].filter(tid => !matchedTeams.has(tid)))
-
-            while (bucketTeams.length >= 2) {
-                const home = bucketTeams.pop()!
-                const away = bucketTeams.pop()!
-                matchedTeams.add(home)
-                matchedTeams.add(away)
-
-                const matchId = `${tournament.id}_swiss_r${roundNum}_${home}_${away}`
-                const match: BracketMatchSaveData = {
-                    id: matchId,
-                    tournamentId: tournament.id,
-                    stage: `Swiss Round ${roundNum} (${key})`,
-                    homeTeamId: home,
-                    awayTeamId: away,
-                    isCompleted: false,
-                    week: week,
-                    format: (() => { const [w, l] = key.split("-").map(Number); return (w >= 2 || l >= 2) ? "BO3" : "BO1"; })(), // BO3 when close to elimination (2+ wins or losses)
-                    seed: rng.int(0, 999999),
-                    sourceMatchIds: []
-                }
-                this.addBracketMatch(tournament, match)
-                this.scheduleBracketMatch(save, match)
-            }
-
-            // Handle odd team in bucket: auto-advance with BYE win
-            if (bucketTeams.length === 1) {
-                const loneTeam = bucketTeams.pop()!
-                matchedTeams.add(loneTeam)
-                const byeRecord = tournament.standings?.find(s => s.teamId === loneTeam)
-                if (byeRecord) {
-                    byeRecord.wins++
-                    byeRecord.matchesPlayed++
-                }
-            }
-        })
+        generateSwissRoundFn(save, tournament, roundNum, rng)
     }
 
     private static createDoubleElimGroup(
@@ -905,104 +848,17 @@ export class TournamentManager {
     }
 
     private static handleSwissResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const idx = buildSaveIndexes(save)
-        // Update standings record
-        const wRecord = tournament.standings?.find(s => s.teamId === winnerId)
-        const lRecord = tournament.standings?.find(s => s.teamId === loserId)
-
-        if (wRecord) {
-            wRecord.wins++
-            wRecord.matchesPlayed++
-        }
-        if (lRecord) {
-            lRecord.losses++
-            lRecord.matchesPlayed++
-        }
-
-        // Update map and round differential from completed match data
-        const completedMatch = idx.completedMatchIndex.get(match.id) ?? save.completedMatches.find(cm => cm.id === match.id)
-        if (completedMatch?.result) {
-            const homeScore = completedMatch.result.homeScore ?? 0
-            const awayScore = completedMatch.result.awayScore ?? 0
-            const isWinnerHome = completedMatch.homeTeamId === winnerId
-
-            if (wRecord) {
-                wRecord.mapsWon += isWinnerHome ? homeScore : awayScore
-                wRecord.mapsLost += isWinnerHome ? awayScore : homeScore
-                wRecord.mapDiff = wRecord.mapsWon - wRecord.mapsLost
-            }
-            if (lRecord) {
-                lRecord.mapsWon += isWinnerHome ? awayScore : homeScore
-                lRecord.mapsLost += isWinnerHome ? homeScore : awayScore
-                lRecord.mapDiff = lRecord.mapsWon - lRecord.mapsLost
-            }
-
-            const maps = completedMatch.result.maps || []
-            const totalHomeRounds = maps.reduce((s: number, mp: { homeScore?: number }) => s + (mp.homeScore || 0), 0)
-            const totalAwayRounds = maps.reduce((s: number, mp: { awayScore?: number }) => s + (mp.awayScore || 0), 0)
-            if (wRecord) wRecord.roundDiff += isWinnerHome ? (totalHomeRounds - totalAwayRounds) : (totalAwayRounds - totalHomeRounds)
-            if (lRecord) lRecord.roundDiff += isWinnerHome ? (totalAwayRounds - totalHomeRounds) : (totalHomeRounds - totalAwayRounds)
-        }
-
-        // Check if round is finished
-        const swissMatch = match.id.match(/_swiss_r(\d+)_/)
-        const roundNum = swissMatch ? parseInt(swissMatch[1], 10) : 1
-        const roundMatches = tournament.playoffBracket?.filter(m => m.id.includes(`_swiss_r${roundNum}_`))
-        const allFinished = roundMatches?.every(m => m.isCompleted)
-
-        if (allFinished) {
-            const qualified = tournament.standings?.filter(s => s.wins === 3).length || 0
-            const eliminated = tournament.standings?.filter(s => s.losses === 3).length || 0
-
-            if (qualified >= 8 || roundNum >= 5) {
-                this.generateSwissPlayoffs(save, tournament)
-            } else {
-                const rng = new SeededRNG((save.lastRngSeed ?? 1) + roundNum)
-                this.generateSwissRound(save, tournament, roundNum + 1, rng)
-            }
-        }
-
-        // ELIMINATION CHECK (Swiss)
-        if (lRecord && lRecord.losses >= 3) {
-            save.tournamentQualifications = QualificationEngine.updateStatus(
-                save.tournamentQualifications,
-                tournament.id,
-                loserId,
-                "ELIMINATED"
-            )
-            this.notifyPlayerElimination(save, tournament, loserId)
-        }
+        handleSwissResultFn(save, tournament, match, winnerId, loserId, {
+            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static generateSwissPlayoffs(save: GameSave, tournament: TournamentSaveData): void {
-        tournament.currentStage = "Playoffs"
-        const qualified = tournament.standings
-            .filter(s => s.wins === 3)
-            .sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses) || b.roundDiff - a.roundDiff || (stableTeamIdNumber(a.teamId) - stableTeamIdNumber(b.teamId)))
-            .map(s => s.teamId)
-
-        // If fewer than 8 teams have 3 wins, pad with best 2-win teams (standard Swiss tiebreaker)
-        if (qualified.length < 8) {
-            const twoWinTeams = tournament.standings
-                .filter(s => s.wins === 2 && s.losses < 3 && !qualified.includes(s.teamId))
-                .sort((a, b) => b.roundDiff - a.roundDiff || b.mapDiff - a.mapDiff || (stableTeamIdNumber(a.teamId) - stableTeamIdNumber(b.teamId)))
-                .map(s => s.teamId)
-            while (qualified.length < 8 && twoWinTeams.length > 0) {
-                qualified.push(twoWinTeams.shift()!)
-            }
-        }
-
-        const playoffSeed = Math.max(
-            1,
-            ((save.lastRngSeed ?? 1) ^ (save.currentWeek * 2654435761)) >>> 0
-        )
-        this.setupGenericBracket(
-            save,
-            tournament,
-            qualified.slice(0, 8),
-            new SeededRNG(playoffSeed),
-            save.currentWeek
-        )
+        generateSwissPlayoffsFn(save, tournament, {
+            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static handleOpeningResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
