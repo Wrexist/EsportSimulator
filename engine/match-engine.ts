@@ -187,6 +187,21 @@ export class MatchEngine {
         applyTalentMoraleFloor(adaptedHomePlayers, homeTalentBonuses)
         applyTalentMoraleFloor(adaptedAwayPlayers, awayTalentBonuses)
 
+        // timeout_morale talent (Coach "Timeout Whisperer"): one-time
+        // additive morale boost applied at the start of the match,
+        // modeling the pre-match coach speech as the "tactical timeout"
+        // moment. Capped at 100. Stacks with the morale_floor enforcement
+        // above — the floor sets a minimum, this lifts everyone by the
+        // bonus value on top.
+        const homeTimeoutMorale = homeTalentBonuses["timeout_morale"] || 0
+        const awayTimeoutMorale = awayTalentBonuses["timeout_morale"] || 0
+        if (homeTimeoutMorale > 0) {
+            adaptedHomePlayers.forEach(p => { p.morale = Math.min(100, p.morale + homeTimeoutMorale) })
+        }
+        if (awayTimeoutMorale > 0) {
+            adaptedAwayPlayers.forEach(p => { p.morale = Math.min(100, p.morale + awayTimeoutMorale) })
+        }
+
         // Convert tactical bonuses to staff objects
         const makeCoach = (bonus: number): Coach => ({
             id: 'ai_coach', name: 'Coach', type: StaffType.COACH,
