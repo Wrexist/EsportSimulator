@@ -91,6 +91,7 @@ import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-process
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
+import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 
 enableMapSet()
 
@@ -2218,20 +2219,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               // Prune growing arrays to prevent unbounded memory/save growth
               pruneGameState(draft)
 
-              // Recalculate synergy for all teams (AI transfers may have changed rosters).
-              // Build players-by-id once so each team is O(roster) instead of
-              // O(players × roster). On a ~30 team / ~150 player league this
-              // turns ~9000 array-includes scans into ~450 map lookups.
-              const playersById = new Map<string, typeof draft.players[number]>()
-              for (const p of draft.players) playersById.set(p.id, p)
-              draft.teams.forEach(t => {
-                const roster: typeof draft.players = []
-                for (const id of t.rosterIds) {
-                  const p = playersById.get(id)
-                  if (p) roster.push(p)
-                }
-                t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-              })
+              // Recalculate synergy for all teams (AI transfers may have
+              // changed rosters). Uses the indexed O(roster) pass from
+              // engine/processors/team-synergy-recalc.ts.
+              recalculateAllSynergy(draft.teams, draft.players)
             })
 
             // Process academy weekly training, scouting missions, and prospect development
@@ -2302,8 +2293,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   sourceTeam.trainingSlotsUsed = Math.max(0, (sourceTeam.trainingSlotsUsed || 0) - 1)
                 }
               }
-              const roster = state.players.filter(p => sourceTeam.rosterIds.includes(p.id))
-              sourceTeam.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
+              recalculateTeamSynergy(sourceTeam, state.players)
             }
             state.contracts = state.contracts.filter(c => c.playerId !== playerId)
             const releasedPlayer = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
@@ -2550,8 +2540,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const recalcTeams = [toTeam]
           if (fromTeam) recalcTeams.push(fromTeam)
           for (const team of recalcTeams) {
-            const roster = state.players.filter(p => team.rosterIds.includes(p.id))
-            team.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
+            recalculateTeamSynergy(team, state.players)
             applyRosterChangePenalty(team, state.currentWeek, 1)
           }
 
