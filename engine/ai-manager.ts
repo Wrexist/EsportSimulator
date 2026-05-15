@@ -2,7 +2,8 @@ import {
     GameSave,
     TeamSaveData,
     PlayerSaveData,
-    ContractSaveData
+    ContractSaveData,
+    FacilitySaveData
 } from "./save-types"
 import { reconcileTeamRoles } from "./role-reconciler"
 import { PlayerRole, EventType } from "../types" // Adjust import path if needed
@@ -95,6 +96,9 @@ export class AIManager {
             // AI teams now sign sponsors (5% per week, tier-gated by rank +
             // S_TIER history, max 2 per team).
             this.manageSponsors(team, save, activeRng)
+            // AI teams build out and upgrade facilities (STABLE-only, 4% per
+            // week; missing facilities first, then upgrade lowest level).
+            this.manageFacilities(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
@@ -427,6 +431,90 @@ export class AIManager {
             followerCheckpoint: team.followers || 0,
             lastProcessedWeek: undefined,
             remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
+        })
+    }
+
+    /**
+     * AI facility upgrades — builds + upgrades TRAINING / RECOVERY /
+     * TACTICAL / FANZONE in priority order. Previously AI teams never
+     * built any facilities, so they couldn't benefit from training-XP
+     * boost, fatigue recovery, tactical prep, or Fan-Zone follower
+     * income. Now AI teams gradually invest in infrastructure when
+     * solvent and at the appropriate scale for their financial state.
+     *
+     * Gates:
+     *  - 4% chance per week (slow infra investment)
+     *  - Skips teams not in STABLE financial state (anything less than
+     *    that means they need the cash elsewhere)
+     *  - Build cost = $10k, upgrade cost = level × $25k (matches player)
+     *  - Priority: complete the build set (level 1 of each) before
+     *    upgrading any one facility past level 1.
+     */
+    private static manageFacilities(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
+        if (this.roll(rng) > 0.04) return
+        if (team.financialState !== "STABLE") return
+
+        if (!team.facilities) team.facilities = []
+
+        const FACILITY_TYPES: FacilitySaveData["type"][] = ["TRAINING", "RECOVERY", "TACTICAL", "FANZONE"]
+        const BUILD_COST = 10_000
+        const UPGRADE_BASE_COST = 25_000
+        const MAX_LEVEL = 5
+
+        // Pass 1: build any missing facilities (any team missing all 4
+        // gets the biggest gameplay impact from infra investment, so
+        // builds beat upgrades on tied weeks).
+        const missingType = FACILITY_TYPES.find(t => !team.facilities!.some(f => f.type === t))
+        if (missingType && team.budget >= BUILD_COST) {
+            team.budget -= BUILD_COST
+            team.facilities.push({
+                id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
+                type: missingType,
+                level: 1,
+                description: `${missingType} facility`,
+                monthlyCost: 2000,
+            })
+            save.financeLedger.push({
+                id: `fin_ai_facbuild_${save.currentWeek}_${team.id}_${missingType}`,
+                week: save.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "FACILITIES",
+                amount: BUILD_COST,
+                description: `AI built ${missingType} facility`,
+                balance: team.budget,
+            })
+            return
+        }
+
+        // Pass 2: upgrade the lowest-level facility (round-robin growth).
+        // Tie-breaker by FACILITY_TYPES order so TRAINING > RECOVERY >
+        // TACTICAL > FANZONE on equal-level ties (biggest performance
+        // lift comes from TRAINING).
+        const upgradable = team.facilities
+            .filter(f => f.level < MAX_LEVEL)
+            .sort((a, b) =>
+                a.level - b.level
+                || FACILITY_TYPES.indexOf(a.type) - FACILITY_TYPES.indexOf(b.type)
+            )
+        const target = upgradable[0]
+        if (!target) return
+
+        const upgradeCost = target.level * UPGRADE_BASE_COST
+        if (team.budget < upgradeCost) return
+
+        team.budget -= upgradeCost
+        target.level += 1
+        target.monthlyCost = Math.floor(Math.pow(target.level, 1.25) * 2000)
+        save.financeLedger.push({
+            id: `fin_ai_facup_${save.currentWeek}_${team.id}_${target.type}_${target.level}`,
+            week: save.currentWeek,
+            teamId: team.id,
+            type: "EXPENSE",
+            category: "FACILITIES",
+            amount: upgradeCost,
+            description: `AI upgraded ${target.type} facility to Level ${target.level}`,
+            balance: team.budget,
         })
     }
 
