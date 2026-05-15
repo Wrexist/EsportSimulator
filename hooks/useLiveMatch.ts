@@ -3,10 +3,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
-import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
+import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -39,12 +39,6 @@ interface LiveMatchRuntimeData {
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
     mapStartingSides?: Record<string, string>
-}
-
-interface TeamStaffState {
-    coach?: ReturnType<typeof createCoach>
-    analyst?: ReturnType<typeof createAnalyst>
-    psychologist?: ReturnType<typeof createPsychologist>
 }
 
 export function useLiveMatch(id: string) {
@@ -186,18 +180,9 @@ export function useLiveMatch(id: string) {
 
         const hStaffData = staff.filter(s => hTeam.staffIds.includes(s.id))
         const aStaffData = staff.filter(s => aTeam.staffIds.includes(s.id))
-        const mapStaff = (sData: any[]): TeamStaffState => {
-            const coachData = sData.find(s => s.role === "coach")
-            const analystData = sData.find(s => s.role === "analyst")
-            const psychData = sData.find(s => s.role === "psychologist")
-            return {
-                coach: coachData ? createCoach(coachData.id, coachData.name, coachData.level, coachData.salaryPerWeek) : undefined,
-                analyst: analystData ? createAnalyst(analystData.id, analystData.name, analystData.level, analystData.salaryPerWeek) : undefined,
-                psychologist: psychData ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek) : undefined,
-            }
-        }
-        const homeStaff = mapStaff(hStaffData)
-        const awayStaff = mapStaff(aStaffData)
+        // Staff adapter extracted to engine/match/live-staff-adapter.ts (L4).
+        const homeStaff = buildRuntimeStaff(hStaffData)
+        const awayStaff = buildRuntimeStaff(aStaffData)
 
         // Pre-match staff-talent application (morale_floor + timeout_morale
         // + anti_strat). Centralized in engine/match/apply-talents.ts so
@@ -463,21 +448,7 @@ export function useLiveMatch(id: string) {
     }, [staff])
 
     const getTeamStaff = useCallback((teamId: string) => {
-        const teamStaff = staffByTeamId.get(teamId) ?? []
-        let coachData: typeof teamStaff[number] | undefined
-        let analystData: typeof teamStaff[number] | undefined
-        let psychData: typeof teamStaff[number] | undefined
-        for (const s of teamStaff) {
-            if (!coachData && s.role === "coach") coachData = s
-            else if (!analystData && s.role === "analyst") analystData = s
-            else if (!psychData && s.role === "psychologist") psychData = s
-        }
-
-        return {
-            coach: coachData ? createCoach(coachData.id, coachData.name, coachData.level, coachData.salaryPerWeek) : undefined,
-            analyst: analystData ? createAnalyst(analystData.id, analystData.name, analystData.level, analystData.salaryPerWeek) : undefined,
-            psychologist: psychData ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek) : undefined,
-        }
+        return buildRuntimeStaff(staffByTeamId.get(teamId) ?? [])
     }, [staffByTeamId])
 
     const startNextRound = useCallback((playerStrategy?: RoundStrategy) => {
