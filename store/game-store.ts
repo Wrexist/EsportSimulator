@@ -86,6 +86,7 @@ import { createMatchOperationsSlice } from "@/store/slices/match-operations-slic
 import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slice"
 import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slice"
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
+import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 
 enableMapSet()
 
@@ -2025,110 +2026,18 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         try {
           const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
 
-          // Batched pre-tick mutations: scouting, market rotation, staff XP, player XP
-          // Combined into a single set() to avoid multiple Immer snapshots + persist serializations
+          // Batched pre-tick mutations: scouting completion, staff-market
+          // rotation, staff XP, player XP. All four sub-phases live in
+          // engine/processors/pre-tick-mutations.ts so this big imperative
+          // block doesn't sit in the orchestrator. Combined into a single
+          // set() to avoid multiple Immer snapshots + persist serializations.
           set(draft => {
-            // === Process Scouting Completion ===
-            const mission = draft.activeScoutingMission
-            if (mission && draft.currentWeek >= mission.completionWeek) {
-              const player = draft.players.find(p => p.id === mission.playerId)
-              draft.activeScoutingMission = undefined
-
-              if (!player) {
-                draft.eventsLog.unshift({
-                  id: nextDeterministicId(draft, "evt_scout_failed", mission.playerId),
-                  type: "SCOUTING_COMPLETE",
-                  week: draft.currentWeek,
-                  data: {
-                    title: "Scouting Mission Failed",
-                    message: "The scouted player is no longer available.",
-                    severity: "warning"
-                  },
-                  acknowledged: false
-                })
-              } else {
-                const alreadyScouted = draft.scoutedPlayers.some(sp => sp.playerId === mission.playerId)
-                if (!alreadyScouted) {
-                  draft.scoutedPlayers.push({
-                    playerId: mission.playerId,
-                    scoutedWeek: draft.currentWeek,
-                    scoutLevel: "EXPERT"
-                  })
-                }
-                draft.eventsLog.unshift({
-                  id: nextDeterministicId(draft, "evt_scout_complete", mission.playerId),
-                  type: "SCOUTING_COMPLETE",
-                  week: draft.currentWeek,
-                  data: {
-                    title: "Scouting Report Ready",
-                    message: `Analysis for ${player.nickname} is complete. Full attributes are now visible.`,
-                    playerId: mission.playerId,
-                    severity: "success"
-                  },
-                  acknowledged: false
-                })
-              }
-            }
-
-            // === Market Rotation (every 4-8 weeks) ===
-            if (!draft.nextMarketRefreshWeek) {
-              draft.nextMarketRefreshWeek = state.currentWeek + 4
-            } else if (state.currentWeek >= draft.nextMarketRefreshWeek) {
-              const rotated = StaffGenerator.rotateMarket(draft.marketStaff, state.currentWeek, preTickRng)
-              draft.marketStaff = rotated
-              draft.nextMarketRefreshWeek = state.currentWeek + 4 + Math.floor(preTickRng.next() * 5)
-            }
-
-            // === Staff XP & Level Up ===
-            if (draft.staff) {
-              draft.staff.forEach(s => {
-                if (s.teamId === state.playerTeamId) {
-                  const xpGain = 50 + Math.floor(preTickRng.next() * 50)
-                  s.xp += xpGain
-
-                  if (s.xp >= s.xpToNextLevel) {
-                    s.xp -= s.xpToNextLevel
-                    s.level += 1
-                    s.talentPoints += 1
-                    s.xpToNextLevel = Math.floor(s.xpToNextLevel * 1.5)
-
-                    draft.eventsLog.unshift({
-                      id: nextDeterministicId(draft, "evt_staff_levelup", s.id),
-                      type: "STAFF_LEVEL_UP",
-                      week: state.currentWeek,
-                      data: { staffName: s.name, newLevel: s.level },
-                      acknowledged: false
-                    })
-                  }
-                }
-              })
-            }
-
-            // === Player XP & Level Up ===
-            const userTeam = draft.teams.find(t => t.id === state.playerTeamId)
-            if (userTeam) {
-              draft.players.forEach(p => {
-                if (userTeam.rosterIds.includes(p.id)) {
-                  const xpGain = 40 + Math.floor(preTickRng.next() * 40)
-                  p.xp = (p.xp || 0) + xpGain
-
-                  if (p.xp >= (p.xpToNextLevel || 1000)) {
-                    p.xp -= (p.xpToNextLevel || 1000)
-                    p.level = (p.level || 1) + 1
-                    p.talentPoints = (p.talentPoints || 0) + 1
-                    p.xpToNextLevel = Math.floor((p.xpToNextLevel || 1000) * 1.5)
-
-                    draft.eventsLog.unshift({
-                      id: nextDeterministicId(draft, "evt_player_levelup", p.id),
-                      type: "PLAYER_LEVEL_UP",
-                      week: state.currentWeek,
-                      data: { playerName: p.nickname, newLevel: p.level },
-                      acknowledged: false
-                    })
-                  }
-                }
-              })
-            }
+            applyPreTickMutations(draft as any, {
+              playerTeamId: state.playerTeamId || "",
+              currentWeek: state.currentWeek,
+              rng: preTickRng,
+              nextId: nextDeterministicId,
+            })
           })
 
           const rng = new SeededRNG(preTickRng.getState())
