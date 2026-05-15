@@ -32,8 +32,6 @@ import {
     StaffType,
     MatchEvent,
     CustomTactics,
-    TacticalStrategy,
-    PlayerLoadout,
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
 import { perfTrace } from "./perf-trace"
@@ -56,6 +54,7 @@ import {
     pickWeighted as pickWeightedFn,
     type PlayerSimulationState as RoundPlayerSimulationState,
 } from "./match/round-outcome"
+import { performBuyPhase as performBuyPhaseFn, type BuyStrategy } from "./match/buy-phase"
 
 // ===== TYPES =====
 
@@ -823,160 +822,18 @@ export class SimulationEngineV2 {
      * This mutates the economy object directly.
      * Phase 43: Now uses per-player loadouts when available.
      */
+    // Buy-phase implementation extracted to engine/match/buy-phase.ts
+    // (Phase J2). Facade preserved — useLiveMatch and the slice keep
+    // their existing simulationEngineV2.performBuyPhase(...) call path.
     public performBuyPhase(
         players: Player[],
-        economy: Record<string, { id: string; cash: number; weapon: string; hasArmor: boolean; hasHelmet: boolean; hasKit: boolean; utility: string[] }>,
-        strategy: "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP",
+        economy: Record<string, PlayerSimulationState>,
+        strategy: BuyStrategy,
         isCT: boolean,
         rng: SeededRNG,
         customTactics?: CustomTactics
     ): void {
-        // PISTOL is not a key in CustomTactics; when strategy is PISTOL, the lookup returns undefined (safe via optional chaining)
-        const tacticsForStrategy = customTactics ? customTactics[strategy as keyof CustomTactics] : undefined
-        const customTactic: TacticalStrategy | undefined = tacticsForStrategy?.[isCT ? "ct" : "t"]
-        const playerLoadouts: PlayerLoadout[] | undefined = customTactic?.playerLoadouts
-
-        // PISTOL ROUND OVERRIDE - USER REQUESTED STRICT LOGIC
-        // "everyone should have $800 and their starting pistol (glock for T & USP-S for CT) buy light kev all players for first round thats it."
-        if (strategy === "PISTOL") {
-            players.forEach(p => {
-                const state = economy[p.id]
-                if (!state) return
-
-                // Ensure starting pistol
-                state.weapon = isCT ? "usp" : "glock"
-
-                // Buy Kevlar Vest ($650) if affordable
-                if (state.cash >= 650) {
-                    state.cash -= 650
-                    state.hasArmor = true
-                    state.hasHelmet = false // No helmet on pistol round
-                }
-
-                // "thats it" - No kits, no grenades, no upgrades
-                state.hasKit = false
-                state.utility = []
-            })
-            return
-        }
-
-        let awpsToBuy = strategy === "DOUBLE AWP" ? 2 : (strategy === "FULL" ? 1 : 0)
-
-        // Pre-allocate AWP slots: prioritize AWPER-role players, then by cash
-        const playerPositionMap = new Map(players.map((p, i) => [p.id, i]))
-        const awpRecipients = new Set<string>()
-        if (awpsToBuy > 0) {
-            const candidates = [...players]
-                .filter(p => {
-                    const pIdx = playerPositionMap.get(p.id) ?? -1
-                    const loadout = playerLoadouts?.[pIdx] || playerLoadouts?.find((l) => l.slotIndex === pIdx)
-                    return !loadout && economy[p.id]?.cash >= 4750
-                })
-                .sort((a, b) => {
-                    // AWPER role first, then by cash
-                    if (a.role === PlayerRole.AWPER && b.role !== PlayerRole.AWPER) return -1
-                    if (b.role === PlayerRole.AWPER && a.role !== PlayerRole.AWPER) return 1
-                    return economy[b.id].cash - economy[a.id].cash
-                })
-            for (let i = 0; i < Math.min(awpsToBuy, candidates.length); i++) {
-                awpRecipients.add(candidates[i].id)
-            }
-        }
-
-        players.forEach((p, idx) => {
-            const state = economy[p.id]
-            if (!state) return
-
-            let effectiveRole = p.role
-            const personalLoadout = playerLoadouts?.[idx] || playerLoadouts?.find((l) => l.slotIndex === idx)
-
-            if (!personalLoadout) {
-                if (awpRecipients.has(p.id)) {
-                    effectiveRole = PlayerRole.AWPER
-                } else if (effectiveRole === PlayerRole.AWPER && !awpRecipients.has(p.id)) {
-                    effectiveRole = PlayerRole.RIFLER
-                }
-            }
-
-            // Phase 43: Use per-player loadout if available
-            // NEW V2: Handling armorLevel for precise cost
-            const buy = EconomyManager.getPlayerBuyV2(state.cash, strategy, effectiveRole, isCT, rng, personalLoadout || customTactic)
-
-            // Determine if we should buy the weapon (upgrade or sidegrade, but never downgrade tier unless forced)
-            const currentWeapon = WEAPONS[state.weapon.toUpperCase()] || WEAPONS.GLOCK
-            const newWeapon = buy.weapon
-
-            const currentLevel = weaponToLevel(state.weapon)
-            const newLevel = weaponToLevel(newWeapon.id)
-
-            // Upgrade Logic
-            const isStrictUpgrade = newLevel > currentLevel
-            const isSideUpgrade = newLevel === currentLevel && newWeapon.price > currentWeapon.price
-            const allowedUpgrade = isStrictUpgrade || (isSideUpgrade && currentLevel < 3)
-
-            if (newWeapon.id !== state.weapon && allowedUpgrade && state.cash >= newWeapon.price) {
-                state.cash -= newWeapon.price
-                state.weapon = newWeapon.id
-            }
-
-            // Armor Logic (Precise Deduction)
-            // Buy.armorLevel: 0 (None), 1 (Vest $650), 2 (Helmet $1000 or $350 upgrade)
-            if (buy.armorLevel > 0) {
-                const currentArmorLevel = state.hasHelmet ? 2 : (state.hasArmor ? 1 : 0)
-
-                if (buy.armorLevel > currentArmorLevel) {
-                    // Need to upgrade
-                    if (buy.armorLevel === 1 && currentArmorLevel === 0 && state.cash >= 650) {
-                        state.cash -= 650
-                        state.hasArmor = true
-                    } else if (buy.armorLevel === 2) {
-                        if (currentArmorLevel === 1 && state.cash >= 350) {
-                            state.cash -= 350 // Upgrade Vest to Helm
-                            state.hasHelmet = true
-                        } else if (currentArmorLevel === 0 && state.cash >= 1000) {
-                            state.cash -= 1000 // Buy full
-                            state.hasArmor = true
-                            state.hasHelmet = true
-                        }
-                    }
-                }
-            }
-
-            if (buy.kit && !state.hasKit && state.cash >= 400) {
-                state.cash -= 400
-                state.hasKit = true
-            }
-
-            // Grenade Logic (Same as before, preserving it)
-            if (personalLoadout && personalLoadout.utility && personalLoadout.utility.length > 0) {
-                const desiredUtil = [...personalLoadout.utility]
-                const currentUtilCounts = (state.utility || []).reduce((acc: any, u: string) => {
-                    acc[u] = (acc[u] || 0) + 1
-                    return acc
-                }, {} as Record<string, number>)
-
-                desiredUtil.forEach((utilId: string) => {
-                    if ((currentUtilCounts[utilId] || 0) > 0) {
-                        currentUtilCounts[utilId]--
-                        return
-                    }
-                    let cost = 0
-                    switch (utilId) {
-                        case "flash": cost = 200; break
-                        case "smoke": cost = 300; break
-                        case "he": cost = 300; break
-                        case "molotov": cost = isCT ? 600 : 400; break
-                        case "decoy": cost = 50; break
-                    }
-
-                    if (state.cash >= cost && (state.utility || []).length < 4) {
-                        state.cash -= cost
-                        if (!state.utility) state.utility = []
-                        state.utility.push(utilId)
-                    }
-                })
-            }
-        })
+        performBuyPhaseFn(players, economy, strategy, isCT, rng, customTactics)
     }
 
     /**
@@ -1291,16 +1148,5 @@ export class SimulationEngineV2 {
 }
 
 export const simulationEngineV2 = new SimulationEngineV2()
-
-// Helpers
-function weaponToLevel(weaponId: string): number {
-    const w = WEAPONS[weaponId.toUpperCase()]
-    if (!w) return 0
-    if (w.type === "PISTOL") return 1
-    if (w.type === "SMG") return 2
-    if (w.type === "RIFLE") return 3
-    if (w.type === "SNIPER") return 4
-    return 0
-}
 
 
