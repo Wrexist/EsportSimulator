@@ -91,12 +91,13 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
         }
 
         set(state => {
+            if (!state.playerTeamId) return
             const registration = normalizeQualificationStatus({
                 tournamentId: instanceId,
                 seriesId: baseId,
                 instanceId,
                 seasonNumber,
-                teamId: state.playerTeamId!,
+                teamId: state.playerTeamId,
                 status: "REGISTERED",
             }, state.currentWeek)
 

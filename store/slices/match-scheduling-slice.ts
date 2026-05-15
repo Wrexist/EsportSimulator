@@ -94,10 +94,11 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
         }
 
         set((state) => {
+            if (!state.playerTeamId) return
             const id = nextDeterministicId(state, "scrim", normalizedWeek, opponentId)
             state.scheduledMatches.push({
                 id,
-                homeTeamId: state.playerTeamId!,
+                homeTeamId: state.playerTeamId,
                 awayTeamId: opponentId,
                 tournamentId: "SCRIM",
                 stage: "Practice",
