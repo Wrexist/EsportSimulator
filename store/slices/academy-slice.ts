@@ -428,8 +428,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             })
 
             // Flag as academy graduate for achievement tracking + tier reset.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(player as any).isAcademyGraduate = true
+            player.isAcademyGraduate = true
             player.tier = "ACADEMY"
 
             state.newsFeed.unshift({
@@ -594,8 +593,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const currentValue = (player as any)[stat] as number
                         if (typeof currentValue !== "number") return
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        const potentialCap = (player as any).potential
+                        const potentialCap = player.potential
                         const roomToGrow = Math.max(0, potentialCap - currentValue)
                         const growthFactor = roomToGrow / 100
                         const improvement = (drillXp / 100) * DEVELOPMENT_CONFIG.statGainPer100XP * growthFactor
