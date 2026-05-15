@@ -50,6 +50,7 @@ type RankingsRowProps = {
     tierSize: number
     teamFlag: string
     isPlayerTeam: boolean
+    revealPlaystyle: boolean
     onSelect: (team: any) => void
 }
 
@@ -63,6 +64,7 @@ const RankingsRow = React.memo(function RankingsRow({
     tierSize,
     teamFlag,
     isPlayerTeam,
+    revealPlaystyle,
     onSelect,
 }: RankingsRowProps) {
     const tierStyle = getTierStyle(team.tier)
@@ -112,6 +114,16 @@ const RankingsRow = React.memo(function RankingsRow({
                     <div className="flex items-center gap-2">
                         <span className="font-bold text-white uppercase tracking-tight truncate">{team.name}</span>
                         {isPlayerTeam && <Crown className="w-4 h-4 text-amber-400 fill-amber-400/20 ml-2 shrink-0" />}
+                        {/* Analyst "Data Entry" talent (scout_info) reveals opponent
+                            playstyle as a small chip next to the team name. */}
+                        {revealPlaystyle && !isPlayerTeam && team.playstyle && team.playstyle !== "default" && (
+                            <span
+                                className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0"
+                                title="Revealed by your Analyst's Data Entry talent"
+                            >
+                                {team.playstyle}
+                            </span>
+                        )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                         <CountryFlag country={teamFlag} showName={false} size={16} />
@@ -190,6 +202,7 @@ const RankingsRow = React.memo(function RankingsRow({
 type VirtualizedRankingsListProps = {
     displayTeams: any[]
     playerTeamId: string | null | undefined
+    revealPlaystyle: boolean
     posInTierByTeamId: Map<string, { posInTier: number; tierSize: number }>
     teamFlagByTeamId: Map<string, string>
     onSelectTeam: (team: any) => void
@@ -198,6 +211,7 @@ type VirtualizedRankingsListProps = {
 const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
     displayTeams,
     playerTeamId,
+    revealPlaystyle,
     posInTierByTeamId,
     teamFlagByTeamId,
     onSelectTeam,
@@ -264,6 +278,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                                     tierSize={posMeta?.tierSize ?? 0}
                                     teamFlag={teamFlagByTeamId.get(team.id) ?? "un"}
                                     isPlayerTeam={team.id === playerTeamId}
+                                    revealPlaystyle={revealPlaystyle}
                                     onSelect={onSelectTeam}
                                 />
                             </div>
@@ -284,15 +299,27 @@ export default function RankingsPage() {
 }
 
 function RankingsPageInner() {
-    const { teams, playerTeamId, players, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, staff, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
+        staff: state.staff,
         currentWeek: state.currentWeek,
         isPlayerScouted: state.isPlayerScouted,
         completedMatches: state.completedMatches,
         circuitPoints: state.circuitPoints,
     })))
+
+    // Analyst "Data Entry" talent (scout_info) reveals opponent playstyle.
+    // Any analyst on the player team with the talent unlocked is enough.
+    const revealPlaystyle = useMemo(() => {
+        if (!playerTeamId) return false
+        return staff.some(s =>
+            s.teamId === playerTeamId &&
+            s.role === "analyst" &&
+            (s.unlockedTalentIds || []).some(id => id === "analyst_basics")
+        )
+    }, [staff, playerTeamId])
     const [searchTerm, setSearchTerm] = useState("")
     const debouncedSearch = useDebounce(searchTerm, 300)
     const [selectedTier, setSelectedTier] = useState<TierLevel | "ALL">("ALL")
@@ -605,6 +632,7 @@ function RankingsPageInner() {
                             <VirtualizedRankingsList
                                 displayTeams={displayTeams}
                                 playerTeamId={playerTeamId}
+                                revealPlaystyle={revealPlaystyle}
                                 posInTierByTeamId={rankingMeta.posInTierByTeamId}
                                 teamFlagByTeamId={rankingMeta.teamFlagByTeamId}
                                 onSelectTeam={setSelectedTeam}
