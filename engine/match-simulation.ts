@@ -25,7 +25,6 @@ import {
     MapId,
     MatchFormat,
     PlayerRole,
-    calculateTeamChemistry,
     Coach,
     Analyst,
     Psychologist,
@@ -55,6 +54,7 @@ import {
     type PlayerSimulationState as RoundPlayerSimulationState,
 } from "./match/round-outcome"
 import { performBuyPhase as performBuyPhaseFn, type BuyStrategy } from "./match/buy-phase"
+import { calculateTeamStrength as calculateTeamStrengthFn } from "./match/team-strength"
 
 // ===== TYPES =====
 
@@ -719,102 +719,16 @@ export class SimulationEngineV2 {
      * Calculate team overall strength
      * Factors: average skill, role coverage, chemistry, morale, fatigue
      */
+    // Team-strength implementation extracted to engine/match/team-strength.ts
+    // (Phase J3). Facade preserved — useLiveMatch + match-simulation-slice
+    // call simulationEngineV2.calculateTeamStrength(...) directly.
     public calculateTeamStrength(
         team: Team,
         players: Player[],
         staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         mentalPrep?: boolean
     ): number {
-        if (players.length === 0) return 0
-
-        const facilitiesLevel = team.facilitiesLevel || 1
-
-        // Average skill (0-100)
-        const avgSkill = players.reduce((sum, p) => sum + p.skill, 0) / players.length
-
-        // Energy Multiplier (0.8 to 1.0, with exhausted penalty)
-        const avgEnergy = players.reduce((sum, p) => sum + (p.energy ?? 100), 0) / players.length
-        let energyMod = 0.8 + (avgEnergy / 100) * 0.2
-
-        // Phase 55: Apply "exhausted" penalty when team is critically low on energy
-        if (avgEnergy < 20) {
-            energyMod *= 0.85 // -15% additional penalty when exhausted
-        }
-
-        // Form Multiplier (0.9 to 1.1)
-        const avgForm = players.reduce((sum, p) => sum + (p.form ?? 50), 0) / players.length
-        const formMod = 0.9 + (avgForm / 100) * 0.2
-
-        // Role coverage bonus (unique roles = better)
-        const roles = new Set(players.map(p => p.role))
-        const roleCoverage = 0.8 + (roles.size / 5) * 0.2 // 0.8 to 1.0
-
-        // Chemistry (0-100 -> 0.85 to 1.15)
-        const chemistry = team.chemistry ?? calculateTeamChemistry(players)
-        const chemistryMod = 0.85 + (chemistry / 100) * 0.3
-
-        // Average morale (0-100 -> 0.8 to 1.2)
-        const avgMorale = players.reduce((sum, p) => sum + (p.morale ?? 50), 0) / players.length
-        const moraleMod = 0.8 + (avgMorale / 100) * 0.4
-
-        // Average fatigue penalty (0-100 -> 1.0 to 0.7)
-        const avgFatigue = players.reduce((sum, p) => sum + (p.fatigue ?? 0), 0) / players.length
-        const fatigueMod = 1.0 - (avgFatigue / 100) * 0.3
-
-        // Staff bonuses
-        let staffMod = 1.0
-        if (staff.coach) {
-            staffMod += (staff.coach.tacticBonus || (staff.coach.level * 2)) / 100 // +2-10%
-        }
-        if (staff.analyst) {
-            staffMod += (staff.analyst.level * 2.0) / 100 // +2-10%
-        }
-        if (staff.psychologist) {
-            // Psychologist reduces tilt impact
-            staffMod += (staff.psychologist.level * 1.5) / 100 // +1.5-7.5%
-        }
-
-        // Equipment Bonuses (each bonus point gives ~0.5% team strength)
-        let equipMod = 1.0
-        if (team.equipment && team.equipment.length > 0) {
-            team.equipment.forEach((item) => {
-                const bonusValue = item.bonus?.value || 0
-                equipMod += (bonusValue / 80)
-            })
-        }
-
-        // Facilities bonus (1-10 -> 1.0 to 1.1)
-        const facilitiesMod = 1.0 + (facilitiesLevel / 100)
-
-        // Phase 20: Tactical Preparation & Playstyles
-        let tacticalMod = 1.0
-        if (team.tacticalPrep) {
-            tacticalMod += (team.tacticalPrep / 400) // Up to +25% bonus for 100% prep
-        }
-
-        // Mental Prep bonus ($5k mental reset): improves morale floor and clutch consistency
-        if (mentalPrep) {
-            tacticalMod += 0.03 // +3% team strength from mental preparation
-        }
-
-        // Playstyle specialization
-        if (team.playstyle === "aggressive" && avgMorale > 80) {
-            tacticalMod += 0.05
-        } else if (team.playstyle === "structured" && chemistry > 80) {
-            tacticalMod += 0.05
-        }
-
-        // Phase 60: Antistratting self-penalty (tunnel vision)
-        // If the team is focusing on a specific target, they lose 5% map awareness
-        if (team.targetPlayerId) {
-            tacticalMod *= 0.95 // -5% tactical bonus
-        }
-
-        // Hybrid strength: base skill × critical multipliers, additive secondary mods
-        // This prevents small debuffs cascading catastrophically
-        const coreMod = energyMod * formMod * fatigueMod // These represent physical readiness (multiplicative)
-        const additiveBonus = (roleCoverage - 1) + (chemistryMod - 1) + (moraleMod - 1) + (staffMod - 1) + (equipMod - 1) + (facilitiesMod - 1) + (tacticalMod - 1)
-        return avgSkill * coreMod * Math.max(0.7, 1 + additiveBonus)
+        return calculateTeamStrengthFn(team, players, staff, mentalPrep)
     }
 
     /**
