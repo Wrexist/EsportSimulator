@@ -77,6 +77,17 @@ export function evaluatePostTickAchievements(save: GameSave): void {
     // REDEMPTION_ARC: won S_TIER this season after losing one in prior year.
     const seasonStart = Math.floor((save.currentWeek - 1) / WEEKS_PER_SEASON) * WEEKS_PER_SEASON + 1
     const priorSeasonStart = Math.max(1, seasonStart - WEEKS_PER_SEASON)
+
+    // Pre-build a tournamentId → tier lookup so we can resolve match tier
+    // without an O(n) find per match (and so we don't depend on a
+    // `tournamentTier` field that is NOT actually written onto the match
+    // record — earlier this check used `(m as any).tournamentTier` which
+    // is always undefined, making REDEMPTION unreachable).
+    const tournamentTierById = new Map<string, string | undefined>()
+    for (const t of save.tournaments) {
+        tournamentTierById.set(t.id, t.tier)
+    }
+
     const lostSTierGrandFinalPriorYear = save.completedMatches.some(m => {
         if (m.week < priorSeasonStart || m.week >= seasonStart) return false
         const isPlayerTeam = m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId
@@ -85,8 +96,12 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         const lost = isHome
             ? m.result.homeScore < m.result.awayScore
             : m.result.awayScore < m.result.homeScore
+        if (!lost) return false
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return lost && (m as any).stage === "Grand Final" && (m as any).tournamentTier === "S_TIER"
+        const stage = (m as any).stage
+        if (stage !== "Grand Final") return false
+        const tier = m.tournamentId ? tournamentTierById.get(m.tournamentId) : undefined
+        return tier === "S_TIER"
     })
     const wonSTierThisSeason = (playerTeam.trophies || []).some(
         t => t.tier === "S_TIER" && t.week >= seasonStart && t.week <= save.currentWeek
