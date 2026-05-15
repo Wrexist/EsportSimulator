@@ -39,6 +39,7 @@ import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
+import { getStaffPassiveBonuses } from "@/engine/talent-trees"
 import {
     SCOUTING_COSTS,
     ACADEMY_LEVELS,
@@ -210,16 +211,22 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 return
             }
 
-            const cost = SCOUTING_COSTS[tier]
-            if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
-                return
-            }
-
             // A hired Scout is mandatory — without one the mission can't run.
             const scouter = state.staff.find(s => s.teamId === state.playerTeamId && s.role === "scout")
             if (!scouter) {
                 result = { success: false, message: "A hired Scout is required to start scouting missions" }
+                return
+            }
+
+            // Scout talent "Networking" reduces mission cost by 10% per unlock.
+            // Stored as a negative value (-10) so just add it to a 100-base divisor.
+            const scoutBonuses = getStaffPassiveBonuses("scout", scouter.unlockedTalentIds || [])
+            const scoutCostBonus = scoutBonuses["scout_cost"] || 0
+            const baseCost = SCOUTING_COSTS[tier]
+            const cost = Math.max(0, Math.round(baseCost * (1 + scoutCostBonus / 100)))
+
+            if (team.budget < cost) {
+                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
                 return
             }
 
@@ -236,7 +243,8 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
             state.academyScoutingMissions.push(mission)
 
-            result = { success: true, message: `${tier} scouting mission initiated. Will take ${duration} week(s).` }
+            const savedMsg = cost < baseCost ? ` (saved $${(baseCost - cost).toLocaleString()} via Networking)` : ""
+            result = { success: true, message: `${tier} scouting mission initiated. Will take ${duration} week(s).${savedMsg}` }
         })
         return result
     },
@@ -514,6 +522,19 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
             const academyLevel = team.academyFacility.level
+
+            // Coach talent "Youth Mentor" (academy_speed) stacks with the
+            // facility-level dev bonus. Sum across every coach on the team,
+            // capped at +50% so a team can't accumulate runaway acceleration.
+            const coaches = state.staff.filter(s => s.teamId === state.playerTeamId && s.role === "coach")
+            const academySpeedBonus = Math.min(
+                50,
+                coaches.reduce((sum, c) => {
+                    const b = getStaffPassiveBonuses("coach", c.unlockedTalentIds || [])
+                    return sum + (b["academy_speed"] || 0)
+                }, 0),
+            )
+            const coachMultiplier = 1 + academySpeedBonus / 100
             const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ SCOUT_RNG_SALT)
 
             const report: AcademyWeeklyReport = {
@@ -548,6 +569,9 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                     if ((prospect.energy ?? 100) < ENERGY_CONFIG.fatigueThreshold) {
                         drillXp *= ENERGY_CONFIG.fatiguePenalty
                     }
+
+                    // Coach Youth Mentor talent: boosts academy XP.
+                    drillXp *= coachMultiplier
                     xpGained += drillXp
 
                     // Stat gains scale with the player's room-to-grow against
