@@ -531,30 +531,40 @@ relevant subsystem arrays, and mutate the save in place. All log to
 `save.financeLedger` with category `FACILITIES` (or `WAGES_STAFF` /
 `SPONSOR` as appropriate) for visibility.
 
-### Match simulation module layout (Phase I refactor)
+### Match simulation module layout (Phases H4 + I + J)
 
-`engine/match-simulation.ts` was 2,020 lines as a single class. Phase I
-broke it up into four focused modules while preserving the public API:
+`engine/match-simulation.ts` was 2,020 lines as a single class. Phases
+H4 → I → J broke it up into six focused modules while preserving the
+public API:
 
 ```
 engine/
-├── match-simulation.ts            (1,306 lines — SimulationEngineV2 facade)
+├── match-simulation.ts            (1,066 lines — SimulationEngineV2 facade)
 └── match/
-    ├── map-veto.ts                (147 lines)
-    │   ├── calculateMapStrengths  skill+tactic weighting per map type
-    │   ├── selectMapForVeto       noise-modulated top pick
-    │   └── simulateMapVeto        full BO3 ban/ban/pick/pick/decider ladder
-    ├── match-stats.ts             (193 lines)
-    │   ├── determineMapMVP        most-kills MVP per map
-    │   ├── generateMatchStats     K/D/A + ADR + KAST + HLTV rating aggregator
-    │   └── determineMVP           highest-rating MVP on winning side
-    └── round-outcome.ts           (493 lines)
-        ├── determineWinType       round flavor (elim / defuse / explode / time)
-        ├── pickWeighted           skill-weighted player selection
-        ├── addKillEvent           event log + tally helper
-        ├── generateRoundStats     full round event generation (clutch, plant,
-        │                          defuse, save, headshot, trade, assist)
-        └── PlayerSimulationState  per-player live state during a map
+    ├── apply-talents.ts            (85 lines, H4)
+    │   └── applyPreMatchTalents    central morale_floor + timeout_morale
+    │                               + anti_strat application shared by
+    │                               match-engine + slice + live-match hook
+    ├── map-veto.ts                (147 lines, I1)
+    │   ├── calculateMapStrengths   skill+tactic weighting per map type
+    │   ├── selectMapForVeto        noise-modulated top pick
+    │   └── simulateMapVeto         full BO3 ban/ban/pick/pick/decider
+    ├── match-stats.ts             (193 lines, I2)
+    │   ├── determineMapMVP         most-kills MVP per map
+    │   ├── generateMatchStats      K/D/A + ADR + KAST + HLTV rating
+    │   └── determineMVP            highest-rating MVP on winning side
+    ├── round-outcome.ts           (493 lines, I4)
+    │   ├── determineWinType        round flavor pick
+    │   ├── pickWeighted            skill-weighted player selection
+    │   ├── addKillEvent            event log + tally helper
+    │   ├── generateRoundStats      full round event generation (clutch,
+    │   │                           plant, defuse, save, headshot, trade)
+    │   └── PlayerSimulationState   per-player live state during a map
+    ├── buy-phase.ts                (200 lines, J2)
+    │   └── performBuyPhase         weapon / armor / kit / utility
+    │                               purchase logic per strategy
+    └── team-strength.ts            (124 lines, J3)
+        └── calculateTeamStrength   multiplier cascade with 0.7× floor
 ```
 
 `SimulationEngineV2` keeps thin facade methods for every external
@@ -565,11 +575,11 @@ singleton directly for `calculateMapStrengths` / `selectMapForVeto` /
 
 What stayed in match-simulation.ts: the orchestrator (`simulateMatch`),
 the heavyweight `simulateMap` (round loop, side swaps, half-time
-reset, overtime), `simulateRound` itself (265 lines of momentum/tilt/
-stress/manAdvantage modifiers), `calculateTeamStrength`, and
-`performBuyPhase`. Those weren't extracted because either their
-cross-coupling to `simulateMap` is too tight (simulateRound) or
-they're cohesive single-responsibility methods (calculateTeamStrength).
+reset, overtime), and `simulateRound` itself (265 lines of momentum/
+tilt/stress/manAdvantage modifiers). Those weren't extracted because
+their cross-coupling to `simulateMap` is too tight — extracting any of
+them would require threading every modifier through a fat parameter
+list.
 
 ### Test coverage map
 
