@@ -226,7 +226,10 @@ export default function TrainingPage() {
         </div>
 
         <div className="flex gap-4">
-          <div className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-4">
+          <div
+            className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-4"
+            title="Max training slots scale with Manager Level: +1 every 5 levels (10 baseline, 14 at L20)"
+          >
             <div>
               <p className="text-[10px] font-normal uppercase text-muted-foreground">Training Slots</p>
               <p className="text-sm font-normal text-white">{playerTeam?.trainingSlotsUsed || 0} / {playerTeam?.maxTrainingSlots || 10}</p>

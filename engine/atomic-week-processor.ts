@@ -407,7 +407,23 @@ export class AtomicWeekProcessor {
 
                 if (newLevel > currentLevel) {
                     save.managerDetails.level = newLevel
+                }
 
+                // Manager level scales the player team's max training slots —
+                // 10 baseline + 1 per 5 manager levels, capped at 14 at L20.
+                // This is the player's one tangible reward for levelling:
+                // each milestone unlocks another weekly training slot for
+                // the roster. Synced every week so existing saves heal
+                // naturally on first tick after this lands.
+                const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
+                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 5)
+                const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
+                const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
+                if (playerTeam && slotIncreased) {
+                    playerTeam.maxTrainingSlots = derivedMaxSlots
+                }
+
+                if (newLevel > currentLevel) {
                     save.eventsLog.push({
                         id: `mgr_lvl_${save.currentWeek}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
                         type: "CAREER_UPDATE",
@@ -415,7 +431,9 @@ export class AtomicWeekProcessor {
                         acknowledged: false,
                         data: {
                             title: "Manager Promotion!",
-                            message: `You have reached Manager Level ${newLevel}. New opportunities may be available in future careers.`,
+                            message: slotIncreased
+                                ? `You have reached Manager Level ${newLevel}. Max weekly training slots increased to ${derivedMaxSlots}.`
+                                : `You have reached Manager Level ${newLevel}.`,
                             severity: "success"
                         }
                     })
