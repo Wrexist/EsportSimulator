@@ -387,10 +387,15 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             return
         }
 
-        // Generate the AI's contract offer based on player OVR + buying team tier.
-        const player = get().players.find(p => p.id === playerId)
-        const buyingTeam = get().teams.find(t => t.id === teamId)
-        const currentWeek = get().currentWeek
+        // Generate the AI's contract offer based on player OVR + buying
+        // team tier. Snapshot state once so the three reads come from a
+        // consistent point in time + use the O(1) indexes when available.
+        const snapshot = get()
+        const player = snapshot._playerIndex?.get(playerId)
+            ?? snapshot.players.find(p => p.id === playerId)
+        const buyingTeam = snapshot._teamIndex?.get(teamId)
+            ?? snapshot.teams.find(t => t.id === teamId)
+        const currentWeek = snapshot.currentWeek
 
         const playerOvr = player
             ? Math.round(

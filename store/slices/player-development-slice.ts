@@ -45,7 +45,10 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
         if (!node) return
 
         set((state) => {
-            const p = state.players.find(pl => pl.id === playerId)
+            // Prefer the O(1) index; fall back to linear scan if missing
+            // (matches the pattern used elsewhere in the store).
+            const p = state._playerIndex?.get(playerId)
+                ?? state.players.find(pl => pl.id === playerId)
             if (!p) return
 
             if (!p.unlockedTalentIds) p.unlockedTalentIds = []
