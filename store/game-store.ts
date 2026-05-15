@@ -87,6 +87,7 @@ import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slic
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
+import { applyFplWeek } from "@/engine/processors/fpl-week-processor"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
@@ -2022,65 +2023,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Phase 20 Enhancement: Simulate Weekly AI Registrations
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
 
-          // Phase 80: Process FPL (Individual Rankings) with Smart Scheduling
-          if (saveState.fplData) {
-            try {
-              const { processFPLWeek } = require("@/engine/fpl-engine")
-              const { SeededRNG } = require("@/engine/rng")
-              const fplRng = new SeededRNG(rng.int(1, 999999))
-
-              // Pass scheduling context for smart availability checking
-              const fplResult = processFPLWeek(
-                saveState.fplData,
-                saveState.players,
-                saveState.currentWeek,
-                fplRng,
-                saveState.tournaments,          // Tournament schedule
-                saveState.scheduledMatches,     // Scheduled matches (scrims, etc.)
-                saveState.scheduledActivities,  // Bootcamps, travel, etc.
-                saveState.teams.map(t => ({     // Team roster mappings
-                  id: t.id,
-                  rosterIds: t.rosterIds
-                }))
-              )
-              saveState.fplData = fplResult.fplData
-
-              // Generate news for FPL promotions/demotions at season end
-              if (fplResult.tierChanges && fplResult.tierChanges.length > 0) {
-                const promotions = fplResult.tierChanges.filter((c: any) => c.reason === 'PROMOTION')
-                const demotions = fplResult.tierChanges.filter((c: any) => c.reason === 'DEMOTION')
-
-                if (promotions.length > 0) {
-                  saveState.eventsLog.unshift({
-                    id: `fpl_promotions_${saveState.currentWeek}`,
-                    type: "PLAYER_UPDATE",
-                    week: saveState.currentWeek,
-                    acknowledged: false,
-                    data: {
-                      title: "FPL Promotions",
-                      message: `${promotions.map((p: any) => p.playerName).join(', ')} promoted to FPL Pro after stellar FPL Challenger season!`,
-                      severity: "success"
-                    }
-                  })
-                }
-
-                if (demotions.length > 0) {
-                  saveState.eventsLog.unshift({
-                    id: `fpl_demotions_${saveState.currentWeek}`,
-                    type: "PLAYER_UPDATE",
-                    week: saveState.currentWeek,
-                    acknowledged: false,
-                    data: {
-                      title: "FPL Relegations",
-                      message: `${demotions.map((d: any) => d.playerName).join(', ')} relegated to FPL Challenger after struggling in FPL Pro.`,
-                      severity: "info"
-                    }
-                  })
-                }
-              }
-            } catch {
-              get().addToast({ message: "FPL rankings update failed this week", type: "warning", duration: 5000 })
-            }
+          // Process FPL (Individual Rankings) before the week processor.
+          // Surfaces tier-change events on the inbox; toasts the user on
+          // engine failure since FPL is non-critical to the tick.
+          const fplOk = applyFplWeek(saveState, rng)
+          if (!fplOk) {
+            get().addToast({ message: "FPL rankings update failed this week", type: "warning", duration: 5000 })
           }
 
           // Run the week off the main thread when possible. The bridge falls
