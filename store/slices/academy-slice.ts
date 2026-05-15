@@ -203,10 +203,13 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 result = { success: false, message: "Build academy first" }
                 return
             }
-            if (!isScoutingTierUnlocked(tier, academyLevel)) {
+            const managerLevel = state.managerDetails?.level || 1
+            if (!isScoutingTierUnlocked(tier, academyLevel, managerLevel)) {
+                const managerThreshold = tier === "REGIONAL" ? 5 : 10
+                const academyThreshold = tier === "REGIONAL" ? 2 : 4
                 result = {
                     success: false,
-                    message: `${tier} scouting requires Academy Level ${tier === "REGIONAL" ? 2 : 4}`,
+                    message: `${tier} scouting requires Academy Level ${academyThreshold} or Manager Level ${managerThreshold}.`,
                 }
                 return
             }
