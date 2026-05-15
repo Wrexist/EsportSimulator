@@ -180,3 +180,77 @@ describe("SaveManager hardening", () => {
         expect(storage.store.has(tmpKey)).toBe(false)
     })
 })
+
+describe("SaveManager migration ladder", () => {
+    test("legacy save (no version) migrates all the way to CURRENT_SAVE_VERSION", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const legacy = {
+            saveName: "Legacy",
+            teams: [],
+            players: [],
+            currentWeek: 5,
+        }
+
+        const migrated = sm.migrateSave(legacy)
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
+        expect(migrated.currentWeek).toBe(5)
+    })
+
+    test("v1 save gains all required v2/v3/v4 arrays", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const v1 = {
+            saveVersion: 1,
+            saveName: "Old Career",
+            teams: [{ id: "t1", name: "Test", rosterIds: [] } as any],
+            players: [],
+            financeLedger: [{ teamId: "t1" } as any],
+            currentWeek: 10,
+        }
+
+        const migrated = sm.migrateSave(v1)
+        // v2 fields
+        expect(Array.isArray(migrated.scoutedPlayers)).toBe(true)
+        expect(Array.isArray(migrated.tournamentQualifications)).toBe(true)
+        // v3 fields
+        expect(Array.isArray(migrated.marketStaff)).toBe(true)
+        expect(Array.isArray(migrated.newsFeed)).toBe(true)
+        expect(migrated.managerDetails).toBeDefined()
+        // v3 recovers playerTeamId from financeLedger[0].teamId
+        expect(migrated.playerTeamId).toBe("t1")
+        // v4 fields
+        expect(Array.isArray(migrated.academyPlayers)).toBe(true)
+        expect(Array.isArray(migrated.academyScoutingMissions)).toBe(true)
+        expect(migrated.academyRoster).toBeDefined()
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
+    })
+
+    test("v3 save with no playerTeamId and no financeLedger falls back to first team id", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const v2 = {
+            saveVersion: 2,
+            saveName: "Recovered",
+            teams: [{ id: "first_team", name: "First", rosterIds: [] } as any],
+            players: [],
+            financeLedger: [],
+        }
+
+        const migrated = sm.migrateSave(v2)
+        expect(migrated.playerTeamId).toBe("first_team")
+    })
+
+    test("current-version save is not mutated by the migration ladder", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const fresh = sm.createSave("Fresh", {
+            teams: [{
+                id: "t1", name: "T1", rosterIds: [], trophies: [], facilities: [], sponsors: [], fanbase: 0, playstyle: "",
+            } as any],
+            playerTeamId: "t1",
+        })
+        // Tag a sentinel to detect accidental clobbering by older migration steps.
+        ;(fresh as any).__sentinel = "untouched"
+
+        const migrated = sm.migrateSave(fresh)
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
+        expect((migrated as any).__sentinel).toBe("untouched")
+    })
+})
