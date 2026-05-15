@@ -134,16 +134,19 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
             staff.unlockedTalentIds.push(talentId)
 
             // STAT_BOOST applies immediately to staff.stats. Other effect
-            // types are referenced by talent-id elsewhere.
-            if (node.effect && node.effect.type === "STAT_BOOST" && staff.stats) {
-                if (node.effect.target === "all") {
-                    Object.keys(staff.stats).forEach(key => {
-                        staff.stats![key] = Math.min(STAT_CLAMP_MAX, staff.stats![key] + node.effect.value)
+            // types are referenced by talent-id elsewhere. Bind the effect
+            // to a local so TS narrowing survives the inner forEach closure.
+            const effect = node.effect
+            if (effect && effect.type === "STAT_BOOST" && staff.stats) {
+                const stats = staff.stats
+                if (effect.target === "all") {
+                    Object.keys(stats).forEach(key => {
+                        stats[key] = Math.min(STAT_CLAMP_MAX, stats[key] + effect.value)
                     })
-                } else if (staff.stats[node.effect.target] !== undefined) {
-                    staff.stats[node.effect.target] = Math.min(
+                } else if (stats[effect.target] !== undefined) {
+                    stats[effect.target] = Math.min(
                         STAT_CLAMP_MAX,
-                        staff.stats[node.effect.target] + node.effect.value,
+                        stats[effect.target] + effect.value,
                     )
                 }
             }
