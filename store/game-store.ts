@@ -569,7 +569,7 @@ interface GameStoreActions {
 
   // Phase 24: Fan & Merch
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
-  toggleMerchItem: (teamId: string, itemType: string) => void
+  toggleMerchItem: (teamId: string, itemType: string) => { success: boolean, message: string }
   setPlayerTrainingFocus: (playerId: string, focus: string) => void
   listPlayerForTransfer: (playerId: string, price: number) => void
   unlistPlayerForTransfer: (playerId: string) => void

@@ -98,7 +98,7 @@ export interface AcademyActions {
     scheduleDevMatch: () => { success: boolean; message: string }
     processAcademyWeek: () => void
     updateAcademyRoster: (role: string, prospectId: string | null) => void
-    updateAcademySchedule: (day: string, drillId: string) => void
+    updateAcademySchedule: (day: number, drillId: string | null) => void
     discardPendingProspect: (playerId: string) => void
     enrollPendingProspect: (playerId: string) => { success: boolean; message: string }
 }

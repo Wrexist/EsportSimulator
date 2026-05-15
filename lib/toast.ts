@@ -18,6 +18,7 @@
  * rewriting every line.
  */
 
+import type * as React from "react"
 import { useGameStore } from "@/store/game-store"
 
 type ToastVariant = "default" | "destructive" | "success" | "info" | "warning"
@@ -26,6 +27,11 @@ type StoreToastType = "level_up" | "xp_gain" | "achievement" | "info" | "warning
 interface SonnerLikeOptions {
     description?: string
     duration?: number
+    // Sonner accepts an icon override; our in-game toast picks an icon
+    // by `type` so this field is currently accepted but ignored at the
+    // adapter boundary. Kept in the type so callers using the sonner API
+    // surface compile cleanly.
+    icon?: React.ReactNode
 }
 
 interface ShadcnLikeOptions {
