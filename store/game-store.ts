@@ -85,6 +85,7 @@ import { createMatchUISlice } from "@/store/slices/match-ui-slice"
 import { createMatchOperationsSlice } from "@/store/slices/match-operations-slice"
 import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slice"
 import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slice"
+import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 
 enableMapSet()
 
@@ -686,6 +687,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createMatchSimulationSlice(
         set as Parameters<typeof createMatchSimulationSlice>[0],
         get as Parameters<typeof createMatchSimulationSlice>[1],
+      ),
+      ...createTeamDrillsSlice(
+        set as Parameters<typeof createTeamDrillsSlice>[0],
+        get as Parameters<typeof createTeamDrillsSlice>[1],
       ),
 
       // Initial State
@@ -3445,126 +3450,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // getPlayerTeam / getUpcomingMatches / calculateTeamRating moved to
       // store/slices/ui-slice.ts (spread above).
 
-      runTeamDrill: (drillId, gains, cost) => {
-        let result = { success: false, message: "Unknown error" }
-        set((state) => {
-          if (!state.playerTeamId) {
-            result = { success: false, message: "No team selected" }
-            return
-          }
-
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!team) {
-            result = { success: false, message: "Team not found" }
-            return
-          }
-
-          // 0. Training Limit Check
-          if ((team.trainingSlotsUsed || 0) >= (team.maxTrainingSlots || 10)) {
-            result = { success: false, message: "Weekly training limit reached!" }
-            return
-          }
-
-          // 1. Resolve Drill Data
-          const drillName = drillId.replace(/_/g, " ").toUpperCase()
-
-          // 2. Team-wide Fatigue Check
-          // If any player is exhausted (>90 fatigue), drill is cancelled
-          // Use 'energy' (0-100) where 0 is exhausted, or use 'fatigue' (0-100) where 100 is exhausted?
-          // Game types say: fatigue: number // 0-100 - Current fatigue level
-          const roster = state.players.filter(p => team.rosterIds.includes(p.id))
-          const exhaustedPlayer = roster.find(p => (p.fatigue || 0) >= 90)
-
-          if (exhaustedPlayer) {
-            result = { success: false, message: `${exhaustedPlayer.nickname} is too exhausted to train!` }
-            return
-          }
-
-          // 3. Execute Drill
-          roster.forEach(p => {
-            // --- CALC FATIGUE ---
-            let fatigueHit = cost
-
-            // Talent: Iron Lung (-20%)
-            if (p.unlockedTalentIds && p.unlockedTalentIds.includes("player_fit_2")) {
-              fatigueHit = Math.ceil(fatigueHit * 0.8)
-            }
-
-            p.fatigue = Math.min(100, (p.fatigue || 0) + fatigueHit)
-
-            // --- CALC XP ---
-            const xpGain = 50
-            p.xp = (p.xp || 0) + xpGain
-
-            // Level Up Logic
-            if (p.xp >= (p.xpToNextLevel || 1000)) {
-              p.xp -= (p.xpToNextLevel || 1000)
-              p.level = (p.level || 1) + 1
-              p.talentPoints = (p.talentPoints || 0) + 1
-              p.xpToNextLevel = Math.floor((p.xpToNextLevel || 1000) * 1.5)
-
-              state.eventsLog.push({
-                id: nextDeterministicId(state, "lvl_up", p.id),
-                type: "PLAYER_LEVEL_UP",
-                week: state.currentWeek,
-                acknowledged: false,
-                data: { playerId: p.id, message: `${p.nickname} reached Level ${p.level}!` }
-              })
-            }
-
-            // --- CALC STAT GAINS ---
-            gains.forEach(gain => {
-              let statKey = gain.stat.toLowerCase()
-
-              // Map Drill Terminology to PlayerSaveData fields
-              const statMapping: Record<string, keyof PlayerSaveData | null> = {
-                "agility": "reaction",
-                "focus": "stressResistance",
-                "entry": "rifle",
-                "mechanics": "skill",
-                "accuracy": "rifle"
-              }
-
-              if (statMapping[statKey]) {
-                statKey = statMapping[statKey] as string
-              }
-
-              // Validate key exists on player
-              const currentVal = (p as any)[statKey]
-              if (currentVal !== undefined && typeof currentVal === 'number') {
-                // Core player stats are 0-100; drills must never collapse high-rated players.
-                (p as any)[statKey] = Math.min(100, currentVal + gain.amount)
-              }
-            })
-          })
-
-
-          // 4. Update Limits
-          team.trainingSlotsUsed = (team.trainingSlotsUsed || 0) + 1
-
-          // 5. Weapon Mastery Integration
-          // If the drill improves a weapon stat, also grant Weapon XP
-          roster.forEach(p => {
-            gains.forEach(g => {
-              const stat = g.stat.toUpperCase()
-              if (["RIFLE", "AWP", "SMG", "PISTOL"].includes(stat)) {
-                // Grant XP (e.g. 50 XP per drill)
-                // Cast to any to bypass WritableDraft mismatch
-                const currentMastery = WeaponMasteryManager.getPlayerMastery(p as any)
-                const currentXP = currentMastery[stat as WeaponType] || 0
-                const newXP = currentXP + 50
-
-                if (!p.weaponMastery) p.weaponMastery = {}
-                // Handle both number and object formats cleanly
-                p.weaponMastery[stat] = newXP
-              }
-            })
-          })
-
-          result = { success: true, message: `Completed ${drillName} (+50 XP)` }
-        })
-        return result
-      },
+      // runTeamDrill moved to store/slices/team-drills-slice.ts (spread above).
 
       // getDateForWeek moved to store/slices/ui-slice.ts (spread above).
       // ===== DEBUG TOOLS =====
