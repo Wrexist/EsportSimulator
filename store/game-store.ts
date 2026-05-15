@@ -96,6 +96,7 @@ import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
 import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
+import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 
 enableMapSet()
 
@@ -721,6 +722,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createTeamFacilitiesSlice(
         set as Parameters<typeof createTeamFacilitiesSlice>[0],
         get as Parameters<typeof createTeamFacilitiesSlice>[1],
+      ),
+      ...createTransferContractSlice(
+        set as Parameters<typeof createTransferContractSlice>[0],
+        get as Parameters<typeof createTransferContractSlice>[1],
       ),
 
       // Initial State
@@ -2198,287 +2203,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // simulateInstantMatch moved to store/slices/match-simulation-slice.ts (spread above).
 
-      transferPlayer: (playerId, fromTeamId, toTeamId, fee, newContract) => {
-        let result = { success: false, message: "Unknown error" }
-        set((state) => {
-          // Handle release to free agency
-          if (toTeamId === "FA") {
-            const sourceTeam = fromTeamId && fromTeamId !== "FA"
-              ? (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId))
-              : state.teams.find(t => t.rosterIds.includes(playerId))
-            if (sourceTeam) {
-              sourceTeam.rosterIds = sourceTeam.rosterIds.filter(id => id !== playerId)
-              if (sourceTeam.activeRoleTraining) {
-                const hadTraining = sourceTeam.activeRoleTraining.some(t => t.playerId === playerId)
-                sourceTeam.activeRoleTraining = sourceTeam.activeRoleTraining.filter(t => t.playerId !== playerId)
-                if (hadTraining) {
-                  sourceTeam.trainingSlotsUsed = Math.max(0, (sourceTeam.trainingSlotsUsed || 0) - 1)
-                }
-              }
-              recalculateTeamSynergy(sourceTeam, state.players)
-            }
-            state.contracts = state.contracts.filter(c => c.playerId !== playerId)
-            const releasedPlayer = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-            if (releasedPlayer) {
-              (releasedPlayer as any).forSale = false
-            }
-            result = { success: true, message: "Player released to free agency" }
-            return
-          }
-
-          const toTeam = (state._teamIndex?.get(toTeamId) ?? state.teams.find(t => t.id === toTeamId))
-          if (!toTeam) {
-            result = { success: false, message: "Target team not found" }
-            return
-          }
-
-          const feeValidation = parseBoundedInt(fee, "Transfer fee", 0, MAX_TRANSFER_FEE)
-          if (!feeValidation.ok) {
-            result = { success: false, message: feeValidation.message }
-            return
-          }
-          const normalizedFee = feeValidation.value
-
-          const transferPlayerRecord = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (!transferPlayerRecord) {
-            result = { success: false, message: "Player not found" }
-            return
-          }
-
-          if (fromTeamId && fromTeamId !== "FA" && fromTeamId === toTeamId) {
-            result = { success: false, message: "Cannot transfer a player to the same team" }
-            return
-          }
-
-          const destinationHasPlayer = toTeam.rosterIds.includes(playerId)
-          if (destinationHasPlayer) {
-            result = { success: false, message: "Player is already on the destination team" }
-            return
-          }
-          if (toTeam.rosterIds.length >= 7) {
-            result = { success: false, message: `${toTeam.name} roster is full (max 7 players)` }
-            return
-          }
-
-          let fromTeam = null as typeof toTeam | null
-          if (!fromTeamId || fromTeamId === "FA") {
-            const currentOwner = state.teams.find(t => t.rosterIds.includes(playerId))
-            if (currentOwner) {
-              result = { success: false, message: `${currentOwner.name} currently owns this player` }
-              return
-            }
-          }
-          // 0. Validate and Strategic Refusal Check (Phase 7 Enh)
-          if (fromTeamId && fromTeamId !== "FA") {
-            fromTeam = (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId)) || null
-            if (!fromTeam) {
-              result = { success: false, message: "Source team not found" }
-              return
-            }
-
-            if (!fromTeam.rosterIds.includes(playerId)) {
-              result = { success: false, message: "Player is not on the source team roster" }
-              return
-            }
-
-            const matches = state.scheduledMatches.filter(m =>
-              m.week >= state.currentWeek &&
-              m.week <= state.currentWeek + 3 &&
-              ((m.homeTeamId === fromTeamId && m.awayTeamId === toTeamId) || (m.homeTeamId === toTeamId && m.awayTeamId === fromTeamId))
-            )
-
-            if (matches.length > 0) {
-              const week = matches[0].week
-              result = { success: false, message: `Offer Rejected: "We play you in Week ${week}! We won't strengthen a rival before the match."` }
-              return
-            }
-          }
-
-          let normalizedContract: {
-            salaryPerWeek: number
-            startWeek: number
-            endWeek: number
-            buyout: number
-          } | undefined
-
-          if (newContract) {
-            const salaryValidation = parseBoundedInt(newContract.salaryPerWeek, "Contract salary", 1, MAX_PLAYER_SALARY_PER_WEEK)
-            if (!salaryValidation.ok) {
-              result = { success: false, message: salaryValidation.message }
-              return
-            }
-
-            const startWeekValidation = parseBoundedInt(newContract.startWeek, "Contract start week", 0, 100000)
-            if (!startWeekValidation.ok) {
-              result = { success: false, message: startWeekValidation.message }
-              return
-            }
-
-            const endWeekValidation = parseBoundedInt(newContract.endWeek, "Contract end week", 1, 100000)
-            if (!endWeekValidation.ok) {
-              result = { success: false, message: endWeekValidation.message }
-              return
-            }
-
-            const buyoutValidation = parseBoundedInt(newContract.buyout, "Contract buyout", 0, MAX_TRANSFER_FEE)
-            if (!buyoutValidation.ok) {
-              result = { success: false, message: buyoutValidation.message }
-              return
-            }
-
-            if (endWeekValidation.value <= startWeekValidation.value) {
-              result = { success: false, message: "Contract end week must be after start week" }
-              return
-            }
-
-            if (endWeekValidation.value - startWeekValidation.value > MAX_CONTRACT_LENGTH_WEEKS) {
-              result = { success: false, message: "Contract length exceeds maximum allowed duration" }
-              return
-            }
-
-            normalizedContract = {
-              salaryPerWeek: salaryValidation.value,
-              startWeek: startWeekValidation.value,
-              endWeek: endWeekValidation.value,
-              buyout: buyoutValidation.value
-            }
-          }
-
-          // 1. Hard budget check for destination team
-          if (toTeam.budget < normalizedFee) {
-            result = { success: false, message: `${toTeam.name} cannot afford this transfer fee.` }
-            return
-          }
-
-          // 2. Handle From Team (if applicable)
-          if (fromTeam) {
-            fromTeam.rosterIds = fromTeam.rosterIds.filter(id => id !== playerId)
-            fromTeam.budget += normalizedFee
-
-            // Clean up active role training for transferred player
-            if (fromTeam.activeRoleTraining) {
-              const hadTraining = fromTeam.activeRoleTraining.some(t => t.playerId === playerId)
-              fromTeam.activeRoleTraining = fromTeam.activeRoleTraining.filter(t => t.playerId !== playerId)
-              if (hadTraining) {
-                fromTeam.trainingSlotsUsed = Math.max(0, (fromTeam.trainingSlotsUsed || 0) - 1)
-              }
-            }
-          }
-
-          // 3. Handle To Team
-          if (!destinationHasPlayer) {
-            toTeam.rosterIds.push(playerId)
-          }
-          toTeam.budget -= normalizedFee
-
-          // 4. Update Contract
-          if (normalizedContract) {
-            // Remove old contract for this player
-            state.contracts = state.contracts.filter(c => c.playerId !== playerId)
-
-            // Add new contract
-            state.contracts.push({
-              playerId,
-              teamId: toTeamId,
-              salaryPerWeek: normalizedContract.salaryPerWeek,
-              startWeek: normalizedContract.startWeek,
-              endWeek: normalizedContract.endWeek,
-              buyout: normalizedContract.buyout
-            })
-          }
-
-          // 5. Update Player Status
-          const updatedPlayer = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (updatedPlayer) {
-            (updatedPlayer as any).forSale = false
-          }
-
-          // 6. Ledger Entries
-          if (normalizedFee > 0) {
-            const playerName = transferPlayerRecord.nickname || playerId
-            state.financeLedger.push({
-              id: nextDeterministicId(state, "fin_transfer_out", playerId, toTeamId),
-              week: state.currentWeek,
-              teamId: toTeamId,
-              type: "EXPENSE",
-              category: "TRANSFER_OUT",
-              amount: normalizedFee,
-              description: `Transfer Fee: ${playerName}`,
-              balance: toTeam.budget
-            })
-
-            if (fromTeamId && fromTeamId !== "FA" && fromTeam) {
-              state.financeLedger.push({
-                id: nextDeterministicId(state, "fin_transfer_in", playerId, fromTeamId),
-                week: state.currentWeek,
-                teamId: fromTeamId,
-                type: "INCOME",
-                category: "TRANSFER_IN",
-                amount: normalizedFee,
-                description: `Transfer Received: ${playerName}`,
-                balance: fromTeam.budget
-              })
-            }
-          }
-
-          // 7. Transfer History
-          if (state.transferHistory) {
-            const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-            let fromName = "Free Agent"
-
-            if (fromTeamId && fromTeamId !== "FA") {
-              const fTeam = (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId))
-              if (fTeam) fromName = fTeam.name
-            }
-
-            state.transferHistory.push({
-              id: `transfer_${state.currentWeek}_${playerId}_${toTeamId}_${state.transferHistory.length}`,
-              week: state.currentWeek,
-              type: "TRANSFER",
-              playerId: playerId,
-              playerName: player?.nickname || "Unknown",
-              fromTeamId: fromTeamId || null,
-              fromTeamName: fromName,
-              toTeamId: toTeamId,
-              toTeamName: toTeam.name,
-              fee: normalizedFee
-            })
-
-            // Phase 21: Career Narrative - Transfer News
-            const newsId = nextDeterministicId(state, "news_tr", playerId, toTeamId)
-            state.newsFeed.unshift({
-              id: newsId,
-              title: `${player?.nickname || "Player"} joins ${toTeam.name}`,
-              content: `${player?.nickname || "Player"} has officially completed a move from ${fromName} to ${toTeam.name}. ${normalizedFee > 0 ? `The deal is estimated to be worth $${normalizedFee.toLocaleString()}.` : 'The player joins as a free agent.'}`,
-              category: "TRANSFER",
-              playerId: playerId,
-              teamId: toTeamId,
-              week: state.currentWeek
-            })
-            if (state.newsFeed.length > 50) state.newsFeed.pop()
-          }
-
-          // Recalculate synergy for affected teams
-          const recalcTeams = [toTeam]
-          if (fromTeam) recalcTeams.push(fromTeam)
-          for (const team of recalcTeams) {
-            recalculateTeamSynergy(team, state.players)
-            applyRosterChangePenalty(team, state.currentWeek, 1)
-          }
-
-          // Steam Achievement: First Transfer (only if player's team is involved)
-          if (toTeamId === state.playerTeamId || (fromTeamId && fromTeamId === state.playerTeamId)) {
-            try {
-              checkAchievements({ completedTransfer: true })
-            } catch (e) {
-              // Silent fail for achievements
-            }
-          }
-
-          result = { success: true, message: "Transfer successful" }
-        })
-        return result
-      },
+      // transferPlayer moved to store/slices/transfer-contract-slice.ts (spread above).
 
 
       // fireStaff moved to store/slices/staff-management-slice.ts (spread above).
@@ -2496,51 +2221,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // swapRosterPositions moved to store/slices/team-settings-slice.ts (spread above).
 
-      promotePlayer: (playerId) => {
-        set((state) => {
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!team) return
-
-          // Check Phase 70 academy system first
-          const academyIdx = state.academyPlayers?.findIndex(p => p.playerId === playerId) ?? -1
-          if (academyIdx >= 0 && state.academyPlayers) {
-            const academyEntry = state.academyPlayers[academyIdx]
-            if (team.rosterIds.length < 7) {
-              // Remove from academy
-              state.academyPlayers.splice(academyIdx, 1)
-              // Clear from academy roster slots
-              if (state.academyRoster) {
-                for (const role of Object.keys(state.academyRoster) as Array<keyof typeof state.academyRoster>) {
-                  if (state.academyRoster[role] === academyEntry.id) {
-                    state.academyRoster[role] = null
-                  }
-                }
-              }
-              // Add to main roster (PlayerSaveData already exists in state.players)
-              team.rosterIds.push(playerId)
-              // Create a basic contract
-              const playerData = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-              const potential = playerData?.potential ?? 50
-              state.contracts.push({
-                playerId,
-                teamId: team.id,
-                salaryPerWeek: Math.floor(potential / 100 * 20000),
-                weeksRemaining: 104,
-                buyout: Math.floor(potential / 100 * 400000),
-              } as any)
-            }
-            return
-          }
-
-          // Fallback: legacy youthAcademyIds
-          if (team.youthAcademyIds?.includes(playerId)) {
-            team.youthAcademyIds = team.youthAcademyIds.filter(id => id !== playerId)
-            if (team.rosterIds.length < 7) {
-              team.rosterIds.push(playerId)
-            }
-          }
-        })
-      },
+      // promotePlayer moved to store/slices/transfer-contract-slice.ts (spread above).
 
       listSaves: async () => {
         return await saveManager.getSaveSlots()
@@ -2642,152 +2323,18 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // setPlayerTrainingFocus moved to store/slices/player-development-slice.ts (spread above).
 
-      listPlayerForTransfer: (playerId, price) => {
-        set((state) => {
-          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          const normalizedPrice = parseBoundedInt(price, "Transfer listing price", 0, MAX_TRANSFER_FEE)
-          if (!normalizedPrice.ok) {
-            return
-          }
-          if (player) {
-            (player as any).forSale = true;
-            (player as any).transferListingPrice = normalizedPrice.value
-          }
-        })
-      },
+      // listPlayerForTransfer moved to store/slices/transfer-contract-slice.ts (spread above).
 
       // acceptJobOffer / declineJobOffer / negotiateJobOffer moved to
       // store/slices/events-slice.ts (spread above).
 
       // setWeeklyActivity moved to store/slices/ui-slice.ts (spread above).
 
-      unlistPlayerForTransfer: (playerId) => {
-        set((state) => {
-          const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId))
-          if (player) {
-            (player as any).forSale = false;
-            (player as any).transferListingPrice = undefined
-          }
-        })
-      },
+      // unlistPlayerForTransfer moved to store/slices/transfer-contract-slice.ts (spread above).
 
-      acceptTransferOffer: (eventId) => {
-        // Read current state fresh for each check
-        const currentState = get()
-        const event = currentState.eventsLog.find(e => e.id === eventId)
-        if (!event || !event.data || (event as any).type !== "TRANSFER_OFFER" || event.selectedChoiceId) return
+      // acceptTransferOffer moved to store/slices/transfer-contract-slice.ts (spread above).
 
-        const { playerId, teamId, offerAmount } = event.data as any
-        // Read playerTeamId fresh right before use
-        const playerTeamId = get().playerTeamId
-
-        // Smart Selling: Prevent selling if match this week
-        const freshState = get()
-        const hasMatchThisWeek = freshState.scheduledMatches.some(m =>
-          m.week === freshState.currentWeek &&
-          (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-        )
-
-        if (hasMatchThisWeek) {
-          get().addToast({
-            message: "Cannot sell player! You have a match scheduled this week.",
-            type: "info"
-          })
-          return
-        }
-
-        // AI Contract generation based on player rating and buying team budget
-        const player = get().players.find(p => p.id === playerId)
-        const buyingTeam = get().teams.find(t => t.id === teamId)
-        const currentContract = get().contracts.find(c => c.playerId === playerId)
-        const currentWeek = get().currentWeek
-
-        // Calculate salary from player skill (OVR) and team tier
-        const playerOvr = player ? Math.round(
-          ((player.rifle ?? 50) + (player.pistol ?? 50) + (player.awp ?? 50) +
-           (player.clutch ?? 50) + (player.creativity ?? 50) + (player.tactic ?? 50) +
-           (player.teamwork ?? 50)) / 7
-        ) : 50
-        const tierMult = buyingTeam?.leagueTier === "S_TIER" ? 1.5
-          : buyingTeam?.leagueTier === "A_TIER" ? 1.2
-          : buyingTeam?.leagueTier === "B_TIER" ? 1.0
-          : 0.8
-        const baseSalary = Math.round((playerOvr / 100) * 2000 * tierMult)
-        const newSalary = Math.max(200, Math.min(baseSalary, (buyingTeam?.budget ?? 50000) / 52))
-        const contractLength = playerOvr >= 80 ? 104 : playerOvr >= 60 ? 78 : 52 // 2yr / 1.5yr / 1yr
-
-        const transferResult = get().transferPlayer(
-          playerId,
-          playerTeamId,
-          teamId,
-          offerAmount,
-          {
-            salaryPerWeek: newSalary,
-            startWeek: currentWeek,
-            endWeek: currentWeek + contractLength,
-            buyout: Math.round(newSalary * contractLength * 1.5)
-          }
-        )
-
-        if (!transferResult.success) {
-          get().addToast({
-            message: transferResult.message || "Transfer failed.",
-            type: "info"
-          })
-          return
-        }
-
-        // Check for PROFIT_MASTER achievement (sold for more than bought)
-        const latestTransferHistory = get().transferHistory
-        const originalBuy = [...latestTransferHistory]
-          .reverse()
-          .find(r => r.playerId === playerId && r.toTeamId === playerTeamId && r.fee > 0)
-        if (originalBuy && offerAmount > originalBuy.fee) {
-          checkAchievements({ profitableSale: true })
-        }
-
-        // Mark event as acknowledged/resolved
-        set((draft) => {
-          const liveEvent = draft.eventsLog.find(e => e.id === eventId)
-          if (!liveEvent || liveEvent.selectedChoiceId) return
-          liveEvent.selectedChoiceId = "accept"
-          liveEvent.acknowledged = true
-          if (!draft.acknowledgedEventIds.includes(eventId)) {
-            draft.acknowledgedEventIds.push(eventId)
-          }
-        })
-      },
-
-      renewContract: (playerId) => {
-        let toastMsg = ""
-        let toastType: "info" | "warning" = "info"
-        set((state) => {
-          const contract = (state._contractByPlayerIndex?.get(playerId) ?? state.contracts.find(c => c.playerId === playerId))
-          if (!contract) {
-            toastMsg = "Contract not found."
-            toastType = "warning"
-            return
-          }
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!team) return
-          const newSalary = Math.round(contract.salaryPerWeek * 1.1)
-          const weeklyCost = newSalary - contract.salaryPerWeek
-          const minBudgetNeeded = weeklyCost * 26 // at least 26 weeks runway
-          if (team.budget < minBudgetNeeded) {
-            toastMsg = "Insufficient budget to renew this contract."
-            toastType = "warning"
-            return
-          }
-          contract.salaryPerWeek = newSalary
-          contract.endWeek += 52
-          team.budget -= minBudgetNeeded
-          toastMsg = "Contract renewed successfully."
-          toastType = "info"
-        })
-        if (toastMsg) {
-          get().addToast({ message: toastMsg, type: toastType })
-        }
-      },
+      // renewContract moved to store/slices/transfer-contract-slice.ts (spread above).
 
       // debugFastForward moved to store/slices/debug-slice.ts (spread above).
 
