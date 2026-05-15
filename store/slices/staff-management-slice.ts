@@ -56,7 +56,7 @@ export interface StaffManagementActions {
     fireStaff: (staffId: string) => void
 }
 
-export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = (set) => ({
+export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = (set, get) => ({
     refreshStaffMarket: () => {
         set((state) => {
             const rng = new SeededRNG(state.lastRngSeed || generateSeed())
@@ -204,6 +204,15 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
     },
 
     fireStaff: (staffId) => {
+        // Detect missing staff up-front so the caller (typically a
+        // ConfirmDialog) can surface a real error message instead of
+        // silently no-op'ing a confirmed action.
+        const current = get()
+        const exists = current.staff.some(s => s.id === staffId)
+        if (!exists) {
+            throw new Error(`Cannot fire staff member: not found (id=${staffId})`)
+        }
+
         set((state) => {
             const staffIndex = state.staff.findIndex(s => s.id === staffId)
             if (staffIndex === -1) return
