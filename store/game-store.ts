@@ -95,6 +95,7 @@ import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
+import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 
 enableMapSet()
 
@@ -716,6 +717,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createStaffManagementSlice(
         set as Parameters<typeof createStaffManagementSlice>[0],
         get as Parameters<typeof createStaffManagementSlice>[1],
+      ),
+      ...createTeamFacilitiesSlice(
+        set as Parameters<typeof createTeamFacilitiesSlice>[0],
+        get as Parameters<typeof createTeamFacilitiesSlice>[1],
       ),
 
       // Initial State
@@ -2480,250 +2485,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // unlockSkill moved to store/slices/player-development-slice.ts (spread above).
 
-      upgradeFacility: (teamId, facilityType) => {
-        set(state => {
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (!team) return
-
-          if (!team.facilities) team.facilities = []
-          let facility = team.facilities.find(f => f.type === facilityType)
-
-          const getFacilityDescription = (type: string, level: number) => {
-            switch (type) {
-              case "TRAINING":
-                if (level === 1) return "Basic gaming booths for daily practice."
-                if (level === 2) return "Upgraded setup with a dedicated analysts corner."
-                if (level === 3) return "Professional academy with private practice rooms."
-                if (level === 4) return "State-of-the-art lab with bio-metric feedback."
-                if (level === 5) return "The Empire Training Center: Apex of esports."
-                return "Inactive"
-              case "RECOVERY":
-                if (level === 1) return "Basic rest area with snacks and drinks."
-                if (level === 2) return "Chill zone with gaming chairs and lounges."
-                if (level === 3) return "Health suite with physical therapy equipment."
-                if (level === 4) return "Performance kitchen and dedicated sleep pods."
-                if (level === 5) return "Empire Wellness Retreat: Infinite stamina."
-                return "Inactive"
-              case "FANZONE":
-                if (level === 1) return "Small local fan club booth."
-                if (level === 2) return "Official team store and media studio."
-                if (level === 3) return "Interactive museum and fan experience hub."
-                if (level === 4) return "Global flagship store and content mansion."
-                if (level === 5) return "Empire Fan Plaza: Global cultural center."
-                return "Inactive"
-              case "TACTICAL":
-                if (level === 1) return "Whiteboard and projector setup."
-                if (level === 2) return "VOD review station with basic software."
-                if (level === 3) return "War room with multi-screen data analysis."
-                if (level === 4) return "AI-assisted strategic simulator."
-                if (level === 5) return "Empire Command Hub: Tactical perfection."
-                return "Inactive"
-              default:
-                return "Professional facility"
-            }
-          }
-
-          if (facility) {
-            if (facility.level < 5) {
-              const cost = facility.level * 25000 // Slightly steeper scaling
-              if (team.budget >= cost) {
-                team.budget -= cost
-                facility.level += 1
-                facility.description = getFacilityDescription(facility.type, facility.level)
-                facility.monthlyCost = Math.floor(Math.pow(facility.level, 1.25) * 2000)
-
-                // Phase 21: News
-                const newsId = nextDeterministicId(state, "news_fac", facilityType, facility.level)
-                state.newsFeed.unshift({
-                  id: newsId,
-                  title: `${team.name} upgrade ${facility.type} Facility`,
-                  content: `${team.name} have officially completed work on their ${facility.type.toLowerCase()} center, now reaching level ${facility.level}. ${facility.description}`,
-                  category: "FACILITY",
-                  teamId: team.id,
-                  week: state.currentWeek,
-                  engagement: {
-                    likes: nextRandomInt(state, 100, 599),
-                    views: nextRandomInt(state, 1000, 5999)
-                  }
-                })
-                if (state.newsFeed.length > 50) state.newsFeed.pop()
-              }
-            }
-          } else {
-            const cost = 10000 // Base construction cost
-            if (team.budget >= cost) {
-              team.budget -= cost
-              team.facilities.push({
-                id: nextDeterministicId(state, "fac", facilityType),
-                type: facilityType as any,
-                level: 1,
-                description: getFacilityDescription(facilityType, 1),
-                monthlyCost: 2000
-              })
-
-              // Phase 21: News
-              const newsId = nextDeterministicId(state, "news_fac_new", facilityType)
-              state.newsFeed.unshift({
-                id: newsId,
-                title: `New ${facilityType} Center for ${team.name}`,
-                content: `${team.name} have announced the construction of a new dedicated ${facilityType.toLowerCase()} center to support their operations.`,
-                category: "FACILITY",
-                teamId: team.id,
-                week: state.currentWeek,
-                engagement: {
-                  likes: nextRandomInt(state, 50, 349),
-                  views: nextRandomInt(state, 500, 3499)
-                }
-              })
-              if (state.newsFeed.length > 50) state.newsFeed.pop()
-            }
-          }
-        })
-      },
-
-      signSponsor: (teamId, sponsor) => {
-        let result = { success: false, message: "Sponsor signing failed." }
-        set(state => {
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (!team) {
-            result = { success: false, message: "Team not found." }
-            return
-          }
-
-          if (!team.sponsors) team.sponsors = []
-
-          if (team.sponsors.length >= 3) {
-            result = { success: false, message: "All sponsor slots are full." }
-            return
-          }
-
-          if (team.sponsors.some(s => s.tier === sponsor.tier)) {
-            result = { success: false, message: `You already have an active ${sponsor.tier.toLowerCase()} sponsor.` }
-            return
-          }
-
-          if (team.sponsors.some(s => s.name === sponsor.name)) {
-            result = { success: false, message: "This sponsor is already signed." }
-            return
-          }
-
-          const ranking = team.worldRanking || 999
-          if (sponsor.tier === "PREMIUM" && ranking > 30) {
-            result = { success: false, message: "Premium sponsors require a Top 30 world ranking." }
-            return
-          }
-
-          if (sponsor.tier === "ELITE") {
-            const hasMajorTrophy = (team.trophies || []).some(t => t.tier === "S_TIER")
-            const hasMajorParticipation = state.completedMatches.some(match => {
-              if (match.homeTeamId !== teamId && match.awayTeamId !== teamId) return false
-              if (!match.tournamentId) return false
-              const tournament = state.tournaments.find(t => t.id === match.tournamentId)
-              return tournament?.tier === "S_TIER"
-            })
-            const isTopRanked = ranking <= 10
-            if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) {
-              result = { success: false, message: "Elite sponsors require Top 10 ranking or major tournament participation." }
-              return
-            }
-          }
-
-          const normalizedSponsor: SponsorSaveData = {
-            ...sponsor,
-            id: sponsor.id || nextDeterministicId(state, "spon", sponsor.tier, sponsor.name),
-            remainingWeeks: Math.max(1, Math.floor(sponsor.remainingWeeks || 0)),
-            signedWeek: state.currentWeek,
-            followerCheckpoint: team.followers || 0,
-            lastProcessedWeek: undefined
-          }
-
-          team.sponsors.push(normalizedSponsor)
-          // Remove from available offers
-          state.sponsorOffers = state.sponsorOffers.filter(o => o.id !== sponsor.id)
-          result = { success: true, message: `${normalizedSponsor.name} signed successfully.` }
-        })
-        return result
-      },
-
-      // refreshSponsorOffers / declineSponsorOffer moved to
-      // store/slices/sponsorship-slice.ts (spread above).
-
-      // Equipment Shop
-      purchaseEquipment: (catalogId) => {
-        let result = { success: false, error: "" }
-        set(state => {
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-          if (!team) {
-            result = { success: false, error: "Team not found" }
-            return
-          }
-
-          // Import EquipmentManager inline to avoid circular dependencies
-          const { EquipmentManager } = require("@/engine/equipment-manager")
-          const purchaseResult = EquipmentManager.purchaseEquipment(team, catalogId, state.currentWeek)
-          result = purchaseResult
-        })
-        return result
-      },
-
-      // setTheme moved to store/slices/ui-slice.ts (spread above).
-
-      upgradeMerchStore: (teamId) => {
-        let result = { success: false, message: "" }
-        set((state) => {
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (!team) {
-            result = { success: false, message: "Team not found" }
-            return
-          }
-
-          const currentLevel = team.merchStoreLevel || 1
-          if (currentLevel >= 5) {
-            result = { success: false, message: "Store is already at maximum level (5)" }
-            return
-          }
-
-          const cost = 50000 * Math.pow(2, currentLevel - 1)
-          if (team.budget < cost) {
-            result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
-            return
-          }
-
-          team.budget -= cost
-          team.merchStoreLevel = currentLevel + 1
-
-          state.financeLedger.push({
-            id: `exp_merch_up_${state.currentWeek}_${teamId}`,
-            week: state.currentWeek,
-            teamId: teamId,
-            type: "EXPENSE",
-            category: "FACILITIES",
-            amount: cost,
-            description: `Merch Store Upgrade to Level ${team.merchStoreLevel}`,
-            balance: team.budget
-          })
-
-          result = { success: true, message: `Store upgraded to Level ${team.merchStoreLevel}` }
-        })
-        return result
-      },
-
-      toggleMerchItem: (teamId, itemType) => {
-        let result = { success: false, message: "Team not found" }
-        set((state) => {
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (!team) return
-
-          if (!team.activeMerchItems) team.activeMerchItems = []
-
-          if (team.activeMerchItems.includes(itemType)) {
-            team.activeMerchItems = team.activeMerchItems.filter(i => i !== itemType)
-            result = { success: true, message: `${itemType} removed from active merch.` }
-          } else {
-            team.activeMerchItems.push(itemType)
-          }
-        })
-      },
+      // upgradeFacility / signSponsor / purchaseEquipment / upgradeMerchStore / toggleMerchItem
+      // moved to store/slices/team-facilities-slice.ts (spread above).
 
       // setPlaystyle / setEconomyStyle / setTargetPlayer moved to
       // store/slices/team-settings-slice.ts (spread above).
