@@ -297,7 +297,7 @@ export default function ScoutingPage() {
                 const matchesContract = contractExpiryFilter === "any" || (() => {
                     const weeks = getContractWeeksRemaining(p.id, contracts || [], currentWeek || 0)
                     if (weeks === null) return contractExpiryFilter === "free" // free agents match "free"
-                    const maxWeeks = parseInt(contractExpiryFilter)
+                    const maxWeeks = parseInt(contractExpiryFilter, 10)
                     return !isNaN(maxWeeks) && weeks <= maxWeeks
                 })()
 
