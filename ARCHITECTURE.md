@@ -377,3 +377,170 @@ UI re-renders with updated state
 - Plugin system for game modules
 - Event sourcing for full history
 - GraphQL for future API layer
+
+---
+
+## Recent Refactor: Slice + Processor Architecture (Phases B–D)
+
+The codebase went through a sustained slicing pass that broke up two
+multi-thousand-line files into focused modules. The patterns below are
+load-bearing — read these before touching `game-store.ts`,
+`engine/processors/`, `engine/tournament/`, or `engine/ai-manager.ts`.
+
+### Store: SliceCreator pattern
+
+`store/game-store.ts` is now an orchestrator (~2.3k lines) that composes
+**19 slice modules** under `store/slices/*`. Each slice exports a
+`createXxxSlice` function typed against the full `StoreState`:
+
+```typescript
+export const createTransferContractSlice: SliceCreator<TransferActions> =
+  (set, get) => ({
+    transferPlayer: (...) => { set(state => { /* immer mutations */ }) },
+    acceptTransferOffer: (eventId) => { /* ... */ },
+  })
+```
+
+Slices live in `store/slices/`. The 19 are: settings, scouting, debug,
+tournament, events, ui, sponsorship, match-ui, match-operations,
+match-scheduling, match-simulation, team-drills, training, team-settings,
+player-development, staff-management, team-facilities, transfer-contract,
+academy.
+
+What stays in `game-store.ts`: persist middleware lifecycle, save/load
+lifecycle (`initializeNewGame`, `loadGame`, `saveGame`, `listSaves`,
+`switchSave`, `deleteSaveInSlot`, `attemptSaveRecovery`), `advanceWeek`
+(now 162 lines, was ~700), `advanceDay`, `advanceToWeekEnd`,
+`partialize`, `onRehydrateStorage`.
+
+### Cross-slice action calls
+
+Slice actions may call other slice actions via `get()`:
+
+```typescript
+get().scheduleMatchForTeam(...)
+get().applyTrainingResult(...)
+```
+
+This is safe because Zustand's `set()` is synchronous — immer mutations
+land before `set()` returns, so the next `get()` reads the post-mutation
+state. **Do not** `await` between cross-slice calls expecting a state
+read in between; everything happens in a single tick.
+
+### Indexed entity lookups
+
+The store maintains `_teamIndex`, `_playerIndex`, `_contractIndex` maps
+that are rebuilt on hydrate and on every mutation that adds/removes
+entities. The canonical lookup pattern is:
+
+```typescript
+const team = state._teamIndex?.get(teamId)
+  ?? state.teams.find(t => t.id === teamId)
+```
+
+The fallback is there because the index is transient (not persisted)
+and may be momentarily stale during certain mutations. Always include
+both branches.
+
+### Engine: Processor pattern
+
+`engine/atomic-week-processor.ts` was a 2,359-line monolith. It is now a
+thin coordinator (~1,520 lines, with `advanceWeek` at 162 lines) that
+delegates to **17 processor modules** under `engine/processors/*`.
+
+Each processor exports a pure function with the signature:
+
+```typescript
+export function processXxx(save: GameSave, ctx: WeekTickContext): void {
+    // mutate save in place
+}
+```
+
+Processors mutate `save` directly because the caller already owns an
+immer draft. The `ctx` carries any cross-cutting data (the RNG seed for
+this tick, the player team id, week boundaries, etc.).
+
+The 17 processors: ai-world-processor, auto-registration-processor,
+event-processor, fanbase-growth, finance-processor, narrative-news,
+post-tick-achievements, pre-tick-mutations, save-compactor,
+scheduled-activities-processor, scouting-mission-processor,
+sponsor-goals-processor, standings-processor, team-synergy-recalc,
+tournament-completion, training-processor, weekly-activity-processor,
+fpl-week-processor.
+
+### Tournament: Module split
+
+`engine/tournament-manager.ts` was 1,760 lines; now 1,358. Five modules
+were extracted under `engine/tournament/`:
+
+- **seeding-helpers.ts** — stable team-id hashing for deterministic
+  tiebreakers
+- **bracket-scheduling.ts** — `addBracketMatch`, `scheduleBracketMatch`,
+  `assignMatchDay` (day-of-week conflict avoidance)
+- **double-elim-handlers.ts** — winner/loser bracket progression
+- **swiss-handlers.ts** — Swiss-format lifecycle (setup, round
+  generation, result handling, playoff seeding)
+- **league-schedule.ts** — round-robin via the circle method
+
+Swiss handlers receive `SwissHandlerDeps` for the few callbacks that
+need to reach back into `TournamentManager` (avoids circular imports).
+
+### Determinism: SeededRNG derivation
+
+Every RNG used in the engine is a `SeededRNG` (Mulberry32). To avoid
+correlation across subsystems, derived RNGs use bitwise XOR with a
+constant salt:
+
+```typescript
+const academyRng = new SeededRNG(baseSeed ^ 0xACADE)
+const fplRng = new SeededRNG(rng.int(1, 999999))
+const playoffSeed = (save.lastRngSeed ^ (save.currentWeek * 2654435761)) >>> 0
+```
+
+The Knuth multiplier (`2654435761`) is the standard hash mixer; the
+`>>> 0` forces unsigned 32-bit.
+
+### Immer draft type casting
+
+When passing the store draft to engine functions typed against
+`GameSave`, cast through `unknown`:
+
+```typescript
+processWeeklyAI(state as unknown as GameSave, playerTeamId, rng)
+```
+
+The immer draft is structurally compatible with `GameSave` but
+TypeScript can't see through the proxy type. The cast is correct;
+suppress the lint locally if needed.
+
+### AI gameplay parity (Phase D5–D8)
+
+AI teams now mirror player infrastructure paths in
+`AIManager.processWeeklyAI`:
+
+| Phase | Method            | Rate     | Gate                          |
+|-------|-------------------|----------|-------------------------------|
+| D5    | `manageStaff`     | 3%/week  | max 3 staff                   |
+| D6    | `manageSponsors`  | 5%/week  | tier-gated by rank + history  |
+| D7    | `manageFacilities`| 4%/week  | STABLE only                   |
+| D8    | `manageAcademy`   | 3%/week  | STABLE only, same costs as UI |
+
+Each method is a 50–80 line static on `AIManager` with no external
+dependencies. They read `team.financialState`, `team.budget`, and the
+relevant subsystem arrays, and mutate the save in place. All log to
+`save.financeLedger` with category `FACILITIES` (or `WAGES_STAFF` /
+`SPONSOR` as appropriate) for visibility.
+
+### Test coverage map
+
+| Surface                          | Test file                                 |
+|----------------------------------|-------------------------------------------|
+| Save migration ladder            | `__tests__/save-manager.test.ts`          |
+| Round-robin scheduling           | `__tests__/tournament-modules.test.ts`    |
+| Swiss bucketing + setup          | `__tests__/tournament-modules.test.ts`    |
+| Chemistry/synergy                | `__tests__/chemistry.test.ts`             |
+| Simulation engine determinism    | `__tests__/engine.test.ts`                |
+| Critical user paths              | `__tests__/critical-path.test.ts`         |
+
+Run with `npm test`. As of the most recent commit, 149 tests pass across
+9 suites.
