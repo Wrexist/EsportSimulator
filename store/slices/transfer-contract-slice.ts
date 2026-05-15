@@ -93,8 +93,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 const releasedPlayer = state._playerIndex?.get(playerId)
                     ?? state.players.find(p => p.id === playerId)
                 if (releasedPlayer) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ;(releasedPlayer as any).forSale = false
+                    releasedPlayer.forSale = false
                 }
                 result = { success: true, message: "Player released to free agency" }
                 return
@@ -247,8 +246,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const updatedPlayer = state._playerIndex?.get(playerId)
                 ?? state.players.find(p => p.id === playerId)
             if (updatedPlayer) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ;(updatedPlayer as any).forSale = false
+                updatedPlayer.forSale = false
             }
 
             // Ledger entries (paired EXPENSE/INCOME on real trades).
@@ -344,10 +342,8 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const normalizedPrice = parseBoundedInt(price, "Transfer listing price", 0, MAX_TRANSFER_FEE)
             if (!normalizedPrice.ok || !player) return
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(player as any).forSale = true
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(player as any).transferListingPrice = normalizedPrice.value
+            player.forSale = true
+            player.transferListingPrice = normalizedPrice.value
         })
     },
 
@@ -356,10 +352,8 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const player = state._playerIndex?.get(playerId)
                 ?? state.players.find(p => p.id === playerId)
             if (!player) return
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(player as any).forSale = false
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(player as any).transferListingPrice = undefined
+            player.forSale = false
+            player.transferListingPrice = undefined
         })
     },
 
@@ -367,7 +361,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         const currentState = get()
         const event = currentState.eventsLog.find(e => e.id === eventId)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (!event || !event.data || (event as any).type !== "TRANSFER_OFFER" || event.selectedChoiceId) return
+        if (!event || !event.data || event.type !== "TRANSFER_OFFER" || event.selectedChoiceId) return
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { playerId, teamId, offerAmount } = event.data as any
