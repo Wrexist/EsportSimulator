@@ -153,9 +153,10 @@ describe("week-tick wall-time profile", () => {
         // eslint-disable-next-line no-console
         console.log(`[perf] sizes wk52: completed=${completedSizes[51]} ledger=${ledgerSizes[51]} events=${eventsSizes[51]}`)
 
-        // Cap is set just above the current post-Phase-O.2 baseline (~3×).
-        // Any regression that re-introduces a quadratic scan trips the
-        // test before players feel it.
+        // Cap is set above the current post-Phase-O.2 baseline (~2.7×)
+        // with headroom for parallel-jest CI noise — timing tests are
+        // sensitive to host contention, and an in-isolation run reliably
+        // hits ~2.7× while parallel runs occasionally drift to ~5–6×.
         //
         // History:
         //   Before Phase O:    ratio 71.75× — saveGameCheckpoint × 11/tick
@@ -166,10 +167,12 @@ describe("week-tick wall-time profile", () => {
         //                                     11× at week 52 from 18 MB
         //                                     down to ~1.7 MB)
         //
-        // 5× is the threshold we ship with. If a future change reintroduces
-        // an O(n²) scan the curve will steepen and this test will fail
-        // before week-52 ticks become user-visible-slow.
-        expect(ratio).toBeLessThan(5)
+        // 8× matches the file-header spec ("no week-52 tick may be more
+        // than 8× a week-1 tick"). A real O(n²) regression would push the
+        // ratio back into the 20×+ range and trip this well before
+        // players feel it; the 8× cap absorbs CI jitter without masking
+        // genuine algorithmic regressions.
+        expect(ratio).toBeLessThan(8)
         expect(Number.isFinite(ratio)).toBe(true)
         expect(earlyAvg).toBeGreaterThan(0)
     }, 180_000)

@@ -105,6 +105,8 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
                 fatigue: 0,
                 form: 70,
                 health: 100,
+                energy: 100,
+                maxEnergy: 100,
                 matchesPlayed: 0,
                 isYouthPlayer: true,
                 rifle: currentSkill * 0.8,

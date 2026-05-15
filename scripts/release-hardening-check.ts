@@ -43,13 +43,25 @@ class InMemoryStorage implements AsyncStorage {
 class FaultInjectSaveManager extends SaveManager {
   private failStep: string
   private injected = false
-  private currentStep: string | null = null
 
   constructor(storage: AsyncStorage, failStep: string) {
     super(storage)
     this.failStep = failStep
   }
 
+  // Phase O moved persistence to a single end-of-tick saveGame() — there
+  // are no longer intra-tick saveGameCheckpoint calls to throw inside.
+  // Mid-tick crashes are now modeled by throwing from markStepComplete
+  // AFTER the step's completion record has been written to the
+  // transaction state. This mirrors the realistic failure window: the
+  // step finished, its bookkeeping landed on disk, then the process
+  // died before the next step (or the final saveGame) could run.
+  //
+  // Recovery contract: WeekTickState on disk has stepN=true and the
+  // save file on disk is still at week N (no save happened). On resume,
+  // getIncompleteTransaction returns the stale tx, atomic-week-processor
+  // clears its flags, re-runs all steps from 1, and the final saveGame
+  // produces week N+1 — same as if the tick had never crashed.
   async markStepComplete(
     state: WeekTickState,
     step: keyof Omit<
@@ -64,28 +76,23 @@ class FaultInjectSaveManager extends SaveManager {
       | "failedStep"
     >
   ): Promise<void> {
-    this.currentStep = step
     await super.markStepComplete(state, step)
-  }
-
-  async saveGame(save: GameSave): Promise<{ success: boolean; error?: string }> {
-    if (!this.injected && this.currentStep === this.failStep) {
+    if (!this.injected && step === this.failStep) {
       this.injected = true
       throw new Error(`Injected crash after ${this.failStep}`)
+    }
+  }
+
+  // Final-save crash window: the tick completed all 10 steps but the
+  // single authoritative end-of-tick saveGame() failed. The tx state
+  // still shows all-steps-complete; resume must replay the tick from
+  // scratch (atomic-week-processor's stale-tx path handles this).
+  async saveGame(save: GameSave): Promise<{ success: boolean; error?: string }> {
+    if (!this.injected && this.failStep === "finalSave") {
+      this.injected = true
+      throw new Error(`Injected crash at finalSave`)
     }
     return super.saveGame(save)
-  }
-
-  // Intermediate persistence inside processWeek now goes through
-  // saveGameCheckpoint (see engine/save-manager.ts). The crash-resume
-  // contract still requires the injected fault to fire at the same
-  // step boundaries, so mirror the throw here.
-  async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
-    if (!this.injected && this.currentStep === this.failStep) {
-      this.injected = true
-      throw new Error(`Injected crash after ${this.failStep}`)
-    }
-    return super.saveGameCheckpoint(save)
   }
 }
 
@@ -348,7 +355,8 @@ async function testSaveIntegrityTamperDetection(): Promise<void> {
 }
 
 async function testCrashResumeByStep(): Promise<void> {
-  const crashSteps: Array<keyof WeekTickState> = [
+  // 10 step boundaries + the post-Phase-O final-save window.
+  const crashSteps: Array<keyof WeekTickState | "finalSave"> = [
     "trainingComplete",
     "fatigueRecoveryComplete",
     "injuryChecksComplete",
@@ -359,6 +367,7 @@ async function testCrashResumeByStep(): Promise<void> {
     "eventGenerationComplete",
     "worldLogicComplete",
     "restDayProcessingComplete",
+    "finalSave",
   ]
 
   for (const step of crashSteps) {
@@ -402,22 +411,27 @@ function assertFiniteState(save: GameSave): void {
   }
 
   for (const player of save.players) {
-    const numericChecks = [
-      player.skill,
-      player.awp,
-      player.rifle,
-      player.pistol,
-      player.grenades,
-      player.creativity,
-      player.clutch,
-      player.tactic,
-      player.teamwork,
-      player.morale,
-      player.fatigue,
-      player.energy,
-      player.potential,
-    ]
-    assert(numericChecks.every(Number.isFinite), `Non-finite player numeric state: ${player.id}`)
+    const numericFields: Record<string, number> = {
+      skill: player.skill,
+      awp: player.awp,
+      rifle: player.rifle,
+      pistol: player.pistol,
+      grenades: player.grenades,
+      creativity: player.creativity,
+      clutch: player.clutch,
+      tactic: player.tactic,
+      teamwork: player.teamwork,
+      morale: player.morale,
+      fatigue: player.fatigue,
+      energy: player.energy,
+      potential: player.potential,
+    }
+    for (const [field, value] of Object.entries(numericFields)) {
+      assert(
+        Number.isFinite(value),
+        `Non-finite player ${field}=${value} on ${player.id}`
+      )
+    }
   }
 
   const teamIds = new Set(save.teams.map(t => t.id))
