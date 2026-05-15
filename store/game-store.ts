@@ -90,6 +90,7 @@ import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
+import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 
 enableMapSet()
 
@@ -2241,153 +2242,28 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             const newIndexes = buildEntityIndexes(postTickState.teams, postTickState.players, postTickState.contracts, postTickState.staff, postTickState.completedMatches)
             set(newIndexes)
 
-            // Check and unlock achievements based on current state
-            const updatedState = get()
-            const playerTeam = updatedState.teams.find(t => t.id === updatedState.playerTeamId)
-            if (playerTeam) {
-              // Count total wins
-              const totalWins = updatedState.completedMatches.filter(m => {
-                const isHome = m.homeTeamId === updatedState.playerTeamId
-                return isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-              }).length
+            // Evaluate Steam achievements + push leaderboard stats + update
+            // Rich Presence from the post-tick snapshot. Self-guards on
+            // playerTeam — no-ops if the player isn't on a team yet.
+            evaluatePostTickAchievements(get() as unknown as GameSave)
 
-              // Get tournament wins
-              const tournamentsWon = playerTeam.trophies?.map(t => {
-                const tournament = updatedState.tournaments.find(tour => tour.id === t.tournamentId)
-                return { tier: tournament?.tier || "B_TIER", id: t.tournamentId }
-              }) || []
-
-              const seasonStartWeek = Math.floor((updatedState.currentWeek - 1) / 52) * 52 + 1
-              const majorWinsInSeason = (playerTeam.trophies || []).filter(t =>
-                t.tier === "S_TIER" &&
-                t.week >= seasonStartWeek &&
-                t.week <= updatedState.currentWeek
-              ).length
-
-              // Phase 40: Steam Rich Presence (enhanced)
-              steamAchievements.updateGameStatePresence({
-                teamName: playerTeam.name,
-                week: updatedState.currentWeek,
-                ranking: playerTeam.worldRanking,
-                activity: playerTeam.leagueTier === "S_TIER" ? "S-Tier League" : "Pro League",
+            // Route transient (one-shot UI) events to in-game toasts and
+            // auto-acknowledge so they don't pile up in the inbox.
+            const freshState = get()
+            const toastEventTypes = ["TRAINING_COMPLETE"]
+            const toastEvents = freshState.eventsLog.filter(
+              e => toastEventTypes.includes(e.type as string)
+                && e.week === freshState.currentWeek
+                && !e.acknowledged
+            )
+            toastEvents.forEach(event => {
+              const data = event.data as { title?: string; description?: string }
+              get().addToast({
+                message: data.title || data.description || "Event notification",
+                type: event.type === "TRAINING_COMPLETE" ? "level_up" : "info",
               })
-
-              // Fastest Run tracking
-              if (playerTeam.leagueTier === "S_TIER") {
-                steamAchievements.pushLeaderboardStats({ weeksToSTier: updatedState.currentWeek })
-              }
-
-              // Detect comeback and underdog wins from this week's matches
-              const thisWeekMatches = updatedState.completedMatches.filter(m =>
-                m.week === updatedState.currentWeek &&
-                (m.homeTeamId === updatedState.playerTeamId || m.awayTeamId === updatedState.playerTeamId)
-              )
-              const hasComebackWin = thisWeekMatches.some(m => (m as any)._comebackWin)
-              const hasUnderdogWin = thisWeekMatches.some(m => (m as any)._underdogWin)
-
-              // Total kills & headshots across all players
-              const playerTeamPlayers = updatedState.players.filter(p =>
-                playerTeam.rosterIds.includes(p.id)
-              )
-              const totalKills = playerTeamPlayers.reduce((s, p) => s + (p.totalKills || 0), 0)
-              const totalHS = playerTeamPlayers.reduce((s, p) => s + (p.totalHeadshots || 0), 0)
-              const matchesPlayed = updatedState.completedMatches.filter(m =>
-                m.homeTeamId === updatedState.playerTeamId || m.awayTeamId === updatedState.playerTeamId
-              ).length
-
-              // Total major wins
-              const totalMajorWins = (playerTeam.trophies || []).filter(t => t.tier === "S_TIER").length
-
-              // LOYAL_TEAM: compute years since last roster change
-              const loyalTeamYears = Math.floor(
-                (updatedState.currentWeek - (playerTeam.lastRosterChangeWeek ?? 1)) / 52
-              )
-
-              // REDEMPTION: won S_TIER after losing an S_TIER Grand Final in prior year
-              const seasonStart = Math.floor((updatedState.currentWeek - 1) / 52) * 52 + 1
-              const priorSeasonStart = Math.max(1, seasonStart - 52)
-              const lostSTierGrandFinalPriorYear = updatedState.completedMatches.some(m => {
-                if (m.week < priorSeasonStart || m.week >= seasonStart) return false
-                const isPlayerTeam = m.homeTeamId === updatedState.playerTeamId || m.awayTeamId === updatedState.playerTeamId
-                if (!isPlayerTeam) return false
-                const isHome = m.homeTeamId === updatedState.playerTeamId
-                const lost = isHome ? m.result.homeScore < m.result.awayScore : m.result.awayScore < m.result.homeScore
-                return lost && (m as any).stage === "Grand Final" && (m as any).tournamentTier === "S_TIER"
-              })
-              const wonSTierThisSeason = (playerTeam.trophies || []).some(
-                t => t.tier === "S_TIER" && t.week >= seasonStart && t.week <= updatedState.currentWeek
-              )
-              const redemptionArc = lostSTierGrandFinalPriorYear && wonSTierThisSeason
-
-              // UNLUCKY: check this week's matches for 14-16 Grand Final loss
-              const lostGrandFinal1614 = thisWeekMatches.some(m => {
-                const isHome = m.homeTeamId === updatedState.playerTeamId
-                const lost = isHome ? m.result.homeScore < m.result.awayScore : m.result.awayScore < m.result.homeScore
-                if (!lost) return false
-                const loserScore = isHome ? m.result.homeScore : m.result.awayScore
-                const winnerScore = isHome ? m.result.awayScore : m.result.homeScore
-                return (m as any).stage === "Grand Final" && loserScore === 14 && winnerScore === 16
-              })
-
-              checkAchievements({
-                totalWins,
-                worldRanking: playerTeam.worldRanking,
-                leagueTier: playerTeam.leagueTier,
-                startingLeagueTier: (playerTeam as any).startingLeagueTier,
-                budget: playerTeam.budget,
-                tournamentsWon,
-                hallOfFamePlayers: updatedState.legendaryPlayers?.length || 0,
-                firstTournamentParticipation: updatedState.completedMatches.some(match => !!match.tournamentId && match.tournamentId !== "SCRIM"),
-                developedStar: updatedState.players.some(player => !!(player as any).isAcademyGraduate && player.skill >= 90),
-                majorWinsInSeason,
-                totalMajorWins,
-                seasonComplete: updatedState.currentWeek > 0 && updatedState.currentWeek % 52 === 0,
-                comebackWin: hasComebackWin,
-                underdogWin: hasUnderdogWin,
-                totalKills,
-                totalHS,
-                matchesPlayed,
-                loyalTeamYears,
-                redemptionArc,
-                lostGrandFinal1614,
-              })
-
-              // Push leaderboard stats
-              const totalEarnings = updatedState.financeLedger
-                .filter(e => e.type === "INCOME" && e.teamId === updatedState.playerTeamId)
-                .reduce((sum, e) => sum + e.amount, 0)
-              const form = playerTeam.recentForm || []
-              let maxStreak = 0, curStreak = 0
-              for (const r of form) {
-                if (r === "W") { curStreak++; maxStreak = Math.max(maxStreak, curStreak) }
-                else curStreak = 0
-              }
-              steamAchievements.pushLeaderboardStats({
-                maxElo: playerTeam.elo,
-                totalEarnings,
-                longestWinStreak: maxStreak,
-                tournamentsWon: (playerTeam.trophies || []).length,
-                majorWins: totalMajorWins,
-              })
-
-              // Phase 62: Route transient events to Toast Notifications
-              const freshState = get()
-              const toastEventTypes = ["TRAINING_COMPLETE"] // Events that should be toasts only
-              const toastEvents = freshState.eventsLog.filter(
-                e => toastEventTypes.includes(e.type as string) && e.week === freshState.currentWeek && !e.acknowledged
-              )
-
-              toastEvents.forEach(event => {
-                const data = event.data as any
-                get().addToast({
-                  message: data.title || data.description || "Event notification",
-                  type: event.type === "TRAINING_COMPLETE" ? "level_up" : "info"
-                })
-
-                // Auto-acknowledge transient event to remove from inbox
-                get().acknowledgeEvent(event.id)
-              })
-            }
+              get().acknowledgeEvent(event.id)
+            })
           } else {
             throw new Error(result.error || "Week processing failed")
           }
