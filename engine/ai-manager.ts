@@ -2,10 +2,9 @@ import {
     GameSave,
     TeamSaveData,
     PlayerSaveData,
-    ContractSaveData,
 } from "./save-types"
 import { reconcileTeamRoles } from "./role-reconciler"
-import { PlayerRole, EventType } from "../types" // Adjust import path if needed
+import { PlayerRole } from "../types" // Adjust import path if needed
 import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
@@ -23,6 +22,11 @@ import {
     releaseWorstPlayer as releaseWorstPlayerFn,
     manageRoster as manageRosterFn,
 } from "./ai/roster-management"
+import {
+    listPlayerForTransfer as listPlayerForTransferFn,
+    processAITransferMarket as processAITransferMarketFn,
+    processAIToAITransfers as processAIToAITransfersFn,
+} from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
 
 /**
@@ -33,7 +37,6 @@ import { logger } from "@/lib/logger"
  */
 export class AIManager {
     private static fallbackRng = new SeededRNG(generateSeed())
-    private static readonly MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
 
     private static roll(rng?: SeededRNG): number {
         return rng ? rng.next() : this.fallbackRng.next()
@@ -278,161 +281,18 @@ export class AIManager {
         releaseWorstPlayerFn(team, save)
     }
 
+    // Transfer-market implementations extracted to engine/ai/transfer-market.ts
+    // (Phase K4). Facades preserved — public processAIToAITransfers is the
+    // external API surface (called by ai-world-processor).
     private static listPlayerForTransfer(team: TeamSaveData, save: GameSave) {
-        // In crisis the AI needs to dump wages fast. Pick the player whose
-        // salary-to-value ratio hurts the team the most so we get the biggest
-        // weekly relief per listing.
-        const playerIndex = this.getPlayerIndex(save)
-        const players = team.rosterIds
-            .map(id => playerIndex.get(id))
-            .filter((p): p is PlayerSaveData => !!p)
-        const notForSale = players.filter(p => !p.forSale)
-        if (notForSale.length === 0) return
-
-        const contractByPlayer = new Map<string, ContractSaveData>()
-        for (const c of save.contracts) {
-            if (c.teamId === team.id) contractByPlayer.set(c.playerId, c)
-        }
-
-        // Higher score = better candidate to dump.
-        const wageBurden = (p: PlayerSaveData) => {
-            const salary = contractByPlayer.get(p.id)?.salaryPerWeek ?? 0
-            const skill = p.skill ?? 50
-            const tactic = p.tactic ?? 50
-            const age = p.age ?? 22
-            const ageDecline = Math.max(0, age - 27) * 5
-            // Players with high salary but low contribution score the highest.
-            return salary / Math.max(20, skill + tactic - ageDecline)
-        }
-        const target = notForSale.reduce(
-            (worst, p) => (wageBurden(p) > wageBurden(worst) ? p : worst),
-            notForSale[0]
-        )
-        target.forSale = true
-        target.transferListingPrice = (target.prestigeScore || 50) * 1000
-        target.weeksOnTransferList = 0
+        listPlayerForTransferFn(team, save)
     }
 
     /**
      * AI Teams making offers for User Players
      */
     private static processAITransferMarket(save: GameSave, playerTeamId: string, rng?: SeededRNG) {
-        // 1. Find User Players listed for sale
-        const playerTeam = save.teams.find(t => t.id === playerTeamId)
-        if (!playerTeam) return
-
-        const playerIndex = this.getPlayerIndex(save)
-        const userPlayersForSale = playerTeam.rosterIds
-            .map(id => playerIndex.get(id))
-            .filter((p): p is PlayerSaveData => !!p && !!p.forSale)
-
-        if (userPlayersForSale.length === 0) return
-
-        // 2. Iterate AI Teams
-        const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
-
-        // Build Set of existing pending transfer offer keys for O(1) lookups
-        const existingOfferKeys = new Set<string>()
-        for (const e of save.eventsLog) {
-            if (e.week === save.currentWeek && e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
-                existingOfferKeys.add(`${e.data.teamId}_${e.data.playerId}`)
-            }
-        }
-
-        aiTeams.forEach(aiTeam => {
-            // Budget check
-            if (aiTeam.budget < 50000) return
-            let offersMade = 0
-
-            // Pre-compute the AI team's role coverage once so we can bias
-            // interest toward signing for missing roles. Looking at this for
-            // every sale candidate inside the inner loop would re-scan the
-            // roster N times for the same team.
-            const aiRoles = new Set<string>()
-            for (const id of aiTeam.rosterIds) {
-                const p = playerIndex.get(id)
-                if (p?.role) aiRoles.add(p.role.toString().toUpperCase())
-            }
-
-            // Check each player for sale
-            userPlayersForSale.forEach(player => {
-                if (offersMade >= this.MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK) return
-
-                const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
-                if (existingOffer) return
-
-                // Calculate Market Value (Base Value)
-                // Potential is more heavily weighted for aggressive scouting
-                let baseValue = (player.skill * 100) + (player.potential * 150) // Increased potential weight
-                if (player.tier === "ELITE") baseValue *= 50
-                else if (player.tier === "PRO") baseValue *= 20
-                else baseValue *= 5
-
-                // Determine interest based on price ratio
-                // listingPrice vs baseValue (Market Value)
-                const listingPrice = player.transferListingPrice || baseValue
-                const priceRatio = listingPrice / baseValue
-
-                // Potential aggression: Higher potential candidates get a massive boost to interest
-                // Skill 15/Potential 20 is a "Golden Boy" target
-                const potentialMultiplier = player.potential > 16 ? 1.5 : (player.potential > 14 ? 1.2 : 1.0)
-
-                // Role-fit: if the AI is missing this player's role entirely
-                // it's much more interested. If they already have somebody
-                // there it's slightly less interested (small soft penalty)
-                // to keep the market diversified rather than every team
-                // chasing the same player.
-                const playerRole = (player.role ?? "RIFLER").toString().toUpperCase()
-                const roleFitMultiplier = !aiRoles.has(playerRole) ? 1.4
-                    : aiRoles.size <= 4 ? 1.0
-                    : 0.85
-
-                // Probability scaling:
-                // Ratio 1.0 -> 30% * potentialMultiplier
-                // Ratio 0.5 -> ~80%
-                const interestMultiplier = Math.exp(2 * (1 - priceRatio))
-                const baseChance = 0.3 * potentialMultiplier * roleFitMultiplier
-                const finalChance = Math.min(0.98, baseChance * interestMultiplier)
-
-                if (this.roll(rng) > finalChance) return
-
-                // Calculate Offer Amount
-                // AI is anchored to baseValue but influenced slightly by asking price (10% pull)
-                // If potential is high, AI is willing to overpay moderately (anchored value shifts up)
-                const overpayBuffer = player.potential > 17 ? 1.2 : (player.potential > 15 ? 1.1 : 1.0)
-                const anchoredValue = ((baseValue * 0.9) + (listingPrice * 0.1)) * overpayBuffer
-
-                // Randomize offer (+/- 15%)
-                const offerAmount = Math.round(anchoredValue * (0.85 + this.roll(rng) * 0.3))
-
-                // Strict Budget Check
-                if (offerAmount > aiTeam.budget) return
-
-                // Create Offer Event
-                const eventId = `offer_${save.currentWeek}_${aiTeam.id}_${player.id}_${offerAmount}`
-
-                save.eventsLog.push({
-                    id: eventId,
-                    type: "TRANSFER_OFFER" as unknown as EventType,
-                    week: save.currentWeek,
-                    data: {
-                        teamId: aiTeam.id,
-                        teamName: aiTeam.name,
-                        playerId: player.id,
-                        playerName: player.nickname,
-                        offerAmount: offerAmount,
-                        message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`
-                    },
-                    acknowledged: false,
-                    choices: [
-                        // Economic transfer effects are handled by transferPlayer when the offer is accepted.
-                        { id: "accept", text: "Accept Offer", effects: {} },
-                        { id: "reject", text: "Reject", effects: {} }
-                    ]
-                })
-                offersMade++
-            })
-        })
+        processAITransferMarketFn(save, playerTeamId, rng)
     }
 
     // === PHASE 5/7 Integration: Missing Methods ===
@@ -572,120 +432,7 @@ export class AIManager {
      *       end-to-end.
      */
     static processAIToAITransfers(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
-        const MAX_AI_TRANSFERS_PER_WEEK = 3
-        let transferCount = 0
-        const playerIndex = this.getPlayerIndex(save)
-
-        const availablePlayers: { player: PlayerSaveData; team: TeamSaveData }[] = []
-        const offeredIds = new Set<string>()
-
-        for (const team of save.teams) {
-            if (team.id === playerTeamId) continue
-            const roster = team.rosterIds
-                .map(id => playerIndex.get(id))
-                .filter((p): p is PlayerSaveData => !!p && !p.isRetired)
-
-            // (a) Bench dump: teams with 6+ healthy players offer their weakest.
-            if (roster.length >= 6) {
-                const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
-                if (worst && (worst.skill ?? 0) < 55 && !offeredIds.has(worst.id)) {
-                    availablePlayers.push({ player: worst, team })
-                    offeredIds.add(worst.id)
-                }
-            }
-
-            // (b) Explicit listings (financial crisis or strategic offload).
-            for (const p of roster) {
-                if (p.forSale && !offeredIds.has(p.id)) {
-                    availablePlayers.push({ player: p, team })
-                    offeredIds.add(p.id)
-                }
-            }
-        }
-
-        // Buying teams: AI teams with roster ≤ 5 and budget > 100k
-        const buyingTeams = save.teams.filter(t =>
-            t.id !== playerTeamId && t.budget > 100_000 && t.rosterIds.length <= 5
-        )
-
-        for (const buyer of buyingTeams) {
-            if (transferCount >= MAX_AI_TRANSFERS_PER_WEEK) break
-            if (rng.next() > 0.05) continue // 5% chance per team per week
-
-            const candidate = availablePlayers
-                .filter(ap => ap.team.id !== buyer.id)
-                .sort((a, b) => (b.player.skill ?? 0) - (a.player.skill ?? 0))[0]
-            if (!candidate) continue
-
-            const fee = (candidate.player.skill ?? 50) * 2000
-            const weeklySalary = (candidate.player.skill ?? 50) * 50
-            if (buyer.budget < fee + weeklySalary * 26) continue
-
-            // Execute transfer
-            candidate.team.rosterIds = candidate.team.rosterIds.filter(id => id !== candidate.player.id)
-            // Bug fix: defensive guard against double-add if a buyer somehow
-            // already has the player on their roster.
-            if (!buyer.rosterIds.includes(candidate.player.id)) {
-                buyer.rosterIds.push(candidate.player.id)
-            }
-            buyer.budget -= fee
-            candidate.team.budget += fee
-            // Clear listing flags now that the move has settled so the new
-            // owner doesn't immediately re-receive a market offer for the
-            // same player.
-            candidate.player.forSale = false
-            candidate.player.transferListingPrice = undefined
-            candidate.player.weeksOnTransferList = undefined
-
-            // Bug fix: scope contract removal to the seller — wiping by
-            // playerId alone can clobber unrelated historical/ghost contracts.
-            const sellerTeamId = candidate.team.id
-            save.contracts = save.contracts.filter(c => !(c.playerId === candidate.player.id && c.teamId === sellerTeamId))
-            save.contracts.push({
-                playerId: candidate.player.id,
-                teamId: buyer.id,
-                salaryPerWeek: weeklySalary,
-                startWeek: save.currentWeek,
-                endWeek: save.currentWeek + 52,
-                buyout: fee * 2,
-            })
-
-            // Transfer record
-            if (save.transferHistory) {
-                save.transferHistory.push({
-                    id: `transfer_ai2ai_${save.currentWeek}_${candidate.player.id}_${buyer.id}`,
-                    week: save.currentWeek,
-                    type: "TRANSFER",
-                    playerId: candidate.player.id,
-                    playerName: candidate.player.nickname,
-                    fromTeamId: candidate.team.id,
-                    fromTeamName: candidate.team.name,
-                    toTeamId: buyer.id,
-                    toTeamName: buyer.name,
-                    fee,
-                })
-            }
-
-            // News feed
-            if (save.newsFeed) {
-                save.newsFeed.unshift({
-                    id: `news_ai2ai_${save.currentWeek}_${candidate.player.id}`,
-                    title: `${candidate.player.nickname} transferred to ${buyer.name}`,
-                    content: `${buyer.name} have acquired ${candidate.player.nickname} from ${candidate.team.name} for $${fee.toLocaleString()}.`,
-                    category: "TRANSFER",
-                    playerId: candidate.player.id,
-                    teamId: buyer.id,
-                    week: save.currentWeek,
-                    engagement: { likes: rng.int(100, 3000), views: rng.int(1000, 15000) }
-                })
-                if (save.newsFeed.length > 50) save.newsFeed.pop()
-            }
-
-            // Remove from available pool so same player isn't sold twice
-            const idx = availablePlayers.indexOf(candidate)
-            if (idx !== -1) availablePlayers.splice(idx, 1)
-            transferCount++
-        }
+        processAIToAITransfersFn(save, playerTeamId, rng)
     }
 
     static processSeasonEnd(save: GameSave) {
