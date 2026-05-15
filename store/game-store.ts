@@ -86,6 +86,7 @@ import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slic
 import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slice"
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
+import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
@@ -1980,60 +1981,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const rng = new SeededRNG(preTickRng.getState())
           const latestState = get()
 
-          // Explicitly construct GameSave from store state (avoid fragile spread)
-          const saveState: GameSave = structuredClone({
-            saveVersion: (latestState as any).saveVersion || CURRENT_SAVE_VERSION,
-            saveId: latestState.saveId || `save_recovery_${Date.now()}`,
-            saveName: latestState.saveName || "Unknown",
-            createdAt: (latestState as any).createdAt || latestState.gameStartDate || new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            currentWeek: latestState.currentWeek,
-            currentDay: latestState.currentDay,
-            timeMode: latestState.timeMode,
-            gameStartDate: latestState.gameStartDate,
-            playerTeamId: latestState.playerTeamId || "unknown",
-            managerDetails: latestState.managerDetails,
-            teams: latestState.teams,
-            players: latestState.players,
-            contracts: latestState.contracts,
-            tournaments: latestState.tournaments,
-            staff: latestState.staff,
-            marketStaff: latestState.marketStaff || [],
-            nextMarketRefreshWeek: (latestState as any).nextMarketRefreshWeek,
-            scheduledMatches: latestState.scheduledMatches,
-            completedMatches: latestState.completedMatches,
-            scheduledActivities: latestState.scheduledActivities || [],
-            financeLedger: latestState.financeLedger,
-            eventsLog: latestState.eventsLog,
-            acknowledgedEventIds: latestState.acknowledgedEventIds,
-            lastRngSeed: latestState.lastRngSeed || generateSeed(),
-            legendaryPlayers: latestState.legendaryPlayers || [],
-            weekTickState: null,
-            scoutedPlayers: latestState.scoutedPlayers || [],
-            activeScoutingMission: latestState.activeScoutingMission,
-            circuitPoints: latestState.circuitPoints || [],
-            tournamentQualifications: latestState.tournamentQualifications || [],
-            newsFeed: latestState.newsFeed || [],
-            transferHistory: latestState.transferHistory || [],
-            hallOfFame: latestState.hallOfFame || FOUNDING_LEGENDS,
-            academyPlayers: latestState.academyPlayers || [],
-            academyRoster: latestState.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
-            academyMatchHistory: latestState.academyMatchHistory || [],
-            academyTrainingSchedule: latestState.academyTrainingSchedule || {},
-            academyWeeklyReports: latestState.academyWeeklyReports || [],
-            academyScoutingMissions: latestState.academyScoutingMissions || [],
-            academyPendingProspects: latestState.academyPendingProspects || [],
-            sponsorOffers: latestState.sponsorOffers || [],
-            declinedSponsorOfferIds: latestState.declinedSponsorOfferIds || [],
-            fplData: latestState.fplData,
-            pendingCelebration: latestState.pendingCelebration,
-            pendingSeasonRecap: latestState.pendingSeasonRecap,
-            pendingLegendPick: latestState.pendingLegendPick,
-            signedLegendIds: latestState.signedLegendIds || [],
-            activelyPlayingLegendIds: latestState.activelyPlayingLegendIds || [],
-            gameOverReason: latestState.gameOverReason ?? undefined,
-            gameOverWeek: latestState.gameOverWeek ?? undefined,
-          })
+          // Build a clean GameSave snapshot detached from store state so
+          // the worker thread receives a serialization-safe copy. Helper
+          // owns the field-by-field construction.
+          const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
 
           const config = {
             playerTeamId: state.playerTeamId || "",
