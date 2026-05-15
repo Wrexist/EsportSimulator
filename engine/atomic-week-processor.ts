@@ -60,6 +60,7 @@ import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from
 import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
 import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
+import { detectAchievementFlags } from "./processors/match-achievement-flags"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -771,34 +772,12 @@ export class AtomicWeekProcessor {
             save.completedMatches.push(completedMatch)
             removedMatchIds.add(match.id)
 
-            // Detect comeback win (team was down by 9+ rounds on a map but won it)
-            let hasComebackWin = false
-            for (const mapResult of result.maps) {
-                const rounds = mapResult.rounds || []
-                let homeMapScore = 0, awayMapScore = 0
-                for (const round of rounds) {
-                    if (round.winningTeamId === homeTeam.id) homeMapScore++
-                    else awayMapScore++
-                    // Check if a team was down 3-12 or worse and ended up winning the map
-                    const homeDown = awayMapScore - homeMapScore >= 9
-                    const awayDown = homeMapScore - awayMapScore >= 9
-                    if (homeDown && mapResult.finalScore.team1 > mapResult.finalScore.team2) { hasComebackWin = true; break }
-                    if (awayDown && mapResult.finalScore.team2 > mapResult.finalScore.team1) { hasComebackWin = true; break }
-                }
-                if (hasComebackWin) break
-            }
-
-            // Detect underdog win (beat a team ranked 20+ positions higher)
-            const homeRank = homeTeam.worldRanking || 99
-            const awayRank = awayTeam.worldRanking || 99
-            const homeIsUnderdog = homeRank - awayRank >= 20
-            const awayIsUnderdog = awayRank - homeRank >= 20
-            const hasUnderdogWin = (result.homeScore > result.awayScore && homeIsUnderdog) ||
-                (result.awayScore > result.homeScore && awayIsUnderdog)
-
-            // Store flags on the completed match for achievement tracking
-            if (hasComebackWin) completedMatch._comebackWin = true
-            if (hasUnderdogWin) completedMatch._underdogWin = true
+            // Achievement flag detection extracted to
+            // processors/match-achievement-flags.ts (Phase M6). Returns
+            // comeback + underdog flags written onto the completed match.
+            const { comebackWin, underdogWin } = detectAchievementFlags(result, homeTeam, awayTeam)
+            if (comebackWin) completedMatch._comebackWin = true
+            if (underdogWin) completedMatch._underdogWin = true
 
             // Update player stats
             const homeWon = result.homeScore > result.awayScore
