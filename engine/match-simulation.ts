@@ -44,6 +44,11 @@ import {
     selectMapForVeto as selectMapForVetoFn,
     simulateMapVeto as simulateMapVetoFn,
 } from "./match/map-veto"
+import {
+    determineMapMVP as determineMapMVPFn,
+    generateMatchStats as generateMatchStatsFn,
+    determineMVP as determineMVPFn,
+} from "./match/match-stats"
 
 // ===== TYPES =====
 
@@ -1663,35 +1668,17 @@ export class SimulationEngineV2 {
     /**
      * Determine MVP for a map based on kill performance
      */
+    // Stats aggregation extracted to engine/match/match-stats.ts (Phase I2).
+    // Facades preserved — generateMatchStats is part of the public API
+    // used by external callers.
     private determineMapMVP(
         rounds: RoundResult[],
         homePlayers: Player[],
         awayPlayers: Player[]
     ): string {
-        const killCounts: Record<string, number> = {}
-
-        rounds.forEach(round => {
-            round.kills.forEach(k => {
-                killCounts[k.playerId] = (killCounts[k.playerId] || 0) + k.kills
-            })
-        })
-
-        let mvpId = homePlayers[0]?.id || awayPlayers[0]?.id
-        let maxKills = 0
-
-        Object.entries(killCounts).forEach(([playerId, kills]) => {
-            if (kills > maxKills) {
-                maxKills = kills
-                mvpId = playerId
-            }
-        })
-
-        return mvpId
+        return determineMapMVPFn(rounds, homePlayers, awayPlayers)
     }
 
-    /**
-     * Generate player stats for entire match
-     */
     public generateMatchStats(
         rng: SeededRNG,
         homePlayers: Player[],
@@ -1699,132 +1686,14 @@ export class SimulationEngineV2 {
         mapResults: MapResult[],
         homeWon: boolean
     ): Record<string, PlayerMatchStats> {
-        const stats: Record<string, PlayerMatchStats> = {}
-        const allPlayers = [...homePlayers, ...awayPlayers]
-
-        // Count total rounds
-        const totalRounds = mapResults.reduce((sum, m) => sum + m.rounds.length, 0)
-
-        // Aggregate kills and deaths from rounds
-        const killCounts: Record<string, number> = {}
-        const deathCounts: Record<string, number> = {}
-        mapResults.forEach(map => {
-            map.rounds.forEach(round => {
-                round.kills.forEach(k => {
-                    killCounts[k.playerId] = (killCounts[k.playerId] || 0) + k.kills
-                })
-                round.deaths?.forEach(d => {
-                    deathCounts[d.playerId] = (deathCounts[d.playerId] || 0) + d.deaths
-                })
-            })
-        })
-
-        allPlayers.forEach(player => {
-            const isWinner = homePlayers.includes(player) ? homeWon : !homeWon
-            const performanceMod = rng.range(0.95, 1.05)
-
-            // Primary stats from events
-            const kills = killCounts[player.id] || 0
-            const deaths = deathCounts[player.id] || 0
-
-            // Derive assists from events
-            let assists = 0
-            mapResults.forEach(map => {
-                map.rounds.forEach(round => {
-                    round.events?.forEach(e => {
-                        if (e.type === "KILL" && e.assisterId === player.id) {
-                            assists++
-                        }
-                    })
-                })
-            })
-
-            // Derive ADR from kills/assists/rounds (approx 85 damage per kill, 20 per assist)
-            const adr = totalRounds > 0
-                ? Math.round(((kills * 85 + assists * 20) / totalRounds) * (isWinner ? 1.05 : 0.95) * performanceMod)
-                : 0
-
-            // Derive KAST from round events (Kill/Assist/Survived/Traded)
-            let kastRounds = 0
-            mapResults.forEach(map => {
-                map.rounds.forEach(round => {
-                    const gotKill = round.kills?.some(k => k.playerId === player.id && k.kills > 0) ?? false
-                    const gotAssist = round.events?.some(e => e.type === "KILL" && e.assisterId === player.id) ?? false
-                    const died = round.deaths?.some(d => d.playerId === player.id && d.deaths > 0) ?? false
-                    if (gotKill || gotAssist || !died) kastRounds++
-                })
-            })
-            const kast = totalRounds > 0 ? Math.round((kastRounds / totalRounds) * 100) : 0
-
-            // First Blood & Headshot tracking
-            let fKills = 0
-            let fDeaths = 0
-            let headshots = 0
-            mapResults.forEach(map => {
-                map.rounds.forEach(round => {
-                    if (round.events) {
-                        const killEvents = round.events.filter(e => e.type === "KILL").sort((a, b) => a.time - b.time)
-                        if (killEvents.length > 0) {
-                            if (killEvents[0].playerId === player.id) fKills++
-                            if (killEvents[0].victimId === player.id) fDeaths++
-                        }
-
-                        // Count headshots
-                        round.events.forEach(e => {
-                            if (e.type === "KILL" && e.playerId === player.id && e.isHeadshot) {
-                                headshots++
-                            }
-                        })
-                    }
-                })
-            })
-
-            // Rating calculation (HLTV 2.0 style approximation)
-            const kd = deaths > 0 ? kills / deaths : kills
-            const impact = (kills * 1.5 + assists * 0.5) / Math.max(1, totalRounds)
-            const rating = Math.max(0.3, Math.min(2.0,
-                (kd * 0.35 + (kast / 100) * 0.35 + impact * 0.3) * performanceMod
-            ))
-
-            stats[player.id] = {
-                playerId: player.id,
-                matchId: "",
-                kills,
-                deaths,
-                assists,
-                headshots,
-                adr,
-                kast,
-                rating,
-                clutches: rng.int(0, 2),
-                firstKills: fKills,
-                firstDeaths: fDeaths,
-                mapsPlayed: mapResults.length,
-            }
-        })
-
-        return stats
+        return generateMatchStatsFn(rng, homePlayers, awayPlayers, mapResults, homeWon)
     }
 
-    /**
-     * Determine overall match MVP
-     */
     private determineMVP(
         stats: Record<string, PlayerMatchStats>,
         winningPlayers: Player[]
     ): string {
-        let mvpId = winningPlayers[0]?.id || ""
-        let bestRating = 0
-
-        winningPlayers.forEach(player => {
-            const playerStats = stats[player.id]
-            if (playerStats && playerStats.rating > bestRating) {
-                bestRating = playerStats.rating
-                mvpId = player.id
-            }
-        })
-
-        return mvpId
+        return determineMVPFn(stats, winningPlayers)
     }
 
     /**
