@@ -47,6 +47,7 @@ export type SaveErrorCode =
 
 const TMP_SUFFIX = ".tmp"
 import { runMigrationLadder } from "./save-migrations"
+import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { evaluatePlayer } from "./player-evaluation"
 import { generateSeed } from "./rng"
@@ -58,112 +59,26 @@ import { debug } from "@/lib/debug-logger"
 
 export class SaveManager {
     private storage: AsyncStorage
-    private installSecretPromise: Promise<string> | null = null
+    private integrity: SaveIntegrityManager
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
+        this.integrity = new SaveIntegrityManager(storage)
     }
 
     private getWeekTickStateKey(saveId?: string): string {
         return saveId ? `${STORAGE_KEYS.WEEK_TICK_STATE}_${saveId}` : STORAGE_KEYS.WEEK_TICK_STATE
     }
 
-    private serializeForIntegrity(save: Record<string, unknown>): string {
-        // Single-pass serialization: exclude integrityHash without deep-cloning the entire save
-        const { integrityHash, ...rest } = save
-        return JSON.stringify(rest)
+    // Integrity hashing (compute / verify) lives in engine/save-integrity.ts.
+    // Routed through `this.integrity` so SaveManager doesn't have to know
+    // about WebCrypto fallbacks or v2/v3 signature formats.
+    private computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
+        return this.integrity.computeIntegrityHash(save)
     }
 
-    private computeLegacyIntegrityHash(save: Record<string, unknown>): string {
-        const payload = this.serializeForIntegrity(save)
-        let hash = 2166136261
-        for (let i = 0; i < payload.length; i++) {
-            hash ^= payload.charCodeAt(i)
-            hash = Math.imul(hash, 16777619)
-        }
-        return (hash >>> 0).toString(16).padStart(8, "0")
-    }
-
-    private async computeSha256Hex(payload: string): Promise<string> {
-        try {
-            if (typeof crypto !== "undefined" && crypto.subtle && typeof TextEncoder !== "undefined") {
-                const bytes = new TextEncoder().encode(payload)
-                const digest = await crypto.subtle.digest("SHA-256", bytes)
-                return Array.from(new Uint8Array(digest))
-                    .map((b) => b.toString(16).padStart(2, "0"))
-                    .join("")
-            }
-        } catch {
-            // Fallback below.
-        }
-
-        // Fallback hash for runtimes without WebCrypto support.
-        let hash = 2166136261
-        for (let i = 0; i < payload.length; i++) {
-            hash ^= payload.charCodeAt(i)
-            hash = Math.imul(hash, 16777619)
-        }
-        return (hash >>> 0).toString(16).padStart(8, "0")
-    }
-
-    private async getOrCreateInstallSecret(): Promise<string> {
-        if (this.installSecretPromise) return this.installSecretPromise
-
-        this.installSecretPromise = (async () => {
-            const existing = await this.storage.getItem(STORAGE_KEYS.INSTALL_SECRET)
-            if (existing && existing.length >= 16) return existing
-
-            let generated = `${Date.now()}_${generateSeed().toString(36)}_${Math.abs(generateSeed()).toString(36)}`
-            if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-                const bytes = new Uint8Array(32)
-                crypto.getRandomValues(bytes)
-                generated = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("")
-            }
-
-            await this.storage.setItem(STORAGE_KEYS.INSTALL_SECRET, generated)
-            return generated
-        })()
-
-        return this.installSecretPromise
-    }
-
-    private async computeDeviceBoundIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        const secret = await this.getOrCreateInstallSecret()
-        const payload = this.serializeForIntegrity(save)
-        const digest = await this.computeSha256Hex(`${secret}|${payload}`)
-        return `v2:${digest}`
-    }
-
-    private async computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        // Portable signature used for cross-device Steam Cloud compatibility.
-        const payload = this.serializeForIntegrity(save)
-        const digest = await this.computeSha256Hex(payload)
-        return `v3:${digest}`
-    }
-
-    private async verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
-        if (!save.integrityHash) {
-            // Unsigned saves are never valid - prevents save tampering
-            return false
-        }
-        if (typeof save.integrityHash !== "string") return false
-        if (save.integrityHash.startsWith("v3:")) {
-            return save.integrityHash === await this.computeIntegrityHash(save)
-        }
-        if (save.integrityHash.startsWith("v2:")) {
-            // Backward compatibility: v2 signatures are install-bound.
-            const expectedDeviceBound = await this.computeDeviceBoundIntegrityHash(save)
-            if (save.integrityHash === expectedDeviceBound) return true
-
-            // v2 saves from a different device: attempt re-sign migration to v3
-            // This allows one-time cross-device migration by re-computing the hash
-            const legacyHash = this.computeLegacyIntegrityHash(save)
-            const v2Payload = save.integrityHash.substring(3) // strip "v2:" prefix
-            // Accept if the legacy portion matches (device-independent part)
-            return v2Payload.length >= 8 && v2Payload === legacyHash
-        }
-        // Legacy compatibility path for pre-v2 signatures.
-        return save.integrityHash === this.computeLegacyIntegrityHash(save)
+    private verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
+        return this.integrity.verifyIntegrityHash(save)
     }
 
     private async parseAndValidateSaveCandidate(
