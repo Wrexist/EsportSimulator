@@ -93,6 +93,7 @@ import { applyAutoRegistration } from "@/engine/processors/auto-registration-pro
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
+import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 
 enableMapSet()
 
@@ -703,6 +704,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createTrainingSlice>[0],
         get as Parameters<typeof createTrainingSlice>[1],
       ),
+      ...createTeamSettingsSlice(
+        set as Parameters<typeof createTeamSettingsSlice>[0],
+        get as Parameters<typeof createTeamSettingsSlice>[1],
+      ),
 
       // Initial State
       saveId: null,
@@ -814,48 +819,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // First debug actions block (debugTriggerCelebration … debugSetPlayerAge)
       // moved to store/slices/debug-slice.ts (spread above).
 
-      treatInjury: (playerId) => set(state => {
-        const player = (state._playerIndex?.get(playerId) ?? state.players.find(p => p.id === playerId));
-        const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId));
-        if (!player || !player.injury || !team) return;
-
-        const COST = 5000;
-        if (team.budget < COST) {
-          state.toasts.push({ id: nextDeterministicId(state, "toast_treatment_error"), message: "Insufficient funds ($5k required)", type: "info" });
-          return;
-        }
-
-        team.budget -= COST;
-        player.injury.weeksRemaining = Math.max(0, player.injury.weeksRemaining - 2);
-
-        // Log expense
-        state.financeLedger.push({
-          id: nextDeterministicId(state, "fin_treat", player.id),
-          week: state.currentWeek,
-          teamId: team.id,
-          type: "EXPENSE",
-          category: "FACILITIES",
-          amount: COST,
-          description: `Specialist treatment for ${player.nickname}`,
-          balance: team.budget
-        });
-
-        // Log Event
-        state.eventsLog.unshift({
-          id: nextDeterministicId(state, "evt_treat_injury", player.id),
-          type: "INJURY" as any,
-          week: state.currentWeek,
-          acknowledged: true,
-          data: {
-            playerId: player.id,
-            title: "Medical Specialist Hired",
-            message: `Expert treatment provided for ${player.nickname}. Recovery expedited by 2 weeks.`,
-            severity: "success"
-          }
-        });
-
-        state.toasts.push({ id: nextDeterministicId(state, "toast_treatment_success"), message: "Treatment successful!", type: "info" });
-      }),
+      // treatInjury moved to store/slices/team-settings-slice.ts (spread above).
 
       // Toast Notifications (UI-only, transient). State only — actions
       // (addToast / removeToast) moved to store/slices/ui-slice.ts.
@@ -2852,64 +2816,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      setPlaystyle: (teamId, playstyle) => {
-        set((state) => {
-          if (!state.playerTeamId || teamId !== state.playerTeamId) return
-          if (!VALID_PLAYSTYLES.has(playstyle)) return
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (team) {
-            team.playstyle = playstyle
-          }
-        })
-      },
-
-      setEconomyStyle: (teamId, economyStyle) => {
-        set((state) => {
-          if (!state.playerTeamId || teamId !== state.playerTeamId) return
-          if (!VALID_ECONOMY_STYLES.has(economyStyle)) return
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (team) {
-            team.economyStyle = economyStyle
-          }
-        })
-      },
-
-      setTargetPlayer: (teamId, targetPlayerId) => {
-        set((state) => {
-          if (!state.playerTeamId || teamId !== state.playerTeamId) return
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (team) {
-            if (!targetPlayerId) {
-              team.targetPlayerId = undefined
-              return
-            }
-
-            // Target must exist and cannot be one of our own roster players.
-            const isOwnPlayer = team.rosterIds.includes(targetPlayerId)
-            const targetExists = state.players.some(p => p.id === targetPlayerId)
-            if (!isOwnPlayer && targetExists) {
-              team.targetPlayerId = targetPlayerId
-            }
-          }
-        })
-      },
+      // setPlaystyle / setEconomyStyle / setTargetPlayer moved to
+      // store/slices/team-settings-slice.ts (spread above).
 
       // performVODReview / performMentalReset moved to
       // store/slices/match-operations-slice.ts (spread above).
 
-      swapRosterPositions: (teamId, index1, index2) => {
-        set((state) => {
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (team) {
-            // Validate indices
-            if (index1 >= 0 && index1 < team.rosterIds.length && index2 >= 0 && index2 < team.rosterIds.length) {
-              const temp = team.rosterIds[index1]
-              team.rosterIds[index1] = team.rosterIds[index2]
-              team.rosterIds[index2] = temp
-            }
-          }
-        })
-      },
+      // swapRosterPositions moved to store/slices/team-settings-slice.ts (spread above).
 
       promotePlayer: (playerId) => {
         set((state) => {
@@ -3461,20 +3374,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      updateTeamBudget: (teamId, amount) => {
-        set((state) => {
-          if (!state.playerTeamId || teamId !== state.playerTeamId) return
-          const amountValidation = parseBoundedInt(amount, "Budget adjustment", -MAX_TRANSFER_FEE, MAX_TRANSFER_FEE)
-          if (!amountValidation.ok) return
-
-          const team = (state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId))
-          if (team) {
-            const nextBudget = (team.budget || 0) + amountValidation.value
-            if (nextBudget < 0) return
-            team.budget = nextBudget
-          }
-        })
-      },
+      // updateTeamBudget moved to store/slices/team-settings-slice.ts (spread above).
 
       // ===== PHASE 70: YOUTH ACADEMY ACTIONS =====
 
