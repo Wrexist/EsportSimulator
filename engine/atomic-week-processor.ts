@@ -57,6 +57,7 @@ import { getStaffPassiveBonuses } from "./talent-trees"
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
+import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -1417,80 +1418,10 @@ export class AtomicWeekProcessor {
         }
     }
 
+    // Circuit-points + trophy awarding extracted to
+    // engine/processors/circuit-points-awarder.ts (Phase M3).
     private awardPoints(save: GameSave, teamId: string, points: number, tournamentName: string, placement: number = 0, idx?: SaveIndexes) {
-        if (!points) return
-
-        if (!save.circuitPoints) save.circuitPoints = []
-
-        let entry = save.circuitPoints.find(cp => cp.teamId === teamId) // circuitPoints not indexed (small array)
-        if (!entry) {
-            entry = { teamId, points: 0, results: [] }
-            save.circuitPoints.push(entry)
-        }
-
-        entry.points += points
-        entry.results.push({
-            tournamentId: (FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName)?.id || "unknown"), // static data
-            tournamentName,
-            placement,
-            points,
-            week: save.currentWeek
-        })
-
-        // Phase 28: Award Trophy for wins (Placement 1)
-        if (placement === 1) {
-            const team = idx?.teamIndex.get(teamId) ?? save.teams.find(t => t.id === teamId)
-            const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName) // static data
-            if (team && tournament) {
-                const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
-                const getSeason = (id: string) => {
-                    const match = id.match(/_s(\d+)$/)
-                    return match ? parseInt(match[1], 10) : null
-                }
-                const currentSeason = Math.floor((save.currentWeek - 1) / 52) + 1
-                const alreadyFinalizedInSeason = save.tournaments.some(
-                    t =>
-                        toBaseTournamentId(t.id) === toBaseTournamentId(tournament.id) &&
-                        (getSeason(t.id) ?? currentSeason) === currentSeason &&
-                        t.rewardsGranted
-                )
-                if (alreadyFinalizedInSeason) {
-                    return
-                }
-
-                if (!team.trophies) team.trophies = []
-
-                // Avoid duplicates for same base tournament/week (handles seasonal ids)
-                const alreadyHas = team.trophies.some(
-                    tr =>
-                        toBaseTournamentId(tr.tournamentId) === toBaseTournamentId(tournament.id) &&
-                        (getSeason(tr.tournamentId) ?? currentSeason) === currentSeason
-                )
-                if (!alreadyHas) {
-                    team.trophies.push({
-                        tournamentId: tournament.id,
-                        tournamentName: tournament.name,
-                        week: save.currentWeek,
-                        trophyPath: tournament.trophyPath,
-                        tier: tournament.tier
-                    })
-
-                    // Update player legacy stats for the winners (only count Majors)
-                    if (tournament.tier === "S_TIER") {
-                        team.rosterIds.forEach(pid => {
-                            const player = idx?.playerIndex.get(pid) ?? save.players.find(p => p.id === pid)
-                            if (player) {
-                                if (!player.majorWins) player.majorWins = 0
-                                player.majorWins++
-                            }
-                        })
-                    }
-
-                    debugLog(`[Trophy] Awarded ${tournament.name} trophy to team ${team.name}`)
-                }
-            }
-        }
-
+        awardCircuitPointsFn(save, teamId, points, tournamentName, placement, idx)
         debugLog(`[Circuit] Awarded ${points} points to team ${teamId} for ${tournamentName} (P${placement})`)
     }
 
