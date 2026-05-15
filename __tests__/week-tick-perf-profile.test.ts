@@ -153,17 +153,23 @@ describe("week-tick wall-time profile", () => {
         // eslint-disable-next-line no-console
         console.log(`[perf] sizes wk52: completed=${completedSizes[51]} ledger=${ledgerSizes[51]} events=${eventsSizes[51]}`)
 
-        // Cap is set just above the current post-Phase-O baseline (24×) so
-        // any regression that re-introduces a quadratic scan trips the test.
+        // Cap is set just above the current post-Phase-O.2 baseline (~3×).
+        // Any regression that re-introduces a quadratic scan trips the
+        // test before players feel it.
         //
         // History:
-        //   Before Phase O: ratio 71.75× (saveGameCheckpoint × 11 / tick).
-        //   After Phase O:  ratio ~24×   (one final saveGame per tick).
-        //   Remaining cost comes from a few residual O(n) scans of
-        //   eventsLog/financeLedger/completedMatches in event-processor,
-        //   narrative-news, and post-tick-achievements. Future Phase O.2
-        //   target: get below 10×.
-        expect(ratio).toBeLessThan(35)
+        //   Before Phase O:    ratio 71.75× — saveGameCheckpoint × 11/tick
+        //                                     full-save serialization storm
+        //   After Phase O:     ratio  24.23× — only final saveGame remains
+        //   After Phase O.2:   ratio   2.70× — strip rounds[] from AI-vs-AI
+        //                                     match records (shrinks save
+        //                                     11× at week 52 from 18 MB
+        //                                     down to ~1.7 MB)
+        //
+        // 5× is the threshold we ship with. If a future change reintroduces
+        // an O(n²) scan the curve will steepen and this test will fail
+        // before week-52 ticks become user-visible-slow.
+        expect(ratio).toBeLessThan(5)
         expect(Number.isFinite(ratio)).toBe(true)
         expect(earlyAvg).toBeGreaterThan(0)
     }, 180_000)

@@ -383,7 +383,11 @@ export class AtomicWeekProcessor {
             }
 
             // ===== STEP 9: Finalize =====
+            // (Renamed from "Step 9" because step.10_restDays already exists;
+            // this label is the post-rest-days bucket — manager levelup,
+            // chemistry, career stats, compaction, final save).
             debugLog(`[Week ${save.currentWeek}] Step 9: Finalizing...`)
+            const __sFinalize = perfTrace.stepsEnabled ? perfTrace.now() : 0
 
             // Reset daily/weekly counters
             save.teams.forEach(t => {
@@ -438,9 +442,13 @@ export class AtomicWeekProcessor {
                 }
             }
 
+            perfTrace.step("step.11_finalize", __sFinalize)
+
             // ===== STEP 8C: Narrative & News =====
             debugLog(`[Week ${save.currentWeek}] Step 8C: Processing Narrative Features...`)
+            const __sNarrative = perfTrace.stepsEnabled ? perfTrace.now() : 0
             this.generateNarrativeNews(save, rng, idx)
+            perfTrace.step("step.12_narrative", __sNarrative)
 
             // === Cross-Season Career Statistics ===
             // Compute at season boundaries (every 52 weeks)
@@ -463,7 +471,9 @@ export class AtomicWeekProcessor {
             // call per tick; the other 10 intra-tick checkpoints were
             // removed because their JSON.stringify cost dominated wall
             // time at high tick counts.
+            const __sFinalSave = perfTrace.stepsEnabled ? perfTrace.now() : 0
             const saveResult = await this.saveManager.saveGame(save)
+            perfTrace.step("step.13_finalSave", __sFinalSave)
             if (!saveResult.success) {
                 throw new Error(saveResult.error || "Failed to save")
             }
@@ -665,10 +675,30 @@ export class AtomicWeekProcessor {
                 awayPlayers
             )
 
-            // Record result
+            // Record result.
+            //
+            // Phase O.2 save-size fix: AI-vs-AI matches were averaging
+            // 123 KB each — almost entirely from result.maps[].rounds[]
+            // event detail that the player never sees. At week 52 of a
+            // smoke save, this was ballooning the on-disk save to 18 MB.
+            //
+            // Player-team matches keep full round detail (the result
+            // page reads it for the play-by-play view). AI-vs-AI matches
+            // strip rounds[] — the scoreboard (finalScore, MVP, etc.)
+            // survives intact for stats pages, ranking, and trophy
+            // tracking, which only read summary fields.
+            const isPlayerMatch =
+                match.homeTeamId === playerTeamId ||
+                match.awayTeamId === playerTeamId
+            const resultForSave = isPlayerMatch
+                ? result
+                : {
+                    ...result,
+                    maps: result.maps.map(m => ({ ...m, rounds: [] })),
+                }
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
-                result: result,
+                result: resultForSave,
                 analysis,
             }
 
