@@ -86,7 +86,7 @@ function getFacilityDescription(type: string, level: number): string {
 export interface TeamFacilitiesActions {
     upgradeFacility: (teamId: string, facilityType: string) => void
     signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }
-    purchaseEquipment: (catalogId: string) => { success: boolean; error: string }
+    purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
     upgradeMerchStore: (teamId: string) => { success: boolean; message: string }
     toggleMerchItem: (teamId: string, itemType: string) => { success: boolean; message: string }
 }
@@ -223,7 +223,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     },
 
     purchaseEquipment: (catalogId) => {
-        let result = { success: false, error: "" }
+        let result: { success: boolean; error?: string } = { success: false, error: "" }
         set((state) => {
             const team = state._teamIndex?.get(state.playerTeamId!)
                 ?? state.teams.find(t => t.id === state.playerTeamId)
