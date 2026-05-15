@@ -10,6 +10,7 @@ import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
 import { generateProspectBatch } from "./prospect-generator"
+import { StaffGenerator } from "./staff-generator"
 import { logger } from "@/lib/logger"
 
 /**
@@ -87,6 +88,9 @@ export class AIManager {
             }
             this.manageFinances(team, save)
             this.considerRoleTraining(team, save, activeRng)
+            // AI teams now hire staff to match player options (3% per week,
+            // priority order coach > analyst > psychologist > scout).
+            this.manageStaff(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
@@ -289,6 +293,76 @@ export class AIManager {
         const targetRole = availableRoles[Math.floor(this.roll(rng) * availableRoles.length)]
 
         TrainingManager.startRoleTraining(save, team.id, target.id, targetRole)
+    }
+
+    /**
+     * AI staff hiring — fills coach → analyst → psychologist → scout gaps
+     * (in that order of priority). Previously AI teams never hired any
+     * staff so the player faced opponents with no tactical bonus, no
+     * morale stabilization, etc. This levels the playing field.
+     *
+     * Gates:
+     *  - 3% chance per week (slow market)
+     *  - Roster cap of 3 staff (modest, vs the player's 5 cap)
+     *  - Budget > $200k AND not in CRISIS/INSOLVENT/RISK financial state
+     *  - One staff per role (matches the player's "1 per role" rule)
+     */
+    private static manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) {
+        if (this.roll(rng) > 0.03) return
+        if (team.budget < 200_000) return
+        if (team.financialState === "CRISIS"
+            || team.financialState === "INSOLVENT"
+            || team.financialState === "RISK") return
+
+        const currentStaff = save.staff.filter(s => s.teamId === team.id)
+        const MAX_AI_STAFF = 3
+        if (currentStaff.length >= MAX_AI_STAFF) return
+
+        // Priority order: coach (tactic) → analyst (anti-strat) →
+        // psychologist (morale) → scout (academy/scouting).
+        const ownedRoles = new Set(currentStaff.map(s => s.role))
+        const priorityRoles: Array<"coach" | "analyst" | "psychologist" | "scout"> = [
+            "coach", "analyst", "psychologist", "scout",
+        ]
+        const targetRole = priorityRoles.find(role => !ownedRoles.has(role))
+        if (!targetRole) return // All 4 roles already covered.
+
+        // Generate a fresh staff member. Use the team's id mixed into the
+        // seed so multiple AI teams get different staff on the same tick.
+        const staffSeed = rng.int(1, 2147483646) ^ this.hashTeamId(team.id)
+        const newStaff = StaffGenerator.generateFakeStaff(targetRole, staffSeed, rng)
+        newStaff.teamId = team.id
+        // 1-year contract by default.
+        newStaff.contractEndWeek = save.currentWeek + 52
+        newStaff.yearsRemaining = 1
+
+        // Sign-on fee = 2 weeks' salary (matches the player-team default).
+        const signOnFee = newStaff.salaryPerWeek * 2
+        if (team.budget < signOnFee) return
+
+        team.budget -= signOnFee
+        save.staff.push(newStaff)
+        team.staffIds.push(newStaff.id)
+
+        save.financeLedger.push({
+            id: `fin_ai_hire_${save.currentWeek}_${team.id}_${newStaff.id}`,
+            week: save.currentWeek,
+            teamId: team.id,
+            type: "EXPENSE",
+            category: "WAGES_STAFF",
+            amount: signOnFee,
+            description: `AI hired ${newStaff.name} (${newStaff.role})`,
+            balance: team.budget,
+        })
+    }
+
+    /** Deterministic small hash of a team ID for RNG salting. */
+    private static hashTeamId(id: string): number {
+        let h = 0
+        for (let i = 0; i < id.length; i++) {
+            h = ((h * 31) + id.charCodeAt(i)) | 0
+        }
+        return h >>> 0
     }
 
     // === ACTIONS ===
