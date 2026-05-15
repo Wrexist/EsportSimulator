@@ -58,6 +58,7 @@ import { processScoutingMissions as processScoutingMissionsFn } from "./processo
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
+import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -1117,25 +1118,8 @@ export class AtomicWeekProcessor {
             })
         }
 
-        // CLEANUP: Reset stale future tournament state from legacy seeding.
-        save.tournaments.forEach(t => {
-            if (t.startWeek > currentWeek) {
-                const hasPrematureState =
-                    (t.teamIds && t.teamIds.length > 0)
-                    || (t.standings && t.standings.length > 0)
-                    || (t.playoffBracket && t.playoffBracket.length > 0)
-
-                if (!hasPrematureState) return
-
-                t.teamIds = []
-                t.standings = []
-                t.playoffBracket = []
-                t.currentStage = "Registration"
-                t.isCompleted = false
-                t.winnerId = undefined
-                t.rewardsGranted = false
-            }
-        })
+        // Reset stale future tournament state (Phase M4).
+        resetStaleTournamentState(save)
 
         // Find tournaments starting this week
         const startingTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => t.startWeek === weekOfSeason)
