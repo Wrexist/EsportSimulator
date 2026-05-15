@@ -20,7 +20,6 @@ import {
     CompletedMatchSaveData,
     TournamentSaveData,
     StaffSaveData,
-    getResumeStep,
     CURRENT_SAVE_VERSION,
     repairSave,
 } from "./save-types"
@@ -129,10 +128,28 @@ export class AtomicWeekProcessor {
     ): Promise<WeekProcessorResult> {
         const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
         const __perfWeek = save.currentWeek + 1
-        // Check for incomplete transaction
-        let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
-        let resumeStep = 1
 
+        // Phase O perf fix — intra-tick checkpoints removed.
+        //
+        // Previously this processor wrote save state to storage 11 times
+        // per tick (pre-tick + after each of 10 steps). JSON.stringify
+        // of a season-50 save costs ~88ms; 11 × 88ms = ~1 second wasted
+        // per tick on serialization alone. Micro-bench confirmed this
+        // was 3,400× more expensive than the actual storage write.
+        //
+        // New model: previous tick's final saveGame() is the durable
+        // pre-tick state. Mid-tick crash = re-run the entire tick from
+        // step 1; the save in memory at the time of the crash is lost,
+        // but the previous tick's save on disk + the captured RNG seed
+        // (in save.lastRngSeed) deterministically produce the same end
+        // state on retry. We trade rare crash-recovery cost (one tick
+        // re-execution) for cheap normal-path ticks.
+        //
+        // On detecting an in-progress transaction, discard its
+        // step-complete bookkeeping. The match-loop's completedMatchIds
+        // is also cleared so resumed ticks re-simulate any matches that
+        // weren't yet committed to save.completedMatches.
+        let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
         if (
             transaction &&
             (
@@ -140,19 +157,25 @@ export class AtomicWeekProcessor {
                 transaction.weekNumber === save.currentWeek + 1
             )
         ) {
-            // Resuming from interrupted transaction
-            resumeStep = getResumeStep(transaction)
-            debugLog(`Resuming week ${save.currentWeek} from step ${resumeStep}`)
+            // Stale transaction from a crashed tick — discard its
+            // bookkeeping; we re-run from step 1 below.
+            debugLog(`Discarding stale transaction at week ${save.currentWeek}; re-running tick`)
+            transaction.trainingComplete = false
+            transaction.fatigueRecoveryComplete = false
+            transaction.injuryChecksComplete = false
+            transaction.financeComplete = false
+            transaction.tournamentProcessingComplete = false
+            transaction.matchSimulationComplete = false
+            transaction.standingsUpdateComplete = false
+            transaction.eventGenerationComplete = false
+            transaction.worldLogicComplete = false
+            transaction.restDayProcessingComplete = false
+            transaction.completedMatchIds = []
+            transaction.generatedEventIds = []
         } else {
-            // Start new transaction
             transaction = await this.saveManager.beginWeekTick(save)
         }
-
-        // Pre-tick checkpoint. The authoritative end-of-last-week save is
-        // already on disk as the primary key (written by the previous tick's
-        // final saveGame). A cheap checkpoint is enough to mark "tick in
-        // progress" without paying for clone/hash/rotate/verify.
-        await this.saveManager.saveGameCheckpoint(save)
+        const resumeStep = 1 // Always re-run from start; resume is whole-tick, not step-level.
 
         // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
         const idx = buildSaveIndexes(save)
@@ -183,9 +206,6 @@ export class AtomicWeekProcessor {
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 2: Fatigue Recovery =====
@@ -195,9 +215,6 @@ export class AtomicWeekProcessor {
                 TrainingProcessor.processFatigueRecovery(save, rng, idx)
                 perfTrace.step("step.2_fatigue", __s)
                 await this.saveManager.markStepComplete(transaction, "fatigueRecoveryComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 3: Injury Checks =====
@@ -207,9 +224,6 @@ export class AtomicWeekProcessor {
                 result.injuriesOccurred = EventProcessor.processInjuryChecks(save, rng)
                 perfTrace.step("step.3_injuries", __s)
                 await this.saveManager.markStepComplete(transaction, "injuryChecksComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4: Finance Processing =====
@@ -220,9 +234,6 @@ export class AtomicWeekProcessor {
                 result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId)
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4.5: Tournament Processing (MOVED BEFORE MATCHES) =====
@@ -233,9 +244,6 @@ export class AtomicWeekProcessor {
                 this.processTournaments(save, config.playerTeamId, rng, idx, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.5_tournaments", __s)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 5: Match Simulation =====
@@ -276,9 +284,6 @@ export class AtomicWeekProcessor {
                 result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.6_matches", __s)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 6: Standings Update =====
@@ -311,9 +316,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.7_standings", __s)
                 await this.saveManager.markStepComplete(transaction, "standingsUpdateComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7: Event Generation =====
@@ -336,9 +338,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.8_events", __s)
                 await this.saveManager.markStepComplete(transaction, "eventGenerationComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7.5: AI World Logic (Phase 19/24) =====
@@ -372,9 +371,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.9_worldAI", __s)
                 await this.saveManager.markStepComplete(transaction, "worldLogicComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 8: Rest Day Processing =====
@@ -384,9 +380,6 @@ export class AtomicWeekProcessor {
                 TrainingProcessor.processRestDays(save, config.playerTeamId)
                 perfTrace.step("step.10_restDays", __s)
                 await this.saveManager.markStepComplete(transaction, "restDayProcessingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 9: Finalize =====
@@ -465,10 +458,12 @@ export class AtomicWeekProcessor {
             // Week was already incremented at start of processWeek
             save.lastRngSeed = rng.getState()
 
-            // Final save
-            const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+            // Final save — the ONE authoritative full-save write per tick
+            // (Phase O perf fix). Previously this was the 11th saveGame
+            // call per tick; the other 10 intra-tick checkpoints were
+            // removed because their JSON.stringify cost dominated wall
+            // time at high tick counts.
             const saveResult = await this.saveManager.saveGame(save)
-            perfTrace.step("step.save", __sv)
             if (!saveResult.success) {
                 throw new Error(saveResult.error || "Failed to save")
             }
@@ -575,6 +570,21 @@ export class AtomicWeekProcessor {
         // (which was O(matches × scheduled) — ~50 × 1000 = 50k element touches/week).
         const removedMatchIds = new Set<string>()
 
+        // Precomputed matches-played count per team (Phase O perf fix).
+        // The Elo update below uses this to apply the K=50 calibration
+        // factor for teams under 10 matches. Originally this was computed
+        // inline by save.completedMatches.filter(m => m.home/away === tid).length
+        // for BOTH winner and loser of EVERY processed match — making the
+        // week-tick O(matches_this_week × completed_log_size). After 52 weeks
+        // the log can be 500+ entries and a single tick was 70× slower than
+        // a week-1 tick (smoke profile measured 2.6s late vs 37ms early).
+        // Pre-build the Map once, increment as matches are processed.
+        const matchesPlayedByTeam = new Map<string, number>()
+        for (const cm of save.completedMatches) {
+            matchesPlayedByTeam.set(cm.homeTeamId, (matchesPlayedByTeam.get(cm.homeTeamId) || 0) + 1)
+            matchesPlayedByTeam.set(cm.awayTeamId, (matchesPlayedByTeam.get(cm.awayTeamId) || 0) + 1)
+        }
+
         for (const match of weekMatches) {
             const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
             const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
@@ -600,6 +610,11 @@ export class AtomicWeekProcessor {
                     save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
                     playerTeamId, removedMatchIds,
                 })
+                // Keep matchesPlayedByTeam in sync (Phase O perf path) so a
+                // subsequent regular match in the same tick reads the
+                // post-forfeit count for K-factor calibration.
+                matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
+                matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
                 matchesPlayed += forfeitDelta
                 continue
             }
@@ -658,6 +673,10 @@ export class AtomicWeekProcessor {
             }
 
             save.completedMatches.push(completedMatch)
+            // Keep the precomputed count in sync so the Elo K-factor
+            // calibration below reads the post-push value.
+            matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
+            matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
             removedMatchIds.add(match.id)
 
             // Achievement flag detection extracted to
@@ -794,17 +813,15 @@ export class AtomicWeekProcessor {
                     if (tournament) tournamentTier = tournament.tier
                 }
 
-                // Calculate matches played for calibration (K=50 for first 10 matches).
-                // Bug fix: completedMatches.push(...) above included this match for
-                // both teams, so the previous count was off-by-one — a team's 10th
-                // real match read as match 11, ending the calibration window early.
-                // Subtract 1 because the current match is now in the history for both
-                // sides (this is also faster than re-scanning the whole array).
-                const getMatchesPlayed = (tid: string) =>
-                    save.completedMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid).length
-
-                const winnerMatches = Math.max(0, getMatchesPlayed(winnerId) - 1)
-                const loserMatches = Math.max(0, getMatchesPlayed(loserId) - 1)
+                // Matches played for K=50 calibration (first 10 matches).
+                // Pulled from the precomputed Map built before the per-match
+                // loop instead of re-scanning save.completedMatches each call.
+                // Subtract 1 because the current match's push above included
+                // this match for both teams, so the count is off-by-one for
+                // the calibration window (a team's 10th real match should
+                // still read as match 10, not 11).
+                const winnerMatches = Math.max(0, (matchesPlayedByTeam.get(winnerId) || 0) - 1)
+                const loserMatches = Math.max(0, (matchesPlayedByTeam.get(loserId) || 0) - 1)
 
                 // Calculate Net Round Differential (Total rounds won by winner - Total rounds won by loser)
                 // result.maps contains round scores. result.homeScore is Map wins.
