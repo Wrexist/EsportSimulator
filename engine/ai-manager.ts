@@ -3,7 +3,6 @@ import {
     TeamSaveData,
     PlayerSaveData,
     ContractSaveData,
-    FacilitySaveData
 } from "./save-types"
 import { reconcileTeamRoles } from "./role-reconciler"
 import { PlayerRole, EventType } from "../types" // Adjust import path if needed
@@ -11,8 +10,12 @@ import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
 import { generateProspectBatch } from "./prospect-generator"
-import { StaffGenerator } from "./staff-generator"
-import { SponsorGenerator } from "./economy-manager"
+import {
+    manageStaff as manageStaffFn,
+    manageSponsors as manageSponsorsFn,
+    manageFacilities as manageFacilitiesFn,
+    manageAcademy as manageAcademyFn,
+} from "./ai/infrastructure"
 import { logger } from "@/lib/logger"
 
 /**
@@ -90,18 +93,14 @@ export class AIManager {
             }
             this.manageFinances(team, save)
             this.considerRoleTraining(team, save, activeRng)
-            // AI teams now hire staff to match player options (3% per week,
-            // priority order coach > analyst > psychologist > scout).
-            this.manageStaff(team, save, activeRng)
-            // AI teams now sign sponsors (5% per week, tier-gated by rank +
-            // S_TIER history, max 2 per team).
-            this.manageSponsors(team, save, activeRng)
-            // AI teams build out and upgrade facilities (STABLE-only, 4% per
-            // week; missing facilities first, then upgrade lowest level).
-            this.manageFacilities(team, save, activeRng)
-            // AI teams invest in their youth academy (STABLE-only, 3% per
-            // week; build first, then upgrade level by level).
-            this.manageAcademy(team, save, activeRng)
+            // Infrastructure investment (staff / sponsors / facilities /
+            // academy) extracted to engine/ai/infrastructure.ts (Phase H3).
+            // Routed through module imports so AIManager doesn't have to
+            // re-house ~280 lines of self-contained per-team decisions.
+            manageStaffFn(team, save, activeRng)
+            manageSponsorsFn(team, save, activeRng)
+            manageFacilitiesFn(team, save, activeRng)
+            manageAcademyFn(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
@@ -306,294 +305,6 @@ export class AIManager {
         TrainingManager.startRoleTraining(save, team.id, target.id, targetRole)
     }
 
-    /**
-     * AI staff hiring — fills coach → analyst → psychologist → scout gaps
-     * (in that order of priority). Previously AI teams never hired any
-     * staff so the player faced opponents with no tactical bonus, no
-     * morale stabilization, etc. This levels the playing field.
-     *
-     * Gates:
-     *  - 3% chance per week (slow market)
-     *  - Roster cap of 3 staff (modest, vs the player's 5 cap)
-     *  - Budget > $200k AND not in CRISIS/INSOLVENT/RISK financial state
-     *  - One staff per role (matches the player's "1 per role" rule)
-     */
-    private static manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) {
-        if (this.roll(rng) > 0.03) return
-        if (team.budget < 200_000) return
-        if (team.financialState === "CRISIS"
-            || team.financialState === "INSOLVENT"
-            || team.financialState === "RISK") return
-
-        const currentStaff = save.staff.filter(s => s.teamId === team.id)
-        const MAX_AI_STAFF = 3
-        if (currentStaff.length >= MAX_AI_STAFF) return
-
-        // Priority order: coach (tactic) → analyst (anti-strat) →
-        // psychologist (morale) → scout (academy/scouting).
-        const ownedRoles = new Set(currentStaff.map(s => s.role))
-        const priorityRoles: Array<"coach" | "analyst" | "psychologist" | "scout"> = [
-            "coach", "analyst", "psychologist", "scout",
-        ]
-        const targetRole = priorityRoles.find(role => !ownedRoles.has(role))
-        if (!targetRole) return // All 4 roles already covered.
-
-        // Generate a fresh staff member. Use the team's id mixed into the
-        // seed so multiple AI teams get different staff on the same tick.
-        const staffSeed = rng.int(1, 2147483646) ^ this.hashTeamId(team.id)
-        const newStaff = StaffGenerator.generateFakeStaff(targetRole, staffSeed, rng)
-        newStaff.teamId = team.id
-        // 1-year contract by default.
-        newStaff.contractEndWeek = save.currentWeek + 52
-        newStaff.yearsRemaining = 1
-
-        // Sign-on fee = 2 weeks' salary (matches the player-team default).
-        const signOnFee = newStaff.salaryPerWeek * 2
-        if (team.budget < signOnFee) return
-
-        team.budget -= signOnFee
-        save.staff.push(newStaff)
-        team.staffIds.push(newStaff.id)
-
-        save.financeLedger.push({
-            id: `fin_ai_hire_${save.currentWeek}_${team.id}_${newStaff.id}`,
-            week: save.currentWeek,
-            teamId: team.id,
-            type: "EXPENSE",
-            category: "WAGES_STAFF",
-            amount: signOnFee,
-            description: `AI hired ${newStaff.name} (${newStaff.role})`,
-            balance: team.budget,
-        })
-    }
-
-    /**
-     * AI sponsor signing — fills empty sponsor slots from generated offers.
-     * Previously AI teams had no sponsor income beyond the bare-bones
-     * implicit fallback in EconomyEngine.calculateSponsorIncome
-     * (`reputation × 150 + 2000`). With actual sponsors signed, AI team
-     * income now scales with reputation tier just like the player's does,
-     * making top AI teams able to sustain bigger wage bills.
-     *
-     * Gates:
-     *  - 5% chance per week (sponsor market is slow but not glacial)
-     *  - At most 2 sponsors per AI team (modest vs the player's 3 cap)
-     *  - Skips teams in any financial trouble — they can't afford the
-     *    tier gating's expectations anyway.
-     *  - Tier gating mirrors the player flow exactly: PREMIUM needs
-     *    Top-30 ranking, ELITE needs Top-10 OR S_TIER trophy/participation.
-     */
-    private static manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
-        if (this.roll(rng) > 0.05) return
-        if (team.financialState === "CRISIS"
-            || team.financialState === "INSOLVENT"
-            || team.financialState === "RISK") return
-
-        const MAX_AI_SPONSORS = 2
-        if (!team.sponsors) team.sponsors = []
-        if (team.sponsors.length >= MAX_AI_SPONSORS) return
-
-        // Don't sign a sponsor of a tier we already hold.
-        const ownedTiers = new Set(team.sponsors.map(s => s.tier))
-
-        // Generate offers using the same generator the player sees.
-        const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng)
-        if (offers.length === 0) return
-
-        const ranking = team.worldRanking || 999
-
-        // Pick the best tier we qualify for. PREMIUM needs Top-30; ELITE
-        // needs Top-10 OR S_TIER trophy/participation. Tier preference:
-        // ELITE > PREMIUM > STANDARD (best income first).
-        const eligible = offers.filter(offer => {
-            if (ownedTiers.has(offer.tier)) return false
-            if (offer.tier === "PREMIUM" && ranking > 30) return false
-            if (offer.tier === "ELITE") {
-                const hasMajorTrophy = (team.trophies || []).some(t => t.tier === "S_TIER")
-                const hasMajorParticipation = save.completedMatches.some(match => {
-                    if (match.homeTeamId !== team.id && match.awayTeamId !== team.id) return false
-                    if (!match.tournamentId) return false
-                    const tournament = save.tournaments.find(t => t.id === match.tournamentId)
-                    return tournament?.tier === "S_TIER"
-                })
-                const isTopRanked = ranking <= 10
-                if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) return false
-            }
-            return true
-        })
-        if (eligible.length === 0) return
-
-        // Highest-tier first.
-        const tierRank = { ELITE: 3, PREMIUM: 2, STANDARD: 1 } as const
-        eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0))
-        const picked = eligible[0]
-
-        team.sponsors.push({
-            ...picked,
-            signedWeek: save.currentWeek,
-            followerCheckpoint: team.followers || 0,
-            lastProcessedWeek: undefined,
-            remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
-        })
-    }
-
-    /**
-     * AI facility upgrades — builds + upgrades TRAINING / RECOVERY /
-     * TACTICAL / FANZONE in priority order. Previously AI teams never
-     * built any facilities, so they couldn't benefit from training-XP
-     * boost, fatigue recovery, tactical prep, or Fan-Zone follower
-     * income. Now AI teams gradually invest in infrastructure when
-     * solvent and at the appropriate scale for their financial state.
-     *
-     * Gates:
-     *  - 4% chance per week (slow infra investment)
-     *  - Skips teams not in STABLE financial state (anything less than
-     *    that means they need the cash elsewhere)
-     *  - Build cost = $10k, upgrade cost = level × $25k (matches player)
-     *  - Priority: complete the build set (level 1 of each) before
-     *    upgrading any one facility past level 1.
-     */
-    private static manageFacilities(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
-        if (this.roll(rng) > 0.04) return
-        if (team.financialState !== "STABLE") return
-
-        if (!team.facilities) team.facilities = []
-
-        const FACILITY_TYPES: FacilitySaveData["type"][] = ["TRAINING", "RECOVERY", "TACTICAL", "FANZONE"]
-        const BUILD_COST = 10_000
-        const UPGRADE_BASE_COST = 25_000
-        const MAX_LEVEL = 5
-
-        // Pass 1: build any missing facilities (any team missing all 4
-        // gets the biggest gameplay impact from infra investment, so
-        // builds beat upgrades on tied weeks).
-        const missingType = FACILITY_TYPES.find(t => !team.facilities!.some(f => f.type === t))
-        if (missingType && team.budget >= BUILD_COST) {
-            team.budget -= BUILD_COST
-            team.facilities.push({
-                id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
-                type: missingType,
-                level: 1,
-                description: `${missingType} facility`,
-                monthlyCost: 2000,
-            })
-            save.financeLedger.push({
-                id: `fin_ai_facbuild_${save.currentWeek}_${team.id}_${missingType}`,
-                week: save.currentWeek,
-                teamId: team.id,
-                type: "EXPENSE",
-                category: "FACILITIES",
-                amount: BUILD_COST,
-                description: `AI built ${missingType} facility`,
-                balance: team.budget,
-            })
-            return
-        }
-
-        // Pass 2: upgrade the lowest-level facility (round-robin growth).
-        // Tie-breaker by FACILITY_TYPES order so TRAINING > RECOVERY >
-        // TACTICAL > FANZONE on equal-level ties (biggest performance
-        // lift comes from TRAINING).
-        const upgradable = team.facilities
-            .filter(f => f.level < MAX_LEVEL)
-            .sort((a, b) =>
-                a.level - b.level
-                || FACILITY_TYPES.indexOf(a.type) - FACILITY_TYPES.indexOf(b.type)
-            )
-        const target = upgradable[0]
-        if (!target) return
-
-        const upgradeCost = target.level * UPGRADE_BASE_COST
-        if (team.budget < upgradeCost) return
-
-        team.budget -= upgradeCost
-        target.level += 1
-        target.monthlyCost = Math.floor(Math.pow(target.level, 1.25) * 2000)
-        save.financeLedger.push({
-            id: `fin_ai_facup_${save.currentWeek}_${team.id}_${target.type}_${target.level}`,
-            week: save.currentWeek,
-            teamId: team.id,
-            type: "EXPENSE",
-            category: "FACILITIES",
-            amount: upgradeCost,
-            description: `AI upgraded ${target.type} facility to Level ${target.level}`,
-            balance: team.budget,
-        })
-    }
-
-    /**
-     * AI academy investment — build/upgrade the youth academy facility.
-     *
-     * Player has 5 academy levels (Youth Camp → Legacy Factory) with build
-     * costs scaling 25k → 500k. AI teams never invested in this, so the
-     * player gained an exclusive long-term dev advantage that compounded
-     * each season.
-     *
-     * Per-team weekly behaviour:
-     *  - 3% chance to act (rarer than facility builds because academy
-     *    payoff is even longer-term).
-     *  - STABLE financial state only.
-     *  - If no academy yet: build at level 1 (\$25k).
-     *  - If academy exists and below max level: upgrade (cost from the
-     *    same ACADEMY_LEVELS table the player uses, so player + AI face
-     *    identical economics).
-     *  - Logs to financeLedger under FACILITIES so it shows up alongside
-     *    other infra spend.
-     */
-    private static manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
-        if (this.roll(rng) > 0.03) return
-        if (team.financialState !== "STABLE") return
-
-        const ACADEMY_LEVEL_BUILD_COSTS: Record<number, number> = {
-            1: 25_000,
-            2: 75_000,
-            3: 150_000,
-            4: 300_000,
-            5: 500_000,
-        }
-        const MAX_ACADEMY_LEVEL = 5
-
-        // Pass 1: build level 1 if no academy exists.
-        if (!team.academyFacility || team.academyFacility.level === 0) {
-            const cost = ACADEMY_LEVEL_BUILD_COSTS[1]
-            if (team.budget < cost) return
-            team.budget -= cost
-            team.academyFacility = { level: 1, builtWeek: save.currentWeek }
-            save.financeLedger.push({
-                id: `fin_ai_academy_${save.currentWeek}_${team.id}_build`,
-                week: save.currentWeek,
-                teamId: team.id,
-                type: "EXPENSE",
-                category: "FACILITIES",
-                amount: cost,
-                description: "AI built Youth Academy",
-                balance: team.budget,
-            })
-            return
-        }
-
-        // Pass 2: upgrade to next level if affordable + below max.
-        const currentLevel = team.academyFacility.level
-        if (currentLevel >= MAX_ACADEMY_LEVEL) return
-
-        const nextLevel = currentLevel + 1
-        const cost = ACADEMY_LEVEL_BUILD_COSTS[nextLevel]
-        if (team.budget < cost) return
-
-        team.budget -= cost
-        team.academyFacility.level = nextLevel
-        team.academyFacility.lastUpgradeWeek = save.currentWeek
-        save.financeLedger.push({
-            id: `fin_ai_academy_${save.currentWeek}_${team.id}_up_${nextLevel}`,
-            week: save.currentWeek,
-            teamId: team.id,
-            type: "EXPENSE",
-            category: "FACILITIES",
-            amount: cost,
-            description: `AI upgraded Youth Academy to Level ${nextLevel}`,
-            balance: team.budget,
-        })
-    }
 
     /** Deterministic small hash of a team ID for RNG salting. */
     private static hashTeamId(id: string): number {
