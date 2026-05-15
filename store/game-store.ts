@@ -94,6 +94,7 @@ import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processo
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
+import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
 
 enableMapSet()
 
@@ -711,6 +712,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createPlayerDevelopmentSlice(
         set as Parameters<typeof createPlayerDevelopmentSlice>[0],
         get as Parameters<typeof createPlayerDevelopmentSlice>[1],
+      ),
+      ...createStaffManagementSlice(
+        set as Parameters<typeof createStaffManagementSlice>[0],
+        get as Parameters<typeof createStaffManagementSlice>[1],
       ),
 
       // Initial State
@@ -2471,35 +2476,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
 
-      fireStaff: (staffId) => {
-        set((state) => {
-          const staffIndex = state.staff.findIndex(s => s.id === staffId)
-          if (staffIndex !== -1) {
-            const staffMember = state.staff[staffIndex]
-            const team = (state._teamIndex?.get(staffMember.teamId) ?? state.teams.find(t => t.id === staffMember.teamId))
-            if (team) {
-              team.staffIds = team.staffIds.filter(id => id !== staffId)
-            }
-            state.staff.splice(staffIndex, 1)
-
-            // Phase 21: News
-            const newsId = nextDeterministicId(state, "news_fire", staffId)
-            state.newsFeed.unshift({
-              id: newsId,
-              title: `${staffMember.name} leaves ${team?.name || 'Organization'}`,
-              content: `The organization has announced that ${staffMember.name} is no longer serving as their ${staffMember.role}. The search for a replacement begins immediately.`,
-              category: "STAFF",
-              teamId: team?.id,
-              week: state.currentWeek,
-              engagement: {
-                likes: nextRandomInt(state, 20, 219),
-                views: nextRandomInt(state, 200, 2199)
-              }
-            })
-            if (state.newsFeed.length > 50) state.newsFeed.pop()
-          }
-        })
-      },
+      // fireStaff moved to store/slices/staff-management-slice.ts (spread above).
 
       // unlockSkill moved to store/slices/player-development-slice.ts (spread above).
 
@@ -3061,152 +3038,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // ===== PHASE 56: STAFF MARKET =====
 
-      refreshStaffMarket: () => {
-        set(state => {
-          const rng = new SeededRNG(state.lastRngSeed || generateSeed())
-          const market = StaffGenerator.generateWeeklyMarket(state.currentWeek, 20, rng)
-          state.marketStaff = market
-          state.lastRngSeed = rng.getState()
-        })
-      },
-
-      hireStaff: (staffId, terms) => {
-        let result = { success: false, message: "" }
-        set(state => {
-          const staffIndex = state.marketStaff.findIndex(s => s.id === staffId)
-          if (staffIndex === -1) {
-            result = { success: false, message: "Staff member not found" }
-            return
-          }
-
-          const staffMember = state.marketStaff[staffIndex]
-          const team = (state._teamIndex?.get(state.playerTeamId!) ?? state.teams.find(t => t.id === state.playerTeamId))
-
-          if (!team) return
-
-          // Negotiated terms or defaults
-          const rawSalary = terms?.salary ?? staffMember.salaryPerWeek
-          // Default to 52 weeks (1 year) if not specified
-          const rawDuration = terms?.duration ?? 52
-          const rawSigningFee = terms?.signingBonus ?? (staffMember.salaryPerWeek * 2)
-
-          const salaryValidation = parseBoundedInt(rawSalary, "Staff salary", 1, MAX_STAFF_SALARY_PER_WEEK)
-          if (!salaryValidation.ok) {
-            result = { success: false, message: salaryValidation.message }
-            return
-          }
-          const durationValidation = parseBoundedInt(rawDuration, "Contract duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
-          if (!durationValidation.ok) {
-            result = { success: false, message: durationValidation.message }
-            return
-          }
-          const signingFeeValidation = parseBoundedInt(rawSigningFee, "Signing bonus", 0, MAX_SIGNING_BONUS)
-          if (!signingFeeValidation.ok) {
-            result = { success: false, message: signingFeeValidation.message }
-            return
-          }
-
-          const salary = salaryValidation.value
-          const duration = durationValidation.value
-          const signingFee = signingFeeValidation.value
-
-          if (team.budget < signingFee) {
-            result = { success: false, message: `Insufficient funds. Need $${signingFee}` }
-            return
-          }
-
-          // Check Slot (Max 5 staff)
-          const currentStaff = state.staff.filter(s => s.teamId === team.id)
-          if (currentStaff.length >= 5) {
-            result = { success: false, message: "Staff roster full (Max 5)" }
-            return
-          }
-
-          // Check Role Limit (Max 1 per role)
-          const roleCount = currentStaff.filter(s => s.role === staffMember.role).length
-          if (roleCount >= 1) {
-            result = { success: false, message: `You already have a ${staffMember.role}!` }
-            return
-          }
-
-          // Hire
-          team.budget -= signingFee
-          state.financeLedger.push({
-            id: nextDeterministicId(state, "fin_hire", staffMember.id),
-            week: state.currentWeek,
-            teamId: team.id,
-            type: "EXPENSE",
-            category: "WAGES_STAFF",
-            amount: signingFee,
-            description: `Hired ${staffMember.name} (${staffMember.role}) - Sign-on Fee`,
-            balance: team.budget
-          })
-
-          // Move to roster
-          state.marketStaff.splice(staffIndex, 1)
-          state.staff.push({
-            ...staffMember,
-            teamId: team.id,
-            salaryPerWeek: salary,
-            yearsRemaining: Math.max(1, Math.ceil(duration / 52)), // Legacy Compat
-            contractEndWeek: state.currentWeek + duration,
-            signingBonus: signingFee
-          })
-          team.staffIds.push(staffMember.id)
-
-          // Phase 21: News
-          const newsId = nextDeterministicId(state, "news_hire", staffMember.id)
-          state.newsFeed.unshift({
-            id: newsId,
-            title: `${staffMember.name} hired by ${team.name}`,
-            content: `${team.name} have officially signed ${staffMember.name} to their staff roster as ${staffMember.role}. The contract is expected to run for ${duration} weeks.`,
-            category: "STAFF",
-            teamId: team.id,
-            week: state.currentWeek,
-            engagement: {
-              likes: nextRandomInt(state, 200, 1199),
-              views: nextRandomInt(state, 1000, 10999)
-            }
-          })
-          if (state.newsFeed.length > 50) state.newsFeed.pop()
-
-          result = { success: true, message: `Hired ${staffMember.name}!` }
-        })
-        return result
-      },
-
-      renewStaffContract: (staffId, salary, duration) => {
-        let result = { success: false, message: "" }
-        set(state => {
-          const staff = state.staff.find(s => s.id === staffId && s.teamId === state.playerTeamId)
-          if (!staff) {
-            result = { success: false, message: "Staff not found" }
-            return
-          }
-
-          const salaryValidation = parseBoundedInt(salary, "Staff salary", 1, MAX_STAFF_SALARY_PER_WEEK)
-          if (!salaryValidation.ok) {
-            result = { success: false, message: salaryValidation.message }
-            return
-          }
-          const durationValidation = parseBoundedInt(duration, "Contract duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
-          if (!durationValidation.ok) {
-            result = { success: false, message: durationValidation.message }
-            return
-          }
-
-          const normalizedSalary = salaryValidation.value
-          const normalizedDuration = durationValidation.value
-
-          // Update Contract
-          staff.salaryPerWeek = normalizedSalary
-          staff.contractEndWeek = state.currentWeek + normalizedDuration
-          staff.yearsRemaining = Math.max(1, Math.ceil(normalizedDuration / 52)) // Legacy
-
-          result = { success: true, message: "Contract Renewed!" }
-        })
-        return result
-      },
+      // refreshStaffMarket / hireStaff / renewStaffContract moved to
+      // store/slices/staff-management-slice.ts (spread above).
 
       // unlockStaffTalent moved to store/slices/player-development-slice.ts (spread above).
 
