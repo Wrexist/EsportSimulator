@@ -87,6 +87,7 @@ import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slic
 import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slice"
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
+import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 
 enableMapSet()
 
@@ -2103,67 +2104,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             trainingFocus: new Map()
           }
 
-          // Immersive Content: Process Weekly Activity
-          if (state.selectedWeeklyActivity) {
-            const activity = WEEKLY_ACTIVITIES[state.selectedWeeklyActivity]
-            if (activity && activity.type !== "TRAINING_ONLY") { // String literal check as backup
-              const myTeam = saveState.teams.find((t: any) => t.id === state.playerTeamId)
-              if (myTeam) {
-                // Cost
-                if (activity.cost > 0) {
-                  myTeam.budget -= activity.cost
-                  saveState.financeLedger.push({
-                    id: nextDeterministicId(saveState, "fin_activity", activity.type),
-                    teamId: myTeam.id,
-                    type: "EXPENSE",
-                    amount: activity.cost,
-                    category: "FACILITIES", // Categorize as facility/ops
-                    week: saveState.currentWeek,
-                    description: `Activity: ${activity.name}`,
-                    balance: myTeam.budget
-                  })
-                }
-
-                // Effects
-                const myPlayers = saveState.players.filter((p: any) => myTeam.rosterIds.includes(p.id))
-                myPlayers.forEach((p: any) => {
-                  if (activity.effects.fatigue) {
-                    p.fatigue = Math.max(0, Math.min(100, (p.fatigue || 0) + activity.effects.fatigue))
-                  }
-                  if (activity.effects.morale) {
-                    p.morale = Math.max(0, Math.min(100, (p.morale || 50) + activity.effects.morale))
-                  }
-                  if (activity.effects.xp) {
-                    // Flat XP bonus simulation based on multiplier assumption (multiplier usually applies to training, here we give flat bonus)
-                    // Bootcamp (2.0) -> +100 XP. Streaming -> 0.
-                    const baseGain = 50
-                    if (activity.effects.xp > 1) {
-                      const bonus = Math.floor(baseGain * (activity.effects.xp - 1))
-                      p.xp = (p.xp || 0) + bonus
-                    }
-                  }
-                  // Fan Support / Reputation (Team level, but maybe stored on team?)
-                })
-
-                if (activity.effects.reputation) {
-                  myTeam.reputation = Math.min(100, (myTeam.reputation || 0) + activity.effects.reputation)
-                }
-
-                // Log Event
-                saveState.eventsLog.unshift({
-                  id: nextDeterministicId(saveState, "evt_activity", activity.type),
-                  type: "TEAM_UPDATE" as any, // Generic type
-                  week: saveState.currentWeek,
-                  acknowledged: false,
-                  data: {
-                    title: `Weekly Focus: ${activity.name}`,
-                    message: activity.description,
-                    severity: "info"
-                  }
-                })
-              }
-            }
-          }
+          // Apply the player's selected "weekly focus" activity (bootcamp,
+          // marketing, streaming, etc.) — cost, per-player effects,
+          // reputation gain, and event surfacing all live in the
+          // weekly-activity-processor module.
+          applyWeeklyActivity(saveState, {
+            playerTeamId: state.playerTeamId || "",
+            selectedActivity: state.selectedWeeklyActivity,
+            nextId: nextDeterministicId,
+          })
 
 
 
