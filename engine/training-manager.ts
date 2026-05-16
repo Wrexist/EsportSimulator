@@ -2,6 +2,7 @@ import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./s
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
+import { COST_CONSTANTS } from "@/lib/constants"
 
 const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {
   awper: PlayerRole.AWPER,
@@ -12,7 +13,7 @@ const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {
 }
 
 export class TrainingManager {
-  static ROLE_TRAINING_COST = 5000
+  static ROLE_TRAINING_COST = COST_CONSTANTS.TRAINING_MISSION_COST
   static ROLE_TRAINING_DURATION = 8
 
   /**

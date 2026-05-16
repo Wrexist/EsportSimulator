@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Bug, ChevronDown, ChevronUp, X, ImagePlus, Clipboard, Send } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/toast"
 import { errorTracker } from "@/lib/error-tracking"
 import { soundManager } from "@/lib/sound-manager"
+import { safeParse } from "@/lib/json-safe"
 import {
   Dialog,
   DialogContent,
@@ -61,10 +62,11 @@ function collectDebugInfo(pathname: string | null) {
 
   let breadcrumbs: { message: string; timestamp: number }[] = []
   try {
-    const raw = sessionStorage.getItem("error-breadcrumbs")
-    if (raw) {
-      breadcrumbs = JSON.parse(raw).slice(-10)
-    }
+    const parsed = safeParse<{ message: string; timestamp: number }[]>(
+      sessionStorage.getItem("error-breadcrumbs"),
+      []
+    )
+    if (parsed) breadcrumbs = parsed.slice(-10)
   } catch { /* ignore */ }
 
   let memoryInfo = ""

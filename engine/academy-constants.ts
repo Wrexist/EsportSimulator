@@ -289,8 +289,26 @@ export function calculateWeeklyUpkeep(level: number, prospectCount: number): num
 }
 
 /**
- * Check if a scouting tier is unlocked at given academy level
+ * Manager-level thresholds for scouting tier unlock. Acts as a parallel
+ * path: a player with a high-level manager can access better scouting
+ * tiers without needing the corresponding academy facility level. The
+ * tier unlocks if EITHER gate is met.
  */
-export function isScoutingTierUnlocked(tier: ScoutingTier, academyLevel: number): boolean {
+export const SCOUTING_TIER_MANAGER_REQUIREMENTS: Record<ScoutingTier, number> = {
+    LOCAL: 1,
+    REGIONAL: 5,
+    INTERNATIONAL: 10,
+} as const
+
+/**
+ * Check if a scouting tier is unlocked. Manager level acts as a parallel
+ * gate alongside academy level — meet either threshold to unlock.
+ */
+export function isScoutingTierUnlocked(
+    tier: ScoutingTier,
+    academyLevel: number,
+    managerLevel: number = 1,
+): boolean {
     return academyLevel >= SCOUTING_TIER_REQUIREMENTS[tier]
+        || managerLevel >= SCOUTING_TIER_MANAGER_REQUIREMENTS[tier]
 }

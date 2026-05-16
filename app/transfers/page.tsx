@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -26,7 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
@@ -90,13 +90,16 @@ function TransfersPageInner() {
     )
   }
 
-  // Pre-build roster set for O(1) exclusion check and player→team map for O(1) team lookups
-  const { rosterSet, playerTeamMap } = (() => {
+  // Pre-build roster set for O(1) exclusion check and player→team map for
+  // O(1) team lookups. Memoized so unrelated parent state changes (search
+  // input, paging) don't rebuild these whenever teams/rosterIds haven't
+  // changed. Without memo this was O(teams * roster) every render.
+  const { rosterSet, playerTeamMap } = useMemo(() => {
     const rosterSet = new Set(playerTeam.rosterIds)
     const playerTeamMap = new Map<string, typeof teams[0]>()
     teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
     return { rosterSet, playerTeamMap }
-  })()
+  }, [playerTeam.rosterIds, teams])
 
   // Filter available players (not in user team, not retired) - single-pass filter + precomputed OVR for sort
   const searchLower = debouncedSearch.toLowerCase()
@@ -332,8 +335,21 @@ function TransfersPageInner() {
               })
             ) : (
               <GlassTableRow>
-                <GlassTableCell colSpan={10} className="h-48 text-center text-muted-foreground uppercase font-normal tracking-widest text-[10px]">
-                  No players found matching your criteria.
+                <GlassTableCell colSpan={10} className="h-48 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <p className="text-muted-foreground uppercase font-normal tracking-widest text-[10px]">
+                      No players match your filters
+                    </p>
+                    {(roleFilter || debouncedSearch) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setRoleFilter(null); setSearchTerm(""); setPage(0) }}
+                      >
+                        Clear filters
+                      </Button>
+                    )}
+                  </div>
                 </GlassTableCell>
               </GlassTableRow>
             )}

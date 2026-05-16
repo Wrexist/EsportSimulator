@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { PlayerSaveData } from "@/engine/save-types"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
@@ -61,7 +61,7 @@ import { PlayerMatchHistory } from "./PlayerMatchHistory"
 import { WeaponMasteryManager, getMasteryInfo, WEAPON_DISPLAY, WeaponType } from "@/engine/weapon-mastery-system"
 import { WeaponTrainingModal } from "@/components/training/WeaponTrainingModal"
 import { getFPLTierColor, getFPLTierName } from "@/types/fpl"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -115,8 +115,10 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
     const weeksRemaining = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
     const canRenew = weeksRemaining < 52
 
-    // Stats for new spider chart
-    const spiderStats = {
+    // Stats for new spider chart. Memoized so the child PlayerSpiderChart
+    // receives a stable prop reference; otherwise every tab toggle / parent
+    // re-render rebuilt the object and busted child memoization downstream.
+    const spiderStats = useMemo(() => ({
         firepower: (player as any).firepower ?? Math.round((player.skill + player.rifle) / 2),
         entrying: (player as any).entrying ?? Math.round((player.skill + player.reaction) / 2),
         trading: (player as any).trading ?? Math.round((player.teamwork + player.tactic) / 2),
@@ -124,7 +126,13 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
         clutching: player.clutch ?? 50,
         sniping: player.awp ?? 50,
         utility: player.grenades ?? 50,
-    }
+    }), [
+        (player as any).firepower, (player as any).entrying,
+        (player as any).trading, (player as any).opening,
+        player.skill, player.rifle, player.reaction, player.teamwork,
+        player.tactic, player.creativity, player.clutch, player.awp,
+        player.grenades,
+    ])
 
     const getRoleBadgeColor = (role: string) => {
         switch (role?.toUpperCase()) {

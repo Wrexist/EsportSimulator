@@ -15,6 +15,8 @@
 
 import { validateSnapshot } from "@/data/snapshot-types"
 import type { SnapshotPlayer, SnapshotTeam, SnapshotTournament } from "@/data/snapshot-types"
+import { safeParse } from "@/lib/json-safe"
+import { logger } from "@/lib/logger"
 
 // Window.electron is declared in types/electron-window.d.ts.
 
@@ -45,10 +47,9 @@ async function readModJson<T>(filename: string): Promise<T | null> {
     if (!hasElectronMods()) return null
     try {
         const raw = await window.electron.mods!.read(filename)
-        if (!raw) return null
-        return JSON.parse(raw) as T
+        return safeParse<T>(raw, null)
     } catch (err) {
-        console.warn(`[mod-loader] Failed to read ${filename}:`, err)
+        logger.warn(`[mod-loader] Failed to read ${filename}`, err)
         return null
     }
 }
@@ -82,7 +83,7 @@ export async function loadModSnapshot(): Promise<ModSnapshot | null> {
 
     const result = validateModPayload(candidate)
     if (!result.ok) {
-        console.warn(`[mod-loader] Overlay rejected: ${result.error}. Falling back to bundled snapshot.`)
+        logger.warn(`[mod-loader] Overlay rejected: ${result.error}. Falling back to bundled snapshot.`)
         return null
     }
     return result.value

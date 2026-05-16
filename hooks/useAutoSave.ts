@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useRef } from 'react'
 import { useGameStore } from '@/store/game-store'
-import { toast } from 'sonner'
+import { toast } from "@/lib/toast"
 import logger from '@/lib/logger'
 
 interface AutoSaveOptions {

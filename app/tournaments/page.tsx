@@ -305,9 +305,8 @@ export default function TournamentsPage() {
                     const standing = liveTournament?.standings?.find((s: { teamId: string }) => s.teamId === playerTeamId)
                     return (standing?.losses ?? 0) >= 3
                 }
-                case "double_elim":
-                case "gsl": {
-                    // Double elimination/GSL: 2 losses = eliminated
+                case "double_elim": {
+                    // Double elimination: 2 losses = eliminated
                     const standing = liveTournament?.standings?.find((s: { teamId: string }) => s.teamId === playerTeamId)
                     return (standing?.losses ?? 0) >= 2
                 }

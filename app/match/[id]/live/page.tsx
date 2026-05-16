@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { CustomTactics, MapId } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
+import { MAP_NAMES } from "@/data/map-pool"
 
 // Helper for Weapon Icons (keep local or move to utils? keeping local for now as it was here)
 const getWeaponIcon = (weaponName: string | undefined): string => {
@@ -50,19 +51,6 @@ const getWeaponIcon = (weaponName: string | undefined): string => {
     return `/assets/weapons/${mapped}`;
 };
 
-const MAP_NAMES: Record<string, string> = {
-    [MapId.DUST2]: "Dust II",
-    [MapId.MIRAGE]: "Mirage",
-    [MapId.INFERNO]: "Inferno",
-    [MapId.NUKE]: "Nuke",
-    [MapId.OVERPASS]: "Overpass",
-    [MapId.VERTIGO]: "Vertigo",
-    [MapId.ANCIENT]: "Ancient",
-    [MapId.ANUBIS]: "Anubis",
-    "cache": "Cache",
-    "train": "Train",
-    "cobblestone": "Cobblestone"
-}
 
 // Memoized log list. Without memo this re-evaluates every per-tick parent
 // render (~30-60Hz from useLiveMatch), iterating the full logs array and

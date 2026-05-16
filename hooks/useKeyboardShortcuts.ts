@@ -4,7 +4,7 @@ import { useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/game-store'
 import { useShallow } from 'zustand/react/shallow'
-import { toast } from 'sonner'
+import { toast } from "@/lib/toast"
 import logger from '@/lib/logger'
 
 export type ShortcutKey = string // e.g., 'ctrl+s', 'space', '1', 'esc'

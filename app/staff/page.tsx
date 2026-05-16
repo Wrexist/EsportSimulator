@@ -7,7 +7,7 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { User, Briefcase, Zap, DollarSign, Award, Users, TrendingUp, Search, Brain, Clock, RefreshCw, Star, Sparkles, Activity, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { StaffDetailsModal } from "@/components/staff/StaffDetailsModal"
@@ -270,6 +270,9 @@ export default function StaffPage() {
                                             size="sm"
                                             className="h-7 text-[10px] uppercase font-bold flex-1"
                                             disabled={(s.contractEndWeek ? s.contractEndWeek - currentWeek : 52) >= 52}
+                                            title={(s.contractEndWeek ? s.contractEndWeek - currentWeek : 52) >= 52
+                                                ? "Contract has 1+ year remaining — renew closer to expiry"
+                                                : "Open contract renewal"}
                                             onClick={() => {
                                                 setNegotiatingStaffId(s.id)
                                                 setIsRenewal(true)

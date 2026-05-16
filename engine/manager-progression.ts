@@ -41,11 +41,23 @@ export const DIFFICULTY_MODIFIERS: Record<string, { aiBudget: number, aiAggressi
 
 export class ManagerProgression {
     /**
-     * Get XP required for a given level
+     * Get cumulative XP required to *reach* a given level from the
+     * previous level. Table semantic: getXPForLevel(N) = "XP to advance
+     * from level N-1 to level N". So getXPForLevel(2) = 500 means
+     * level-1-to-level-2 costs 500 XP.
+     *
+     * To compute "XP needed to LEVEL UP from current level", callers
+     * should pass `currentLevel + 1` (see atomic-week-processor and
+     * gainXP below).
      */
     static getXPForLevel(level: number): number {
         if (level <= 0) return 500
-        if (level <= 10) return XP_PER_LEVEL[level - 1] || 20000
+        // `??` (not `||`) preserves the table[0]=0 entry — getXPForLevel(1)
+        // returns 0 because "reaching level 1 from level 0" costs nothing.
+        // The previous `|| 20000` fallback silently returned 20000 for
+        // any falsy table entry, including the legitimate 0 at index 0,
+        // which made level-1 progression require 40× the intended XP.
+        if (level <= 10) return XP_PER_LEVEL[level - 1] ?? 20000
         return 20000 + (level - 10) * 5000 // Linear after 10
     }
 
@@ -72,14 +84,18 @@ export class ManagerProgression {
         if (!md) return { leveledUp: false, newLevel: 1 }
 
         md.xp = (md.xp || 0) + amount
-        let xpNeeded = this.getXPForLevel(md.level || 1)
+        // `getXPForLevel(currentLevel + 1)` = cost of the NEXT level-up.
+        // Pre-fix this called `getXPForLevel(md.level)` which returned
+        // the cost of the level transition already completed (or worse,
+        // 0 once the table[0] fallback bug was fixed → infinite while).
+        let xpNeeded = this.getXPForLevel((md.level || 1) + 1)
 
         let leveledUp = false
         while (md.xp >= xpNeeded && (md.level || 1) < 20) {
             md.xp -= xpNeeded
             md.level = (md.level || 1) + 1
             leveledUp = true
-            xpNeeded = this.getXPForLevel(md.level)
+            xpNeeded = this.getXPForLevel(md.level + 1)
         }
 
         if (leveledUp && game.eventsLog) {

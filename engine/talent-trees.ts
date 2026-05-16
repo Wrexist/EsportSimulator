@@ -188,6 +188,25 @@ export function getStaffPassiveBonuses(
     return bonuses
 }
 
+/**
+ * Check whether a staff role unlocks an UNLOCK_FEATURE talent (e.g.
+ * "potential_breakthrough", "exact_potential"). Returns true if any node
+ * in the role's tree with that target is in unlockedTalentIds.
+ */
+export function isFeatureUnlocked(
+    staffRole: string,
+    unlockedTalentIds: string[] | undefined,
+    target: string,
+): boolean {
+    const tree = STAFF_TALENT_TREES[staffRole]
+    if (!tree || !unlockedTalentIds?.length) return false
+    return tree.some(node =>
+        unlockedTalentIds.includes(node.id) &&
+        node.effect?.type === "UNLOCK_FEATURE" &&
+        node.effect.target === target
+    )
+}
+
 /** Collect all talent bonuses for a team's staff into a single bonuses map */
 export function collectTeamTalentBonuses(
     staffData: Array<{ role: string; unlockedTalentIds?: string[] }>

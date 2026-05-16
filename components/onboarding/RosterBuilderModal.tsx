@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PlayerSaveData } from "@/engine/save-types"
 import { SynergyCalculator } from "@/engine/synergy-calculator"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { GameDifficulty } from "@/types/team-creator"
 import { PlayerRole } from "@/types/enums"
 

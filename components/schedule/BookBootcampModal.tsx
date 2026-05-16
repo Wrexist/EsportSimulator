@@ -8,7 +8,7 @@ import { X, Plane, Dumbbell, Brain, Sparkles, Coins, CalendarClock } from "lucid
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 
 interface BookBootcampModalProps {
     isOpen: boolean

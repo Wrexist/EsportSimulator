@@ -278,8 +278,8 @@ export class LeagueEngine {
             if (b.elo !== a.elo) return b.elo - a.elo
             // Tiebreaker: reputation, then stable sort by team ID
             if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
-            const aNum = parseInt(a.id.replace(/\D/g, '')) || 0
-            const bNum = parseInt(b.id.replace(/\D/g, '')) || 0
+            const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
+            const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
             return aNum - bNum
         })
 

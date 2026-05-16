@@ -3,9 +3,11 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
-import { createCoach, createAnalyst, createPsychologist } from "@/types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
-import { collectTeamTalentBonuses, applyTalentMoraleFloor } from "@/engine/talent-trees"
+import { applyPreMatchTalents } from "@/engine/match/apply-talents"
+import { pickAutoStrategy } from "@/engine/match/auto-tactics"
+import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
+import { buildFreshLiveResult, buildInitialSimState, sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
@@ -13,13 +15,19 @@ import {
     getMapsToWinForFormat,
     resolveCanonicalSeriesMaps,
     resolveHomeStartsCT,
-    selectActiveRosterIds
 } from "@/lib/live-match-utils"
-
-const ACTIVE_PLAYERS_PER_TEAM = 5
-const ROUND_SECONDS = 115
-const BOMB_SECONDS = 40
-const ROUND_START_DELAY_MS = 1500
+import { MAP_NAMES } from "@/data/map-pool"
+import {
+    ACTIVE_PLAYERS_PER_TEAM,
+    ROUND_SECONDS,
+    BOMB_SECONDS,
+    ROUND_START_DELAY_MS,
+    getNormalizedSeed,
+    getActivePlayersByRosterOrder,
+    buildCanonicalResultMaps,
+    sanitizeRosterFromEconomy,
+    sanitizeEconomyForActivePlayers,
+} from "@/lib/live-match-builders"
 
 type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 
@@ -32,146 +40,6 @@ interface LiveMatchRuntimeData {
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
     mapStartingSides?: Record<string, string>
-}
-
-interface TeamStaffState {
-    coach?: ReturnType<typeof createCoach>
-    analyst?: ReturnType<typeof createAnalyst>
-    psychologist?: ReturnType<typeof createPsychologist>
-}
-
-const MAP_NAMES: Record<string, string> = {
-    [MapId.DUST2]: "Dust II",
-    [MapId.MIRAGE]: "Mirage",
-    [MapId.INFERNO]: "Inferno",
-    [MapId.NUKE]: "Nuke",
-    [MapId.OVERPASS]: "Overpass",
-    [MapId.VERTIGO]: "Vertigo",
-    [MapId.ANCIENT]: "Ancient",
-    [MapId.ANUBIS]: "Anubis",
-    "cache": "Cache",
-    "train": "Train",
-    "cobblestone": "Cobblestone"
-}
-
-function getNormalizedSeed(rawSeed: unknown, matchId: string): number {
-    if (typeof rawSeed === "number" && Number.isFinite(rawSeed) && rawSeed > 0) {
-        return Math.floor(rawSeed)
-    }
-
-    const fallback = Array.from(matchId).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 0)
-    return Math.max(1, fallback)
-}
-
-function getActivePlayersByRosterOrder(
-    team: { rosterIds?: string[]; roster?: string[] },
-    allPlayers: Array<{ id: string }>,
-    playerMap?: Map<string, { id: string }>
-): Player[] {
-    const rosterIds = Array.isArray(team.rosterIds) ? team.rosterIds : (Array.isArray(team.roster) ? team.roster : [])
-    const activeRosterIds = selectActiveRosterIds(rosterIds, ACTIVE_PLAYERS_PER_TEAM)
-    const resolvedPlayers: Player[] = []
-    for (const playerId of activeRosterIds) {
-        const player = playerMap?.get(playerId) ?? allPlayers.find(p => p.id === playerId)
-        if (player) resolvedPlayers.push(player as unknown as Player)
-    }
-    return resolvedPlayers
-}
-
-function createMapResultShell(mapId: MapId, homeStartsCT: boolean, homeTeamId: string, awayTeamId: string): any {
-    return {
-        map: mapId,
-        ctStartTeamId: homeStartsCT ? homeTeamId : awayTeamId,
-        tStartTeamId: homeStartsCT ? awayTeamId : homeTeamId,
-        rounds: [],
-        finalScore: { team1: 0, team2: 0 },
-        homeScore: 0,
-        awayScore: 0,
-        mvpPlayerId: ""
-    }
-}
-
-function buildCanonicalResultMaps(
-    existingMaps: any[] | undefined,
-    canonicalMaps: MapId[],
-    homeTeamId: string,
-    awayTeamId: string,
-    mapStartingSides: Record<string, string> | undefined,
-    seed: number
-): any[] {
-    const sourceMaps = Array.isArray(existingMaps) ? existingMaps : []
-    return canonicalMaps.map((mapId, mapIndex) => {
-        const existing = sourceMaps[mapIndex]
-        if (existing && existing.map === mapId) {
-            return {
-                ...existing,
-                map: mapId,
-                rounds: Array.isArray(existing.rounds) ? existing.rounds : [],
-                homeScore: typeof existing.homeScore === "number" ? existing.homeScore : (existing.finalScore?.team1 ?? 0),
-                awayScore: typeof existing.awayScore === "number" ? existing.awayScore : (existing.finalScore?.team2 ?? 0),
-            }
-        }
-
-        const homeStartsCT = resolveHomeStartsCT({
-            mapId,
-            mapStartingSides,
-            homeTeamId,
-            awayTeamId,
-            seed,
-            mapIndex
-        })
-        return createMapResultShell(mapId, homeStartsCT, homeTeamId, awayTeamId)
-    })
-}
-
-function sanitizeRosterFromEconomy(
-    activePlayers: Player[],
-    economy: Record<string, any>,
-    isCT: boolean,
-    existingRoster?: LivePlayerState[]
-): LivePlayerState[] {
-    const existingById = new Map((existingRoster || []).map(player => [player.id, player]))
-    const defaultWeapon = isCT ? "usp" : "glock"
-
-    return activePlayers.map(player => {
-        const prev = existingById.get(player.id)
-        const econ = economy[player.id] || {}
-        return {
-            id: player.id,
-            name: player.nickname,
-            kills: prev?.kills || 0,
-            deaths: prev?.deaths || 0,
-            assists: prev?.assists || 0,
-            headshots: prev?.headshots || 0,
-            money: typeof econ.cash === "number" ? econ.cash : (prev?.money ?? EconomyManager.ROUND_START_CASH),
-            isDead: false,
-            weapon: typeof econ.weapon === "string" ? econ.weapon : (prev?.weapon || defaultWeapon),
-            hasArmor: Boolean(econ.hasArmor ?? prev?.hasArmor ?? false),
-            hasHelmet: Boolean(econ.hasHelmet ?? prev?.hasHelmet ?? false),
-            hasKit: Boolean(econ.hasKit ?? prev?.hasKit ?? false)
-        }
-    })
-}
-
-function sanitizeEconomyForActivePlayers(
-    activePlayers: Player[],
-    existingEconomy: Record<string, any> | undefined,
-    isCT: boolean
-): Record<string, any> {
-    const defaultEconomy = createRoundStartEconomy(
-        activePlayers.map(player => player.id),
-        isCT
-    )
-
-    return activePlayers.reduce<Record<string, any>>((acc, player) => {
-        const current = existingEconomy?.[player.id]
-        acc[player.id] = {
-            ...defaultEconomy[player.id],
-            ...(current || {}),
-            cash: typeof current?.cash === "number" ? Math.max(0, Math.min(EconomyManager.MAX_CASH, Math.floor(current.cash))) : defaultEconomy[player.id].cash
-        }
-        return acc
-    }, {})
 }
 
 export function useLiveMatch(id: string) {
@@ -313,28 +181,16 @@ export function useLiveMatch(id: string) {
 
         const hStaffData = staff.filter(s => hTeam.staffIds.includes(s.id))
         const aStaffData = staff.filter(s => aTeam.staffIds.includes(s.id))
-        const mapStaff = (sData: any[]): TeamStaffState => {
-            const coachData = sData.find(s => s.role === "coach")
-            const analystData = sData.find(s => s.role === "analyst")
-            const psychData = sData.find(s => s.role === "psychologist")
-            return {
-                coach: coachData ? createCoach(coachData.id, coachData.name, coachData.level, coachData.salaryPerWeek) : undefined,
-                analyst: analystData ? createAnalyst(analystData.id, analystData.name, analystData.level, analystData.salaryPerWeek) : undefined,
-                psychologist: psychData ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek) : undefined,
-            }
-        }
-        const homeStaff = mapStaff(hStaffData)
-        const awayStaff = mapStaff(aStaffData)
+        // Staff adapter extracted to engine/match/live-staff-adapter.ts (L4).
+        const homeStaff = buildRuntimeStaff(hStaffData)
+        const awayStaff = buildRuntimeStaff(aStaffData)
 
-        // Apply staff talent passive bonuses
-        const hBonuses = collectTeamTalentBonuses(hStaffData)
-        const aBonuses = collectTeamTalentBonuses(aStaffData)
-        applyTalentMoraleFloor(homePlayers, hBonuses)
-        applyTalentMoraleFloor(awayPlayers, aBonuses)
-
-        // anti_strat: reduce opponent coach tactic bonus (multiplicative)
-        const homeAntiStrat = (hBonuses["anti_strat"] || 0) / 100
-        const awayAntiStrat = (aBonuses["anti_strat"] || 0) / 100
+        // Pre-match staff-talent application (morale_floor + timeout_morale
+        // + anti_strat). Centralized in engine/match/apply-talents.ts so
+        // the slice + match-engine paths stay in lockstep.
+        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
+            homePlayers, awayPlayers, hStaffData, aStaffData,
+        )
         if (homeAntiStrat > 0 && awayStaff.coach) {
             awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
         }
@@ -399,25 +255,14 @@ export function useLiveMatch(id: string) {
             const restoredHomeEconomy = sanitizeEconomyForActivePlayers(homePlayers, restoredSim?.homeEconomy, homeStartsCT)
             const restoredAwayEconomy = sanitizeEconomyForActivePlayers(awayPlayers, restoredSim?.awayEconomy, !homeStartsCT)
 
-            const sanitizedSimState: SimState = {
+            // Restored SimState sanitization extracted to live-match-init.ts (L5).
+            const sanitizedSimState = sanitizeRestoredSimState({
+                restoredSim,
                 homeEconomy: restoredHomeEconomy,
                 awayEconomy: restoredAwayEconomy,
-                homeWinStreak: restoredSim?.homeWinStreak ?? 0,
-                awayWinStreak: restoredSim?.awayWinStreak ?? 0,
-                homeLossStreak: restoredSim?.homeLossStreak ?? 0,
-                awayLossStreak: restoredSim?.awayLossStreak ?? 0,
-                homeRounds: restoredSim?.homeRounds ?? 0,
-                awayRounds: restoredSim?.awayRounds ?? 0,
-                currentMapIndex,
-                currentRound: Math.max(1, restoredSim?.currentRound ?? 1),
-                homeSeriesScore: restoredSim?.homeSeriesScore ?? 0,
-                awaySeriesScore: restoredSim?.awaySeriesScore ?? 0,
-                isOvertime: Boolean(restoredSim?.isOvertime ?? false),
-                currentOTSet: restoredSim?.currentOTSet ?? 0,
                 homeStartsCT,
-                homeMomentumScore: restoredSim?.homeMomentumScore ?? 0,
-                awayMomentumScore: restoredSim?.awayMomentumScore ?? 0
-            }
+                currentMapIndex,
+            })
 
             const restoredResultSource = (activeMatchState.matchResult as unknown as MatchResult | undefined) || baseResult
             const restoredResult: MatchResult = {
@@ -434,17 +279,12 @@ export function useLiveMatch(id: string) {
                 )
             }
 
-            const restoredGameState: LiveGameState = {
-                round: activeMatchState.gameState?.round ?? Math.max(1, sanitizedSimState.currentRound - 1),
-                homeScore: activeMatchState.gameState?.homeScore ?? sanitizedSimState.homeRounds,
-                awayScore: activeMatchState.gameState?.awayScore ?? sanitizedSimState.awayRounds,
-                homeSeriesScore: sanitizedSimState.homeSeriesScore,
-                awaySeriesScore: sanitizedSimState.awaySeriesScore,
-                status: activeMatchState.gameState?.status ?? "IN_PROGRESS",
-                time: typeof activeMatchState.gameState?.time === "number" ? activeMatchState.gameState.time : -1,
-                isPaused: Boolean(activeMatchState.gameState?.isPaused ?? false),
-                currentMapIndex
-            }
+            // Restored GameState build extracted to live-match-init.ts (L5).
+            const restoredGameState = buildRestoredGameState({
+                savedGameState: activeMatchState.gameState,
+                simState: sanitizedSimState,
+                currentMapIndex,
+            })
 
             matchData.current = {
                 match: runtimeMatch,
@@ -484,29 +324,16 @@ export function useLiveMatch(id: string) {
         const homeEconomy = createRoundStartEconomy(activeHomeIds, initialHomeStartsCT)
         const awayEconomy = createRoundStartEconomy(activeAwayIds, !initialHomeStartsCT)
 
-        const initialResultMaps = buildCanonicalResultMaps(
-            baseResult.maps as any[],
+        // Live result + initial sim state extracted to
+        // engine/match/live-match-init.ts (Phase L5).
+        const liveResult = buildFreshLiveResult({
+            baseResult,
             canonicalMaps,
-            hTeam.id,
-            aTeam.id,
+            homeTeamId: hTeam.id,
+            awayTeamId: aTeam.id,
             mapStartingSides,
-            seed
-        ).map((mapData: any) => ({
-            ...mapData,
-            rounds: [],
-            homeScore: 0,
-            awayScore: 0,
-            winner: undefined,
-            finalScore: { team1: 0, team2: 0 }
-        }))
-
-        const liveResult: MatchResult = {
-            ...baseResult,
-            winnerId: null,
-            homeScore: 0,
-            awayScore: 0,
-            maps: initialResultMaps
-        }
+            seed,
+        })
 
         matchData.current = {
             match: runtimeMatch,
@@ -519,25 +346,11 @@ export function useLiveMatch(id: string) {
             mapStartingSides
         }
 
-        setSimState({
+        setSimState(buildInitialSimState({
             homeEconomy,
             awayEconomy,
-            homeWinStreak: 0,
-            awayWinStreak: 0,
-            homeLossStreak: 0,
-            awayLossStreak: 0,
-            homeRounds: 0,
-            awayRounds: 0,
-            currentMapIndex: 0,
-            currentRound: 1,
-            homeSeriesScore: 0,
-            awaySeriesScore: 0,
-            isOvertime: false,
-            currentOTSet: 0,
             homeStartsCT: initialHomeStartsCT,
-            homeMomentumScore: 0,
-            awayMomentumScore: 0
-        })
+        }))
 
         setHomeRoster(sanitizeRosterFromEconomy(homePlayers, homeEconomy, initialHomeStartsCT))
         setAwayRoster(sanitizeRosterFromEconomy(awayPlayers, awayEconomy, !initialHomeStartsCT))
@@ -593,21 +406,7 @@ export function useLiveMatch(id: string) {
     }, [staff])
 
     const getTeamStaff = useCallback((teamId: string) => {
-        const teamStaff = staffByTeamId.get(teamId) ?? []
-        let coachData: typeof teamStaff[number] | undefined
-        let analystData: typeof teamStaff[number] | undefined
-        let psychData: typeof teamStaff[number] | undefined
-        for (const s of teamStaff) {
-            if (!coachData && s.role === "coach") coachData = s
-            else if (!analystData && s.role === "analyst") analystData = s
-            else if (!psychData && s.role === "psychologist") psychData = s
-        }
-
-        return {
-            coach: coachData ? createCoach(coachData.id, coachData.name, coachData.level, coachData.salaryPerWeek) : undefined,
-            analyst: analystData ? createAnalyst(analystData.id, analystData.name, analystData.level, analystData.salaryPerWeek) : undefined,
-            psychologist: psychData ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek) : undefined,
-        }
+        return buildRuntimeStaff(staffByTeamId.get(teamId) ?? [])
     }, [staffByTeamId])
 
     const startNextRound = useCallback((playerStrategy?: RoundStrategy) => {
@@ -1201,15 +1000,11 @@ export function useLiveMatch(id: string) {
         if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS") return
         if (simState.currentRound === 1 || simState.currentRound === 13) return
 
-        const homeCount = Math.max(1, Object.keys(simState.homeEconomy).length)
-        const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + (p?.cash || 0), 0) / homeCount)
-        let bestStrategy = "ECO"
-        if (avgCash > 4500) bestStrategy = "FULL"
-        else if (avgCash > 2000) bestStrategy = "SEMIBUY"
-        else if (avgCash > 1400) bestStrategy = "FORCE"
+        // Auto-tactics strategy pick (Phase L2 extraction).
+        const bestStrategy = pickAutoStrategy(simState.homeEconomy)
 
         const timer = setTimeout(() => {
-            startNextRound(bestStrategy as any)
+            startNextRound(bestStrategy)
         }, 500)
         return () => clearTimeout(timer)
     }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, customTactics, startNextRound])

@@ -261,9 +261,9 @@ export function DevTools() {
 
                                         {targetPlayer && (
                                             <div className="p-2.5 bg-violet-500/5 rounded-lg border border-violet-500/10 text-[10px] font-mono text-muted-foreground">
-                                                <span className="text-violet-400 font-bold">{(targetPlayer as any).nickname || (targetPlayer as any).firstName}</span>
-                                                {" — "}Skill: {(targetPlayer as any).skill} | XP: {(targetPlayer as any).xp} | Level: {(targetPlayer as any).level} | Age: {(targetPlayer as any).age}
-                                                {(targetPlayer as any).injury && <span className="text-red-400 ml-1">[INJURED]</span>}
+                                                <span className="text-violet-400 font-bold">{targetPlayer.nickname}</span>
+                                                {" — "}Skill: {targetPlayer.skill} | XP: {targetPlayer.xp} | Level: {targetPlayer.level} | Age: {targetPlayer.age}
+                                                {targetPlayer.injury && <span className="text-red-400 ml-1">[INJURED]</span>}
                                             </div>
                                         )}
 

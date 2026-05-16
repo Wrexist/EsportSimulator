@@ -25,7 +25,7 @@ import {
     Unlock,
     Briefcase,
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
 import { ManagerProgression } from "@/engine/manager-progression"
 import { motion, AnimatePresence } from "framer-motion"

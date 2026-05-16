@@ -17,15 +17,30 @@ import { getTournamentMVP } from "./tournament-stats"
 import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
-
-/** Deterministic numeric ID for tiebreaking — works for both numeric and string IDs */
-function stableTeamIdNumber(id: string): number {
-    const m = id.match(/\d+/)
-    if (m) return parseInt(m[0], 10)
-    let h = 0
-    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
-    return h
-}
+import {
+    stableTeamIdNumber,
+    resolveCompletedWinner as resolveCompletedWinnerFn,
+    normalizeStage as normalizeStageFn,
+    getBracketRoundNumber as getBracketRoundNumberFn,
+} from "./tournament/seeding-helpers"
+import {
+    addBracketMatch as addBracketMatchFn,
+    assignMatchDay as assignMatchDayFn,
+    scheduleBracketMatch as scheduleBracketMatchFn,
+} from "./tournament/bracket-scheduling"
+import {
+    handleOpeningResult as handleOpeningResultFn,
+    handleUpperSemiResult as handleUpperSemiResultFn,
+    handleUpperFinalResult as handleUpperFinalResultFn,
+    handleLowerResult as handleLowerResultFn,
+} from "./tournament/double-elim-handlers"
+import {
+    setupSwissStage as setupSwissStageFn,
+    generateSwissRound as generateSwissRoundFn,
+    handleSwissResult as handleSwissResultFn,
+    generateSwissPlayoffs as generateSwissPlayoffsFn,
+} from "./tournament/swiss-handlers"
+import { setupLeagueSchedule as setupLeagueScheduleFn } from "./tournament/league-schedule"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -74,14 +89,9 @@ export class TournamentManager {
     private static resolveCompletedWinner(
         completed: CompletedMatchSaveData,
         homeTeamId?: string,
-        awayTeamId?: string
+        awayTeamId?: string,
     ): string | undefined {
-        if (completed.result?.winnerId) return completed.result.winnerId
-        if (!completed.result) return undefined
-        if (!homeTeamId || !awayTeamId) return undefined
-        if (completed.result.homeScore > completed.result.awayScore) return homeTeamId
-        if (completed.result.awayScore > completed.result.homeScore) return awayTeamId
-        return undefined
+        return resolveCompletedWinnerFn(completed, homeTeamId, awayTeamId)
     }
 
     static repairTournamentProgression(save: GameSave, tournamentId?: string): void {
@@ -273,81 +283,18 @@ export class TournamentManager {
         save: GameSave,
         tournament: TournamentSaveData,
         teamIds: string[],
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        tournament.standings = teamIds.map(tid => ({
-            teamId: tid,
-            matchesPlayed: 0,
-            wins: 0,
-            losses: 0,
-            mapsWon: 0,
-            mapsLost: 0,
-            points: 0,
-            mapDiff: 0,
-            roundDiff: 0
-        }))
-
-        // Schedule Round 1
-        this.generateSwissRound(save, tournament, 1, rng)
+        setupSwissStageFn(save, tournament, teamIds, rng)
     }
 
     private static generateSwissRound(
         save: GameSave,
         tournament: TournamentSaveData,
         roundNum: number,
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        const teams = tournament.standings.filter(s => s.wins < 3 && s.losses < 3)
-        if (teams.length === 0) return
-
-        // Sort by record
-        const buckets: Record<string, string[]> = {}
-        teams.forEach(s => {
-            const key = `${s.wins}-${s.losses}`
-            if (!buckets[key]) buckets[key] = []
-            buckets[key].push(s.teamId)
-        })
-
-        const matchedTeams = new Set<string>()
-        const week = tournament.startWeek + roundNum - 1
-
-        Object.keys(buckets).sort().forEach(key => {
-            const bucketTeams = rng.shuffle(buckets[key].filter(tid => !matchedTeams.has(tid)))
-
-            while (bucketTeams.length >= 2) {
-                const home = bucketTeams.pop()!
-                const away = bucketTeams.pop()!
-                matchedTeams.add(home)
-                matchedTeams.add(away)
-
-                const matchId = `${tournament.id}_swiss_r${roundNum}_${home}_${away}`
-                const match: BracketMatchSaveData = {
-                    id: matchId,
-                    tournamentId: tournament.id,
-                    stage: `Swiss Round ${roundNum} (${key})`,
-                    homeTeamId: home,
-                    awayTeamId: away,
-                    isCompleted: false,
-                    week: week,
-                    format: (() => { const [w, l] = key.split("-").map(Number); return (w >= 2 || l >= 2) ? "BO3" : "BO1"; })(), // BO3 when close to elimination (2+ wins or losses)
-                    seed: rng.int(0, 999999),
-                    sourceMatchIds: []
-                }
-                this.addBracketMatch(tournament, match)
-                this.scheduleBracketMatch(save, match)
-            }
-
-            // Handle odd team in bucket: auto-advance with BYE win
-            if (bucketTeams.length === 1) {
-                const loneTeam = bucketTeams.pop()!
-                matchedTeams.add(loneTeam)
-                const byeRecord = tournament.standings?.find(s => s.teamId === loneTeam)
-                if (byeRecord) {
-                    byeRecord.wins++
-                    byeRecord.matchesPlayed++
-                }
-            }
-        })
+        generateSwissRoundFn(save, tournament, roundNum, rng)
     }
 
     private static createDoubleElimGroup(
@@ -431,57 +378,15 @@ export class TournamentManager {
     }
 
     private static addBracketMatch(tournament: TournamentSaveData, match: BracketMatchSaveData): void {
-        if (!tournament.playoffBracket) tournament.playoffBracket = []
-        tournament.playoffBracket.push(match)
+        addBracketMatchFn(tournament, match)
     }
 
-    /**
-     * Normalize stage name for comparison (e.g., "Round of 32 Match 1" -> "round of 32")
-     */
     private static normalizeStage(stage: string): string {
-        if (!stage) return ""
-        const lower = stage.toLowerCase()
-        // Extract base round name (e.g., "Round of 32 Match 1" -> "round of 32")
-        const roMatch = stage.match(/^(Round of \d+)/i)
-        if (roMatch) return roMatch[1].toLowerCase()
-        if (lower.includes("quarter-final")) return "quarter-final"
-        if (lower.includes("semi-final")) return "semi-final"
-        if (lower.includes("grand final")) return "grand final"
-        if (lower === "final" || lower === "finals") return "final"
-        if (lower.includes("3rd") || lower.includes("third")) return "3rd place"
-        return lower
+        return normalizeStageFn(stage)
     }
 
-    /**
-     * Get the round number for a bracket match (lower = earlier round)
-     * Returns a numeric priority: lower numbers = earlier rounds that should be simulated first
-     */
     private static getBracketRoundNumber(match: BracketMatchSaveData): number {
-        const stage = match.stage.toLowerCase()
-        const id = match.id.toLowerCase()
-
-        // Extract round number from ID like "tournament_r1_m1" or "r2_m3"
-        const roundFromId = id.match(/_r(\d+)_m/i) || id.match(/^r(\d+)_/i)
-        if (roundFromId) {
-            return parseInt(roundFromId[1], 10)
-        }
-
-        // Extract from "Round of X" stages
-        const roundOfMatch = stage.match(/round of (\d+)/i)
-        if (roundOfMatch) {
-            const size = parseInt(roundOfMatch[1], 10)
-            // Larger "Round of X" = earlier round (Round of 32 before Round of 16)
-            return Math.log2(size) // 32->5, 16->4, 8->3, etc.
-        }
-
-        // Named stages get higher numbers (later rounds)
-        if (stage.includes("quarter")) return 100
-        if (stage.includes("semi")) return 200
-        if (stage.includes("3rd") || stage.includes("third")) return 299 // 3rd place happens alongside final
-        if (stage === "final" || stage === "finals" || stage.includes("grand final")) return 300
-
-        // Default: use week as fallback
-        return match.week || 50
+        return getBracketRoundNumberFn(match)
     }
 
     /**
@@ -717,54 +622,13 @@ export class TournamentManager {
         save: GameSave,
         teamIds: string[],
         week: number,
-        preferredDays: number[] = [5, 6, 4, 3, 2, 1, 0] // Sat, Sun, Fri, Thu, Wed, Tue, Mon
+        preferredDays?: number[],
     ): number {
-        // Find days already used by these teams in this week
-        const existingDaysUsed = save.scheduledMatches
-            .filter(m => m.week === week &&
-                (teamIds.includes(m.homeTeamId) || teamIds.includes(m.awayTeamId)))
-            .map(m => m.day)
-            .filter((d): d is number => d !== undefined)
-
-        // Return first available preferred day
-        for (const day of preferredDays) {
-            if (!existingDaysUsed.includes(day)) {
-                return day
-            }
-        }
-        return 5 // Default to Saturday if all days taken (shouldn't happen with 1 match/day)
+        return assignMatchDayFn(save, teamIds, week, preferredDays)
     }
 
     private static scheduleBracketMatch(save: GameSave, match: BracketMatchSaveData): void {
-        const existing = save.scheduledMatches.find((m: MatchSaveData) => m.id === match.id)
-        if (existing) {
-            return
-        }
-
-        if (match.homeTeamId && match.awayTeamId) {
-            // Safety check: Skip if a team is playing itself
-            if (match.homeTeamId === match.awayTeamId) {
-                debug.warn(`[Match] SKIPPING - Team playing itself: ${match.id} (${match.homeTeamId} vs ${match.awayTeamId})`)
-                return
-            }
-
-            // Assign a day that doesn't conflict with either team's existing matches
-            const day = this.assignMatchDay(save, [match.homeTeamId, match.awayTeamId], match.week)
-
-            const scheduledMatch: MatchSaveData = {
-                id: match.id,
-                homeTeamId: match.homeTeamId,
-                awayTeamId: match.awayTeamId,
-                tournamentId: match.tournamentId,
-                stage: match.stage,
-                week: match.week,
-                day: day, // Added day assignment to enforce 1 game per day
-                format: match.format,
-                seed: match.seed,
-                isHighPressure: match.stage.includes("Final") || match.stage.includes("Semi")
-            }
-            save.scheduledMatches.push(scheduledMatch)
-        }
+        scheduleBracketMatchFn(save, match)
     }
 
     /**
@@ -985,236 +849,36 @@ export class TournamentManager {
     }
 
     private static handleSwissResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const idx = buildSaveIndexes(save)
-        // Update standings record
-        const wRecord = tournament.standings?.find(s => s.teamId === winnerId)
-        const lRecord = tournament.standings?.find(s => s.teamId === loserId)
-
-        if (wRecord) {
-            wRecord.wins++
-            wRecord.matchesPlayed++
-        }
-        if (lRecord) {
-            lRecord.losses++
-            lRecord.matchesPlayed++
-        }
-
-        // Update map and round differential from completed match data
-        const completedMatch = idx.completedMatchIndex.get(match.id) ?? save.completedMatches.find(cm => cm.id === match.id)
-        if (completedMatch?.result) {
-            const homeScore = completedMatch.result.homeScore ?? 0
-            const awayScore = completedMatch.result.awayScore ?? 0
-            const isWinnerHome = completedMatch.homeTeamId === winnerId
-
-            if (wRecord) {
-                wRecord.mapsWon += isWinnerHome ? homeScore : awayScore
-                wRecord.mapsLost += isWinnerHome ? awayScore : homeScore
-                wRecord.mapDiff = wRecord.mapsWon - wRecord.mapsLost
-            }
-            if (lRecord) {
-                lRecord.mapsWon += isWinnerHome ? awayScore : homeScore
-                lRecord.mapsLost += isWinnerHome ? homeScore : awayScore
-                lRecord.mapDiff = lRecord.mapsWon - lRecord.mapsLost
-            }
-
-            const maps = completedMatch.result.maps || []
-            const totalHomeRounds = maps.reduce((s: number, mp: { homeScore?: number }) => s + (mp.homeScore || 0), 0)
-            const totalAwayRounds = maps.reduce((s: number, mp: { awayScore?: number }) => s + (mp.awayScore || 0), 0)
-            if (wRecord) wRecord.roundDiff += isWinnerHome ? (totalHomeRounds - totalAwayRounds) : (totalAwayRounds - totalHomeRounds)
-            if (lRecord) lRecord.roundDiff += isWinnerHome ? (totalAwayRounds - totalHomeRounds) : (totalHomeRounds - totalAwayRounds)
-        }
-
-        // Check if round is finished
-        const swissMatch = match.id.match(/_swiss_r(\d+)_/)
-        const roundNum = swissMatch ? parseInt(swissMatch[1], 10) : 1
-        const roundMatches = tournament.playoffBracket?.filter(m => m.id.includes(`_swiss_r${roundNum}_`))
-        const allFinished = roundMatches?.every(m => m.isCompleted)
-
-        if (allFinished) {
-            const qualified = tournament.standings?.filter(s => s.wins === 3).length || 0
-            const eliminated = tournament.standings?.filter(s => s.losses === 3).length || 0
-
-            if (qualified >= 8 || roundNum >= 5) {
-                this.generateSwissPlayoffs(save, tournament)
-            } else {
-                const rng = new SeededRNG((save.lastRngSeed ?? 1) + roundNum)
-                this.generateSwissRound(save, tournament, roundNum + 1, rng)
-            }
-        }
-
-        // ELIMINATION CHECK (Swiss)
-        if (lRecord && lRecord.losses >= 3) {
-            save.tournamentQualifications = QualificationEngine.updateStatus(
-                save.tournamentQualifications,
-                tournament.id,
-                loserId,
-                "ELIMINATED"
-            )
-            this.notifyPlayerElimination(save, tournament, loserId)
-        }
+        handleSwissResultFn(save, tournament, match, winnerId, loserId, {
+            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static generateSwissPlayoffs(save: GameSave, tournament: TournamentSaveData): void {
-        tournament.currentStage = "Playoffs"
-        const qualified = tournament.standings
-            .filter(s => s.wins === 3)
-            .sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses) || b.roundDiff - a.roundDiff || (stableTeamIdNumber(a.teamId) - stableTeamIdNumber(b.teamId)))
-            .map(s => s.teamId)
-
-        // If fewer than 8 teams have 3 wins, pad with best 2-win teams (standard Swiss tiebreaker)
-        if (qualified.length < 8) {
-            const twoWinTeams = tournament.standings
-                .filter(s => s.wins === 2 && s.losses < 3 && !qualified.includes(s.teamId))
-                .sort((a, b) => b.roundDiff - a.roundDiff || b.mapDiff - a.mapDiff || (stableTeamIdNumber(a.teamId) - stableTeamIdNumber(b.teamId)))
-                .map(s => s.teamId)
-            while (qualified.length < 8 && twoWinTeams.length > 0) {
-                qualified.push(twoWinTeams.shift()!)
-            }
-        }
-
-        const playoffSeed = Math.max(
-            1,
-            ((save.lastRngSeed ?? 1) ^ (save.currentWeek * 2654435761)) >>> 0
-        )
-        this.setupGenericBracket(
-            save,
-            tournament,
-            qualified.slice(0, 8),
-            new SeededRNG(playoffSeed),
-            save.currentWeek
-        )
+        generateSwissPlayoffsFn(save, tournament, {
+            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static handleOpeningResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_opening")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-        const semiIdx = Math.floor(matchIdx / 2)
-
-        // Winner to Upper Semi
-        const semiId = `${groupId}_upper_semi_${semiIdx}`
-        const semi = bracketMap?.get(semiId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === semiId)
-        if (semi) {
-            if (matchIdx % 2 === 0) semi.homeTeamId = winnerId
-            else semi.awayTeamId = winnerId
-            if (semi.homeTeamId && semi.awayTeamId) this.scheduleBracketMatch(save, semi)
-        }
-
-        // Loser to Lower Round 1
-        const lowerR1Id = `${groupId}_lower_r1_${semiIdx}`
-        let lowerR1 = bracketMap?.get(lowerR1Id) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerR1Id)
-        if (!lowerR1) {
-            lowerR1 = {
-                id: lowerR1Id,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Round 1`,
-                isCompleted: false,
-                week: match.week + 1,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerR1)
-        }
-        if (matchIdx % 2 === 0) lowerR1.homeTeamId = loserId
-        else lowerR1.awayTeamId = loserId
-        if (lowerR1.homeTeamId && lowerR1.awayTeamId) this.scheduleBracketMatch(save, lowerR1)
+        handleOpeningResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleUpperSemiResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_upper_semi")[0]
-        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-
-        // Winner to Upper Final
-        const upperFinalId = `${groupId}_upper_final`
-        const upperFinal = bracketMap?.get(upperFinalId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === upperFinalId)
-        if (upperFinal) {
-            if (matchIdx === 0) upperFinal.homeTeamId = winnerId
-            else upperFinal.awayTeamId = winnerId
-            if (upperFinal.homeTeamId && upperFinal.awayTeamId) this.scheduleBracketMatch(save, upperFinal)
-        }
-
-        // Loser to Lower Semi
-        const lowerSemiId = `${groupId}_lower_semi_${matchIdx}`
-        let lowerSemi = bracketMap?.get(lowerSemiId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerSemiId)
-        if (!lowerSemi) {
-            lowerSemi = {
-                id: lowerSemiId,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Semi`,
-                isCompleted: false,
-                week: match.week + 1,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerSemi)
-        }
-        lowerSemi.homeTeamId = loserId
-        // Find winner of corresponding lower R1
-        const lowerR1 = bracketMap?.get(`${groupId}_lower_r1_${matchIdx}`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_r1_${matchIdx}`)
-        if (lowerR1?.winnerId) {
-            lowerSemi.awayTeamId = lowerR1.winnerId
-            this.scheduleBracketMatch(save, lowerSemi)
-        }
+        handleUpperSemiResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleUpperFinalResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_upper_final")[0]
-        const lowerFinalId = `${groupId}_lower_final`
-        let lowerFinal = bracketMap?.get(lowerFinalId) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === lowerFinalId)
-        if (!lowerFinal) {
-            lowerFinal = {
-                id: lowerFinalId,
-                tournamentId: tournament.id,
-                stage: `${match.stage.split(" ")[0]} Lower Final`,
-                isCompleted: false,
-                week: match.week + 2,
-                format: "BO3",
-                seed: match.seed + 1,
-                sourceMatchIds: []
-            }
-            this.addBracketMatch(tournament, lowerFinal)
-        }
-        lowerFinal.homeTeamId = loserId
-        const lowerSemi = bracketMap?.get(`${groupId}_lower_semi_0`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_0`) // Simplified
-        if (lowerSemi?.winnerId) {
-            lowerFinal.awayTeamId = lowerSemi.winnerId
-            this.scheduleBracketMatch(save, lowerFinal)
-        }
+        handleUpperFinalResultFn(save, tournament, match, winnerId, loserId)
     }
 
     private static handleLowerResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
-        const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
-        const groupId = match.id.split("_lower")[0]
-        if (match.id.includes("lower_r1")) {
-            const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-            const semi = bracketMap?.get(`${groupId}_lower_semi_${matchIdx}`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_${matchIdx}`)
-            if (semi) {
-                semi.awayTeamId = winnerId
-                if (semi.homeTeamId && semi.awayTeamId) this.scheduleBracketMatch(save, semi)
-            }
-        } else if (match.id.includes("lower_semi")) {
-            const final = bracketMap?.get(`${groupId}_lower_final`) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_final`)
-            if (final) {
-                final.awayTeamId = winnerId
-                if (final.homeTeamId && final.awayTeamId) this.scheduleBracketMatch(save, final)
-            }
-        } else if (match.id.includes("lower_final")) {
-            this.checkAndStartPlayoffs(save, tournament.id)
-        }
-
-        // ELIMINATION CHECK (Lower Bracket)
-        // Losing in lower bracket = Eliminated
-        save.tournamentQualifications = QualificationEngine.updateStatus(
-            save.tournamentQualifications,
-            tournament.id,
-            loserId,
-            "ELIMINATED"
-        )
-        this.notifyPlayerElimination(save, tournament, loserId)
+        handleLowerResultFn(save, tournament, match, winnerId, loserId, {
+            checkAndStartPlayoffs: (s, tid) => this.checkAndStartPlayoffs(s, tid),
+            notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
+        })
     }
 
     private static handlePlayoffProgression(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId?: string): void {
@@ -1480,75 +1144,9 @@ export class TournamentManager {
         save: GameSave,
         tournament: TournamentSaveData,
         teamIds: string[],
-        rng: SeededRNG
+        rng: SeededRNG,
     ): void {
-        const teams = [...teamIds]
-        // Add dummy team if odd number of teams
-        if (teams.length % 2 !== 0) {
-            teams.push("BYE")
-        }
-
-        const numTeams = teams.length
-        const numRounds = numTeams - 1
-        const matchesPerRound = numTeams / 2
-        const startWeek = tournament.startWeek
-        const duration = Math.max(1, tournament.endWeek - tournament.startWeek)
-
-        // Circle Method for Round Robin
-        const rounds: { home: string, away: string }[][] = []
-
-        for (let round = 0; round < numRounds; round++) {
-            const roundMatches: { home: string, away: string }[] = []
-
-            for (let i = 0; i < matchesPerRound; i++) {
-                const homeIdx = i
-                const awayIdx = numTeams - 1 - i
-
-                const home = teams[homeIdx]
-                const away = teams[awayIdx]
-
-                if (home !== "BYE" && away !== "BYE") {
-                    roundMatches.push({ home, away })
-                }
-            }
-            rounds.push(roundMatches)
-
-            // Rotate teams (keep index 0 fixed)
-            // [0, 1, 2, 3] -> [0, 3, 1, 2] (example)
-            // Implementation: Move last element to index 1, shift everything else up
-            teams.splice(1, 0, teams.pop()!)
-        }
-
-        // Distribute rounds across weeks
-        // We have `numRounds` to play over `duration` weeks.
-        // Ideally 1 round per week, or multiple if short duration.
-
-        let currentMatchIndex = 0
-        rounds.forEach((roundMatches, roundIndex) => {
-            // Determine week for this round
-            // Linear mapping of rounds to weeks
-            const weekOffset = Math.floor((roundIndex / numRounds) * duration)
-            const matchWeek = startWeek + weekOffset
-
-            roundMatches.forEach(m => {
-                const matchId = `${tournament.id}_league_${currentMatchIndex++}`
-                const match: BracketMatchSaveData = {
-                    id: matchId,
-                    tournamentId: tournament.id,
-                    stage: "League Match",
-                    homeTeamId: m.home,
-                    awayTeamId: m.away,
-                    isCompleted: false,
-                    week: matchWeek,
-                    format: "BO1",
-                    seed: rng.int(0, 999999),
-                    sourceMatchIds: []
-                }
-
-                this.addBracketMatch(tournament, match)
-                this.scheduleBracketMatch(save, match)
-            })
-        })
+        setupLeagueScheduleFn(save, tournament, teamIds, rng)
     }
     private static setupSimpleBracket(save: GameSave, tournament: TournamentSaveData, teamIds: string[], rng: SeededRNG): void {
         // Fallback: Pair everyone up, give bye to last team if odd count
