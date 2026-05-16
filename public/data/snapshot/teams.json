@@ -1,8 +1,8 @@
 [
   {
     "id": "team_1_vitalis",
-    "name": "Vitalis",
-    "shortName": "VITA",
+    "name": "Vitals",
+    "shortName": "VITL",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/vitalis/logo.svg",
@@ -101,8 +101,8 @@
   },
   {
     "id": "team_5_phantom",
-    "name": "Phantom",
-    "shortName": "PHAN",
+    "name": "Specter",
+    "shortName": "SPCR",
     "tier": "ELITE",
     "region": "CIS",
     "logoPath": "/assets/teams/phantom/logo.svg",
@@ -227,8 +227,8 @@
   },
   {
     "id": "team_10_thenomads",
-    "name": "The Nomads",
-    "shortName": "THEN",
+    "name": "Nomads",
+    "shortName": "NMDS",
     "tier": "ELITE",
     "region": "ASIA",
     "logoPath": "/assets/teams/the_nomads/logo.svg",
@@ -277,7 +277,7 @@
   },
   {
     "id": "team_12_astraflux",
-    "name": "Astraflux",
+    "name": "Astralians",
     "shortName": "ASTR",
     "tier": "PRO",
     "region": "EU",

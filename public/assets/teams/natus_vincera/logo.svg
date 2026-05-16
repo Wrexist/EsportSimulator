@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Natus Vincera logo">
-  <polygon points="128,16 232,72 232,184 128,240 24,184 24,72" fill="#EC4899" stroke="#500724" stroke-width="6"/>
-  <line x1="62" y1="80" x2="200" y2="80" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="72" y1="184" x2="190" y2="184" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="161.33333333333334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100" fill="#FDF2F8" letter-spacing="-2">NV</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Natus Vincera logo"><rect x="20" y="20" width="216" height="216" rx="18" fill="#0B0B0B"/><polygon points="128,40 156,108 228,108 170,150 192,220 128,176 64,220 86,150 28,108 100,108" fill="#FFD700"/></svg>
