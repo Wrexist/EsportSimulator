@@ -156,11 +156,64 @@ export const COST_CONSTANTS = {
     VOD_REVIEW_COST: 2500,
     MENTAL_RESET_COST: 5000,
     INJURY_TREATMENT_COST: 5000,
+    TRAINING_MISSION_COST: 5000,
 
     // Prospect
     PROSPECT_DEFAULT_SALARY: 2000,
     PROSPECT_DEFAULT_CONTRACT_WEEKS: 104,
     PROSPECT_RELEASE_FEE: 1000,
+} as const
+
+// ============================================
+// ECONOMY (TEAM FINANCIALS)
+// ============================================
+
+export const ECONOMY_CONSTANTS = {
+    /** Base facility upkeep cost per week, scaled by level^COST_EXPONENT. */
+    FACILITY_BASE_COST: 500,
+    /** Income per follower per week (legacy fans*7 fallback). */
+    BASE_FAN_INCOME_PER_FAN: 0.0015,
+    /** Weekly stability income that every team receives. */
+    LEAGUE_REVENUE_SHARE: 15000,
+    /** Reputation floor multiplier applied to sponsor income. */
+    SPONSOR_REP_FACTOR_BASE: 0.7,
+    /** Reputation range multiplier applied to sponsor income. */
+    SPONSOR_REP_FACTOR_RANGE: 0.6,
+    /** Per-merch-level multiplier applied to fan income (1 + (level-1) * RATE). */
+    MERCH_LEVEL_RATE: 0.4,
+    /** Per-FanZone-level bonus to fan income (1 + level * RATE). */
+    FANZONE_LEVEL_RATE: 0.2,
+} as const
+
+/** Team tier -> sponsor income multiplier. */
+export const TEAM_TIER_MULTIPLIERS: Record<string, number> = {
+    S_TIER: 10.0,
+    A_TIER: 5.0,
+    B_TIER: 2.5,
+    C_TIER: 1.0,
+    D_TIER: 0.5,
+}
+
+// ============================================
+// SCOUTING
+// ============================================
+
+export const SCOUT_LEVEL_CONFIG = {
+    BASIC:    { duration: 4, costPerMission: 3000,  upgradeCost: 0,     accuracy: 0.70 },
+    ADVANCED: { duration: 3, costPerMission: 5000,  upgradeCost: 15000, accuracy: 0.85 },
+    EXPERT:   { duration: 2, costPerMission: 8000,  upgradeCost: 30000, accuracy: 0.95 },
+    ELITE:    { duration: 1, costPerMission: 12000, upgradeCost: 50000, accuracy: 1.0  },
+} as const
+
+// ============================================
+// STAFF SALARIES (per week, by tier)
+// ============================================
+
+export const STAFF_SALARY_RANGES = {
+    Legendary: { min: 4500, max: 6000 },
+    Epic:      { min: 3000, max: 4500 },
+    High:      { min: 1800, max: 3000 },
+    Standard:  { min:  800, max: 1800 },
 } as const
 
 // ============================================
@@ -215,6 +268,86 @@ export const STAFF_BONUS_MULTIPLIERS = {
     COACH_XP_MULTIPLIER: 0.5,
     PSYCHOLOGIST_RECOVERY_DIVISOR: 10,
     ANALYST_TACTICAL_DIVISOR: 20,
+} as const
+
+// ============================================
+// ARRAY CAPS (anti-bloat for long sessions)
+// ============================================
+
+/**
+ * Maximum sizes for growing game arrays. Caps prevent unbounded memory
+ * growth during long play sessions and keep save files lean. Engine
+ * compacts at these limits and the store prunes to match after each tick.
+ */
+export const ARRAY_CAPS = {
+    completedMatches: 2000,
+    eventsLog: 500,
+    financeLedger: 2000,
+    transferHistory: 1000,
+    newsFeed: 200,
+    tournamentQualifications: 2000,
+    academyMatchHistory: 200,
+    academyWeeklyReports: 100,
+    hallOfFame: 500,
+} as const
+
+// ============================================
+// MATCH SIMULATION BALANCE
+// ============================================
+
+export const MATCH_BALANCE = {
+    /** Per-side win-probability modifier for T side on standard maps. */
+    T_SIDE_ADVANTAGE: 0.02,
+    /** Per-side win-probability modifier for CT side on standard maps. */
+    CT_SIDE_ADVANTAGE: 0.03,
+    /** Weight applied to recent round momentum in win probability. */
+    MOMENTUM_WEIGHT: 0.02,
+    /** Window of rounds considered for momentum. */
+    MOMENTUM_MAX_ROUNDS: 5,
+    /** Number of consecutive lost rounds before tilt penalty triggers. */
+    TILT_THRESHOLD: 3,
+    /** Per-side win-probability penalty when a team is tilting. */
+    TILT_PENALTY: 0.03,
+    /** Baseline probability for a clutch event to occur in 1vX rounds. */
+    CLUTCH_BASE_CHANCE: 0.05,
+    /** Win-probability bonus when the team's playstyle counters opponent's. */
+    PLAYSTYLE_COUNTER_BONUS: 0.04,
+    /** Win-probability penalty when the team's playstyle is countered. */
+    PLAYSTYLE_COUNTER_PENALTY: 0.03,
+} as const
+
+/** Utility item -> impact power on round outcome. */
+export const UTIL_POWER: Record<string, number> = {
+    smoke: 6,
+    molotov: 8,
+    flash: 5,
+    he: 4,
+}
+export const UTIL_POWER_DEFAULT = 1
+
+// ============================================
+// PRESTIGE
+// ============================================
+
+export const PRESTIGE = {
+    /** Score thresholds mapping to S/A/B/C tiers (descending). */
+    SCORE_S_TIER: 90,
+    SCORE_A_TIER: 80,
+    SCORE_B_TIER: 50,
+    /** Rank-based reputation cutoffs. */
+    TOP_RANK_CUTOFF: 50,
+    MID_RANK_CUTOFF: 75,
+} as const
+
+// ============================================
+// MATCH STRUCTURE
+// ============================================
+
+export const MATCH_STRUCTURE = {
+    /** Rounds in regulation (CS2). */
+    REGULATION_ROUNDS: 24,
+    /** Overtime rounds per side. */
+    OT_ROUNDS_PER_HALF: 3,
 } as const
 
 // ============================================

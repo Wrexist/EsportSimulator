@@ -13,7 +13,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { AlertTriangle, Trash2, UserX } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from "@/lib/toast"
 
 interface ConfirmDialogProps {
     children: ReactNode

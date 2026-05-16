@@ -12,7 +12,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { getTeamFlag } from "@/engine/region-logic"
 import { Badge } from "@/components/ui/badge"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 
 interface BookScrimModalProps {
     isOpen: boolean

@@ -2,7 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 
 type TournamentTier = "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIER"
-type TournamentFormat = "bracket" | "league" | "swiss" | "double_elim" | "gsl"
+type TournamentFormat = "bracket" | "league" | "swiss" | "double_elim"
 
 interface TournamentDefinition {
     id: string

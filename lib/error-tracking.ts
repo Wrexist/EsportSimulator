@@ -3,6 +3,8 @@
  * Sentry-compatible error tracking system
  */
 
+import { safeParse, safeStringify } from "./json-safe"
+
 interface ErrorReport {
     message: string
     stack?: string
@@ -156,11 +158,11 @@ class ErrorTracker {
             const stored = this.getStoredErrors()
             stored.push(report)
             const limited = stored.slice(-50)
-            localStorage.setItem('error-reports', JSON.stringify(limited))
+            localStorage.setItem('error-reports', safeStringify(limited, "[]"))
         } catch (error) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Failed to store error report:', error)
-            }
+            // localStorage may throw on quota exceeded; swallow silently
+            // since the Electron log path above already persisted the report.
+            void error
         }
     }
 
@@ -169,8 +171,7 @@ class ErrorTracker {
      */
     private getStoredErrors(): ErrorReport[] {
         try {
-            const stored = localStorage.getItem('error-reports')
-            return stored ? JSON.parse(stored) : []
+            return safeParse<ErrorReport[]>(localStorage.getItem('error-reports'), []) ?? []
         } catch {
             return []
         }
@@ -216,7 +217,11 @@ class ErrorTracker {
 
         // Keep only last 50
         const limited = breadcrumbs.slice(-50)
-        sessionStorage.setItem('error-breadcrumbs', JSON.stringify(limited))
+        try {
+            sessionStorage.setItem('error-breadcrumbs', safeStringify(limited, "[]"))
+        } catch {
+            // sessionStorage may be unavailable (private mode, quota); drop silently
+        }
     }
 
     /**
@@ -224,8 +229,7 @@ class ErrorTracker {
      */
     private getBreadcrumbs(): any[] {
         try {
-            const stored = sessionStorage.getItem('error-breadcrumbs')
-            return stored ? JSON.parse(stored) : []
+            return safeParse<any[]>(sessionStorage.getItem('error-breadcrumbs'), []) ?? []
         } catch {
             return []
         }

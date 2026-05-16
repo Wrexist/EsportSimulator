@@ -185,7 +185,7 @@ export function MainAppWrapper({ children }) {
 // ============================================
 
 import { validateContract } from '@/lib/validation'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 function handleContractSubmit(data: unknown) {
     const validation = validateContract(data)

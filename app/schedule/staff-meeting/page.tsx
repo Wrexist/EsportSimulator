@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {

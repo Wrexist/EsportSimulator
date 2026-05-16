@@ -8,7 +8,7 @@ import type { EntryPolicy } from "@/types/circuit"
 
 export type TournamentTier = "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIER"
 export type TournamentRegion = "INTERNATIONAL" | "EU" | "NA" | "SA" | "ASIA" | "CIS" | "OCEANIA" | "MENA"
-export type TournamentFormat = "bracket" | "league" | "swiss" | "double_elim" | "gsl"
+export type TournamentFormat = "bracket" | "league" | "swiss" | "double_elim"
 export type EntryType = "OPEN" | "INVITE" | "QUALIFIER" | "POINTS" | "LEAGUE"
 
 export interface TournamentDefinition {

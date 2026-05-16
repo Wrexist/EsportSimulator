@@ -25,7 +25,7 @@ import {
     Gamepad2,
     PartyPopper
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import {

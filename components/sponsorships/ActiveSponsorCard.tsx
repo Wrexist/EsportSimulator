@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -18,7 +19,7 @@ interface ActiveSponsorCardProps {
   index: number
 }
 
-export function ActiveSponsorCard({ sponsor, index }: ActiveSponsorCardProps) {
+function ActiveSponsorCardImpl({ sponsor, index }: ActiveSponsorCardProps) {
   const style = TIER_STYLES[sponsor.tier]
   const totalWeeks = sponsor.tier === "ELITE" ? 48 : sponsor.tier === "PREMIUM" ? 24 : 12
   const elapsed = totalWeeks - sponsor.remainingWeeks
@@ -80,3 +81,5 @@ export function ActiveSponsorCard({ sponsor, index }: ActiveSponsorCardProps) {
     </motion.div>
   )
 }
+
+export const ActiveSponsorCard = memo(ActiveSponsorCardImpl)

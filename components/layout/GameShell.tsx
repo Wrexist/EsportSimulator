@@ -13,6 +13,7 @@ import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
 import { debouncedStorage } from "@/engine/storage-adapter"
 import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
+import { logger } from "@/lib/logger"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -132,9 +133,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                                     saved = true
                                     setExitDialog(null)
                                 } catch (err) {
-                                    if (process.env.NODE_ENV !== 'production') {
-                                        console.error(`[GameShell] Close-save attempt ${attempt + 1} failed:`, err instanceof Error ? err.message : err)
-                                    }
+                                    logger.error(`[GameShell] Close-save attempt ${attempt + 1} failed`, err instanceof Error ? err.message : err)
                                     if (attempt < 2) {
                                         await new Promise(r => setTimeout(r, 300))
                                     }

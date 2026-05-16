@@ -20,7 +20,7 @@ export interface StageTemplate {
     startWeekOffset?: number
     durationWeeks?: number
     maxTeams?: number
-    format?: "bracket" | "league" | "swiss" | "double_elim" | "gsl"
+    format?: "bracket" | "league" | "swiss" | "double_elim"
     terminal?: boolean
 }
 
@@ -39,7 +39,7 @@ export interface CircuitSeriesDefinition {
     shortName: string
     tier: string
     region: string
-    format: "bracket" | "league" | "swiss" | "double_elim" | "gsl"
+    format: "bracket" | "league" | "swiss" | "double_elim"
     slots: number
     entryPolicy: EntryPolicy
     stageTemplates?: StageTemplate[]

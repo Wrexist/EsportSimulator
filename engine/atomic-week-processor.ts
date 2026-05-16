@@ -20,15 +20,12 @@ import {
     CompletedMatchSaveData,
     TournamentSaveData,
     StaffSaveData,
-    getResumeStep,
     CURRENT_SAVE_VERSION,
     repairSave,
 } from "./save-types"
 import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
 import { perfTrace } from "./perf-trace"
-import { WeaponMasteryManager } from "@/engine/weapon-mastery-system"
-import { WEAPONS } from "@/engine/economy-manager"
 import { AIManager } from "./ai-manager"
 import { processWeeklyChemistryGrowth } from "./chemistry-engine"
 import {
@@ -47,6 +44,25 @@ import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
+import { compactPersistentState } from "./processors/save-compactor"
+import {
+    isTerminalBracketStage as isTerminalBracketStageFn,
+    hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
+} from "./processors/tournament-completion"
+import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
+import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
+import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
+import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
+import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
+import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
+import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
+import { detectAchievementFlags } from "./processors/match-achievement-flags"
+import { processForfeitMatch } from "./processors/match-forfeit"
+import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
+import { applyMatchManagerXP } from "./processors/match-manager-xp"
+import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
+import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
+import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -54,12 +70,11 @@ import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { generateAnnualTop20, shouldTriggerAwards, addHLTVAwardsEvent } from "./hltv-awards-engine"
-import { buildQualificationGraph, dedupeQualifications, isQualificationForTournament } from "./circuit-engine"
+import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
-import { ARRAY_CAPS } from "@/engine/constants"
 
 // ===== TYPES =====
 
@@ -113,10 +128,28 @@ export class AtomicWeekProcessor {
     ): Promise<WeekProcessorResult> {
         const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
         const __perfWeek = save.currentWeek + 1
-        // Check for incomplete transaction
-        let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
-        let resumeStep = 1
 
+        // Phase O perf fix — intra-tick checkpoints removed.
+        //
+        // Previously this processor wrote save state to storage 11 times
+        // per tick (pre-tick + after each of 10 steps). JSON.stringify
+        // of a season-50 save costs ~88ms; 11 × 88ms = ~1 second wasted
+        // per tick on serialization alone. Micro-bench confirmed this
+        // was 3,400× more expensive than the actual storage write.
+        //
+        // New model: previous tick's final saveGame() is the durable
+        // pre-tick state. Mid-tick crash = re-run the entire tick from
+        // step 1; the save in memory at the time of the crash is lost,
+        // but the previous tick's save on disk + the captured RNG seed
+        // (in save.lastRngSeed) deterministically produce the same end
+        // state on retry. We trade rare crash-recovery cost (one tick
+        // re-execution) for cheap normal-path ticks.
+        //
+        // On detecting an in-progress transaction, discard its
+        // step-complete bookkeeping. The match-loop's completedMatchIds
+        // is also cleared so resumed ticks re-simulate any matches that
+        // weren't yet committed to save.completedMatches.
+        let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
         if (
             transaction &&
             (
@@ -124,19 +157,25 @@ export class AtomicWeekProcessor {
                 transaction.weekNumber === save.currentWeek + 1
             )
         ) {
-            // Resuming from interrupted transaction
-            resumeStep = getResumeStep(transaction)
-            debugLog(`Resuming week ${save.currentWeek} from step ${resumeStep}`)
+            // Stale transaction from a crashed tick — discard its
+            // bookkeeping; we re-run from step 1 below.
+            debugLog(`Discarding stale transaction at week ${save.currentWeek}; re-running tick`)
+            transaction.trainingComplete = false
+            transaction.fatigueRecoveryComplete = false
+            transaction.injuryChecksComplete = false
+            transaction.financeComplete = false
+            transaction.tournamentProcessingComplete = false
+            transaction.matchSimulationComplete = false
+            transaction.standingsUpdateComplete = false
+            transaction.eventGenerationComplete = false
+            transaction.worldLogicComplete = false
+            transaction.restDayProcessingComplete = false
+            transaction.completedMatchIds = []
+            transaction.generatedEventIds = []
         } else {
-            // Start new transaction
             transaction = await this.saveManager.beginWeekTick(save)
         }
-
-        // Pre-tick checkpoint. The authoritative end-of-last-week save is
-        // already on disk as the primary key (written by the previous tick's
-        // final saveGame). A cheap checkpoint is enough to mark "tick in
-        // progress" without paying for clone/hash/rotate/verify.
-        await this.saveManager.saveGameCheckpoint(save)
+        const resumeStep = 1 // Always re-run from start; resume is whole-tick, not step-level.
 
         // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
         const idx = buildSaveIndexes(save)
@@ -167,9 +206,6 @@ export class AtomicWeekProcessor {
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 2: Fatigue Recovery =====
@@ -179,9 +215,6 @@ export class AtomicWeekProcessor {
                 TrainingProcessor.processFatigueRecovery(save, rng, idx)
                 perfTrace.step("step.2_fatigue", __s)
                 await this.saveManager.markStepComplete(transaction, "fatigueRecoveryComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 3: Injury Checks =====
@@ -191,9 +224,6 @@ export class AtomicWeekProcessor {
                 result.injuriesOccurred = EventProcessor.processInjuryChecks(save, rng)
                 perfTrace.step("step.3_injuries", __s)
                 await this.saveManager.markStepComplete(transaction, "injuryChecksComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4: Finance Processing =====
@@ -204,9 +234,6 @@ export class AtomicWeekProcessor {
                 result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId)
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 4.5: Tournament Processing (MOVED BEFORE MATCHES) =====
@@ -217,9 +244,6 @@ export class AtomicWeekProcessor {
                 this.processTournaments(save, config.playerTeamId, rng, idx, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.5_tournaments", __s)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 5: Match Simulation =====
@@ -260,9 +284,6 @@ export class AtomicWeekProcessor {
                 result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.6_matches", __s)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 6: Standings Update =====
@@ -295,9 +316,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.7_standings", __s)
                 await this.saveManager.markStepComplete(transaction, "standingsUpdateComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7: Event Generation =====
@@ -320,9 +338,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.8_events", __s)
                 await this.saveManager.markStepComplete(transaction, "eventGenerationComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 7.5: AI World Logic (Phase 19/24) =====
@@ -356,9 +371,6 @@ export class AtomicWeekProcessor {
 
                 perfTrace.step("step.9_worldAI", __s)
                 await this.saveManager.markStepComplete(transaction, "worldLogicComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 8: Rest Day Processing =====
@@ -368,13 +380,14 @@ export class AtomicWeekProcessor {
                 TrainingProcessor.processRestDays(save, config.playerTeamId)
                 perfTrace.step("step.10_restDays", __s)
                 await this.saveManager.markStepComplete(transaction, "restDayProcessingComplete")
-                const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                await this.saveManager.saveGameCheckpoint(save)
-                perfTrace.step("step.save", __sv)
             }
 
             // ===== STEP 9: Finalize =====
+            // (Renamed from "Step 9" because step.10_restDays already exists;
+            // this label is the post-rest-days bucket — manager levelup,
+            // chemistry, career stats, compaction, final save).
             debugLog(`[Week ${save.currentWeek}] Step 9: Finalizing...`)
+            const __sFinalize = perfTrace.stepsEnabled ? perfTrace.now() : 0
 
             // Reset daily/weekly counters
             save.teams.forEach(t => {
@@ -396,7 +409,23 @@ export class AtomicWeekProcessor {
 
                 if (newLevel > currentLevel) {
                     save.managerDetails.level = newLevel
+                }
 
+                // Manager level scales the player team's max training slots —
+                // 10 baseline + 1 per 5 manager levels, capped at 14 at L20.
+                // This is the player's one tangible reward for levelling:
+                // each milestone unlocks another weekly training slot for
+                // the roster. Synced every week so existing saves heal
+                // naturally on first tick after this lands.
+                const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
+                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 5)
+                const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
+                const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
+                if (playerTeam && slotIncreased) {
+                    playerTeam.maxTrainingSlots = derivedMaxSlots
+                }
+
+                if (newLevel > currentLevel) {
                     save.eventsLog.push({
                         id: `mgr_lvl_${save.currentWeek}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
                         type: "CAREER_UPDATE",
@@ -404,16 +433,22 @@ export class AtomicWeekProcessor {
                         acknowledged: false,
                         data: {
                             title: "Manager Promotion!",
-                            message: `You have reached Manager Level ${newLevel}. New opportunities may be available in future careers.`,
+                            message: slotIncreased
+                                ? `You have reached Manager Level ${newLevel}. Max weekly training slots increased to ${derivedMaxSlots}.`
+                                : `You have reached Manager Level ${newLevel}.`,
                             severity: "success"
                         }
                     })
                 }
             }
 
+            perfTrace.step("step.11_finalize", __sFinalize)
+
             // ===== STEP 8C: Narrative & News =====
             debugLog(`[Week ${save.currentWeek}] Step 8C: Processing Narrative Features...`)
+            const __sNarrative = perfTrace.stepsEnabled ? perfTrace.now() : 0
             this.generateNarrativeNews(save, rng, idx)
+            perfTrace.step("step.12_narrative", __sNarrative)
 
             // === Cross-Season Career Statistics ===
             // Compute at season boundaries (every 52 weeks)
@@ -426,15 +461,19 @@ export class AtomicWeekProcessor {
             }
 
             // Guard long-running saves against unbounded log growth.
-            this.compactPersistentState(save)
+            compactPersistentState(save)
 
             // Week was already incremented at start of processWeek
             save.lastRngSeed = rng.getState()
 
-            // Final save
-            const __sv = perfTrace.stepsEnabled ? perfTrace.now() : 0
+            // Final save — the ONE authoritative full-save write per tick
+            // (Phase O perf fix). Previously this was the 11th saveGame
+            // call per tick; the other 10 intra-tick checkpoints were
+            // removed because their JSON.stringify cost dominated wall
+            // time at high tick counts.
+            const __sFinalSave = perfTrace.stepsEnabled ? perfTrace.now() : 0
             const saveResult = await this.saveManager.saveGame(save)
-            perfTrace.step("step.save", __sv)
+            perfTrace.step("step.13_finalSave", __sFinalSave)
             if (!saveResult.success) {
                 throw new Error(saveResult.error || "Failed to save")
             }
@@ -541,14 +580,31 @@ export class AtomicWeekProcessor {
         // (which was O(matches × scheduled) — ~50 × 1000 = 50k element touches/week).
         const removedMatchIds = new Set<string>()
 
+        // Precomputed matches-played count per team (Phase O perf fix).
+        // The Elo update below uses this to apply the K=50 calibration
+        // factor for teams under 10 matches. Originally this was computed
+        // inline by save.completedMatches.filter(m => m.home/away === tid).length
+        // for BOTH winner and loser of EVERY processed match — making the
+        // week-tick O(matches_this_week × completed_log_size). After 52 weeks
+        // the log can be 500+ entries and a single tick was 70× slower than
+        // a week-1 tick (smoke profile measured 2.6s late vs 37ms early).
+        // Pre-build the Map once, increment as matches are processed.
+        const matchesPlayedByTeam = new Map<string, number>()
+        for (const cm of save.completedMatches) {
+            matchesPlayedByTeam.set(cm.homeTeamId, (matchesPlayedByTeam.get(cm.homeTeamId) || 0) + 1)
+            matchesPlayedByTeam.set(cm.awayTeamId, (matchesPlayedByTeam.get(cm.awayTeamId) || 0) + 1)
+        }
+
         for (const match of weekMatches) {
             const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
             const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam) continue
 
-            // Select active 5, skipping injured players and pulling from bench
-            const selectActivePlayers = (rosterIds: string[]) => {
-                const available = rosterIds
+            // Select active 5, skipping injured players and pulling from bench.
+            // Defensive `|| []` against corrupt/legacy saves where rosterIds
+            // could be missing despite the type contract.
+            const selectActivePlayers = (rosterIds: string[] | undefined) => {
+                const available = (rosterIds || [])
                     .map(id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id))
                     .filter(p => p && !p.injury) as typeof save.players
                 return available.slice(0, 5)
@@ -558,101 +614,26 @@ export class AtomicWeekProcessor {
             const awayPlayers = selectActivePlayers(awayTeam.rosterIds)
 
             if (homePlayers.length < 5 || awayPlayers.length < 5) {
-                // Forfeit: team with fewer than 5 healthy players loses the match
-                const forfeitingTeam = homePlayers.length < 5 ? homeTeam : awayTeam
-                const winningTeam = homePlayers.length < 5 ? awayTeam : homeTeam
-                const homeForfeits = homePlayers.length < 5
-
-                // Create a forfeit result
-                const forfeitResult: CompletedMatchSaveData = {
-                    ...match,
-                    result: {
-                        homeScore: homeForfeits ? 0 : 1,
-                        awayScore: homeForfeits ? 1 : 0,
-                        maps: [],
-                        playerStats: {},
-                        winnerId: winningTeam.id,
-                        mvpPlayerId: ""
-                    },
-                    analysis: {
-                        summary: `${forfeitingTeam.name} forfeited due to insufficient healthy players (${homeForfeits ? homePlayers.length : awayPlayers.length}/5 available).`,
-                        keyFactor: "FIREPOWER",
-                        winningFactor: "Win by forfeit",
-                        losingFactor: "Insufficient healthy players",
-                        teamPerformance: { economyRating: 0, aimRating: 0, utilityRating: 0, tradingRating: 0 }
-                    },
-                }
-
-                save.completedMatches.push(forfeitResult)
-                removedMatchIds.add(match.id)
-
-                // Update form (already resolved, use directly)
-                const wTeam = winningTeam
-                const fTeam = forfeitingTeam
-                if (wTeam) {
-                    if (!wTeam.recentForm) wTeam.recentForm = []
-                    wTeam.recentForm.push("W")
-                    if (wTeam.recentForm.length > 5) wTeam.recentForm.shift()
-                }
-                if (fTeam) {
-                    if (!fTeam.recentForm) fTeam.recentForm = []
-                    fTeam.recentForm.push("L")
-                    if (fTeam.recentForm.length > 5) fTeam.recentForm.shift()
-                }
-
-                // Generate forfeit event for player team
-                if (forfeitingTeam.id === playerTeamId || winningTeam.id === playerTeamId) {
-                    save.eventsLog.unshift({
-                        id: `forfeit_${save.currentWeek}_${match.id}`,
-                        type: "MATCH_RESULT",
-                        week: save.currentWeek,
-                        data: {
-                            description: forfeitingTeam.id === playerTeamId
-                                ? `Your team forfeited against ${winningTeam.name} due to too many injured players.`
-                                : `${forfeitingTeam.name} forfeited your match — win by default!`,
-                            importance: "HIGH"
-                        },
-                        acknowledged: false
-                    })
-                }
-
-                matchesPlayed++
+                // Forfeit branch extracted to processors/match-forfeit.ts
+                // (Phase M7). Returns the matchesPlayed delta.
+                const { matchesPlayed: forfeitDelta } = processForfeitMatch({
+                    save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
+                    playerTeamId, removedMatchIds,
+                })
+                // Keep matchesPlayedByTeam in sync (Phase O perf path) so a
+                // subsequent regular match in the same tick reads the
+                // post-forfeit count for K-factor calibration.
+                matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
+                matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
+                matchesPlayed += forfeitDelta
                 continue
             }
 
-            // Phase 57: Analyst Bonus (Tactical) & Strategy Triangle
-            const getTacticalBonus = (teamId: string, opponentStyle: string, myStyle: string) => {
-                let bonus = 0
-
-                // 1. Analyst Stats
-                const teamStaff = staffByTeamId.get(teamId)
-                let statSum = 0
-                if (teamStaff) {
-                    for (const s of teamStaff) {
-                        if (s.role === "analyst") statSum += s.stats?.analysis || 50
-                    }
-                }
-                bonus += (statSum / 100) * 5
-
-                // 2. Strategy Triangle (Rock-Paper-Scissors)
-                // AGGRESSIVE > STRUCTURED
-                // STRUCTURED > BALANCED
-                // BALANCED > AGGRESSIVE
-
-                // Normalize "DEFAULT" to "BALANCED"
-                const normalize = (s: string) => (!s || s === "default") ? "balanced" : s
-                const my = normalize(myStyle)
-                const opp = normalize(opponentStyle)
-
-                if (my === "aggressive" && opp === "structured") bonus += 5
-                if (my === "structured" && opp === "balanced") bonus += 5
-                if (my === "balanced" && opp === "aggressive") bonus += 5
-
-                return bonus
-            }
-
-            const homeBonus = getTacticalBonus(homeTeam.id, awayTeam.playstyle ?? "", homeTeam.playstyle ?? "")
-            const awayBonus = getTacticalBonus(awayTeam.id, homeTeam.playstyle ?? "", awayTeam.playstyle ?? "")
+            // Tactical bonus extracted to processors/match-tactical-bonus.ts
+            // (Phase M5). Takes pre-indexed staff for the team + both
+            // playstyles; returns analyst-stat-sum bonus + RPS counter bonus.
+            const homeBonus = getTacticalBonusFn(staffByTeamId.get(homeTeam.id), homeTeam.playstyle, awayTeam.playstyle)
+            const awayBonus = getTacticalBonusFn(staffByTeamId.get(awayTeam.id), awayTeam.playstyle, homeTeam.playstyle)
 
             // Collect team staff for talent bonus application in match sim
             const homeTeamStaff = staffByTeamId.get(homeTeam.id) ?? []
@@ -672,63 +653,17 @@ export class AtomicWeekProcessor {
                 awayTeamStaff
             )
 
-            // Phase 48: Weapon Mastery XP
-            // Accumulate kills by weapon type
-            const playerWeaponStats: Record<string, { rifle: number, awp: number, pistol: number, smg: number }> = {}
+            // Weapon-mastery XP aggregation + application extracted to
+            // processors/match-weapon-mastery.ts (Phase M8). The function
+            // walks result.maps[].rounds[].kills[] once, buckets by weapon
+            // type, then calls WeaponMasteryManager.processMatchWeaponXP
+            // for every player with kills.
+            processMatchWeaponMastery(save, result, idx)
 
-            const trackWeaponKill = (playerId: string, weaponId: string, kills: number) => {
-                if (!playerWeaponStats[playerId]) playerWeaponStats[playerId] = { rifle: 0, awp: 0, pistol: 0, smg: 0 }
-                const w = WEAPONS[weaponId.toUpperCase()]
-                if (!w) return
-
-                // Add based on weapon type
-                if (w.type === "RIFLE") playerWeaponStats[playerId].rifle += kills
-                else if (w.type === "SNIPER") playerWeaponStats[playerId].awp += kills
-                else if (w.type === "PISTOL") playerWeaponStats[playerId].pistol += kills
-                else if (w.type === "SMG") playerWeaponStats[playerId].smg += kills
-            }
-
-            // Iterate through every round of every map
-            result.maps.forEach(map => {
-                map.rounds.forEach(round => {
-                    round.kills.forEach(k => {
-                        if (k.weapon) {
-                            trackWeaponKill(k.playerId, k.weapon, k.kills)
-                        }
-                    })
-                })
-            })
-
-            // Manager XP & Stats
-            if (save.managerDetails) {
-                let winnerId: string | null = null
-                if (result.homeScore > result.awayScore) winnerId = match.homeTeamId
-                else if (result.awayScore > result.homeScore) winnerId = match.awayTeamId
-
-                if (winnerId === playerTeamId) {
-                    save.managerDetails.careerWins++
-                    save.managerDetails.xp += 100
-                    save.managerDetails.reputation += 5
-                } else if (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId) {
-                    save.managerDetails.careerLosses++
-                    save.managerDetails.xp += 25 // Participation XP
-                    save.managerDetails.reputation = Math.max(0, save.managerDetails.reputation - 1)
-                }
-            }
-
-            // Award XP
-            Object.entries(playerWeaponStats).forEach(([playerId, stats]) => {
-                const p = idx?.playerIndex.get(playerId) ?? save.players.find(pl => pl.id === playerId)
-                if (p) {
-                    WeaponMasteryManager.processMatchWeaponXP(
-                        p,
-                        stats.rifle,
-                        stats.awp,
-                        stats.pistol,
-                        stats.smg
-                    )
-                }
-            })
+            // Manager XP + win/loss + reputation extracted to
+            // processors/match-manager-xp.ts (Phase M9). Analyst
+            // "xp_gain" talent multiplier applied internally.
+            applyMatchManagerXP(save, match, result, playerTeamId)
 
             // Phase 12: Analyze match
             const analysis = MatchAnalyzer.analyze(
@@ -740,44 +675,46 @@ export class AtomicWeekProcessor {
                 awayPlayers
             )
 
-            // Record result
+            // Record result.
+            //
+            // Phase O.2 save-size fix: AI-vs-AI matches were averaging
+            // 123 KB each — almost entirely from result.maps[].rounds[]
+            // event detail that the player never sees. At week 52 of a
+            // smoke save, this was ballooning the on-disk save to 18 MB.
+            //
+            // Player-team matches keep full round detail (the result
+            // page reads it for the play-by-play view). AI-vs-AI matches
+            // strip rounds[] — the scoreboard (finalScore, MVP, etc.)
+            // survives intact for stats pages, ranking, and trophy
+            // tracking, which only read summary fields.
+            const isPlayerMatch =
+                match.homeTeamId === playerTeamId ||
+                match.awayTeamId === playerTeamId
+            const resultForSave = isPlayerMatch
+                ? result
+                : {
+                    ...result,
+                    maps: result.maps.map(m => ({ ...m, rounds: [] })),
+                }
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
-                result: result,
+                result: resultForSave,
                 analysis,
             }
 
             save.completedMatches.push(completedMatch)
+            // Keep the precomputed count in sync so the Elo K-factor
+            // calibration below reads the post-push value.
+            matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
+            matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
             removedMatchIds.add(match.id)
 
-            // Detect comeback win (team was down by 9+ rounds on a map but won it)
-            let hasComebackWin = false
-            for (const mapResult of result.maps) {
-                const rounds = mapResult.rounds || []
-                let homeMapScore = 0, awayMapScore = 0
-                for (const round of rounds) {
-                    if (round.winningTeamId === homeTeam.id) homeMapScore++
-                    else awayMapScore++
-                    // Check if a team was down 3-12 or worse and ended up winning the map
-                    const homeDown = awayMapScore - homeMapScore >= 9
-                    const awayDown = homeMapScore - awayMapScore >= 9
-                    if (homeDown && mapResult.finalScore.team1 > mapResult.finalScore.team2) { hasComebackWin = true; break }
-                    if (awayDown && mapResult.finalScore.team2 > mapResult.finalScore.team1) { hasComebackWin = true; break }
-                }
-                if (hasComebackWin) break
-            }
-
-            // Detect underdog win (beat a team ranked 20+ positions higher)
-            const homeRank = homeTeam.worldRanking || 99
-            const awayRank = awayTeam.worldRanking || 99
-            const homeIsUnderdog = homeRank - awayRank >= 20
-            const awayIsUnderdog = awayRank - homeRank >= 20
-            const hasUnderdogWin = (result.homeScore > result.awayScore && homeIsUnderdog) ||
-                (result.awayScore > result.homeScore && awayIsUnderdog)
-
-            // Store flags on the completed match for achievement tracking
-            if (hasComebackWin) completedMatch._comebackWin = true
-            if (hasUnderdogWin) completedMatch._underdogWin = true
+            // Achievement flag detection extracted to
+            // processors/match-achievement-flags.ts (Phase M6). Returns
+            // comeback + underdog flags written onto the completed match.
+            const { comebackWin, underdogWin } = detectAchievementFlags(result, homeTeam, awayTeam)
+            if (comebackWin) completedMatch._comebackWin = true
+            if (underdogWin) completedMatch._underdogWin = true
 
             // Update player stats
             const homeWon = result.homeScore > result.awayScore
@@ -906,17 +843,15 @@ export class AtomicWeekProcessor {
                     if (tournament) tournamentTier = tournament.tier
                 }
 
-                // Calculate matches played for calibration (K=50 for first 10 matches).
-                // Bug fix: completedMatches.push(...) above included this match for
-                // both teams, so the previous count was off-by-one — a team's 10th
-                // real match read as match 11, ending the calibration window early.
-                // Subtract 1 because the current match is now in the history for both
-                // sides (this is also faster than re-scanning the whole array).
-                const getMatchesPlayed = (tid: string) =>
-                    save.completedMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid).length
-
-                const winnerMatches = Math.max(0, getMatchesPlayed(winnerId) - 1)
-                const loserMatches = Math.max(0, getMatchesPlayed(loserId) - 1)
+                // Matches played for K=50 calibration (first 10 matches).
+                // Pulled from the precomputed Map built before the per-match
+                // loop instead of re-scanning save.completedMatches each call.
+                // Subtract 1 because the current match's push above included
+                // this match for both teams, so the count is off-by-one for
+                // the calibration window (a team's 10th real match should
+                // still read as match 10, not 11).
+                const winnerMatches = Math.max(0, (matchesPlayedByTeam.get(winnerId) || 0) - 1)
+                const loserMatches = Math.max(0, (matchesPlayedByTeam.get(loserId) || 0) - 1)
 
                 // Calculate Net Round Differential (Total rounds won by winner - Total rounds won by loser)
                 // result.maps contains round scores. result.homeScore is Map wins.
@@ -994,297 +929,15 @@ export class AtomicWeekProcessor {
     }
 
     private isTerminalBracketStage(stage: string): boolean {
-        const normalized = stage.toLowerCase()
-        return normalized.includes("grand final")
-            || normalized === "final"
-            || normalized === "finals"
+        return isTerminalBracketStageFn(stage)
     }
 
     private hasTerminalTournamentCompletion(save: GameSave, tournament: TournamentSaveData): boolean {
-        const tournamentMatches = save.completedMatches.filter(m => m.tournamentId === tournament.id)
-        if (tournamentMatches.length === 0) return false
-
-        if (tournament.playoffBracket && tournament.playoffBracket.length > 0) {
-            const terminalMatch = tournament.playoffBracket
-                .filter(m => this.isTerminalBracketStage(m.stage))
-                .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-
-            if (!terminalMatch || !terminalMatch.isCompleted || !terminalMatch.winnerId) {
-                return false
-            }
-            return tournamentMatches.some(m => m.id === terminalMatch.id)
-        }
-
-        if (tournament.format === "league") {
-            const pending = save.scheduledMatches.some(
-                m => m.tournamentId === tournament.id && m.week <= save.currentWeek
-            )
-            if (pending) return false
-            return tournamentMatches.length > 0
-        }
-
-        const finalByStage = tournamentMatches
-            .filter(m => m.stage && this.isTerminalBracketStage(m.stage))
-            .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-        return !!finalByStage?.result?.winnerId
+        return hasTerminalTournamentCompletionFn(save, tournament)
     }
 
     private updateStandings(save: GameSave, idx?: SaveIndexes, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
-        const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
-
-        const compareStandings = (
-            a: TournamentSaveData["standings"][number],
-            b: TournamentSaveData["standings"][number],
-            tournamentMatches: CompletedMatchSaveData[]
-        ): number => {
-            // 1) Points (desc)
-            if (b.points !== a.points) return b.points - a.points
-            // 2) Wins (desc)
-            if (b.wins !== a.wins) return b.wins - a.wins
-            // 3) Head-to-head wins (desc)
-            const h2hMatches = tournamentMatches.filter(
-                m =>
-                    (m.homeTeamId === a.teamId && m.awayTeamId === b.teamId) ||
-                    (m.homeTeamId === b.teamId && m.awayTeamId === a.teamId)
-            )
-            if (h2hMatches.length > 0) {
-                const aH2HWins = h2hMatches.filter(m => m.result.winnerId === a.teamId).length
-                const bH2HWins = h2hMatches.filter(m => m.result.winnerId === b.teamId).length
-                if (aH2HWins !== bH2HWins) return bH2HWins - aH2HWins
-            }
-            // 4) Map diff (desc)
-            if (b.mapDiff !== a.mapDiff) return b.mapDiff - a.mapDiff
-            // 5) Round diff (desc)
-            if (b.roundDiff !== a.roundDiff) return b.roundDiff - a.roundDiff
-            // 6) Deterministic fallback
-            return a.teamId.localeCompare(b.teamId)
-        }
-
-        save.tournaments.forEach(tournament => {
-            // Recalculate standings from completed matches
-            const tournamentMatches = save.completedMatches.filter(
-                m => m.tournamentId === tournament.id
-            )
-
-            tournament.standings.forEach(standing => {
-                const teamMatches = tournamentMatches.filter(
-                    m => m.homeTeamId === standing.teamId || m.awayTeamId === standing.teamId
-                )
-
-                standing.matchesPlayed = teamMatches.length
-                standing.wins = teamMatches.filter(m => {
-                    const isHome = m.homeTeamId === standing.teamId
-                    return isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-                }).length
-                standing.losses = standing.matchesPlayed - standing.wins
-                standing.points = standing.wins * 3
-
-                // Map differential
-                standing.mapsWon = teamMatches.reduce((sum, m) => {
-                    const isHome = m.homeTeamId === standing.teamId
-                    return sum + (isHome ? m.result.homeScore : m.result.awayScore)
-                }, 0)
-                standing.mapsLost = teamMatches.reduce((sum, m) => {
-                    const isHome = m.homeTeamId === standing.teamId
-                    return sum + (isHome ? m.result.awayScore : m.result.homeScore)
-                }, 0)
-                standing.mapDiff = standing.mapsWon - standing.mapsLost
-                standing.roundDiff = teamMatches.reduce((sum, m) => {
-                    const homeRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.homeScore || 0), 0)
-                    const awayRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.awayScore || 0), 0)
-                    const isHome = m.homeTeamId === standing.teamId
-                    return sum + (isHome ? (homeRounds - awayRounds) : (awayRounds - homeRounds))
-                }, 0)
-            })
-
-            // Sort standings
-            tournament.standings.sort((a, b) => compareStandings(a, b, tournamentMatches))
-
-            // Completion now requires a terminal competitive state, not only endWeek.
-            if (!tournament.isCompleted && this.hasTerminalTournamentCompletion(save, tournament)) {
-                tournament.isCompleted = true
-                if (!tournament.winnerId) {
-                    const terminalMatch = tournament.playoffBracket
-                        ?.filter(m => this.isTerminalBracketStage(m.stage) && m.isCompleted && m.winnerId)
-                        .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-                    tournament.winnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
-                }
-            }
-
-            if (!tournament.isCompleted || tournament.rewardsGranted) return
-
-            const tournamentPlayedMatches = save.completedMatches.filter(m => m.tournamentId === tournament.id)
-            if (tournamentPlayedMatches.length === 0) return
-
-            const winnerTeamId = tournament.winnerId || tournament.standings[0]?.teamId
-            if (!winnerTeamId) return
-
-            const winningTeam = idx?.teamIndex.get(winnerTeamId) ?? save.teams.find(t => t.id === winnerTeamId)
-            if (!winningTeam) return
-            if (!winningTeam.trophies) winningTeam.trophies = []
-
-            const seasonAwareTrophyExists = winningTeam.trophies.some(
-                trophy =>
-                    trophy.tournamentId === tournament.id ||
-                    (toBaseTournamentId(trophy.tournamentId) === toBaseTournamentId(tournament.id) &&
-                        trophy.week === save.currentWeek)
-            )
-            if (!seasonAwareTrophyExists) {
-                winningTeam.trophies.push({
-                    tournamentId: tournament.id,
-                    tournamentName: tournament.name,
-                    week: save.currentWeek,
-                    tier: tournament.tier,
-                    trophyPath: tournament.trophyPath,
-                })
-            }
-
-            // Compute placements for prize distribution and circuit points
-            const placements = TournamentManager.calculatePlacements(save, tournament)
-
-            // Prize distribution by placement (matches UI percentages)
-            const prizeDistribution: Record<number, number> = {
-                1: 0.40, 2: 0.20, 3: 0.10, 4: 0.10, 5: 0.05, 6: 0.05, 7: 0.05, 8: 0.05,
-                9: 0.025, 10: 0.025, 11: 0.025, 12: 0.025,
-                13: 0.005, 14: 0.005, 15: 0.005, 16: 0.005
-            }
-
-            if (tournament.prizePool > 0) {
-                for (const p of placements) {
-                    const prizePct = prizeDistribution[p.position] ?? 0
-                    if (prizePct <= 0) continue
-                    const prizeAmount = Math.round(tournament.prizePool * prizePct)
-                    if (prizeAmount <= 0) continue
-
-                    const prizeLedgerId = `prize_${tournament.id}_${p.teamId}_p${p.position}`
-                    if (ledgerIdSet?.has(prizeLedgerId) ?? save.financeLedger.some(entry => entry.id === prizeLedgerId)) continue
-
-                    const team = idx?.teamIndex.get(p.teamId) ?? save.teams.find(t => t.id === p.teamId)
-                    if (!team) continue
-
-                    team.budget += prizeAmount
-                    save.financeLedger.push({
-                        id: prizeLedgerId,
-                        week: save.currentWeek,
-                        teamId: p.teamId,
-                        type: "INCOME",
-                        category: "PRIZE",
-                        amount: prizeAmount,
-                        description: `${tournament.name} - ${p.position === 1 ? "1st" : p.position === 2 ? "2nd" : p.position + "th"} Place`,
-                        balance: team.budget,
-                    })
-                    ledgerIdSet?.add(prizeLedgerId)
-                }
-            }
-
-            // Award circuit points for each placement
-            if (!save.circuitPoints) save.circuitPoints = []
-            const tierKey = tournament.tier as keyof typeof CIRCUIT_POINTS
-            const pointsTable = (CIRCUIT_POINTS[tierKey] || {}) as Record<number, number>
-            for (const p of placements) {
-                const points = pointsTable[p.position] ?? 0
-                if (points <= 0) continue
-
-                let entry = save.circuitPoints.find(cp => cp.teamId === p.teamId) // circuitPoints not indexed (small array)
-                if (entry) {
-                    entry.points += points
-                    entry.results.push({
-                        tournamentId: tournament.id,
-                        tournamentName: tournament.name,
-                        placement: p.position,
-                        points,
-                        week: save.currentWeek
-                    })
-                } else {
-                    save.circuitPoints.push({
-                        teamId: p.teamId,
-                        points,
-                        results: [{
-                            tournamentId: tournament.id,
-                            tournamentName: tournament.name,
-                            placement: p.position,
-                            points,
-                            week: save.currentWeek
-                        }]
-                    })
-                }
-            }
-
-            winningTeam.reputation = Math.min(100, winningTeam.reputation + 10)
-
-            const tierMultiplier: Record<string, number> = {
-                "S_TIER": 200,
-                "A_TIER": 100,
-                "B_TIER": 50,
-                "C_TIER": 20
-            }
-            const mult = tierMultiplier[tournament.tier] || 10
-            const fanGain = (mult * 100) + (winningTeam.reputation * mult)
-            winningTeam.followers = (winningTeam.followers || 0) + fanGain
-
-            const trophyEventId = `trophy_${tournament.id}_${winnerTeamId}`
-            if (!(eventIdSet?.has(trophyEventId) ?? save.eventsLog.some(event => event.id === trophyEventId))) {
-                save.eventsLog.push({
-                    id: trophyEventId,
-                    type: EventType.MEDIA,
-                    week: save.currentWeek,
-                    data: { teamId: winningTeam.id, tournamentName: tournament.name, fanGain },
-                    acknowledged: false
-                })
-                eventIdSet?.add(trophyEventId)
-            }
-
-            if (winningTeam.id === save.playerTeamId) {
-                save.pendingCelebration = {
-                    tournamentId: tournament.id,
-                    tournamentName: tournament.name,
-                    tier: tournament.tier,
-                    prize: tournament.prizePool,
-                    repGain: 10,
-                    fanGain: fanGain,
-                    week: save.currentWeek,
-                    logoPath: tournament.logoPath,
-                    trophyPath: tournament.trophyPath
-                }
-
-                // Major win (S_TIER) → offer legend pick
-                if (tournament.tier === "S_TIER") {
-                    const alreadySigned = save.signedLegendIds || []
-                    // Also exclude legends whose active counterpart is still playing
-                    const stillActiveLegendIds = (save.activelyPlayingLegendIds || []).filter(lid => {
-                        // Check if the active counterpart has retired — if so, allow this legend
-                        const legendData = LEGENDARY_PLAYERS.find(lp => lp.id === lid) // static data, small array
-                        if (!legendData) return true
-                        const nick = legendData.nickname.toLowerCase()
-                        return save.players.some(p =>
-                            p.id !== lid && !p.isRetired &&
-                            p.nickname.toLowerCase() === nick
-                        )
-                    })
-                    const availableLegends = LEGENDARY_PLAYERS.filter(
-                        lp => !alreadySigned.includes(lp.id) &&
-                            !stillActiveLegendIds.includes(lp.id) &&
-                            !winningTeam.rosterIds.includes(lp.id)
-                    )
-                    if (availableLegends.length >= 3) {
-                        // Deterministic shuffle using seeded RNG
-                        const pickRng = new SeededRNG(save.currentWeek * 31337 + (save.lastRngSeed || 1))
-                        const shuffled = [...availableLegends]
-                        for (let i = shuffled.length - 1; i > 0; i--) {
-                            const j = pickRng.int(0, i)
-                                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-                        }
-                        save.pendingLegendPick = {
-                            tournamentName: tournament.name,
-                            candidates: shuffled.slice(0, 3).map(p => p.id),
-                            week: save.currentWeek,
-                        }
-                    }
-                }
-            }
-
-            tournament.rewardsGranted = true
-        })
+        updateStandingsFn(save, idx, eventIdSet, ledgerIdSet)
     }
 
     // generateEvents moved to processors/event-processor.ts
@@ -1293,249 +946,22 @@ export class AtomicWeekProcessor {
      * Phase 9: Process scouting missions - complete any that are done
      */
     private processScoutingMissions(save: GameSave, idx?: SaveIndexes): void {
-        if (!save.activeScoutingMission) return
-
-        const mission = save.activeScoutingMission
-
-        // Check if mission is complete
-        if (save.currentWeek >= mission.completionWeek) {
-            // Add to scouted players
-            if (!save.scoutedPlayers) {
-                save.scoutedPlayers = []
-            }
-
-            save.scoutedPlayers.push({
-                playerId: mission.playerId,
-                scoutedWeek: save.currentWeek,
-                scoutLevel: "EXPERT" as const,
-            })
-
-            // Generate news event
-            const scoutedPlayer = idx?.playerIndex.get(mission.playerId) ?? save.players.find(p => p.id === mission.playerId)
-            if (scoutedPlayer) {
-                save.eventsLog.push({
-                    id: `scouting_complete_${save.currentWeek}_${mission.playerId}`,
-                    type: "NEWS",
-                    week: save.currentWeek,
-                    data: {
-                        text: `Scouting report complete for ${scoutedPlayer.nickname}. Full stats are now visible.`,
-                        playerName: scoutedPlayer.nickname,
-                    },
-                    acknowledged: false,
-                })
-            }
-
-            // Clear active mission
-            save.activeScoutingMission = undefined
-
-            debugLog(`[Scouting] Completed mission for ${mission.playerId}`)
-        }
+        processScoutingMissionsFn(save, idx)
     }
-
     private processAIWorldLogic(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
-        // 1. Elo updates are now handled atomically in processMatches via LeagueEngine
-        // This prevents double-counting and ensures consistent logic.
-
-        // 2. Refresh World Rankings
-        AIManager.refreshWorldRankings(save)
-
-        // 3. Process AI Decision Logic & Academy
-        save.teams.forEach(team => {
-            AIManager.processAcademyScouting(save, team, rng)
-        })
-
-        // Process AI logic — transfers only during transfer windows
-        // Transfer windows: weeks 1-8 (pre-season) and 26-34 (mid-season)
-        const weekOfSeason = ((save.currentWeek - 1) % 52) + 1
-        const isTransferWindow = weekOfSeason <= 8 || (weekOfSeason >= 26 && weekOfSeason <= 34)
-        AIManager.processWeeklyAI(save, playerTeamId, rng, isTransferWindow)
-
-        // AI-to-AI transfers during transfer windows
-        if (isTransferWindow) {
-            AIManager.processAIToAITransfers(save, playerTeamId, rng)
-        }
-
-        // 3b. Staff market auto-refresh every 4 weeks
-        if (save.currentWeek > 0 && save.currentWeek % 4 === 0) {
-            const staffRng = new SeededRNG(rng.next() * 2147483646 || 1)
-            save.marketStaff = StaffGenerator.generateWeeklyMarket(save.currentWeek, 20, staffRng)
-            save.nextMarketRefreshWeek = save.currentWeek + 4
-        }
-
-        // 4. Seasonal logic (Season transition every 52 weeks)
-        if (save.currentWeek > 0 && save.currentWeek % 52 === 0) {
-            AIManager.processSeasonEnd(save)
-
-            // ===== YOUTH ACADEMY: Generate Prospects =====
-            // Teams with Training Center Level 3+ get 1-2 youth prospects
-            debugLog(`[Season End] Generating Youth Prospects...`)
-
-            save.teams.forEach(team => {
-                const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
-                if (!trainingFacility || trainingFacility.level < 3) return
-
-                const prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
-
-                for (let i = 0; i < prospectsToGenerate; i++) {
-                    const prospectId = `youth_${team.id}_${save.currentWeek}_${i}`
-                    const prospectAge = 16 + Math.floor(rng.next() * 3) // 16-18
-                    const potential = 60 + Math.floor(rng.next() * 30) // 60-89
-
-                    // Random nationality pool
-                    const nationalities = ["Denmark", "Sweden", "France", "Germany", "Poland", "Brazil", "USA", "Russia", "Kazakhstan", "China"]
-                    const nationality = nationalities[Math.floor(rng.next() * nationalities.length)]
-
-                    // Generate adjective-based nickname
-                    const prefixes = ["Neo", "Hyper", "Swift", "Blaze", "Frost", "Storm", "Volt", "Shadow", "Apex", "Nova"]
-                    const suffixes = ["X", "Z", "1", "Y", "Q", "0", "K", "R"]
-                    const nickname = prefixes[Math.floor(rng.next() * prefixes.length)] + suffixes[Math.floor(rng.next() * suffixes.length)]
-
-                    // Roles pool
-                    const roles: ("Rifler" | "AWPer" | "Support" | "Entry" | "Lurker")[] = ["Rifler", "AWPer", "Support", "Entry", "Lurker"]
-                    const role = roles[Math.floor(rng.next() * roles.length)]
-
-                    // Current skill is lower than potential (they need to grow)
-                    const currentSkill = Math.max(40, potential - 25 - Math.floor(rng.next() * 10))
-
-                    const newProspect: any = {
-                        id: prospectId,
-                        nickname: nickname,
-                        firstName: "Youth",
-                        lastName: "Prospect",
-                        nationality: nationality,
-                        age: prospectAge,
-                        role: role,
-                        skill: currentSkill,
-                        potential: potential,
-                        morale: 80,
-                        fatigue: 0,
-                        form: 70,
-                        health: 100,
-                        matchesPlayed: 0,
-                        isYouthPlayer: true,
-                        // Weapons Map (default values)
-                        rifle: currentSkill * 0.8,
-                        awp: role === "AWPer" ? currentSkill : currentSkill * 0.5,
-                        pistol: currentSkill * 0.7,
-                        grenades: currentSkill * 0.7,
-                        tactic: currentSkill * 0.6,
-                        creativity: currentSkill * 0.6,
-                        reaction: currentSkill * 0.7,
-                        clutch: currentSkill * 0.5,
-                        teamwork: currentSkill * 0.6,
-                        stressResistance: currentSkill * 0.5,
-                        entry: currentSkill * 0.5,
-                        trading: currentSkill * 0.5,
-                        leader: currentSkill * 0.3,
-                        amicability: currentSkill * 0.6,
-                        eyesight: currentSkill * 0.7,
-                        strength: currentSkill * 0.6,
-                        endurance: currentSkill * 0.6,
-                        portraitPath: null,
-                        xp: 0,
-                        xpToNextLevel: 1000,
-                        level: 1,
-                    }
-
-                    save.players.push(newProspect)
-
-                    // Add to academy players (Phase 70 canonical)
-                    if (!save.academyPlayers) save.academyPlayers = []
-                    save.academyPlayers.push({
-                        id: `academy_${prospectId}_${save.currentWeek}`,
-                        playerId: prospectId,
-                        enrolledWeek: save.currentWeek,
-                        trainingFocus: 'BALANCED' as const,
-                        developmentProgress: 0,
-                        potentialRevealed: false,
-                        totalXpGained: 0,
-                        academyMatchesPlayed: 0,
-                        readyForPromotion: false,
-                        scoutNotes: `Youth intake prospect for ${team.name}`,
-                        energy: 100,
-                    })
-
-                    debugLog(`[Youth Academy] ${team.name} signed prospect: ${nickname} (Skill: ${currentSkill}, Potential: ${potential})`)
-                }
-
-                // Notify player team
-                if (team.id === playerTeamId) {
-                    save.eventsLog.unshift({
-                        id: `youth_intake_${save.currentWeek}`,
-                        type: "TRAINING_COMPLETE",
-                        week: save.currentWeek,
-                        acknowledged: false,
-                        data: {
-                            title: "Youth Intake Complete",
-                            message: `${prospectsToGenerate} new prospect${prospectsToGenerate > 1 ? 's have' : ' has'} joined your Youth Academy. Check the Squad page to view and promote them.`,
-                            severity: "success"
-                        }
-                    })
-                }
-            })
-        }
+        processAIWorldLogicFn(save, playerTeamId, rng)
     }
 
     /**
      * Phase 24: Process performance-based follower growth
      */
     private processFanbaseGrowth(save: GameSave, rng: SeededRNG): void {
-        save.teams.forEach(team => {
-            // Organic growth based on reputation (e.g. 50-250 fans depending on 0-100 rep)
-            let dailyOrganic = (team.reputation / 100) * 15
-            let weeklyGrowth = dailyOrganic * 7
-
-            // Phase 18: Fan Zone Bonus (15% per level)
-            const fanZoneFacility = team.facilities?.find(f => f.type === "FANZONE")
-            const fanZoneBonus = 1 + (fanZoneFacility?.level || 0) * 0.15
-            weeklyGrowth *= fanZoneBonus
-
-            // Performance influence (recent matches)
-            const weekMatches = save.completedMatches.filter(m =>
-                (m.homeTeamId === team.id || m.awayTeamId === team.id) &&
-                m.week === save.currentWeek
-            )
-
-            weekMatches.forEach(m => {
-                const isHome = m.homeTeamId === team.id
-                const won = isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-
-                if (won) {
-                    // Winning matches adds followers
-                    // Elite teams gain more from wins, but have higher expectations
-                    const gain = 500 + (team.reputation * 5)
-                    weeklyGrowth += gain
-                } else {
-                    // Losing matches causes a slight stagnation or decline
-                    weeklyGrowth -= 100
-                }
-            })
-
-            // Ranking clout
-            if (team.worldRanking && team.worldRanking <= 30) {
-                // Top teams get bonus organic spread
-                const rankingBonus = (31 - team.worldRanking) * 50
-                weeklyGrowth += rankingBonus
-            }
-
-            // Marketing campaign bonus
-            const activeMarketing = save.scheduledActivities?.filter(a =>
-                a.type === "MARKETING" &&
-                save.currentWeek >= a.week &&
-                save.currentWeek < a.week + a.duration &&
-                typeof (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek === "number"
-            ) ?? []
-            for (const campaign of activeMarketing) {
-                const gain = (campaign.data as { followersPerWeek?: number })?.followersPerWeek ?? 0
-                if (typeof gain === "number" && gain > 0) {
-                    weeklyGrowth += gain
-                }
-            }
-
-            team.followers = Math.max(0, Math.floor((team.followers || 0) + weeklyGrowth))
-        })
+        processFanbaseGrowthFn(save, rng)
     }
 
+    // Per-match sponsor goal progress extracted to
+    // engine/processors/match-sponsor-goals.ts (Phase M2). Facade kept
+    // so processMatches still calls this.applyMatchSponsorGoalProgress.
     private applyMatchSponsorGoalProgress(
         save: GameSave,
         team: TeamSaveData,
@@ -1545,171 +971,14 @@ export class AtomicWeekProcessor {
         eventIdSet?: Set<string>,
         ledgerIdSet?: Set<string>
     ): void {
-        if (!team.sponsors || team.sponsors.length === 0) return
-
-        team.sponsors.forEach(sponsor => {
-            if (!Array.isArray(sponsor.goals)) return
-
-            sponsor.goals.forEach(goal => {
-                if (goal.isCompleted) return
-
-                if (goal.description.includes("Win Matches") && wonMatch) {
-                    goal.current += 1
-                }
-
-                if (goal.description.includes("Win Tournament maps")) {
-                    goal.current += mapsWon
-                }
-
-                if (goal.current < goal.target) return
-                goal.current = goal.target
-                goal.isCompleted = true
-
-                const payoutEntryId = `fin_sponsor_match_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}_${matchId}`
-                const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
-                if (alreadyPaid) return
-
-                team.budget += goal.bonusPayout
-                save.financeLedger.push({
-                    id: payoutEntryId,
-                    week: save.currentWeek,
-                    teamId: team.id,
-                    type: "INCOME",
-                    category: "SPONSOR",
-                    amount: goal.bonusPayout,
-                    description: `Goal Reached: ${goal.description}`,
-                    balance: team.budget
-                })
-                ledgerIdSet?.add(payoutEntryId)
-
-                if (team.id !== save.playerTeamId) return
-
-                const eventId = `evt_sponsor_match_goal_${save.currentWeek}_${sponsor.id}_${goal.id}_${matchId}`
-                if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
-                    save.eventsLog.unshift({
-                        id: eventId,
-                        type: "SPONSOR_OFFER",
-                        week: save.currentWeek,
-                        data: {
-                            title: "Sponsor Goal Met",
-                            message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`
-                        },
-                        acknowledged: false
-                    })
-                    eventIdSet?.add(eventId)
-                }
-            })
-        })
+        applyMatchSponsorGoalProgressFn(save, team, wonMatch, mapsWon, matchId, eventIdSet, ledgerIdSet)
     }
 
     /**
      * Process sponsor contract lifecycle and weekly sponsor goals exactly once per week.
      */
     private processWeeklySponsorGoals(save: GameSave, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
-        save.teams.forEach(team => {
-            if (!team.sponsors || team.sponsors.length === 0) return
-
-            const followers = team.followers || 0
-            const rosterPlayers = save.players.filter(player => team.rosterIds.includes(player.id))
-            const avgMorale = rosterPlayers.length > 0
-                ? rosterPlayers.reduce((sum, player) => sum + (player.morale || 0), 0) / rosterPlayers.length
-                : 0
-
-            const activeSponsors: typeof team.sponsors = []
-
-            team.sponsors.forEach(sponsor => {
-                // Idempotency guard for rollback/resume paths.
-                if (sponsor.lastProcessedWeek === save.currentWeek) {
-                    if (sponsor.remainingWeeks > 0) activeSponsors.push(sponsor)
-                    return
-                }
-
-                const previousFollowers = sponsor.followerCheckpoint ?? followers
-                const gainedFollowers = Math.max(0, followers - previousFollowers)
-
-                if (Array.isArray(sponsor.goals)) {
-                    sponsor.goals.forEach(goal => {
-                        if (goal.isCompleted) return
-
-                        if (goal.description.includes("Gain Followers")) {
-                            goal.current += gainedFollowers
-                        }
-
-                        if (goal.description.includes("Maintain Morale > 80") && avgMorale > 80) {
-                            goal.current += 1
-                        }
-
-                        if (goal.current >= goal.target) {
-                            goal.current = goal.target
-                            goal.isCompleted = true
-
-                            const payoutEntryId = `fin_sponsor_goal_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}`
-                            const alreadyPaid = ledgerIdSet?.has(payoutEntryId) ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
-
-                            if (!alreadyPaid) {
-                                team.budget += goal.bonusPayout
-                                save.financeLedger.push({
-                                    id: payoutEntryId,
-                                    week: save.currentWeek,
-                                    teamId: team.id,
-                                    type: "INCOME",
-                                    category: "SPONSOR",
-                                    amount: goal.bonusPayout,
-                                    description: `Goal Reached: ${goal.description}`,
-                                    balance: team.budget
-                                })
-                                ledgerIdSet?.add(payoutEntryId)
-
-                                if (team.id === save.playerTeamId) {
-                                    const eventId = `evt_sponsor_goal_${save.currentWeek}_${sponsor.id}_${goal.id}`
-                                    if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
-                                        save.eventsLog.unshift({
-                                            id: eventId,
-                                            type: "SPONSOR_OFFER",
-                                            week: save.currentWeek,
-                                            data: {
-                                                title: "Sponsor Goal Met",
-                                                message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`
-                                            },
-                                            acknowledged: false
-                                        })
-                                        eventIdSet?.add(eventId)
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-
-                sponsor.followerCheckpoint = followers
-                sponsor.lastProcessedWeek = save.currentWeek
-                sponsor.remainingWeeks = Math.max(0, (sponsor.remainingWeeks || 0) - 1)
-
-                if (sponsor.remainingWeeks > 0) {
-                    activeSponsors.push(sponsor)
-                    return
-                }
-
-                if (team.id === save.playerTeamId) {
-                    const expiryEventId = `evt_sponsor_expired_${save.currentWeek}_${sponsor.id}`
-                    if (!(eventIdSet?.has(expiryEventId) ?? save.eventsLog.some(event => event.id === expiryEventId))) {
-                        save.eventsLog.unshift({
-                            id: expiryEventId,
-                            type: "SPONSOR_OFFER",
-                            week: save.currentWeek,
-                            data: {
-                                title: "Sponsor Contract Ended",
-                                message: `${sponsor.name} partnership has expired.`
-                            },
-                            acknowledged: false
-                        })
-                        eventIdSet?.add(expiryEventId)
-                    }
-                }
-            })
-
-            team.sponsors = activeSponsors
-        })
+        processWeeklySponsorGoalsFn(save, eventIdSet, ledgerIdSet)
     }
 
     /**
@@ -1736,25 +1005,8 @@ export class AtomicWeekProcessor {
             })
         }
 
-        // CLEANUP: Reset stale future tournament state from legacy seeding.
-        save.tournaments.forEach(t => {
-            if (t.startWeek > currentWeek) {
-                const hasPrematureState =
-                    (t.teamIds && t.teamIds.length > 0)
-                    || (t.standings && t.standings.length > 0)
-                    || (t.playoffBracket && t.playoffBracket.length > 0)
-
-                if (!hasPrematureState) return
-
-                t.teamIds = []
-                t.standings = []
-                t.playoffBracket = []
-                t.currentStage = "Registration"
-                t.isCompleted = false
-                t.winnerId = undefined
-                t.rewardsGranted = false
-            }
-        })
+        // Reset stale future tournament state (Phase M4).
+        resetStaleTournamentState(save)
 
         // Find tournaments starting this week
         const startingTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => t.startWeek === weekOfSeason)
@@ -2037,323 +1289,17 @@ export class AtomicWeekProcessor {
         }
     }
 
+    // Circuit-points + trophy awarding extracted to
+    // engine/processors/circuit-points-awarder.ts (Phase M3).
     private awardPoints(save: GameSave, teamId: string, points: number, tournamentName: string, placement: number = 0, idx?: SaveIndexes) {
-        if (!points) return
-
-        if (!save.circuitPoints) save.circuitPoints = []
-
-        let entry = save.circuitPoints.find(cp => cp.teamId === teamId) // circuitPoints not indexed (small array)
-        if (!entry) {
-            entry = { teamId, points: 0, results: [] }
-            save.circuitPoints.push(entry)
-        }
-
-        entry.points += points
-        entry.results.push({
-            tournamentId: (FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName)?.id || "unknown"), // static data
-            tournamentName,
-            placement,
-            points,
-            week: save.currentWeek
-        })
-
-        // Phase 28: Award Trophy for wins (Placement 1)
-        if (placement === 1) {
-            const team = idx?.teamIndex.get(teamId) ?? save.teams.find(t => t.id === teamId)
-            const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.name === tournamentName) // static data
-            if (team && tournament) {
-                const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
-                const getSeason = (id: string) => {
-                    const match = id.match(/_s(\d+)$/)
-                    return match ? parseInt(match[1], 10) : null
-                }
-                const currentSeason = Math.floor((save.currentWeek - 1) / 52) + 1
-                const alreadyFinalizedInSeason = save.tournaments.some(
-                    t =>
-                        toBaseTournamentId(t.id) === toBaseTournamentId(tournament.id) &&
-                        (getSeason(t.id) ?? currentSeason) === currentSeason &&
-                        t.rewardsGranted
-                )
-                if (alreadyFinalizedInSeason) {
-                    return
-                }
-
-                if (!team.trophies) team.trophies = []
-
-                // Avoid duplicates for same base tournament/week (handles seasonal ids)
-                const alreadyHas = team.trophies.some(
-                    tr =>
-                        toBaseTournamentId(tr.tournamentId) === toBaseTournamentId(tournament.id) &&
-                        (getSeason(tr.tournamentId) ?? currentSeason) === currentSeason
-                )
-                if (!alreadyHas) {
-                    team.trophies.push({
-                        tournamentId: tournament.id,
-                        tournamentName: tournament.name,
-                        week: save.currentWeek,
-                        trophyPath: tournament.trophyPath,
-                        tier: tournament.tier
-                    })
-
-                    // Update player legacy stats for the winners (only count Majors)
-                    if (tournament.tier === "S_TIER") {
-                        team.rosterIds.forEach(pid => {
-                            const player = idx?.playerIndex.get(pid) ?? save.players.find(p => p.id === pid)
-                            if (player) {
-                                if (!player.majorWins) player.majorWins = 0
-                                player.majorWins++
-                            }
-                        })
-                    }
-
-                    debugLog(`[Trophy] Awarded ${tournament.name} trophy to team ${team.name}`)
-                }
-            }
-        }
-
+        awardCircuitPointsFn(save, teamId, points, tournamentName, placement, idx)
         debugLog(`[Circuit] Awarded ${points} points to team ${teamId} for ${tournamentName} (P${placement})`)
     }
 
     private generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
-        // 1. Monthly Power Rankings
-        if (save.currentWeek > 1 && (save.currentWeek - 1) % 4 === 0) {
-            const topTeams = [...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 5)
-            if (topTeams.length > 0) {
-                const topTeam = topTeams[0]
-
-                save.newsFeed.unshift({
-                    id: `monthly_ranking_${save.currentWeek}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                    title: `HLTV Power Rankings: ${topTeam.name} Top!`,
-                    content: `In this month's official power rankings, ${topTeam.name} secures the #1 spot globally. Current top 5: ${topTeams.map(t => t.name).join(', ')}.`,
-                    category: "ACHIEVEMENT",
-                    teamId: topTeam.id,
-                    week: save.currentWeek,
-                    engagement: { likes: 1200 + Math.floor(rng.next() * 800), views: 15000 + Math.floor(rng.next() * 5000) }
-                })
-            }
-        }
-
-        // 2. Big Match Preview (Finals)
-        const playerTeam = idx?.teamIndex.get(save.playerTeamId) ?? save.teams.find(t => t.id === save.playerTeamId)
-        if (playerTeam) {
-            const finalsMatch = save.scheduledMatches.find(m =>
-                (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId) &&
-                m.week === save.currentWeek &&
-                m.tournamentId && !m.isScrim &&
-                (m.stage?.toLowerCase().includes('final') || m.id.toLowerCase().includes('final'))
-            )
-
-            if (finalsMatch) {
-                const tournament = idx?.tournamentIndex.get(finalsMatch.tournamentId!) ?? save.tournaments.find(t => t.id === finalsMatch.tournamentId)
-                save.newsFeed.unshift({
-                    id: `match_preview_${finalsMatch.id}`,
-                    title: `Grand Final Alert: ${playerTeam.name} Path to Glory`,
-                    content: `The world watches as ${playerTeam.name} prepares for the ${tournament?.name || 'Grand Final'}. "We are ready to leave everything on the server," says the team manager.`,
-                    category: "MATCH",
-                    teamId: playerTeam.id,
-                    week: save.currentWeek,
-                    engagement: { likes: 2500, views: 50000 }
-                })
-            }
-        }
-
-        // 3. Yearly Season Recap
-        if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) {
-            const lastYear = Math.floor((save.currentWeek - 1) / 52)
-            if (lastYear > 0) {
-                save.pendingSeasonRecap = lastYear
-            }
-        }
-
-        // 4. Post-Match Headlines (for completed matches this week)
-        const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1)
-        for (const match of recentMatches.slice(0, 2)) { // Limit to 2 headlines per week
-            const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
-            const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
-            const winner = match.result.winnerId ? (idx?.teamIndex.get(match.result.winnerId) ?? save.teams.find(t => t.id === match.result.winnerId)) : undefined
-            const loser = match.result.winnerId === match.homeTeamId ? awayTeam : homeTeam
-
-            if (winner && loser && match.tournamentId) {
-                const tournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
-                let homeScore = match.result.homeScore
-                let awayScore = match.result.awayScore
-
-                // Fix: Recalculate score from maps if 0-0 (bug prevention)
-                if (homeScore === 0 && awayScore === 0 && match.result.maps && match.result.maps.length > 0) {
-                    // Check if maps have scores
-                    match.result.maps.forEach(m => {
-                        const hScore = m.homeScore || 0
-                        const aScore = m.awayScore || 0
-                        if (hScore > aScore) homeScore++
-                        else if (aScore > hScore) awayScore++
-                    })
-                }
-
-                const scoreLine = `${homeScore}-${awayScore}`
-                const isUpset = (loser?.elo || 0) > (winner?.elo || 0) + 100
-
-                const headlines = isUpset
-                    ? [`UPSET! ${winner.name} Shocks ${loser.name}`, `${winner.name} Pulls Off Miracle Run`]
-                    : [`${winner.name} Dominates ${loser.name}`, `Clinical Win for ${winner.name}`]
-
-                save.newsFeed.unshift({
-                    id: `headline_${match.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                    title: headlines[Math.floor(rng.next() * headlines.length)],
-                    content: `${winner.name} defeats ${loser.name} ${scoreLine} in ${tournament?.name || 'tournament play'}. ${isUpset ? 'A stunning upset that nobody saw coming!' : 'A well-deserved victory.'}`,
-                    category: "MATCH",
-                    teamId: winner.id,
-                    week: save.currentWeek,
-                    engagement: { likes: 500 + Math.floor(rng.next() * 1500), views: 8000 + Math.floor(rng.next() * 12000) }
-                })
-            }
-        }
-
-        // 5. Transfer Rumors (Random chance each week)
-        if (rng.next() < 0.15 && save.currentWeek > 4) { // 15% chance per week
-            const allPlayers = save.players.filter(p => {
-                const contract = idx?.contractIndex.get(p.id) ?? save.contracts.find(c => c.playerId === p.id)
-                return contract && contract.endWeek - save.currentWeek < 12 // Expiring soon
-            })
-
-            if (allPlayers.length > 0) {
-                const player = allPlayers[Math.floor(rng.next() * allPlayers.length)]
-                const currentTeam = save.teams.find(t => t.rosterIds.includes(player.id)) // no index for roster membership
-                const interestedTeams = save.teams
-                    .filter(t => t.id !== currentTeam?.id && t.budget > 100000)
-                    .slice(0, 3)
-
-                if (currentTeam && interestedTeams.length > 0) {
-                    const rumoredTeam = interestedTeams[Math.floor(rng.next() * interestedTeams.length)]
-                    const rumorTemplates = [
-                        `RUMOR: ${rumoredTeam.name} eyes ${player.nickname}`,
-                        `Transfer Watch: ${player.nickname} linked with move`,
-                        `${rumoredTeam.name} in talks with ${player.nickname}?`
-                    ]
-
-                    save.newsFeed.unshift({
-                        id: `rumor_${player.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                        title: rumorTemplates[Math.floor(rng.next() * rumorTemplates.length)],
-                        content: `Sources close to ${rumoredTeam.name} suggest they are monitoring ${player.nickname}'s contract situation at ${currentTeam.name}. The ${player.age}-year-old's deal expires soon.`,
-                        category: "TRANSFER",
-                        playerId: player.id,
-                        teamId: rumoredTeam.id,
-                        week: save.currentWeek,
-                        engagement: { likes: 800 + Math.floor(rng.next() * 1200), views: 20000 + Math.floor(rng.next() * 30000) }
-                    })
-                }
-            }
-        }
-
-        // 6. Rivalry Storylines (When two top teams face off)
-        // Pre-compute top 10 teams by Elo once for rivalry check
-        const topTeamIds = new Set([...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 10).map(t => t.id))
-        const upcomingRivalry = save.scheduledMatches.find(m => {
-            if (m.week !== save.currentWeek || m.isScrim) return false
-            return topTeamIds.has(m.homeTeamId) && topTeamIds.has(m.awayTeamId)
-        })
-
-        if (upcomingRivalry && rng.next() < 0.5) {
-            const home = idx?.teamIndex.get(upcomingRivalry.homeTeamId) ?? save.teams.find(t => t.id === upcomingRivalry.homeTeamId)
-            const away = idx?.teamIndex.get(upcomingRivalry.awayTeamId) ?? save.teams.find(t => t.id === upcomingRivalry.awayTeamId)
-
-            if (home && away) {
-                // Check head-to-head history
-                const h2hMatches = save.completedMatches.filter(m =>
-                    (m.homeTeamId === home.id && m.awayTeamId === away.id) ||
-                    (m.homeTeamId === away.id && m.awayTeamId === home.id)
-                )
-                const homeWins = h2hMatches.filter(m => m.result.winnerId === home.id).length
-                const awayWins = h2hMatches.filter(m => m.result.winnerId === away.id).length
-
-                save.newsFeed.unshift({
-                    id: `rivalry_${upcomingRivalry.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                    title: `Classic Clash: ${home.name} vs ${away.name}`,
-                    content: `Two titans collide this week! Historical record: ${home.name} ${homeWins} - ${awayWins} ${away.name}. Fans are hyped for this blockbuster matchup.`,
-                    category: "MATCH",
-                    teamId: home.id,
-                    week: save.currentWeek,
-                    engagement: { likes: 3000 + Math.floor(rng.next() * 2000), views: 75000 + Math.floor(rng.next() * 25000) }
-                })
-            }
-        }
-
-        // 7. Player Milestones (Career achievements based on match stats)
-        if (playerTeam && rng.next() < 0.1) { // 10% chance per week
-            const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
-            for (const player of roster) {
-                // Use totalKills from player stats if available
-                const totalKills = player.totalKills || 0
-                const milestones = [
-                    { threshold: 500, name: "500 Tournament Kills" },
-                    { threshold: 1000, name: "1,000 Tournament Kills" },
-                    { threshold: 2500, name: "2,500 Tournament Kills" }
-                ]
-
-                for (const milestone of milestones) {
-                    if (totalKills >= milestone.threshold && totalKills < milestone.threshold + 100) {
-                        save.newsFeed.unshift({
-                            id: `milestone_${player.id}_${milestone.threshold}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                            title: `Milestone: ${player.nickname} hits ${milestone.name}!`,
-                            content: `${player.nickname} has reached an incredible ${milestone.name} in their professional career. A testament to consistency and skill.`,
-                            category: "ACHIEVEMENT",
-                            playerId: player.id,
-                            teamId: playerTeam.id,
-                            week: save.currentWeek,
-                            engagement: { likes: 1500, views: 25000 }
-                        })
-                        break
-                    }
-                }
-            }
-        }
+        generateNarrativeNewsFn(save, rng, idx)
     }
 
-    private compactPersistentState(save: GameSave): void {
-        // Bug fix: callers mix `push` (oldest at index 0) and `unshift` (newest
-        // at index 0), so a positional slice silently drops valid recent
-        // events. Sort by week descending — and for events, keep unread before
-        // read at the same week — then take the cap from the front.
-        if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
-            save.eventsLog = [...save.eventsLog]
-                .sort((a, b) => {
-                    if (b.week !== a.week) return b.week - a.week
-                    if (a.acknowledged !== b.acknowledged) return a.acknowledged ? 1 : -1
-                    return 0
-                })
-                .slice(0, ARRAY_CAPS.eventsLog)
-        }
-
-        if (save.completedMatches.length > ARRAY_CAPS.completedMatches) {
-            save.completedMatches = save.completedMatches.slice(-ARRAY_CAPS.completedMatches)
-        }
-
-        if (save.financeLedger.length > ARRAY_CAPS.financeLedger) {
-            save.financeLedger = save.financeLedger.slice(-ARRAY_CAPS.financeLedger)
-        }
-
-        if (save.transferHistory.length > ARRAY_CAPS.transferHistory) {
-            save.transferHistory = save.transferHistory.slice(-ARRAY_CAPS.transferHistory)
-        }
-
-        if (save.newsFeed.length > ARRAY_CAPS.newsFeed) {
-            save.newsFeed = [...save.newsFeed]
-                .sort((a, b) => b.week - a.week)
-                .slice(0, ARRAY_CAPS.newsFeed)
-        }
-
-        if (save.tournamentQualifications.length > 0) {
-            save.tournamentQualifications = dedupeQualifications(
-                save.tournamentQualifications,
-                save.currentWeek
-            )
-            if (save.tournamentQualifications.length > ARRAY_CAPS.tournamentQualifications) {
-                save.tournamentQualifications = save.tournamentQualifications.slice(-ARRAY_CAPS.tournamentQualifications)
-            }
-        }
-
-        const knownEventIds = new Set(save.eventsLog.map(e => e.id))
-        save.acknowledgedEventIds = save.acknowledgedEventIds.filter(id => knownEventIds.has(id))
-    }
 }
 
 export const atomicWeekProcessor = new AtomicWeekProcessor(saveManager)

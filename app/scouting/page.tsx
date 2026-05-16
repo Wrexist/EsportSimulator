@@ -33,7 +33,7 @@ import {
     AlertTriangle,
     Heart,
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/toast"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -297,7 +297,7 @@ export default function ScoutingPage() {
                 const matchesContract = contractExpiryFilter === "any" || (() => {
                     const weeks = getContractWeeksRemaining(p.id, contracts || [], currentWeek || 0)
                     if (weeks === null) return contractExpiryFilter === "free" // free agents match "free"
-                    const maxWeeks = parseInt(contractExpiryFilter)
+                    const maxWeeks = parseInt(contractExpiryFilter, 10)
                     return !isNaN(maxWeeks) && weeks <= maxWeeks
                 })()
 

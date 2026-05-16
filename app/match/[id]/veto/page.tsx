@@ -13,6 +13,7 @@ import { Ban, Check, Swords, Map as MapIcon, RotateCw } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
 import { Team, Player, MatchFormat } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
+import { MAP_NAMES } from "@/data/map-pool"
 import { simulationEngineV2, SeededRNG } from "@/engine"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -30,18 +31,6 @@ const MAP_WALLPAPERS: Record<string, string> = {
     [MapId.VERTIGO]: "/maps/vertigo.png",
     [MapId.ANCIENT]: "/maps/ancient.png",
     [MapId.ANUBIS]: "/maps/anubis.png",
-}
-
-// Map Names for display
-const MAP_NAMES: Record<string, string> = {
-    [MapId.DUST2]: "Dust II",
-    [MapId.MIRAGE]: "Mirage",
-    [MapId.INFERNO]: "Inferno",
-    [MapId.NUKE]: "Nuke",
-    [MapId.OVERPASS]: "Overpass",
-    [MapId.VERTIGO]: "Vertigo",
-    [MapId.ANCIENT]: "Ancient",
-    [MapId.ANUBIS]: "Anubis",
 }
 
 interface VetoTurn {

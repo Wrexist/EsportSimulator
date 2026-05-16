@@ -187,7 +187,7 @@ export interface EntitiesActions {
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
-  toggleMerchItem: (teamId: string, itemType: string) => void
+  toggleMerchItem: (teamId: string, itemType: string) => { success: boolean; message: string }
   setPlayerTrainingFocus: (playerId: string, focus: string) => void
   listPlayerForTransfer: (playerId: string, price: number) => void
   unlistPlayerForTransfer: (playerId: string) => void

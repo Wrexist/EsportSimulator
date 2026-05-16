@@ -11,14 +11,6 @@
 
 import {
     GameSave,
-    TeamSaveData,
-    PlayerSaveData,
-    ContractSaveData,
-    TournamentSaveData,
-    MatchSaveData,
-    CompletedMatchSaveData,
-    FinanceLedgerEntry,
-    GameEventSaveData,
     WeekTickState,
     SaveSlotMetadata,
     STORAGE_KEYS,
@@ -29,7 +21,6 @@ import {
     hasIncompleteWeekTick,
     getResumeStep,
     PlayerPreview,
-    QualificationStatus,
 } from "./save-types"
 import { validateSaveSchema } from "./save-schema"
 
@@ -55,11 +46,8 @@ export type SaveErrorCode =
     | "UNKNOWN"
 
 const TMP_SUFFIX = ".tmp"
-import {
-    dedupeQualifications,
-    normalizeQualificationStatus,
-    resolveTournamentIdentity,
-} from "./circuit-engine"
+import { runMigrationLadder } from "./save-migrations"
+import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { evaluatePlayer } from "./player-evaluation"
 import { generateSeed } from "./rng"
@@ -71,112 +59,26 @@ import { debug } from "@/lib/debug-logger"
 
 export class SaveManager {
     private storage: AsyncStorage
-    private installSecretPromise: Promise<string> | null = null
+    private integrity: SaveIntegrityManager
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
+        this.integrity = new SaveIntegrityManager(storage)
     }
 
     private getWeekTickStateKey(saveId?: string): string {
         return saveId ? `${STORAGE_KEYS.WEEK_TICK_STATE}_${saveId}` : STORAGE_KEYS.WEEK_TICK_STATE
     }
 
-    private serializeForIntegrity(save: Record<string, unknown>): string {
-        // Single-pass serialization: exclude integrityHash without deep-cloning the entire save
-        const { integrityHash, ...rest } = save
-        return JSON.stringify(rest)
+    // Integrity hashing (compute / verify) lives in engine/save-integrity.ts.
+    // Routed through `this.integrity` so SaveManager doesn't have to know
+    // about WebCrypto fallbacks or v2/v3 signature formats.
+    private computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
+        return this.integrity.computeIntegrityHash(save)
     }
 
-    private computeLegacyIntegrityHash(save: Record<string, unknown>): string {
-        const payload = this.serializeForIntegrity(save)
-        let hash = 2166136261
-        for (let i = 0; i < payload.length; i++) {
-            hash ^= payload.charCodeAt(i)
-            hash = Math.imul(hash, 16777619)
-        }
-        return (hash >>> 0).toString(16).padStart(8, "0")
-    }
-
-    private async computeSha256Hex(payload: string): Promise<string> {
-        try {
-            if (typeof crypto !== "undefined" && crypto.subtle && typeof TextEncoder !== "undefined") {
-                const bytes = new TextEncoder().encode(payload)
-                const digest = await crypto.subtle.digest("SHA-256", bytes)
-                return Array.from(new Uint8Array(digest))
-                    .map((b) => b.toString(16).padStart(2, "0"))
-                    .join("")
-            }
-        } catch {
-            // Fallback below.
-        }
-
-        // Fallback hash for runtimes without WebCrypto support.
-        let hash = 2166136261
-        for (let i = 0; i < payload.length; i++) {
-            hash ^= payload.charCodeAt(i)
-            hash = Math.imul(hash, 16777619)
-        }
-        return (hash >>> 0).toString(16).padStart(8, "0")
-    }
-
-    private async getOrCreateInstallSecret(): Promise<string> {
-        if (this.installSecretPromise) return this.installSecretPromise
-
-        this.installSecretPromise = (async () => {
-            const existing = await this.storage.getItem(STORAGE_KEYS.INSTALL_SECRET)
-            if (existing && existing.length >= 16) return existing
-
-            let generated = `${Date.now()}_${generateSeed().toString(36)}_${Math.abs(generateSeed()).toString(36)}`
-            if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-                const bytes = new Uint8Array(32)
-                crypto.getRandomValues(bytes)
-                generated = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("")
-            }
-
-            await this.storage.setItem(STORAGE_KEYS.INSTALL_SECRET, generated)
-            return generated
-        })()
-
-        return this.installSecretPromise
-    }
-
-    private async computeDeviceBoundIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        const secret = await this.getOrCreateInstallSecret()
-        const payload = this.serializeForIntegrity(save)
-        const digest = await this.computeSha256Hex(`${secret}|${payload}`)
-        return `v2:${digest}`
-    }
-
-    private async computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        // Portable signature used for cross-device Steam Cloud compatibility.
-        const payload = this.serializeForIntegrity(save)
-        const digest = await this.computeSha256Hex(payload)
-        return `v3:${digest}`
-    }
-
-    private async verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
-        if (!save.integrityHash) {
-            // Unsigned saves are never valid - prevents save tampering
-            return false
-        }
-        if (typeof save.integrityHash !== "string") return false
-        if (save.integrityHash.startsWith("v3:")) {
-            return save.integrityHash === await this.computeIntegrityHash(save)
-        }
-        if (save.integrityHash.startsWith("v2:")) {
-            // Backward compatibility: v2 signatures are install-bound.
-            const expectedDeviceBound = await this.computeDeviceBoundIntegrityHash(save)
-            if (save.integrityHash === expectedDeviceBound) return true
-
-            // v2 saves from a different device: attempt re-sign migration to v3
-            // This allows one-time cross-device migration by re-computing the hash
-            const legacyHash = this.computeLegacyIntegrityHash(save)
-            const v2Payload = save.integrityHash.substring(3) // strip "v2:" prefix
-            // Accept if the legacy portion matches (device-independent part)
-            return v2Payload.length >= 8 && v2Payload === legacyHash
-        }
-        // Legacy compatibility path for pre-v2 signatures.
-        return save.integrityHash === this.computeLegacyIntegrityHash(save)
+    private verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
+        return this.integrity.verifyIntegrityHash(save)
     }
 
     private async parseAndValidateSaveCandidate(
@@ -1065,304 +967,11 @@ export class SaveManager {
     // ===== MIGRATIONS =====
 
     /**
-     * Migrate save to current version
+     * Migrate save to current version. Delegates to the ladder in
+     * engine/save-migrations.ts (extracted in Phase H1).
      */
     migrateSave(save: unknown): GameSave {
-        if (!save || typeof save !== "object") {
-            throw new Error("Invalid save data")
-        }
-
-        let migrated = save as Record<string, unknown>
-        const version = (migrated.saveVersion as number) || 0
-        // Apply migrations in order
-        if (version < 1) {
-            migrated = this.migrateToV1(migrated)
-        }
-        if (version < 2) {
-            migrated = this.migrateToV2(migrated)
-        }
-        if (version < 3) {
-            migrated = this.migrateToV3(migrated)
-        }
-        if (version < 4) {
-            migrated = this.migrateToV4(migrated)
-        }
-        if (version < 5) {
-            migrated = this.migrateToV5(migrated)
-        }
-        if (version < 6) {
-            migrated = this.migrateToV6(migrated)
-        }
-
-        return migrated as unknown as GameSave
-    }
-
-    /**
-     * Migrate save to v6
-     * All v6 fields (fplData, careerStats, gameOverReason, gameOverWeek) are optional
-     * and initialise naturally as undefined — only the version number needs updating.
-     */
-    private migrateToV6(save: Record<string, unknown>): Record<string, unknown> {
-        return {
-            ...save,
-            saveVersion: 6,
-        }
-    }
-
-    /**
-     * Migrate save to v2
-     */
-    private migrateToV2(save: Record<string, unknown>): Record<string, unknown> {
-        return {
-            ...save,
-            saveVersion: 2,
-            scoutedPlayers: Array.isArray(save.scoutedPlayers) ? save.scoutedPlayers : [],
-            circuitPoints: Array.isArray(save.circuitPoints) ? save.circuitPoints : [],
-            tournamentQualifications: Array.isArray(save.tournamentQualifications) ? save.tournamentQualifications : [],
-        }
-    }
-
-    /**
-     * Migrate save to v3
-     */
-    private migrateToV3(save: Record<string, unknown>): Record<string, unknown> {
-        const teams = Array.isArray(save.teams) ? save.teams : []
-        let playerTeamId = (save.playerTeamId as string)
-
-        // Recover playerTeamId from finance ledger if missing (V2 saves)
-        if (!playerTeamId && Array.isArray(save.financeLedger) && save.financeLedger.length > 0) {
-            playerTeamId = (save.financeLedger[0] as FinanceLedgerEntry).teamId
-        }
-
-        playerTeamId = playerTeamId || teams[0]?.id || "unknown"
-
-        return {
-            ...save,
-            saveVersion: 3,
-            playerTeamId,
-            managerDetails: save.managerDetails || {
-                name: (save.saveName as string) || "Manager",
-                level: 1,
-                xp: 0,
-                reputation: 0,
-                careerWins: 0,
-                careerLosses: 0,
-                championships: 0
-            },
-            marketStaff: save.marketStaff || [],
-            newsFeed: save.newsFeed || [],
-            transferHistory: save.transferHistory || [],
-            scheduledActivities: save.scheduledActivities || []
-        }
-    }
-
-    /**
-     * Migrate save to v4
-     */
-    private migrateToV4(save: Record<string, unknown>): Record<string, unknown> {
-        return {
-            ...save,
-            saveVersion: 4,
-            academyPlayers: Array.isArray(save.academyPlayers) ? save.academyPlayers : [],
-            academyMatchHistory: Array.isArray(save.academyMatchHistory) ? save.academyMatchHistory : [],
-            academyRoster: save.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
-            academyTrainingSchedule: save.academyTrainingSchedule || {},
-            academyWeeklyReports: Array.isArray(save.academyWeeklyReports) ? save.academyWeeklyReports : [],
-            academyScoutingMissions: Array.isArray(save.academyScoutingMissions) ? save.academyScoutingMissions : [],
-            academyPendingProspects: Array.isArray(save.academyPendingProspects) ? save.academyPendingProspects : []
-        }
-    }
-
-    /**
-     * Migrate save to v5
-     * - Introduces hybrid day progression cursor.
-     * - Normalizes tournament identity fields (seriesId/instanceId/seasonNumber).
-     * - Deduplicates legacy base + seasonal tournament rows.
-     */
-    private migrateToV5(save: Record<string, unknown>): Record<string, unknown> {
-        const currentWeek =
-            (typeof save.currentWeek === "number" && Number.isFinite(save.currentWeek) && save.currentWeek > 0)
-                ? Math.floor(save.currentWeek)
-                : 1
-
-        const timeMode = save.timeMode === "HYBRID_DAILY" ? "HYBRID_DAILY" : "WEEKLY"
-        const rawCurrentDay = (save.currentDay as number)
-        const currentDay = (typeof rawCurrentDay === "number" && Number.isFinite(rawCurrentDay))
-            ? Math.max(0, Math.min(6, Math.floor(rawCurrentDay)))
-            : (timeMode === "HYBRID_DAILY" ? 0 : 6)
-
-        const tournaments = Array.isArray(save.tournaments)
-            ? (save.tournaments as TournamentSaveData[])
-            : []
-
-        const replacementById = new Map<string, string>()
-        const grouped = new Map<string, TournamentSaveData[]>()
-
-        for (const row of tournaments) {
-            const identity = resolveTournamentIdentity(row.id, row.startWeek || currentWeek)
-            const normalized: TournamentSaveData = {
-                ...row,
-                seriesId: row.seriesId || identity.seriesId,
-                seasonNumber: row.seasonNumber || identity.seasonNumber,
-                instanceId: row.instanceId || identity.instanceId,
-            }
-            const key = `${normalized.seriesId}:${normalized.seasonNumber}`
-            const bucket = grouped.get(key) || []
-            bucket.push(normalized)
-            grouped.set(key, bucket)
-        }
-
-        const canonicalTournaments: TournamentSaveData[] = []
-        for (const bucket of grouped.values()) {
-            bucket.sort((left, right) => {
-                const leftScore =
-                    (left.isCompleted ? 1000 : 0)
-                    + ((left.playoffBracket?.length || 0) * 10)
-                    + (left.teamIds?.length || 0)
-                    + (left.id === left.instanceId ? 5 : 0)
-                const rightScore =
-                    (right.isCompleted ? 1000 : 0)
-                    + ((right.playoffBracket?.length || 0) * 10)
-                    + (right.teamIds?.length || 0)
-                    + (right.id === right.instanceId ? 5 : 0)
-                return rightScore - leftScore
-            })
-
-            const canonical = { ...bucket[0] }
-            for (let i = 0; i < bucket.length; i++) {
-                const candidate = bucket[i]
-                if (candidate.id !== canonical.id) {
-                    replacementById.set(candidate.id, canonical.id)
-                }
-
-                if (!canonical.winnerId && candidate.winnerId) canonical.winnerId = candidate.winnerId
-                if (!canonical.isCompleted && candidate.isCompleted) canonical.isCompleted = true
-                if (!canonical.rewardsGranted && candidate.rewardsGranted) canonical.rewardsGranted = true
-
-                if ((candidate.teamIds?.length || 0) > 0) {
-                    canonical.teamIds = [...new Set([...(canonical.teamIds || []), ...candidate.teamIds])]
-                }
-
-                if ((canonical.playoffBracket?.length || 0) === 0 && (candidate.playoffBracket?.length || 0) > 0) {
-                    canonical.playoffBracket = candidate.playoffBracket
-                }
-
-                if ((canonical.standings?.length || 0) === 0 && (candidate.standings?.length || 0) > 0) {
-                    canonical.standings = candidate.standings
-                }
-            }
-
-            if (canonical.startWeek > currentWeek) {
-                // Remove phantom future state from legacy snapshot-seeded rows.
-                canonical.teamIds = []
-                canonical.standings = []
-                canonical.playoffBracket = []
-                canonical.currentStage = "Registration"
-                canonical.isCompleted = false
-                canonical.winnerId = undefined
-                canonical.rewardsGranted = false
-            }
-
-            canonicalTournaments.push(canonical)
-        }
-
-        canonicalTournaments.sort((a, b) => {
-            if (a.startWeek !== b.startWeek) return a.startWeek - b.startWeek
-            return a.id.localeCompare(b.id)
-        })
-
-        const remapTournamentId = (id: string): string => replacementById.get(id) || id
-
-        const scheduledMatches = Array.isArray(save.scheduledMatches)
-            ? (save.scheduledMatches as MatchSaveData[]).map(match => ({
-                ...match,
-                tournamentId: match.tournamentId ? remapTournamentId(match.tournamentId) : match.tournamentId
-            }))
-            : []
-
-        const completedMatches = Array.isArray(save.completedMatches)
-            ? (save.completedMatches as CompletedMatchSaveData[]).map(match => ({
-                ...match,
-                tournamentId: match.tournamentId ? remapTournamentId(match.tournamentId) : match.tournamentId
-            }))
-            : []
-
-        const teams = Array.isArray(save.teams)
-            ? (save.teams as TeamSaveData[]).map(team => ({
-                ...team,
-                trophies: (team.trophies || []).map(trophy => ({
-                    ...trophy,
-                    tournamentId: remapTournamentId(trophy.tournamentId)
-                }))
-            }))
-            : []
-
-        const rawQualifications = Array.isArray(save.tournamentQualifications)
-            ? (save.tournamentQualifications as QualificationStatus[])
-            : []
-
-        const normalizedQualifications = dedupeQualifications(
-            rawQualifications.map(row => normalizeQualificationStatus({
-                ...row,
-                tournamentId: remapTournamentId(row.tournamentId),
-                instanceId: row.instanceId ? remapTournamentId(row.instanceId) : row.instanceId,
-                sourceInstanceId: row.sourceInstanceId ? remapTournamentId(row.sourceInstanceId) : row.sourceInstanceId
-            }, currentWeek)),
-            currentWeek
-        )
-
-        return {
-            ...save,
-            saveVersion: 5,
-            currentWeek,
-            currentDay,
-            timeMode,
-            tournaments: canonicalTournaments,
-            scheduledMatches,
-            completedMatches,
-            teams,
-            tournamentQualifications: normalizedQualifications,
-        }
-    }
-
-    /**
-     * Migrate legacy save to v1
-     */
-    private migrateToV1(save: Record<string, unknown>): Record<string, unknown> {
-        // Ensure required fields with defaults
-        return {
-            ...save,
-            saveVersion: 1,
-            saveId: save.saveId || `migrated_${Date.now()}`,
-            saveName: save.saveName || "Migrated Save",
-            createdAt: save.createdAt || new Date().toISOString(),
-            updatedAt: save.updatedAt || new Date().toISOString(),
-            currentWeek: save.currentWeek ?? save.week ?? 1,
-            gameStartDate: save.gameStartDate || new Date().toISOString(),
-
-            // Arrays - ensure they exist
-            teams: Array.isArray(save.teams) ? save.teams : [],
-            players: Array.isArray(save.players) ? save.players : [],
-            contracts: Array.isArray(save.contracts) ? save.contracts : [],
-            tournaments: Array.isArray(save.tournaments) ? save.tournaments : [],
-            scheduledMatches: Array.isArray(save.scheduledMatches) ? save.scheduledMatches : [],
-            completedMatches: Array.isArray(save.completedMatches) ? save.completedMatches : [],
-            financeLedger: Array.isArray(save.financeLedger) ? save.financeLedger : [],
-            eventsLog: Array.isArray(save.eventsLog) ? save.eventsLog : [],
-            acknowledgedEventIds: Array.isArray(save.acknowledgedEventIds) ? save.acknowledgedEventIds : [],
-
-            // Phase 23
-            hallOfFame: Array.isArray(save.hallOfFame) ? save.hallOfFame : FOUNDING_LEGENDS,
-
-            // RNG
-            lastRngSeed: save.lastRngSeed ?? save.seed ?? generateSeed(),
-
-            // Legacy
-            legendaryPlayers: Array.isArray(save.legendaryPlayers) ? save.legendaryPlayers : [],
-
-            // Transaction - always null on load
-            weekTickState: null,
-        }
+        return runMigrationLadder(save)
     }
 
     // ===== UTILITIES =====
