@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Prezdigeel logo">
-  <polygon points="128,16 232,72 232,184 128,240 24,184 24,72" fill="#FACC15" stroke="#111827" stroke-width="6"/>
-  <line x1="75" y1="80" x2="175" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="85" y1="184" x2="165" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFFFFF" letter-spacing="-2">P</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Prezdigeel logo"><polygon points="80,20 176,20 236,80 236,176 176,236 80,236 20,176 20,80" fill="#F97316" stroke="#7C2D12" stroke-width="8"/><text x="128" y="174" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="130" fill="#7C2D12" letter-spacing="-4">P</text></svg>

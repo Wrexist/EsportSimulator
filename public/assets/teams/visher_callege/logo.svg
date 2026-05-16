@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Visher Callege logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#EC4899" stroke="#500724" stroke-width="6"/>
-  <line x1="96" y1="80" x2="183" y2="80" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="106" y1="184" x2="173" y2="184" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="161.33333333333334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100" fill="#FDF2F8" letter-spacing="-2">VC</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Visher Callege logo"><rect x="20" y="48" width="216" height="160" rx="14" fill="#134E4A" stroke="#14B8A6" stroke-width="6"/><rect x="20" y="48" width="216" height="22" fill="#14B8A6"/><rect x="20" y="186" width="216" height="22" fill="#14B8A6"/><text x="128" y="158" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="78" fill="#14B8A6" letter-spacing="2">VISH</text></svg>
