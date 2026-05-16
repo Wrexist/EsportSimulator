@@ -441,6 +441,7 @@ export class SnapshotLoader {
             elo: Math.max(800, Math.min(1600, 1000 + Math.round((st.reputation || 0) * 6))),
             leagueTier: st.tier === "ELITE" ? "S_TIER" : st.tier === "PRO" ? "A_TIER" : "B_TIER",
             logoPath: st.logoPath,
+            branding: st.branding,
 
             // Phase 24: Fan & Merch
             followers: st.fanbase * (5 + rng.int(0, 4)),

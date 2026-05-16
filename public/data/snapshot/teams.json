@@ -16,7 +16,13 @@
     "reputation": 100,
     "fanbase": 9900,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FFEE00",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
   },
   {
     "id": "team_2_foria",
@@ -35,7 +41,13 @@
     "reputation": 99,
     "fanbase": 9800,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#000000",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#00C896",
+      "logoStyle": "mascot"
+    }
   },
   {
     "id": "team_3_falconry",
@@ -54,7 +66,13 @@
     "reputation": 99,
     "fanbase": 9700,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
   },
   {
     "id": "team_4_muxeen",
@@ -73,7 +91,13 @@
     "reputation": 98,
     "fanbase": 9600,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#E2061B",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_5_phantom",
@@ -92,7 +116,13 @@
     "reputation": 98,
     "fanbase": 9200,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#1F0A2E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_6_perivesion",
@@ -112,7 +142,13 @@
     "reputation": 98,
     "fanbase": 8200,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_7_phaze",
@@ -131,7 +167,13 @@
     "reputation": 97,
     "fanbase": 9500,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_8_natusvincera",
@@ -150,7 +192,13 @@
     "reputation": 97,
     "fanbase": 9300,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FFD700",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_9_gtwo",
@@ -169,7 +217,13 @@
     "reputation": 96,
     "fanbase": 9100,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#DC2626",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_10_thenomads",
@@ -188,7 +242,13 @@
     "reputation": 96,
     "fanbase": 9400,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_11_eurora",
@@ -207,7 +267,13 @@
     "reputation": 96,
     "fanbase": 9000,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#A855F7",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_12_astraflux",
@@ -226,7 +292,13 @@
     "reputation": 95,
     "fanbase": 8600,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#1E40AF",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_13_3dmax",
@@ -245,7 +317,13 @@
     "reputation": 95,
     "fanbase": 8800,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_14_fut",
@@ -264,7 +342,13 @@
     "reputation": 94,
     "fanbase": 7300,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_15_centuryrogues",
@@ -283,7 +367,13 @@
     "reputation": 94,
     "fanbase": 8500,
     "facilitiesLevel": 2,
-    "startingBudget": 1000000
+    "startingBudget": 1000000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_15_tide",
@@ -302,7 +392,13 @@
     "reputation": 94,
     "fanbase": 8500,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
   },
   {
     "id": "team_16_b8",
@@ -322,7 +418,13 @@
     "reputation": 94,
     "fanbase": 8900,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_17_pazsyonoa",
@@ -341,7 +443,13 @@
     "reputation": 93,
     "fanbase": 8400,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FCD34D",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#1E3A8A",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_18_sting",
@@ -360,7 +468,13 @@
     "reputation": 93,
     "fanbase": 8700,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
   },
   {
     "id": "team_19_nrg",
@@ -379,7 +493,13 @@
     "reputation": 92,
     "fanbase": 6600,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_20_gamerleague",
@@ -398,7 +518,13 @@
     "reputation": 92,
     "fanbase": 7700,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_21_novainvaders",
@@ -417,7 +543,13 @@
     "reputation": 92,
     "fanbase": 7600,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_22_valiant",
@@ -437,7 +569,13 @@
     "reputation": 91,
     "fanbase": 8100,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_22_virtusnova",
@@ -456,7 +594,13 @@
     "reputation": 91,
     "fanbase": 7800,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_23_imperius",
@@ -475,7 +619,13 @@
     "reputation": 91,
     "fanbase": 7900,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_24_a81",
@@ -494,7 +644,13 @@
     "reputation": 90,
     "fanbase": 7500,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
   },
   {
     "id": "team_25_lineage",
@@ -514,7 +670,13 @@
     "reputation": 90,
     "fanbase": 8300,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FCD34D",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_26_bkkame",
@@ -533,7 +695,13 @@
     "reputation": 90,
     "fanbase": 0,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_27_gantlemotex",
@@ -552,7 +720,13 @@
     "reputation": 89,
     "fanbase": 7400,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FACC15",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_28_mbesports",
@@ -573,7 +747,13 @@
     "reputation": 89,
     "fanbase": 3800,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#4ADE80",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FACC15",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_29_flycrest",
@@ -593,7 +773,13 @@
     "reputation": 88,
     "fanbase": 7000,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
   },
   {
     "id": "team_30_taroo",
@@ -613,7 +799,13 @@
     "reputation": 88,
     "fanbase": 6900,
     "facilitiesLevel": 1,
-    "startingBudget": 500000
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "wordmark"
+    }
   },
   {
     "id": "team_31_argongra",

@@ -6,6 +6,7 @@
 import { Player } from "./player"
 import { StaffType, PlayerTier } from "./enums"
 import { EquipmentItem } from "./game"
+import { TeamBranding } from "@/data/snapshot-types"
 
 /**
  * Team model with roster, staff, and facilities
@@ -16,6 +17,7 @@ export interface Team {
     name: string
     tier: PlayerTier // Team tier matches player tier system
     logoPath?: string
+    branding?: TeamBranding
 
     // ===== ROSTER & STAFF =====
     roster: string[]  // Player IDs (5 main players)

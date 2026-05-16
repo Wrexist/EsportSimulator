@@ -63,6 +63,18 @@ export interface SnapshotPlayer {
 // ===== SNAPSHOT TEAM =====
 
 /**
+ * Visual identity for a team. Drives the standings stripe, logo gradients,
+ * and any future kit/jersey UI. Optional so legacy / lower-ranked teams
+ * without explicit branding still validate.
+ */
+export interface TeamBranding {
+    primaryColor: string   // hex, e.g. "#84CC16"
+    secondaryColor: string // darker shade for gradient / outline
+    accentColor: string    // third color for two-tone marks
+    logoStyle: "monogram" | "mascot" | "emblem" | "wordmark"
+}
+
+/**
  * Team data from snapshot
  */
 export interface SnapshotTeam {
@@ -81,6 +93,8 @@ export interface SnapshotTeam {
     fanbase: number
     facilitiesLevel: number
     startingBudget: number
+
+    branding?: TeamBranding
 }
 
 // ===== SNAPSHOT TOURNAMENT =====

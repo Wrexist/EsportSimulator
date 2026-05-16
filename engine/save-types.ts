@@ -363,6 +363,7 @@ export interface TeamSaveData {
     youthAcademyIds?: string[] // IDs of prospects in the academy
     trophies?: { tournamentId: string; tournamentName: string; week: number; mvpId?: string; trophyPath?: string; tier?: string }[]
     logoPath?: string
+    branding?: import("@/data/snapshot-types").TeamBranding
     recentForm?: ("W" | "L" | "D")[] // Phase 1: Recent Form Display
 
     // === PHASE 11: LONG-TERM MEMORY ===
