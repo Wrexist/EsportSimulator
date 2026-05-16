@@ -116,7 +116,10 @@ export function TeamMatchPopup({
                                 <div className="flex items-center justify-center gap-6">
                                     {/* Player Team */}
                                     <div className="flex flex-col items-center gap-2">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                        <div
+                                            className="w-16 h-16 rounded-2xl bg-white/5 border flex items-center justify-center overflow-hidden"
+                                            style={{ borderColor: playerTeam?.branding?.primaryColor ?? "rgb(255 255 255 / 0.1)" }}
+                                        >
                                             <TeamLogoImage src={playerTeam?.logoPath} alt={playerTeam?.name || "Your Team"} size={48} />
                                         </div>
                                         <span className="text-xs font-bold text-white truncate max-w-[80px]">{playerTeam?.name}</span>
@@ -130,7 +133,10 @@ export function TeamMatchPopup({
 
                                     {/* Opponent Team */}
                                     <div className="flex flex-col items-center gap-2">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                        <div
+                                            className="w-16 h-16 rounded-2xl bg-white/5 border flex items-center justify-center overflow-hidden"
+                                            style={{ borderColor: opponent.branding?.primaryColor ?? "rgb(255 255 255 / 0.1)" }}
+                                        >
                                             <TeamLogoImage src={opponent.logoPath} alt={opponent.name} size={48} />
                                         </div>
                                         <span className="text-xs font-bold text-white truncate max-w-[80px]">{opponent.name}</span>
