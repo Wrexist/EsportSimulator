@@ -8,6 +8,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TournamentDefinition, formatPrizePool } from "@/data/tournament-calendar"
 import { TeamSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine"
 
+// Pick legible text color (black/white) for a hex background. Uses the
+// W3C relative-luminance formula so yellow gets dark text, navy gets light.
+function textOn(bgHex: string | undefined): string {
+    if (!bgHex || !/^#?[0-9a-f]{6}$/i.test(bgHex)) return "#FFFFFF"
+    const hex = bgHex.replace(/^#/, "")
+    const r = parseInt(hex.slice(0, 2), 16) / 255
+    const g = parseInt(hex.slice(2, 4), 16) / 255
+    const b = parseInt(hex.slice(4, 6), 16) / 255
+    const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+    const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+    return L > 0.55 ? "#0B0B0B" : "#FFFFFF"
+}
+
 interface TournamentStandingsProps {
     tournament: TournamentDefinition
     matches: (MatchSaveData | CompletedMatchSaveData)[]
@@ -300,9 +313,20 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     isPlayer && "bg-cyan-500/10 border-l-2 border-l-cyan-400"
                                 )}
                             >
-                                {/* Rank */}
+                                {/* Rank — brand-colored chip when team has branding, falls back to
+                                    gold/silver/bronze medals for top-3 untagged teams. */}
                                 <div className="text-center font-bold text-white/50">
-                                    {rank <= 3 ? (
+                                    {team.team?.branding?.primaryColor ? (
+                                        <div
+                                            className="w-10 h-6 mx-auto flex items-center justify-center rounded font-bold text-[11px] tracking-tight"
+                                            style={{
+                                                backgroundColor: team.team.branding.primaryColor,
+                                                color: textOn(team.team.branding.primaryColor),
+                                            }}
+                                        >
+                                            #{rank}
+                                        </div>
+                                    ) : rank <= 3 ? (
                                         <div className={cn(
                                             "w-6 h-6 mx-auto flex items-center justify-center rounded-full text-black font-bold text-xs",
                                             rank === 1 ? "bg-yellow-400" : rank === 2 ? "bg-slate-300" : "bg-amber-700"
