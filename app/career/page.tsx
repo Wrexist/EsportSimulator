@@ -219,13 +219,13 @@ export default function CareerPage() {
                             </div>
                             <div className="text-right">
                                 <p className="text-sm font-bold text-primary">
-                                    {managerDetails.xp || 0} / {ManagerProgression.getXPForLevel(managerDetails.level || 1)} XP
+                                    {managerDetails.xp || 0} / {ManagerProgression.getXPForLevel((managerDetails.level || 1) + 1)} XP
                                 </p>
                                 <p className="text-[10px] text-muted-foreground">Win: +100 XP | Loss: +25 XP</p>
                             </div>
                         </div>
                         <Progress
-                            value={((managerDetails.xp || 0) / ManagerProgression.getXPForLevel(managerDetails.level || 1)) * 100}
+                            value={((managerDetails.xp || 0) / ManagerProgression.getXPForLevel((managerDetails.level || 1) + 1)) * 100}
                             className="h-3"
                         />
                     </CardContent>
