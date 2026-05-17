@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useState } from "react"
 import { PLACEHOLDERS } from "@/lib/asset-utils"
+import { textOnBrand } from "@/lib/branding/fallback"
+import type { TeamBranding } from "@/data/snapshot-types"
 
 interface TeamLogoDisplayProps {
     team: {
@@ -11,6 +13,7 @@ interface TeamLogoDisplayProps {
         name: string
         shortName?: string
         logoPath?: string
+        branding?: TeamBranding
         customTeamData?: {
             logoData?: string
             primaryColor: string
@@ -108,7 +111,28 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // Case 4: Fallback — placeholder or initial
+    // Case 4: Branded initials fallback — predefined teams that fail to
+    // load their SVG still render a recognizable colored chip.
+    if ((imgError || !team.logoPath) && team.branding?.primaryColor) {
+        const initials = team.shortName?.slice(0, 2).toUpperCase() || team.name.charAt(0).toUpperCase()
+        return (
+            <div
+                className={cn("flex items-center justify-center font-bold rounded", className)}
+                style={{
+                    width: size,
+                    height: size,
+                    backgroundColor: team.branding.primaryColor,
+                    color: textOnBrand(team.branding.primaryColor),
+                    fontSize: size * (initials.length > 2 ? 0.32 : 0.42),
+                }}
+                aria-label={`${team.name} logo`}
+            >
+                {initials}
+            </div>
+        )
+    }
+
+    // Case 5: Generic placeholder for un-branded teams
     if (imgError || !team.logoPath) {
         return (
             <Image
