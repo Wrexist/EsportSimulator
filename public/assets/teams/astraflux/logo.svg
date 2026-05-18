@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Astraflux logo">
-  <circle cx="128" cy="128" r="108" fill="#FACC15" stroke="#111827" stroke-width="8"/>
-  <line x1="97" y1="80" x2="199" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="107" y1="184" x2="189" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFFFFF" letter-spacing="-2">A</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Astralians logo"><polygon points="128,16 232,76 232,180 128,240 24,180 24,76" fill="#0B0B0B" stroke="#1E40AF" stroke-width="6"/><polygon points="128,52 152,118 222,118 166,158 188,224 128,184 68,224 90,158 34,118 104,118" fill="#1E40AF"/></svg>

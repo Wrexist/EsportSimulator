@@ -14,6 +14,12 @@ interface BracketTeam {
     isWinner?: boolean
     logo?: string
     recentForm?: ("W" | "L" | "D")[]
+    branding?: {
+        primaryColor: string
+        secondaryColor: string
+        accentColor: string
+        logoStyle: "monogram" | "mascot" | "emblem" | "wordmark"
+    }
 }
 
 interface BracketMatch {
@@ -539,6 +545,12 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                     match.team1?.isWinner && "bg-gradient-to-r from-emerald-500/[0.05] to-transparent",
                                                     match.team1?.id === playerTeamId && !match.team1?.isWinner && match.status === "scheduled" && "bg-gradient-to-r from-primary/[0.05] to-transparent"
                                                 )}>
+                                                    {match.team1?.branding?.primaryColor && (
+                                                        <div
+                                                            className="absolute left-0 top-0 bottom-0 w-[3px] z-0"
+                                                            style={{ backgroundColor: match.team1.branding.primaryColor }}
+                                                        />
+                                                    )}
                                                     <div className="flex items-center gap-2.5 relative z-10">
                                                         <div className={cn(
                                                             "w-7 h-7 rounded flex items-center justify-center relative transition-all duration-300",
@@ -587,6 +599,12 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                     match.team2?.isWinner && "bg-gradient-to-r from-emerald-500/[0.05] to-transparent",
                                                     match.team2?.id === playerTeamId && !match.team2?.isWinner && match.status === "scheduled" && "bg-gradient-to-r from-primary/[0.05] to-transparent"
                                                 )}>
+                                                    {match.team2?.branding?.primaryColor && (
+                                                        <div
+                                                            className="absolute left-0 top-0 bottom-0 w-[3px] z-0"
+                                                            style={{ backgroundColor: match.team2.branding.primaryColor }}
+                                                        />
+                                                    )}
                                                     <div className="flex items-center gap-2.5 relative z-10">
                                                         <div className={cn(
                                                             "w-7 h-7 rounded flex items-center justify-center relative transition-all duration-300",

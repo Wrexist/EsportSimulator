@@ -136,7 +136,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
             score: activeMatch.result?.homeScore,
             isWinner: (activeMatch.isCompleted || activeMatch.result) && activeMatch.result && activeMatch.result.homeScore > activeMatch.result.awayScore,
             logo: team1.logoPath,
-            recentForm: getForm(team1.id)
+            recentForm: getForm(team1.id),
+            branding: team1.branding,
         } : undefined,
         team2: team2 ? {
             id: team2.id,
@@ -144,7 +145,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
             score: activeMatch.result?.awayScore,
             isWinner: (activeMatch.isCompleted || activeMatch.result) && activeMatch.result && activeMatch.result.awayScore > activeMatch.result.homeScore,
             logo: team2.logoPath,
-            recentForm: getForm(team2.id)
+            recentForm: getForm(team2.id),
+            branding: team2.branding,
         } : undefined
     }
 }

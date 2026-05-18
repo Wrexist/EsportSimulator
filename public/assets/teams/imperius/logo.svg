@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Imperius logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#FACC15" stroke="#111827" stroke-width="6"/>
-  <line x1="78" y1="80" x2="199" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="88" y1="184" x2="189" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFFFFF" letter-spacing="-2">I</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Imperius logo"><circle cx="128" cy="128" r="108" fill="#1F2937" stroke="#14B8A6" stroke-width="6"/><path d="M52 100 L88 60 L128 92 L168 60 L204 100 L188 156 L68 156 Z" fill="#14B8A6"/><rect x="68" y="162" width="120" height="10" fill="#14B8A6"/><circle cx="88" cy="68" r="6" fill="#FFFFFF"/><circle cx="128" cy="100" r="8" fill="#FFFFFF"/><circle cx="168" cy="68" r="6" fill="#FFFFFF"/><rect x="100" y="180" width="56" height="32" fill="#14B8A6"/></svg>

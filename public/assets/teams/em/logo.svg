@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="EM logo">
-  <polygon points="128,16 232,72 232,184 128,240 24,184 24,72" fill="#FACC15" stroke="#111827" stroke-width="6"/>
-  <line x1="60" y1="80" x2="201" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="70" y1="184" x2="191" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFFFFF" letter-spacing="-2">E</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="EM logo"><circle cx="128" cy="128" r="108" fill="#F59E0B" stroke="#78350F" stroke-width="8"/><circle cx="128" cy="128" r="84" fill="none" stroke="#78350F" stroke-width="3" opacity="0.4"/><text x="128" y="174" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="140" fill="#78350F" letter-spacing="-4">E</text></svg>

@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="FORIA logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#F97316" stroke="#431407" stroke-width="6"/>
-  <line x1="86" y1="80" x2="183" y2="80" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="96" y1="184" x2="173" y2="184" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFF7ED" letter-spacing="-2">F</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="FORIA logo"><polygon points="128,20 236,128 128,236 20,128" fill="#000000" stroke="#00C896" stroke-width="6"/><path d="M64 100 L192 60 L192 80 L84 120 Z" fill="#00C896" opacity="0.85"/><circle cx="98" cy="150" r="14" fill="#00C896"/><circle cx="158" cy="150" r="14" fill="#00C896"/><polygon points="120,180 136,180 128,200" fill="#00C896"/></svg>

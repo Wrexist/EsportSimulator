@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Bitclic logo">
-  <path d="M128 16 L232 48 V132 Q232 196 128 240 Q24 196 24 132 V48 Z" fill="#22C55E" stroke="#052E16" stroke-width="6"/>
-  <line x1="98" y1="80" x2="196" y2="80" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="108" y1="184" x2="186" y2="184" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#ECFDF5" letter-spacing="-2">B</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Bitclic logo"><rect x="20" y="48" width="216" height="160" rx="14" fill="#164E63" stroke="#06B6D4" stroke-width="6"/><rect x="20" y="48" width="216" height="22" fill="#06B6D4"/><rect x="20" y="186" width="216" height="22" fill="#06B6D4"/><text x="128" y="158" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="78" fill="#06B6D4" letter-spacing="2">BITC</text></svg>

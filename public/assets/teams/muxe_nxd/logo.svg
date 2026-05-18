@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="MOUZ NXD logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#22C55E" stroke="#052E16" stroke-width="6"/>
-  <line x1="81" y1="80" x2="189" y2="80" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="91" y1="184" x2="179" y2="184" stroke="#052E16" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="161.33333333333334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="100" fill="#ECFDF5" letter-spacing="-2">MN</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="MOUZ NXD logo"><polygon points="128,16 232,76 232,180 128,240 24,180 24,76" fill="#10B981" stroke="#064E3B" stroke-width="8"/><polygon points="128,44 208,90 208,166 128,212 48,166 48,90" fill="none" stroke="#064E3B" stroke-width="3" opacity="0.4"/><text x="128" y="172" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="130" fill="#064E3B" letter-spacing="-4">M</text></svg>

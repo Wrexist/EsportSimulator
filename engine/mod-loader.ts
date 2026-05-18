@@ -17,6 +17,7 @@ import { validateSnapshot } from "@/data/snapshot-types"
 import type { SnapshotPlayer, SnapshotTeam, SnapshotTournament } from "@/data/snapshot-types"
 import { safeParse } from "@/lib/json-safe"
 import { logger } from "@/lib/logger"
+import { defaultBrandingFor } from "@/lib/branding/fallback"
 
 // Window.electron is declared in types/electron-window.d.ts.
 
@@ -212,7 +213,16 @@ export function validateModPayload(raw: unknown): { ok: true; value: ModSnapshot
             const err = validateTeamEntry(obj.teams[i], i)
             if (err) return { ok: false, error: err }
         }
-        out.teams = obj.teams as SnapshotTeam[]
+        const teams = obj.teams as SnapshotTeam[]
+        // Backfill branding on any mod team that didn't ship one, so the
+        // standings stripe / bracket accents render with a stable color
+        // instead of falling back to grey.
+        for (const t of teams) {
+            if (t && !t.branding && typeof t.id === "string") {
+                t.branding = defaultBrandingFor(t.id)
+            }
+        }
+        out.teams = teams
     }
     if (obj.tournaments !== undefined) {
         if (!Array.isArray(obj.tournaments)) return { ok: false, error: "tournaments must be an array" }

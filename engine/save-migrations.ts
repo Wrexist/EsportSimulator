@@ -27,6 +27,7 @@ import {
 } from "./circuit-engine"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { generateSeed } from "./rng"
+import { defaultBrandingFor } from "@/lib/branding/fallback"
 
 /**
  * Migrate legacy save (no saveVersion or saveVersion 0) to v1.
@@ -290,6 +291,24 @@ export function migrateToV6(save: Record<string, unknown>): Record<string, unkno
 }
 
 /**
+ * v7: backfill `branding` on every team. Pre-v7 saves predate the
+ * TeamBranding record, so without this step the standings rank chip,
+ * bracket stripe, and other brand-color treatments would silently fall
+ * back to neutral grey for the entire roster. The branding is derived
+ * deterministically from the team ID, matching the offline generator
+ * in scripts/branding/extend_branding_all.py.
+ */
+export function migrateToV7(save: Record<string, unknown>): Record<string, unknown> {
+    const teams = Array.isArray(save.teams) ? (save.teams as TeamSaveData[]) : []
+    for (const t of teams) {
+        if (t && !t.branding && typeof t.id === "string") {
+            t.branding = defaultBrandingFor(t.id)
+        }
+    }
+    return { ...save, teams, saveVersion: 7 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -309,6 +328,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 4) migrated = migrateToV4(migrated)
     if (version < 5) migrated = migrateToV5(migrated)
     if (version < 6) migrated = migrateToV6(migrated)
+    if (version < 7) migrated = migrateToV7(migrated)
 
     return migrated as unknown as GameSave
 }

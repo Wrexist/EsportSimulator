@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="ENFURYTY logo">
-  <circle cx="128" cy="128" r="108" fill="#E11D48" stroke="#1F1F1F" stroke-width="8"/>
-  <line x1="94" y1="80" x2="199" y2="80" stroke="#1F1F1F" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="104" y1="184" x2="189" y2="184" stroke="#1F1F1F" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#F5F5F5" letter-spacing="-2">E</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="ENFURYTY logo"><polygon points="128,16 232,76 232,180 128,240 24,180 24,76" fill="#06B6D4" stroke="#164E63" stroke-width="8"/><polygon points="128,44 208,90 208,166 128,212 48,166 48,90" fill="none" stroke="#164E63" stroke-width="3" opacity="0.4"/><text x="128" y="172" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="130" fill="#164E63" letter-spacing="-4">E</text></svg>
