@@ -17,9 +17,9 @@ const CREDITS = [
         category: "Data & Statistics",
         icon: Database,
         entries: [
-            { role: "Player & Team Data", name: "Liquipedia CS2 Wiki" },
-            { role: "Tournament Structure", name: "Inspired by PGL, ESL, BLAST circuits" },
-            { role: "World Rankings Model", name: "Inspired by HLTV.org ranking methodology" },
+            { role: "Player & Team Data", name: "Original fictional roster generator" },
+            { role: "Tournament Structure", name: "Inspired by professional tactical FPS circuits" },
+            { role: "World Rankings Model", name: "Inspired by professional ranking methodologies" },
         ],
     },
     {
@@ -46,7 +46,7 @@ const CREDITS = [
         category: "Special Thanks",
         icon: Heart,
         entries: [
-            { role: "Counter-Strike Community", name: "For decades of competitive excellence" },
+            { role: "Tactical FPS Community", name: "For decades of competitive excellence" },
             { role: "Esports Organizations", name: "For inspiring the management simulation" },
             { role: "Open Source Contributors", name: "For the incredible tools that made this possible" },
             { role: "Playtesters & Bug Reporters", name: "Your feedback shaped this game" },

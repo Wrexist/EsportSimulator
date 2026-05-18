@@ -1,6 +1,6 @@
 /**
  * Tournament Stats Calculation Utilities
- * HLTV-style aggregation of player and team stats across tournament matches
+ * Pro-style aggregation of player and team stats across tournament matches
  */
 
 import { CompletedMatchSaveData, PlayerSaveData, TeamSaveData } from "./save-types"

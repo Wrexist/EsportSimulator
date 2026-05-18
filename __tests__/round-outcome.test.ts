@@ -143,7 +143,7 @@ describe("round-outcome generator (integration via simulateMatch)", () => {
         })
     })
 
-    test("HLTV-style rating stays bounded [0.3, 2.0] for every player", () => {
+    test("Pro-style rating stays bounded [0.3, 2.0] for every player", () => {
         const home = makeRoster("home")
         const away = makeRoster("away")
 

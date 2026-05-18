@@ -61,7 +61,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "87 Consecutive LAN Maps", "Best Player 2013-2014"],
         careerTeams: ["Nova Invaders", "Dignity"],
-        hltvHistory: [
+        proHistory: [
             { year: 2013, rank: 1 },
             { year: 2014, rank: 1 },
             { year: 2015, rank: 8 },
@@ -128,7 +128,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "20+ Year Career", "Longevity Icon"],
         careerTeams: ["Nova Invaders", "Dignity", "FATEBOUND"],
-        hltvHistory: [
+        proHistory: [
             { year: 2010, rank: 2 },
             { year: 2013, rank: 3 },
             { year: 2014, rank: 4 },
@@ -195,7 +195,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "AWP Meta Definer", "Major MVP"],
         careerTeams: ["G-Two", "Envira", "Titan"],
-        hltvHistory: [
+        proHistory: [
             { year: 2014, rank: 3 },
             { year: 2015, rank: 6 },
             { year: 2017, rank: 9 }
@@ -261,7 +261,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "Best Player 2015", "Olofpass"],
         careerTeams: ["phanatic", "Phaze", "FATEBOUND"],
-        hltvHistory: [
+        proHistory: [
             { year: 2015, rank: 1 },
             { year: 2016, rank: 7 },
             { year: 2018, rank: 14 }
@@ -325,9 +325,9 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["Major Champion", "Cultural Icon", "VP Legend"],
+        legendaryAchievements: ["Major Champion", "Cultural Icon", "Eastern European Legend"],
         careerTeams: ["Virtus Nova"],
-        hltvHistory: [
+        proHistory: [
             { year: 2014, rank: 12 },
             { year: 2015, rank: 18 },
             { year: 2017, rank: 20 }
@@ -391,9 +391,9 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["Major Champion", "Legendary IGL", "Navi Architect"],
+        legendaryAchievements: ["Major Champion", "Legendary IGL", "Roster Architect"],
         careerTeams: ["Natus Vincera", "Gambyt"],
-        hltvHistory: [
+        proHistory: [
             { year: 2010, rank: 8 },
             { year: 2017, rank: 15 },
             { year: 2018, rank: 18 }
@@ -459,7 +459,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["Major Champion 2021", "4x Player of the Year", "Greatest of All Time"],
         careerTeams: ["Natus Vincera", "Team Tide", "Flipside3"],
-        hltvHistory: [
+        proHistory: [
             { year: 2018, rank: 1 },
             { year: 2019, rank: 2 },
             { year: 2021, rank: 1 },
@@ -526,7 +526,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["4x Major Champion", "Most Consistent AWPer", "Grand Slam"],
         careerTeams: ["Astraflux", "Nova Invaders", "Dignity"],
-        hltvHistory: [
+        proHistory: [
             { year: 2016, rank: 4 },
             { year: 2018, rank: 3 },
             { year: 2019, rank: 4 },
@@ -593,7 +593,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["Global Top 3 Multiple Years", "Best Aimer Ever", "Superstar"],
         careerTeams: ["Phaze Syndicate", "G-Two", "Mousen Sports"],
-        hltvHistory: [
+        proHistory: [
             { year: 2017, rank: 3 },
             { year: 2018, rank: 5 },
             { year: 2020, rank: 4 },
@@ -660,7 +660,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "2x Player of the Year", "Jumping Double Kill"],
         careerTeams: ["SC Gaming", "MB Esports", "Phaze Syndicate"],
-        hltvHistory: [
+        proHistory: [
             { year: 2016, rank: 1 },
             { year: 2017, rank: 1 },
             { year: 2018, rank: 8 },
@@ -727,7 +727,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["2x Major Champion", "Brazilian CS Godfather", "Legendary IGL"],
         careerTeams: ["SC Gaming", "MB Esports", "Tide", "Imperius"],
-        hltvHistory: [
+        proHistory: [
             { year: 2016, rank: 5 },
             { year: 2017, rank: 6 },
             { year: 2018, rank: 16 }
@@ -791,9 +791,9 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["CIS AWP Legend", "Global Top 5 Multiple Years", "Navi Star"],
+        legendaryAchievements: ["CIS AWP Legend", "Global Top 5 Multiple Years", "Eastern Europe Star"],
         careerTeams: ["Natus Vincera", "Phaze Syndicate", "Virtus Nova"],
-        hltvHistory: [
+        proHistory: [
             { year: 2015, rank: 4 },
             { year: 2016, rank: 6 },
             { year: 2017, rank: 11 }
@@ -859,7 +859,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["3x Major Champion", "Clutch Master", "Franchise Legend"],
         careerTeams: ["phanatic", "FATEBOUND", "Cumulus9"],
-        hltvHistory: [
+        proHistory: [
             { year: 2014, rank: 5 },
             { year: 2015, rank: 5 },
             { year: 2016, rank: 11 }
@@ -925,7 +925,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["4x Major Champion", "Best Entry Fragger", "Northern Core"],
         careerTeams: ["Astraflux", "Vitalis", "Dignity"],
-        hltvHistory: [
+        proHistory: [
             { year: 2018, rank: 9 },
             { year: 2019, rank: 8 },
             { year: 2020, rank: 10 }
@@ -991,7 +991,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["4x Major Champion", "Clutch Minister", "Best Support"],
         careerTeams: ["Astraflux", "Dignity"],
-        hltvHistory: [
+        proHistory: [
             { year: 2018, rank: 12 },
             { year: 2019, rank: 14 }
         ],
@@ -1056,7 +1056,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isLegendary: true,
         legendaryAchievements: ["Major Champion", "French Legend", "Style Icon"],
         careerTeams: ["G-Two", "Vitalis", "Envira", "Apex Games"],
-        hltvHistory: [
+        proHistory: [
             { year: 2013, rank: 5 },
             { year: 2016, rank: 5 },
             { year: 2017, rank: 8 }

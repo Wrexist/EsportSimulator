@@ -10,7 +10,7 @@ import {
 } from "../lib/constants"
 
 /**
- * EconomyManager handles all CS2-specific financial logic including
+ * EconomyManager handles all game-specific financial logic including
  * round bonuses, kill rewards, equipment costs, and strategic team buying behavior.
  * Updated to July 2025 Meta (CT Team-wide kill bonus).
  */

@@ -33,7 +33,7 @@ import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat }
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
 
 /**
- * Auto-calculate an initial prestige score for players with empty hltvHistory.
+ * Auto-calculate an initial prestige score for players with empty proHistory.
  * Uses team tier, team reputation, player experience (matches), and age.
  */
 export function calculateInitialPrestige(
@@ -338,12 +338,12 @@ export class SnapshotLoader {
      * Convert snapshot player to save player (adds dynamic fields)
      */
     private snapshotPlayerToSavePlayer(sp: SnapshotPlayer, rng: SeededRNG, team?: SnapshotTeam): PlayerSaveData {
-        const hltvHistory = (sp as any).hltvHistory || []
+        const proHistory = (sp as any).proHistory || []
         const matchesPlayed = (sp as any).matchesPlayed || 0
 
         // Use snapshot's prestigeScore if available, otherwise auto-calculate
         const prestigeScore = (sp as any).prestigeScore
-            ?? ((hltvHistory.length > 0)
+            ?? ((proHistory.length > 0)
                 ? 0  // Will be calculated by prestige-system from history
                 : calculateInitialPrestige(
                     sp.tier,
@@ -404,8 +404,8 @@ export class SnapshotLoader {
             avgRating: (sp as any).avgRating || 0,
             clutchSuccessRate: (sp as any).clutchSuccessRate || 0,
 
-            // HLTV Prestige data - Copy from snapshot
-            hltvHistory,
+            // Pro Prestige data - Copy from snapshot
+            proHistory,
             majorWins: (sp as any).majorWins || 0,
             totalMVPs: (sp as any).totalMVPs || 0,
             prestigeScore,

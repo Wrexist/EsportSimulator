@@ -28,7 +28,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const topTeam = topTeams[0]
             save.newsFeed.unshift({
                 id: `monthly_ranking_${save.currentWeek}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                title: `HLTV Power Rankings: ${topTeam.name} Top!`,
+                title: `Pro Power Rankings: ${topTeam.name} Top!`,
                 content: `In this month's official power rankings, ${topTeam.name} secures the #1 spot globally. Current top 5: ${topTeams.map(t => t.name).join(', ')}.`,
                 category: "ACHIEVEMENT",
                 teamId: topTeam.id,

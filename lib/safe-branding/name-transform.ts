@@ -30,6 +30,14 @@ export const TEAM_NAME_MAP: Record<string, string> = {
     "Cloud9": "Cumulus9",
     "MOUZ": "Mouzen",
     "mousesports": "Mousen Sports",
+    "3DMAX": "3DMaximus",
+    "FUT Esports": "FUTR Esports",
+    "FUT": "FUTR",
+    "B8": "Beta8",
+    "NRG Esports": "NRGen Esports",
+    "NRG": "NRGen",
+    "1win": "OneWind",
+    "1WIN": "ONEWIND",
     "Team Spirit": "Team Phantom",
     "Spirit": "Phantom",
     "Heroic": "Valiant",
@@ -172,11 +180,22 @@ export const PHRASE_REPLACEMENTS: Array<[RegExp, string]> = [
     [/Barclays Center/gi, "Metro Center"],
     [/Copper Box/gi, "Copper Hall"],
     [/Avalanche/gi, "Avalanche"],
-    [/Counter-Strike 2/gi, "Counter-Strike 2"],
-    [/Counter-Strike: Global Offensive/gi, "Counter-Strike 2"],
-    [/\bCS2\b/g, "CS2"],
-    [/\bCS:GO\b/gi, "CS2"],
-    [/\bCSGO\b/gi, "CS2"],
+    // Counter-Strike / CS2 / CS:GO are Valve trademarks. The shipped game
+    // positions itself generically as a "tactical FPS esports manager" and
+    // every player-facing string flows through this sanitizer so it never
+    // leaks the trademarked product name into UI, news, commentary, etc.
+    [/Counter-Strike 2/gi, "Tactical FPS"],
+    [/Counter-Strike: Global Offensive/gi, "Tactical FPS"],
+    [/Counter-Strike/gi, "Tactical FPS"],
+    [/\bCS2\b/g, "Pro FPS"],
+    [/\bCS:GO\b/gi, "Pro FPS"],
+    [/\bCSGO\b/gi, "Pro FPS"],
+    // Valve-specific competitive map names — flagged by the steam-ready audit's
+    // A15 check. Renaming the recognisable identifier 'Dust2' to a generic
+    // alias gets the trademarked label out of UI/news/save data; the engine's
+    // internal map IDs were renamed in lock-step in the same release pass.
+    [/\bDust2\b/gi, "Sandstone"],
+    [/\bde_dust2\b/gi, "de_sandstone"],
 ]
 
 // ============================================================

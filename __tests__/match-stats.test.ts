@@ -29,7 +29,7 @@ function makeRound(killsByPlayer: Record<string, number>, deathsByPlayer: Record
 }
 
 function makeMap(rounds: RoundResult[]): MapResult {
-    return { mapId: "DUST2", homeScore: 13, awayScore: 7, rounds } as unknown as MapResult
+    return { mapId: "SANDSTONE", homeScore: 13, awayScore: 7, rounds } as unknown as MapResult
 }
 
 describe("determineMapMVP", () => {

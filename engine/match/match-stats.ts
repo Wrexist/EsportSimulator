@@ -55,7 +55,7 @@ export function determineMapMVP(
  * derives from the supplied RNG so the stat block is deterministic
  * for the same seed.
  *
- * Rating is an HLTV 2.0-style approximation:
+ * Rating is an Pro 2.0-style approximation:
  *   0.35 × (kills/deaths) + 0.35 × (KAST/100) + 0.30 × impact
  * clamped to [0.3, 2.0].
  */

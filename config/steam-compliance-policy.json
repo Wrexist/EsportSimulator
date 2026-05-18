@@ -1,5 +1,35 @@
 {
+  "sourceAllowlist": [
+    "lib/motion.ts",
+    "lib/sound-manager.ts"
+  ],
+  "sourceAllowlistGlobs": [
+    "lib/safe-branding/**",
+    "lib/branding/**",
+    "data/snapshot-loader.ts",
+    "data/snapshot-types.ts"
+  ],
+  "sourceExcludeKeywords": [
+    "pain",
+    "nouns",
+    "blast",
+    "imperial",
+    "spirit",
+    "sharks",
+    "outsiders",
+    "complexity",
+    "heroic",
+    "monte",
+    "renegades",
+    "vitality",
+    "liquid",
+    "legacy_esports"
+  ],
   "trademarkKeywords": [
+    "cs2",
+    "csgo",
+    "cs:go",
+    "counter-strike",
     "100_thieves",
     "100thieves",
     "astralis",

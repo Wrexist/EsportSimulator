@@ -24,7 +24,7 @@ function shortRadarName(name: string): string {
 }
 
 const MAP_RADAR_IMAGES: Record<string, { primary: string; secondary?: string }> = {
-    [MapId.DUST2]:    { primary: "/maps/de_dust2_radar_psd.png" },
+    [MapId.SANDSTONE]:    { primary: "/maps/de_sandstone_radar_psd.png" },
     [MapId.MIRAGE]:   { primary: "/maps/de_mirage_radar_psd.png" },
     [MapId.INFERNO]:  { primary: "/maps/de_inferno_radar_psd.png" },
     [MapId.NUKE]:     { primary: "/maps/de_nuke_radar_psd_1.png", secondary: "/maps/de_nuke_lower_radar_psd_2.png" },

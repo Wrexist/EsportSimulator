@@ -47,23 +47,23 @@ describe("calculateMapStrengths", () => {
         }
     })
 
-    test("aim-heavy roster scores higher on Dust2/Mirage than Nuke/Overpass", () => {
+    test("aim-heavy roster scores higher on Sandstone/Mirage than Nuke/Overpass", () => {
         // High skill, low tactic → aim maps favored.
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 90, tactic: 30 }))
         const result = calculateMapStrengths(players)
 
-        const dust2 = result.get(MapId.DUST2)!
+        const sandstone = result.get(MapId.SANDSTONE)!
         const nuke = result.get(MapId.NUKE)!
-        expect(dust2).toBeGreaterThan(nuke)
+        expect(sandstone).toBeGreaterThan(nuke)
     })
 
-    test("tactic-heavy roster scores higher on Nuke/Overpass than Dust2/Mirage", () => {
+    test("tactic-heavy roster scores higher on Nuke/Overpass than Sandstone/Mirage", () => {
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 30, tactic: 90 }))
         const result = calculateMapStrengths(players)
 
-        const dust2 = result.get(MapId.DUST2)!
+        const sandstone = result.get(MapId.SANDSTONE)!
         const nuke = result.get(MapId.NUKE)!
-        expect(nuke).toBeGreaterThan(dust2)
+        expect(nuke).toBeGreaterThan(sandstone)
     })
 
     test("balanced roster produces non-degenerate strengths for all 8 maps", () => {
@@ -81,27 +81,27 @@ describe("calculateMapStrengths", () => {
 describe("selectMapForVeto", () => {
     test("level-5 analyst picks the strict top map (zero noise wins)", () => {
         const strengths = new Map<MapId, number>([
-            [MapId.DUST2, 90],
+            [MapId.SANDSTONE, 90],
             [MapId.MIRAGE, 50],
             [MapId.INFERNO, 70],
         ])
-        const available: MapId[] = [MapId.DUST2, MapId.MIRAGE, MapId.INFERNO]
+        const available: MapId[] = [MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO]
 
         // At analyst level 5, noise is ±2 — far less than the 20-point gap
-        // between DUST2 and INFERNO.
+        // between SANDSTONE and INFERNO.
         for (let seed = 1; seed <= 20; seed++) {
             const pick = selectMapForVeto(new SeededRNG(seed), available, strengths, "PICK", 5)
-            expect(pick).toBe(MapId.DUST2)
+            expect(pick).toBe(MapId.SANDSTONE)
         }
     })
 
     test("deterministic: same seed yields the same pick", () => {
         const strengths = new Map<MapId, number>([
-            [MapId.DUST2, 60],
+            [MapId.SANDSTONE, 60],
             [MapId.MIRAGE, 60],
             [MapId.INFERNO, 60],
         ])
-        const available: MapId[] = [MapId.DUST2, MapId.MIRAGE, MapId.INFERNO]
+        const available: MapId[] = [MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO]
 
         const pickA = selectMapForVeto(new SeededRNG(42), available, strengths, "PICK", 1)
         const pickB = selectMapForVeto(new SeededRNG(42), available, strengths, "PICK", 1)

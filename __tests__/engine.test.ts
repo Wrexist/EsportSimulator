@@ -817,7 +817,7 @@ describe('OVR Balance (player-evaluation)', () => {
         role: 'Rifler', age: 25, potential: 60,
         form: 80, fatigue: 10, morale: 80,
         matchesPlayed: 100, prestigeScore: 0,
-        hltvHistory: [],
+        proHistory: [],
         ...overrides,
     })
 

@@ -13,7 +13,7 @@ function buildPlayers(prefix: string, count: number) {
 
 describe("radar-position-engine", () => {
   const activeMaps: MapId[] = [
-    MapId.DUST2,
+    MapId.SANDSTONE,
     MapId.MIRAGE,
     MapId.INFERNO,
     MapId.NUKE,
@@ -72,7 +72,7 @@ describe("radar-position-engine", () => {
     ]
 
     const result = computeRadarPositions(
-      MapId.DUST2,
+      MapId.SANDSTONE,
       2.25,
       events,
       homePlayers,

@@ -45,7 +45,7 @@ export interface VisibleStats {
 
     // Only visible after scouting
     exactStats?: Partial<PlayerSaveData>
-    hltvHistory?: { year: number; rank: number }[]
+    proHistory?: { year: number; rank: number }[]
     matchesPlayed?: number
     majorWins?: number
 
@@ -144,7 +144,7 @@ export function getVisibleStats(
             baseStats.ovrRange = skill
             // Everything revealed
             baseStats.exactStats = { ...player }
-            baseStats.hltvHistory = player.hltvHistory
+            baseStats.proHistory = player.proHistory
             baseStats.matchesPlayed = player.matchesPlayed
             baseStats.majorWins = player.majorWins
             break

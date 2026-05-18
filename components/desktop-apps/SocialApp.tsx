@@ -42,7 +42,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
 
     // Generate trending topics
     const trendingTopics = [
-        { tag: "CS2Major", posts: "2.4K", category: "Tournament" },
+        { tag: "MajorChampionship", posts: "2.4K", category: "Tournament" },
         { tag: "TransferRumors", posts: "1.8K", category: "Market" },
         { tag: "ProPlayerMoves", posts: "1.2K", category: "Transfers" },
         { tag: "ESLProLeague", posts: "956", category: "Tournament" },

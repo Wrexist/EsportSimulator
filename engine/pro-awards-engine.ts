@@ -1,7 +1,7 @@
 /**
- * HLTV Top 20 Awards Engine - Authentic Implementation
+ * Pro Top 20 Awards Engine - Authentic Implementation
  * 
- * Based on the real HLTV Top 20 Players ranking system:
+ * Based on the real Pro Top 20 Players ranking system:
  * 
  * REVEAL SCHEDULE:
  * - Revealed daily during January (offseason)
@@ -9,7 +9,7 @@
  * - Each day triggers a notification for that player
  * 
  * RANKING CRITERIA (weighted):
- * - HLTV Rating 2.0 at Big Events (40%)
+ * - Pro Rating 2.0 at Big Events (40%)
  * - Impact Rating (15%)
  * - Big Event Playoffs Performance (20%)
  * - MVP/EVP Awards (15%)
@@ -81,8 +81,8 @@ export interface Top20Player {
     teamLogo: string
     overallRating: number
 
-    // HLTV-style stats
-    hltvRating: number      // HLTV 2.0 Rating (0.80-1.50+)
+    // Pro-style stats
+    proRating: number      // Pro 2.0 Rating (0.80-1.50+)
     impactRating: number    // Impact contribution (0.80-1.50+)
     kast: number            // Kill/Assist/Survived/Traded % (50-85%)
     adr: number             // Average Damage per Round (60-100+)
@@ -133,11 +133,11 @@ const AWPER_ROLES = ["AWPER", "AWP", "OP"]
 // ===== STAT CALCULATIONS =====
 
 /**
- * Calculate HLTV 2.0 Rating based on player stats
+ * Calculate Pro 2.0 Rating based on player stats
  * Real formula: Weighted combination of kills, deaths, assists, traded, flash assists, etc.
  * Simplified: Based on OVR + key mechanical stats
  */
-function calculateHLTVRating(player: PlayerSaveData, rngSeed: number): number {
+function calculateProRating(player: PlayerSaveData, rngSeed: number): number {
     const evaluation = evaluatePlayer(player)
     const ovr = evaluation.overallRating
 
@@ -160,7 +160,7 @@ function calculateHLTVRating(player: PlayerSaveData, rngSeed: number): number {
     const variance = (Math.sin(rngSeed * player.id.charCodeAt(0)) * 0.05)
     rating += variance
 
-    // Clamp to realistic HLTV range
+    // Clamp to realistic Pro range
     return Math.max(0.80, Math.min(1.55, parseFloat(rating.toFixed(2))))
 }
 
@@ -273,18 +273,18 @@ export function generateAnnualTop20(
         const real = realStats.get(player.id)
 
         // Use real data when player has 10+ matches, otherwise fabricate
-        let hltvRating: number, impactRating: number, kast: number, adr: number, kpr: number, mvpCount: number, mapsPlayed: number
+        let proRating: number, impactRating: number, kast: number, adr: number, kpr: number, mvpCount: number, mapsPlayed: number
         if (real && real.matchCount >= 10) {
-            hltvRating = real.ratingTotal / real.matchCount
+            proRating = real.ratingTotal / real.matchCount
             kast = real.kastTotal / real.matchCount
             adr = real.adrTotal / real.matchCount
             kpr = real.mapsPlayed > 0 ? real.kills / real.mapsPlayed : 0.5
             mvpCount = real.mvpCount
             mapsPlayed = real.mapsPlayed
             // Impact has no direct match analog — derive from KPR and clutch contribution
-            impactRating = hltvRating * 0.7 + kpr * 0.3
+            impactRating = proRating * 0.7 + kpr * 0.3
         } else {
-            hltvRating = calculateHLTVRating(player, rngSeed)
+            proRating = calculateProRating(player, rngSeed)
             kast = calculateKAST(player, rngSeed)
             adr = calculateADR(player, rngSeed)
             kpr = calculateKPR(player, rngSeed)
@@ -313,9 +313,9 @@ export function generateAnnualTop20(
             mapsPlayed = 80 + Math.floor(seedMod * 120)
         }
 
-        // HLTV Composite Score (weighted formula)
+        // Pro Composite Score (weighted formula)
         const compositeScore = (
-            (hltvRating * 40) +           // 40% HLTV Rating
+            (proRating * 40) +           // 40% Pro Rating
             (impactRating * 15) +          // 15% Impact
             ((kast / 100) * 15) +          // 15% KAST (normalized)
             (mvpCount * 8) +               // MVP weight
@@ -331,7 +331,7 @@ export function generateAnnualTop20(
             player,
             team,
             evaluation,
-            hltvRating,
+            proRating,
             impactRating,
             kast,
             adr,
@@ -364,8 +364,8 @@ export function generateAnnualTop20(
         teamLogo: entry.team?.logoPath || "",
         overallRating: entry.evaluation.overallRating,
 
-        // HLTV stats
-        hltvRating: entry.hltvRating,
+        // Pro stats
+        proRating: entry.proRating,
         impactRating: entry.impactRating,
         kast: entry.kast,
         adr: entry.adr,
@@ -418,7 +418,7 @@ export function generateAnnualTop20(
 }
 
 /**
- * Check if HLTV Awards should be triggered
+ * Check if Pro Awards should be triggered
  * Awards start revealing at Week 1 of each new year (Jan 1)
  */
 export function shouldTriggerAwards(currentWeek: number): boolean {
@@ -436,13 +436,13 @@ export function getRevealForDay(day: number): number {
 }
 
 /**
- * Add HLTV Awards event to event log with daily reveal support
+ * Add Pro Awards event to event log with daily reveal support
  */
-export function addHLTVAwardsEvent(save: GameSave, awards: AnnualAwards): void {
+export function addProAwardsEvent(save: GameSave, awards: AnnualAwards): void {
     // Check if we already generated awards for this year
     const existingAwards = save.eventsLog.find(e =>
         e.type === EventType.MEDIA &&
-        (e.data.hltvAwards as { year?: number } | undefined)?.year === awards.year
+        (e.data.proAwards as { year?: number } | undefined)?.year === awards.year
     )
 
     if (existingAwards) return
@@ -451,17 +451,17 @@ export function addHLTVAwardsEvent(save: GameSave, awards: AnnualAwards): void {
     const playerTeamMembers = awards.top20.filter(p => p.isPlayerTeam)
 
     const eventMessage = playerTeamMembers.length > 0
-        ? `🏆 HLTV Top 20 of ${awards.year} is being revealed! Your team has ${playerTeamMembers.length} player(s) in the ranking. Check the awards ceremony to see where they placed!`
-        : `🏆 HLTV Top 20 of ${awards.year} is being revealed! The world's best players are being announced one by one. Watch the ceremony to see who made the list.`
+        ? `🏆 Pro Top 20 of ${awards.year} is being revealed! Your team has ${playerTeamMembers.length} player(s) in the ranking. Check the awards ceremony to see where they placed!`
+        : `🏆 Pro Top 20 of ${awards.year} is being revealed! The world's best players are being announced one by one. Watch the ceremony to see who made the list.`
 
     save.eventsLog.push({
-        id: `hltv_top20_year${awards.year}`,
+        id: `pro_top20_year${awards.year}`,
         type: EventType.MEDIA,
         week: save.currentWeek,
         data: {
-            title: `🏆 HLTV Top 20 of ${awards.year}`,
+            title: `🏆 Pro Top 20 of ${awards.year}`,
             message: eventMessage,
-            hltvAwards: awards,
+            proAwards: awards,
             hasPlayerTeamMember: playerTeamMembers.length > 0,
             playerTeamMembers: playerTeamMembers.map(p => ({
                 rank: p.rank,
@@ -476,7 +476,7 @@ export function addHLTVAwardsEvent(save: GameSave, awards: AnnualAwards): void {
 export default {
     generateAnnualTop20,
     shouldTriggerAwards,
-    addHLTVAwardsEvent,
+    addProAwardsEvent,
     getRevealForDay,
-    calculateHLTVRating
+    calculateProRating
 }

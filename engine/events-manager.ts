@@ -39,7 +39,7 @@ export class EventsManager {
           acknowledged: false,
           data: {
             title: "Media Interview Request",
-            message: `HLTV has requested an interview about ${topic}. Accepting will boost your reputation but takes preparation time.`,
+            message: `Pro has requested an interview about ${topic}. Accepting will boost your reputation but takes preparation time.`,
             severity: "info",
           },
           choices: [

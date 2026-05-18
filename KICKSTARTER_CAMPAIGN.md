@@ -570,7 +570,7 @@ A: Every match uses a seeded random number generator. Given the same starting co
 - CS2 YouTubers and streamers (audience overlap is massive)
 - Football Manager content creators (crossover appeal)
 - Indie game review channels
-- Esports news outlets (HLTV, Dust2, Dexerto)
+- Esports news outlets (HLTV, Sandstone, Dexerto)
 - Management/simulation game communities
 
 ---
@@ -775,7 +775,7 @@ When sending preview keys or partnership emails, always include their personaliz
 |---|---|---|
 | HLTV.org | `press_hltv` | `?ref=press_hltv` |
 | Dexerto | `press_dexerto` | `?ref=press_dexerto` |
-| Dust2.us | `press_dust2` | `?ref=press_dust2` |
+| Sandstone.us | `press_sandstone` | `?ref=press_sandstone` |
 | PC Gamer | `press_pcgamer` | `?ref=press_pcgamer` |
 | Rock Paper Shotgun | `press_rps` | `?ref=press_rps` |
 | Kotaku | `press_kotaku` | `?ref=press_kotaku` |

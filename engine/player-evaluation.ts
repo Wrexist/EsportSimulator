@@ -8,7 +8,7 @@
  * 4. Reliability Factor (consistency)
  * 5. Future Value (age + potential)
  * 
- * Plus HLTV Reputation Scoring for transfer value
+ * Plus Pro Reputation Scoring for transfer value
  */
 
 import { PlayerSaveData } from "./save-types"
@@ -28,7 +28,7 @@ export interface PlayerEvaluation {
     overallRating: number       // Simplified display rating (0-100)
 }
 
-export interface HltvTop20Entry {
+export interface ProTop20Entry {
     year: number
     rank: number
 }
@@ -232,10 +232,10 @@ export function calculateFutureValue(player: PlayerSaveData, baseSkill: number):
     return Math.round(Math.min(99, Math.max(1, futureValue)))
 }
 
-// ===== HLTV REPUTATION SCORING =====
+// ===== Pro REPUTATION SCORING =====
 
 /**
- * Convert HLTV rank to base reputation value
+ * Convert Pro rank to base reputation value
  * Top 3 matters way more than 15-20
  */
 function rankToBaseValue(rank: number): number {
@@ -247,7 +247,7 @@ function rankToBaseValue(rank: number): number {
 }
 
 /**
- * Year decay for HLTV rankings
+ * Year decay for Pro rankings
  * Front-loaded toward recent years, aggressive decay
  */
 function yearDecay(yearDiff: number): number {
@@ -259,11 +259,11 @@ function yearDecay(yearDiff: number): number {
 }
 
 /**
- * Calculate HLTV reputation score (0-100)
+ * Calculate Pro reputation score (0-100)
  * Used for transfer value, AI interest, media attention
  */
-export function calculateHltvReputationScore(
-    hltvHistory: HltvTop20Entry[] | undefined,
+export function calculateProReputationScore(
+    proHistory: ProTop20Entry[] | undefined,
     currentYear: number = 2025,
     currentWeek?: number
 ): number {
@@ -271,14 +271,14 @@ export function calculateHltvReputationScore(
     if (currentWeek !== undefined && currentYear === 2025) {
         currentYear = 2025 + Math.floor((currentWeek - 1) / 52)
     }
-    if (!hltvHistory || hltvHistory.length === 0) {
+    if (!proHistory || proHistory.length === 0) {
         return 0
     }
 
     let weightedSum = 0
     let weightTotal = 0
 
-    for (const entry of hltvHistory) {
+    for (const entry of proHistory) {
         const yearDiff = currentYear - entry.year
         if (yearDiff < 0) continue
 
@@ -298,12 +298,12 @@ export function calculateHltvReputationScore(
 
 /**
  * Calculate player market value in dollars
- * Based on: overallRating (cubic curve), futureValue, role scarcity, reliability, HLTV prestige
+ * Based on: overallRating (cubic curve), futureValue, role scarcity, reliability, Pro prestige
  */
 export function calculateMarketValue(
     evaluation: Omit<PlayerEvaluation, "transferValue" | "overallRating">,
     player: PlayerSaveData,
-    hltvScore: number = 0,
+    proScore: number = 0,
     overallRating?: number
 ): number {
     // Use overallRating (the display value, which includes confidence/prestige
@@ -312,7 +312,7 @@ export function calculateMarketValue(
     const effectiveRating = overallRating ?? evaluation.matchDayRating
 
     // Cubic curve: $50k floor at OVR≤25, scaling to ~$8M base at OVR 100.
-    // After role/HLTV multipliers, top players reach $15-20M+.
+    // After role/Pro multipliers, top players reach $15-20M+.
     const normalizedRating = Math.max(0, (effectiveRating - 25)) / 75
     const baseValue = 50_000 + Math.pow(normalizedRating, 3) * 8_000_000
 
@@ -334,10 +334,10 @@ export function calculateMarketValue(
     // Reliability bonus (consistent players = safer investments)
     const reliabilityBonus = evaluation.reliability
 
-    // HLTV reputation bonus (up to +50% for elite players)
-    const hltvBonus = 1 + (hltvScore / 200)
+    // Pro reputation bonus (up to +50% for elite players)
+    const proBonus = 1 + (proScore / 200)
 
-    const totalValue = baseValue * futureMultiplier * roleMultiplier * reliabilityBonus * hltvBonus
+    const totalValue = baseValue * futureMultiplier * roleMultiplier * reliabilityBonus * proBonus
 
     // Round to nearest $10k
     return Math.round(totalValue / 10000) * 10000
@@ -350,7 +350,7 @@ export function calculateMarketValue(
  */
 export function evaluatePlayer(
     player: PlayerSaveData,
-    hltvHistory?: HltvTop20Entry[],
+    proHistory?: ProTop20Entry[],
     currentYear: number = 2025,
     currentWeek?: number
 ): PlayerEvaluation {
@@ -373,12 +373,12 @@ export function evaluatePlayer(
     // Layer 5: Future value
     const futureValue = calculateFutureValue(player, baseSkill)
 
-    // HLTV reputation (use player's stored history if not passed)
-    const effectiveHistory = hltvHistory ?? player.hltvHistory
-    let hltvScore = calculateHltvReputationScore(effectiveHistory, currentYear)
-    // Fallback: use stored prestigeScore when hltvHistory yields nothing
-    if (hltvScore === 0 && player.prestigeScore) {
-        hltvScore = player.prestigeScore
+    // Pro reputation (use player's stored history if not passed)
+    const effectiveHistory = proHistory ?? player.proHistory
+    let proScore = calculateProReputationScore(effectiveHistory, currentYear)
+    // Fallback: use stored prestigeScore when proHistory yields nothing
+    if (proScore === 0 && player.prestigeScore) {
+        proScore = player.prestigeScore
     }
 
     // Composite: Match-day rating
@@ -400,12 +400,12 @@ export function evaluatePlayer(
 
     // Prestige bonus: Proven players get up to +25 OVR (non-linear)
     // prestige 95 → +23, prestige 65 → +13, prestige 20 → +2, prestige 0 → 0
-    const prestigeBonus = Math.pow(hltvScore / 100, 1.5) * 25
+    const prestigeBonus = Math.pow(proScore / 100, 1.5) * 25
 
     // Confidence modifier: How "proven" is this rating?
     // High prestige + high matches = high confidence = full rating
     // Low prestige + low matches = low confidence = reduced rating
-    const confidenceFactor = experienceFactor * 0.4 + (hltvScore / 100) * 0.6 // 0.34 to 1.0
+    const confidenceFactor = experienceFactor * 0.4 + (proScore / 100) * 0.6 // 0.34 to 1.0
     const confidenceMultiplier = 0.92 + (confidenceFactor * 0.08) // 0.92 to 1.0
 
     // Composite: Overall rating (current ability + prestige, no futureValue)
@@ -428,7 +428,7 @@ export function evaluatePlayer(
     }
 
     // Composite: Transfer value (uses overallRating for price consistency with UI)
-    const transferValue = calculateMarketValue(partialEval, player, hltvScore, overallRating)
+    const transferValue = calculateMarketValue(partialEval, player, proScore, overallRating)
 
     return {
         ...partialEval,

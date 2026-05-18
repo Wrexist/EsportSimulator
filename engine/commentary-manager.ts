@@ -1,4 +1,4 @@
-import { CS2Map } from "@/types/game"
+import { GameMap } from "@/types/game"
 
 export type CommentaryType =
     | "MATCH_START"

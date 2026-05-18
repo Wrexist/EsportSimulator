@@ -23,7 +23,7 @@ export const getRegionForCountry = (country: string): string => {
     if (REGIONS.OCE.includes(country)) return "OCE"
 
     // Fallback/CIS special handling? 
-    // HLTV often treats CIS as separate or part of EU/Asia depending on era. 
+    // Pro often treats CIS as separate or part of EU/Asia depending on era. 
     // For this sim, we might group CIS into EU for "region flag" purposes or keep separate?
     // User requested "europe flag if its mostly europe", so grouping CIS into EU might be desired or "CIS" flag?
     // Let's stick to standard regions for now.

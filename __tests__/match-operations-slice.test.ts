@@ -157,7 +157,7 @@ describe("updateScheduledMatch — sanitization", () => {
         const slice = createMatchOperationsSlice(h.set, h.get)
         slice.updateScheduledMatch("m1", {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            maps: ["Mirage", "Inferno", "Dust2", "Nuke", "Overpass"] as any,
+            maps: ["Mirage", "Inferno", "Sandstone", "Nuke", "Overpass"] as any,
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((h.state().scheduledMatches[0] as any).maps.length).toBe(1)

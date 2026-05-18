@@ -9,6 +9,7 @@
 import type { GameSave } from "../save-types"
 import type { WeekProcessorConfig, WeekProcessorResult } from "../atomic-week-processor"
 import type { SeededRNG } from "../rng"
+import { logger } from "@/lib/logger"
 
 interface WorkerResult {
   type: "RESULT"
@@ -79,7 +80,7 @@ class WeekProcessorBridge {
         this.worker.onerror = (err) => {
           clearTimeout(timeout)
           this.workerFailed = true
-          console.warn("[WeekProcessor] Worker failed to load, using synchronous fallback:", err.message)
+          logger.warn("[WeekProcessor] Worker failed to load, using synchronous fallback:", err.message)
           reject(err)
         }
       } catch (err) {
@@ -120,7 +121,7 @@ class WeekProcessorBridge {
 
       const timeout = setTimeout(() => {
         // Worker took too long - fall back to sync
-        console.warn("[WeekProcessor] Worker timeout, falling back to synchronous")
+        logger.warn("[WeekProcessor] Worker timeout, falling back to synchronous")
         this.processSync(save, config, rng).then(resolve).catch(reject)
       }, 30000) // 30 second timeout
 
@@ -136,7 +137,7 @@ class WeekProcessorBridge {
           })
         } else if (event.data.type === "ERROR") {
           // Worker error - fall back to sync
-          console.warn("[WeekProcessor] Worker error, falling back:", event.data.error)
+          logger.warn("[WeekProcessor] Worker error, falling back:", event.data.error)
           this.processSync(save, config, rng).then(resolve).catch(reject)
         }
       }

@@ -16,13 +16,13 @@ import type { Player, MapVeto, Analyst } from "@/types"
 import type { SeededRNG } from "../rng"
 
 const ACTIVE_MAP_POOL: MapId[] = [
-    MapId.DUST2, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
+    MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
     MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS,
 ]
 
 /**
  * Compute a 0-100 strength score per map for a roster. Tactical maps
- * (Nuke / Overpass) lean on tactic; aim maps (Dust2 / Mirage) lean on
+ * (Nuke / Overpass) lean on tactic; aim maps (Sandstone / Mirage) lean on
  * skill; the rest blend both. Returns a defaulted-to-50 map for empty
  * rosters so downstream veto logic never sees missing entries.
  */
@@ -45,7 +45,7 @@ export function calculateMapStrengths(players: Player[]): Map<MapId, number> {
             case MapId.OVERPASS:
                 strength = avgSkill * 0.4 + avgTactic * 0.6
                 break
-            case MapId.DUST2:
+            case MapId.SANDSTONE:
             case MapId.MIRAGE:
                 strength = avgSkill * 0.7 + avgTactic * 0.3
                 break
