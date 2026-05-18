@@ -16,10 +16,10 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
 const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRecapModal").then(m => m.SeasonRecapModal), { ssr: false })
-const HLTVAwardsModal = dynamic(() => import("@/components/celebration/HLTVAwardsModal").then(m => m.HLTVAwardsModal), { ssr: false })
+const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
 import { soundManager } from "@/lib/sound-manager"
-import type { AnnualAwards } from "@/engine/hltv-awards-engine"
+import type { AnnualAwards } from "@/engine/pro-awards-engine"
 
 export default function Page() {
   const router = useRouter()
@@ -62,14 +62,14 @@ export default function Page() {
 
   const [isSimulating, setIsSimulating] = useState(false)
 
-  // HLTV Awards Modal State
-  const [hltvAwards, setHltvAwards] = useState<AnnualAwards | null>(null)
-  const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
+  // Pro Awards Modal State
+  const [proAwards, setProAwards] = useState<AnnualAwards | null>(null)
+  const [isProModalOpen, setIsProModalOpen] = useState(false)
 
-  // Detect unacknowledged HLTV award events
-  const latestHLTVEvent = useMemo(() => {
+  // Detect unacknowledged Pro award events
+  const latestProEvent = useMemo(() => {
     return (eventsLog ?? []).find(e =>
-      e.type === "MEDIA" && (e.data as any)?.hltvAwards && !e.acknowledged
+      e.type === "MEDIA" && (e.data as any)?.proAwards && !e.acknowledged
     )
   }, [eventsLog])
 
@@ -247,14 +247,14 @@ export default function Page() {
           stats={seasonRecapStats}
         />
       )}
-      <HLTVAwardsModal
-        isOpen={isHLTVModalOpen}
-        onClose={() => setIsHLTVModalOpen(false)}
-        awards={hltvAwards}
+      <ProAwardsModal
+        isOpen={isProModalOpen}
+        onClose={() => setIsProModalOpen(false)}
+        awards={proAwards}
       />
 
-      {/* HLTV Awards Banner */}
-      {latestHLTVEvent && !isHLTVModalOpen && (
+      {/* Pro Awards Banner */}
+      {latestProEvent && !isProModalOpen && (
         <div className="liquid-panel rounded-lg border-amber-300/20 p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -262,17 +262,17 @@ export default function Page() {
             </div>
             <div>
               <p className="text-sm font-bold text-amber-300 uppercase tracking-wide">
-                {(latestHLTVEvent.data as any)?.title || "HLTV Top 20 Awards"}
+                {(latestProEvent.data as any)?.title || "Pro Top 20 Awards"}
               </p>
               <p className="text-[10px] text-amber-400/60">Click to view the ceremony</p>
             </div>
           </div>
           <Button
             onClick={() => {
-              const awards = (latestHLTVEvent?.data as any)?.hltvAwards
+              const awards = (latestProEvent?.data as any)?.proAwards
               if (awards && Array.isArray(awards.top20) && awards.year) {
-                setHltvAwards(awards as AnnualAwards)
-                setIsHLTVModalOpen(true)
+                setProAwards(awards as AnnualAwards)
+                setIsProModalOpen(true)
               }
             }}
             className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-[10px] rounded-xl h-10 px-6"

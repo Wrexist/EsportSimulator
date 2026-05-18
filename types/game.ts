@@ -1,6 +1,6 @@
-// Core game types for CS2 esports manager simulation
+// Core game types for Pro FPS esports manager simulation
 
-export type Game = "cs2"
+export type Game = "tactical_fps"
 
 export type Role = "awper" | "rifler" | "igl" | "support" | "entry"
 
@@ -232,12 +232,12 @@ export interface Psychologist {
   }
 }
 
-export type CS2Map = "Dust2" | "Mirage" | "Inferno" | "Nuke" | "Overpass" | "Vertigo" | "Ancient"
+export type GameMap = "Sandstone" | "Mirage" | "Inferno" | "Nuke" | "Overpass" | "Vertigo" | "Ancient"
 
 export interface MapVeto {
   phase: "ban" | "pick" | "decider"
   team: string // team id
-  map: CS2Map
+  map: GameMap
 }
 
 export interface RoundResult {
@@ -251,7 +251,7 @@ export interface RoundResult {
 }
 
 export interface MapResult {
-  map: CS2Map
+  map: GameMap
   ctStartTeam: string // Which team started CT
   rounds: RoundResult[]
   finalScore: {
@@ -291,7 +291,7 @@ export interface PlayerMatchStats {
   headshots: number
   adr: number // Average damage per round
   kast: number // Kill/Assist/Survive/Trade percentage
-  rating: number // HLTV-style rating
+  rating: number // Pro-style rating
   clutches: number // Clutch rounds won
 }
 

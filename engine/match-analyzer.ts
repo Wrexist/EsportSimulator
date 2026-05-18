@@ -49,7 +49,7 @@ export class MatchAnalyzer {
             : 0
         const economyRating = Math.min(99, Math.round(40 + roundAnalysis.economyScore * 3 + pistolBonus))
 
-        // Aim: based on K/D and average HLTV rating of the winning team's players
+        // Aim: based on K/D and average Pro rating of the winning team's players
         const kd = winnerStats.deaths > 0 ? winnerStats.kills / winnerStats.deaths : 1.5
         const aimRating = Math.min(99, Math.round(winnerStats.avgRating * 50 + kd * 15))
 

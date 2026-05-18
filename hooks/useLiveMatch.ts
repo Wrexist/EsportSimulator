@@ -240,7 +240,7 @@ export function useLiveMatch(id: string) {
             const restoredSim = activeMatchState.simState as SimState | undefined
             const requestedMapIndex = restoredSim?.currentMapIndex ?? activeMatchState.gameState?.currentMapIndex ?? 0
             const currentMapIndex = Math.max(0, Math.min(canonicalMaps.length - 1, requestedMapIndex))
-            const currentMapId = canonicalMaps[currentMapIndex] || MapId.DUST2
+            const currentMapId = canonicalMaps[currentMapIndex] || MapId.SANDSTONE
             const homeStartsCT = typeof restoredSim?.homeStartsCT === "boolean"
                 ? restoredSim.homeStartsCT
                 : resolveHomeStartsCT({
@@ -312,7 +312,7 @@ export function useLiveMatch(id: string) {
             return
         }
 
-        const initialMapId = canonicalMaps[0] || MapId.DUST2
+        const initialMapId = canonicalMaps[0] || MapId.SANDSTONE
         const initialHomeStartsCT = resolveHomeStartsCT({
             mapId: initialMapId,
             mapStartingSides,
@@ -461,7 +461,7 @@ export function useLiveMatch(id: string) {
 
         const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam, hPlayers, hStaff)
         const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam, aPlayers, aStaff)
-        const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.DUST2
+        const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.SANDSTONE
         const homeMapStrength = simulationEngineV2.calculateMapStrengths(hPlayers).get(currentMapId) || 50
         const awayMapStrength = simulationEngineV2.calculateMapStrengths(aPlayers).get(currentMapId) || 50
 

@@ -66,7 +66,7 @@ export function DevTools() {
     }, [devToolsEnabled])
 
     const handleQuickStart = useCallback(async () => {
-        await store.initializeNewGame("Quick Test Save", "team_navi")
+        await store.initializeNewGame("Quick Test Save", "team_default")
         router.push("/squad")
         setIsOpen(false)
     }, [store, router])
@@ -153,7 +153,7 @@ export function DevTools() {
                             <div className="p-6 text-center space-y-4">
                                 <p className="text-sm text-muted-foreground font-mono">No game loaded</p>
                                 <Button size="sm" variant="destructive" onClick={handleQuickStart} className="font-mono text-xs">
-                                    <Play size={12} className="mr-2" /> Quick Start (Navi)
+                                    <Play size={12} className="mr-2" /> Quick Start (Default Team)
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={() => { router.push("/new-game"); setIsOpen(false) }} className="font-mono text-xs ml-2">
                                     <RefreshCcw size={12} className="mr-2" /> New Game
@@ -537,7 +537,7 @@ export function DevTools() {
                                         <p className="text-[10px] uppercase font-bold text-blue-400/80 tracking-widest mt-3">Quick Actions</p>
                                         <div className="grid grid-cols-2 gap-2">
                                             <Button size="sm" variant="destructive" onClick={handleQuickStart} className="font-mono text-[11px] justify-start bg-red-500/20 hover:bg-red-500/40 text-red-200 h-8">
-                                                <Play size={11} className="mr-1.5" /> Restart (Navi)
+                                                <Play size={11} className="mr-1.5" /> Restart (Default Team)
                                             </Button>
                                             <Button size="sm" variant="outline" onClick={() => { store.refreshStaffMarket(); store.addToast({ message: "Staff market refreshed", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-blue-500/20 justify-start h-8">
                                                 <RefreshCcw size={11} className="mr-1.5" /> Refresh Staff

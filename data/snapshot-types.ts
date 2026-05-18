@@ -142,7 +142,7 @@ export interface SnapshotTournament {
  */
 export interface SnapshotSource {
     playerId: string
-    source: string // e.g., "HLTV.org", "Liquipedia"
+    source: string // e.g., "Pro.org", "Liquipedia"
     sourceUrl?: string
     license: string // e.g., "CC BY-SA 3.0"
     retrievedAt: string // ISO date

@@ -2,7 +2,7 @@
  * Round-outcome generator: given a round winner + per-team economy,
  * produces the realistic kill/death distribution, plant/defuse/explode
  * timing, clutch detection, trade-kill assists, headshot probability,
- * and KAST-feeding event log for one round of CS2.
+ * and KAST-feeding event log for one round of the match.
  *
  * Extracted from match-simulation.ts (Phase I4) with I3 integration
  * tests as the safety net. The four functions are pure — no `this`,

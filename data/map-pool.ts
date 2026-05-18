@@ -12,7 +12,7 @@ export const ACTIVE_MAP_POOL: MapId[] = [
     MapId.VERTIGO,
     MapId.ANCIENT,
     MapId.ANUBIS,
-    MapId.DUST2,
+    MapId.SANDSTONE,
 ]
 
 /**
@@ -20,7 +20,7 @@ export const ACTIVE_MAP_POOL: MapId[] = [
  * in saves from older versions.
  */
 export const MAP_NAMES: Record<string, string> = {
-    [MapId.DUST2]: "Dust II",
+    [MapId.SANDSTONE]: "Dust II",
     [MapId.MIRAGE]: "Mirage",
     [MapId.INFERNO]: "Inferno",
     [MapId.NUKE]: "Nuke",

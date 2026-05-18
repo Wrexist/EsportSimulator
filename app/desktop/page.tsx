@@ -40,7 +40,7 @@ import { ShopApp } from "@/components/desktop-apps/ShopApp"
 import { FacilitiesApp } from "@/components/desktop-apps/FacilitiesApp"
 import { FinanceApp } from "@/components/desktop-apps/FinanceApp"
 import { AcademyApp } from "@/components/desktop-apps/AcademyApp"
-import { HLTVAwardsModal } from "@/components/celebration/HLTVAwardsModal"
+import { ProAwardsModal } from "@/components/celebration/ProAwardsModal"
 import { SeasonRecapModal } from "@/components/celebration/SeasonRecapModal"
 import { TutorialOverlay } from "@/components/ui/TutorialOverlay"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
@@ -113,9 +113,9 @@ function DesktopContent() {
   const [isProcessing, setIsProcessing] = useState(false)
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
-  // HLTV Awards Modal State
-  const [hltvAwards, setHltvAwards] = useState<any>(null)
-  const [isHLTVModalOpen, setIsHLTVModalOpen] = useState(false)
+  // Pro Awards Modal State
+  const [proAwards, setProAwards] = useState<any>(null)
+  const [isProModalOpen, setIsProModalOpen] = useState(false)
 
   // Window management state.
   // Deep-clone the module-level template so per-mount window state is isolated.
@@ -191,7 +191,7 @@ function DesktopContent() {
     return generateSocialPosts(playerTeam, completedMatches, players)
   }, [playerTeam, completedMatches, players])
 
-  // DEV: Keyboard shortcut (Ctrl+Shift+H) to test HLTV Awards Modal
+  // DEV: Keyboard shortcut (Ctrl+Shift+H) to test Pro Awards Modal
   useEffect(() => {
     if (process.env.NODE_ENV !== 'development') return
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -219,7 +219,7 @@ function DesktopContent() {
               teamName: teams.find(t => t.rosterIds?.includes(p.id))?.name || 'Free Agent',
               teamLogo: teams.find(t => t.rosterIds?.includes(p.id))?.logoPath || '',
               overallRating: p.skill || 80,
-              hltvRating: 1.00 + (20 - i) * 0.02,
+              proRating: 1.00 + (20 - i) * 0.02,
               impactRating: 0.95 + (20 - i) * 0.015,
               kast: 65 + (20 - i) * 0.8,
               adr: 70 + (20 - i) * 1.2,
@@ -245,8 +245,8 @@ function DesktopContent() {
         mockAwards.mvpOfTheYear = mockAwards.top20[0]
         mockAwards.rookieOfTheYear = mockAwards.top20.find(p => p.age <= 21) || null
 
-        setHltvAwards(mockAwards)
-        setIsHLTVModalOpen(true)
+        setProAwards(mockAwards)
+        setIsProModalOpen(true)
       }
     }
 
@@ -437,9 +437,9 @@ function DesktopContent() {
       case "CAREER_UPDATE": return "Career Update"
       case "TOURNAMENT": return "Tournament"
       case "MEDIA":
-        // Check for HLTV awards
-        if ((data as any)?.hltvAwards) {
-          return `🏆 HLTV Top 20 of ${(data as any).hltvAwards.year}`
+        // Check for Pro awards
+        if ((data as any)?.proAwards) {
+          return `🏆 Pro Top 20 of ${(data as any).proAwards.year}`
         }
         return data.title || "Media Update"
       default: return data.title || "Notification"
@@ -470,9 +470,9 @@ function DesktopContent() {
       case "CAREER_UPDATE": return data.message || "Your career has been updated."
       case "TOURNAMENT": return data.message || "Tournament update."
       case "MEDIA":
-        // Check for HLTV awards
-        if ((data as any)?.hltvAwards) {
-          const awards = (data as any).hltvAwards
+        // Check for Pro awards
+        if ((data as any)?.proAwards) {
+          const awards = (data as any).proAwards
           const playerMembers = awards.top20?.filter((p: any) => p.isPlayerTeam) || []
           if (playerMembers.length > 0) {
             return `Your team has ${playerMembers.length} player${playerMembers.length > 1 ? 's' : ''} in the Top 20! Click to see the full ceremony.`
@@ -1316,8 +1316,8 @@ function DesktopContent() {
                   </motion.div>
                 ))}
 
-                {/* HLTV Awards View Ceremony Button */}
-                {selectedEvent?.type === "MEDIA" && (selectedEvent.data as any)?.hltvAwards && (
+                {/* Pro Awards View Ceremony Button */}
+                {selectedEvent?.type === "MEDIA" && (selectedEvent.data as any)?.proAwards && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1325,8 +1325,8 @@ function DesktopContent() {
                   >
                     <Button
                       onClick={() => {
-                        setHltvAwards((selectedEvent.data as any).hltvAwards)
-                        setIsHLTVModalOpen(true)
+                        setProAwards((selectedEvent.data as any).proAwards)
+                        setIsProModalOpen(true)
                         handleDismiss()
                       }}
                       className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 rounded-xl font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-2"
@@ -1360,11 +1360,11 @@ function DesktopContent() {
         </DialogContent>
       </Dialog >
 
-      {/* HLTV Awards Modal */}
-      < HLTVAwardsModal
-        isOpen={isHLTVModalOpen}
-        onClose={() => setIsHLTVModalOpen(false)}
-        awards={hltvAwards}
+      {/* Pro Awards Modal */}
+      < ProAwardsModal
+        isOpen={isProModalOpen}
+        onClose={() => setIsProModalOpen(false)}
+        awards={proAwards}
       />
     </div >
   )

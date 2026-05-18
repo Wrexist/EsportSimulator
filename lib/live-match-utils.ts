@@ -134,7 +134,7 @@ export function resolveCanonicalSeriesMaps(options: {
   }
 
   if (selected.length === 0) {
-    selected.push(MapId.DUST2)
+    selected.push(MapId.SANDSTONE)
   }
 
   return selected.slice(0, requiredMaps)

@@ -532,7 +532,7 @@ export interface PlayerSaveData {
     trainingFocus?: string // TrainingFocus enum key
 
     // Phase 6: Prestige System
-    hltvHistory?: { year: number; rank: number }[]
+    proHistory?: { year: number; rank: number }[]
     prestigeScore?: number
 
     // Phase 23: Legendary System
@@ -867,8 +867,8 @@ export interface EventDataPayload {
     matchId?: string
     placement?: number
 
-    // HLTV awards
-    hltvAwards?: Record<string, unknown> | object
+    // Pro awards
+    proAwards?: Record<string, unknown> | object
 
     // Fan/social
     followerCount?: number

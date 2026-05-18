@@ -69,7 +69,7 @@ import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
-import { generateAnnualTop20, shouldTriggerAwards, addHLTVAwardsEvent } from "./hltv-awards-engine"
+import { generateAnnualTop20, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
@@ -307,11 +307,11 @@ export class AtomicWeekProcessor {
                     LeagueEngine.processSeasonEnd(save, config.playerTeamId)
                 }
 
-                // Phase 63: HLTV Top 20 Awards - Trigger at start of each new year (Week 53, 105, etc.)
+                // Phase 63: Pro Top 20 Awards - Trigger at start of each new year (Week 53, 105, etc.)
                 if (shouldTriggerAwards(save.currentWeek)) {
-                    debugLog(`[Week ${save.currentWeek}] Generating HLTV Top 20 Awards for Year ${Math.ceil(save.currentWeek / 52)}...`)
+                    debugLog(`[Week ${save.currentWeek}] Generating Pro Top 20 Awards for Year ${Math.ceil(save.currentWeek / 52)}...`)
                     const awards = generateAnnualTop20(save, config.playerTeamId)
-                    addHLTVAwardsEvent(save, awards)
+                    addProAwardsEvent(save, awards)
                 }
 
                 perfTrace.step("step.7_standings", __s)

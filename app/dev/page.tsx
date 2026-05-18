@@ -290,7 +290,7 @@ export default function DevPage() {
         }))
 
         log(`Launching: ${home.name} vs ${away.name}`)
-        router.push(`/match/${testMatchId}/live?maps=${MapId.DUST2},${MapId.MIRAGE},${MapId.INFERNO}`)
+        router.push(`/match/${testMatchId}/live?maps=${MapId.SANDSTONE},${MapId.MIRAGE},${MapId.INFERNO}`)
     }
 
     const triggerJobOffer = () => {

@@ -29,7 +29,7 @@ import { PlayerRole } from "@/types/enums"
 import type { PlayerSimulationState } from "./round-outcome"
 
 /**
- * Map a weapon ID to its CS2 tier ranking. Used by the upgrade gate so
+ * Map a weapon ID to its game-tier ranking. Used by the upgrade gate so
  * `FULL` doesn't accidentally swap a player from an AK ($2700) back to
  * an AUG of the same tier but lower power.
  */
@@ -167,7 +167,7 @@ export function performBuyPhase(
         }
 
         // Utility purchases from per-player loadout. Respects the 4-slot
-        // CS2 utility cap and accounts for already-held items.
+        // utility cap and accounts for already-held items.
         if (personalLoadout && personalLoadout.utility && personalLoadout.utility.length > 0) {
             const desiredUtil = [...personalLoadout.utility]
             const currentUtilCounts = (state.utility || []).reduce((acc: Record<string, number>, u: string) => {

@@ -62,7 +62,7 @@ Click **"Ny statistik"** (New Statistic) for each entry:
 
 Navigate to **Prestationskonfigurering** (Achievement Configuration).
 
-### Required Achievements (28 total)
+### Required Achievements (31 total)
 
 Click **"Ny prestation"** (New Achievement) for each entry.
 
@@ -111,6 +111,14 @@ Click **"Ny prestation"** (New Achievement) for each entry.
 | `LOYAL_TEAM` | The Core | Keep the same 5 players for 3+ years | No |
 | `PROFIT_MASTER` | Smart Business | Sell a player for more than you paid for them | No |
 | `ZERO_TO_HERO` | Rise to Glory | Take a C-Tier team to S-Tier | No |
+
+#### Milestone Achievements (3)
+
+| API Name | Display Name | Description | Hidden |
+|----------|--------------|-------------|--------|
+| `TOURNAMENT_WIN` | Champion | Win any tournament for the first time | No |
+| `SEASON_COMPLETE` | Full Cycle | Complete an entire 52-week season | No |
+| `FIRST_TRANSFER` | Dealmaker | Complete your first player transfer | No |
 
 #### Hidden Achievements (2)
 

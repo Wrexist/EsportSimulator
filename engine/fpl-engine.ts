@@ -445,7 +445,7 @@ function simulateFPLMatch(
         const baseADR = 50 + (skill * 0.4) + (weaponSkill * 0.2)
         const adr = Math.floor(baseADR + (rng.next() - 0.5) * 25)
 
-        // HLTV-style rating calculation
+        // Pro-style rating calculation
         const kpr = kills / totalRounds
         const dpr = deaths / totalRounds
         const apr = assists / totalRounds
@@ -492,7 +492,7 @@ function simulateFPLMatch(
     const mvpStats = allPlayerStats.find(s => s.playerId === mvpId)
     if (mvpStats) mvpStats.mvp = true
 
-    const maps = ["Mirage", "Inferno", "Dust2", "Ancient", "Nuke", "Anubis", "Vertigo"]
+    const maps = ["Mirage", "Inferno", "Sandstone", "Ancient", "Nuke", "Anubis", "Vertigo"]
 
     return {
         id: `fpl_match_${week}_${Date.now()}_${rng.int(1000, 9999)}`,

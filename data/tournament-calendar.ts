@@ -1,7 +1,7 @@
 "use client"
 
 // ============================================================================
-// TOURNAMENT CALENDAR - Complete CS2 Competitive Circuit
+// TOURNAMENT CALENDAR - Complete Pro FPS Competitive Circuit
 // ============================================================================
 
 import type { EntryPolicy } from "@/types/circuit"

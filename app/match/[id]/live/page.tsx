@@ -219,7 +219,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const [editingStrategy, setEditingStrategy] = useState<keyof CustomTactics>("FULL")
 
     // Compute live radar positions from round events (must be before early return for hooks rules)
-    const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.DUST2
+    const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
     const radarData = useMemo(() => {
         if (!simState || !matchData.current || gameState.time < 0) return null
         return computeRadarPositions(

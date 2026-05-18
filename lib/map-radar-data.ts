@@ -115,7 +115,7 @@ function projectLayoutPoints(mapId: MapId, base: Omit<MapLayoutData, "bounds">):
 // T spawn: bottom-center, CT spawn: upper-center area (green hatched box)
 // A site: top-left (orange), B site: top-right (orange)
 // Long A runs down the left, B tunnels through center-right
-const dust2Base = {
+const sandstoneBase = {
     tSpawn: stagger({ x: 38, y: 88 }, 3, 5),
     ctSpawn: [
         { x: 15, y: 20 },  // A site hold
@@ -148,8 +148,8 @@ const dust2Base = {
     engageB: { x: 68, y: 32 },
     mid: { x: 42, y: 40 },
 }
-const dust2Projected = projectLayoutPoints(MapId.DUST2, dust2Base)
-const dust2: MapLayoutData = { ...dust2Projected, bounds: computeBounds(dust2Projected) }
+const sandstoneProjected = projectLayoutPoints(MapId.SANDSTONE, sandstoneBase)
+const sandstone: MapLayoutData = { ...sandstoneProjected, bounds: computeBounds(sandstoneProjected) }
 
 // ─── MIRAGE ───
 // T spawn: bottom-left, CT spawn: far right
@@ -427,7 +427,7 @@ const vertigoProjected = projectLayoutPoints(MapId.VERTIGO, vertigoBase)
 const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vertigoProjected) }
 
 export const MAP_LAYOUTS: Record<string, MapLayoutData> = {
-    [MapId.DUST2]: dust2,
+    [MapId.SANDSTONE]: sandstone,
     [MapId.MIRAGE]: mirage,
     [MapId.INFERNO]: inferno,
     [MapId.ANUBIS]: anubis,

@@ -22,7 +22,7 @@ function makeBaseResult(overrides: Partial<MatchResult> = {}): MatchResult {
         homeScore: 2,
         awayScore: 1,
         maps: [
-            { map: "DUST2", finalScore: { team1: 13, team2: 7 }, rounds: [{ winner: "HOME" } as any], homeScore: 13, awayScore: 7 } as any,
+            { map: "SANDSTONE", finalScore: { team1: 13, team2: 7 }, rounds: [{ winner: "HOME" } as any], homeScore: 13, awayScore: 7 } as any,
             { map: "MIRAGE", finalScore: { team1: 9, team2: 13 }, rounds: [{ winner: "AWAY" } as any], homeScore: 9, awayScore: 13 } as any,
             { map: "INFERNO", finalScore: { team1: 13, team2: 10 }, rounds: [{ winner: "HOME" } as any], homeScore: 13, awayScore: 10 } as any,
         ],
@@ -34,7 +34,7 @@ describe("buildFreshLiveResult", () => {
     test("zeroes every map's scores + rounds + winner", () => {
         const result = buildFreshLiveResult({
             baseResult: makeBaseResult(),
-            canonicalMaps: ["DUST2", "MIRAGE", "INFERNO"] as any,
+            canonicalMaps: ["SANDSTONE", "MIRAGE", "INFERNO"] as any,
             homeTeamId: "h", awayTeamId: "a",
             seed: 1,
         })
@@ -51,7 +51,7 @@ describe("buildFreshLiveResult", () => {
     test("resets series-level scores: winnerId null, both scores 0", () => {
         const result = buildFreshLiveResult({
             baseResult: makeBaseResult({ winnerId: "home", homeScore: 2, awayScore: 1 }),
-            canonicalMaps: ["DUST2", "MIRAGE", "INFERNO"] as any,
+            canonicalMaps: ["SANDSTONE", "MIRAGE", "INFERNO"] as any,
             homeTeamId: "h", awayTeamId: "a",
             seed: 1,
         })
@@ -64,7 +64,7 @@ describe("buildFreshLiveResult", () => {
     test("returned maps length matches canonicalMaps length", () => {
         const result = buildFreshLiveResult({
             baseResult: makeBaseResult(),
-            canonicalMaps: ["DUST2", "MIRAGE"] as any, // BO3-but-only-2 (edge case)
+            canonicalMaps: ["SANDSTONE", "MIRAGE"] as any, // BO3-but-only-2 (edge case)
             homeTeamId: "h", awayTeamId: "a",
             seed: 1,
         })

@@ -31,7 +31,7 @@ function makePlayer(overrides: Partial<PlayerSaveData> = {}): PlayerSaveData {
         matchesPlayed: 200, majorWins: 0, totalKills: 500, totalDeaths: 400,
         totalMVPs: 0, avgRating: 1.05,
         skill: 80, potential: 90, productivity: 70, endurance: 70,
-        hltvHistory: [],
+        proHistory: [],
         ...overrides,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any as PlayerSaveData
@@ -76,7 +76,7 @@ describe("checkEligibility — path B (Individual Greatness)", () => {
         const p = makePlayer({
             matchesPlayed: 200, majorWins: 0, totalMVPs: 2,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            hltvHistory: [{ year: 2024, rank: 3 }] as any,
+            proHistory: [{ year: 2024, rank: 3 }] as any,
         })
         const entry = HallOfFameManager.checkEligibility(p, 2030)
         expect(entry).not.toBeNull()
@@ -88,7 +88,7 @@ describe("checkEligibility — path B (Individual Greatness)", () => {
         const p = makePlayer({
             matchesPlayed: 200, majorWins: 0, totalMVPs: 1,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            hltvHistory: [{ year: 2024, rank: 4 }] as any,
+            proHistory: [{ year: 2024, rank: 4 }] as any,
         })
         const entry = HallOfFameManager.checkEligibility(p, 2030)
         expect(entry).toBeNull()
@@ -98,7 +98,7 @@ describe("checkEligibility — path B (Individual Greatness)", () => {
         const p = makePlayer({
             matchesPlayed: 200, majorWins: 0, totalMVPs: 2,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            hltvHistory: [
+            proHistory: [
                 { year: 2020, rank: 50 },
                 { year: 2021, rank: 1 }, // career peak
                 { year: 2022, rank: 99 },
