@@ -427,20 +427,36 @@ land before `set()` returns, so the next `get()` reads the post-mutation
 state. **Do not** `await` between cross-slice calls expecting a state
 read in between; everything happens in a single tick.
 
-### Indexed entity lookups
+### Indexed entity lookups (write rules)
 
-The store maintains `_teamIndex`, `_playerIndex`, `_contractIndex` maps
-that are rebuilt on hydrate and on every mutation that adds/removes
-entities. The canonical lookup pattern is:
+The store carries `_teamIndex`, `_playerIndex`, `_staffIndex`, and
+`_contractByPlayerIndex` Map caches that are rebuilt on hydrate,
+save-load, save-create, and after each weekly tick. They are kept
+purely for **read-only** iteration in hot paths (e.g.
+`simulateDueAIMatchesForDay` builds its own per-loop Map from the live
+arrays, the engine builds `SaveIndexes` per `processWeek`).
+
+**Writers MUST NOT lookup through `_teamIndex.get()` (etc.) inside
+`set()` callbacks.** Under Immer + Zustand, an object referenced from
+both a `Map` and an `Array` is *not* a shared draft: a mutation reached
+through `Map.get()` updates only the Map at finalization and leaves
+`state.teams[i]` pointing at the original frozen object. Since the UI
+subscribes through `state.teams` (e.g. `useCurrentTeam` →
+`teams.find()`), index-routed mutations become invisible to the UI
+until the next weekly tick replaces `state.teams` wholesale.
+
+The canonical pattern for mutators is therefore:
 
 ```typescript
-const team = state._teamIndex?.get(teamId)
-  ?? state.teams.find(t => t.id === teamId)
+set(state => {
+    const team = state.teams.find(t => t.id === teamId)
+    if (!team) return
+    team.sponsors.push(sponsor) // mutation reaches state.teams[i]
+})
 ```
 
-The fallback is there because the index is transient (not persisted)
-and may be momentarily stale during certain mutations. Always include
-both branches.
+Regression coverage lives in
+`__tests__/store-mutation-propagation.test.ts`.
 
 ### Engine: Processor pattern
 

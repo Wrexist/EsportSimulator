@@ -73,10 +73,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             const matchSeed = ensureDeterministicSeed(state, match)
             const matchRng = new SeededRNG(matchSeed)
 
-            const homeTeam = state._teamIndex?.get(match.homeTeamId)
-                ?? state.teams.find(t => t.id === match.homeTeamId)
-            const awayTeam = state._teamIndex?.get(match.awayTeamId)
-                ?? state.teams.find(t => t.id === match.awayTeamId)
+            const homeTeam = state.teams.find(t => t.id === match.homeTeamId)
+            const awayTeam = state.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam || !state.playerTeamId) return
 
             const isPlayerMatch = match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId
@@ -537,17 +535,15 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             if (matchDay > state.currentDay) return
         }
 
-        const hTeam = state._teamIndex?.get(match.homeTeamId)
-            ?? state.teams.find(t => t.id === match.homeTeamId)
-        const aTeam = state._teamIndex?.get(match.awayTeamId)
-            ?? state.teams.find(t => t.id === match.awayTeamId)
+        const hTeam = state.teams.find(t => t.id === match.homeTeamId)
+        const aTeam = state.teams.find(t => t.id === match.awayTeamId)
         if (!hTeam || !aTeam) return
 
         const hPlayers = hTeam.rosterIds
-            .map(id => state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))
+            .map(id => state.players.find(p => p.id === id))
             .filter(Boolean) as unknown as Player[]
         const aPlayers = aTeam.rosterIds
-            .map(id => state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))
+            .map(id => state.players.find(p => p.id === id))
             .filter(Boolean) as unknown as Player[]
 
         const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id))

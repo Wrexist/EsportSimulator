@@ -171,18 +171,21 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   if (dueMatches.length === 0) return
 
   const completedIds = new Set<string>()
-  // Use entity indexes for O(1) lookups (fall back to linear scan if not built yet)
-  const teamIdx = state._teamIndex?.size ? state._teamIndex : undefined
-  const playerIdx = state._playerIndex?.size ? state._playerIndex : undefined
-  const staffIdx = state._staffIndex?.size ? state._staffIndex : undefined
+  // Build local maps from the live arrays for O(1) lookups in this loop.
+  // We deliberately do NOT use state._teamIndex / _playerIndex / _staffIndex
+  // — those maps are only rebuilt on hydrate / save-load / week-tick, and
+  // any user mutation between ticks (signSponsor, upgradeFacility, etc.)
+  // updates state.teams[i] without updating the Map. Reading through a
+  // stale Map would feed pre-mutation teams to the simulator.
+  const localTeams = new Map(state.teams.map(t => [t.id, t]))
+  const localPlayers = new Map(state.players.map(p => [p.id, p]))
+  const localStaff = new Map(state.staff.map(s => [s.id, s]))
 
-  const findTeam = (id: string) => teamIdx ? teamIdx.get(id) : state.teams.find(t => t.id === id)
-  const findPlayer = (id: string) => playerIdx ? playerIdx.get(id) : state.players.find(p => p.id === id)
+  const findTeam = (id: string) => localTeams.get(id)
+  const findPlayer = (id: string) => localPlayers.get(id)
 
   const mapStaff = (staffIds: string[]) => {
-    const rows = staffIdx
-      ? staffIds.map(id => staffIdx.get(id)).filter(Boolean) as StaffSaveData[]
-      : state.staff.filter(s => staffIds.includes(s.id))
+    const rows = staffIds.map(id => localStaff.get(id)).filter(Boolean) as StaffSaveData[]
     return {
       coach: rows.find(s => s.role === "coach"),
       analyst: rows.find(s => s.role === "analyst"),
@@ -1569,7 +1572,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       switchTeam: (newTeamId: string) => {
         set(state => {
-          const team = (state._teamIndex?.get(newTeamId) ?? state.teams.find(t => t.id === newTeamId))
+          const team = state.teams.find(t => t.id === newTeamId)
           if (!team) return
 
           state.playerTeamId = newTeamId

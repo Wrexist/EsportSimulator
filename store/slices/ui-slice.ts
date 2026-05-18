@@ -13,9 +13,9 @@
  * them to a 2-year high-salary contract, and tracks them in
  * signedLegendIds so they aren't offered again.
  *
- * Copied verbatim from the live game-store implementation. All entity
- * lookups go through `_teamIndex`/`_playerIndex` with the same `.find`
- * fallback the rest of the store uses.
+ * All entity lookups go through state.teams.find() / state.players.find()
+ * — see ARCHITECTURE.md on why Map-based index lookups break the
+ * Immer draft graph and lose mutations.
  */
 
 import type { UIActions, SliceCreator } from "@/store/types"
@@ -58,12 +58,10 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         if (!candidates.includes(legendId)) return
 
         // Legends are pre-loaded into the players array as retired.
-        const legend = state._playerIndex?.get(legendId)
-            ?? state.players.find(p => p.id === legendId)
+        const legend = state.players.find(p => p.id === legendId)
         if (!legend) return
 
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
 
         // Reactivate the legend.
@@ -103,8 +101,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
 
     getPlayerTeam: () => {
         const state = get()
-        return state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        return state.teams.find(t => t.id === state.playerTeamId)
     },
 
     getUpcomingMatches: (limit = 5) => {
@@ -125,8 +122,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
 
     calculateTeamRating: () => {
         const state = get()
-        const playerTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!playerTeam) return 0
 
         // Top-5 overall ratings, averaged. Returns 1-decimal float.

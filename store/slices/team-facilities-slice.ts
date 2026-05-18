@@ -94,7 +94,11 @@ export interface TeamFacilitiesActions {
 export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (set) => ({
     upgradeFacility: (teamId, facilityType) => {
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            // Always look up via state.teams inside producers. The Map
+            // index can't share a draft with the array slot under Immer,
+            // so mutations through _teamIndex.get() silently fail to
+            // reach state.teams[i] — see store-mutation-propagation test.
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) return
 
             if (!team.facilities) team.facilities = []
@@ -160,7 +164,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     signSponsor: (teamId, sponsor) => {
         let result = { success: false, message: "Sponsor signing failed." }
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) {
                 result = { success: false, message: "Team not found." }
                 return
@@ -225,8 +229,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     purchaseEquipment: (catalogId) => {
         let result: { success: boolean; error?: string } = { success: false, error: "" }
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) {
                 result = { success: false, error: "Team not found" }
                 return
@@ -239,7 +242,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     upgradeMerchStore: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -284,7 +287,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         // the correct outcome.
         let result = { success: false, message: "Team not found" }
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) return
 
             if (!team.activeMerchItems) team.activeMerchItems = []
