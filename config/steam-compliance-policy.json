@@ -1,4 +1,14 @@
 {
+  "sourceAllowlist": [
+    "lib/motion.ts",
+    "lib/sound-manager.ts"
+  ],
+  "sourceAllowlistGlobs": [
+    "lib/safe-branding/**",
+    "lib/branding/**",
+    "data/snapshot-loader.ts",
+    "data/snapshot-types.ts"
+  ],
   "trademarkKeywords": [
     "100_thieves",
     "100thieves",

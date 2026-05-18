@@ -4,6 +4,7 @@
   "private": true,
   "description": "Esports Manager: FPS",
   "author": "IsacC",
+  "license": "UNLICENSED",
   "main": "electron/main.js",
   "scripts": {
     "clean": "node scripts/clean-build.js",
@@ -25,6 +26,9 @@
     "compliance:steam": "tsx scripts/steam-compliance-audit.ts",
     "compliance:steam:baseline": "tsx scripts/steam-compliance-audit.ts --write-baseline",
     "compliance:steam:strict": "tsx scripts/steam-compliance-audit.ts --strict-medium",
+    "audit:steam-ready": "tsx scripts/steam-ready-audit.ts",
+    "audit:steam-ready:strict": "tsx scripts/steam-ready-audit.ts --strict",
+    "audit:full": "npm run check:conflicts && npm run type-check && npm run audit:steam-ready && npm run compliance:steam && npm run release:hardening",
     "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
     "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
     "bake:portraits": "tsx scripts/bake-portraits.ts",
