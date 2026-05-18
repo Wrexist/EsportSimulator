@@ -18,7 +18,7 @@ export interface SocialPost {
 }
 
 const FANS = [
-    { name: "CS2 Insider", handle: "@cs2insider", avatar: "CS", verified: true },
+    { name: "FPS Insider", handle: "@fpsinsider", avatar: "FI", verified: true },
     { name: "S1mpleFan", handle: "@goat_enjoyer", avatar: "SF" },
     { name: "Pro Confirmed", handle: "@proConfirmed", avatar: "H", verified: true },
     { name: "Toxic Player", handle: "@tilt_lord_", avatar: "T" },
@@ -29,7 +29,7 @@ const FANS = [
 const WIN_TEMPLATES = [
     "Unreal performance by {team}! They looked completely dominant today. {hashtag}",
     "How did {player} even hit that shot? Pure insanity. {team} on fire! 🔥",
-    "GGEZ for {team}. The other guys didn't stand a chance. #CS2",
+    "GGEZ for {team}. The other guys didn't stand a chance. #ProFPS",
     "Finally a win for {team}. Hopefully they can keep this momentum going into the Major.",
 ]
 
@@ -41,7 +41,7 @@ const LOSS_TEMPLATES = [
 ]
 
 const GENERAL_TEMPLATES = [
-    "The meta is changing and {team} needs to adapt quickly. #CS2",
+    "The meta is changing and {team} needs to adapt quickly. #ProFPS",
     "Seeing rumors about {team} looking for a new tactical coach. Big if true!",
     "Anyone else thinks {player} is the most underrated rifler in the scene right now?",
 ]

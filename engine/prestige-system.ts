@@ -1,5 +1,5 @@
 /**
- * Prestige System for CS2 Esports Manager (Phase 6)
+ * Prestige System for Pro FPS Esports Manager (Phase 6)
  * Implements the user-defined "Pro Prestige" model.
  * 
  * CORE RULES:

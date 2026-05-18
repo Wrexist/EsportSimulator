@@ -1,5 +1,5 @@
 /**
- * Core enums for CS2 Esports Manager Simulation
+ * Core enums for Pro FPS Esports Manager Simulation
  * Phase 3: Strict, gameplay-meaningful type definitions
  */
 
@@ -7,12 +7,12 @@
  * Supported games in the simulation
  */
 export enum GameId {
-  CS2 = "CS2"
+  TACTICAL_FPS = "TACTICAL_FPS"
 }
 
 /**
- * Player roles in CS2
- * - AWPER: Primary AWP player, long-range specialist
+ * Player roles
+ * - AWPER: Primary sniper, long-range specialist
  * - RIFLER: Versatile rifle player
  * - IGL: In-Game Leader, calls strategies
  * - SUPPORT: Utility-focused, enables teammates
@@ -46,10 +46,10 @@ export enum MatchFormat {
 }
 
 /**
- * Official CS2 competitive map pool
+ * Official competitive map pool
  */
 export enum MapId {
-  DUST2 = "Dust2",
+  SANDSTONE = "Sandstone",
   MIRAGE = "Mirage",
   INFERNO = "Inferno",
   NUKE = "Nuke",

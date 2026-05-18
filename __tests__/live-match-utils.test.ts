@@ -21,7 +21,7 @@ describe("live-match-utils", () => {
       format: "BO1",
       seed: 1234,
       urlMaps: [MapId.MIRAGE, MapId.INFERNO],
-      savedMaps: [MapId.DUST2],
+      savedMaps: [MapId.SANDSTONE],
       fallbackMaps: [MapId.ANUBIS]
     })
     expect(bo1Maps).toEqual([MapId.MIRAGE])
@@ -40,19 +40,19 @@ describe("live-match-utils", () => {
     const bo5Maps = resolveCanonicalSeriesMaps({
       format: "BO5",
       seed: 77,
-      urlMaps: [MapId.DUST2],
+      urlMaps: [MapId.SANDSTONE],
       savedMaps: [MapId.MIRAGE],
       fallbackMaps: [MapId.INFERNO]
     })
     expect(bo5Maps).toHaveLength(getRequiredMapsForFormat("BO5"))
     expect(new Set(bo5Maps).size).toBe(5)
-    expect(bo5Maps[0]).toBe(MapId.DUST2)
+    expect(bo5Maps[0]).toBe(MapId.SANDSTONE)
   })
 
   it("resolves per-map starting side with override and deterministic fallback", () => {
     expect(resolveHomeStartsCT({
-      mapId: MapId.DUST2,
-      mapStartingSides: { [MapId.DUST2]: "home" },
+      mapId: MapId.SANDSTONE,
+      mapStartingSides: { [MapId.SANDSTONE]: "home" },
       homeTeamId: "home",
       awayTeamId: "away",
       seed: 1,
@@ -60,8 +60,8 @@ describe("live-match-utils", () => {
     })).toBe(true)
 
     expect(resolveHomeStartsCT({
-      mapId: MapId.DUST2,
-      mapStartingSides: { [MapId.DUST2]: "away" },
+      mapId: MapId.SANDSTONE,
+      mapStartingSides: { [MapId.SANDSTONE]: "away" },
       homeTeamId: "home",
       awayTeamId: "away",
       seed: 1,

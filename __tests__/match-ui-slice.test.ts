@@ -31,7 +31,7 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
         activeMatchState: null,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         customTactics: {
-            Dust2: { ct: "DEFAULT", t: "DEFAULT" },
+            Sandstone: { ct: "DEFAULT", t: "DEFAULT" },
             Mirage: { ct: "DEFAULT", t: "DEFAULT" },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,

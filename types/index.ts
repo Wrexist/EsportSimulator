@@ -1,5 +1,5 @@
 /**
- * Central type index for CS2 Esports Manager Simulation
+ * Central type index for Pro FPS Esports Manager Simulation
  * Phase 3: Complete game data model
  * 
  * This file exports all types from the Phase 3 data model.
@@ -113,7 +113,7 @@ export type {
     Role,
     PlayerStats,
     EquipmentItem,
-    CS2Map,
+    GameMap,
     Message,
     MessageChoice,
     GameState,

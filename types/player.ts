@@ -1,5 +1,5 @@
 /**
- * Player model for CS2 Esports Manager Simulation
+ * Player model for Pro FPS Esports Manager Simulation
  * Phase 3: Strict, gameplay-meaningful player attributes
  * 
  * RULES:

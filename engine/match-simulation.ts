@@ -1,6 +1,6 @@
 /**
  * Phase 4 Simulation Engine
- * Deterministic, inspectable match simulation for CS2
+ * Deterministic, inspectable match simulation for the tactical FPS engine
  * 
  * FEATURES:
  * - Seeded RNG passed explicitly (no global randomness)
@@ -456,7 +456,7 @@ export class SimulationEngineV2 {
                 // Regulation: swap at 12
                 homeIsCT = roundNum <= REGULATION_MAX_ROUNDS / 2 ? homeStartsCT : !homeStartsCT
 
-                // HALF-TIME RESET (Round 13) - CS2 resets economy and equipment at half-time
+                // HALF-TIME RESET (Round 13) - the simulator resets economy and equipment at half-time
                 if (roundNum === REGULATION_MAX_ROUNDS / 2 + 1) {
                     [currentCTTeam, currentTTeam] = [currentTTeam, currentCTTeam]
 
@@ -506,9 +506,9 @@ export class SimulationEngineV2 {
             const isOTStart = roundNum === 25 || (isOvertime && (roundNum - 24 - 1) % 6 === 0)
             const isOTHalf = isOvertime && (roundNum - 24 - 1) % 3 === 0 && (roundNum - 24 - 1) % 6 !== 0
 
-            // Standard CS2: Reset at start of OT (Round 25) and Half (Round 28)
+            // Standard ruleset: Reset at start of OT (Round 25) and Half (Round 28)
             if (isOTStart || isOTHalf) {
-                Object.values(homeEconomy).forEach(p => p.cash = 10000) // CS2 OT money is 10k usually
+                Object.values(homeEconomy).forEach(p => p.cash = 10000) // OT money is 10k usually
                 Object.values(awayEconomy).forEach(p => p.cash = 10000)
             }
 

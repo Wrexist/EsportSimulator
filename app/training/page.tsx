@@ -287,7 +287,7 @@ export default function TrainingPage() {
                       </div>
                     </div>
                     <Badge className="bg-white/10 text-muted-foreground uppercase text-[8px] font-normal">
-                      Authentic CS2
+                      Authentic Pro FPS
                     </Badge>
                   </div>
 

@@ -302,6 +302,9 @@ function checkA5TrademarkSource(): void {
         ...walk(path.join(REPO_ROOT, "store"), new Set([".ts", ".tsx"])),
         ...walk(path.join(REPO_ROOT, "lib"), new Set([".ts", ".tsx"])),
         ...walk(path.join(REPO_ROOT, "data"), new Set([".ts", ".json"])),
+        ...walk(path.join(REPO_ROOT, "public", "data"), new Set([".json"])),
+        ...walk(path.join(REPO_ROOT, "app"), new Set([".ts", ".tsx"])),
+        ...walk(path.join(REPO_ROOT, "components"), new Set([".ts", ".tsx"])),
     ]
     const allowlistFiles = new Set<string>([
         "config/steam-compliance-policy.json",
@@ -309,7 +312,11 @@ function checkA5TrademarkSource(): void {
         ...policy.sourceAllowlist,
     ])
     const allowlistGlobs = policy.sourceAllowlistGlobs
-    const tokenRe = /[A-Za-z0-9_]+/g
+    // Word-boundary semantics: a token is "matched" when neither neighbor
+    // character is a letter/digit/underscore. This lets us catch hyphenated
+    // and colon-bearing keywords like "counter-strike" and "cs:go" that the
+    // word-token regex would otherwise split.
+    const isWordChar = (c: string) => /[A-Za-z0-9_]/.test(c)
     const seen = new Set<string>()
     let allowedFileCount = 0
     for (const file of targets) {
@@ -326,16 +333,17 @@ function checkA5TrademarkSource(): void {
         }
         const lowered = contents.toLowerCase()
         for (const kw of keywords) {
-            const idx = lowered.indexOf(kw)
-            if (idx < 0) continue
-            // Require a whole-token match to cut noise (e.g. "blast" inside "blastoff" is fine).
-            tokenRe.lastIndex = 0
-            let matched = false
-            let m: RegExpExecArray | null
-            while ((m = tokenRe.exec(lowered)) !== null) {
-                if (m[0] === kw) { matched = true; break }
+            let from = 0
+            let found = false
+            while (from <= lowered.length) {
+                const idx = lowered.indexOf(kw, from)
+                if (idx < 0) break
+                const before = idx > 0 ? lowered[idx - 1] : ""
+                const after = idx + kw.length < lowered.length ? lowered[idx + kw.length] : ""
+                if (!isWordChar(before) && !isWordChar(after)) { found = true; break }
+                from = idx + 1
             }
-            if (!matched) continue
+            if (!found) continue
             const key = `${rel}|${kw}`
             if (seen.has(key)) continue
             seen.add(key)
@@ -615,6 +623,119 @@ function checkA12AchievementUnlockSites(): void {
 }
 
 // ============================================================
+// A13: Open-source license disclosure
+// ============================================================
+function checkA13OssDisclosure(): void {
+    const candidates = ["NOTICE.md", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES", "LICENSES.md", "licenses/third-party.md"]
+    const found = candidates.find(c => readFileSafe(c) !== null)
+    if (!found) {
+        add({
+            check: "A13",
+            severity: "MEDIUM",
+            code: "OSS_NOTICE_MISSING",
+            detail: "No NOTICE.md / THIRD_PARTY_LICENSES.md found. Steam review and many OSS licenses (Apache, BSD-3) require attribution of bundled open-source components in the shipped build.",
+        })
+        return
+    }
+    const text = readFileSafe(found) ?? ""
+    if (!/MIT|Apache|BSD|ISC/i.test(text)) {
+        add({ check: "A13", severity: "LOW", code: "OSS_NOTICE_NO_LICENSE_REFS", file: found, detail: "Notice file does not reference any common OSS license. Verify it actually lists shipped dependencies." })
+    }
+    if (!/trademark|Valve|Steam/i.test(text)) {
+        add({ check: "A13", severity: "LOW", code: "OSS_NOTICE_NO_TRADEMARK_DISCLAIMER", file: found, detail: "Notice file does not include a trademark disclaimer for Steam / Valve. Consider clarifying non-affiliation." })
+    }
+}
+
+// ============================================================
+// A14: Branding consistency between manifest and window title
+// ============================================================
+function checkA14BrandingConsistency(): void {
+    const pkgRaw = readFileSafe("package.json")
+    if (!pkgRaw) return
+    let pkg: any
+    try { pkg = JSON.parse(pkgRaw) } catch { return }
+    const productName = String(pkg.build?.productName ?? "")
+    const layout = readFileSafe("app/layout.tsx") ?? ""
+    const layoutTitleMatch = layout.match(/title:\s*['"]([^'"]+)['"]/)
+    const layoutTitle = layoutTitleMatch ? layoutTitleMatch[1] : ""
+    if (!layoutTitle) {
+        add({ check: "A14", severity: "MEDIUM", code: "PAGE_TITLE_MISSING", file: "app/layout.tsx", detail: "No <title> declared via Next.js metadata; the browser tab will show a default. Steam Deck/console builds inherit this title." })
+        return
+    }
+    // Build a normalized stem: drop punctuation, collapse whitespace, lowercase.
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+    const pn = norm(productName)
+    const lt = norm(layoutTitle)
+    if (pn && lt) {
+        const pnFirst = pn.split(" ")[0] ?? ""
+        const ltFirst = lt.split(" ")[0] ?? ""
+        if (pnFirst && ltFirst && pnFirst !== ltFirst && !pn.includes(ltFirst) && !lt.includes(pnFirst)) {
+            add({
+                check: "A14",
+                severity: "MEDIUM",
+                code: "BRANDING_MISMATCH",
+                detail: `Inconsistent product naming: package.json build.productName='${productName}', app/layout.tsx title='${layoutTitle}'. Steam users see the build name in their library; align both so support reports and store searches work.`,
+            })
+        }
+    }
+}
+
+// ============================================================
+// A15: Surfaced Valve-trademarked map names in shipped data
+// ============================================================
+function checkA15ValveMapNames(): void {
+    // These are the specific CS / CS:GO / CS2 official competitive maps.
+    // Generic English words ("Mirage", "Inferno", "Ancient", "Overpass")
+    // are not flagged on their own — only the Valve-specific identifiers.
+    // Valve-specific competitive map identifiers. Stored split / xor'd so a
+    // global s/dust2/sandstone-style sweep can't accidentally rename this
+    // keyword list out from under the check.
+    const valveOnlyMaps = ["du" + "st2", "de_du" + "st2", "de_mirage", "de_inferno", "de_nuke", "de_overpass", "de_vertigo", "de_ancient", "de_anubis", "de_train"]
+    const targets = [
+        ...walk(path.join(REPO_ROOT, "engine"), new Set([".ts", ".tsx"])),
+        ...walk(path.join(REPO_ROOT, "lib"), new Set([".ts", ".tsx"])),
+        ...walk(path.join(REPO_ROOT, "types"), new Set([".ts"])),
+        ...walk(path.join(REPO_ROOT, "data"), new Set([".ts", ".json"])),
+        ...walk(path.join(REPO_ROOT, "public", "data"), new Set([".json"])),
+    ]
+    const isWord = (c: string) => /[A-Za-z0-9_]/.test(c)
+    const policy = loadPolicy()
+    const seen = new Set<string>()
+    for (const file of targets) {
+        const rel = path.relative(REPO_ROOT, file).split(path.sep).join("/")
+        if (policy.sourceAllowlist.includes(rel)) continue
+        if (policy.sourceAllowlistGlobs.some(g => matchGlob(rel, g))) continue
+        let contents: string
+        try { contents = fs.readFileSync(file, "utf8") } catch { continue }
+        const lowered = contents.toLowerCase()
+        for (const m of valveOnlyMaps) {
+            let from = 0
+            while (from <= lowered.length) {
+                const idx = lowered.indexOf(m, from)
+                if (idx < 0) break
+                const before = idx > 0 ? lowered[idx - 1] : ""
+                const after = idx + m.length < lowered.length ? lowered[idx + m.length] : ""
+                if (!isWord(before) && !isWord(after)) {
+                    const key = `${rel}|${m}`
+                    if (!seen.has(key)) {
+                        seen.add(key)
+                        add({
+                            check: "A15",
+                            severity: "MEDIUM",
+                            code: "VALVE_MAP_NAME",
+                            file: rel,
+                            detail: `Valve-specific map identifier '${m}' is embedded in shipped data/code. Steam reviewers will recognise these — consider replacing with original map names (the safe-branding pipeline can map them at the data boundary).`,
+                        })
+                    }
+                    break
+                }
+                from = idx + 1
+            }
+        }
+    }
+}
+
+// ============================================================
 // Report writer
 // ============================================================
 const SEVERITY_RANK: Record<Severity, number> = { BLOCKER: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4 }
@@ -693,6 +814,9 @@ function main(): void {
         ["A10 secrets hygiene", checkA10Secrets],
         ["A11 steam build files", checkA11SteamBuildFiles],
         ["A12 achievement unlock sites", checkA12AchievementUnlockSites],
+        ["A13 oss license disclosure", checkA13OssDisclosure],
+        ["A14 branding consistency", checkA14BrandingConsistency],
+        ["A15 valve map names", checkA15ValveMapNames],
     ]
     for (const [label, fn] of checks) {
         try {

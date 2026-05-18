@@ -1,5 +1,5 @@
 /**
- * Match and Tournament models for CS2 Esports Manager Simulation
+ * Match and Tournament models for Pro FPS Esports Manager Simulation
  * Phase 3: Complete match simulation with veto, rounds, and deterministic replay
  */
 
@@ -260,7 +260,7 @@ export interface BracketMatch {
 
 /**
  * Helper: Create initial map veto for BO3
- * Standard CS2 veto: Ban, Ban, Pick, Pick, Ban, Ban, Decider
+ * Standard map veto: Ban, Ban, Pick, Pick, Ban, Ban, Decider
  */
 export function createBO3Veto(team1Id: string, team2Id: string): MapVeto[] {
     // This will be populated during match simulation

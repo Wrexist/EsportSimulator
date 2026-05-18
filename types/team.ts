@@ -1,5 +1,5 @@
 /**
- * Team and Staff models for CS2 Esports Manager Simulation
+ * Team and Staff models for Pro FPS Esports Manager Simulation
  * Phase 3: Strict team structure with chemistry and staff effects
  */
 

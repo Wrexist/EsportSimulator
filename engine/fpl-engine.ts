@@ -492,7 +492,7 @@ function simulateFPLMatch(
     const mvpStats = allPlayerStats.find(s => s.playerId === mvpId)
     if (mvpStats) mvpStats.mvp = true
 
-    const maps = ["Mirage", "Inferno", "Dust2", "Ancient", "Nuke", "Anubis", "Vertigo"]
+    const maps = ["Mirage", "Inferno", "Sandstone", "Ancient", "Nuke", "Anubis", "Vertigo"]
 
     return {
         id: `fpl_match_${week}_${Date.now()}_${rng.int(1000, 9999)}`,

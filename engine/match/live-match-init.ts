@@ -94,7 +94,7 @@ export function buildInitialSimState(args: {
  * Sanitize a restored SimState read from activeMatchState. Every
  * field defaults to zero/false if the saved value is missing or
  * invalid. currentRound is floored at 1 (zero is never a legal
- * round number in CS2 scoring). currentMapIndex is passed in
+ * round number in tactical FPS scoring). currentMapIndex is passed in
  * already clamped to canonicalMaps bounds.
  */
 export function sanitizeRestoredSimState(args: {
