@@ -25,6 +25,11 @@
  *   A10 Secrets hygiene:       tracked .env, API keys, tokens
  *   A11 Steam build files:     steam_appid in asarUnpack, license metadata
  *   A12 Achievement triggers:  every defined achievement has a code unlock
+ *   A13 OSS license disclosure: NOTICE.md or THIRD_PARTY_LICENSES.md exists
+ *   A14 Branding consistency:  package.json productName matches window title
+ *   A15 Map-name disclosure:   surfaces Valve map names embedded as data
+ *   A16 Trademark asset paths: trademark-named asset folders are excluded
+ *                              from the electron-builder shipping list
  *
  * Outputs:
  *   tmp/steam-ready-report.json    machine-readable
@@ -623,6 +628,65 @@ function checkA12AchievementUnlockSites(): void {
 }
 
 // ============================================================
+// A16: Trademark assets must be excluded from electron-builder
+// ============================================================
+function checkA16AssetExclusions(): void {
+    const pkgRaw = readFileSafe("package.json")
+    if (!pkgRaw) return
+    let pkg: any
+    try { pkg = JSON.parse(pkgRaw) } catch { return }
+    const files: string[] = Array.isArray(pkg.build?.files) ? pkg.build.files : []
+    const excluded = new Set(files.filter(f => typeof f === "string" && f.startsWith("!")).map(f => f.slice(1)))
+
+    const policy = loadPolicy()
+    const keywords = policy.trademarkKeywords.map(k => k.toLowerCase())
+
+    const teamDir = path.join(REPO_ROOT, "public", "assets", "teams")
+    if (fs.existsSync(teamDir)) {
+        for (const entry of fs.readdirSync(teamDir, { withFileTypes: true })) {
+            if (!entry.isDirectory()) continue
+            const folderLower = entry.name.toLowerCase()
+            const matched = keywords.find(k => k && folderLower.includes(k))
+            if (!matched) continue
+            const wildcard = `public/assets/teams/${entry.name}/**`
+            const isCovered =
+                excluded.has(wildcard) ||
+                [...excluded].some(e => e === `public/assets/teams/${entry.name}/**/*`) ||
+                [...excluded].some(e => e.startsWith(`public/assets/teams/${entry.name}/`))
+            if (!isCovered) {
+                add({
+                    check: "A16",
+                    severity: "HIGH",
+                    code: "TRADEMARK_ASSET_FOLDER_SHIPS",
+                    file: `public/assets/teams/${entry.name}/`,
+                    detail: `Folder name matches trademark keyword '${matched}' but is not excluded in package.json build.files. The shipped Steam build will include these images. Add "!public/assets/teams/${entry.name}/**".`,
+                })
+            }
+        }
+    }
+
+    const tournDir = path.join(REPO_ROOT, "public", "assets", "tournaments")
+    if (fs.existsSync(tournDir)) {
+        for (const entry of fs.readdirSync(tournDir, { withFileTypes: true })) {
+            if (!entry.isFile()) continue
+            const lower = entry.name.toLowerCase()
+            const matched = keywords.find(k => k && lower.includes(k))
+            if (!matched) continue
+            const rel = `public/assets/tournaments/${entry.name}`
+            if (!excluded.has(rel)) {
+                add({
+                    check: "A16",
+                    severity: "HIGH",
+                    code: "TRADEMARK_TOURNAMENT_LOGO_SHIPS",
+                    file: rel,
+                    detail: `Tournament logo name matches trademark keyword '${matched}' but is not excluded in package.json build.files. Add "!${rel}".`,
+                })
+            }
+        }
+    }
+}
+
+// ============================================================
 // A13: Open-source license disclosure
 // ============================================================
 function checkA13OssDisclosure(): void {
@@ -817,6 +881,7 @@ function main(): void {
         ["A13 oss license disclosure", checkA13OssDisclosure],
         ["A14 branding consistency", checkA14BrandingConsistency],
         ["A15 valve map names", checkA15ValveMapNames],
+        ["A16 trademark asset exclusions", checkA16AssetExclusions],
     ]
     for (const [label, fn] of checks) {
         try {

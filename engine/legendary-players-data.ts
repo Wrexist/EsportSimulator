@@ -325,7 +325,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         isRetired: true,
         retirementWeek: 0,
         isLegendary: true,
-        legendaryAchievements: ["Major Champion", "Cultural Icon", "VP Legend"],
+        legendaryAchievements: ["Major Champion", "Cultural Icon", "Eastern European Legend"],
         careerTeams: ["Virtus Nova"],
         proHistory: [
             { year: 2014, rank: 12 },

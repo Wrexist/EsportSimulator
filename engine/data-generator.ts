@@ -539,7 +539,7 @@ export class DataGenerator {
     return [
       {
         id: "mouse_1",
-        name: "Logitech G Pro X Superlight",
+        name: "Featherweight Pro Mouse",
         type: "MOUSE",
         tier: 3,
         bonus: { stat: "reaction", value: 2 },
@@ -548,7 +548,7 @@ export class DataGenerator {
       },
       {
         id: "mouse_2",
-        name: "Razer Viper V2 Pro",
+        name: "Pro Tournament Mouse",
         type: "MOUSE",
         tier: 2,
         bonus: { stat: "reaction", value: 1 },
@@ -557,7 +557,7 @@ export class DataGenerator {
       },
       {
         id: "keyboard_1",
-        name: "Wooting 60HE",
+        name: "Magnetic Switch Pro Keyboard",
         type: "KEYBOARD",
         tier: 3,
         bonus: { stat: "skill", value: 2 },
@@ -566,7 +566,7 @@ export class DataGenerator {
       },
       {
         id: "monitor_1",
-        name: "BenQ Zowie XL2566K",
+        name: "Pro Tournament 360Hz Monitor",
         type: "MONITOR",
         tier: 3,
         bonus: { stat: "reaction", value: 3 },
@@ -575,7 +575,7 @@ export class DataGenerator {
       },
       {
         id: "monitor_2",
-        name: "ASUS ROG Swift",
+        name: "Pro 240Hz Gaming Monitor",
         type: "MONITOR",
         tier: 2,
         bonus: { stat: "reaction", value: 2 },
@@ -584,7 +584,7 @@ export class DataGenerator {
       },
       {
         id: "chair_1",
-        name: "Herman Miller Embody",
+        name: "Ergonomic Pro Chair",
         type: "CHAIR",
         tier: 3,
         bonus: { stat: "clutch", value: 3 },
@@ -593,7 +593,7 @@ export class DataGenerator {
       },
       {
         id: "chair_2",
-        name: "SecretLab Titan Evo",
+        name: "Premium Gaming Chair",
         type: "CHAIR",
         tier: 2,
         bonus: { stat: "clutch", value: 2 },
