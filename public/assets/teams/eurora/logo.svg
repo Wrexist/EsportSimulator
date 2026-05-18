@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Eurora logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#6366F1" stroke="#1E1B4B" stroke-width="6"/>
-  <line x1="77" y1="80" x2="205" y2="80" stroke="#1E1B4B" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="87" y1="184" x2="195" y2="184" stroke="#1E1B4B" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#EEF2FF" letter-spacing="-2">E</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Eurora logo"><defs><linearGradient id="aurg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#06B6D4"/><stop offset="55%" stop-color="#1E3A8A"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><polygon points="128,20 236,128 128,236 20,128" fill="url(#aurg)" stroke="#0B1220" stroke-width="6"/><polyline points="60,128 100,108 128,140 156,108 196,128" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linejoin="round" opacity="0.9"/></svg>

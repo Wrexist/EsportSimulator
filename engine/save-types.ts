@@ -32,7 +32,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 6
+export const CURRENT_SAVE_VERSION = 7
 
 /**
  * Minimum supported save version for migration
@@ -363,6 +363,7 @@ export interface TeamSaveData {
     youthAcademyIds?: string[] // IDs of prospects in the academy
     trophies?: { tournamentId: string; tournamentName: string; week: number; mvpId?: string; trophyPath?: string; tier?: string }[]
     logoPath?: string
+    branding?: import("@/data/snapshot-types").TeamBranding
     recentForm?: ("W" | "L" | "D")[] // Phase 1: Recent Form Display
 
     // === PHASE 11: LONG-TERM MEMORY ===

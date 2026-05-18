@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="MONE logo">
-  <path d="M24 40 H232 L176 128 L232 216 H24 L80 128 Z" fill="#EC4899" stroke="#500724" stroke-width="6"/>
-  <line x1="76" y1="80" x2="193" y2="80" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="86" y1="184" x2="183" y2="184" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FDF2F8" letter-spacing="-2">M</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="MONE logo"><circle cx="128" cy="128" r="108" fill="#EF4444" stroke="#7F1D1D" stroke-width="8"/><circle cx="128" cy="128" r="84" fill="none" stroke="#7F1D1D" stroke-width="3" opacity="0.4"/><text x="128" y="174" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="140" fill="#7F1D1D" letter-spacing="-4">M</text></svg>

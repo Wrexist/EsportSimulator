@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Falconry logo">
-  <circle cx="128" cy="128" r="108" fill="#FACC15" stroke="#111827" stroke-width="8"/>
-  <line x1="70" y1="80" x2="171" y2="80" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="80" y1="184" x2="161" y2="184" stroke="#111827" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFFFFF" letter-spacing="-2">F</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Falconry logo"><circle cx="128" cy="128" r="108" fill="#FACC15" stroke="#1F2937" stroke-width="8"/><path d="M40 140 Q80 80 128 96 Q176 80 216 140 Q176 130 128 128 Q80 130 40 140 Z" fill="#1F2937"/><path d="M64 154 Q104 120 128 132 Q152 120 192 154" stroke="#1F2937" stroke-width="6" fill="none" stroke-linecap="round"/><polygon points="120,170 136,170 128,196" fill="#1F2937"/></svg>

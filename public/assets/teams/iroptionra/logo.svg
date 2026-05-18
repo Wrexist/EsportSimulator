@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Iroptionra logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#F97316" stroke="#431407" stroke-width="6"/>
-  <line x1="81" y1="80" x2="180" y2="80" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="91" y1="184" x2="170" y2="184" stroke="#431407" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FFF7ED" letter-spacing="-2">I</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Iroptionra logo"><circle cx="128" cy="128" r="108" fill="#F97316" stroke="#7C2D12" stroke-width="8"/><circle cx="128" cy="128" r="84" fill="none" stroke="#7C2D12" stroke-width="3" opacity="0.4"/><text x="128" y="174" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="140" fill="#7C2D12" letter-spacing="-4">I</text></svg>

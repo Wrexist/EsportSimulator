@@ -20,6 +20,7 @@ function adaptTeamSaveToTeam(team: TeamSaveData): Team {
         name: team.name,
         tier: (team.tier as PlayerTier) || PlayerTier.PRO,
         logoPath: team.logoPath || '',
+        branding: team.branding,
         roster: team.rosterIds || [],
         staff: [],
         reputation: team.reputation ?? 50,

@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="A81 logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#0EA5E9" stroke="#082F49" stroke-width="6"/>
-  <line x1="73" y1="80" x2="195" y2="80" stroke="#082F49" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="83" y1="184" x2="185" y2="184" stroke="#082F49" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#F8FAFC" letter-spacing="-2">A</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="A81 logo"><rect x="20" y="20" width="216" height="216" rx="18" fill="#1F2937"/><text x="128" y="180" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="140" fill="#FACC15" letter-spacing="-6">9Z</text><polygon points="20,216 60,216 20,176" fill="#FACC15"/></svg>

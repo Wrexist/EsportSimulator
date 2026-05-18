@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="BOZZ logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#14B8A6" stroke="#042F2E" stroke-width="6"/>
-  <line x1="69" y1="80" x2="192" y2="80" stroke="#042F2E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="79" y1="184" x2="182" y2="184" stroke="#042F2E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#F0FDFA" letter-spacing="-2">B</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="BOZZ logo"><rect x="20" y="48" width="216" height="160" rx="14" fill="#0B0B0B" stroke="#DC2626" stroke-width="6"/><rect x="20" y="48" width="216" height="22" fill="#DC2626"/><rect x="20" y="186" width="216" height="22" fill="#DC2626"/><text x="128" y="158" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="78" fill="#DC2626" letter-spacing="2">BOZZ</text></svg>

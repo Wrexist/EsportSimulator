@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Valiant logo">
-  <polygon points="128,16 232,128 128,240 24,128" fill="#EC4899" stroke="#500724" stroke-width="6"/>
-  <line x1="65" y1="80" x2="175" y2="80" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-    <line x1="75" y1="184" x2="165" y2="184" stroke="#500724" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <text x="128" y="174.66666666666666" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="140" fill="#FDF2F8" letter-spacing="-2">V</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Valiant logo"><path d="M40 56 L40 144 Q40 216 128 236 Q216 216 216 144 L216 56 Z" fill="#1F2937" stroke="#DC2626" stroke-width="6"/><line x1="68" y1="84" x2="188" y2="196" stroke="#DC2626" stroke-width="10" stroke-linecap="round"/><line x1="188" y1="84" x2="68" y2="196" stroke="#DC2626" stroke-width="10" stroke-linecap="round"/><circle cx="128" cy="140" r="14" fill="#DC2626"/></svg>

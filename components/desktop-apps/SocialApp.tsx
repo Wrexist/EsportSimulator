@@ -203,7 +203,10 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         onClick={() => setSelectedTeamProfile(team.id)}
                                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors duration-75 ease-out active:scale-[0.99] active:duration-0"
                                     >
-                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden">
+                                        <div
+                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden border"
+                                            style={{ borderColor: team.branding?.primaryColor ?? "transparent" }}
+                                        >
                                             {team.logoPath ? (
                                                 <Image src={team.logoPath || "/team_placeholder.png"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
