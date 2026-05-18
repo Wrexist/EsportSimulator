@@ -8,16 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { AnnualAwards, Top20Player } from "@/engine/hltv-awards-engine"
+import { AnnualAwards, Top20Player } from "@/engine/pro-awards-engine"
 import { panelTransition } from "@/lib/motion"
 
-interface HLTVAwardsModalProps {
+interface ProAwardsModalProps {
     isOpen: boolean
     onClose: () => void
     awards: AnnualAwards | null
 }
 
-export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProps) {
+export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps) {
     const [revealedCount, setRevealedCount] = useState(0)
     const [isRevealing, setIsRevealing] = useState(false)
     const [selectedPlayer, setSelectedPlayer] = useState<Top20Player | null>(null)
@@ -88,7 +88,7 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                         exit="exit"
                         className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-modal flex items-center justify-center"
                     >
-                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-hltv-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
+                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
 
                             {/* Header */}
                             <div className="p-6 bg-white/[0.035] border-b border-white/10 relative overflow-hidden shrink-0">
@@ -101,8 +101,8 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                             <Trophy size={32} className="text-amber-200" />
                                         </div>
                                         <div>
-                                            <h1 id="modal-title-hltv-awards" className="text-3xl font-bold text-white">
-                                                HLTV Top 20 Players
+                                            <h1 id="modal-title-pro-awards" className="text-3xl font-bold text-white">
+                                                Pro Top 20 Players
                                             </h1>
                                             <p className="text-amber-400/60 text-sm font-medium">
                                                 {awards.year} Annual Rankings
@@ -190,10 +190,10 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                                 <div className="text-right shrink-0">
                                                     <p className={cn(
                                                         "text-lg font-bold",
-                                                        player.hltvRating >= 1.20 ? "text-emerald-400" :
-                                                            player.hltvRating >= 1.10 ? "text-amber-400" : "text-white/70"
+                                                        player.proRating >= 1.20 ? "text-emerald-400" :
+                                                            player.proRating >= 1.10 ? "text-amber-400" : "text-white/70"
                                                     )}>
-                                                        {player.hltvRating.toFixed(2)}
+                                                        {player.proRating.toFixed(2)}
                                                     </p>
                                                     <p className="text-[8px] text-white/30 uppercase">Rating</p>
                                                 </div>
@@ -254,8 +254,8 @@ export function HLTVAwardsModal({ isOpen, onClose, awards }: HLTVAwardsModalProp
                                             {/* Stats Grid */}
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="p-3 rounded-lg bg-white/5 text-center">
-                                                    <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.hltvRating.toFixed(2)}</p>
-                                                    <p className="text-[9px] text-white/40 uppercase">HLTV Rating</p>
+                                                    <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.proRating.toFixed(2)}</p>
+                                                    <p className="text-[9px] text-white/40 uppercase">Pro Rating</p>
                                                 </div>
                                                 <div className="p-3 rounded-lg bg-white/5 text-center">
                                                     <p className="text-2xl font-bold text-cyan-400">{selectedPlayer.impactRating.toFixed(2)}</p>

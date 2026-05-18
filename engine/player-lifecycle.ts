@@ -1,5 +1,5 @@
 import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
-import { calculateHltvPrestigeScore } from "./prestige-system"
+import { calculateProPrestigeScore } from "./prestige-system"
 import { HallOfFameManager } from "./hall-of-fame-manager"
 import { GameSave, PlayerSaveData } from "./save-types"
 import { SeededRNG, generateSeed } from "./rng"
@@ -15,7 +15,7 @@ interface PlayerLike {
     maxEnergy: number
     morale: number
     form: number
-    hltvHistory?: { year: number; rank: number }[]
+    proHistory?: { year: number; rank: number }[]
     prestigeScore?: number
     reaction: number
     skill: number
@@ -143,13 +143,13 @@ export class PlayerLifecycleManager {
     }
 
     /**
-     * Updates the cached HLTV Prestige Score
+     * Updates the cached Pro Prestige Score
      */
     private static updatePrestige(player: PlayerLike, currentYear: number): void {
-        if (player.hltvHistory && player.hltvHistory.length > 0) {
-            player.prestigeScore = calculateHltvPrestigeScore(player.hltvHistory, currentYear)
+        if (player.proHistory && player.proHistory.length > 0) {
+            player.prestigeScore = calculateProPrestigeScore(player.proHistory, currentYear)
         }
-        // If hltvHistory is empty, preserve the initial prestigeScore from snapshot-loader
+        // If proHistory is empty, preserve the initial prestigeScore from snapshot-loader
     }
 
     /**

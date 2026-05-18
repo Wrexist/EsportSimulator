@@ -11,7 +11,7 @@ export class HallOfFameManager {
     // Thresholds
     private static readonly MIN_CAREER_SEASONS = 6
     private static readonly MIN_MATCHES_PLAYED = 100
-    private static readonly ELITE_HLTV_RANK = 3 // Top 3 rank required for "Iconic" path
+    private static readonly ELITE_PRO_RANK = 3 // Top 3 rank required for "Iconic" path
     private static readonly MIN_KILLS_LONGEVITY = 1000
 
     /**
@@ -20,7 +20,7 @@ export class HallOfFameManager {
      */
     static checkEligibility(player: PlayerSaveData, currentYear: number): HallOfFameEntry | null {
         // 1. Mandatory Eligibility
-        const careerLength = currentYear - (player.hltvHistory?.[0]?.year || currentYear) // Estimate from history start?
+        const careerLength = currentYear - (player.proHistory?.[0]?.year || currentYear) // Estimate from history start?
         // Or assume age - 16? Better: Use matchesPlayed as proxy if history is short.
 
         // Let's use Matches Played + Age or direct tracking if available.
@@ -42,8 +42,8 @@ export class HallOfFameManager {
             reasons.push({ type: "MVP", label: `${player.totalMVPs}x MVP Awards`, icon: "Star" })
         }
         // High Peak Rank
-        const bestRank = Math.min(...(player.hltvHistory?.map(h => h.rank) || [999]))
-        if (bestRank <= this.ELITE_HLTV_RANK) {
+        const bestRank = Math.min(...(player.proHistory?.map(h => h.rank) || [999]))
+        if (bestRank <= this.ELITE_PRO_RANK) {
             reasons.push({ type: "IMPACT", label: `Peaked at World #${bestRank}`, icon: "Crown" })
         }
 
@@ -56,7 +56,7 @@ export class HallOfFameManager {
         // Wait, User said "ANY TWO of the following".
         // Major Champion (already pushed)
         // Multiple MVPs (already pushed)
-        // Elite HLTV Rank (already pushed)
+        // Elite Pro Rank (already pushed)
         // Longevity (already pushed)
 
         if (reasons.length >= 2) {

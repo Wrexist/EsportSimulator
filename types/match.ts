@@ -279,7 +279,7 @@ export function getMatchWinner(result: MatchResult): "HOME" | "AWAY" | "DRAW" {
 
 /**
  * Helper: Calculate player rating from match stats
- * Simplified HLTV-style rating formula
+ * Simplified Pro-style rating formula
  */
 export function calculatePlayerRating(stats: PlayerMatchStats): number {
     const deaths = Math.max(1, stats.deaths)
@@ -336,7 +336,7 @@ export interface CustomTactics {
 }
 
 /**
- * Tournament Stats - HLTV-style player stats aggregation
+ * Tournament Stats - Pro-style player stats aggregation
  */
 export interface TournamentPlayerStats {
     playerId: string

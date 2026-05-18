@@ -19,7 +19,7 @@ const CREDITS = [
         entries: [
             { role: "Player & Team Data", name: "Liquipedia CS2 Wiki" },
             { role: "Tournament Structure", name: "Inspired by PGL, ESL, BLAST circuits" },
-            { role: "World Rankings Model", name: "Inspired by HLTV.org ranking methodology" },
+            { role: "World Rankings Model", name: "Inspired by Pro.org ranking methodology" },
         ],
     },
     {

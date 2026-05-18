@@ -291,7 +291,7 @@ export interface PlayerMatchStats {
   headshots: number
   adr: number // Average damage per round
   kast: number // Kill/Assist/Survive/Trade percentage
-  rating: number // HLTV-style rating
+  rating: number // Pro-style rating
   clutches: number // Clutch rounds won
 }
 

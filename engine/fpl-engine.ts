@@ -445,7 +445,7 @@ function simulateFPLMatch(
         const baseADR = 50 + (skill * 0.4) + (weaponSkill * 0.2)
         const adr = Math.floor(baseADR + (rng.next() - 0.5) * 25)
 
-        // HLTV-style rating calculation
+        // Pro-style rating calculation
         const kpr = kills / totalRounds
         const dpr = deaths / totalRounds
         const apr = assists / totalRounds

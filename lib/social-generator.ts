@@ -20,7 +20,7 @@ export interface SocialPost {
 const FANS = [
     { name: "CS2 Insider", handle: "@cs2insider", avatar: "CS", verified: true },
     { name: "S1mpleFan", handle: "@goat_enjoyer", avatar: "SF" },
-    { name: "HLTV Confirmed", handle: "@HLTVconfirmed", avatar: "H", verified: true },
+    { name: "Pro Confirmed", handle: "@proConfirmed", avatar: "H", verified: true },
     { name: "Toxic Player", handle: "@tilt_lord_", avatar: "T" },
     { name: "Tactical Tim", handle: "@strat_god", avatar: "TT" },
     { name: "The Analyst", handle: "@analyst_cs", avatar: "A", verified: true },

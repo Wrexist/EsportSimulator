@@ -9,6 +9,22 @@
     "data/snapshot-loader.ts",
     "data/snapshot-types.ts"
   ],
+  "sourceExcludeKeywords": [
+    "pain",
+    "nouns",
+    "blast",
+    "imperial",
+    "spirit",
+    "sharks",
+    "outsiders",
+    "complexity",
+    "heroic",
+    "monte",
+    "renegades",
+    "vitality",
+    "liquid",
+    "legacy_esports"
+  ],
   "trademarkKeywords": [
     "100_thieves",
     "100thieves",

@@ -4,6 +4,8 @@
  * and finally localStorage/memory as a best-effort browser fallback.
  */
 
+import { logger } from "@/lib/logger"
+
 const DB_NAME = "EsportsSimDB"
 const STORE_NAME = "keyvalue_store"
 const DB_VERSION = 1
@@ -38,7 +40,7 @@ class LocalStorageAdapter implements AsyncStorage {
             try {
                 return storage.getItem(key)
             } catch (err) {
-                console.warn("[Storage] localStorage getItem failed, using memory fallback:", err)
+                logger.warn("[Storage] localStorage getItem failed, using memory fallback:", err)
             }
         }
         return this.memory.get(key) ?? null
@@ -52,7 +54,7 @@ class LocalStorageAdapter implements AsyncStorage {
                 this.memory.delete(key)
                 return
             } catch (err) {
-                console.warn("[Storage] localStorage setItem failed, using memory fallback:", err)
+                logger.warn("[Storage] localStorage setItem failed, using memory fallback:", err)
             }
         }
         this.memory.set(key, value)
@@ -64,7 +66,7 @@ class LocalStorageAdapter implements AsyncStorage {
             try {
                 storage.removeItem(key)
             } catch (err) {
-                console.warn("[Storage] localStorage removeItem failed:", err)
+                logger.warn("[Storage] localStorage removeItem failed:", err)
             }
         }
         this.memory.delete(key)
@@ -76,7 +78,7 @@ class LocalStorageAdapter implements AsyncStorage {
             try {
                 storage.clear()
             } catch (err) {
-                console.warn("[Storage] localStorage clear failed:", err)
+                logger.warn("[Storage] localStorage clear failed:", err)
             }
         }
         this.memory.clear()
@@ -92,7 +94,7 @@ class LocalStorageAdapter implements AsyncStorage {
                     if (key) keys.add(key)
                 }
             } catch (err) {
-                console.warn("[Storage] localStorage getAllKeys failed:", err)
+                logger.warn("[Storage] localStorage getAllKeys failed:", err)
             }
         }
         return Array.from(keys)
@@ -112,7 +114,7 @@ class ElectronStorageAdapter implements AsyncStorage {
         try {
             return await this.bridge.getItem(key)
         } catch (err) {
-            console.warn("[Storage] Electron storage getItem failed, falling back:", err)
+            logger.warn("[Storage] Electron storage getItem failed, falling back:", err)
             return this.fallback.getItem(key)
         }
     }
@@ -123,7 +125,7 @@ class ElectronStorageAdapter implements AsyncStorage {
             const ok = await this.bridge.setItem(key, value)
             if (!ok) throw new Error("Electron storage rejected write")
         } catch (err) {
-            console.warn("[Storage] Electron storage setItem failed, falling back:", err)
+            logger.warn("[Storage] Electron storage setItem failed, falling back:", err)
             await this.fallback.setItem(key, value)
         }
     }
@@ -134,7 +136,7 @@ class ElectronStorageAdapter implements AsyncStorage {
             const ok = await this.bridge.removeItem(key)
             if (!ok) throw new Error("Electron storage rejected delete")
         } catch (err) {
-            console.warn("[Storage] Electron storage removeItem failed, falling back:", err)
+            logger.warn("[Storage] Electron storage removeItem failed, falling back:", err)
             await this.fallback.removeItem(key)
         }
     }
@@ -145,7 +147,7 @@ class ElectronStorageAdapter implements AsyncStorage {
             const ok = await this.bridge.clear()
             if (!ok) throw new Error("Electron storage rejected clear")
         } catch (err) {
-            console.warn("[Storage] Electron storage clear failed, falling back:", err)
+            logger.warn("[Storage] Electron storage clear failed, falling back:", err)
             await this.fallback.clear()
         }
     }
@@ -155,7 +157,7 @@ class ElectronStorageAdapter implements AsyncStorage {
         try {
             return await this.bridge.getAllKeys()
         } catch (err) {
-            console.warn("[Storage] Electron storage getAllKeys failed, falling back:", err)
+            logger.warn("[Storage] Electron storage getAllKeys failed, falling back:", err)
             return this.fallback.getAllKeys()
         }
     }
@@ -172,7 +174,7 @@ class IndexedDBAdapter implements AsyncStorage {
         if (typeof window !== "undefined" && typeof indexedDB !== "undefined") {
             this.dbPromise = this.openDB().catch((err) => {
                 if (process.env.NODE_ENV !== 'production') {
-                    console.error("[Storage] IndexedDB failed to open, falling back:", err)
+                    logger.error("[Storage] IndexedDB failed to open, falling back:", err)
                 }
                 this.dbFailed = true
                 return null
@@ -214,7 +216,7 @@ class IndexedDBAdapter implements AsyncStorage {
         } catch (err) {
             this.dbFailed = true
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB unavailable, falling back:", err)
+                logger.error("[Storage] IndexedDB unavailable, falling back:", err)
             }
             return null
         }
@@ -234,7 +236,7 @@ class IndexedDBAdapter implements AsyncStorage {
             })
         } catch (err) {
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB getItem failed, falling back:", err)
+                logger.error("[Storage] IndexedDB getItem failed, falling back:", err)
             }
             this.dbFailed = true
             return this.fallback.getItem(key)
@@ -256,7 +258,7 @@ class IndexedDBAdapter implements AsyncStorage {
             })
         } catch (err) {
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB setItem failed, falling back:", err)
+                logger.error("[Storage] IndexedDB setItem failed, falling back:", err)
             }
             this.dbFailed = true
             await this.fallback.setItem(key, value)
@@ -277,7 +279,7 @@ class IndexedDBAdapter implements AsyncStorage {
             })
         } catch (err) {
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB removeItem failed, falling back:", err)
+                logger.error("[Storage] IndexedDB removeItem failed, falling back:", err)
             }
             this.dbFailed = true
             await this.fallback.removeItem(key)
@@ -298,7 +300,7 @@ class IndexedDBAdapter implements AsyncStorage {
             })
         } catch (err) {
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB clear failed, falling back:", err)
+                logger.error("[Storage] IndexedDB clear failed, falling back:", err)
             }
             this.dbFailed = true
             await this.fallback.clear()
@@ -319,7 +321,7 @@ class IndexedDBAdapter implements AsyncStorage {
             })
         } catch (err) {
             if (process.env.NODE_ENV !== 'production') {
-                console.error("[Storage] IndexedDB getAllKeys failed, falling back:", err)
+                logger.error("[Storage] IndexedDB getAllKeys failed, falling back:", err)
             }
             this.dbFailed = true
             return this.fallback.getAllKeys()

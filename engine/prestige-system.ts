@@ -1,6 +1,6 @@
 /**
  * Prestige System for CS2 Esports Manager (Phase 6)
- * Implements the user-defined "HLTV Prestige" model.
+ * Implements the user-defined "Pro Prestige" model.
  * 
  * CORE RULES:
  * - 7-year rolling window (0-6 years ago)
@@ -9,7 +9,7 @@
  * - Confidence modifier (Top 20 > Top 100)
  */
 
-import { HltvRankingEntry } from "@/types/player"
+import { ProRankingEntry } from "@/types/player"
 
 /**
  * Calculates the weight of a ranking based on how many years ago it happened.
@@ -48,7 +48,7 @@ export function getConfidenceModifier(rank: number): number {
 }
 
 /**
- * Calculates the final HLTV Prestige Score (0-100).
+ * Calculates the final Pro Prestige Score (0-100).
  * This score represents "Historical Excellence" and is used for:
  * - Transfer Value
  * - AI Interest
@@ -56,16 +56,16 @@ export function getConfidenceModifier(rank: number): number {
  * 
  * It does NOT affect match simulation RNG.
  */
-export function calculateHltvPrestigeScore(
-    hltvHistory: HltvRankingEntry[] | undefined,
+export function calculateProPrestigeScore(
+    proHistory: ProRankingEntry[] | undefined,
     currentYear: number
 ): number {
-    if (!hltvHistory || hltvHistory.length === 0) return 0
+    if (!proHistory || proHistory.length === 0) return 0
 
     let weightedSum = 0
     let weightTotal = 0
 
-    for (const entry of hltvHistory) {
+    for (const entry of proHistory) {
         const yearDiff = currentYear - entry.year
 
         // Ignore future years or years older than 6 years ago

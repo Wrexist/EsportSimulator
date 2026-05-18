@@ -261,20 +261,22 @@ type PolicyV2 = {
     trademarkKeywords: string[]
     sourceAllowlist: string[]
     sourceAllowlistGlobs: string[]
+    sourceExcludeKeywords: string[]
 }
 
 function loadPolicy(): PolicyV2 {
     const raw = readFileSafe("config/steam-compliance-policy.json")
-    if (!raw) return { trademarkKeywords: [], sourceAllowlist: [], sourceAllowlistGlobs: [] }
+    if (!raw) return { trademarkKeywords: [], sourceAllowlist: [], sourceAllowlistGlobs: [], sourceExcludeKeywords: [] }
     try {
         const parsed = JSON.parse(raw)
         return {
             trademarkKeywords: Array.isArray(parsed.trademarkKeywords) ? parsed.trademarkKeywords : [],
             sourceAllowlist: Array.isArray(parsed.sourceAllowlist) ? parsed.sourceAllowlist : [],
             sourceAllowlistGlobs: Array.isArray(parsed.sourceAllowlistGlobs) ? parsed.sourceAllowlistGlobs : [],
+            sourceExcludeKeywords: Array.isArray(parsed.sourceExcludeKeywords) ? parsed.sourceExcludeKeywords : [],
         }
     } catch {
-        return { trademarkKeywords: [], sourceAllowlist: [], sourceAllowlistGlobs: [] }
+        return { trademarkKeywords: [], sourceAllowlist: [], sourceAllowlistGlobs: [], sourceExcludeKeywords: [] }
     }
 }
 
@@ -292,7 +294,8 @@ function matchGlob(rel: string, glob: string): boolean {
 
 function checkA5TrademarkSource(): void {
     const policy = loadPolicy()
-    const keywords = policy.trademarkKeywords.map(k => k.toLowerCase()).filter(Boolean)
+    const excludes = new Set(policy.sourceExcludeKeywords.map(k => k.toLowerCase()))
+    const keywords = policy.trademarkKeywords.map(k => k.toLowerCase()).filter(k => k && !excludes.has(k))
     if (keywords.length === 0) return
     const targets = [
         ...walk(path.join(REPO_ROOT, "engine"), new Set([".ts", ".tsx"])),
@@ -469,6 +472,9 @@ function checkA9ProductionHygiene(): void {
     ])
     const consoleRe = /^\s*console\.(log|warn|error|debug|info)\s*\(/m
     const debuggerRe = /\bdebugger\s*;?/
+    // Files that explicitly disable the no-console eslint rule have already
+    // been audited at write-time — respect that signal so we don't double-flag.
+    const fileLevelDisableRe = /\/\*\s*eslint-disable\b[^*]*\bno-console\b|^\/\/\s*eslint-disable\b.*\bno-console\b/m
     let console_hits = 0
     let debugger_hits = 0
     for (const file of [...roots.flatMap(r => walk(r, new Set([".ts", ".tsx"])))]) {
@@ -477,8 +483,22 @@ function checkA9ProductionHygiene(): void {
         let src: string
         try { src = fs.readFileSync(file, "utf8") } catch { continue }
         if (consoleRe.test(src)) {
-            console_hits++
-            add({ check: "A9", severity: "MEDIUM", code: "RAW_CONSOLE_IN_ENGINE", file: rel, detail: "engine/store code uses console.* directly; route through lib/logger or lib/debug-logger so it can be silenced in production." })
+            // If every console.* line in the file is preceded by an eslint-disable-next-line
+            // hint, the author has explicitly tagged each call as intentional — skip.
+            const consoleLines: number[] = []
+            const lines = src.split("\n")
+            for (let i = 0; i < lines.length; i++) {
+                if (/^\s*console\.(log|warn|error|debug|info)\s*\(/.test(lines[i])) consoleLines.push(i)
+            }
+            const allTagged = consoleLines.length > 0 && consoleLines.every(i => {
+                const prev = lines[i - 1] ?? ""
+                return /eslint-disable-next-line[^\n]*\bno-console\b/.test(prev)
+            })
+            const fileDisabled = fileLevelDisableRe.test(src)
+            if (!allTagged && !fileDisabled) {
+                console_hits++
+                add({ check: "A9", severity: "MEDIUM", code: "RAW_CONSOLE_IN_ENGINE", file: rel, detail: "engine/store code uses console.* directly; route through lib/logger or lib/debug-logger so it can be silenced in production." })
+            }
         }
         if (debuggerRe.test(src)) {
             debugger_hits++

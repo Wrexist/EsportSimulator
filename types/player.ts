@@ -13,9 +13,9 @@
 import { PlayerRole, PlayerTier } from "./enums"
 
 /**
- * HLTV Ranking Entry for Prestige System (Phase 6)
+ * Pro Ranking Entry for Prestige System (Phase 6)
  */
-export interface HltvRankingEntry {
+export interface ProRankingEntry {
     year: number;      // e.g. 2019-2025
     rank: number;      // 1-100
 }
@@ -45,7 +45,7 @@ export interface Player {
     energy: number // 0-100, determines match performance and training capacity
     maxEnergy: number // Default 100
     // Phase 6: Prestige System
-    hltvHistory?: HltvRankingEntry[]
+    proHistory?: ProRankingEntry[]
     prestigeScore?: number // 0-100, calculated from history
 
     // ===== CLASSIFICATION =====
@@ -99,7 +99,7 @@ export interface Player {
     // Lifetime performance tracking
     matchesPlayed: number
     roundsPlayed: number
-    avgRating: number           // Career average HLTV-style rating
+    avgRating: number           // Career average Pro-style rating
     headshots?: number          // Career total headshots
     clutchSuccessRate: number   // Percentage of clutches won
 
@@ -156,7 +156,7 @@ export interface PlayerMatchStats {
 
     adr: number        // Average damage per round
     kast: number       // Kill/Assist/Survive/Trade % (0-100)
-    rating: number     // HLTV-style rating (0-2.0 typically)
+    rating: number     // Pro-style rating (0-2.0 typically)
 
     clutches: number   // Clutch rounds won
     firstKills: number // Opening kills

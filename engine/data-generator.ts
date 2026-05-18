@@ -602,7 +602,7 @@ export class DataGenerator {
       },
       {
         id: "headset_1",
-        name: "SteelSeries Arctis Pro",
+        name: "Pro Tournament Headset",
         type: "HEADSET",
         tier: 3,
         bonus: { stat: "tactic", value: 2 },
@@ -701,8 +701,8 @@ export class DataGenerator {
     const bTierEvents = [
       { name: "CCT Online Finals EU", region: "EU", startWeek: 6, prizePool: 150000 },
       { name: "CCT Online Finals NA", region: "NA", startWeek: 10, prizePool: 150000 },
-      { name: "Roobet Cup", region: "EU", startWeek: 20, prizePool: 100000 },
-      { name: "ESEA Premier", region: "NA", startWeek: 22, prizePool: 100000 },
+      { name: "European Open Cup", region: "EU", startWeek: 20, prizePool: 100000 },
+      { name: "NA Premier League", region: "NA", startWeek: 22, prizePool: 100000 },
       { name: "Asia Championship", region: "ASIA", startWeek: 18, prizePool: 80000 },
       { name: "Gamers Club Cup", region: "SA", startWeek: 14, prizePool: 60000 },
       { name: "Oceanic Masters", region: "OCE", startWeek: 26, prizePool: 40000 },

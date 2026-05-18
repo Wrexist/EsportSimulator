@@ -99,7 +99,7 @@ export default function StatsPage() {
                     recentRatings.unshift(ps.rating)
                 }
             }
-            // Normalize ratings to 0-1 range (HLTV ratings typically 0-2.0)
+            // Normalize ratings to 0-1 range (Pro ratings typically 0-2.0)
             const formTrend = recentRatings.map(r => Math.min(1, r / 2.0))
 
             return {

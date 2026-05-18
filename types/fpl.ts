@@ -73,7 +73,7 @@ export interface FPLPlayerStats {
     losses: number
     avgKD: number            // Average Kill/Death ratio
     avgADR: number           // Average Damage per Round
-    avgRating: number        // Average HLTV-style rating
+    avgRating: number        // Average Pro-style rating
     mvpCount: number         // MVP awards in FPL matches
     weeklyActivity: number   // Matches played this week
     monthlyPoints: number    // Points for monthly leaderboard
@@ -93,7 +93,7 @@ export interface FPLMatchPlayerStats {
     deaths: number
     assists: number
     adr: number              // Damage per round
-    rating: number           // HLTV-style rating for this match
+    rating: number           // Pro-style rating for this match
     mvp: boolean             // Was MVP of this match
     eloChange: number        // ELO gained/lost
 }
