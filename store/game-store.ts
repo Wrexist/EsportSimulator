@@ -496,7 +496,7 @@ interface GameStoreActions {
   unlockSkill: (playerId: string, skillId: string, cost: number) => void
 
   // Empire (Phase 18)
-  upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => void
+  upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => { success: boolean; message: string }
   signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }
   refreshSponsorOffers: () => void
   declineSponsorOffer: (offerId: string) => void
@@ -2315,17 +2315,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         if (error) {
           logger.error('[Store] Rehydration failed', error)
         }
-        // Always mark hydrated — even on error — so the UI doesn't hang forever
+        // Always mark hydrated — even on error — so the UI doesn't hang forever.
+        // Critical ordering: rebuild indexes BEFORE flipping _hasHydrated, so
+        // the first render after hydration doesn't see an empty index window
+        // (any read paths still keyed on _teamIndex/_playerIndex would return
+        // undefined for valid IDs during that window).
         if (state) {
-          state.setHasHydrated(true)
-          // Rebuild entity indexes after rehydration for O(1) lookups
           const s = useGameStore.getState()
           const indexes = buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches)
           useGameStore.setState(indexes)
-          // Defensive: clear stale isLoading from legacy persisted states
+          // Defensive: clear stale isLoading from legacy persisted states.
           if (state.isLoading) {
             useGameStore.setState({ isLoading: false, error: null })
           }
+          state.setHasHydrated(true)
         } else {
           useGameStore.setState({ _hasHydrated: true })
         }

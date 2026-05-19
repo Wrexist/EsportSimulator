@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
+import { toast } from "@/lib/toast"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -147,14 +148,24 @@ export function AcademyApp() {
 
     const handleBuild = () => {
         setIsBuilding(true)
-        buildAcademy(team.id)
+        const result = buildAcademy(team.id)
         setTimeout(() => setIsBuilding(false), 800)
+        if (result.success) {
+            toast.success("Academy Established", { description: result.message })
+        } else {
+            toast.error("Cannot Build Academy", { description: result.message })
+        }
     }
 
     const handleUpgrade = () => {
         setIsUpgrading(true)
-        upgradeAcademy(team.id)
+        const result = upgradeAcademy(team.id)
         setTimeout(() => setIsUpgrading(false), 800)
+        if (result.success) {
+            toast.success("Academy Upgraded", { description: result.message })
+        } else {
+            toast.error("Cannot Upgrade Academy", { description: result.message })
+        }
     }
 
     const handleScout = (tier: "LOCAL" | "REGIONAL" | "INTERNATIONAL") => {
@@ -162,6 +173,8 @@ export function AcademyApp() {
         setLastScoutResult(result)
         if (result.success && result.player) {
             enrollProspect(result.player.id)
+        } else if (!result.success) {
+            toast.error("Scouting Failed", { description: result.message })
         }
     }
 
@@ -364,7 +377,14 @@ export function AcademyApp() {
                                     onRoleDrop={handleRoleDrop}
                                     onRemoveFromRole={handleRemoveFromRole}
                                     onSetTraining={(id: string, focus: AcademyTrainingFocus) => setProspectTraining(id, focus)}
-                                    onPromote={(id: string) => promoteProspect(id, { salaryPerWeek: 2000, lengthWeeks: 104 })}
+                                    onPromote={(id: string) => {
+                                        const result = promoteProspect(id, { salaryPerWeek: 2000, lengthWeeks: 104 })
+                                        if (result.success) {
+                                            toast.success("Prospect Promoted", { description: result.message })
+                                        } else {
+                                            toast.error("Cannot Promote", { description: result.message })
+                                        }
+                                    }}
                                     onRelease={(id: string) => setConfirmingReleaseId(id)}
                                 />
                             )}
@@ -461,8 +481,13 @@ export function AcademyApp() {
                                 <Button
                                     className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold shadow-lg shadow-red-500/20"
                                     onClick={() => {
-                                        releaseProspect(confirmingReleaseId)
+                                        const result = releaseProspect(confirmingReleaseId)
                                         setConfirmingReleaseId(null)
+                                        if (result.success) {
+                                            toast.success("Prospect Released", { description: result.message })
+                                        } else {
+                                            toast.error("Cannot Release", { description: result.message })
+                                        }
                                     }}
                                 >
                                     Confirm Release

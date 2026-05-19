@@ -84,7 +84,7 @@ function getFacilityDescription(type: string, level: number): string {
 }
 
 export interface TeamFacilitiesActions {
-    upgradeFacility: (teamId: string, facilityType: string) => void
+    upgradeFacility: (teamId: string, facilityType: string) => { success: boolean; message: string }
     signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }
     purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
     upgradeMerchStore: (teamId: string) => { success: boolean; message: string }
@@ -93,22 +93,32 @@ export interface TeamFacilitiesActions {
 
 export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (set) => ({
     upgradeFacility: (teamId, facilityType) => {
+        let result = { success: false, message: "Upgrade failed." }
         set((state) => {
             // Always look up via state.teams inside producers. The Map
             // index can't share a draft with the array slot under Immer,
             // so mutations through _teamIndex.get() silently fail to
             // reach state.teams[i] — see store-mutation-propagation test.
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) return
+            if (!team) {
+                result = { success: false, message: "Team not found." }
+                return
+            }
 
             if (!team.facilities) team.facilities = []
             const facility = team.facilities.find(f => f.type === facilityType)
 
             if (facility) {
                 // Upgrade path: cost scales linearly with current level.
-                if (facility.level >= MAX_FACILITY_LEVEL) return
+                if (facility.level >= MAX_FACILITY_LEVEL) {
+                    result = { success: false, message: `${facilityType} facility is already at max level.` }
+                    return
+                }
                 const cost = facility.level * FACILITY_UPGRADE_BASE_COST
-                if (team.budget < cost) return
+                if (team.budget < cost) {
+                    result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}.` }
+                    return
+                }
 
                 team.budget -= cost
                 facility.level += 1
@@ -130,11 +140,15 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     },
                 })
                 if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
+                result = { success: true, message: `${facility.type} upgraded to level ${facility.level}.` }
                 return
             }
 
             // Build path: brand-new facility starts at level 1.
-            if (team.budget < FACILITY_BUILD_COST) return
+            if (team.budget < FACILITY_BUILD_COST) {
+                result = { success: false, message: `Insufficient funds. Need $${FACILITY_BUILD_COST.toLocaleString()}.` }
+                return
+            }
             team.budget -= FACILITY_BUILD_COST
             team.facilities.push({
                 id: nextDeterministicId(state, "fac", facilityType),
@@ -158,7 +172,9 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 },
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
+            result = { success: true, message: `${facilityType} facility built (level 1).` }
         })
+        return result
     },
 
     signSponsor: (teamId, sponsor) => {
