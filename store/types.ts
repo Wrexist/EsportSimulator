@@ -110,11 +110,26 @@ export interface AcademyState {
   academyPendingProspects: string[]
 }
 
+export interface WeekRevealItem {
+  id: string
+  kind: "match" | "event" | "summary"
+  tone: "win" | "loss" | "neutral"
+  title: string
+  detail?: string
+}
+
+export interface WeekRevealData {
+  week: number
+  headline: string
+  items: WeekRevealItem[]
+}
+
 export interface UIState {
   theme: "crystal" | "onyx"
   availableEquipment: EquipmentItem[]
   toasts: { id: string; message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }[]
   pendingCelebration: CelebrationData | null
+  weekReveal: WeekRevealData | null
   pendingSeasonRecap: number | null
   pendingLegendPick: LegendPickData | null
   legendaryPlayers: PlayerSaveData[]
@@ -262,6 +277,7 @@ export interface UIActions {
   addToast: (toast: { message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }) => void
   removeToast: (id: string) => void
   clearCelebration: () => void
+  dismissWeekReveal: () => void
   clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void

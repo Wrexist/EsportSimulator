@@ -409,6 +409,7 @@ interface GameStoreState {
 
   // UI Celebrations
   pendingCelebration: import("@/engine/save-types").CelebrationData | null
+  weekReveal: import("@/store/types").WeekRevealData | null
   pendingSeasonRecap: number | null
   pendingLegendPick: import("@/engine/save-types").LegendPickData | null
   signedLegendIds: string[]
@@ -609,6 +610,7 @@ interface GameStoreActions {
 
   // UI Celebrations
   clearCelebration: () => void
+  dismissWeekReveal: () => void
   clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
@@ -839,6 +841,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // UI Celebrations
       pendingCelebration: null,
+      weekReveal: null,
       pendingSeasonRecap: null,
       pendingLegendPick: null,
       signedLegendIds: [],
@@ -2105,6 +2108,74 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               })
               get().acknowledgeEvent(event.id)
             })
+
+            // Build the "week in review" reveal — drives the post-processing
+            // ticker in WeekProcessingOverlay. Player-team matches first, then
+            // up to five captioned events from the week just played.
+            const ptid = state.playerTeamId
+            if (ptid) {
+              const playedWeek = state.currentWeek
+              const revealState = get()
+              const teamName = (id: string | null) =>
+                id ? (revealState.teams.find(t => t.id === id)?.name ?? "Unknown") : "TBD"
+              const revealItems: import("@/store/types").WeekRevealItem[] = []
+              let revealWins = 0
+              let revealLosses = 0
+              for (const m of revealState.completedMatches) {
+                if (m.week !== playedWeek) continue
+                if (m.homeTeamId !== ptid && m.awayTeamId !== ptid) continue
+                const isHome = m.homeTeamId === ptid
+                const won = m.result?.winnerId === ptid
+                const myScore = (isHome ? m.result?.homeScore : m.result?.awayScore) ?? 0
+                const oppScore = (isHome ? m.result?.awayScore : m.result?.homeScore) ?? 0
+                if (won) revealWins++; else revealLosses++
+                const flags = [
+                  won && m._underdogWin ? "Upset" : "",
+                  won && m._comebackWin ? "Comeback" : "",
+                ].filter(Boolean)
+                revealItems.push({
+                  id: `match-${m.id}`,
+                  kind: "match",
+                  tone: won ? "win" : "loss",
+                  title: `${won ? "Beat" : "Lost to"} ${teamName(isHome ? m.awayTeamId : m.homeTeamId)}`,
+                  detail: `${myScore}–${oppScore}${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
+                })
+              }
+              const seenEvent = new Set<string>()
+              let eventCount = 0
+              for (const e of revealState.eventsLog) {
+                if (eventCount >= 5) break
+                if (e.week !== playedWeek && e.week !== revealState.currentWeek) continue
+                if (seenEvent.has(e.id)) continue
+                seenEvent.add(e.id)
+                const d = e.data as { title?: string; headline?: string; description?: string; message?: string }
+                const text = d?.title || d?.headline || d?.description || d?.message
+                if (typeof text !== "string" || !text.trim()) continue
+                eventCount++
+                revealItems.push({
+                  id: `event-${e.id}`,
+                  kind: "event",
+                  tone: "neutral",
+                  title: text.length > 90 ? `${text.slice(0, 87)}...` : text,
+                })
+              }
+              const headline =
+                revealItems.length === 0 ? "A quiet week"
+                  : revealWins > 0 && revealLosses === 0 ? "A flawless week"
+                    : revealLosses > 0 && revealWins === 0 ? "A rough week"
+                      : revealWins > revealLosses ? "A strong week"
+                        : revealWins < revealLosses ? "A tough week"
+                          : "A mixed week"
+              if (revealItems.length === 0) {
+                revealItems.push({
+                  id: "summary-quiet",
+                  kind: "summary",
+                  tone: "neutral",
+                  title: "Nothing major to report.",
+                })
+              }
+              set({ weekReveal: { week: playedWeek, headline, items: revealItems } })
+            }
           } else {
             throw new Error(result.error || "Week processing failed")
           }
