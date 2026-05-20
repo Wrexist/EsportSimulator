@@ -40,6 +40,10 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         state.pendingCelebration = null
     }),
 
+    dismissWeekReveal: () => set((state) => {
+        state.weekReveal = null
+    }),
+
     clearPendingSeasonRecap: () => set((state) => {
         state.pendingSeasonRecap = null
     }),
