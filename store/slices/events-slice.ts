@@ -11,9 +11,9 @@
  *   - acceptJobOffer / declineJobOffer / negotiateJobOffer — career-move
  *     handlers (last two delegate to JobOfferGenerator)
  *
- * Copied verbatim from the live game-store implementation. All entity
- * lookups go through `_teamIndex`/`_playerIndex` with the same `.find`
- * fallback the rest of the store uses.
+ * All entity lookups inside set() go through state.teams.find() /
+ * state.players.find() — see ARCHITECTURE.md on why _teamIndex.get()
+ * mutations don't propagate to state.teams[i] under Immer.
  */
 
 import type { EventsActions, SliceCreator } from "@/store/types"
@@ -72,8 +72,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 let normalizedMoney = 0
 
                 if (teamId && (money || reputation)) {
-                    resolvedTeam = state._teamIndex?.get(teamId)
-                        ?? state.teams.find(t => t.id === teamId)
+                    resolvedTeam = state.teams.find(t => t.id === teamId)
                     if (!resolvedTeam) return
 
                     const moneyValidation = parseBoundedInt(
@@ -93,8 +92,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 }
 
                 if (playerId && (morale || loyalty)) {
-                    const player = state._playerIndex?.get(playerId)
-                        ?? state.players.find(p => p.id === playerId)
+                    const player = state.players.find(p => p.id === playerId)
                     if (player) {
                         if (morale) player.morale = Math.max(0, Math.min(100, player.morale + morale))
                         if (loyalty) player.loyalty = Math.max(0, Math.min(100, player.loyalty + loyalty))
@@ -126,8 +124,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
             if (eventId.startsWith("legend_coach_opportunity_") && choiceId === "hire") {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const legendData = event.data as any
-                const team = state._teamIndex?.get(state.playerTeamId!)
-                    ?? state.teams.find(t => t.id === state.playerTeamId)
+                const team = state.teams.find(t => t.id === state.playerTeamId)
                 if (team && legendData) {
                     const salaryCost = legendData.salaryCost || 15000
                     const existingCoachIdx = state.staff.findIndex(s => s.teamId === team.id && s.role === "coach")
@@ -195,8 +192,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const offerData = event.data as any
-            const newTeam = state._teamIndex?.get(offerData.offeringTeamId)
-                ?? state.teams.find(t => t.id === offerData.offeringTeamId)
+            const newTeam = state.teams.find(t => t.id === offerData.offeringTeamId)
             if (!newTeam) {
                 result = { success: false, message: "Team no longer exists" }
                 return

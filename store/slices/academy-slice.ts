@@ -107,7 +107,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     buildAcademy: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -145,7 +145,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     upgradeAcademy: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -191,8 +191,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
         let result: { success: boolean; player?: PlayerSaveData; message: string } =
             { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -255,8 +254,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     enrollProspect: (playerId) => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -273,8 +271,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 return
             }
 
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             if (!player) {
                 result = { success: false, message: "Player not found" }
                 return
@@ -333,8 +330,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
             const normalizedReleaseCost = releaseCostValidation.value
 
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             const prospectIndex = state.academyPlayers.findIndex(p => p.id === prospectId)
             if (prospectIndex === -1) {
                 result = { success: false, message: "Prospect not found" }
@@ -347,8 +343,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             const prospect = state.academyPlayers[prospectIndex]
-            const player = state._playerIndex?.get(prospect.playerId)
-                ?? state.players.find(p => p.id === prospect.playerId)
+            const player = state.players.find(p => p.id === prospect.playerId)
 
             if (team) team.budget -= normalizedReleaseCost
 
@@ -372,8 +367,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     promoteProspect: (prospectId, contract) => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return
@@ -385,8 +379,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 return
             }
             const prospect = state.academyPlayers[prospectIndex]
-            const player = state._playerIndex?.get(prospect.playerId)
-                ?? state.players.find(p => p.id === prospect.playerId)
+            const player = state.players.find(p => p.id === prospect.playerId)
             if (!player) {
                 result = { success: false, message: "Player data not found" }
                 return
@@ -450,8 +443,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     scheduleDevMatch: () => {
         let result = { success: false, message: "" }
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || !team.academyFacility || team.academyFacility.level < 2) {
                 result = { success: false, message: "Academy Level 2 required for matches" }
                 return
@@ -487,7 +479,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             const prospectPlayers = activeStarters.map(ap =>
-                state._playerIndex?.get(ap.playerId) ?? state.players.find(p => p.id === ap.playerId)
+                state.players.find(p => p.id === ap.playerId)
             ).filter(Boolean) as PlayerSaveData[]
 
             // Academy uses a derived seed so the main RNG chain isn't disturbed.
@@ -529,8 +521,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
     processAcademyWeek: () => {
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
             const academyLevel = team.academyFacility.level
@@ -562,8 +553,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             // Per-prospect: apply drills, recover energy, evaluate promotion.
             state.academyPlayers.forEach(prospect => {
-                const player = state._playerIndex?.get(prospect.playerId)
-                    ?? state.players.find(p => p.id === prospect.playerId)
+                const player = state.players.find(p => p.id === prospect.playerId)
                 if (!player) return
 
                 const isStarter = starterIds.includes(prospect.id)

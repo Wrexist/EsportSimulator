@@ -164,8 +164,7 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
 
         // Bootcamps need a rested roster — refuse if the squad is gassed.
         if (normalizedActivity.type === "BOOTCAMP" && normalizedActivity.duration >= 1) {
-            const playerTeam = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
             const players = state.players.filter(p => playerTeam?.rosterIds.includes(p.id))
             const avgFatigue = players.reduce((acc, p) => acc + p.fatigue, 0) / (players.length || 1)
 

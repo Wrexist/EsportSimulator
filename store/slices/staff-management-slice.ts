@@ -79,8 +79,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             }
 
             const staffMember = state.marketStaff[staffIndex]
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
 
             // Negotiated terms or sensible defaults (full salary, 1 year,
@@ -218,8 +217,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             if (staffIndex === -1) return
 
             const staffMember = state.staff[staffIndex]
-            const team = state._teamIndex?.get(staffMember.teamId)
-                ?? state.teams.find(t => t.id === staffMember.teamId)
+            const team = state.teams.find(t => t.id === staffMember.teamId)
             if (team) {
                 team.staffIds = team.staffIds.filter(id => id !== staffId)
             }

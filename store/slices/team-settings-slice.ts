@@ -51,7 +51,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             // Only the player's own team can be mutated through this API.
             if (!state.playerTeamId || teamId !== state.playerTeamId) return
             if (!VALID_PLAYSTYLES.has(playstyle)) return
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (team) team.playstyle = playstyle
         })
     },
@@ -60,7 +60,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
         set((state) => {
             if (!state.playerTeamId || teamId !== state.playerTeamId) return
             if (!VALID_ECONOMY_STYLES.has(economyStyle)) return
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (team) team.economyStyle = economyStyle
         })
     },
@@ -68,7 +68,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
     setTargetPlayer: (teamId, targetPlayerId) => {
         set((state) => {
             if (!state.playerTeamId || teamId !== state.playerTeamId) return
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) return
 
             if (!targetPlayerId) {
@@ -87,7 +87,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
 
     swapRosterPositions: (teamId, index1, index2) => {
         set((state) => {
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) return
             const len = team.rosterIds.length
             // Bounds check both indexes — UI can pass stale values during
@@ -108,7 +108,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             )
             if (!amountValidation.ok) return
 
-            const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+            const team = state.teams.find(t => t.id === teamId)
             if (!team) return
 
             // Never let the budget go below 0 from this API — that path
@@ -122,10 +122,8 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
 
     treatInjury: (playerId) => {
         set((state) => {
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const player = state.players.find(p => p.id === playerId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!player || !player.injury || !team) return
 
             if (team.budget < INJURY_TREATMENT_COST) {

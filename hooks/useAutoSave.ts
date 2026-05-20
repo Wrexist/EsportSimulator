@@ -77,13 +77,29 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
         }
     }, [dirtySignature])
 
-    // Set up auto-save interval
+    // Latest values surfaced through refs so the interval below can read
+    // them without being torn down on every change.
+    const dirtySignatureRef = useRef(dirtySignature)
+    const performSaveRef = useRef(performSave)
+    useEffect(() => { dirtySignatureRef.current = dirtySignature }, [dirtySignature])
+    useEffect(() => { performSaveRef.current = performSave }, [performSave])
+
+    // Set up auto-save interval.
+    //
+    // Previously the deps included `hasUnsavedChanges`, which flips on
+    // every action (currentWeek, completedMatches.length, eventsLog.length
+    // change constantly), so the interval was torn down and rebuilt
+    // continuously and effectively never fired during active gameplay.
+    // We now keep a single interval for the hook's lifetime and read the
+    // freshest dirty state via refs inside the callback.
     useEffect(() => {
         if (!enabled || !saveGame) return
 
         saveIntervalRef.current = setInterval(() => {
-            if (hasUnsavedChanges) {
-                performSave()
+            const dirty = Boolean(lastSavedSignatureRef.current) &&
+                dirtySignatureRef.current !== lastSavedSignatureRef.current
+            if (dirty) {
+                performSaveRef.current()
             }
         }, interval)
 
@@ -92,7 +108,7 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
                 clearInterval(saveIntervalRef.current)
             }
         }
-    }, [enabled, interval, hasUnsavedChanges, performSave, saveGame])
+    }, [enabled, interval, saveGame])
 
     // Warn before closing with unsaved changes
     useEffect(() => {

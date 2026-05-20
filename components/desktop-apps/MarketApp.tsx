@@ -184,9 +184,15 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
             setSignError("Insufficient budget")
             return
         }
-        transferPlayer(selectedPlayer.id, "FA", playerTeam.id, signingBonus, {
+        const result = transferPlayer(selectedPlayer.id, "FA", playerTeam.id, signingBonus, {
             salaryPerWeek: faOfferSalary, startWeek: currentWeek, endWeek: currentWeek + faOfferDuration, buyout: 0
         })
+        if (!result.success) {
+            // Surface the engine's rejection (roster full, contract conflict,
+            // etc.) inline rather than silently clearing the modal.
+            setSignError(result.message || "Sign failed")
+            return
+        }
         setSelectedPlayer(null)
         setIsSigningFA(false)
     }

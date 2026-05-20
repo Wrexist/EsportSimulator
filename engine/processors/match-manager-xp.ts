@@ -70,7 +70,7 @@ export function applyMatchManagerXP(
     if (winnerId === playerTeamId) {
         save.managerDetails.careerWins++
         save.managerDetails.xp += Math.round(WIN_XP_BASE * xpMultiplier)
-        save.managerDetails.reputation += WIN_REPUTATION_BONUS
+        save.managerDetails.reputation = Math.min(100, save.managerDetails.reputation + WIN_REPUTATION_BONUS)
     } else if (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId) {
         // Loss OR draw where player participated.
         // (Original code's else-if path actually fires for draws too,

@@ -222,12 +222,12 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
         // Accept if within 3% of target (avoids near-miss rejections)
         if (sanitizedSalary >= minimumSalary * 0.97) {
-            setNegotiationLog(prev => [...prev, `Player accepted contract!`])
-            setStage("SUCCESS")
-
-            // Execute Transfer
+            // Execute the transfer first — only flip to SUCCESS if the store
+            // accepts it. Previously the UI advanced to SUCCESS even when
+            // the engine refused (roster full, contract conflict, etc.),
+            // showing a "deal done" screen for a transfer that never happened.
             if (myTeam) {
-                transferPlayer(
+                const result = transferPlayer(
                     playerId,
                     currentTeam?.id || "FA",
                     myTeam.id,
@@ -239,6 +239,16 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                         buyout: Math.max(sanitizedSalary * 20, sanitizedBuyoutOffer * 2) // Default clause
                     }
                 )
+                if (result.success) {
+                    setNegotiationLog(prev => [...prev, `Player accepted contract!`])
+                    setStage("SUCCESS")
+                } else {
+                    setNegotiationLog(prev => [...prev, `Transfer rejected by board: ${result.message || "unknown error"}`])
+                    setStage("FAILED")
+                }
+            } else {
+                setNegotiationLog(prev => [...prev, `Player accepted contract!`])
+                setStage("SUCCESS")
             }
         } else {
             setNegotiationLog(prev => [...prev, `Player rejected ${formatMoney(sanitizedSalary)}/wk. Minimum expected: ${formatMoney(minimumSalary)}/wk.`])

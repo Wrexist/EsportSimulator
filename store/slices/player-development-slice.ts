@@ -47,8 +47,7 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
         set((state) => {
             // Prefer the O(1) index; fall back to linear scan if missing
             // (matches the pattern used elsewhere in the store).
-            const p = state._playerIndex?.get(playerId)
-                ?? state.players.find(pl => pl.id === playerId)
+            const p = state.players.find(p => p.id === playerId)
             if (!p) return
 
             if (!p.unlockedTalentIds) p.unlockedTalentIds = []
@@ -102,8 +101,7 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
 
     unlockSkill: (playerId, skillId, cost) => {
         set((state) => {
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             if (!player) return
             if ((player.availableSkillPoints || 0) < cost) return
 
@@ -158,8 +156,7 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
 
     setPlayerTrainingFocus: (playerId, focus) => {
         set((state) => {
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             if (!player) return
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(player as any).trainingFocus = focus
@@ -171,12 +168,10 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
             // Only the player team's own roster can be mutated through
             // this API. Other surfaces (transferPlayer, debug actions)
             // handle cross-team writes.
-            const playerTeam = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
             if (!playerTeam || !playerTeam.rosterIds.includes(playerId)) return
 
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             if (!player) return
 
             const numericClamp = (value: unknown, min: number, max: number): number | undefined => {

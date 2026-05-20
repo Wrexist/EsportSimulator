@@ -4,10 +4,9 @@
  * Scouting slice.
  *
  * Owns mission lifecycle and watchlist actions. Extracted from
- * game-store.ts using the live (indexed) implementation, not the stale
- * pre-index draft that was deleted. All team lookups go through
- * `_teamIndex` when available with a `.find` fallback so the slice keeps
- * the O(1)-with-fallback pattern the rest of the store uses.
+ * game-store.ts. All team lookups inside set() go through
+ * state.teams.find() — see ARCHITECTURE.md on why _teamIndex.get()
+ * mutations don't propagate to state.teams[i] under Immer.
  */
 
 import type { ScoutingActions, SliceCreator } from "@/store/types"
@@ -35,8 +34,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
             ) || state.staff.find(s => s.role === "scout")
             const scoutId = scoutStaff?.id || "default_scout"
 
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || team.budget < SCOUTING_COST_BASIC) {
                 return
             }
@@ -60,8 +58,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
     getScoutingLevel: (playerId: string) => {
         const state = get()
         // Own team players are always fully scouted.
-        const team = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const team = state.teams.find(t => t.id === state.playerTeamId)
         if (team?.rosterIds.includes(playerId)) return "ELITE"
 
         const entry = state.scoutedPlayers.find(s => s.playerId === playerId)
@@ -70,8 +67,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
 
     isPlayerScouted: (playerId: string) => {
         const state = get()
-        const team = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const team = state.teams.find(t => t.id === state.playerTeamId)
         if (team?.rosterIds.includes(playerId)) return true
         return state.scoutedPlayers.some(s => s.playerId === playerId)
     },

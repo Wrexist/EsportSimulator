@@ -11,6 +11,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
+import { toast } from "@/lib/toast"
 
 interface CalendarAppProps {
     currentWeek: number
@@ -392,6 +393,11 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                             disabled={!eligibility.eligible}
                                                             onClick={() => {
                                                                 const result = registerForTournament(selectedTournamentData.id)
+                                                                if (result.success) {
+                                                                    toast.success("Registered", { description: result.message })
+                                                                } else {
+                                                                    toast.error("Cannot Register", { description: result.message })
+                                                                }
                                                             }}
                                                             className={cn(
                                                                 "h-7 text-[10px] font-bold border-none min-w-[60px]",

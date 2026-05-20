@@ -6,8 +6,10 @@
  * Holds the four tournament-related store actions: registerForTournament,
  * checkTournamentEligibility, qualifyForTournament, awardCircuitPoints.
  *
- * Extracted from game-store.ts using the live (indexed) implementations,
- * not stale duplicates. `_teamIndex` lookups are preserved.
+ * Extracted from game-store.ts. Reads/writes go through state.teams.find()
+ * — see ARCHITECTURE.md: Immer's draft graph can't share a draft between a
+ * Map and an Array, so mutations through state._teamIndex.get() never
+ * reach state.teams[i].
  */
 
 import type { TournamentActions, SliceCreator } from "@/store/types"
@@ -126,8 +128,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
         const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === seriesId)
         if (!tournament) return { eligible: false, reason: "Tournament not found" }
 
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return { eligible: false, reason: "Team not found" }
 
         const seasonNumber = getSeasonFromTournamentId(tournamentId) ?? getSeasonFromWeek(state.currentWeek)
@@ -219,7 +220,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
 
             // Tournament-win narrative news + Major tracking.
             if (placement === 1) {
-                const team = state._teamIndex?.get(teamId) ?? state.teams.find(t => t.id === teamId)
+                const team = state.teams.find(t => t.id === teamId)
                 const tournamentName = FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.name || "The Tournament"
 
                 if (teamId === state.playerTeamId) {

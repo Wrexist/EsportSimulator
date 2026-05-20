@@ -98,9 +98,10 @@ function SponsorOfferCardImpl({ offer, index, isLocked, lockReason, sponsorSlots
           </Button>
           <Button
             variant="outline"
-            className="border-white/10 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
+            className="border-white/10 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 disabled:opacity-40"
             onClick={onDecline}
             disabled={isLocked}
+            aria-label="Decline offer"
           >
             <X size={14} />
           </Button>
