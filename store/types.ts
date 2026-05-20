@@ -180,7 +180,7 @@ export interface EntitiesActions {
   hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
   renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
   fireStaff: (staffId: string) => void
-  upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => void
+  upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => { success: boolean; message: string }
   signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void

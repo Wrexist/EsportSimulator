@@ -59,8 +59,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                 return
             }
 
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) {
                 result = { success: false, message: "Team not found" }
                 return

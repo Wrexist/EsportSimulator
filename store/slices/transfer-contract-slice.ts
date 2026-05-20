@@ -75,7 +75,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             // Triggered by the UI passing toTeamId === "FA".
             if (toTeamId === "FA") {
                 const sourceTeam = fromTeamId && fromTeamId !== "FA"
-                    ? (state._teamIndex?.get(fromTeamId) ?? state.teams.find(t => t.id === fromTeamId))
+                    ? (state.teams.find(t => t.id === fromTeamId))
                     : state.teams.find(t => t.rosterIds.includes(playerId))
                 if (sourceTeam) {
                     sourceTeam.rosterIds = sourceTeam.rosterIds.filter(id => id !== playerId)
@@ -90,8 +90,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     recalculateTeamSynergy(sourceTeam, state.players)
                 }
                 state.contracts = state.contracts.filter(c => c.playerId !== playerId)
-                const releasedPlayer = state._playerIndex?.get(playerId)
-                    ?? state.players.find(p => p.id === playerId)
+                const releasedPlayer = state.players.find(p => p.id === playerId)
                 if (releasedPlayer) {
                     releasedPlayer.forSale = false
                 }
@@ -100,7 +99,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
 
             // === Trade / Signing path ===
-            const toTeam = state._teamIndex?.get(toTeamId) ?? state.teams.find(t => t.id === toTeamId)
+            const toTeam = state.teams.find(t => t.id === toTeamId)
             if (!toTeam) {
                 result = { success: false, message: "Target team not found" }
                 return
@@ -113,8 +112,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
             const normalizedFee = feeValidation.value
 
-            const transferPlayerRecord = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const transferPlayerRecord = state.players.find(p => p.id === playerId)
             if (!transferPlayerRecord) {
                 result = { success: false, message: "Player not found" }
                 return
@@ -144,8 +142,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 }
             } else {
                 // Real source team — also run the strategic-refusal check.
-                fromTeam = state._teamIndex?.get(fromTeamId)
-                    ?? state.teams.find(t => t.id === fromTeamId)
+                fromTeam = state.teams.find(t => t.id === fromTeamId)
                     ?? null
                 if (!fromTeam) {
                     result = { success: false, message: "Source team not found" }
@@ -243,8 +240,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
 
             // Always clear the listing flag on a successful move.
-            const updatedPlayer = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const updatedPlayer = state.players.find(p => p.id === playerId)
             if (updatedPlayer) {
                 updatedPlayer.forSale = false
             }
@@ -279,12 +275,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
             // Transfer history + news headline.
             if (state.transferHistory) {
-                const player = state._playerIndex?.get(playerId)
-                    ?? state.players.find(p => p.id === playerId)
+                const player = state.players.find(p => p.id === playerId)
                 let fromName = "Free Agent"
                 if (fromTeamId && fromTeamId !== "FA") {
-                    const fTeam = state._teamIndex?.get(fromTeamId)
-                        ?? state.teams.find(t => t.id === fromTeamId)
+                    const fTeam = state.teams.find(t => t.id === fromTeamId)
                     if (fTeam) fromName = fTeam.name
                 }
 
@@ -337,8 +331,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
     listPlayerForTransfer: (playerId, price) => {
         set((state) => {
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             const normalizedPrice = parseBoundedInt(price, "Transfer listing price", 0, MAX_TRANSFER_FEE)
             if (!normalizedPrice.ok || !player) return
 
@@ -349,8 +342,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
     unlistPlayerForTransfer: (playerId) => {
         set((state) => {
-            const player = state._playerIndex?.get(playerId)
-                ?? state.players.find(p => p.id === playerId)
+            const player = state.players.find(p => p.id === playerId)
             if (!player) return
             player.forSale = false
             player.transferListingPrice = undefined
@@ -385,10 +377,8 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         // team tier. Snapshot state once so the three reads come from a
         // consistent point in time + use the O(1) indexes when available.
         const snapshot = get()
-        const player = snapshot._playerIndex?.get(playerId)
-            ?? snapshot.players.find(p => p.id === playerId)
-        const buyingTeam = snapshot._teamIndex?.get(teamId)
-            ?? snapshot.teams.find(t => t.id === teamId)
+        const player = snapshot.players.find(p => p.id === playerId)
+        const buyingTeam = snapshot.teams.find(t => t.id === teamId)
         const currentWeek = snapshot.currentWeek
 
         const playerOvr = player
@@ -453,15 +443,13 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         let toastMsg = ""
         let toastType: "info" | "warning" = "info"
         set((state) => {
-            const contract = state._contractByPlayerIndex?.get(playerId)
-                ?? state.contracts.find(c => c.playerId === playerId)
+            const contract = state.contracts.find(c => c.playerId === playerId)
             if (!contract) {
                 toastMsg = "Contract not found."
                 toastType = "warning"
                 return
             }
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
 
             // +10% salary, +52 weeks. Require at least 26 weeks of runway
@@ -489,8 +477,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
     promotePlayer: (playerId) => {
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
 
             // Phase 70 academy first: drop entry, clear slot binding, attach contract.
@@ -510,8 +497,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     team.rosterIds.push(playerId)
 
                     // Basic contract scaled to player's potential.
-                    const playerData = state._playerIndex?.get(playerId)
-                        ?? state.players.find(p => p.id === playerId)
+                    const playerData = state.players.find(p => p.id === playerId)
                     const potential = playerData?.potential ?? 50
                     state.contracts.push({
                         playerId,

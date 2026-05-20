@@ -13,8 +13,8 @@
  *     MENTAL_RESET_COST.
  *
  * All three log a FinanceLedger entry. None call other store actions.
- * Copied from the live game-store implementation with the same
- * `_teamIndex.get(...) ?? .find(...)` fallback pattern.
+ * Entity lookups inside set() go through state.teams.find() — see
+ * ARCHITECTURE.md on the index-vs-array draft propagation bug.
  */
 
 import type { SliceCreator } from "@/store/types"
@@ -109,8 +109,7 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
             if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
             if (match.week < state.currentWeek) return
 
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
             if (team.budget < VOD_REVIEW_COST) return
 
@@ -132,8 +131,7 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
 
     performMentalReset: (matchId?: string) => {
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || team.budget < MENTAL_RESET_COST) return
 
             if (matchId) {
@@ -160,8 +158,7 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
 
             // Boost morale across the entire roster (capped at 100).
             team.rosterIds.forEach(pid => {
-                const player = state._playerIndex?.get(pid)
-                    ?? state.players.find(p => p.id === pid)
+                const player = state.players.find(p => p.id === pid)
                 if (player) {
                     player.morale = Math.min(100, (player.morale || 70) + 15)
                 }

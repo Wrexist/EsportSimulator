@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
+import { toast } from "@/lib/toast"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
@@ -103,8 +104,13 @@ export function FacilitiesApp() {
     const handleUpgrade = (type: FacilityType, e: React.MouseEvent) => {
         e.stopPropagation()
         setUpgradingId(type)
-        upgradeFacility(team.id, type)
+        const result = upgradeFacility(team.id, type)
         setTimeout(() => setUpgradingId(null), 800)
+        if (result.success) {
+            toast.success("Facility Updated", { description: result.message })
+        } else {
+            toast.error("Cannot Upgrade Facility", { description: result.message })
+        }
     }
 
     const getTotalUpkeep = () => {

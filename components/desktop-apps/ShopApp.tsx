@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
+import { toast } from "@/lib/toast"
 import { EQUIPMENT_CATALOG, EQUIPMENT_TYPE_DISPLAY, EquipmentType } from "@/engine/equipment-manager"
 
 export function ShopApp() {
@@ -33,6 +34,14 @@ export function ShopApp() {
         setIsPurchasing(true)
         const result = purchaseEquipment(itemId)
         setTimeout(() => setIsPurchasing(false), 500)
+        if (result.success) {
+            const item = getCatalogItem(itemId)
+            toast.success("Equipment Purchased", {
+                description: item ? `${item.name} added to ${item.type.toLowerCase()} loadout.` : undefined,
+            })
+        } else {
+            toast.error("Purchase Failed", { description: result.error })
+        }
     }
 
     if (!team) return <div className="p-4 text-white">Team not found</div>

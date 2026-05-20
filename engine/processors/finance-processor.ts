@@ -49,7 +49,8 @@ export class FinanceProcessor {
                     // Guard against NaN from corrupt equipment cost data
                     if (!Number.isFinite(team.budget)) team.budget = report.newBalance
                     if (team.id === playerTeamId) {
-                        totalExpenses += equipmentCosts
+                        // Equipment is folded into totalExpenses below where
+                        // we read report.expenses.total + equipmentCosts.
                         save.financeLedger.push({
                             id: `exp_equip_${save.currentWeek}_${team.id}`,
                             week: save.currentWeek,
@@ -74,9 +75,11 @@ export class FinanceProcessor {
                 }
             }
 
-            // Apply Consequences based on State (Phase 8)
-            if (report.state === "CRISIS" || report.state === "INSOLVENT") {
-                // Morale Penalty for Crisis
+            // Apply Consequences based on State (Phase 8).
+            // Use the POST-equipment financial state — equipment costs may
+            // have pushed the team from STABLE down to CRISIS / INSOLVENT
+            // even though report.state (pre-equipment) was still healthy.
+            if (team.financialState === "CRISIS" || team.financialState === "INSOLVENT") {
                 team.rosterIds.forEach(pid => {
                     const p = playerMap.get(pid)
                     if (p) p.morale = Math.max(0, p.morale - 2)
@@ -124,7 +127,10 @@ export class FinanceProcessor {
 
             if (team.id === playerTeamId) {
                 totalIncome = report.income.total
-                totalExpenses = report.expenses.total
+                // report.expenses.total excludes equipment maintenance; add it
+                // back so the returned summary matches what was actually
+                // deducted from the budget and recorded in the ledger.
+                totalExpenses = report.expenses.total + equipmentCosts
 
                 // Income Entries
                 if (report.income.sponsors > 0) {

@@ -22,8 +22,7 @@ import { SponsorGenerator } from "@/engine/economy-manager"
 export const createSponsorshipSlice: SliceCreator<SponsorshipActions> = (set) => ({
     refreshSponsorOffers: () => {
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
             // Mix the last RNG seed with the current week so re-rolls during
             // the same week are stable (same seed + same week = same set).

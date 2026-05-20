@@ -6,9 +6,9 @@
  * Holds all `debug*` actions that the DevTools panel calls. Every action
  * gates on `isDevToolsEnabled()` so production users never trigger them.
  *
- * Copied from the live (indexed) game-store implementation — every team
- * and player lookup goes through `_teamIndex`/`_playerIndex` with the
- * `.find` fallback that the rest of the store uses.
+ * Lookups inside set() go through state.teams.find() / state.players.find()
+ * — see ARCHITECTURE.md on why Map-based index lookups inside producers
+ * don't propagate mutations back to state.teams[i] / state.players[i].
  */
 
 import type { DebugActions, SliceCreator } from "@/store/types"
@@ -25,8 +25,7 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
     debugAddFunds: (amount: number) => {
         if (!debugToolsEnabled()) return
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (team) {
                 team.budget = (team.budget || 0) + amount
                 state.financeLedger.push({
@@ -46,12 +45,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
     debugHealAll: () => {
         if (!debugToolsEnabled()) return
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
             team.rosterIds.forEach(pid => {
-                const player = state._playerIndex?.get(pid)
-                    ?? state.players.find(p => p.id === pid)
+                const player = state.players.find(p => p.id === pid)
                 if (player) {
                     player.health = 100
                     player.fatigue = 0
@@ -65,12 +62,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
     debugMaxMorale: () => {
         if (!debugToolsEnabled()) return
         set((state) => {
-            const team = state._teamIndex?.get(state.playerTeamId!)
-                ?? state.teams.find(t => t.id === state.playerTeamId)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
             team.rosterIds.forEach(pid => {
-                const player = state._playerIndex?.get(pid)
-                    ?? state.players.find(p => p.id === pid)
+                const player = state.players.find(p => p.id === pid)
                 if (player) {
                     player.morale = 100
                     player.loyalty = 100
@@ -113,11 +108,9 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugTriggerInjury: (playerId) => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         const targetId = playerId || myTeam?.rosterIds[0]
-        const player = state._playerIndex?.get(targetId!)
-            ?? state.players.find(p => p.id === targetId)
+        const player = state.players.find(p => p.id === targetId)
         if (!player) return
 
         player.injury = {
@@ -189,11 +182,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugTriggerRetirement: () => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
         const rosterPlayers = myTeam.rosterIds
-            .map(id => state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))
+            .map(id => state.players.find(p => p.id === id))
             .filter(Boolean) as PlayerSaveData[]
         const candidate = rosterPlayers
             .filter(p => !p.isRetired && !p.isLegendary && p.age >= 20)
@@ -234,12 +226,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugBoostPlayerSkill: (playerId, amount = 5) => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state._playerIndex?.get(targetId)
-            ?? state.players.find(p => p.id === targetId)
+        const player = state.players.find(p => p.id === targetId)
         if (!player) return
         player.skill = Math.min(99, player.skill + amount)
         state.toasts.push({
@@ -251,13 +241,11 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugMaxAllSkills: () => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
         let count = 0
         myTeam.rosterIds.forEach(id => {
-            const player = state._playerIndex?.get(id)
-                ?? state.players.find(p => p.id === id)
+            const player = state.players.find(p => p.id === id)
             if (player) {
                 player.skill = 99
                 count++
@@ -272,11 +260,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugTriggerTransferOffer: () => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam || myTeam.rosterIds.length === 0) return
         const bestPlayer = myTeam.rosterIds
-            .map(id => state._playerIndex?.get(id) ?? state.players.find(p => p.id === id))
+            .map(id => state.players.find(p => p.id === id))
             .filter(Boolean)
             .sort((a: any, b: any) => b.skill - a.skill)[0] as PlayerSaveData | undefined
         if (!bestPlayer) return
@@ -308,12 +295,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugAddXP: (playerId, amount = 500) => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state._playerIndex?.get(targetId)
-            ?? state.players.find(p => p.id === targetId)
+        const player = state.players.find(p => p.id === targetId)
         if (!player) return
         player.xp = (player.xp || 0) + amount
         const xpNeeded = (player.level || 1) * 1000
@@ -337,12 +322,10 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
 
     debugSetPlayerAge: (playerId, age = 37) => set((state) => {
         if (!debugToolsEnabled()) return
-        const myTeam = state._teamIndex?.get(state.playerTeamId!)
-            ?? state.teams.find(t => t.id === state.playerTeamId)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return
         const targetId = playerId || myTeam.rosterIds[0]
-        const player = state._playerIndex?.get(targetId)
-            ?? state.players.find(p => p.id === targetId)
+        const player = state.players.find(p => p.id === targetId)
         if (!player) return
         player.age = age
         state.toasts.push({
