@@ -55,6 +55,27 @@ export interface VisibleStats {
 }
 
 /**
+ * Build a fuzzy stat band whose CENTRE is offset from the true value by a
+ * stable, per-player pseudo-random amount. Without the offset the band
+ * midpoint always equalled the true skill exactly, letting the player read
+ * the precise value off any scouting level (making the accuracy tiers
+ * meaningless). The offset is bounded so the true value still falls inside
+ * the band, and it is deterministic per player so the band does not flicker
+ * between renders.
+ */
+function fuzzyBand(trueValue: number, halfWidth: number, playerId: string): [number, number] {
+    let h = 0
+    for (let i = 0; i < playerId.length; i++) h = (h * 31 + playerId.charCodeAt(i)) | 0
+    const frac = ((Math.abs(h) % 2001) / 1000) - 1 // -1 .. 1
+    const offset = Math.round(frac * halfWidth * 0.5) // within ±halfWidth/2 → true value stays inside
+    const center = trueValue + offset
+    return [
+        Math.max(0, Math.min(99, center - halfWidth)),
+        Math.max(0, Math.min(99, center + halfWidth)),
+    ]
+}
+
+/**
  * Get visible stats for a player based on scouting level
  */
 export function getVisibleStats(
@@ -87,15 +108,15 @@ export function getVisibleStats(
 
     switch (scoutingLevel) {
         case "NONE":
-            // Wide range ±20
-            baseStats.skillRange = [Math.max(0, skill - 20), Math.min(99, skill + 20)]
-            baseStats.ovrRange = [Math.max(0, skill - 20), Math.min(99, skill + 20)]
+            // Wide range ±20, centre offset so the midpoint isn't the answer
+            baseStats.skillRange = fuzzyBand(skill, 20, player.id)
+            baseStats.ovrRange = baseStats.skillRange
             break
 
         case "BASIC":
-            // Narrower range ±12
-            baseStats.skillRange = [Math.max(0, skill - 12), Math.min(99, skill + 12)]
-            baseStats.ovrRange = [Math.max(0, skill - 12), Math.min(99, skill + 12)]
+            // Narrower range ±12, centre offset
+            baseStats.skillRange = fuzzyBand(skill, 12, player.id)
+            baseStats.ovrRange = baseStats.skillRange
             // Reveal top 3 stat categories (rough)
             baseStats.exactStats = {
                 rifle: player.rifle,
@@ -105,9 +126,9 @@ export function getVisibleStats(
             break
 
         case "ADVANCED":
-            // Tight range ±6
-            baseStats.skillRange = [Math.max(0, skill - 6), Math.min(99, skill + 6)]
-            baseStats.ovrRange = [Math.max(0, skill - 6), Math.min(99, skill + 6)]
+            // Tight range ±6, centre offset
+            baseStats.skillRange = fuzzyBand(skill, 6, player.id)
+            baseStats.ovrRange = baseStats.skillRange
             // Reveal most stats
             baseStats.exactStats = {
                 rifle: player.rifle,
@@ -120,9 +141,9 @@ export function getVisibleStats(
             break
 
         case "EXPERT":
-            // Very tight ±3
-            baseStats.skillRange = [Math.max(0, skill - 3), Math.min(99, skill + 3)]
-            baseStats.ovrRange = [Math.max(0, skill - 3), Math.min(99, skill + 3)]
+            // Very tight ±3, centre offset
+            baseStats.skillRange = fuzzyBand(skill, 3, player.id)
+            baseStats.ovrRange = baseStats.skillRange
             // Reveal all combat stats
             baseStats.exactStats = {
                 skill: player.skill,
