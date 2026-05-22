@@ -536,14 +536,14 @@ export default function MainMenuPage() {
                 transition={{ delay: 1 }}
                 className="relative z-10 text-center py-5 border-t border-white/5"
             >
-                <p className="text-white/15 text-[10px] uppercase tracking-[0.3em]">
-                    © {new Date().getFullYear()} Esport Manager • All Rights Reserved
+                <p className="text-white/40 text-[10px] uppercase tracking-[0.3em]">
+                    © {new Date().getFullYear()} Esports Manager: FPS • All Rights Reserved
                 </p>
             </motion.footer>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-                <AlertDialogContent className="bg-[#0e1217] border-white/10">
+                <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-white">Delete Career</AlertDialogTitle>
                         <AlertDialogDescription>
