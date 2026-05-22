@@ -134,7 +134,7 @@ function LoadGamePageInner() {
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-8 md:p-12">
+        <div className="min-h-screen liquid-app-bg text-white p-8 md:p-12">
             <div className="max-w-6xl mx-auto space-y-12">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -379,7 +379,7 @@ function LoadGamePageInner() {
 
                 {/* Delete Confirmation Dialog */}
                 <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-                    <AlertDialogContent className="bg-[#0e1217] border-white/10">
+                    <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-white">Delete Career</AlertDialogTitle>
                             <AlertDialogDescription>

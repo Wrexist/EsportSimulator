@@ -58,7 +58,7 @@ export default function CreditsPage() {
     const router = useRouter()
 
     return (
-        <div className="min-h-screen bg-[#080a0e] text-white p-8">
+        <div className="min-h-screen liquid-app-bg text-white p-8">
             <div className="max-w-2xl mx-auto">
                 <button
                     onClick={() => router.back()}
