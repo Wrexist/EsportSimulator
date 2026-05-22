@@ -384,9 +384,13 @@ export class SaveManager {
      */
     async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
         try {
-            save.updatedAt = new Date().toISOString()
-            const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
-            const serialized = JSON.stringify(save)
+            // Shallow-copy with a fresh timestamp instead of mutating the
+            // caller's object — the atomic week processor passes Immer-frozen
+            // draft state, and an in-place assignment would throw in strict
+            // mode (or silently mutate shared state).
+            const stamped = { ...save, updatedAt: new Date().toISOString() }
+            const key = STORAGE_KEYS.SAVE_PREFIX + stamped.saveId
+            const serialized = JSON.stringify(stamped)
             await this.storage.setItem(key, serialized)
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
             return { success: true }
@@ -782,7 +786,19 @@ export class SaveManager {
                     }))
                 })
             } catch {
-                // Skip corrupted saves
+                // A corrupt save must stay visible — silently dropping it
+                // hides a file that attemptRecovery could still restore.
+                // Surface it as a flagged slot instead of skipping it.
+                slots.push({
+                    slotId: key,
+                    saveId: key.slice(STORAGE_KEYS.SAVE_PREFIX.length) || null,
+                    saveName: "Corrupted save",
+                    currentWeek: null,
+                    teamName: null,
+                    updatedAt: null,
+                    isEmpty: false,
+                    isCorrupted: true,
+                })
             }
         }
 
