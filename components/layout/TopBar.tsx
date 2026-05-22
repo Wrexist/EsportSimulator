@@ -163,11 +163,12 @@ export function TopBar() {
                     </div>
                 </div>
 
-                {/* Theme Toggle */}
+                {/* Glass theme variant toggle — crystal (cooler frost) ↔ onyx (deep black) */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={theme === "crystal" ? "Switch to dark theme" : "Switch to light theme"}
+                    aria-label={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
+                    title={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
                     onClick={() => setTheme(theme === "crystal" ? "onyx" : "crystal")}
                     className="rounded-lg border border-white/10 hover:bg-white/[0.08]"
                 >
