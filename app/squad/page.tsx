@@ -223,19 +223,6 @@ function SquadPageInner() {
       .filter(Boolean) as any[]
   }, [playerById, teamData])
 
-  if (!teamData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
-        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
-      </div>
-    )
-  }
-
-  // Split into Active and Bench
-  const activeRoster = roster.slice(0, 5)
-  const benchRoster = roster.slice(5)
-
   const handleSwapInitiate = useCallback((index: number) => {
     setSelectedSwapIndex(index)
   }, [])
@@ -258,6 +245,19 @@ function SquadPageInner() {
     for (const c of contracts) m.set(c.playerId, c)
     return m
   }, [contracts])
+
+  if (!teamData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
+        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
+      </div>
+    )
+  }
+
+  // Split into Active and Bench
+  const activeRoster = roster.slice(0, 5)
+  const benchRoster = roster.slice(5)
 
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-20">
