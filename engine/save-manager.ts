@@ -23,6 +23,7 @@ import {
     PlayerPreview,
 } from "./save-types"
 import { validateSaveSchema } from "./save-schema"
+import { parseUntrustedJson } from "../lib/json-safe"
 
 // ===== LOAD/SAVE ERROR CODES =====
 
@@ -32,7 +33,7 @@ import { validateSaveSchema } from "./save-schema"
  *
  * - NOT_FOUND: no data at the requested key
  * - CORRUPTED: parse/schema/structure validation failed
- * - INTEGRITY_FAILED: hash mismatch (tampering or partial write)
+ * - INTEGRITY_FAILED: hash mismatch (corruption or partial write)
  * - NEWER_VERSION: save was written by a build with a higher saveVersion
  * - WRITE_FAILED: write-side failure surfaced from saveGame
  * - UNKNOWN: anything else
@@ -90,7 +91,7 @@ export class SaveManager {
     > {
         let parsed: Record<string, unknown>
         try {
-            parsed = JSON.parse(data) as Record<string, unknown>
+            parsed = parseUntrustedJson<Record<string, unknown>>(data)
         } catch {
             return { ok: false, error: "CORRUPTED", message: "Save file is not valid JSON" }
         }
@@ -527,7 +528,7 @@ export class SaveManager {
             if (!selected) {
                 return {
                     save: null,
-                    error: bestErrorMessage || "Save integrity check failed (possible tampering/corruption)",
+                    error: bestErrorMessage || "Save integrity check failed (file is corrupted or incomplete)",
                     errorCode: bestErrorCode,
                 }
             }
@@ -699,7 +700,7 @@ export class SaveManager {
                 const data = await this.storage.getItem(key)
                 if (!data) continue
 
-                const parsed = JSON.parse(data) as GameSave
+                const parsed = parseUntrustedJson<GameSave>(data)
 
                 // Identify Player Team
                 let playerTeamId = parsed.playerTeamId
@@ -893,7 +894,7 @@ export class SaveManager {
             const legacyData = await this.storage.getItem(STORAGE_KEYS.WEEK_TICK_STATE)
             if (legacyData) {
                 try {
-                    const legacy = JSON.parse(legacyData) as WeekTickState
+                    const legacy = parseUntrustedJson<WeekTickState>(legacyData)
                     if (!legacy.saveId || legacy.saveId === saveId) {
                         legacy.saveId = saveId
                         data = JSON.stringify(legacy)
@@ -909,7 +910,7 @@ export class SaveManager {
         if (!data) return null
 
         try {
-            const state = JSON.parse(data) as WeekTickState
+            const state = parseUntrustedJson<WeekTickState>(data)
             if (saveId && state.saveId && state.saveId !== saveId) {
                 return null
             }
@@ -988,9 +989,25 @@ export class SaveManager {
      */
     importSave(json: string): { save: GameSave | null; error?: string } {
         try {
-            const parsed = JSON.parse(json)
+            const parsed = parseUntrustedJson<Record<string, unknown>>(json)
+
+            // Reject a save written by a newer build before migrating: the
+            // migration ladder only runs forward, so a future-version payload
+            // would otherwise pass straight through untouched and corrupt state.
+            const schema = validateSaveSchema(parsed)
+            if (!schema.ok && schema.newerVersion) {
+                return { save: null, error: schema.issues[0] || "Save is from a newer game version" }
+            }
+
             const migrated = this.migrateSave(parsed)
 
+            // Apply the same schema + structure gates loadGame uses, so an
+            // imported save is not the least-validated entry point into the
+            // game state.
+            const postSchema = validateSaveSchema(migrated)
+            if (!postSchema.ok) {
+                return { save: null, error: postSchema.issues[0] || "Invalid save schema" }
+            }
             if (!validateSaveStructure(migrated)) {
                 return { save: null, error: "Invalid save structure" }
             }

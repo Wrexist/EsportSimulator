@@ -30,6 +30,32 @@ const STEAM_MUTATION_WINDOW_MS = 1000;
 const STEAM_MUTATION_LIMIT = 30;
 const mutationTimestamps = new Map();
 
+// ---- write-target allowlists --------------------------------------------
+// A compromised renderer must not be able to unlock arbitrary achievements,
+// set unknown stats, or submit to unknown leaderboards. The main process
+// only accepts the fixed set of IDs the game actually ships with. These
+// MUST stay in sync with engine/steam-service.ts (ACHIEVEMENTS / setBatchStats
+// / pushLeaderboardStats) — adding an achievement there means adding it here.
+const ALLOWED_ACHIEVEMENTS = new Set([
+    'FIRST_WIN', 'WIN_10', 'WIN_25', 'WIN_50', 'WIN_100', 'WIN_250', 'WIN_500',
+    'FIRST_TOURNAMENT', 'WIN_B_TIER', 'WIN_A_TIER', 'WIN_MAJOR', 'GRAND_SLAM',
+    'DYNASTY', 'PERFECT_TOURNAMENT', 'REACH_S_TIER', 'TOP_10_RANKING',
+    'NUMBER_ONE', 'COMEBACK_KING', 'UNDERDOG', 'FIRST_MILLION', 'BUDGET_10M',
+    'DEVELOP_STAR', 'HALL_OF_FAME_INDUCTION', 'LOYAL_TEAM', 'PROFIT_MASTER',
+    'ZERO_TO_HERO', 'TOURNAMENT_WIN', 'SEASON_COMPLETE', 'FIRST_TRANSFER',
+    'UNLUCKY', 'REDEMPTION',
+]);
+const ALLOWED_STATS = new Set([
+    'stat_total_kills', 'stat_total_hs', 'stat_total_wins', 'stat_total_matches',
+    'stat_max_budget', 'stat_tournaments_won', 'stat_majors_won',
+    'stat_matches_lost', 'stat_peak_ranking', 'stat_players_developed',
+    'stat_prize_money',
+]);
+const ALLOWED_LEADERBOARDS = new Set([
+    'lead_world_ranking', 'lead_major_wins', 'lead_fastest_stier',
+    'lead_total_earnings', 'lead_win_streak', 'lead_tournaments_won',
+]);
+
 // Spacewar, Valve's public test App ID. Used only when steam_appid.txt is
 // absent — production builds ship the real ID in steam_appid.txt (asarUnpack).
 const SPACEWAR_APP_ID = 480;
@@ -145,6 +171,14 @@ function registerHandlers() {
     ipcMain.handle('steam-set-stat', (event, name, value) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-stat')) return false;
+        if (typeof name !== 'string' || !ALLOWED_STATS.has(name)) {
+            logFn(`[Steam] Rejected set-stat for unknown stat: ${name}`);
+            return false;
+        }
+        if (typeof value !== 'number' || !Number.isFinite(value)) {
+            logFn(`[Steam] Rejected set-stat with non-finite value for ${name}`);
+            return false;
+        }
         try {
             if (Number.isInteger(value)) {
                 steamClient.stats.setInt(name, value);
@@ -175,6 +209,10 @@ function registerHandlers() {
     ipcMain.handle('steam-set-achievement', (event, name) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-achievement')) return false;
+        if (typeof name !== 'string' || !ALLOWED_ACHIEVEMENTS.has(name)) {
+            logFn(`[Steam] Rejected set-achievement for unknown achievement: ${name}`);
+            return false;
+        }
         try {
             if (!steamClient.achievements?.activate || !steamClient.stats?.store) return false;
             steamClient.achievements.activate(name);
@@ -202,6 +240,14 @@ function registerHandlers() {
     ipcMain.handle('steam-set-leaderboard-score', async (event, name, score) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-leaderboard-score')) return false;
+        if (typeof name !== 'string' || !ALLOWED_LEADERBOARDS.has(name)) {
+            logFn(`[Steam] Rejected leaderboard score for unknown leaderboard: ${name}`);
+            return false;
+        }
+        if (typeof score !== 'number' || !Number.isFinite(score)) {
+            logFn(`[Steam] Rejected non-finite leaderboard score for ${name}`);
+            return false;
+        }
         try {
             if (!steamClient.leaderboards?.find) return false;
             const leaderboard = await steamClient.leaderboards.find(name);

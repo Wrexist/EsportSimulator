@@ -23,6 +23,41 @@ export function safeParse<T = unknown>(input: string | null | undefined, fallbac
 }
 
 /**
+ * Keys that must never survive deserialization of untrusted data — assigning
+ * them during a later spread/merge can poison `Object.prototype`.
+ */
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"])
+
+/**
+ * Parse JSON from an untrusted source (save files, community mods, imports).
+ *
+ * Strips prototype-pollution keys (`__proto__`, `constructor`, `prototype`) via
+ * a reviver so a hand-edited file cannot poison `Object.prototype` when the
+ * parsed object is later deep-merged or spread. Throws on invalid JSON, exactly
+ * like `JSON.parse`, so callers keep their existing try/catch handling.
+ */
+export function parseUntrustedJson<T = unknown>(input: string): T {
+    return JSON.parse(input, (key, value) => {
+        if (DANGEROUS_KEYS.has(key)) return undefined
+        return value
+    }) as T
+}
+
+/**
+ * Untrusted-source variant of {@link safeParse}: strips prototype-pollution
+ * keys and returns `fallback` instead of throwing on invalid JSON.
+ */
+export function safeParseUntrusted<T = unknown>(input: string | null | undefined, fallback: T | null = null): T | null {
+    if (input == null || input === "") return fallback
+    try {
+        return parseUntrustedJson<T>(input)
+    } catch (err) {
+        logger.error("[json-safe] untrusted parse failed", err instanceof Error ? err.message : err)
+        return fallback
+    }
+}
+
+/**
  * Stringify a value. Returns `fallback` (defaults to `""`) on failure
  * (circular references, BigInt, etc.).
  */

@@ -26,9 +26,14 @@ export async function POST(request: NextRequest) {
         const color = colors[type as keyof typeof colors] || colors.RESET
         const timestamp = new Date().toLocaleTimeString()
 
+        // Strip control characters (ANSI escapes, cursor moves, etc.) from the
+        // renderer-supplied message before printing — otherwise a crafted log
+        // line could rewrite or forge other terminal output.
+        const safeMessage = message.replace(/[\x00-\x1f\x7f]/g, " ")
+
         // Output to terminal with colors
         console.log(`\n${color}[BROWSER ${type}] ${timestamp}${colors.RESET}`)
-        console.log(message)
+        console.log(safeMessage)
         console.log(`${color}${"─".repeat(60)}${colors.RESET}`)
 
         return NextResponse.json({ ok: true })

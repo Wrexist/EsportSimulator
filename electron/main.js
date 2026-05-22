@@ -445,9 +445,18 @@ ipcMain.handle('storage-get-item', (_event, key) => {
     }
 });
 
+// Hard ceiling on a single stored value (~32 MB). A full-season save is well
+// under 2 MB; this only stops a runaway or compromised renderer from filling
+// the user's disk via electron-store.
+const STORAGE_VALUE_MAX_BYTES = 32 * 1024 * 1024;
+
 ipcMain.handle('storage-set-item', (_event, key, value) => {
     try {
         if (!store || typeof key !== 'string' || !key || typeof value !== 'string') return false;
+        if (value.length > STORAGE_VALUE_MAX_BYTES) {
+            console.error('[Electron] Rejected oversized storage write for key:', key);
+            return false;
+        }
         store.set(key, value);
         return true;
     } catch (e) {

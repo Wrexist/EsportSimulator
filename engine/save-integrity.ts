@@ -113,6 +113,11 @@ export class SaveIntegrityManager {
      * Portable v3 signature — written for every new save. SHA-256 of the
      * canonical payload; no install secret. Survives cloud sync between
      * devices.
+     *
+     * NOTE: because v3 is keyless, it detects accidental corruption / partial
+     * writes — it is NOT tamper-proof. A user who edits a save can recompute a
+     * matching hash. That is an accepted limitation for a single-player game;
+     * do not treat a passing v3 check as an anti-cheat guarantee.
      */
     async computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
         const payload = this.serializeForIntegrity(save)
@@ -122,7 +127,8 @@ export class SaveIntegrityManager {
 
     /**
      * Validate a save's signature, accepting v3 / v2 / legacy formats.
-     * Unsigned saves are always invalid — prevents tampering.
+     * Unsigned saves are always rejected. This catches corruption and partial
+     * writes; only the device-bound v2 signature resists deliberate tampering.
      */
     async verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
         if (!save.integrityHash) return false
