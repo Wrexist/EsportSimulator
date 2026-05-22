@@ -114,7 +114,7 @@ export default function BasecampPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080a0e] text-white p-8">
+    <div className="min-h-screen text-white p-8">
       <div className="max-w-7xl mx-auto space-y-12">
 
         {/* Header Section */}
@@ -127,19 +127,19 @@ export default function BasecampPage() {
             <h1 className="text-5xl font-normal tracking-tighter bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
               BASECAMP
             </h1>
-            <p className="text-muted-foreground/80 max-w-lg text-sm leading-relaxed font-medium">
+            <p className="text-white/65 max-w-lg text-sm leading-relaxed font-medium">
               Upgrade your infrastructure to gain competitive advantages. Higher level facilities unlock new abilities and passive bonuses.
             </p>
           </div>
 
-          <div className="flex items-center gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
+          <div className="flex items-center gap-6 glass-card rounded-2xl p-6">
             <div className="text-right">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Available Budget</p>
+              <p className="text-[10px] uppercase font-bold text-white/55 tracking-widest mb-1">Available Budget</p>
               <p className="text-3xl font-normal text-white tracking-tight">${playerTeam.budget.toLocaleString()}</p>
             </div>
             <div className="h-12 w-[1px] bg-white/10" />
             <div className="text-right">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Global Reputation</p>
+              <p className="text-[10px] uppercase font-bold text-white/55 tracking-widest mb-1">Global Reputation</p>
               <div className="flex items-center justify-end gap-2">
                 <Trophy className="w-4 h-4 text-amber-500" />
                 <p className="text-3xl font-normal text-amber-500 tracking-tight">{playerTeam.reputation}</p>
@@ -178,7 +178,7 @@ export default function BasecampPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 className={cn(
-                  "group relative overflow-hidden rounded-3xl bg-[#0e1217] border border-white/5 transition-all duration-500 hover:border-white/20 hover:shadow-[0_0_40px_rgba(0,0,0,0.5)]",
+                  "group glass-panel relative overflow-hidden rounded-3xl transition-all duration-500",
                   config.border
                 )}
               >
@@ -190,7 +190,7 @@ export default function BasecampPage() {
                     fill
                     className="object-cover transition-transform duration-700 opacity-60"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#0e1217]/10 via-[#0e1217]/80 to-[#0e1217]" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/65 to-black/85" />
                   <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20 mix-blend-overlay", config.bgFrom, "to-transparent")} />
                 </div>
 
@@ -217,20 +217,20 @@ export default function BasecampPage() {
                     </div>
                   </div>
 
-                  <p className="text-sm text-neutral-400 mb-8 min-h-[40px] leading-relaxed">
+                  <p className="text-sm text-white/60 mb-8 min-h-[40px] leading-relaxed">
                     {config.description}
                   </p>
 
                   {/* Stats Comparison Grid */}
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
-                      <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Current Stats</p>
+                      <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Current Stats</p>
                       <div className="flex items-baseline gap-2">
                         <span className={cn("text-xl font-normal", level > 0 ? "text-white" : "text-white/30")}>
                           {config.getStat(level)}
                         </span>
                       </div>
-                      <div className="mt-2 text-[10px] text-neutral-600 font-medium flex justify-between">
+                      <div className="mt-2 text-[10px] text-white/45 font-medium flex justify-between">
                         <span>Maintenance</span>
                         <span className="text-rose-400/80">${maintenance}/wk</span>
                       </div>
@@ -248,7 +248,7 @@ export default function BasecampPage() {
                             <ArrowUpCircle className="w-3 h-3 inline mb-0.5" />
                           </span>
                         </div>
-                        <div className="mt-2 text-[10px] text-neutral-400 font-medium flex justify-between">
+                        <div className="mt-2 text-[10px] text-white/55 font-medium flex justify-between">
                           <span>Cost</span>
                           <span className="text-white">${nextLevelCost.toLocaleString()}</span>
                         </div>
@@ -269,7 +269,7 @@ export default function BasecampPage() {
                     className={cn(
                       "w-full h-12 rounded-xl text-xs font-normal uppercase tracking-[0.1em] transition-all relative overflow-hidden group/btn",
                       level === 5
-                        ? "bg-white/5 text-white/20 cursor-not-allowed hover:bg-white/5"
+                        ? "bg-white/5 text-white/35 cursor-not-allowed hover:bg-white/5"
                         : "bg-white text-black hover:bg-neutral-200"
                     )}
                   >
