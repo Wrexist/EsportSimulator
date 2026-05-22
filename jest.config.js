@@ -9,7 +9,7 @@ module.exports = {
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             tsconfig: 'tsconfig.json',
-            diagnostics: false,
+            diagnostics: { warnOnly: true },
         }],
     },
     testMatch: ['**/*.test.ts', '**/*.test.tsx'],
