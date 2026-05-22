@@ -1983,27 +1983,27 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         try {
           const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
 
-          // Batched pre-tick mutations: scouting completion, staff-market
-          // rotation, staff XP, player XP. All four sub-phases live in
-          // engine/processors/pre-tick-mutations.ts so this big imperative
-          // block doesn't sit in the orchestrator. Combined into a single
-          // set() to avoid multiple Immer snapshots + persist serializations.
-          set(draft => {
-            applyPreTickMutations(draft as any, {
-              playerTeamId: state.playerTeamId || "",
-              currentWeek: state.currentWeek,
-              rng: preTickRng,
-              nextId: nextDeterministicId,
-            })
+          // Build a clean GameSave snapshot detached from store state so
+          // the worker thread receives a serialization-safe copy.
+          const latestState = get()
+          const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
+
+          // Pre-tick mutations: scouting completion, staff-market rotation,
+          // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
+          // These are applied to the DETACHED snapshot, not committed to the
+          // live store up-front: a previous version set() them into the store
+          // before the worker ran, so a worker failure left XP advanced on a
+          // week that never advanced. Applying them only to `saveState` keeps
+          // the catch a true all-or-nothing rollback — the store is untouched
+          // until the final commit writes the worker's processed save.
+          applyPreTickMutations(saveState as unknown as Parameters<typeof applyPreTickMutations>[0], {
+            playerTeamId: state.playerTeamId || "",
+            currentWeek: state.currentWeek,
+            rng: preTickRng,
+            nextId: nextDeterministicId,
           })
 
           const rng = new SeededRNG(preTickRng.getState())
-          const latestState = get()
-
-          // Build a clean GameSave snapshot detached from store state so
-          // the worker thread receives a serialization-safe copy. Helper
-          // owns the field-by-field construction.
-          const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
 
           const config = {
             playerTeamId: state.playerTeamId || "",

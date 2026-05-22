@@ -629,6 +629,7 @@ export class AtomicWeekProcessor {
                 continue
             }
 
+            try {
             // Tactical bonus extracted to processors/match-tactical-bonus.ts
             // (Phase M5). Takes pre-indexed staff for the team + both
             // playstyles; returns analyst-stat-sum bonus + RPS counter bonus.
@@ -917,6 +918,30 @@ export class AtomicWeekProcessor {
 
             await this.saveManager.recordMatchComplete(transaction, match.id)
             matchesPlayed++
+            } catch (matchErr) {
+                // A single match throwing must not abort the entire week.
+                debug.error('[atomic-week-processor] match processing failed', matchErr)
+                if (!removedMatchIds.has(match.id)) {
+                    // simulateMatch (or pre-record processing) threw before the
+                    // result was saved — forfeit the match so the week still
+                    // completes instead of aborting every remaining match.
+                    try {
+                        const { matchesPlayed: forfeitDelta } = processForfeitMatch({
+                            save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
+                            playerTeamId, removedMatchIds,
+                        })
+                        matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
+                        matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
+                        matchesPlayed += forfeitDelta
+                    } catch (forfeitErr) {
+                        debug.error('[atomic-week-processor] forfeit fallback failed; dropping match', forfeitErr)
+                        removedMatchIds.add(match.id)
+                    }
+                }
+                // If the match WAS already recorded, a post-result step
+                // (Elo, tournament progression) threw — keep the result and
+                // move on rather than re-forfeiting a duplicate.
+            }
         }
 
         // Drop processed matches from scheduledMatches in a single pass

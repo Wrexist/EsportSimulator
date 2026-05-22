@@ -7,6 +7,7 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import { AlertTriangle, RefreshCw, Calendar } from "lucide-react"
+import { gameErrors } from "@/lib/error-tracking"
 
 export default function MatchError({
     error,
@@ -16,6 +17,9 @@ export default function MatchError({
     reset: () => void
 }) {
     useEffect(() => {
+        // Report match-flow crashes through the match-simulation channel so
+        // production failures here are not silently lost.
+        gameErrors.matchSimulation(error)
         if (process.env.NODE_ENV !== "production") {
             console.error("[Match Error]", error)
         }
