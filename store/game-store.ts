@@ -2074,6 +2074,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               recalculateAllSynergy(draft.teams, draft.players)
             })
 
+            // Post-week processing. The week is already committed by the set()
+            // above (and isLoading is false). Isolate any failure here in its
+            // own try so it cannot trigger the outer catch's "week failed"
+            // path or leave the store half-updated for an already-advanced
+            // week.
+            try {
             // Process academy weekly training, scouting missions, and prospect development
             get().processAcademyWeek()
 
@@ -2175,6 +2181,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 })
               }
               set({ weekReveal: { week: playedWeek, headline, items: revealItems } })
+            }
+            } catch (postErr) {
+              logger.error("[advanceWeek] post-week processing failed (week already committed)", postErr)
+              // The week stays committed. Rebuild entity indexes defensively
+              // so O(1) lookups keep working despite the failed post-step.
+              try {
+                const s = get()
+                set(buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches))
+              } catch { /* indexes are best-effort */ }
             }
           } else {
             throw new Error(result.error || "Week processing failed")

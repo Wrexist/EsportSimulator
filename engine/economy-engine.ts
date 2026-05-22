@@ -66,14 +66,21 @@ export class EconomyEngine {
 
         // 3. Net & Balance
         const net = totalIncome - totalExpenses
-        const newBalance = team.budget + net
+        // A non-finite result means upstream data (team.budget, wages,
+        // sponsor income) is corrupt. Without this guard the NaN is written
+        // back to the team and — because every NaN comparison is false —
+        // determineState misreports the team as STABLE. Clamp to 0 so the
+        // team registers as INSOLVENT and the corruption stops spreading.
+        const rawBalance = team.budget + net
+        const newBalance = Number.isFinite(rawBalance) ? rawBalance : 0
 
         // 4. Runway & State
         // Use average of last 4 weeks burn if available, otherwise current net
         // For simplicity in this step, we use current net.
         // If net is positive, runway is infinite (999).
         const weeklyBurn = net < 0 ? Math.abs(net) : 0
-        const runwayWeeks = weeklyBurn > 0 ? newBalance / weeklyBurn : 999
+        const rawRunway = weeklyBurn > 0 ? newBalance / weeklyBurn : 999
+        const runwayWeeks = Number.isFinite(rawRunway) ? rawRunway : 0
 
         const state = this.determineState(newBalance, runwayWeeks)
 
@@ -186,8 +193,11 @@ export class EconomyEngine {
     // === STATE LOGIC ===
 
     private static determineState(balance: number, runway: number): FinancialState {
-        if (balance <= 0) return "INSOLVENT"
-        if (runway < 3) return "CRISIS"
+        // Non-finite balance means corrupt data; every comparison against NaN
+        // is false, which would otherwise fall through to "STABLE" and hide a
+        // team in real trouble. Treat it as insolvent.
+        if (!Number.isFinite(balance) || balance <= 0) return "INSOLVENT"
+        if (!Number.isFinite(runway) || runway < 3) return "CRISIS"
         if (runway < 6) return "RISK"
         if (runway < 12) return "TIGHT"
         return "STABLE"

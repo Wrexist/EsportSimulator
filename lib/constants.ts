@@ -365,5 +365,8 @@ export function getLossBonus(lossStreak: number): number {
         MATCH_CONSTANTS.LOSS_BONUS_4,
         MATCH_CONSTANTS.LOSS_BONUS_5,
     ]
-    return bonuses[Math.min(lossStreak, 4)]
+    // Clamp into [0, 4]: a negative index would return `undefined` and
+    // propagate NaN into team economy. Callers pass `streak - 1`, so guard
+    // the lower bound here at the boundary rather than at every call site.
+    return bonuses[Math.min(Math.max(lossStreak, 0), 4)]
 }

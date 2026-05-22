@@ -238,6 +238,18 @@ describe("processWeeklyFinances — financial state classification", () => {
         expect(r.newBalance).toBeLessThanOrEqual(0)
         expect(r.state).toBe("INSOLVENT")
     })
+
+    // Regression: a corrupt (non-finite) team.budget used to flow through as
+    // NaN. Because every comparison with NaN is false, determineState fell
+    // through to "STABLE", hiding a team that is actually in trouble. The
+    // result must now be finite and classified INSOLVENT.
+    test("non-finite team.budget is sanitized and classified INSOLVENT", () => {
+        const team = makeTeam({ budget: NaN as unknown as number, rosterIds: [] })
+        const r = EconomyEngine.processWeeklyFinances(team, [], [], [])
+        expect(Number.isFinite(r.newBalance)).toBe(true)
+        expect(Number.isFinite(r.runwayWeeks)).toBe(true)
+        expect(r.state).toBe("INSOLVENT")
+    })
 })
 
 describe("processWeeklyFinances — net + balance math", () => {
