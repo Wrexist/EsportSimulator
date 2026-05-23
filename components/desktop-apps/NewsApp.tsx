@@ -306,7 +306,7 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
                         <div className="flex flex-col items-center justify-center py-16 text-white/30">
                             <Newspaper size={28} className="mb-3" />
                             <p className="text-xs font-medium">No news in this category</p>
-                            <p className="text-[10px] text-white/20 mt-1">Check back later for updates</p>
+                            <p className="text-[10px] text-white/55 mt-1">Check back later for updates</p>
                         </div>
                     )}
                 </AnimatePresence>

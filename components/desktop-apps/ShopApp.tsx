@@ -231,7 +231,7 @@ export function ShopApp() {
                                                             "px-8 font-bold transition-all shadow-lg h-10 ml-auto",
                                                             canAfford
                                                                 ? "bg-white text-black hover:bg-indigo-500 hover:text-white"
-                                                                : "bg-white/10 text-white/20"
+                                                                : "bg-white/10 text-white/40"
                                                         )}
                                                     >
                                                         {isPurchasing ? "..." : "Purchase"}

@@ -532,7 +532,7 @@ export default function CareerPage() {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div className="text-[10px] text-white/20 italic">No roster data</div>
+                                                    <div className="text-[10px] text-white/55 italic">No roster data</div>
                                                 )}
                                             </div>
 
@@ -599,7 +599,7 @@ export default function CareerPage() {
                             mt-4 w-full h-14 rounded-2xl font-normal uppercase tracking-[0.2em] text-sm transition-all shadow-xl
                             ${selectedSlot
                                 ? "bg-white text-black hover:bg-white/90 shadow-white/10 scale-100"
-                                : "bg-white/5 text-white/20 cursor-not-allowed border border-white/5 scale-95"
+                                : "bg-white/5 text-white/40 cursor-not-allowed border border-white/5 scale-95"
                             }
                         `}
                     >

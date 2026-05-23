@@ -135,7 +135,7 @@ export function NewsFeed() {
                                 </p>
 
                                 {item.engagement && (
-                                    <div className="flex items-center gap-3 pt-2 text-[9px] font-normal text-white/20 uppercase tracking-widest">
+                                    <div className="flex items-center gap-3 pt-2 text-[9px] font-normal text-white/55 uppercase tracking-widest">
                                         <span className="flex items-center gap-1 group-hover:text-red-400/50 transition-colors">
                                             ❤️ {item.engagement.likes.toLocaleString()}
                                         </span>
