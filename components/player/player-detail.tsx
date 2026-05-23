@@ -4,10 +4,7 @@ import { useState, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { PlayerSaveData } from "@/engine/save-types"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
-import { PlayerStatMeter } from "@/components/ui/player-stat-meter"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 
@@ -32,7 +29,6 @@ import {
     Keyboard,
     Monitor,
     Award,
-    Flame,
     Target,
     Heart,
     DollarSign,
@@ -49,7 +45,7 @@ import { useShallow } from "zustand/react/shallow"
 import { TalentTree } from "../staff/TalentTree"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { calculatePlayerTier, getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
+import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import type { EquipmentType } from "@/engine/equipment-manager"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"

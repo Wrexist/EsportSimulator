@@ -6,12 +6,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { Player, Team } from "@/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider" // Assuming we have or will treat as standard input
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -19,13 +17,10 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import {
     DollarSign,
-    Briefcase,
     CheckCircle2,
     XCircle,
     Handshake,
     Clock,
-    TrendingUp,
-    Shield,
     AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"

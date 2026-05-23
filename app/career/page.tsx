@@ -16,15 +16,11 @@ import {
     Star,
     TrendingUp,
     Save,
-    Clock,
-    User,
     Crown,
     Medal,
     UserPlus,
     Trash2,
     Loader2,
-    TrendingUp as TrendingUpIcon,
-    ChevronRight,
     Gamepad2,
     Play,
     Target
@@ -35,7 +31,6 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
 import Image from "next/image"
-import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 
 

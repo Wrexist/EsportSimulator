@@ -8,17 +8,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
-import { User, Briefcase, Zap, DollarSign, Award, Users, TrendingUp, Search, Brain, Clock, RefreshCw, Star, Sparkles, Activity, Shield } from "lucide-react"
+import { User, Briefcase, DollarSign, Users, TrendingUp, Search, Brain, Clock, RefreshCw, Star, Sparkles, Activity, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { StaffDetailsModal } from "@/components/staff/StaffDetailsModal"
 import { StaffPortrait } from "@/components/ui/asset-images"
-import {
-    GlassTableHeader,
-    GlassTableHead,
-    GlassTableRow,
-    GlassTableCell,
-    GlassStatCell
-} from "@/components/ui/GlassTable"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
