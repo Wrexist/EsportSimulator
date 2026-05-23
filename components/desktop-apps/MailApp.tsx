@@ -3,9 +3,9 @@
 import React, { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-    Mail, Inbox, Send, Archive, Trash2, Star, Filter, CheckCheck,
+    Mail, Inbox, CheckCheck,
     Clock, Users, DollarSign, Stethoscope, Briefcase, Award, Flame,
-    TrendingDown, ArrowRightLeft, Newspaper, Trophy, ChevronDown,
+    TrendingDown, ArrowRightLeft, Newspaper, Trophy,
     ChevronRight, AlertCircle, Check, X, MessageSquare, ExternalLink
 } from "lucide-react"
 import Link from "next/link"
@@ -14,14 +14,6 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { GameEventSaveData } from "@/engine"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuCheckboxItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 interface MailAppProps {
     events: GameEventSaveData[]
