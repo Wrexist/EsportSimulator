@@ -19,7 +19,6 @@ export function ShopApp() {
     })))
     const team = useCurrentTeam()
     const [selectedType, setSelectedType] = useState<EquipmentType>("PC")
-    const [isPurchasing, setIsPurchasing] = useState(false)
 
     const currentItem = team?.equipment?.find(e => e.type === selectedType)
     const getCatalogItem = (id: string) => EQUIPMENT_CATALOG.find(i => i.id === id)
@@ -31,9 +30,7 @@ export function ShopApp() {
     }, [selectedType])
 
     const handlePurchase = (itemId: string) => {
-        setIsPurchasing(true)
         const result = purchaseEquipment(itemId)
-        setTimeout(() => setIsPurchasing(false), 500)
         if (result.success) {
             const item = getCatalogItem(itemId)
             toast.success("Equipment Purchased", {
@@ -225,16 +222,16 @@ export function ShopApp() {
                                                     </div>
                                                     <Button
                                                         onClick={() => handlePurchase(item.id)}
-                                                        disabled={!canAfford || isPurchasing}
+                                                        disabled={!canAfford}
                                                         size="sm"
                                                         className={cn(
-                                                            "px-8 font-bold transition-all shadow-lg h-10 ml-auto",
+                                                            "px-8 font-bold transition-all shadow-lg h-10 ml-auto active:scale-95",
                                                             canAfford
                                                                 ? "bg-white text-black hover:bg-indigo-500 hover:text-white"
                                                                 : "bg-white/10 text-white/40"
                                                         )}
                                                     >
-                                                        {isPurchasing ? "..." : "Purchase"}
+                                                        Purchase
                                                     </Button>
                                                 </>
                                             )}

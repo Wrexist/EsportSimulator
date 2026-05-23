@@ -118,12 +118,6 @@ export default function TacticalHQPage() {
         if (!match || !myTeam || !opponent) return
         setIsSimulatingVeto(true)
 
-        // 1. Simulate Veto Process (Instant)
-        // We need 3 maps for BO3 (Pick, Pick, Decider) or 1 for BO1.
-        // Simplified Logic: Use Engine to simulate "Auto" veto for both sides.
-
-        await new Promise(resolve => setTimeout(resolve, 800)) // UX Delay
-
         const rng = new SeededRNG(
             deterministicSeed(
                 match.id,

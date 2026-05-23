@@ -16,7 +16,6 @@ import {
     Scale,
     Star,
     Clock,
-    Hammer,
     Gamepad2,
     Plus,
     X,
@@ -103,8 +102,6 @@ export function AcademyApp() {
 
     const team = useCurrentTeam()
     const [activeTab, setActiveTab] = useState<TabId>("ROSTER")
-    const [isUpgrading, setIsUpgrading] = useState(false)
-    const [isBuilding, setIsBuilding] = useState(false)
     const [lastScoutResult, setLastScoutResult] = useState<{ success: boolean; message: string } | null>(null)
 
 
@@ -145,9 +142,7 @@ export function AcademyApp() {
     // ===== HANDLERS =====
 
     const handleBuild = () => {
-        setIsBuilding(true)
         const result = buildAcademy(team.id)
-        setTimeout(() => setIsBuilding(false), 800)
         if (result.success) {
             toast.success("Academy Established", { description: result.message })
         } else {
@@ -156,9 +151,7 @@ export function AcademyApp() {
     }
 
     const handleUpgrade = () => {
-        setIsUpgrading(true)
         const result = upgradeAcademy(team.id)
-        setTimeout(() => setIsUpgrading(false), 800)
         if (result.success) {
             toast.success("Academy Upgraded", { description: result.message })
         } else {
@@ -311,7 +304,7 @@ export function AcademyApp() {
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
                 {academyLevel === 0 ? (
-                    <BuildAcademyPanel budget={team.budget} isBuilding={isBuilding} onBuild={handleBuild} />
+                    <BuildAcademyPanel budget={team.budget} onBuild={handleBuild} />
                 ) : (
                     <div className="max-w-5xl mx-auto space-y-5">
                         {/* Upgrade Banner */}
@@ -330,11 +323,10 @@ export function AcademyApp() {
                                 </div>
                                 <Button
                                     onClick={handleUpgrade}
-                                    disabled={!canAffordUpgrade || isUpgrading}
+                                    disabled={!canAffordUpgrade}
                                     size="sm"
-                                    className={cn("h-7 px-3 text-[10px] font-bold", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/40")}
+                                    className={cn("h-7 px-3 text-[10px] font-bold active:scale-95 transition-transform", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/40")}
                                 >
-                                    {isUpgrading && <Hammer className="animate-spin mr-1" size={10} />}
                                     Upgrade ${upgradeCost.toLocaleString()}
                                 </Button>
                             </div>
@@ -501,7 +493,7 @@ export function AcademyApp() {
 
 // ===== BUILD ACADEMY PANEL =====
 
-function BuildAcademyPanel({ budget, isBuilding, onBuild }: { budget: number; isBuilding: boolean; onBuild: () => void }) {
+function BuildAcademyPanel({ budget, onBuild }: { budget: number; onBuild: () => void }) {
     const cost = 25000
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
@@ -514,8 +506,8 @@ function BuildAcademyPanel({ budget, isBuilding, onBuild }: { budget: number; is
                     <span className={budget >= cost ? "text-white" : "text-red-400"}>${cost.toLocaleString()}</span>
                 </div>
             </div>
-            <Button onClick={onBuild} disabled={budget < cost || isBuilding} className={cn("h-12 px-6 font-bold", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/40")}>
-                {isBuilding ? <><Hammer className="animate-spin mr-2" size={16} /> Building...</> : "Establish Academy"}
+            <Button onClick={onBuild} disabled={budget < cost} className={cn("h-12 px-6 font-bold active:scale-95 transition-transform", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/40")}>
+                Establish Academy
             </Button>
         </motion.div>
     )
