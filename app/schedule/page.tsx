@@ -4,18 +4,16 @@ import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import {
-  Calendar as CalendarIcon,
-  ChevronRight,
-  ChevronLeft,
-  Trophy,
-  Swords,
-  Plane,
-  Briefcase,
-  Clock,
-  Plus,
-  Lock
+    Calendar as CalendarIcon,
+    ChevronRight,
+    ChevronLeft,
+    Trophy,
+    Plane,
+    Clock,
+    Plus,
+    Lock
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -31,11 +29,7 @@ import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import {
-  FULL_TOURNAMENT_CALENDAR,
-  getTierColor,
-  getTierBgColor,
-  formatPrizePool,
-  TournamentDefinition
+    FULL_TOURNAMENT_CALENDAR
 } from "@/data/tournament-calendar"
 
 import { WEEKS_PER_YEAR } from "@/lib/constants"

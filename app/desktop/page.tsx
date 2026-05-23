@@ -13,11 +13,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
-  Mail, Hash, TrendingUp, Calendar, Newspaper, Trophy, Clock, Users,
-  DollarSign, Stethoscope, Briefcase, Award, Flame, TrendingDown,
-  ArrowRightLeft, MapPin, Globe, CheckCircle, Loader2, ShoppingBag, Building2, GraduationCap, Rocket, Lightbulb, ClipboardList
+    Mail,
+    Hash,
+    TrendingUp,
+    Calendar,
+    Newspaper,
+    Trophy,
+    Clock,
+    Users,
+    DollarSign,
+    Stethoscope,
+    Flame,
+    Loader2,
+    ShoppingBag,
+    Building2,
+    GraduationCap,
+    Rocket,
+    Lightbulb,
+    ClipboardList
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { generateSocialPosts } from "@/lib/social-generator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
