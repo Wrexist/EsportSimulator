@@ -2,7 +2,7 @@ import React, { useMemo, memo } from "react"
 import { PlayerRole } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
-import { Crosshair, Shield, Users, Brain, Zap, Trophy, Medal } from "lucide-react"
+import { Crosshair, Shield, Users, Brain, Zap, Medal } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface SystemBonusesProps {

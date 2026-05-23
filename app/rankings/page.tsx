@@ -18,8 +18,7 @@ import {
     Crown,
     ArrowUp,
     ArrowDown,
-    Users,
-    Trophy,
+    Users
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"

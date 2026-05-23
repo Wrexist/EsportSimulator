@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { motion, AnimatePresence } from "framer-motion"
@@ -18,8 +18,6 @@ import {
     Trophy,
     PlayCircle,
     Sparkles,
-    Users,
-    DollarSign,
     Star,
     AlertCircle,
     Gamepad2,

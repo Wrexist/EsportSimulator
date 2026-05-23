@@ -5,12 +5,9 @@ import { cn } from "@/lib/utils"
 import {
     Table,
     TableHeader,
-    TableBody,
-    TableFooter,
     TableHead,
     TableRow,
-    TableCell,
-    TableCaption,
+    TableCell
 } from "@/components/ui/table"
 
 export function GlassTable({

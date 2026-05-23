@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, Zap, Heart, Users, LineChart, ArrowUp, Hammer, Building2, Info, CheckCircle2 } from "lucide-react"
+import { Zap, Heart, Users, LineChart, ArrowUp, Hammer, Building2, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

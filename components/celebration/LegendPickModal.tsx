@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, Star, Crown, Zap, Shield } from "lucide-react"
+import { Trophy, Star, Crown, Zap } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait } from "@/components/ui/asset-images"

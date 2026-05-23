@@ -10,8 +10,7 @@ import {
     type PortraitFeatures,
     type Hairstyle,
     type HeadShape,
-    type Accessory,
-    type FacialHair,
+    type Accessory
 } from "@/lib/safe-branding/portrait-features"
 
 interface Player3DPortraitProps {

@@ -5,9 +5,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircle, Heart, Repeat2, Bookmark, MoreHorizontal, User } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { SocialFeed } from "@/components/ui/SocialFeed"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { TeamSaveData } from "@/engine/save-types"
 
 interface SocialPost {
