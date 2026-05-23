@@ -112,7 +112,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                         <p className="text-sm text-white/40">The engine of your success this year.</p>
                                     </>
                                 ) : (
-                                    <div className="text-white/20 italic text-sm mt-12">No data available</div>
+                                    <div className="text-white/55 italic text-sm mt-12">No data available</div>
                                 )}
 
                                 <div className="mt-auto w-full pt-8">

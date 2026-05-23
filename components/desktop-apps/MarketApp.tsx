@@ -411,7 +411,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                             <div className="bg-white/5 rounded-2xl p-2 border border-white/5 relative">
                                 {!isPlayerScouted(selectedPlayer.id) && (
                                     <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
-                                        <span className="text-white/20 font-bold uppercase tracking-widest text-[10px]">Stats Hidden</span>
+                                        <span className="text-white/55 font-bold uppercase tracking-widest text-[10px]">Stats Hidden</span>
                                     </div>
                                 )}
                                 <PlayerSpiderChart stats={selectedPlayer as any} size="sm" />

@@ -1170,7 +1170,7 @@ export default function SettingsPage() {
                                   <h3 className="font-semibold text-white/40 truncate text-sm tracking-tight">
                                     {achievement.hidden ? "Secret Achievement" : achievement.name}
                                   </h3>
-                                  <p className="text-[11px] text-white/20 line-clamp-2 leading-relaxed mt-1">
+                                  <p className="text-[11px] text-white/55 line-clamp-2 leading-relaxed mt-1">
                                     {achievement.hidden ? "Continue playing to discover this achievement" : achievement.description}
                                   </p>
                                 </div>

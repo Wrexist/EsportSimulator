@@ -415,7 +415,7 @@ export const MailApp = React.memo(function MailApp({
                             <div className="flex flex-col items-center justify-center py-16 text-white/30">
                                 <Mail size={32} className="mb-3" />
                                 <p className="text-sm font-medium">No messages</p>
-                                <p className="text-xs text-white/20 mt-1">
+                                <p className="text-xs text-white/55 mt-1">
                                     {activeFolder === "actionRequired" ? "No pending actions" : "Folder is empty"}
                                 </p>
                             </div>
