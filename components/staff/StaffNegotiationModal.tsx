@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -16,13 +15,9 @@ import { Separator } from "@/components/ui/separator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import {
     DollarSign,
-    Briefcase,
     CheckCircle2,
     XCircle,
-    Handshake,
-    AlertCircle,
-    Calendar,
-    UserCheck
+    Handshake
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 

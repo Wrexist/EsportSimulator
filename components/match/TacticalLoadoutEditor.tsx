@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Shield, Sword, ChevronDown, ChevronUp, X, Save, User, Info, Copy, ClipboardPaste, Check } from "lucide-react"
+import { Shield, Sword, X, Save, User, Info, Copy, ClipboardPaste, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"

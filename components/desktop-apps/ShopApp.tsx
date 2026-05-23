@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from "react"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { Monitor, Keyboard, Mouse, Headphones, Armchair, Cpu, ShoppingBag, Zap, ChevronRight, Check, AlertCircle, Store, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react"
+import { motion } from "framer-motion"
+import { Monitor, Keyboard, Mouse, Headphones, Armchair, Cpu, Check, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

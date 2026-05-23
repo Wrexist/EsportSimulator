@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { CheckSquare, Square } from 'lucide-react'
+import { Square } from 'lucide-react'
 
 interface BulkActionsBarProps<T> {
     items: T[]

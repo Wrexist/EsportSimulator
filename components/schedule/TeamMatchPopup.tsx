@@ -3,7 +3,7 @@
 import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Swords, Trophy, TrendingUp, Users, Play, Eye, MapPin, Calendar } from "lucide-react"
+import { X, Swords, Trophy, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"

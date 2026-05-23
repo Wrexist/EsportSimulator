@@ -3,7 +3,7 @@
 import React from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { Zap, Shield, Target, Flame, Brain, Award } from "lucide-react"
+import { Zap } from "lucide-react"
 
 interface SkillNode {
     id: string
