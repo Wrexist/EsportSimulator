@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useState, useMemo, useCallback } from "react"
+import React,{ useState, useMemo } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     GraduationCap,
     Search,
     Trophy,
-    ArrowUp,
     CheckCircle2,
     Users,
     Target,
@@ -17,7 +16,6 @@ import {
     Scale,
     Star,
     Clock,
-    DollarSign,
     Hammer,
     Gamepad2,
     Plus,

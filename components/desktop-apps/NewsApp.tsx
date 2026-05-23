@@ -4,13 +4,22 @@ import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-    Newspaper, Trophy, Users, ArrowRightLeft, Flame, TrendingDown,
-    Star, Award, Zap, Clock, ChevronRight, Bookmark, Share2,
-    TrendingUp, Medal, AlertCircle
+    Newspaper,
+    Trophy,
+    Users,
+    ArrowRightLeft,
+    Flame,
+    TrendingDown,
+    Star,
+    Award,
+    Zap,
+    ChevronRight,
+    Bookmark,
+    Share2,
+    Medal
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { GameEventSaveData } from "@/engine"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"

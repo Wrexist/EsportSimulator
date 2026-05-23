@@ -12,8 +12,6 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    LineChart,
-    Line,
     AreaChart,
     Area,
     Cell,
@@ -21,9 +19,7 @@ import {
     Radar,
     PolarGrid,
     PolarAngleAxis,
-    PolarRadiusAxis,
-    PieChart,
-    Pie
+    PolarRadiusAxis
 } from "recharts"
 import {
     Activity,
@@ -39,8 +35,7 @@ import {
     History as HistoryIcon,
     Swords,
     ChevronRight,
-    ChevronDown,
-    Medal
+    ChevronDown
 } from "lucide-react"
 import { PlayerImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
