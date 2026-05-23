@@ -2,37 +2,20 @@
 
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 import {
-  ArrowLeft,
-  ShoppingCart,
-  Monitor,
-  Mouse,
-  Keyboard,
-  Headphones,
-  Armchair,
-  Check,
-  TrendingUp,
   Dumbbell,
   HeartPulse,
   ClipboardList,
   Users,
   Building2,
-  ChevronRight,
   Zap,
-  Lock,
   ArrowUpCircle,
   Trophy,
   Loader2
 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState, useMemo } from "react"
 import { toast } from "@/lib/toast"
-import type { EquipmentItem } from "@/types/game"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
@@ -87,7 +70,6 @@ const FACILITY_CONFIG = {
 } as const
 
 export default function BasecampPage() {
-  const router = useRouter()
   const upgradeFacility = useGameStore(state => state.upgradeFacility)
   const playerTeam = useCurrentTeam()
 
@@ -285,25 +267,5 @@ export default function BasecampPage() {
         </div>
       </div>
     </div>
-  )
-}
-
-function ArrowRightIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="m12 5 7 7-7 7" />
-    </svg>
   )
 }
