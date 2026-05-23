@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Trophy, Globe, Calendar, Users, DollarSign, Award, Target, MapPin, List, Swords } from "lucide-react"
+import { X, Globe, Calendar, Users, DollarSign, Target, List, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"

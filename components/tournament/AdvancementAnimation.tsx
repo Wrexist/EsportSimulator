@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, ChevronRight, Sparkles, Star, Zap, Medal } from "lucide-react"
+import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fireConfetti } from "@/lib/confetti-lazy"
 

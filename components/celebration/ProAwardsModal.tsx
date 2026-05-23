@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Trophy, Star, Award, TrendingUp, Crown, Sparkles, Target, Crosshair, Users, Zap } from "lucide-react"
+import { X, Trophy, Star, Crown, Sparkles, Target, Crosshair, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"

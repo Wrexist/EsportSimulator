@@ -9,8 +9,18 @@ import { toast } from "@/lib/toast"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
-    Briefcase, TrendingUp, Users, ArrowLeft, CheckCircle2, AlertCircle,
-    Brain, Target, Heart, MessageSquare, Lock, Zap, Shield
+    Briefcase,
+    TrendingUp,
+    Users,
+    ArrowLeft,
+    AlertCircle,
+    Brain,
+    Target,
+    Heart,
+    MessageSquare,
+    Lock,
+    Zap,
+    Shield
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"

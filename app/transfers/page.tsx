@@ -7,7 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, DollarSign, Calendar, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
+import { Search, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { TableBody } from "@/components/ui/table"
@@ -26,7 +26,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast } from "@/lib/toast"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 

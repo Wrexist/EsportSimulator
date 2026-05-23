@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from "react"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
-import { Users } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface SynergyChartProps {

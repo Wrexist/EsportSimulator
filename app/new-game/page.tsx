@@ -15,15 +15,12 @@ import {
     Search,
     Shield,
     X,
-    MapPin,
     User,
     ChevronRight,
     Sparkles,
-    Trophy,
     ArrowLeft,
     Lock,
-    Unlock,
-    Briefcase,
+    Briefcase
 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"

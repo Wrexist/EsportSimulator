@@ -6,35 +6,33 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import {
-  Dumbbell,
-  Brain,
-  Zap,
-  Target,
-  Shield,
-  Coffee,
-  LucideIcon,
-  Swords,
-  Crosshair,
-  User,
-  Users,
-  LayoutGrid,
-  Settings2,
-  Coins,
-  Wind
+    Dumbbell,
+    Brain,
+    Zap,
+    Target,
+    Shield,
+    Coffee,
+    LucideIcon,
+    Swords,
+    Crosshair,
+    User,
+    Users,
+    LayoutGrid,
+    Coins,
+    Wind
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { toast } from "@/lib/toast"
-import { TrainingFocus, Role, CustomTactics } from "@/types"
+import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })

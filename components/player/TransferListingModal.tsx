@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, DollarSign, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lucide-react"
+import { motion } from "framer-motion"
+import { X, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { Badge } from "@/components/ui/badge"
