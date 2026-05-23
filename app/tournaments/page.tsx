@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation"
 import {
     Trophy,
     Target,
-    TrendingUp,
     Calendar,
     Users,
     DollarSign,
@@ -20,23 +19,12 @@ import {
     Shield,
     Star,
     Zap,
-    Globe,
     ChevronRight,
-    Filter,
     Search,
-    Sparkles,
-    Award
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-    GlassTable,
-    GlassTableHeader,
-    GlassTableHead,
-    GlassTableRow,
-    GlassTableCell,
-} from "@/components/ui/GlassTable"
 import dynamic from "next/dynamic"
 const TournamentBracket = dynamic(() => import("@/components/tournament/TournamentBracket"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
@@ -45,7 +33,6 @@ import { getDynamicTournamentName } from "@/lib/utils-extended"
 import {
     FULL_TOURNAMENT_CALENDAR,
     getTournamentsByTier,
-    getUpcomingTournaments,
     getDiscoveredTournaments,
     getTierColor,
     getTierBgColor,
@@ -54,7 +41,6 @@ import {
     getEntryTypeColor,
     TournamentDefinition,
     TournamentTier,
-    EntryType
 } from "@/data/tournament-calendar"
 import {
     QualificationEngine,
