@@ -2,23 +2,17 @@
 
 import React, { useState, useMemo, useEffect, memo } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
-import Image from "next/image"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import {
     Search,
-    Filter,
     Users,
     DollarSign,
-    TrendingUp,
     Star,
-    Shield,
-    ChevronRight,
     X,
     Target,
-    Zap,
     Activity,
     ArrowRight,
     ArrowUp,
@@ -29,11 +23,9 @@ import {
     Globe,
     Clock,
     SlidersHorizontal,
-    Bookmark,
     AlertTriangle,
     Heart,
 } from "lucide-react"
-import { toast } from "@/lib/toast"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -56,15 +48,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
-import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
-import { getVisibleStats } from "@/engine/scouting-system"
 import { SynergyCalculator } from "@/engine/synergy-calculator"
 import {
-    REGION_MAP,
     ALL_REGIONS,
     toCountryCode,
     getPlayerRegion,

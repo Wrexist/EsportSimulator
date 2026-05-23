@@ -5,29 +5,22 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { GameEventSaveData } from "@/engine"
 import {
-    LayoutGrid,
     Users,
-    TrendingUp,
     Search,
-    Filter,
     ArrowRight,
     DollarSign,
     UserPlus,
     Activity,
     Clock,
-    CheckCircle,
-    XCircle,
     ShoppingBag,
     Briefcase,
     AlertCircle,
     X,
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 // Engine & Components
-import { evaluatePlayer, isPlayerForSale, calculateMarketValue } from "@/engine/player-evaluation"
+import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
