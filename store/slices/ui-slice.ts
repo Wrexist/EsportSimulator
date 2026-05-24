@@ -27,16 +27,23 @@ import { soundManager } from "@/lib/sound-manager"
 // Most of these were already implemented in the manager but had no
 // trigger. Hooking addToast wires them up consistently across the
 // ~90 toast call sites without having to touch each one.
+//
+// NOTE: `toast.success(...)` resolves to the "achievement" store type
+// (see lib/toast.ts), which covers both rare wins AND routine
+// confirmations like "Facility Updated". To avoid the celebratory
+// achievement SFX firing 50× per session, we play the light "success"
+// SFX for the achievement type and reserve the louder one for the
+// explicit "level_up" event.
 function toastSoundFor(type: string): string | null {
     switch (type) {
-        case "achievement":
         case "level_up":
             return "achievement"
+        case "achievement":
+        case "xp_gain":
+            return "success"
         case "warning":
         case "error":
             return "error"
-        case "xp_gain":
-            return "success"
         default:
             return "notification"
     }
