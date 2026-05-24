@@ -188,11 +188,11 @@ const RankingsRow = React.memo(function RankingsRow({
                 )}
             </div>
 
-            {/* Chevron */}
+            {/* Chevron — purely decorative, the parent row handles the click */}
             <div className="flex justify-end">
-                <button className="p-2 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-white transition-colors">
+                <div className="p-2 rounded-lg text-muted-foreground transition-colors" aria-hidden="true">
                     <ChevronRight size={18} />
-                </button>
+                </div>
             </div>
         </div>
     )

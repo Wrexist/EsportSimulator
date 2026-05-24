@@ -113,6 +113,7 @@ export function TournamentDetailsModal({
                                 size="icon"
                                 variant="ghost"
                                 onClick={onClose}
+                                aria-label="Close tournament details"
                                 className="absolute top-4 right-4 text-white/50 hover:text-white hover:bg-white/10 rounded-full z-10"
                             >
                                 <X size={20} />

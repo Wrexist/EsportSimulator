@@ -123,7 +123,8 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                         )}
                                         <button
                                             onClick={onClose}
-                                            className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                                            aria-label="Close awards"
+                                            className="p-2 rounded-lg hover:bg-white/10 active:bg-white/15 active:scale-90 text-white/50 hover:text-white transition-all"
                                         >
                                             <X size={20} />
                                         </button>

@@ -74,7 +74,7 @@ export function HelpTooltip({
         <TooltipProvider>
             <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
-                    <button className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                    <button type="button" aria-label="Show stat explanation" className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                         <HelpCircle className="w-4 h-4" />
                     </button>
                 </TooltipTrigger>

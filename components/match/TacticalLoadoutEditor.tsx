@@ -239,7 +239,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         </p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-white/10 h-10 w-10">
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="rounded-full hover:bg-white/10 h-10 w-10">
                     <X className="w-6 h-6 text-white/50" />
                 </Button>
             </div>

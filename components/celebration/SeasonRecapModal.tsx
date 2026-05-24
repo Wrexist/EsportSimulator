@@ -71,7 +71,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                 </h1>
                                 <p className="text-white/40 mt-2 text-lg">Celebrating your organization's journey through the last 52 weeks.</p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-lg hover:bg-white/10 text-white/50">
+                            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close season recap" className="rounded-lg hover:bg-white/10 text-white/50">
                                 <X size={24} />
                             </Button>
                         </div>

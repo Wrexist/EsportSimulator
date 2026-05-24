@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -71,30 +71,42 @@ export default function CareerPage() {
     // Calculate Career Stats (Current Save)
     const playerTeam = useCurrentTeam()
 
-    // Matches managed
-    const managedMatches = completedMatches.filter(m =>
-        m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
+    // All derived stats memoized — the page also renders tabs (saves /
+    // achievements / history) which re-trigger render on click, and the
+    // base lists (completedMatches, eventsLog, financeLedger) reach 1000s
+    // of entries on long careers.
+    const { managedMatches, totalMatches, wins, winRate } = useMemo(() => {
+        const m = completedMatches.filter(cm =>
+            cm.homeTeamId === playerTeamId || cm.awayTeamId === playerTeamId
+        )
+        const w = m.filter(cm => {
+            if (!cm.result) return false
+            const homeWon = cm.homeTeamId === playerTeamId && cm.result.homeScore > cm.result.awayScore
+            const awayWon = cm.awayTeamId === playerTeamId && cm.result.awayScore > cm.result.homeScore
+            return homeWon || awayWon
+        }).length
+        return {
+            managedMatches: m,
+            totalMatches: m.length,
+            wins: w,
+            winRate: m.length > 0 ? Math.round((w / m.length) * 100) : 0,
+        }
+    }, [completedMatches, playerTeamId])
+
+    const tournamentsWon = useMemo(
+        () => eventsLog.filter(e => e.type === "TOURNAMENT_WIN").length,
+        [eventsLog],
     )
-    const totalMatches = managedMatches.length
-
-    // Wins
-    const wins = managedMatches.filter(m => {
-        if (!m.result) return false
-        const homeWon = m.homeTeamId === playerTeamId && m.result.homeScore > m.result.awayScore
-        const awayWon = m.awayTeamId === playerTeamId && m.result.awayScore > m.result.homeScore
-        return homeWon || awayWon
-    }).length
-
-    const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0
-
-    // Tournaments Won (Approximate via events)
-    const tournamentsWon = eventsLog.filter(e => e.type === "TOURNAMENT_WIN").length
-
-    // Upcoming Hall of Fame Logic
-    const majorWins = eventsLog.filter(e => e.type === "TOURNAMENT_WIN" && (e.data as any)?.tier === "S_TIER").length
-    const totalEarnings = financeLedger
-        .filter((e: any) => e.teamId === playerTeamId && e.type === "INCOME")
-        .reduce((sum: number, e: any) => sum + (e.amount || 0), 0)
+    const majorWins = useMemo(
+        () => eventsLog.filter(e => e.type === "TOURNAMENT_WIN" && (e.data as any)?.tier === "S_TIER").length,
+        [eventsLog],
+    )
+    const totalEarnings = useMemo(
+        () => financeLedger
+            .filter((e: any) => e.teamId === playerTeamId && e.type === "INCOME")
+            .reduce((sum: number, e: any) => sum + (e.amount || 0), 0),
+        [financeLedger, playerTeamId],
+    )
     const hallOfFameProgress = {
         majors: Math.min(100, (majorWins / 3) * 100),
         wins: Math.min(100, (wins / 500) * 100),
