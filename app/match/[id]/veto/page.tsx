@@ -321,6 +321,22 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         router.push(`/match/${id}/tactics`)
     }
 
+    // NOTE: Hooks below MUST run before the early return — null-guard
+    // inside each useMemo body so React sees the same hook order on
+    // every render regardless of whether match/teams are loaded.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
+    const homePlayersList = useMemo(
+        () => (homeTeam?.rosterIds || []).map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [homeTeam?.rosterIds, playersById],
+    )
+    const awayPlayersList = useMemo(
+        () => (awayTeam?.rosterIds || []).map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [awayTeam?.rosterIds, playersById],
+    )
+
     if (!match || !homeTeam || !awayTeam) return <div className="p-8 text-center text-muted-foreground">{status}</div>
 
     const turnIndex = Math.min(vetoHistory.length, vetoSequence.length - 1)
@@ -333,21 +349,6 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
     }
 
-    // Memoized — was scanning the global ~1000-player list 10× per veto
-    // action (5 rosterIds × 2 teams) just to display the team-skill
-    // ratings in the header.
-    const playersById = useMemo(
-        () => new Map(players.map(p => [p.id, p])),
-        [players],
-    )
-    const homePlayersList = useMemo(
-        () => homeTeam.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
-        [homeTeam.rosterIds, playersById],
-    )
-    const awayPlayersList = useMemo(
-        () => awayTeam.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
-        [awayTeam.rosterIds, playersById],
-    )
     const homeRatingNum = getTeamRating(homePlayersList)
     const awayRatingNum = getTeamRating(awayPlayersList)
 

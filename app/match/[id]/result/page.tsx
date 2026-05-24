@@ -217,26 +217,17 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         }
     }, [match, playerTeamId, tournaments])
 
-    if (!match) return (
-        <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-            <div className="text-center">
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
-            </div>
-        </div>
-    )
-
+    // NOTE: All useMemos below MUST run unconditionally — the early-return
+    // for `!match` is BELOW them so the hooks are called in the same order
+    // every render. Each memo null-guards against the placeholder match.
     const homeTeam = useMemo(
-        () => teams.find(t => t.id === match.homeTeamId),
-        [teams, match.homeTeamId],
+        () => match ? teams.find(t => t.id === match.homeTeamId) : undefined,
+        [teams, match],
     )
     const awayTeam = useMemo(
-        () => teams.find(t => t.id === match.awayTeamId),
-        [teams, match.awayTeamId],
+        () => match ? teams.find(t => t.id === match.awayTeamId) : undefined,
+        [teams, match],
     )
-    const result = match.result
-    const homeWon = result.homeScore > result.awayScore
-    const matchDate = getDateForWeek(match.week)
 
     // Index once per render of THIS match — not per Tab/map-tab click.
     // players is the full global list (1000+ entries on big saves) and was
@@ -247,12 +238,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         () => new Map(players.map(p => [p.id, p])),
         [players],
     )
-    const getPlayer = (id: string) => playersById.get(id)
-    const mvpPlayer = getPlayer(result.mvpPlayerId)
 
     const playerStatsList = useMemo(
-        () => Object.values(result.playerStats || {}),
-        [result.playerStats],
+        () => Object.values(match?.result.playerStats || {}),
+        [match?.result.playerStats],
     )
 
     // Sort player rows by rating, once per data-change instead of per render.
@@ -268,6 +257,24 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
             .sort((a, b) => b.rating - a.rating),
         [playerStatsList, awayTeam],
     )
+
+    // Loading guard runs AFTER all hooks above so React's hook-order rule
+    // holds. Non-hook derived values (homeWon, mvpPlayer, matchDate) live
+    // below since they only matter after the match has loaded.
+    if (!match) return (
+        <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
+            </div>
+        </div>
+    )
+
+    const result = match.result
+    const homeWon = result.homeScore > result.awayScore
+    const matchDate = getDateForWeek(match.week)
+    const getPlayer = (id: string) => playersById.get(id)
+    const mvpPlayer = getPlayer(result.mvpPlayerId)
 
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
