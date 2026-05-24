@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
@@ -330,12 +330,21 @@ export default function SettingsPage() {
     return iconMap[id] || <Trophy className={s} />
   }
 
-  const visibleAchievements = showHidden
-    ? achievements
-    : achievements.filter(a => !a.hidden || a.unlocked)
-
-  const unlockedAchievements = visibleAchievements.filter(a => a.unlocked)
-  const lockedAchievements = visibleAchievements.filter(a => !a.unlocked)
+  // Three filters in series, recomputed on every tab click / settings
+  // change / dialog open. Achievements is bounded but the page re-renders
+  // a lot — coalesce into one pass via useMemo.
+  const { visibleAchievements, unlockedAchievements, lockedAchievements } = useMemo(() => {
+    const visible = showHidden
+      ? achievements
+      : achievements.filter(a => !a.hidden || a.unlocked)
+    const unlocked: typeof achievements = []
+    const locked: typeof achievements = []
+    for (const a of visible) {
+      if (a.unlocked) unlocked.push(a)
+      else locked.push(a)
+    }
+    return { visibleAchievements: visible, unlockedAchievements: unlocked, lockedAchievements: locked }
+  }, [achievements, showHidden])
 
   const tabs: Array<{ id: SettingsTab; label: string; icon: typeof SettingsIcon }> = [
     { id: "SETTINGS", label: "Settings", icon: SettingsIcon },
