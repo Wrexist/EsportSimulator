@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -98,15 +98,22 @@ export default function SchedulePage() {
     ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === selectedTournamentId)
     : null
 
-  // Helper to get user's status for a tournament
-  const getTournamentStatus = (tournamentId: string) => {
-    const targetSeriesId = tournamentId.replace(/_s\d+$/, "")
-    return tournamentQualifications.find(q => {
-      if (q.teamId !== playerTeamId) return false
-      const rowSeriesId = (q.seriesId || q.tournamentId).replace(/_s\d+$/, "")
-      return rowSeriesId === targetSeriesId
-    })?.status
-  }
+  // O(1) seriesId -> status lookup for the player's tournament qualifications.
+  // Was a linear scan of `tournamentQualifications` per call, hit ~90×/render
+  // from the per-week loop (9 visible weeks × ~10 tournaments).
+  type TournamentStatus = NonNullable<typeof tournamentQualifications[number]["status"]>
+  const statusBySeriesId = useMemo(() => {
+    const map = new Map<string, TournamentStatus>()
+    for (const q of tournamentQualifications) {
+      if (q.teamId !== playerTeamId) continue
+      const seriesId = (q.seriesId || q.tournamentId).replace(/_s\d+$/, "")
+      if (q.status) map.set(seriesId, q.status)
+    }
+    return map
+  }, [tournamentQualifications, playerTeamId])
+
+  const getTournamentStatus = (tournamentId: string): TournamentStatus | undefined =>
+    statusBySeriesId.get(tournamentId.replace(/_s\d+$/, ""))
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -247,7 +254,29 @@ export default function SchedulePage() {
       .slice(0, 60)
   }
 
-  const projectedMatches = getProjectedMatches()
+  // Memoize the projected-match build — the function scans tournaments,
+  // their playoff brackets, and stage windows; runs every render otherwise.
+  const projectedMatches = useMemo(
+    () => getProjectedMatches(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scheduledMatches, completedMatches, tournaments, currentWeek, playerTeamId],
+  )
+
+  // Hoist the deduped-scheduled view used by the per-week column loop. The
+  // loop is virtualized to ~9 visible weeks, but every column was rebuilding
+  // these from scratch.
+  const completedIdSet = useMemo(
+    () => new Set(completedMatches.map(m => m.id)),
+    [completedMatches],
+  )
+  const dedupedScheduledMatches = useMemo(
+    () => scheduledMatches.filter(m => !completedIdSet.has(m.id)),
+    [scheduledMatches, completedIdSet],
+  )
+  const allMatchesForLookup = useMemo(
+    () => [...dedupedScheduledMatches, ...completedMatches],
+    [dedupedScheduledMatches, completedMatches],
+  )
 
   // Upcoming registered tournaments (not yet started this season)
   const currentCalendarWeek = (currentWeek - 1) % WEEKS_PER_YEAR + 1
@@ -399,11 +428,10 @@ export default function SchedulePage() {
                 const displayYear = Math.ceil(weekNum / WEEKS_PER_YEAR)
                 const displayWeek = (weekNum - 1) % WEEKS_PER_YEAR + 1
 
-                // Get events/activities for this week (Filter from both scheduled and completed)
-                // Deduplicate: completed matches take precedence over scheduled
-                const completedIds = new Set(completedMatches.map(m => m.id))
-                const uniqueScheduled = scheduledMatches.filter(m => !completedIds.has(m.id))
-                const matches = [...uniqueScheduled, ...completedMatches].filter(m =>
+                // Get events/activities for this week. The deduped union is
+                // hoisted via useMemo above; this column-level filter is now
+                // O(matches) only, no Set rebuild per column.
+                const matches = allMatchesForLookup.filter(m =>
                   m.week === weekNum &&
                   (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
                 )
