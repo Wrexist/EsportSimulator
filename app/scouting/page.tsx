@@ -661,31 +661,31 @@ export default function ScoutingPage() {
                         <GlassTableHeader>
                             <GlassTableRow>
                                 <GlassTableHead>
-                                    <button onClick={() => handleSort("name")} className="flex items-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("name")} className="flex items-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Player <SortIcon field="name" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead>Team</GlassTableHead>
                                 <GlassTableHead className="text-center">Role</GlassTableHead>
                                 <GlassTableHead className="text-center">
-                                    <button onClick={() => handleSort("age")} className="flex items-center justify-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("age")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Age <SortIcon field="age" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead className="text-center">
-                                    <button onClick={() => handleSort("ovr")} className="flex items-center justify-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("ovr")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         OVR <SortIcon field="ovr" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 {myRoster.length > 0 && (
                                     <GlassTableHead className="text-center">
-                                        <button onClick={() => handleSort("synergy")} className="flex items-center justify-center hover:text-white transition-colors">
+                                        <button onClick={() => handleSort("synergy")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                             Syn <SortIcon field="synergy" sortField={sortField} sortDirection={sortDirection} />
                                         </button>
                                     </GlassTableHead>
                                 )}
                                 <GlassTableHead className="text-right">
-                                    <button onClick={() => handleSort("value")} className="flex items-center justify-end hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("value")} className="flex items-center justify-end hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Value <SortIcon field="value" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>

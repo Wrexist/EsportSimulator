@@ -1980,6 +1980,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         set({ isLoading: true })
+
+        // Yield one macrotask so React can commit the isLoading=true state
+        // and the browser can paint the WeekProcessingOverlay BEFORE we start
+        // the 10-50ms block of synchronous pre-tick work below (structuredClone
+        // + applyPreTickMutations + applyWeeklyActivity + ... + applyFplWeek).
+        // Without this yield, the overlay only appears after that work
+        // finishes — pressing space feels like a stall before the spinner.
+        await new Promise(resolve => setTimeout(resolve, 0))
+
         try {
           const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
 

@@ -575,7 +575,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                             >
                                 {prospectData ? (
                                     <>
-                                        <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 flex items-center justify-center transition-colors">
+                                        <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 active:bg-red-500 active:scale-90 flex items-center justify-center transition-all">
                                             <X size={10} />
                                         </button>
                                         <Image src={prospectData.player.portraitPath || "/player_placeholder.png"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
@@ -855,7 +855,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 >
                                     {drill ? (
                                         <>
-                                            <button onClick={() => onRemoveFromDay(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 hover:bg-red-500/70 flex items-center justify-center text-white transition-colors">
+                                            <button onClick={() => onRemoveFromDay(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 hover:bg-red-500/70 active:bg-red-500 active:scale-90 flex items-center justify-center text-white transition-all">
                                                 <X size={8} />
                                             </button>
                                             <Icon size={16} className={drill.color} />

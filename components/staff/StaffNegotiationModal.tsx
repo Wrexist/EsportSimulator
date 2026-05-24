@@ -220,7 +220,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     {isRenewal ? "Retaining Talent" : "Hiring New Staff"}
                                 </p>
                             </div>
-                            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg" aria-label="Close dialog">
+                            <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                                 <XCircle className="text-muted-foreground" />
                             </button>
                         </div>

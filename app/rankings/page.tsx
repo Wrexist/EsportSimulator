@@ -862,7 +862,7 @@ function RankingsPageInner() {
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                                <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all">
                                     <X size={20} className="text-white/50 hover:text-white" />
                                 </button>
                             </div>

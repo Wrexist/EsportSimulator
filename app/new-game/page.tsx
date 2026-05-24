@@ -735,7 +735,7 @@ export default function TeamSelectionPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/5 rounded-lg">
+                                    <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all">
                                         <X size={18} className="text-muted-foreground" />
                                     </button>
                                 </div>

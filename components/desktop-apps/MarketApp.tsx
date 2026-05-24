@@ -374,7 +374,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                     <p className="text-xs text-white/50 font-medium">{selectedPlayer.name}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedPlayer(null)} className="text-white/30 hover:text-white hover:bg-white/10 p-1 rounded-lg transition-all"><X size={16} /></button>
+                            <button onClick={() => setSelectedPlayer(null)} className="text-white/30 hover:text-white hover:bg-white/10 active:bg-white/15 active:scale-90 p-1 rounded-lg transition-all"><X size={16} /></button>
                         </div>
 
                         <div className={cn("flex-1 overflow-y-auto p-4 space-y-6", scrollbarClass)}>

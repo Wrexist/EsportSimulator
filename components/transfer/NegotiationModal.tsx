@@ -322,7 +322,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name}` : "Negotiating with Player Agent"}
                                 </p>
                             </div>
-                            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg" aria-label="Close dialog">
+                            <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                                 <XCircle className="text-muted-foreground" />
                             </button>
                         </div>

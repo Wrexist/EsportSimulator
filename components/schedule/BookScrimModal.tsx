@@ -110,7 +110,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                             Schedule practice match for Week {week}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors" aria-label="Close dialog">
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                         <X size={20} className="text-white/50 hover:text-white" />
                     </button>
                 </div>
