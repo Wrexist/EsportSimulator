@@ -283,13 +283,24 @@ export class SaveManager {
 
             // 1. Rotate backups (keep last 3) before overwriting. The previous
             //    primary becomes backup_1 — equivalent to slot-N.backup.json.
-            const existing = await this.storage.getItem(key)
+            //    Reads are mutually independent (we're snapshotting the current
+            //    state of all three slots) and so are writes (each writes to a
+            //    different key). Batch each phase with Promise.all so the
+            //    rotation is two RTTs instead of six. If a backup-write fails
+            //    the older copy stays in place — no atomicity worse than the
+            //    serial version, since primary `key` is still untouched here.
+            const [existing, backup1Old, backup2Old] = await Promise.all([
+                this.storage.getItem(key),
+                this.storage.getItem(backupKey + "_1"),
+                this.storage.getItem(backupKey + "_2"),
+            ])
             if (existing) {
-                const backup3 = await this.storage.getItem(backupKey + "_2")
-                if (backup3) await this.storage.setItem(backupKey + "_3", backup3)
-                const backup2 = await this.storage.getItem(backupKey + "_1")
-                if (backup2) await this.storage.setItem(backupKey + "_2", backup2)
-                await this.storage.setItem(backupKey + "_1", existing)
+                const writes: Promise<void>[] = [
+                    this.storage.setItem(backupKey + "_1", existing),
+                ]
+                if (backup1Old) writes.push(this.storage.setItem(backupKey + "_2", backup1Old))
+                if (backup2Old) writes.push(this.storage.setItem(backupKey + "_3", backup2Old))
+                await Promise.all(writes)
             }
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
@@ -423,10 +434,19 @@ export class SaveManager {
             // Discard any stale staging file from an interrupted previous write.
             await this.clearStaleTmp(key)
 
-            // Try primary save
-            let localData = await this.storage.getItem(key)
+            // Primary local read and Steam Cloud read are independent — the
+            // cloud value is used regardless of whether primary succeeds (for
+            // conflict resolution further down). Fire both at once so the
+            // happy-path load isn't gated on a 50-500ms Steam IPC RTT.
+            const [primaryRead, cloudRead] = await Promise.allSettled([
+                this.storage.getItem(key),
+                steamService.downloadSaveFromCloud(saveId),
+            ])
+            let localData = primaryRead.status === "fulfilled" ? primaryRead.value : null
+            let cloudData: string | null = cloudRead.status === "fulfilled" ? cloudRead.value : null
 
-            // If not found, try rotating backups (newest first)
+            // If primary not found, try rotating backups (newest first).
+            // Kept sequential — almost always a no-op on the happy path.
             if (!localData) {
                 for (const suffix of ["_1", "_2", "_3", ""]) {
                     const candidate = await this.storage.getItem(backupKey + suffix)
@@ -440,14 +460,6 @@ export class SaveManager {
                 }
             }
 
-            // Try cloud candidate for recovery/conflict resolution.
-            let cloudData: string | null = null
-            try {
-                cloudData = await steamService.downloadSaveFromCloud(saveId)
-            } catch {
-                cloudData = null
-            }
-
             if (!localData && cloudData) {
                 debug.warn("Loaded save from Steam Cloud - local save missing")
                 await this.storage.setItem(key, cloudData)
@@ -458,10 +470,16 @@ export class SaveManager {
                 return { save: null, error: "Save not found", errorCode: "NOT_FOUND" }
             }
 
-            const localCandidate = await this.parseAndValidateSaveCandidate(localData, saveId)
-            const cloudCandidate = cloudData
-                ? await this.parseAndValidateSaveCandidate(cloudData, saveId)
-                : null
+            // Parse/validate both candidates in parallel — each is a full
+            // JSON.parse + structural check + (for SHA verified saves) an
+            // async hash compute, so sequencing them doubled wall time
+            // whenever cloud data was present.
+            const [localCandidate, cloudCandidate] = await Promise.all([
+                this.parseAndValidateSaveCandidate(localData, saveId),
+                cloudData
+                    ? this.parseAndValidateSaveCandidate(cloudData, saveId)
+                    : Promise.resolve(null),
+            ])
 
             // Track the strongest signal across attempted candidates so we can
             // surface a precise error if everything fails.
