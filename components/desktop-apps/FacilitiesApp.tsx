@@ -10,6 +10,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "@/lib/toast"
+import { soundManager } from "@/lib/sound-manager"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
@@ -104,6 +105,7 @@ export function FacilitiesApp() {
         e.stopPropagation()
         const result = upgradeFacility(team.id, type)
         if (result.success) {
+            soundManager.play("facilityUpgrade")
             toast.success("Facility Updated", { description: result.message })
         } else {
             toast.error("Cannot Upgrade Facility", { description: result.message })
