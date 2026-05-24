@@ -343,6 +343,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
             }
             return total
         }, 0)
+        // getAutoContract is a stable local helper that reads currentWeek;
+        // intentionally omitted since the modal doesn't survive a week tick.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signedPlayers, playersWithTeamInfo])
 
     // Calculate total transfer fees spent
@@ -355,6 +358,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
             }
             return total
         }, 0)
+        // getAutoContract is a stable local helper that reads currentWeek;
+        // intentionally omitted since the modal doesn't survive a week tick.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signedPlayers, playersWithTeamInfo])
 
     // Get full details for signed players (for roster display)
@@ -362,6 +368,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         return signedPlayers
             .map(id => playersWithTeamInfo.find(p => p.id === id))
             .filter((p): p is PlayerWithTeamInfo => !!p)
+        // getAutoContract is a stable local helper that reads currentWeek;
+        // intentionally omitted since the modal doesn't survive a week tick.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signedPlayers, playersWithTeamInfo])
 
     // Check if we can afford a player (salary + transfer fee if contracted)

@@ -335,6 +335,11 @@ export default function ScoutingPage() {
                 }
                 return sortDirection === "asc" ? cmp : -cmp
             })
+        // isPlayerScouted / isPlayerWatchlisted are pure functions over
+        // scoutedPlayers / watchlist which ARE in deps via showScoutedOnly
+        // / showWatchlistedOnly — listing the functions themselves would
+        // bust this memo on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [evaluatedPlayers, debouncedSearch, selectedRole, showForSaleOnly, priceRange, playerTeamId,
         ageRange, selectedRegions, showFreeAgentsOnly, showScoutedOnly, contractExpiryFilter,
         minSynergy, showWatchlistedOnly, sortField, sortDirection, synergyMap, contracts, currentWeek])

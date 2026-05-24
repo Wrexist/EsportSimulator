@@ -160,6 +160,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             setStatus("Ready to start veto")
         }
 
+        // Only re-fire when the match identity / hydration source changes —
+        // not when intermediate veto state mutates.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduledMatches, teams, id])
 
     // AI Logic Hook
@@ -219,6 +222,10 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             }
         }
 
+        // Driven by veto progression — adding all the AI/team deps would
+        // force the effect to re-run on every closure-captured value
+        // change and break the controlled-progression invariant.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vetoHistory, match, availableMaps])
 
     const executeAiTurn = (side: "home" | "away", action: "BAN" | "PICK" | "SIDE_PICK") => {

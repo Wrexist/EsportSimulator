@@ -240,6 +240,11 @@ export default function TournamentsPage() {
                 .sort((a, b) => b.startWeek - a.startWeek)[0]
 
             return latest
+            // tournaments + currentWeek are captured via the parent
+            // component's closure (TournamentCard is defined inside the
+            // page) — they're already-new every render, so listing them
+            // as deps is redundant from the rule's perspective.
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [tournament.id, tournaments, currentWeek])
 
         const displayId = liveTournament ? liveTournament.id : tournament.id

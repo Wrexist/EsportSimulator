@@ -241,8 +241,11 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
     // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
     // React.memo. Now it only gets a new object when a/b actually change.
+    // Deps are deliberately narrowed to the two fields we read rather than
+    // the whole radarData object (which mutates more frequently).
     const sitePositions = useMemo(
         () => (radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [radarData?.aSite, radarData?.bSite]
     )
 

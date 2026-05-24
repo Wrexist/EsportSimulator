@@ -55,6 +55,14 @@ import TournamentBracket from "@/components/tournament/TournamentBracket"
 import TournamentStats from "@/components/tournament/TournamentStats"
 
 // Format display helper
+// Pure helpers hoisted to module scope so they don't get a new identity on
+// every render and accidentally bust downstream useMemo deps.
+const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
+const isQualificationForTournament = (q: any, tournamentId: string) =>
+    toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
+const isMatchForTournament = (matchTournamentId: string | null | undefined, tournamentId: string) =>
+    toSeriesId(matchTournamentId || "") === toSeriesId(tournamentId)
+
 const formatDisplayName = (format: string): string => {
     const formatMap: Record<string, string> = {
         "league": "Round Robin",
@@ -234,11 +242,10 @@ export default function TournamentDetailPage() {
     // podium / playoff / standings sections.
     const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
     const completedMatchesById = useMemo(() => new Map(completedMatches.map(m => [m.id, m])), [completedMatches])
-    const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
-    const isQualificationForTournament = (q: any, tournamentId: string) =>
-        toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
-    const isMatchForTournament = (matchTournamentId: string | null | undefined, tournamentId: string) =>
-        toSeriesId(matchTournamentId || "") === toSeriesId(tournamentId)
+    // toSeriesId / isQualificationForTournament / isMatchForTournament are
+    // hoisted at module scope (top of file) — pure helpers, no closure
+    // capture needed, and stable refs across renders so they don't bust
+    // the useMemo deps below.
 
     // Pre-filter `completedMatches` down to just this tournament's matches.
     // The page renders standings/bracket blocks that scan completedMatches
@@ -326,7 +333,7 @@ export default function TournamentDetailPage() {
                 playerStatus: playerRow?.status || null,
             }
         })
-    }, [currentWeek, definition, playerTeamId, tournamentQualifications, isQualificationForTournament])
+    }, [currentWeek, definition, playerTeamId, tournamentQualifications])
 
     if (!displayTournament) {
         return (
