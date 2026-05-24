@@ -499,11 +499,20 @@ function DesktopContent() {
     }
   }, [players])
 
-  // Unread counts for notifications
-  const unreadCount = eventsLog.filter(e => !e.acknowledged).length
-  const transferUnread = eventsLog.filter(e =>
-    !e.acknowledged && ["TRANSFER_OFFER", "AI_SIGNING", "AI_TRANSFER"].includes(e.type as string)
-  ).length
+  // Unread counts for notifications — single pass over eventsLog and
+  // memoized so the desktop home (which re-renders on every store change)
+  // doesn't re-tally on each repaint.
+  const { unreadCount, transferUnread } = useMemo(() => {
+    let unread = 0
+    let transfer = 0
+    for (const e of eventsLog) {
+      if (e.acknowledged) continue
+      unread++
+      const t = e.type as string
+      if (t === "TRANSFER_OFFER" || t === "AI_SIGNING" || t === "AI_TRANSFER") transfer++
+    }
+    return { unreadCount: unread, transferUnread: transfer }
+  }, [eventsLog])
 
   // Taskbar apps config
   const taskbarApps = [

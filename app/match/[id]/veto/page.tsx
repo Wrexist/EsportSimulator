@@ -333,8 +333,21 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
     }
 
-    const homePlayersList = homeTeam.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
-    const awayPlayersList = awayTeam.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
+    // Memoized — was scanning the global ~1000-player list 10× per veto
+    // action (5 rosterIds × 2 teams) just to display the team-skill
+    // ratings in the header.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
+    const homePlayersList = useMemo(
+        () => homeTeam.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [homeTeam.rosterIds, playersById],
+    )
+    const awayPlayersList = useMemo(
+        () => awayTeam.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [awayTeam.rosterIds, playersById],
+    )
     const homeRatingNum = getTeamRating(homePlayersList)
     const awayRatingNum = getTeamRating(awayPlayersList)
 
