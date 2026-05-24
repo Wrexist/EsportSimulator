@@ -110,15 +110,26 @@ export const MailApp = React.memo(function MailApp({
         })
     }, [events, activeFolder, messageFilter])
 
-    const unreadCount = events.filter(e => !e.acknowledged).length
-    const actionCount = events.filter(e => requiresAction(e)).length
-    const transferCount = events.filter(e =>
-        !e.acknowledged && ["TRANSFER_OFFER", "AI_SIGNING", "AI_TRANSFER"].includes(e.type as string)
-    ).length
-    const medicalCount = events.filter(e => !e.acknowledged && e.type === "INJURY").length
-    const careerCount = events.filter(e =>
-        !e.acknowledged && ["JOB_OFFER", "CAREER_UPDATE"].includes(e.type as string)
-    ).length
+    // Folder badge counts — five filters over the full events list. The
+    // app re-renders on every folder click and every filter-chip toggle,
+    // and events can grow into the hundreds on long careers. One pass
+    // tallies all five counts; useMemo guards against unrelated parent
+    // re-renders.
+    const { unreadCount, actionCount, transferCount, medicalCount, careerCount } = useMemo(() => {
+        let unread = 0, action = 0, transfer = 0, medical = 0, career = 0
+        for (const e of events) {
+            const isUnacked = !e.acknowledged
+            if (isUnacked) unread++
+            if (requiresAction(e)) action++
+            if (isUnacked) {
+                const t = e.type as string
+                if (t === "TRANSFER_OFFER" || t === "AI_SIGNING" || t === "AI_TRANSFER") transfer++
+                else if (t === "INJURY") medical++
+                else if (t === "JOB_OFFER" || t === "CAREER_UPDATE") career++
+            }
+        }
+        return { unreadCount: unread, actionCount: action, transferCount: transfer, medicalCount: medical, careerCount: career }
+    }, [events])
 
     const folders = [
         { id: "inbox" as FolderType, label: "Inbox", icon: Inbox, count: events.length },
