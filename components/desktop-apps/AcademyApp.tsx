@@ -1091,8 +1091,19 @@ function ScoutingTab({
     const isFull = currentProspects >= maxProspects
     const hasScout = staff.some((s: any) => s.teamId && s.role === "scout")
 
-    // Get actual player data for pending prospects
-    const pendingPlayers = pendingProspects.map((id: string) => players.find((p: any) => p.id === id)).filter(Boolean)
+    // Get actual player data for pending prospects. Indexed lookup so the
+    // 5×N players.find scan becomes a single Map build (memoized) + 5
+    // O(1) lookups.
+    const playersById = useMemo(
+        () => new Map<string, any>((players as any[]).map((p: any) => [p.id, p])),
+        [players],
+    )
+    const pendingPlayers = useMemo(
+        () => (pendingProspects as string[])
+            .map((id: string) => playersById.get(id))
+            .filter(Boolean),
+        [pendingProspects, playersById],
+    )
 
     return (
         <motion.div key="scouting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4 pb-20">

@@ -155,24 +155,42 @@ export default function StaffMeetingPage() {
     const [schedulingId, setSchedulingId] = useState<string | null>(null)
 
     const playerTeam = useCurrentTeam()
-    const roster = players.filter(p => playerTeam?.rosterIds.includes(p.id))
-    const teamStaff = staff.filter(s => s.teamId === playerTeamId)
 
-    // Calculate average morale
-    const avgMorale = roster.length > 0
-        ? roster.reduce((sum, p) => sum + (p.morale || 50), 0) / roster.length
-        : 50
+    // Memoized — page has form state (selected meeting, scheduling) that
+    // toggles on click; without these wrappers the global player/staff/
+    // matches arrays were being re-filtered for every meeting-button hover.
+    const roster = useMemo(
+        () => players.filter(p => playerTeam?.rosterIds.includes(p.id)),
+        [players, playerTeam?.rosterIds],
+    )
+    const teamStaff = useMemo(
+        () => staff.filter(s => s.teamId === playerTeamId),
+        [staff, playerTeamId],
+    )
+    const { avgMorale, hasLowMoralePlayer } = useMemo(() => {
+        if (roster.length === 0) return { avgMorale: 50, hasLowMoralePlayer: false }
+        let sum = 0
+        let low = false
+        for (const p of roster) {
+            const m = p.morale ?? 50
+            sum += m
+            if (m < 40) low = true
+        }
+        return { avgMorale: sum / roster.length, hasLowMoralePlayer: low }
+    }, [roster])
 
-    // Check for low morale players
-    const hasLowMoralePlayer = roster.some(p => (p.morale || 50) < 40)
-
-    // Calculate recent form (last 5 matches)
-    const recentMatches = completedMatches
-        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-        .sort((a, b) => b.week - a.week)
-        .slice(0, 5)
-
-    const wins = recentMatches.filter(m => m.result.winnerId === playerTeamId).length
+    // Recent form (last 5 matches) — pre-filter+sort+slice once per data change.
+    const recentMatches = useMemo(
+        () => completedMatches
+            .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+            .sort((a, b) => b.week - a.week)
+            .slice(0, 5),
+        [completedMatches, playerTeamId],
+    )
+    const wins = useMemo(
+        () => recentMatches.filter(m => m.result.winnerId === playerTeamId).length,
+        [recentMatches, playerTeamId],
+    )
     const formPercentage = recentMatches.length > 0 ? (wins / recentMatches.length) * 100 : 0
 
     // Check consecutive losses
