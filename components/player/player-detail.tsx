@@ -114,6 +114,8 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
     // Stats for new spider chart. Memoized so the child PlayerSpiderChart
     // receives a stable prop reference; otherwise every tab toggle / parent
     // re-render rebuilt the object and busted child memoization downstream.
+    // Keyed on the whole player object — granular field deps tripped
+    // exhaustive-deps because (player as any).firepower is a complex expr.
     const spiderStats = useMemo(() => ({
         firepower: (player as any).firepower ?? Math.round((player.skill + player.rifle) / 2),
         entrying: (player as any).entrying ?? Math.round((player.skill + player.reaction) / 2),
@@ -122,13 +124,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
         clutching: player.clutch ?? 50,
         sniping: player.awp ?? 50,
         utility: player.grenades ?? 50,
-    }), [
-        (player as any).firepower, (player as any).entrying,
-        (player as any).trading, (player as any).opening,
-        player.skill, player.rifle, player.reaction, player.teamwork,
-        player.tactic, player.creativity, player.clutch, player.awp,
-        player.grenades,
-    ])
+    }), [player])
 
     const getRoleBadgeColor = (role: string) => {
         switch (role?.toUpperCase()) {

@@ -17,14 +17,17 @@ interface ChemistryMatrixProps {
 function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMatrixProps) {
     const activePlayers = useMemo(() => players.slice(0, 5), [players]) // Ensure max 5 for the pentagon
 
-    const getSynergy = (id1: string, id2: string) => {
-        const key = [id1, id2].sort().join("_")
-        return synergyMatrix[key] || 50
-    }
-
     const { nodes, links } = useMemo(() => {
         const r = 130 // Radius of the circle
         const center = 180 // Center of the SVG canvas (360x360)
+
+        // Synergy lookup inlined so the dep array can be a stable set of
+        // base values (synergyMatrix object identity) instead of going
+        // through a closure that captured it.
+        const lookupSynergy = (id1: string, id2: string) => {
+            const key = [id1, id2].sort().join("_")
+            return synergyMatrix[key] || 50
+        }
 
         const calculatedNodes = activePlayers.map((p, i) => {
             const angle = (Math.PI * 2 * i) / activePlayers.length - Math.PI / 2
@@ -44,7 +47,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
                 calculatedLinks.push({
                     source: p1,
                     target: p2,
-                    value: getSynergy(p1.id, p2.id)
+                    value: lookupSynergy(p1.id, p2.id)
                 })
             }
         }

@@ -183,7 +183,11 @@ function DesktopContent() {
     return () => {
       if (autoOpenTimer) clearTimeout(autoOpenTimer)
     }
-  }, [appParam]) // Run once on mount (conceptually, though appParam dependency is fine)
+    // Intentional mount-only: re-running on eventsLog/windows changes would
+    // re-auto-open Mail every time the user closes it or a new event lands.
+    // appParam in deps so deep-links (?app=mail) still take effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appParam])
 
   // Update selected event if it changes in the store
   useEffect(() => {
@@ -424,11 +428,16 @@ function DesktopContent() {
     [selectedEvent]
   )
 
-  // Play notification sound when dialog opens
+  // Play notification sound when dialog opens. Deliberately keyed on
+  // selectedEventId only — re-firing the sound on every selectedEvent
+  // object identity change (e.g. when acknowledged flips) would replay
+  // the cue mid-dialog. notificationTheme is derived from selectedEvent
+  // so its sound is always current at fire time.
   useEffect(() => {
     if (selectedEvent && !selectedEvent.acknowledged) {
       soundManager.play(notificationTheme.sound)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEventId])
 
   // Event helpers

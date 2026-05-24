@@ -73,7 +73,10 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
     const [durationOffer, setDurationOffer] = useState<number>(52) // 1 year default
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
 
-    // Reset when opening or changing staff
+    // Reset when opening or changing staff. Deliberately gated on staffId
+    // (not staffMember object) so an unrelated salary update on the same
+    // staff member while the modal is open doesn't reset the negotiation
+    // state mid-flow.
     useEffect(() => {
         if (isOpen && staffMember) {
             setStage("OFFER")
@@ -82,6 +85,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             setDurationOffer(52)
             setNegotiationLog([])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, staffId, isRenewal])
 
     if (!isOpen || !staffMember) return null
