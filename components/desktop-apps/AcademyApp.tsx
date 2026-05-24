@@ -753,7 +753,13 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 // ===== GRADUATES TAB =====
 
 function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
-    const graduates = players.filter(p => p.isAcademyGraduate)
+    // Memoize — the parent (AcademyApp) re-renders on any of its many
+    // useGameStore subscriptions, and players is the global ~1000-entry
+    // list. Filtering by isAcademyGraduate every render is unnecessary.
+    const graduates = useMemo(
+        () => players.filter(p => p.isAcademyGraduate),
+        [players],
+    )
 
     return (
         <motion.div key="graduates" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">

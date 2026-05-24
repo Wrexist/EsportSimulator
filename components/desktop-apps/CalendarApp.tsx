@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -38,8 +38,13 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
         setFailedImages(prev => ({ ...prev, [id]: true }))
     }
 
-    // Filter tournament events
-    const tournamentEvents = events.filter(e => e.type === "TOURNAMENT")
+    // Filter tournament events — memoized so state changes that don't
+    // touch `events` (viewType / selectedTournament / failedImages) don't
+    // re-scan the full event list each time.
+    const tournamentEvents = useMemo(
+        () => events.filter(e => e.type === "TOURNAMENT"),
+        [events],
+    )
 
     // Get upcoming tournaments from calendar
     const upcomingTournaments = FULL_TOURNAMENT_CALENDAR
