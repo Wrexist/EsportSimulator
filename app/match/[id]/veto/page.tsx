@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -35,6 +35,29 @@ interface VetoTurn {
     mapId?: MapId
 }
 
+// Pure helper, lifted out of the component so it doesn't allocate a fresh
+// closure on every render.
+function computeTeamMapStats(
+    completedMatches: ReadonlyArray<{ homeTeamId: string; awayTeamId: string; result?: { maps?: Array<{ map: string; finalScore?: { team1: number; team2: number } }> } }> | null | undefined,
+    teamId: string,
+): Record<string, { wins: number; losses: number }> {
+    const stats: Record<string, { wins: number; losses: number }> = {}
+    if (!completedMatches) return stats
+    for (const match of completedMatches) {
+        if (match.homeTeamId !== teamId && match.awayTeamId !== teamId) continue
+        if (!match.result?.maps) continue
+        const isHome = match.homeTeamId === teamId
+        for (const mapResult of match.result.maps) {
+            const mapName = mapResult.map
+            if (!stats[mapName]) stats[mapName] = { wins: 0, losses: 0 }
+            const homeWonMap = (mapResult.finalScore?.team1 ?? 0) > (mapResult.finalScore?.team2 ?? 0)
+            if (isHome ? homeWonMap : !homeWonMap) stats[mapName].wins++
+            else stats[mapName].losses++
+        }
+    }
+    return stats
+}
+
 
 export default function VetoPage({ params: initialParams }: { params: Promise<{ id: string }> }) {
     const params = useParams()
@@ -63,25 +86,20 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
     const [showSideSelection, setShowSideSelection] = useState<MapId | null>(null)
 
 
-    // Compute map win rates for both teams from completed matches
-    const getTeamMapStats = (teamId: string): Record<string, { wins: number, losses: number }> => {
-        const stats: Record<string, { wins: number, losses: number }> = {}
-        if (!completedMatches) return stats
-        completedMatches
-            .filter((m: any) => m.homeTeamId === teamId || m.awayTeamId === teamId)
-            .forEach((match: any) => {
-                if (!match.result?.maps) return
-                const isHome = match.homeTeamId === teamId
-                match.result.maps.forEach((mapResult: any) => {
-                    const mapName = mapResult.map
-                    if (!stats[mapName]) stats[mapName] = { wins: 0, losses: 0 }
-                    const homeWon = mapResult.finalScore?.team1 > mapResult.finalScore?.team2
-                    if (isHome ? homeWon : !homeWon) stats[mapName].wins++
-                    else stats[mapName].losses++
-                })
-            })
-        return stats
-    }
+    // Compute map win rates for both teams from completed matches.
+    // Memoized so the 8-map grid below doesn't re-iterate every completed
+    // match 16× per render (8 maps × {home, away}). For long careers
+    // completedMatches can reach 1000s of entries, and every veto action
+    // (ban, pick, side select) triggers a re-render, so the unmemoized
+    // version did ~16k forEach iterations per click.
+    const homeMapStats = useMemo(
+        () => homeTeam ? computeTeamMapStats(completedMatches, homeTeam.id) : {},
+        [completedMatches, homeTeam],
+    )
+    const awayMapStats = useMemo(
+        () => awayTeam ? computeTeamMapStats(completedMatches, awayTeam.id) : {},
+        [completedMatches, awayTeam],
+    )
 
     // Refs for AI processing
     const processingRef = useRef(false)
@@ -456,8 +474,6 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         const isBanned = actionLog?.action === "BAN"
                         const isPicked = actionLog?.action === "PICK" || actionLog?.action === "DECIDER"
                         const canInteract = isAvailable && !isAiTurn && currentTurn.team !== "auto"
-                        const homeMapStats = homeTeam ? getTeamMapStats(homeTeam.id) : {}
-                        const awayMapStats = awayTeam ? getTeamMapStats(awayTeam.id) : {}
                         const hStats = homeMapStats[mapId] || { wins: 0, losses: 0 }
                         const aStats = awayMapStats[mapId] || { wins: 0, losses: 0 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -218,32 +218,48 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         </div>
     )
 
-    const homeTeam = teams.find(t => t.id === match.homeTeamId)
-    const awayTeam = teams.find(t => t.id === match.awayTeamId)
+    const homeTeam = useMemo(
+        () => teams.find(t => t.id === match.homeTeamId),
+        [teams, match.homeTeamId],
+    )
+    const awayTeam = useMemo(
+        () => teams.find(t => t.id === match.awayTeamId),
+        [teams, match.awayTeamId],
+    )
     const result = match.result
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
 
-    // Was: `players.find` was called 3+ times in nested .map() loops over
-    // playerStats rows — O(players × rows). Index once.
-    const playersById = new Map(players.map(p => [p.id, p]))
+    // Index once per render of THIS match — not per Tab/map-tab click.
+    // players is the full global list (1000+ entries on big saves) and was
+    // being rebuilt into a Map on every setSelectedMapIndex / setActiveTab
+    // change. Memoized so toggling between Overview/Analysis or clicking a
+    // different map tab no longer re-allocates the index.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
     const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
 
-    // Helper to get stats for the current view (Overall or Specific Map)
-    // Currently match.result.playerStats is OVERALL.
-    // If we want per-map, we'd need to aggregate from rounds or have it stored.
-    // For V1, we'll show Overall Stats.
-    const playerStatsList = Object.values(result.playerStats || {})
+    const playerStatsList = useMemo(
+        () => Object.values(result.playerStats || {}),
+        [result.playerStats],
+    )
 
-    // Sort players by Rating
-    const homeStats = playerStatsList
-        .filter(s => homeTeam?.rosterIds.includes(s.playerId))
-        .sort((a, b) => b.rating - a.rating)
-
-    const awayStats = playerStatsList
-        .filter(s => awayTeam?.rosterIds.includes(s.playerId))
-        .sort((a, b) => b.rating - a.rating)
+    // Sort player rows by rating, once per data-change instead of per render.
+    const homeStats = useMemo(
+        () => playerStatsList
+            .filter(s => homeTeam?.rosterIds.includes(s.playerId))
+            .sort((a, b) => b.rating - a.rating),
+        [playerStatsList, homeTeam],
+    )
+    const awayStats = useMemo(
+        () => playerStatsList
+            .filter(s => awayTeam?.rosterIds.includes(s.playerId))
+            .sort((a, b) => b.rating - a.rating),
+        [playerStatsList, awayTeam],
+    )
 
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
