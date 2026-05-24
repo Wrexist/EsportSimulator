@@ -1904,11 +1904,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         if (state.currentDay < 6) {
-          set(draft => {
-            const nextDay = Math.min(6, draft.currentDay + 1)
-            draft.currentDay = nextDay
-            simulateDueAIMatchesForDay(draft, nextDay)
-          })
+          const nextDay = Math.min(6, state.currentDay + 1)
+
+          // Two-phase commit so the day number ticks over instantly. The
+          // AI-match simulation that follows can take 5-100ms on heavy
+          // match days; committing it in the same set() as the day bump
+          // delays the visible change by that full amount. Splitting + a
+          // macrotask yield lets React paint the new day FIRST, then the
+          // match results arrive on the next frame.
+          set(draft => { draft.currentDay = nextDay })
+          await new Promise(resolve => setTimeout(resolve, 0))
+          set(draft => { simulateDueAIMatchesForDay(draft, nextDay) })
           return
         }
 
@@ -1932,11 +1938,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         if (playerMatchThisWeek) {
           const matchDay = playerMatchThisWeek.day ?? 6
           if (state.currentDay < matchDay) {
-            // Advance to match day so PLAY MATCH button appears
-            set(draft => {
-              draft.currentDay = matchDay
-              simulateDueAIMatchesForDay(draft, matchDay)
-            })
+            // Advance to match day so PLAY MATCH button appears — same
+            // two-phase commit as advanceDay so the day cursor moves
+            // before the match simulation runs.
+            set(draft => { draft.currentDay = matchDay })
+            await new Promise(resolve => setTimeout(resolve, 0))
+            set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
             return
           }
           // Already on or past match day — match still unplayed, don't skip
@@ -1944,10 +1951,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         if (state.currentDay < 6) {
-          set(draft => {
-            draft.currentDay = 6
-            simulateDueAIMatchesForDay(draft, 6)
-          })
+          set(draft => { draft.currentDay = 6 })
+          await new Promise(resolve => setTimeout(resolve, 0))
+          set(draft => { simulateDueAIMatchesForDay(draft, 6) })
         }
 
         await get().advanceDay()
