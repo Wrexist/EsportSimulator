@@ -62,7 +62,13 @@ export default function SponsorshipsPage() {
     }
   }, [_hasHydrated, isSessionActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activeSponsors = playerTeam?.sponsors || []
+  // Pull sponsors once via useMemo so the `?? []` fallback isn't recreating
+  // an empty array reference on every render and invalidating downstream
+  // useMemo deps.
+  const activeSponsors = useMemo(
+    () => playerTeam?.sponsors ?? [],
+    [playerTeam?.sponsors],
+  )
   const emptySlots = MAX_SPONSORS - activeSponsors.length
   const sponsorSlotsFull = activeSponsors.length >= MAX_SPONSORS
 

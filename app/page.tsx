@@ -170,7 +170,7 @@ export default function Page() {
         rating: bestPlayer.avgRating || 0
       } : null
     }
-  }, [playerTeam, completedMatches, currentWeek, players, playerTeamId, pendingSeasonRecap])
+  }, [playerTeam, completedMatches, currentWeek, players, playerTeamId, pendingSeasonRecap, financeLedger])
 
   const handleSimulate = async () => {
     if (!nextMatch) return

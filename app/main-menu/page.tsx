@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -43,16 +43,19 @@ export default function MainMenuPage() {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
-    useEffect(() => {
-        loadSaves()
-    }, [])
-
-    const loadSaves = async () => {
+    // useCallback so the mount effect's dep stays stable. `listSaves` is a
+    // module-level import (stable) but exhaustive-deps can't see that —
+    // including it keeps the warning quiet.
+    const loadSaves = useCallback(async () => {
         setIsLoadingSaves(true)
         const slots = await listSaves()
         setSaves(slots)
         setIsLoadingSaves(false)
-    }
+    }, [listSaves])
+
+    useEffect(() => {
+        loadSaves()
+    }, [loadSaves])
 
     const handleNewGame = () => {
         router.push("/new-game")

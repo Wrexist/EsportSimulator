@@ -178,10 +178,18 @@ export default function ScoutingPage() {
         setIsLoading(false)
     }, [players, gameTeams])
 
-    // Get player's team
-    const getPlayerTeam = (playerId: string) => {
-        return allTeams.find(t => t.rosterIds?.includes(playerId))
-    }
+    // O(1) playerId → team lookup. Was a linear scan of allTeams per call
+    // (~200 teams × ~1500 player evaluations in the player table = 300k
+    // ops per evaluatedPlayers rebuild). Memoize the map once per teams
+    // change so the getPlayerTeam helper below is constant-time.
+    const teamByPlayerId = useMemo(() => {
+        const m = new Map<string, typeof allTeams[number]>()
+        for (const t of allTeams) {
+            for (const pid of (t.rosterIds ?? [])) m.set(pid, t)
+        }
+        return m
+    }, [allTeams])
+    const getPlayerTeam = (playerId: string) => teamByPlayerId.get(playerId)
 
     // My roster for synergy calculations
     const myRoster = useMemo(() => {
@@ -202,11 +210,13 @@ export default function ScoutingPage() {
         return detectMissingRoles(myRoster as any)
     }, [myRoster])
 
-    // Evaluate and filter players
+    // Evaluate and filter players — use teamByPlayerId Map (O(1) lookup)
+    // rather than the getPlayerTeam helper so the dep array sees the
+    // stable Map reference instead of the per-render function identity.
     const evaluatedPlayers = useMemo(() => {
         return allPlayers.map(player => {
             const evaluation = evaluatePlayer(player as any)
-            const team = getPlayerTeam(player.id)
+            const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
             const forSale = isPlayerForSale(player as any, evaluation, teamRanking)
 
@@ -217,7 +227,7 @@ export default function ScoutingPage() {
                 forSale,
             }
         })
-    }, [allPlayers, allTeams])
+    }, [allPlayers, teamByPlayerId])
 
     // Synergy map: playerId → average synergy with my roster
     const synergyMap = useMemo(() => {

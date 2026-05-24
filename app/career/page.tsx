@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -115,11 +115,11 @@ export default function CareerPage() {
 
     const yearsActive = Math.floor(currentWeek / 52) + 1
 
-    useEffect(() => {
-        loadSaves()
-    }, [currentSaveId])
-
-    const loadSaves = async () => {
+    // useCallback so the effect dep stays stable; state setters from
+    // useState are guaranteed-stable. `listSaves` is a module-level import
+    // — also stable — but eslint-react-hooks can't infer that, so include
+    // it in deps for cleanliness.
+    const loadSaves = useCallback(async () => {
         setIsLoadingSaves(true)
         try {
             const saves = await listSaves()
@@ -129,7 +129,11 @@ export default function CareerPage() {
         } finally {
             setIsLoadingSaves(false)
         }
-    }
+    }, [listSaves])
+
+    useEffect(() => {
+        loadSaves()
+    }, [currentSaveId, loadSaves])
 
     const handleLoadSave = async () => {
         if (!selectedSlot) return

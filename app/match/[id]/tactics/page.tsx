@@ -83,11 +83,13 @@ export default function TacticalHQPage() {
     const mentalBoosted = match?.mentalPrep || false
     const vodReviewed = match?.vodReviewed || false
 
-    // Opponent Roster for Antistrat
-    const opponentRoster = opponent?.rosterIds || []
-    const opponentPlayers = useMemo(() => (
-        opponentRoster.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
-    ), [opponentRoster, playersById])
+    // Opponent Roster for Antistrat — `?? []` defaulting moved INSIDE the
+    // useMemo so we don't invalidate the dep array with a fresh empty-array
+    // reference on every render.
+    const opponentPlayers = useMemo(() => {
+        const ids = opponent?.rosterIds ?? []
+        return ids.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
+    }, [opponent?.rosterIds, playersById])
 
     // Facility Levels for Locking
     const tacticalLevel = myTeam?.facilities?.find((f: any) => f.type === "TACTICAL")?.level || 0
