@@ -239,6 +239,21 @@ export default function TournamentDetailPage() {
         toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
     const isMatchForTournament = (matchTournamentId: string | null | undefined, tournamentId: string) =>
         toSeriesId(matchTournamentId || "") === toSeriesId(tournamentId)
+
+    // Pre-filter `completedMatches` down to just this tournament's matches.
+    // The page renders standings/bracket blocks that scan completedMatches
+    // multiple times per render (3 league-standings IIFEs plus the semi/
+    // quarter-final find/filter chain). On long careers completedMatches
+    // reaches 1500+; doing the `isMatchForTournament` check inside each
+    // per-team .map() iteration was costing ~24k ops per render for the
+    // league podium alone. Cached here — downstream code filters this
+    // smaller list (~100 matches per tournament) by team.
+    const tournamentMatches = useMemo(() => {
+        if (!displayTournament?.id) return [] as typeof completedMatches
+        return completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id))
+        // isMatchForTournament/toSeriesId are pure helpers above; not deps.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completedMatches, displayTournament?.id])
     const playerRanking = playerTeam?.worldRanking || 999 // Fallback
     const eligibility = definition && playerTeam ? QualificationEngine.checkEligibility(
         definition,
@@ -694,11 +709,11 @@ export default function TournamentDetailPage() {
                                                         let podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
 
                                                         // 1. Bracket Logic (Most reliable for single elim)
-                                                        const finalMatch = completedMatches.find(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage === "Grand Final")
+                                                        const finalMatch = tournamentMatches.find(m => m.stage === "Grand Final")
                                                         if (finalMatch) {
                                                             const winnerId = finalMatch.result.winnerId || (finalMatch.result.homeScore > finalMatch.result.awayScore ? finalMatch.homeTeamId : finalMatch.awayTeamId)
                                                             const runnerUpId = winnerId === finalMatch.homeTeamId ? finalMatch.awayTeamId : finalMatch.homeTeamId
-                                                            const thirdPlaceMatch = completedMatches.find(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage?.includes("3rd Place"))
+                                                            const thirdPlaceMatch = tournamentMatches.find(m => m.stage?.includes("3rd Place"))
                                                             let thirdId: string | null = null
                                                             if (thirdPlaceMatch) {
                                                                 thirdId = thirdPlaceMatch.result.winnerId || (thirdPlaceMatch.result.homeScore > thirdPlaceMatch.result.awayScore ? thirdPlaceMatch.homeTeamId : thirdPlaceMatch.awayTeamId)
@@ -716,7 +731,7 @@ export default function TournamentDetailPage() {
                                                         else if (displayTournament?.format === "league" || !finalMatch) {
                                                             const standings = displayTournament?.teamIds?.map((tid: string) => {
                                                                 const team = teamsById.get(tid)
-                                                                const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
+                                                                const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
                                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                                 const points = wins * 3
                                                                 return { team, points }
@@ -832,9 +847,9 @@ export default function TournamentDetailPage() {
 
                                                 // A. Bracket Logic
                                                 if (displayTournament?.format !== "league") {
-                                                    const final = completedMatches.find(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage === "Grand Final")
-                                                    const semiFinals = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage?.includes("Semi-final"))
-                                                    const quarterFinals = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && m.stage?.includes("Quarter-final"))
+                                                    const final = tournamentMatches.find(m => m.stage === "Grand Final")
+                                                    const semiFinals = tournamentMatches.filter(m => m.stage?.includes("Semi-final"))
+                                                    const quarterFinals = tournamentMatches.filter(m => m.stage?.includes("Quarter-final"))
 
                                                     if (final) {
                                                         const winId = final.result.winnerId || (final.result.homeScore > final.result.awayScore ? final.homeTeamId : final.awayTeamId)
@@ -867,7 +882,7 @@ export default function TournamentDetailPage() {
                                                 else {
                                                     const leagueSorted = displayTournament?.teamIds?.map((tid: string) => {
                                                         const team = teamsById.get(tid)
-                                                        const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
+                                                        const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
                                                         const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                         const points = wins * 3
                                                         return { team, points }
@@ -1196,7 +1211,7 @@ export default function TournamentDetailPage() {
                                             const leagueStandings = displayTournament?.teamIds?.map((tid: string) => {
                                                 const team = teamsById.get(tid)
                                                 // Calculate actual stats from completed matches
-                                                const matches = completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === tid || m.awayTeamId === tid))
+                                                const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
                                                 const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
                                                 const losses = matches.length - wins
                                                 const points = wins * 3
