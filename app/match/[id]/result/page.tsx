@@ -16,6 +16,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
+import { soundManager } from "@/lib/sound-manager"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
@@ -104,6 +105,13 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         let cancelled = false
         let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
         let rafId: number | undefined
+
+        // Sound cue lands the moment the result reveal kicks in, regardless
+        // of confetti loading state. Sound manager guards against missing
+        // AudioContext on SSR / muted profiles.
+        if (typeof window !== "undefined") {
+            soundManager.play(playerWon ? "victory" : "defeat")
+        }
 
         if (playerWon) {
             confettiTriggered.current = true
