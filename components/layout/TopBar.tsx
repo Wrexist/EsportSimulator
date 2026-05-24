@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo } from "react"
 import { format } from "date-fns"
 import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { soundManager } from "@/lib/sound-manager"
 import { motion } from "framer-motion"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { getTeamColors } from "@/lib/utils"
@@ -204,7 +205,10 @@ export function TopBar() {
                         return (
                             <div className="flex items-center gap-2">
                                 <Button
-                                    onClick={() => advanceDay()}
+                                    onClick={() => {
+                                        soundManager.play('weekAdvance')
+                                        advanceDay()
+                                    }}
                                     disabled={isLoading}
                                     className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-4 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
                                 >
@@ -236,7 +240,10 @@ export function TopBar() {
 
                     return (
                         <Button
-                            onClick={() => advanceWeek()}
+                            onClick={() => {
+                                soundManager.play('weekAdvance')
+                                advanceWeek()
+                            }}
                             disabled={isLoading}
                             className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
                         >
