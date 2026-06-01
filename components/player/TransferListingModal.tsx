@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, DollarSign, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lucide-react"
+import { motion } from "framer-motion"
+import { X, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { Badge } from "@/components/ui/badge"
@@ -47,7 +47,7 @@ export function TransferListingModal({
                 {/* Header Pattern */}
                 <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
                 <div className="absolute top-0 right-0 p-4 z-10">
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors group">
+                    <button onClick={onClose} aria-label="Close dialog" className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-full transition-all group">
                         <X size={20} className="text-white/40 group-hover:text-white" />
                     </button>
                 </div>

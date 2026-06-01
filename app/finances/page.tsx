@@ -12,32 +12,25 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  ArrowLeft,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Users,
-  Building,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  Briefcase,
-  Store,
-  ChevronRight,
-  PieChart,
-  Zap,
-  Globe,
-  Award,
-  BarChart3,
-  Activity,
-  Shield,
-  Flame,
-  Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
-  Wallet,
-  Receipt,
-  History,
+    TrendingUp,
+    TrendingDown,
+    Users,
+    AlertCircle,
+    CheckCircle,
+    Briefcase,
+    Store,
+    ChevronRight,
+    PieChart,
+    Zap,
+    Globe,
+    BarChart3,
+    Activity,
+    Shield,
+    Flame,
+    Calendar,
+    ArrowUpRight,
+    ArrowDownRight,
+    Wallet
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { EconomyManager } from "@/engine/economy-manager"
@@ -484,8 +477,15 @@ export default function FinancesPage() {
             <CardContent>
               {/* Visual Bar Chart */}
               <div className="flex items-end justify-between gap-2 h-48 mb-4">
-                {projectedBudget.map((data, i) => {
-                  const maxBudget = Math.max(currentMoney, ...projectedBudget.map(d => d.budget))
+                {(() => {
+                  // Hoist maxBudget out of the per-bar map — was re-running
+                  // Math.max + a fresh spread over all bars on every iteration
+                  // (O(n²) over 52 projection weeks, ~2700 ops per render).
+                  const maxBudget = projectedBudget.reduce(
+                    (m, d) => d.budget > m ? d.budget : m,
+                    currentMoney,
+                  )
+                  return projectedBudget.map((data, i) => {
                   const heightPercent = (data.budget / maxBudget) * 100
                   return (
                     <motion.div
@@ -511,7 +511,8 @@ export default function FinancesPage() {
                       <span className="text-[9px] text-white/30">W{data.week}</span>
                     </motion.div>
                   )
-                })}
+                })
+                })()}
               </div>
 
               {/* Projection Summary */}

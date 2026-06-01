@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, ChevronRight, Sparkles, Star, Zap, Medal } from "lucide-react"
+import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fireConfetti } from "@/lib/confetti-lazy"
+import { soundManager } from "@/lib/sound-manager"
 
 interface AdvancementAnimationProps {
     show: boolean
@@ -43,6 +44,10 @@ export function AdvancementAnimation({
         const revealTimer = setTimeout(() => setPhase("reveal"), 1800)
         const celebrateTimer = setTimeout(() => {
             setPhase("celebrate")
+            // Sound + confetti land together with the celebrate phase.
+            if (typeof window !== "undefined") {
+                soundManager.play(isChampionship ? "victory" : "tournamentAdvance")
+            }
             // Fire confetti with better positioning (above fold)
             fireConfetti({
                 particleCount: 80,

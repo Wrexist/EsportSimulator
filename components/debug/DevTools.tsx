@@ -28,7 +28,6 @@ import {
     Swords,
     TrendingUp,
     Gift,
-    SkipForward,
     RefreshCcw,
     Settings2,
     X,
@@ -37,7 +36,7 @@ import {
     Clock,
     Globe,
     Target,
-    ChevronRight,
+    ChevronRight
 } from "lucide-react"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 

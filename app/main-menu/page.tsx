@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -43,16 +43,19 @@ export default function MainMenuPage() {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
-    useEffect(() => {
-        loadSaves()
-    }, [])
-
-    const loadSaves = async () => {
+    // useCallback so the mount effect's dep stays stable. `listSaves` is a
+    // module-level import (stable) but exhaustive-deps can't see that —
+    // including it keeps the warning quiet.
+    const loadSaves = useCallback(async () => {
         setIsLoadingSaves(true)
         const slots = await listSaves()
         setSaves(slots)
         setIsLoadingSaves(false)
-    }
+    }, [listSaves])
+
+    useEffect(() => {
+        loadSaves()
+    }, [loadSaves])
 
     const handleNewGame = () => {
         router.push("/new-game")
@@ -536,14 +539,14 @@ export default function MainMenuPage() {
                 transition={{ delay: 1 }}
                 className="relative z-10 text-center py-5 border-t border-white/5"
             >
-                <p className="text-white/15 text-[10px] uppercase tracking-[0.3em]">
-                    © {new Date().getFullYear()} Esport Manager • All Rights Reserved
+                <p className="text-white/40 text-[10px] uppercase tracking-[0.3em]">
+                    © {new Date().getFullYear()} Esports Manager: FPS • All Rights Reserved
                 </p>
             </motion.footer>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-                <AlertDialogContent className="bg-[#0e1217] border-white/10">
+                <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-white">Delete Career</AlertDialogTitle>
                         <AlertDialogDescription>

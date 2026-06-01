@@ -347,7 +347,10 @@ export class EconomyManager {
     staff: StaffSaveData[] = [],
     contracts: ContractSaveData[] = []
   ) {
-    const followers = team.followers || (team.fanbase * 7)
+    // `team.fanbase` can be undefined on older AI teams / partial saves;
+    // without the ?? 0 the multiplication yields NaN and the whole financial
+    // report renders as "$NaN".
+    const followers = team.followers || ((team.fanbase ?? 0) * 7)
     const merchLevel = team.merchStoreLevel || 1
     const hypeMultiplier = (team.merchHype || 10) / 10
 

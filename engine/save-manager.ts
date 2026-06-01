@@ -23,6 +23,7 @@ import {
     PlayerPreview,
 } from "./save-types"
 import { validateSaveSchema } from "./save-schema"
+import { parseUntrustedJson } from "../lib/json-safe"
 
 // ===== LOAD/SAVE ERROR CODES =====
 
@@ -32,7 +33,7 @@ import { validateSaveSchema } from "./save-schema"
  *
  * - NOT_FOUND: no data at the requested key
  * - CORRUPTED: parse/schema/structure validation failed
- * - INTEGRITY_FAILED: hash mismatch (tampering or partial write)
+ * - INTEGRITY_FAILED: hash mismatch (corruption or partial write)
  * - NEWER_VERSION: save was written by a build with a higher saveVersion
  * - WRITE_FAILED: write-side failure surfaced from saveGame
  * - UNKNOWN: anything else
@@ -90,7 +91,7 @@ export class SaveManager {
     > {
         let parsed: Record<string, unknown>
         try {
-            parsed = JSON.parse(data) as Record<string, unknown>
+            parsed = parseUntrustedJson<Record<string, unknown>>(data)
         } catch {
             return { ok: false, error: "CORRUPTED", message: "Save file is not valid JSON" }
         }
@@ -282,13 +283,24 @@ export class SaveManager {
 
             // 1. Rotate backups (keep last 3) before overwriting. The previous
             //    primary becomes backup_1 — equivalent to slot-N.backup.json.
-            const existing = await this.storage.getItem(key)
+            //    Reads are mutually independent (we're snapshotting the current
+            //    state of all three slots) and so are writes (each writes to a
+            //    different key). Batch each phase with Promise.all so the
+            //    rotation is two RTTs instead of six. If a backup-write fails
+            //    the older copy stays in place — no atomicity worse than the
+            //    serial version, since primary `key` is still untouched here.
+            const [existing, backup1Old, backup2Old] = await Promise.all([
+                this.storage.getItem(key),
+                this.storage.getItem(backupKey + "_1"),
+                this.storage.getItem(backupKey + "_2"),
+            ])
             if (existing) {
-                const backup3 = await this.storage.getItem(backupKey + "_2")
-                if (backup3) await this.storage.setItem(backupKey + "_3", backup3)
-                const backup2 = await this.storage.getItem(backupKey + "_1")
-                if (backup2) await this.storage.setItem(backupKey + "_2", backup2)
-                await this.storage.setItem(backupKey + "_1", existing)
+                const writes: Promise<void>[] = [
+                    this.storage.setItem(backupKey + "_1", existing),
+                ]
+                if (backup1Old) writes.push(this.storage.setItem(backupKey + "_2", backup1Old))
+                if (backup2Old) writes.push(this.storage.setItem(backupKey + "_3", backup2Old))
+                await Promise.all(writes)
             }
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
@@ -383,9 +395,13 @@ export class SaveManager {
      */
     async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
         try {
-            save.updatedAt = new Date().toISOString()
-            const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
-            const serialized = JSON.stringify(save)
+            // Shallow-copy with a fresh timestamp instead of mutating the
+            // caller's object — the atomic week processor passes Immer-frozen
+            // draft state, and an in-place assignment would throw in strict
+            // mode (or silently mutate shared state).
+            const stamped = { ...save, updatedAt: new Date().toISOString() }
+            const key = STORAGE_KEYS.SAVE_PREFIX + stamped.saveId
+            const serialized = JSON.stringify(stamped)
             await this.storage.setItem(key, serialized)
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
             return { success: true }
@@ -418,10 +434,19 @@ export class SaveManager {
             // Discard any stale staging file from an interrupted previous write.
             await this.clearStaleTmp(key)
 
-            // Try primary save
-            let localData = await this.storage.getItem(key)
+            // Primary local read and Steam Cloud read are independent — the
+            // cloud value is used regardless of whether primary succeeds (for
+            // conflict resolution further down). Fire both at once so the
+            // happy-path load isn't gated on a 50-500ms Steam IPC RTT.
+            const [primaryRead, cloudRead] = await Promise.allSettled([
+                this.storage.getItem(key),
+                steamService.downloadSaveFromCloud(saveId),
+            ])
+            let localData = primaryRead.status === "fulfilled" ? primaryRead.value : null
+            let cloudData: string | null = cloudRead.status === "fulfilled" ? cloudRead.value : null
 
-            // If not found, try rotating backups (newest first)
+            // If primary not found, try rotating backups (newest first).
+            // Kept sequential — almost always a no-op on the happy path.
             if (!localData) {
                 for (const suffix of ["_1", "_2", "_3", ""]) {
                     const candidate = await this.storage.getItem(backupKey + suffix)
@@ -435,14 +460,6 @@ export class SaveManager {
                 }
             }
 
-            // Try cloud candidate for recovery/conflict resolution.
-            let cloudData: string | null = null
-            try {
-                cloudData = await steamService.downloadSaveFromCloud(saveId)
-            } catch {
-                cloudData = null
-            }
-
             if (!localData && cloudData) {
                 debug.warn("Loaded save from Steam Cloud - local save missing")
                 await this.storage.setItem(key, cloudData)
@@ -453,10 +470,16 @@ export class SaveManager {
                 return { save: null, error: "Save not found", errorCode: "NOT_FOUND" }
             }
 
-            const localCandidate = await this.parseAndValidateSaveCandidate(localData, saveId)
-            const cloudCandidate = cloudData
-                ? await this.parseAndValidateSaveCandidate(cloudData, saveId)
-                : null
+            // Parse/validate both candidates in parallel — each is a full
+            // JSON.parse + structural check + (for SHA verified saves) an
+            // async hash compute, so sequencing them doubled wall time
+            // whenever cloud data was present.
+            const [localCandidate, cloudCandidate] = await Promise.all([
+                this.parseAndValidateSaveCandidate(localData, saveId),
+                cloudData
+                    ? this.parseAndValidateSaveCandidate(cloudData, saveId)
+                    : Promise.resolve(null),
+            ])
 
             // Track the strongest signal across attempted candidates so we can
             // surface a precise error if everything fails.
@@ -527,7 +550,7 @@ export class SaveManager {
             if (!selected) {
                 return {
                     save: null,
-                    error: bestErrorMessage || "Save integrity check failed (possible tampering/corruption)",
+                    error: bestErrorMessage || "Save integrity check failed (file is corrupted or incomplete)",
                     errorCode: bestErrorCode,
                 }
             }
@@ -699,7 +722,7 @@ export class SaveManager {
                 const data = await this.storage.getItem(key)
                 if (!data) continue
 
-                const parsed = JSON.parse(data) as GameSave
+                const parsed = parseUntrustedJson<GameSave>(data)
 
                 // Identify Player Team
                 let playerTeamId = parsed.playerTeamId
@@ -781,7 +804,19 @@ export class SaveManager {
                     }))
                 })
             } catch {
-                // Skip corrupted saves
+                // A corrupt save must stay visible — silently dropping it
+                // hides a file that attemptRecovery could still restore.
+                // Surface it as a flagged slot instead of skipping it.
+                slots.push({
+                    slotId: key,
+                    saveId: key.slice(STORAGE_KEYS.SAVE_PREFIX.length) || null,
+                    saveName: "Corrupted save",
+                    currentWeek: null,
+                    teamName: null,
+                    updatedAt: null,
+                    isEmpty: false,
+                    isCorrupted: true,
+                })
             }
         }
 
@@ -893,7 +928,7 @@ export class SaveManager {
             const legacyData = await this.storage.getItem(STORAGE_KEYS.WEEK_TICK_STATE)
             if (legacyData) {
                 try {
-                    const legacy = JSON.parse(legacyData) as WeekTickState
+                    const legacy = parseUntrustedJson<WeekTickState>(legacyData)
                     if (!legacy.saveId || legacy.saveId === saveId) {
                         legacy.saveId = saveId
                         data = JSON.stringify(legacy)
@@ -909,7 +944,7 @@ export class SaveManager {
         if (!data) return null
 
         try {
-            const state = JSON.parse(data) as WeekTickState
+            const state = parseUntrustedJson<WeekTickState>(data)
             if (saveId && state.saveId && state.saveId !== saveId) {
                 return null
             }
@@ -988,9 +1023,25 @@ export class SaveManager {
      */
     importSave(json: string): { save: GameSave | null; error?: string } {
         try {
-            const parsed = JSON.parse(json)
+            const parsed = parseUntrustedJson<Record<string, unknown>>(json)
+
+            // Reject a save written by a newer build before migrating: the
+            // migration ladder only runs forward, so a future-version payload
+            // would otherwise pass straight through untouched and corrupt state.
+            const schema = validateSaveSchema(parsed)
+            if (!schema.ok && schema.newerVersion) {
+                return { save: null, error: schema.issues[0] || "Save is from a newer game version" }
+            }
+
             const migrated = this.migrateSave(parsed)
 
+            // Apply the same schema + structure gates loadGame uses, so an
+            // imported save is not the least-validated entry point into the
+            // game state.
+            const postSchema = validateSaveSchema(migrated)
+            if (!postSchema.ok) {
+                return { save: null, error: postSchema.issues[0] || "Invalid save schema" }
+            }
             if (!validateSaveStructure(migrated)) {
                 return { save: null, error: "Invalid save structure" }
             }

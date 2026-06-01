@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber"
 import { ContactShadows, OrbitControls } from "@react-three/drei"
-import { useMemo, useRef } from "react"
+import { memo, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import {
@@ -10,8 +10,7 @@ import {
     type PortraitFeatures,
     type Hairstyle,
     type HeadShape,
-    type Accessory,
-    type FacialHair,
+    type Accessory
 } from "@/lib/safe-branding/portrait-features"
 
 interface Player3DPortraitProps {
@@ -588,7 +587,7 @@ function PortraitScene({
     )
 }
 
-export function Player3DPortrait({
+function Player3DPortraitImpl({
     seed,
     size = 256,
     className,
@@ -622,5 +621,11 @@ export function Player3DPortrait({
         </div>
     )
 }
+
+// Memoized so list parents (PlayerCard, player-detail) don't trigger a
+// fresh React reconciliation of the Three.js subtree when their own
+// unrelated props change. The Canvas's useFrame loop runs regardless;
+// this just skips redundant React work.
+export const Player3DPortrait = memo(Player3DPortraitImpl)
 
 export default Player3DPortrait

@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { motion } from "framer-motion"
-import { X, Plane, Dumbbell, Brain, Sparkles, Coins, CalendarClock } from "lucide-react"
+import { X, Plane, Dumbbell, Sparkles, Coins, CalendarClock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
@@ -112,7 +112,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                             Starting Week {week}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors" aria-label="Close dialog">
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                         <X size={20} className="text-white/50 hover:text-white" />
                     </button>
                 </div>

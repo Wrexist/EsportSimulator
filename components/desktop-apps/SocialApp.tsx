@@ -5,9 +5,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircle, Heart, Repeat2, Bookmark, MoreHorizontal, User } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { SocialFeed } from "@/components/ui/SocialFeed"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { TeamSaveData } from "@/engine/save-types"
 
 interface SocialPost {
@@ -151,7 +149,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                                     <Heart size={12} />
                                                     {post.likes}
                                                 </button>
-                                                <button className="text-white/40 hover:text-white transition-colors">
+                                                <button type="button" aria-label="Bookmark post" className="text-white/40 hover:text-white active:text-white/90 active:scale-90 transition-all">
                                                     <Bookmark size={12} />
                                                 </button>
                                             </div>
@@ -186,7 +184,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                                 <p className="text-[12px] font-bold text-white group-hover:text-cyan-400 transition-colors">#{topic.tag}</p>
                                                 <p className="text-[9px] text-white/40">{topic.posts} posts</p>
                                             </div>
-                                            <button className="p-1 hover:bg-white/10 rounded transition-colors opacity-0 group-hover:opacity-100">
+                                            <button type="button" aria-label="More options" className="p-1 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded transition-all opacity-0 group-hover:opacity-100">
                                                 <MoreHorizontal size={14} className="text-white/40" />
                                             </button>
                                         </div>

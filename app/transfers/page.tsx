@@ -7,7 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, DollarSign, Calendar, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
+import { Search, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { TableBody } from "@/components/ui/table"
@@ -26,7 +26,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast } from "@/lib/toast"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
@@ -63,6 +62,43 @@ function TransfersPageInner() {
     setLoadTimeout(false)
   }, [playerTeam])
 
+  // Pre-build roster set for O(1) exclusion check and player→team map for
+  // O(1) team lookups. Must run before the early return below so hook order
+  // stays stable across renders.
+  const { rosterSet, playerTeamMap } = useMemo(() => {
+    const rosterSet = new Set(playerTeam?.rosterIds ?? [])
+    const playerTeamMap = new Map<string, typeof teams[0]>()
+    teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
+    return { rosterSet, playerTeamMap }
+  }, [playerTeam?.rosterIds, teams])
+
+  // Filter available players (not in user team, not retired). Memoized so a
+  // page-change or role-filter toggle doesn't re-traverse all ~1000 players;
+  // the search input updates via the 300ms debouncedSearch dep below, not
+  // every keystroke. Must run before the early return so hook order stays
+  // stable.
+  const searchLower = debouncedSearch.toLowerCase()
+  const allFiltered = useMemo(
+    () => players
+      .filter(p =>
+        !rosterSet.has(p.id) &&
+        !p.isRetired &&
+        p.nickname.toLowerCase().includes(searchLower) &&
+        (roleFilter ? p.role === roleFilter : true)
+      )
+      .sort((a, b) =>
+        ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
+      ),
+    [players, rosterSet, searchLower, roleFilter],
+  )
+
+  const totalPages = Math.max(1, Math.ceil(allFiltered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages - 1)
+  const availablePlayers = useMemo(
+    () => allFiltered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE),
+    [allFiltered, safePage],
+  )
+
   if (!playerTeam) {
     if (loadTimeout) {
       return (
@@ -89,34 +125,6 @@ function TransfersPageInner() {
       </div>
     )
   }
-
-  // Pre-build roster set for O(1) exclusion check and player→team map for
-  // O(1) team lookups. Memoized so unrelated parent state changes (search
-  // input, paging) don't rebuild these whenever teams/rosterIds haven't
-  // changed. Without memo this was O(teams * roster) every render.
-  const { rosterSet, playerTeamMap } = useMemo(() => {
-    const rosterSet = new Set(playerTeam.rosterIds)
-    const playerTeamMap = new Map<string, typeof teams[0]>()
-    teams.forEach(t => t.rosterIds.forEach(pid => playerTeamMap.set(pid, t)))
-    return { rosterSet, playerTeamMap }
-  }, [playerTeam.rosterIds, teams])
-
-  // Filter available players (not in user team, not retired) - single-pass filter + precomputed OVR for sort
-  const searchLower = debouncedSearch.toLowerCase()
-  const allFiltered = players
-    .filter(p =>
-      !rosterSet.has(p.id) &&
-      !p.isRetired &&
-      p.nickname.toLowerCase().includes(searchLower) &&
-      (roleFilter ? p.role === roleFilter : true)
-    )
-    .sort((a, b) =>
-      ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
-    )
-
-  const totalPages = Math.max(1, Math.ceil(allFiltered.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages - 1)
-  const availablePlayers = allFiltered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
 
   const getTeamForPlayer = (playerId: string) => {
     return playerTeamMap.get(playerId)

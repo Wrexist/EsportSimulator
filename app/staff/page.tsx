@@ -8,17 +8,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
-import { User, Briefcase, Zap, DollarSign, Award, Users, TrendingUp, Search, Brain, Clock, RefreshCw, Star, Sparkles, Activity, Shield } from "lucide-react"
+import { User, Briefcase, DollarSign, Users, TrendingUp, Search, Brain, Clock, RefreshCw, Star, Sparkles, Activity, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { StaffDetailsModal } from "@/components/staff/StaffDetailsModal"
 import { StaffPortrait } from "@/components/ui/asset-images"
-import {
-    GlassTableHeader,
-    GlassTableHead,
-    GlassTableRow,
-    GlassTableCell,
-    GlassStatCell
-} from "@/components/ui/GlassTable"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -100,11 +93,14 @@ export default function StaffPage() {
         }
     }, [currentStaff])
     useEffect(() => {
-        // Only refresh if hydrated and market is empty
+        // Only refresh if hydrated and market is empty. Deliberately keyed
+        // on _hasHydrated alone so we don't loop on marketStaff.length
+        // toggling between 0 and >0 after the refresh lands.
         if (_hasHydrated && marketStaff.length === 0) {
             refreshStaffMarket()
         }
-    }, [_hasHydrated]) // Remove marketStaff.length from deps to prevent re-runs
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [_hasHydrated])
 
 
     const handleFire = (staffId: string) => {

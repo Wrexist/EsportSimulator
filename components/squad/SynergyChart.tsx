@@ -1,13 +1,16 @@
 import React, { memo, useMemo } from "react"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
-import { Users } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface SynergyChartProps {
     players: PlayerSaveData[]
     className?: string
 }
+
+// Hoisted so the labels array reference is stable across renders — the
+// useMemo for labelCoords below depends on it.
+const SYNERGY_LABELS = ["Firepower", "Teamwork", "Tactics", "Utility", "Mental"] as const
 
 const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className }) => {
 
@@ -44,8 +47,7 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
         return `${x},${y}`
     }).join(" "), [stats])
 
-    const labels = ["Firepower", "Teamwork", "Tactics", "Utility", "Mental"]
-    const labelCoords = useMemo(() => labels.map((label, i) => {
+    const labelCoords = useMemo(() => SYNERGY_LABELS.map((label, i) => {
         const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
         const r = 105 // Label radius
         const x = 100 + r * Math.cos(angle)

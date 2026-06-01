@@ -10,15 +10,9 @@ import {
     Headphones,
     Armchair,
     Cpu,
-    Sparkles,
     Check,
     ArrowUpCircle,
-    Package,
-    TrendingUp,
-    ShieldCheck,
-    Info,
-    X,
-    ShoppingCart
+    X
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

@@ -76,8 +76,13 @@ function calculateAiSalary(player: PlayerSaveData): number {
  * 26 weeks of runway after the new wage. Best = highest score per the
  * scoreSigningCandidate formula. No-op if the roster is at the
  * MAX_ROSTER_SIZE cap, no FAs exist, or none fit the budget.
+ *
+ * `emergency` waives the affordability filter — used when a team is below
+ * the 5-player quorum and MUST field a roster regardless of budget. The
+ * value-weighted scorer still favours the cheapest viable signing, so an
+ * insolvent team takes the least possible damage.
  */
-export function signFreeAgent(team: TeamSaveData, save: GameSave): void {
+export function signFreeAgent(team: TeamSaveData, save: GameSave, emergency = false): void {
     if (team.rosterIds.length >= MAX_ROSTER_SIZE) return
 
     const allRosteredIds = new Set(save.teams.flatMap(t => t.rosterIds))
@@ -102,13 +107,16 @@ export function signFreeAgent(team: TeamSaveData, save: GameSave): void {
     const missingRoles = new Set(REQUIRED_ROLES.filter(r => !currentRoles.has(r)))
 
     // Affordability filter: needs SIGNING_RUNWAY_WEEKS of runway AND
-    // an absolute SIGNING_MIN_BUDGET floor.
-    const affordable = freeAgents.filter(p => {
-        const weeklySalary = calculateAiSalary(p)
-        const totalWeeklyCost = existingWeeklyCosts + weeklySalary
-        const runwayCost = totalWeeklyCost * SIGNING_RUNWAY_WEEKS
-        return team.budget > runwayCost && team.budget > SIGNING_MIN_BUDGET
-    })
+    // an absolute SIGNING_MIN_BUDGET floor. Waived in emergency mode — a
+    // sub-quorum team must field 5 players even if it means going negative.
+    const affordable = emergency
+        ? freeAgents
+        : freeAgents.filter(p => {
+            const weeklySalary = calculateAiSalary(p)
+            const totalWeeklyCost = existingWeeklyCosts + weeklySalary
+            const runwayCost = totalWeeklyCost * SIGNING_RUNWAY_WEEKS
+            return team.budget > runwayCost && team.budget > SIGNING_MIN_BUDGET
+        })
     if (affordable.length === 0) return
 
     // Pick the highest-scoring affordable candidate.
@@ -231,9 +239,11 @@ export function releaseWorstPlayer(team: TeamSaveData, save: GameSave): void {
 export function manageRoster(team: TeamSaveData, save: GameSave): void {
     const rosterSize = team.rosterIds.length
 
-    // 1. Fill gaps below quorum.
+    // 1. Fill gaps below quorum — emergency mode: a team MUST field 5
+    // players, so the affordability filter is waived here. Without this an
+    // insolvent team could never recover quorum and would forfeit forever.
     if (rosterSize < 5) {
-        signFreeAgent(team, save)
+        signFreeAgent(team, save, true)
         return
     }
 

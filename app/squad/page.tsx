@@ -6,8 +6,6 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import Image from "next/image"
-import { PlayerPortrait } from "@/components/ui/asset-images"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerCard } from "@/components/ui/PlayerCard"
 import { StatTile } from "@/src/components/ui/StatTile"
@@ -15,15 +13,12 @@ import { SectionHeader } from "@/src/components/ui/SectionHeader"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
-import { resolvePlayerRole } from "@/engine/role-determination"
+import { getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { useState, useMemo, useCallback, memo } from "react"
-import { CountryFlag } from "@/components/ui/CountryFlag"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
 const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
@@ -56,7 +51,7 @@ const RosterCard = memo(function RosterCard({
   isBench = false,
   isSelected,
   isSwapTarget,
-  weeksLeft,
+  weeksLeft: _weeksLeft,
   yearsLeft,
   salary,
   selectedSwapIsNull,
@@ -175,17 +170,10 @@ export default function SquadPage() {
 }
 
 function SquadPageInner() {
-  const { getPlayerTeam, players, playerTeamId, academyPlayers, setPlaystyle, setEconomyStyle, setTargetPlayer, getUpcomingMatches, performVODReview, promotePlayer, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
-    getPlayerTeam: state.getPlayerTeam,
+  const { players, playerTeamId, academyPlayers, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
     players: state.players,
     playerTeamId: state.playerTeamId,
     academyPlayers: state.academyPlayers,
-    setPlaystyle: state.setPlaystyle,
-    setEconomyStyle: state.setEconomyStyle,
-    setTargetPlayer: state.setTargetPlayer,
-    getUpcomingMatches: state.getUpcomingMatches,
-    performVODReview: state.performVODReview,
-    promotePlayer: state.promotePlayer,
     swapRosterPositions: state.swapRosterPositions,
     startRoleTraining: state.startRoleTraining,
     contracts: state.contracts,
@@ -223,19 +211,6 @@ function SquadPageInner() {
       .filter(Boolean) as any[]
   }, [playerById, teamData])
 
-  if (!teamData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
-        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
-      </div>
-    )
-  }
-
-  // Split into Active and Bench
-  const activeRoster = roster.slice(0, 5)
-  const benchRoster = roster.slice(5)
-
   const handleSwapInitiate = useCallback((index: number) => {
     setSelectedSwapIndex(index)
   }, [])
@@ -258,6 +233,19 @@ function SquadPageInner() {
     for (const c of contracts) m.set(c.playerId, c)
     return m
   }, [contracts])
+
+  if (!teamData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
+        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
+      </div>
+    )
+  }
+
+  // Split into Active and Bench
+  const activeRoster = roster.slice(0, 5)
+  const benchRoster = roster.slice(5)
 
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-20">

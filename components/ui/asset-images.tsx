@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS, getTeamLogoUrl } from "@/lib/asset-utils";
+import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS } from "@/lib/asset-utils";
 import { cn } from "@/lib/utils";
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
 import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";

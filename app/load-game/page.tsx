@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -57,11 +57,9 @@ function LoadGamePageInner() {
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
-    useEffect(() => {
-        void refreshSlots()
-    }, [])
-
-    const refreshSlots = async () => {
+    // useCallback keeps the effect dep stable. `listSaves` is a module-level
+    // import (stable) but included in deps to satisfy exhaustive-deps.
+    const refreshSlots = useCallback(async () => {
         setIsLoading(true)
         try {
             const availableSlots = await listSaves()
@@ -72,7 +70,11 @@ function LoadGamePageInner() {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [listSaves])
+
+    useEffect(() => {
+        void refreshSlots()
+    }, [refreshSlots])
 
     const handleLoad = async (id: string) => {
         setLoadingSlotId(id)
@@ -134,7 +136,7 @@ function LoadGamePageInner() {
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-8 md:p-12">
+        <div className="min-h-screen liquid-app-bg text-white p-8 md:p-12">
             <div className="max-w-6xl mx-auto space-y-12">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -379,7 +381,7 @@ function LoadGamePageInner() {
 
                 {/* Delete Confirmation Dialog */}
                 <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-                    <AlertDialogContent className="bg-[#0e1217] border-white/10">
+                    <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-white">Delete Career</AlertDialogTitle>
                             <AlertDialogDescription>

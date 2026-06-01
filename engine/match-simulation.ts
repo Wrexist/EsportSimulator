@@ -241,8 +241,16 @@ export class SimulationEngineV2 {
 
             if (mapResult.finalScore.team1 > mapResult.finalScore.team2) {
                 homeScore++
-            } else {
+            } else if (mapResult.finalScore.team2 > mapResult.finalScore.team1) {
                 awayScore++
+            } else {
+                // A drawn map should be impossible — overtime always resolves
+                // a tie — but the round-cap safety break can exit with an
+                // equal score. Resolve with a seeded coin-flip so the result
+                // stays deterministic and the map is never silently handed to
+                // the away team by an `else` fall-through.
+                if (rng.bool(0.5)) homeScore++
+                else awayScore++
             }
         }
 

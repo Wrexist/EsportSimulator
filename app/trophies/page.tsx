@@ -202,8 +202,8 @@ export default function TrophyRoomPage() {
                     <div className="w-24 h-24 mx-auto mb-8 rounded-[2rem] bg-white/[0.03] border border-white/10 flex items-center justify-center">
                         <Trophy size={40} className="text-white/10" />
                     </div>
-                    <h2 className="text-2xl font-normal text-white/30 uppercase tracking-wider mb-3">No Trophies Yet</h2>
-                    <p className="text-sm text-white/15 max-w-md mx-auto leading-relaxed">
+                    <h2 className="text-2xl font-normal text-white/70 uppercase tracking-wider mb-3">No Trophies Yet</h2>
+                    <p className="text-sm text-white/55 max-w-md mx-auto leading-relaxed">
                         Every dynasty starts with a single victory. Enter tournaments, build your roster, and claim your first title.
                     </p>
                     <div className="flex items-center justify-center gap-8 mt-12 text-white/10">
@@ -309,30 +309,30 @@ export default function TrophyRoomPage() {
                     transition={{ delay: 0.5 }}
                     className="pt-8 border-t border-white/5"
                 >
-                    <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-white/20 mb-6 flex items-center gap-2">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-white/55 mb-6 flex items-center gap-2">
                         <TrendingUp size={12} /> Career Milestones
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="glass-panel p-5 border border-white/5">
                             <Swords size={16} className="text-white/20 mb-3" />
                             <p className="text-2xl font-normal text-white">{matchStats.tournamentWins}</p>
-                            <p className="text-[9px] text-white/20 uppercase tracking-widest mt-1">Tournament Match Wins</p>
+                            <p className="text-[9px] text-white/55 uppercase tracking-widest mt-1">Tournament Match Wins</p>
                         </div>
                         <div className="glass-panel p-5 border border-white/5">
                             <Calendar size={16} className="text-white/20 mb-3" />
                             <p className="text-2xl font-normal text-white">{trophiesByYear.length}</p>
-                            <p className="text-[9px] text-white/20 uppercase tracking-widest mt-1">Trophy-Winning Seasons</p>
+                            <p className="text-[9px] text-white/55 uppercase tracking-widest mt-1">Trophy-Winning Seasons</p>
                         </div>
                         <div className="glass-panel p-5 border border-white/5">
                             <Crown size={16} className="text-amber-400/40 mb-3" />
                             <p className="text-2xl font-normal text-amber-400">{tierCounts.S}</p>
-                            <p className="text-[9px] text-white/20 uppercase tracking-widest mt-1">Major Titles</p>
+                            <p className="text-[9px] text-white/55 uppercase tracking-widest mt-1">Major Titles</p>
                         </div>
                         {matchStats.topRival && (
                             <div className="glass-panel p-5 border border-white/5">
                                 <Flame size={16} className="text-rose-400/40 mb-3" />
                                 <p className="text-lg font-normal text-white truncate">{matchStats.topRival.name}</p>
-                                <p className="text-[9px] text-white/20 uppercase tracking-widest mt-1">
+                                <p className="text-[9px] text-white/55 uppercase tracking-widest mt-1">
                                     Top Rival ({matchStats.topRival.wins}W-{matchStats.topRival.losses}L)
                                 </p>
                             </div>

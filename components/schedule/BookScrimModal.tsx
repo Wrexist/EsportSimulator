@@ -5,7 +5,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { calculateTeamTier } from "@/engine/tier-system"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { X, Swords, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -110,7 +110,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                             Schedule practice match for Week {week}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors" aria-label="Close dialog">
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                         <X size={20} className="text-white/50 hover:text-white" />
                     </button>
                 </div>

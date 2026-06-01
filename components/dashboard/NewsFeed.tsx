@@ -3,7 +3,7 @@
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { motion } from "framer-motion"
-import { Newspaper, Trophy, Users, Zap, Award, Calendar, Briefcase, Building2, DollarSign, Stethoscope } from "lucide-react"
+import { Newspaper, Trophy, Users, Zap, Award, Briefcase, Building2, DollarSign, Stethoscope } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { useMemo } from "react"
@@ -135,7 +135,7 @@ export function NewsFeed() {
                                 </p>
 
                                 {item.engagement && (
-                                    <div className="flex items-center gap-3 pt-2 text-[9px] font-normal text-white/20 uppercase tracking-widest">
+                                    <div className="flex items-center gap-3 pt-2 text-[9px] font-normal text-white/55 uppercase tracking-widest">
                                         <span className="flex items-center gap-1 group-hover:text-red-400/50 transition-colors">
                                             ❤️ {item.engagement.likes.toLocaleString()}
                                         </span>

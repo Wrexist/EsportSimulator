@@ -3,7 +3,6 @@
 import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import {
     Dialog,
     DialogContent,
@@ -92,7 +91,6 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
         }
 
         setIsTraining(true)
-        await new Promise(r => setTimeout(r, 1500))
 
         const result = WeaponMasteryManager.processTrainingDrill(livePlayer as any, drillKey, budget)
 

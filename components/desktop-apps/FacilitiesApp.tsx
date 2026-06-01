@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, Zap, Heart, Users, LineChart, ArrowUp, Hammer, Building2, Info, CheckCircle2 } from "lucide-react"
+import { Zap, Heart, Users, LineChart, ArrowUp, Building2, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +10,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "@/lib/toast"
+import { soundManager } from "@/lib/sound-manager"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
@@ -86,7 +87,6 @@ export function FacilitiesApp() {
         upgradeFacility: state.upgradeFacility,
     })))
     const team = useCurrentTeam()
-    const [upgradingId, setUpgradingId] = useState<string | null>(null)
     const [expandedId, setExpandedId] = useState<string | null>(null)
 
     if (!team) return <div className="p-4 text-white">Team not found</div>
@@ -103,10 +103,9 @@ export function FacilitiesApp() {
 
     const handleUpgrade = (type: FacilityType, e: React.MouseEvent) => {
         e.stopPropagation()
-        setUpgradingId(type)
         const result = upgradeFacility(team.id, type)
-        setTimeout(() => setUpgradingId(null), 800)
         if (result.success) {
+            soundManager.play("facilityUpgrade")
             toast.success("Facility Updated", { description: result.message })
         } else {
             toast.error("Cannot Upgrade Facility", { description: result.message })
@@ -304,21 +303,15 @@ export function FacilitiesApp() {
 
                                                             <Button
                                                                 onClick={(e) => handleUpgrade(fac.id, e)}
-                                                                disabled={!canAfford || upgradingId === fac.id}
+                                                                disabled={!canAfford}
                                                                 className={cn(
-                                                                    "w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all",
+                                                                    "w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all active:scale-[0.98]",
                                                                     canAfford
                                                                         ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]"
                                                                         : "bg-white/5 text-white/20 border border-white/5"
                                                                 )}
                                                             >
-                                                                {upgradingId === fac.id ? (
-                                                                    <span className="flex items-center gap-2">
-                                                                        <Hammer className="animate-spin" size={16} /> Construction in Progress...
-                                                                    </span>
-                                                                ) : (
-                                                                    canAfford ? "Purchase Upgrade" : "Insufficient Funds"
-                                                                )}
+                                                                {canAfford ? "Purchase Upgrade" : "Insufficient Funds"}
                                                             </Button>
                                                         </div>
                                                     )}

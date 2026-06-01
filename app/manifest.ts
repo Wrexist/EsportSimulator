@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'Esport Manager Simulator',
-        short_name: 'Esport Sim',
+        name: 'Esports Manager: FPS',
+        short_name: 'Esports Manager',
         description: 'Manage your professional esports team to glory.',
         start_url: '/',
         display: 'fullscreen',

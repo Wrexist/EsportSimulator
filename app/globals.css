@@ -174,10 +174,24 @@ body[data-scroll-locked] {
   }
 
   .dark {
+    /* ── Liquid Glass material system ──────────────────────────────────
+       Four blur tiers drive the material scale:
+         sm  → chips / hover layers      (.glass-ultrathin)
+         md  → cards / table rows        (.glass-card)
+         lg  → panels / dialogs          (.glass-panel / .liquid-panel)
+         xl  → shell chrome              (.liquid-chrome)
+       The `.onyx` theme variant below overrides only the tints, so both
+       themes share one material definition. */
+    --glass-blur-sm: 12px;
+    --glass-blur-md: 20px;
+    --glass-blur-lg: 28px;
+    --glass-blur-xl: 40px;
+
     /* Liquid glass — mirrors src/design/tokens semantics */
     --glass-bg-base: rgba(8, 11, 16, 0.72);
     --glass-bg-raised: rgba(11, 15, 22, 0.68);
     --glass-bg-dense: rgba(12, 16, 22, 0.58);
+    --glass-bg-ultrathin: rgba(255, 255, 255, 0.045);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-border-hover: rgba(255, 255, 255, 0.16);
     --glass-edge: rgba(255, 255, 255, 0.12);
@@ -222,6 +236,21 @@ body[data-scroll-locked] {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Onyx theme variant — a deeper, blacker glass tint. Overrides only the
+     material tints (not the structural material/blur definitions) so the
+     crystal ↔ onyx toggle in the top bar produces a real, visible change.
+     `.onyx` is applied to <html> and to the app shell by GameShell. */
+  .onyx {
+    --glass-bg-base: rgba(2, 3, 5, 0.86);
+    --glass-bg-raised: rgba(4, 6, 9, 0.82);
+    --glass-bg-dense: rgba(5, 7, 10, 0.74);
+    --glass-bg-ultrathin: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.075);
+    --glass-border-hover: rgba(255, 255, 255, 0.13);
+    --glass-edge: rgba(255, 255, 255, 0.08);
+    --glass-shine: rgba(255, 255, 255, 0.055);
   }
 }
 
@@ -329,6 +358,31 @@ body[data-scroll-locked] {
       radial-gradient(ellipse 90% 45% at 50% -12%, rgba(125, 211, 252, 0.045), transparent 55%),
       radial-gradient(ellipse 70% 40% at 85% 65%, rgba(255, 255, 255, 0.035), transparent 50%),
       linear-gradient(165deg, #05070b 0%, #0a1017 48%, #080a0e 100%);
+  }
+
+  /* Onyx variant — deeper near-black backdrop. */
+  .liquid-app-bg.onyx {
+    background:
+      radial-gradient(ellipse 90% 45% at 50% -12%, rgba(125, 211, 252, 0.03), transparent 55%),
+      radial-gradient(ellipse 70% 40% at 85% 65%, rgba(255, 255, 255, 0.022), transparent 50%),
+      linear-gradient(165deg, #010204 0%, #04070b 48%, #020305 100%);
+  }
+
+  /* Ultrathin material — chips, hover layers, inline pills. The lightest
+     glass tier; sits directly on top of a heavier surface. */
+  .glass-ultrathin {
+    background: var(--glass-bg-ultrathin);
+    backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 var(--glass-edge);
+    transition:
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease);
+  }
+
+  .glass-ultrathin:hover {
+    border-color: var(--glass-border-hover);
   }
 
   .liquid-noise::before {

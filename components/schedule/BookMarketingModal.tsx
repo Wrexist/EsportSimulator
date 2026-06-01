@@ -116,7 +116,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                             <p className="text-xs text-muted-foreground uppercase tracking-widest">Week {week}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors" aria-label="Close dialog">
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-full transition-all" aria-label="Close dialog">
                         <X size={18} className="text-white/50 hover:text-white" />
                     </button>
                 </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Trophy, Globe, Calendar, Users, DollarSign, Award, Target, MapPin, List, Swords } from "lucide-react"
+import { X, Globe, Calendar, Users, DollarSign, Target, List, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
@@ -113,6 +113,7 @@ export function TournamentDetailsModal({
                                 size="icon"
                                 variant="ghost"
                                 onClick={onClose}
+                                aria-label="Close tournament details"
                                 className="absolute top-4 right-4 text-white/50 hover:text-white hover:bg-white/10 rounded-full z-10"
                             >
                                 <X size={20} />

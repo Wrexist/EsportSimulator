@@ -95,7 +95,12 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         initAchievements()
         if (typeof window !== "undefined") {
-            document.documentElement.className = theme === "onyx" ? "dark onyx" : "dark"
+            // Toggle only the theme classes — never overwrite className
+            // wholesale, which would wipe accessibility classes
+            // (reduce-motion, high-contrast) added by other effects.
+            const root = document.documentElement
+            root.classList.add("dark")
+            root.classList.toggle("onyx", theme === "onyx")
 
             // Auto-save on close (Electron)
             const runtimeWindow = window as typeof window & { __esimCloseHookRegistered?: boolean }

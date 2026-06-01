@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useRef, useCallback } from "react"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bug, ChevronDown, ChevronUp, X, ImagePlus, Clipboard, Send } from "lucide-react"
+import { Bug, ChevronDown, ChevronUp, X, ImagePlus, Clipboard } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { useToast } from "@/lib/toast"
 import { errorTracker } from "@/lib/error-tracking"

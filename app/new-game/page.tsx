@@ -15,15 +15,12 @@ import {
     Search,
     Shield,
     X,
-    MapPin,
     User,
     ChevronRight,
     Sparkles,
-    Trophy,
     ArrowLeft,
     Lock,
-    Unlock,
-    Briefcase,
+    Briefcase
 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
@@ -183,24 +180,37 @@ export default function TeamSelectionPage() {
             .sort((a, b) => b.evaluation.overallRating - a.evaluation.overallRating)
     }, [selectedTeam, players])
 
+    // O(1) player lookup so the per-team rating/value below scan their
+    // own rosterIds (~5 ids) instead of filtering the full ~1000-player
+    // snapshot for every team in the picker grid.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
+
     // Calculate team value
     const getTeamValue = (team: SnapshotTeam) => {
-        const roster = players.filter(p => team.rosterIds.includes(p.id))
-        const totalValue = roster.reduce((sum, player) => {
-            const evaluation = evaluateSnapshotPlayer(player, team)
-            return sum + evaluation.transferValue
+        return team.rosterIds.reduce((sum, id) => {
+            const player = playersById.get(id)
+            if (!player) return sum
+            return sum + evaluateSnapshotPlayer(player, team).transferValue
         }, 0)
-        return totalValue
     }
 
     // Calculate team overall rating
     const getTeamRating = (team: SnapshotTeam) => {
-        const roster = players.filter(p => team.rosterIds.includes(p.id))
-        if (roster.length === 0) return 0
-        const avgRating = roster.reduce((sum, player) => {
-            const evaluation = evaluateSnapshotPlayer(player, team)
-            return sum + evaluation.overallRating
-        }, 0) / roster.length
+        const ids = team.rosterIds
+        if (!ids?.length) return 0
+        let sum = 0
+        let n = 0
+        for (const id of ids) {
+            const player = playersById.get(id)
+            if (player) {
+                sum += evaluateSnapshotPlayer(player, team).overallRating
+                n++
+            }
+        }
+        const avgRating = n === 0 ? 0 : sum / n
         return Math.round(avgRating)
     }
 
@@ -284,7 +294,7 @@ export default function TeamSelectionPage() {
     // Loading state
     if (isDataLoading) {
         return (
-            <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
+            <div className="min-h-screen liquid-app-bg flex items-center justify-center">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Teams...</p>
@@ -738,7 +748,7 @@ export default function TeamSelectionPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/5 rounded-lg">
+                                    <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all">
                                         <X size={18} className="text-muted-foreground" />
                                     </button>
                                 </div>

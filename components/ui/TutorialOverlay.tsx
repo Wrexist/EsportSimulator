@@ -18,9 +18,6 @@ import {
     X,
     Trophy,
     Zap,
-    Shield,
-    TrendingUp,
-    GraduationCap,
     Lightbulb,
     CheckCircle2
 } from "lucide-react"
