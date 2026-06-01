@@ -779,6 +779,13 @@ function getKFactor(tier: FPLTier): number {
         case 'FPL': return FPL_CONSTANTS.K_FACTOR_FPL
         case 'FPL_C': return FPL_CONSTANTS.K_FACTOR_FPL_C
         case 'HUBS': return FPL_CONSTANTS.K_FACTOR_HUBS
+        default: {
+            // Exhaustiveness guard — if FPLTier gets a new variant, this
+            // forces a compile error here so we don't silently return
+            // undefined into ELO math.
+            const _exhaustive: never = tier
+            return FPL_CONSTANTS.K_FACTOR_HUBS
+        }
     }
 }
 

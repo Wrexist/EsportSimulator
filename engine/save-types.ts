@@ -1102,6 +1102,16 @@ export function collectValidationErrors(save: unknown): string[] {
         return errors
     }
 
+    // Reject forward-incompatible saves explicitly instead of silently
+    // running them through the migration ladder (which would skip every
+    // step and leave the unknown shape intact).
+    if (s.saveVersion > CURRENT_SAVE_VERSION) {
+        errors.push(
+            `Save version ${s.saveVersion} was written by a newer build than this one (max supported: ${CURRENT_SAVE_VERSION}). Update the game to load it.`,
+        )
+        return errors
+    }
+
     if (!Array.isArray(s.teams) || !Array.isArray(s.players)) {
         errors.push("teams or players not arrays")
         return errors

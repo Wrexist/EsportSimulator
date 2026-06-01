@@ -46,6 +46,14 @@ export interface MapLayoutData {
     // For dual-level maps only
     bSiteLevel?: "lower"  // If B site is on the lower radar level
     bounds: MapBounds     // Playable area bounds (auto-computed from all points)
+    /**
+     * Optional authored geometry from /dev/map-builder. When present the
+     * radar engine uses walls for kill-line plausibility and named regions
+     * for richer event resolution. Both undefined = falls back to today's
+     * straight-line behavior.
+     */
+    walls?: Array<{ from: Point; to: Point }>
+    namedRegions?: Record<string, Point[]>
 }
 
 /** Compute playable area bounds from all defined points in a layout, with padding */
@@ -455,7 +463,7 @@ const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vert
 // JSON doesn't blank the radar.
 function fromJson(mapId: MapId, json: MapLayoutJson | undefined, fallback: MapLayoutData): MapLayoutData {
     if (!json) return fallback
-    const base: Omit<MapLayoutData, "bounds"> = {
+    const base: Omit<MapLayoutData, "bounds" | "walls" | "namedRegions"> = {
         tSpawn: json.tSpawn,
         ctSpawn: json.ctSpawn,
         ctHolds: json.ctHolds,
@@ -471,7 +479,15 @@ function fromJson(mapId: MapId, json: MapLayoutJson | undefined, fallback: MapLa
         bSiteLevel: json.bSiteLevel,
     }
     const projected = projectLayoutPoints(mapId, base)
-    return { ...projected, bounds: computeBounds(projected) }
+    return {
+        ...projected,
+        bounds: computeBounds(projected),
+        // Walls / named regions are kept in raw layout space — they're
+        // overlays describing geometry, not player paths, so they don't go
+        // through projectToWalkable.
+        walls: json.walls,
+        namedRegions: json.namedRegions,
+    }
 }
 
 export const MAP_LAYOUTS: Record<string, MapLayoutData> = {

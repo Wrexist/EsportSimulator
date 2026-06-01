@@ -192,6 +192,26 @@ function clampVector(v: Point, maxLength: number): Point {
     return scale(dir, maxLength)
 }
 
+/**
+ * True if line segments (a1→a2) and (b1→b2) cross. Uses standard CCW
+ * orientation tests. Endpoint-only touches don't count as a crossing so a
+ * kill-line that just grazes a wall corner stays visible.
+ */
+function segmentsIntersect(
+    a1x: number, a1y: number, a2x: number, a2y: number,
+    b1x: number, b1y: number, b2x: number, b2y: number,
+): boolean {
+    function ccw(ax: number, ay: number, bx: number, by: number, cx: number, cy: number): number {
+        return (cy - ay) * (bx - ax) - (by - ay) * (cx - ax)
+    }
+    const d1 = ccw(b1x, b1y, b2x, b2y, a1x, a1y)
+    const d2 = ccw(b1x, b1y, b2x, b2y, a2x, a2y)
+    const d3 = ccw(a1x, a1y, a2x, a2y, b1x, b1y)
+    const d4 = ccw(a1x, a1y, a2x, a2y, b2x, b2y)
+    return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0))
+        && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+}
+
 function projectPoint(mapId: MapId, level: RadarLevel, rawPoint: Point): Point {
     const safe = point(rawPoint.x, rawPoint.y)
     return projectToWalkable(mapId, level, safe)
@@ -720,6 +740,18 @@ export function computeRadarPositions(
         const distance = Math.hypot(killerDot.x - victimDot.x, killerDot.y - victimDot.y)
         const maxDistance = getMaxKillLineDistance(kill.weapon)
         if (distance > maxDistance) continue
+
+        // Wall plausibility: if the layout has authored walls, drop any kill
+        // line that crosses one. Drawn-through-walls lines were the
+        // "shooting across the map from spawn" feedback — this stops them
+        // visually even when the simulator places the players unrealistically.
+        if (layout.walls && layout.walls.length > 0) {
+            const crosses = layout.walls.some(wall => segmentsIntersect(
+                killerDot.x, killerDot.y, victimDot.x, victimDot.y,
+                wall.from.x, wall.from.y, wall.to.x, wall.to.y,
+            ))
+            if (crosses) continue
+        }
 
         killLines.push({
             fromX: clamp(killerDot.x, 0, 100),
