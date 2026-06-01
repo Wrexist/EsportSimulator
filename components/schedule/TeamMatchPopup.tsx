@@ -208,8 +208,9 @@ export function TeamMatchPopup({
                                         Close
                                     </Button>
                                     <Button
+                                        variant="play"
                                         onClick={handleGoToMatch}
-                                        className="flex-1 h-11 bg-white hover:bg-white/90 text-black font-bold ring-1 ring-white/40 shadow-[0_0_20px_rgba(255,255,255,0.18)] hover:shadow-[0_0_30px_rgba(255,255,255,0.32)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        className="flex-1 h-11"
                                     >
                                         <Play size={16} className="mr-2 fill-black" />
                                         {match.result ? "View Result" : "PLAY MATCH"}

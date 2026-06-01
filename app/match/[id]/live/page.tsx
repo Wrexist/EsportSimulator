@@ -253,14 +253,12 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     )
 
     // Background lives in a fixed-position layer so it stays viewport-sized.
-    // When it was on the scrolling root div, `background-size: cover` rescaled
-    // the image as more rounds piled up logs and the page grew — making the
-    // map bleed through bigger every round.
+    // Heavy dark gradient over the map photo keeps panels readable; the map
+    // is a subtle atmospheric backdrop, not the foreground.
     const backgroundStyle = useMemo(() => ({
-        backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.78) 0%, #0e1217 100%), url(/maps/${getMapAssetName(currentMapId)}.png)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundBlendMode: "overlay" as const,
+        backgroundImage: `linear-gradient(180deg, rgba(10,14,20,0.92) 0%, rgba(10,14,20,0.78) 55%, rgba(10,14,20,0.96) 100%), url(/maps/${getMapAssetName(currentMapId)}.png)`,
+        backgroundSize: "cover, cover",
+        backgroundPosition: "center, center",
     }), [currentMapId])
 
     if (!matchData.current || !simState) return (

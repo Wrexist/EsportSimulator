@@ -6,6 +6,8 @@
 
 import { MapId } from "@/types"
 import { projectToWalkable } from "./radar-nav"
+import { MAP_LAYOUT_JSONS } from "@/data/map-layouts"
+import type { MapLayoutJson } from "@/data/map-layouts/types"
 
 export interface Point {
     x: number  // 0-100, left to right
@@ -447,13 +449,38 @@ const vertigoBase = {
 const vertigoProjected = projectLayoutPoints(MapId.VERTIGO, vertigoBase)
 const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vertigoProjected) }
 
+// Hard-coded layouts above are the bootstrap source. Authored JSON in
+// data/map-layouts/*.json takes precedence — that's where /dev/map-builder
+// writes back to. The hard-coded blocks stay as a safety net so a deleted
+// JSON doesn't blank the radar.
+function fromJson(mapId: MapId, json: MapLayoutJson | undefined, fallback: MapLayoutData): MapLayoutData {
+    if (!json) return fallback
+    const base: Omit<MapLayoutData, "bounds"> = {
+        tSpawn: json.tSpawn,
+        ctSpawn: json.ctSpawn,
+        ctHolds: json.ctHolds,
+        aSite: json.aSite,
+        bSite: json.bSite,
+        tToA: json.tToA,
+        tToB: json.tToB,
+        ctRotateA: json.ctRotateA,
+        ctRotateB: json.ctRotateB,
+        engageA: json.engageA,
+        engageB: json.engageB,
+        mid: json.mid,
+        bSiteLevel: json.bSiteLevel,
+    }
+    const projected = projectLayoutPoints(mapId, base)
+    return { ...projected, bounds: computeBounds(projected) }
+}
+
 export const MAP_LAYOUTS: Record<string, MapLayoutData> = {
-    [MapId.SANDSTONE]: sandstone,
-    [MapId.MIRAGE]: mirage,
-    [MapId.INFERNO]: inferno,
-    [MapId.ANUBIS]: anubis,
-    [MapId.ANCIENT]: ancient,
-    [MapId.OVERPASS]: overpass,
-    [MapId.NUKE]: nuke,
-    [MapId.VERTIGO]: vertigo,
+    [MapId.SANDSTONE]: fromJson(MapId.SANDSTONE, MAP_LAYOUT_JSONS[MapId.SANDSTONE], sandstone),
+    [MapId.MIRAGE]: fromJson(MapId.MIRAGE, MAP_LAYOUT_JSONS[MapId.MIRAGE], mirage),
+    [MapId.INFERNO]: fromJson(MapId.INFERNO, MAP_LAYOUT_JSONS[MapId.INFERNO], inferno),
+    [MapId.ANUBIS]: fromJson(MapId.ANUBIS, MAP_LAYOUT_JSONS[MapId.ANUBIS], anubis),
+    [MapId.ANCIENT]: fromJson(MapId.ANCIENT, MAP_LAYOUT_JSONS[MapId.ANCIENT], ancient),
+    [MapId.OVERPASS]: fromJson(MapId.OVERPASS, MAP_LAYOUT_JSONS[MapId.OVERPASS], overpass),
+    [MapId.NUKE]: fromJson(MapId.NUKE, MAP_LAYOUT_JSONS[MapId.NUKE], nuke),
+    [MapId.VERTIGO]: fromJson(MapId.VERTIGO, MAP_LAYOUT_JSONS[MapId.VERTIGO], vertigo),
 }

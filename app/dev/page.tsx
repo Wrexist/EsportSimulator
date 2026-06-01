@@ -354,11 +354,18 @@ export default function DevPage() {
                         <p className="text-sm text-white/40">Advanced tools for testing and debugging</p>
                     </div>
                 </div>
-                <Link href="/">
-                    <Button variant="outline" size="sm" className="border-white/10">
-                        <Home className="mr-2 h-4 w-4" /> Back to Game
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Link href="/dev/map-builder">
+                        <Button variant="outline" size="sm" className="border-white/10">
+                            Map Builder
+                        </Button>
+                    </Link>
+                    <Link href="/">
+                        <Button variant="outline" size="sm" className="border-white/10">
+                            <Home className="mr-2 h-4 w-4" /> Back to Game
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Quick Stats Row */}

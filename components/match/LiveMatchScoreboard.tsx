@@ -22,7 +22,7 @@ interface LiveMatchScoreboardProps {
     bombTime?: number
 }
 
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { scorePulse } from "@/lib/motion"
 
 // Memoized: live page renders this on every tick (~30-60Hz). Most ticks
@@ -55,6 +55,7 @@ function LiveMatchScoreboardImpl({
     const isUrgent = isBombPlanted
         ? displaySeconds <= 10
         : displaySeconds <= 10 && displaySeconds > 0
+    const reduceMotion = useReducedMotion()
 
     /** CT side — cool blue; T side — amber (readability over heavy glow) */
     const homeBorderClass = "border-l-4 border-l-sky-400/45"
@@ -70,8 +71,12 @@ function LiveMatchScoreboardImpl({
                 </div>
                 <div>
                     <div className="text-xl font-normal uppercase">{homeTeam.name}</div>
-                    <div className="flex gap-1 mt-1">
-                        {[...Array(matchFormat === "BO3" ? 2 : matchFormat === "BO5" ? 3 : 1)].map((_, i) => (
+                    <div
+                        className="flex gap-1 mt-1"
+                        role="img"
+                        aria-label={`Maps won: ${homeSeriesScore} of ${mapsToWinForFormat(matchFormat)}`}
+                    >
+                        {Array.from({ length: mapsToWinForFormat(matchFormat) }, (_, i) => (
                             <div key={i} className={cn("w-2 h-2 rounded-full", i < homeSeriesScore ? "bg-white shadow-dot-soft" : "bg-white/10")} />
                         ))}
                     </div>
@@ -87,10 +92,10 @@ function LiveMatchScoreboardImpl({
                     <div className="w-20 text-center relative h-[60px] flex items-center justify-center">
                         <motion.div
                             key={homeScore}
-                            variants={scorePulse}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
+                            variants={reduceMotion ? undefined : scorePulse}
+                            initial={reduceMotion ? false : "initial"}
+                            animate={reduceMotion ? undefined : "animate"}
+                            exit={reduceMotion ? undefined : "exit"}
                             className="text-6xl font-normal text-white tracking-tighter absolute"
                             style={{ textShadow: "0 2px 24px rgba(56, 189, 248, 0.12)" }}
                         >
@@ -125,10 +130,10 @@ function LiveMatchScoreboardImpl({
                     <div className="w-20 text-center relative h-[60px] flex items-center justify-center">
                         <motion.div
                             key={awayScore}
-                            variants={scorePulse}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
+                            variants={reduceMotion ? undefined : scorePulse}
+                            initial={reduceMotion ? false : "initial"}
+                            animate={reduceMotion ? undefined : "animate"}
+                            exit={reduceMotion ? undefined : "exit"}
                             className="text-6xl font-normal text-white tracking-tighter absolute"
                             style={{ textShadow: "0 2px 24px rgba(251, 191, 36, 0.12)" }}
                         >
@@ -142,8 +147,12 @@ function LiveMatchScoreboardImpl({
             <div className={cn("flex items-center gap-6 w-1/3 justify-end text-right pr-3", awayBorderClass)}>
                 <div>
                     <div className="text-xl font-normal uppercase">{awayTeam.name}</div>
-                    <div className="flex gap-1 mt-1 justify-end">
-                        {[...Array(matchFormat === "BO3" ? 2 : matchFormat === "BO5" ? 3 : 1)].map((_, i) => (
+                    <div
+                        className="flex gap-1 mt-1 justify-end"
+                        role="img"
+                        aria-label={`Maps won: ${awaySeriesScore} of ${mapsToWinForFormat(matchFormat)}`}
+                    >
+                        {Array.from({ length: mapsToWinForFormat(matchFormat) }, (_, i) => (
                             <div key={i} className={cn("w-2 h-2 rounded-full", i < awaySeriesScore ? "bg-white shadow-dot-soft" : "bg-white/10")} />
                         ))}
                     </div>
@@ -154,6 +163,12 @@ function LiveMatchScoreboardImpl({
             </div>
         </div>
     )
+}
+
+function mapsToWinForFormat(format: string): number {
+    if (format === "BO3") return 2
+    if (format === "BO5") return 3
+    return 1
 }
 
 export const LiveMatchScoreboard = memo(LiveMatchScoreboardImpl)

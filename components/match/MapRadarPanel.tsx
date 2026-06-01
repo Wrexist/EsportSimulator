@@ -316,19 +316,22 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Subtle radar sweep */}
-                                    <g opacity="0.18">
-                                        <line x1="50" y1="50" x2="95" y2="50" stroke="url(#radarSweepGradient)" strokeWidth="1">
-                                            <animateTransform
-                                                attributeName="transform"
-                                                type="rotate"
-                                                from="0 50 50"
-                                                to="360 50 50"
-                                                dur="5s"
-                                                repeatCount="indefinite"
-                                            />
-                                        </line>
-                                    </g>
+                                    {/* Subtle radar sweep — only animates while round is LIVE so the GPU
+                                        isn't drawing rotations during freeze / FINISHED. */}
+                                    {roundPhase?.label === "LIVE" && (
+                                        <g opacity="0.18">
+                                            <line x1="50" y1="50" x2="95" y2="50" stroke="url(#radarSweepGradient)" strokeWidth="1">
+                                                <animateTransform
+                                                    attributeName="transform"
+                                                    type="rotate"
+                                                    from="0 50 50"
+                                                    to="360 50 50"
+                                                    dur="5s"
+                                                    repeatCount="indefinite"
+                                                />
+                                            </line>
+                                        </g>
+                                    )}
 
                                     {/* Site Labels (A / B) — subtle background markers */}
                                     {safeSitePositions && (

@@ -396,7 +396,7 @@ export default function Page() {
                 <div className="flex justify-center items-center gap-5">
                   {isMatchLive ? (
                     <>
-                      <Button asChild className="h-14 px-10 bg-white hover:bg-white/90 text-black rounded-lg text-xs uppercase font-black tracking-[0.15em] ring-1 ring-white/40 shadow-[0_18px_40px_-20px_rgba(255,255,255,0.55)]">
+                      <Button asChild variant="play" className="h-14 px-10 text-xs uppercase tracking-[0.15em]">
                         <Link href={`/match/${nextMatch.id}/tactics`}>
                           <Swords size={18} className="mr-3" /> Play Match
                         </Link>
