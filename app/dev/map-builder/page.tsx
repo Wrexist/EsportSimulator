@@ -94,6 +94,28 @@ export default function MapBuilderPage() {
         URL.revokeObjectURL(url)
     }, [selected, filename])
 
+    /**
+     * Export every map as a single bundled .json file. Useful when you've
+     * edited several maps and want to drop them in one go — much faster
+     * than 8 download clicks.
+     */
+    const handleExportAll = useCallback(() => {
+        const bundle: Record<string, MapLayoutJson> = {}
+        for (const m of MAP_LAYOUTS_ORDERED) {
+            bundle[m.mapId] = layouts[m.mapId]
+        }
+        const json = JSON.stringify(bundle, null, 2) + "\n"
+        const blob = new Blob([json], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "all-map-layouts.json"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    }, [layouts])
+
     const handleCopy = useCallback(async () => {
         const json = JSON.stringify(selected, null, 2)
         try {
@@ -170,6 +192,13 @@ export default function MapBuilderPage() {
                         >
                             <Download size={14} /> Export {filename}
                         </button>
+                        <button
+                            onClick={handleExportAll}
+                            className="h-10 px-4 rounded-lg bg-emerald-500/90 hover:bg-emerald-400 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 ring-1 ring-emerald-300/40 transition-colors"
+                            title="Download all 8 maps in one bundle"
+                        >
+                            <Download size={14} /> Export ALL
+                        </button>
                     </div>
                 </div>
 
@@ -207,6 +236,7 @@ export default function MapBuilderPage() {
                     initial={selected}
                     radarImagePath={radarImagePath}
                     onChange={handleChange}
+                    otherLayouts={MAP_LAYOUTS_ORDERED.map(m => layouts[m.mapId])}
                 />
 
                 {/* Footer help */}
