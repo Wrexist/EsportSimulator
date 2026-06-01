@@ -209,7 +209,7 @@ export function TeamMatchPopup({
                                     </Button>
                                     <Button
                                         onClick={handleGoToMatch}
-                                        className="flex-1 h-11 bg-amber-500 hover:bg-amber-400 text-black font-bold shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        className="flex-1 h-11 bg-white hover:bg-white/90 text-black font-bold ring-1 ring-white/40 shadow-[0_0_20px_rgba(255,255,255,0.18)] hover:shadow-[0_0_30px_rgba(255,255,255,0.32)] transition-all hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         <Play size={16} className="mr-2 fill-black" />
                                         {match.result ? "View Result" : "PLAY MATCH"}

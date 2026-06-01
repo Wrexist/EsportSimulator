@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { CustomTactics, MapId } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
-import { MAP_NAMES } from "@/data/map-pool"
+import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
 // Helper for Weapon Icons (keep local or move to utils? keeping local for now as it was here)
 const getWeaponIcon = (weaponName: string | undefined): string => {
@@ -210,7 +210,10 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         playerTeam,
         originalHomePlayers,
         originalAwayPlayers,
-        currentRoundEvents
+        currentRoundEvents,
+        roundTime,
+        isBombPlanted,
+        bombTime,
     } = useLiveMatch(params.id)
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -249,11 +252,12 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         [radarData?.aSite, radarData?.bSite]
     )
 
-    // Memoize the root style object. With useLiveMatch ticking at 30-60Hz this
-    // was being allocated as a fresh object (and the backgroundImage URL as a
-    // fresh string) every frame, defeating any style-diffing in the renderer.
-    const rootStyle = useMemo(() => ({
-        backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.7) 0%, #0e1217 100%), url(/maps/${currentMapId}.png)`,
+    // Background lives in a fixed-position layer so it stays viewport-sized.
+    // When it was on the scrolling root div, `background-size: cover` rescaled
+    // the image as more rounds piled up logs and the page grew — making the
+    // map bleed through bigger every round.
+    const backgroundStyle = useMemo(() => ({
+        backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.78) 0%, #0e1217 100%), url(/maps/${getMapAssetName(currentMapId)}.png)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundBlendMode: "overlay" as const,
@@ -278,11 +282,15 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
     return (
         <ErrorBoundary section="Live Match">
-        <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col overflow-hidden font-sans select-none relative"
+        <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col font-sans select-none relative"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
-            style={rootStyle}
         >
+            <div
+                aria-hidden="true"
+                className="fixed inset-0 -z-10 pointer-events-none"
+                style={backgroundStyle}
+            />
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 
                 <LiveMatchScoreboard
@@ -296,6 +304,9 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                     awaySeriesScore={simState.awaySeriesScore}
                     homeScore={gameState.homeScore}
                     awayScore={gameState.awayScore}
+                    roundTime={roundTime}
+                    isBombPlanted={isBombPlanted}
+                    bombTime={bombTime}
                 />
 
                 {/* STRATEGY PANEL */}

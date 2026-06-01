@@ -96,7 +96,9 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // Case 3: Standard team with logo file
+    // Case 3: Standard team with logo file. Render with a soft drop-shadow +
+    // subtle inner halo so logos read as premium "lifted" emblems instead of
+    // flat PNGs pasted onto the panel.
     if (team.logoPath && !imgError) {
         return (
             <Image
@@ -104,7 +106,12 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
                 alt={team.name}
                 width={size}
                 height={size}
-                className={cn("object-contain", className)}
+                className={cn(
+                    "object-contain transition-transform duration-300 ease-out",
+                    "drop-shadow-[0_4px_14px_rgba(0,0,0,0.45)]",
+                    "[filter:drop-shadow(0_2px_4px_rgba(0,0,0,0.35))_drop-shadow(0_0_18px_rgba(255,255,255,0.06))]",
+                    className,
+                )}
                 onError={() => setImgError(true)}
                 unoptimized
             />

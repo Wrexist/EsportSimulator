@@ -14,6 +14,12 @@ interface LiveMatchScoreboardProps {
     awaySeriesScore: number
     homeScore: number
     awayScore: number
+    /** Seconds remaining in the current round (counts down from 1:55). */
+    roundTime?: number
+    /** True while the bomb is planted (display bomb timer instead). */
+    isBombPlanted?: boolean
+    /** Seconds remaining on the bomb (counts down from 0:40). */
+    bombTime?: number
 }
 
 import { motion } from "framer-motion"
@@ -32,8 +38,23 @@ function LiveMatchScoreboardImpl({
     homeSeriesScore,
     awaySeriesScore,
     homeScore,
-    awayScore
+    awayScore,
+    roundTime,
+    isBombPlanted,
+    bombTime,
 }: LiveMatchScoreboardProps) {
+    // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
+    // game-time tick when no roundTime is provided so existing callers keep
+    // working.
+    const displaySeconds = isBombPlanted && typeof bombTime === "number"
+        ? Math.max(0, bombTime)
+        : typeof roundTime === "number"
+            ? Math.max(0, roundTime)
+            : Math.max(0, gameState.time)
+    const showTimer = gameState.time >= 0
+    const isUrgent = isBombPlanted
+        ? displaySeconds <= 10
+        : displaySeconds <= 10 && displaySeconds > 0
 
     /** CT side — cool blue; T side — amber (readability over heavy glow) */
     const homeBorderClass = "border-l-4 border-l-sky-400/45"
@@ -84,9 +105,18 @@ function LiveMatchScoreboardImpl({
                         <div className={cn("text-xs font-bold px-2 py-0.5 rounded text-white/80", gameState.status === "FINISHED" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5")}>
                             {gameState.status === "FINISHED" ? "FINAL" : `RND ${gameState.round} / 24`}
                         </div>
-                        {gameState.time >= 0 && (
-                            <div className={cn("text-xl font-mono tabular-nums tracking-wider", gameState.isPaused ? "text-white/30" : (gameState.time <= 10 ? "text-red-500 animate-pulse" : "text-white/80"))}>
-                                {Math.floor(gameState.time / 60)}:{(gameState.time % 60).toString().padStart(2, '0')}
+                        {showTimer && (
+                            <div className={cn(
+                                "text-xl font-mono tabular-nums tracking-wider",
+                                gameState.isPaused
+                                    ? "text-white/30"
+                                    : isBombPlanted
+                                        ? "text-red-400 animate-pulse"
+                                        : isUrgent
+                                            ? "text-red-500 animate-pulse"
+                                            : "text-white/80"
+                            )}>
+                                {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
                             </div>
                         )}
                     </div>

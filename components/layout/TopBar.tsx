@@ -191,7 +191,7 @@ export function TopBar() {
                             <Button
                                 onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
                                 disabled={isLoading}
-                                className="bg-amber-400 hover:bg-amber-300 text-black font-normal h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(245,158,11,0.7)]"
+                                className="bg-white hover:bg-white/90 text-black font-bold h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(255,255,255,0.55)] ring-1 ring-white/40"
                             >
                                 <div className="flex items-center gap-2">
                                     <span className="tracking-wide">PLAY MATCH</span>

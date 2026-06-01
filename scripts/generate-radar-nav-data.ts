@@ -27,7 +27,7 @@ const OUT_PATH = path.join(ROOT, "data", "radar-nav-data.json")
 const GRID_SIZE = 128
 
 const MAP_SOURCES: Record<MapId, RadarLevelSource> = {
-    [MapId.SANDSTONE]: { upper: "de_sandstone_radar_psd.png" },
+    [MapId.SANDSTONE]: { upper: "de_dust2_radar_psd.png" },
     [MapId.MIRAGE]: { upper: "de_mirage_radar_psd.png" },
     [MapId.INFERNO]: { upper: "de_inferno_radar_psd.png" },
     [MapId.NUKE]: { upper: "de_nuke_radar_psd_1.png", lower: "de_nuke_lower_radar_psd_2.png" },

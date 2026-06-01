@@ -84,6 +84,8 @@ interface PlayerSimState {
     sideCount: number
     money?: number
     spawnPoint: Point
+    /** CT-only: their assigned hold position (where they walk to from spawn). */
+    holdPoint?: Point
     deathTime?: number
     staticDead: boolean
     pos: Point
@@ -365,9 +367,12 @@ function getPlayerLevel(
 
 function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationContext, jitterScale: number): Point {
     const freezeEnd = 3
+    // Ts should reach contact zones quickly — they sprint out of spawn the
+    // moment freeze ends. Cap the walk-out phase at ~8s so even with a late
+    // first-kill they're not lingering in spawn shooting "across the map".
     const preFightEnd = Math.max(
         freezeEnd + 4,
-        Math.min(ctx.firstKillTime - 1, ctx.hasPlant ? ctx.plantTime - 3 : ctx.firstKillTime - 1)
+        Math.min(freezeEnd + 8, ctx.firstKillTime - 0.5)
     )
 
     const baseFormation = scale(state.formationOffset, 0.9)
@@ -379,7 +384,9 @@ function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationCont
 
     if (time < preFightEnd) {
         const progress = smoothStep((time - freezeEnd) / Math.max(1, preFightEnd - freezeEnd))
-        const pathPoint = lerpAlongPath(ctx.attackPath, 0.08 + progress * 0.72, state.spawnPoint)
+        // Drive deeper into the map (0.20 → 0.88) so engagements happen at
+        // realistic contact points, not adjacent to spawn.
+        const pathPoint = lerpAlongPath(ctx.attackPath, 0.20 + progress * 0.68, state.spawnPoint)
         return add(pathPoint, add(scale(baseFormation, 1.2), jitter))
     }
 
@@ -402,27 +409,42 @@ function resolveCTTarget(state: PlayerSimState, time: number, ctx: SimulationCon
     const freezeEnd = 3
     const baseFormation = scale(state.formationOffset, 0.85)
     const jitter = getMicroJitter(time, state.seed + 77, jitterScale)
+    // Each CT has an assigned hold (site/mid). They walk from ctSpawn → hold
+    // during the freeze and the first few seconds of the round, so the radar
+    // shows them rotating OUT instead of starting pre-deployed at bombsites.
+    const hold = state.holdPoint || ctx.engageZone
 
     if (time <= freezeEnd) {
-        return add(state.spawnPoint, add(scale(baseFormation, 0.4), jitter))
+        // Edge their hold direction during freeze (slight lean-out), but
+        // stay clustered around the actual CT spawn.
+        const freezeTarget = lerpPoint(state.spawnPoint, hold, 0.18)
+        return add(freezeTarget, add(scale(baseFormation, 0.55), jitter))
     }
 
+    // Walk from spawn to assigned hold over ~8 seconds after the freeze ends,
+    // staggered slightly by player index so they don't move in lockstep.
+    const setupDuration = 8
+    const setupT = clamp((time - freezeEnd - state.index * 0.35) / setupDuration, 0, 1)
+    const setupProgress = smoothStep(setupT)
+    const setupTarget = lerpPoint(state.spawnPoint, hold, setupProgress)
+
     if (time < ctx.firstKillTime) {
-        const holdBlend = 0.12 + Math.min(0.2, state.index * 0.04)
-        const holdTarget = lerpPoint(state.spawnPoint, ctx.engageZone, holdBlend)
-        return add(holdTarget, add(scale(baseFormation, 0.9), jitter))
+        return add(setupTarget, add(scale(baseFormation, 0.85), jitter))
     }
 
     if (ctx.hasPlant && time >= ctx.plantTime) {
         const retakeProgress = smoothStep((time - ctx.plantTime) / (17 + state.index))
-        const entry = lerpPoint(state.spawnPoint, ctx.engageZone, 0.35)
+        const entry = lerpPoint(hold, ctx.engageZone, 0.35)
         const retakeTarget = lerpPoint(entry, ctx.targetSite, 0.2 + retakeProgress * 0.75)
         return add(retakeTarget, add(scale(baseFormation, 0.9), jitter))
     }
 
     const rotateProgress = smoothStep((time - ctx.firstKillTime) / (18 + state.index))
     const rotateAnchor = lerpAlongPath(ctx.ctRotatePath, clamp(rotateProgress + state.index * 0.06, 0, 1), ctx.engageZone)
-    return add(rotateAnchor, add(scale(baseFormation, 1.05), jitter))
+    // Blend FROM the hold (not spawn) so the rotation looks like they're
+    // leaving their setup position.
+    const rotateTarget = lerpPoint(hold, rotateAnchor, smoothStep(rotateProgress))
+    return add(rotateTarget, add(scale(baseFormation, 1.05), jitter))
 }
 
 function getTargetForPlayer(state: PlayerSimState, time: number, ctx: SimulationContext, jitterScale: number): Point {
@@ -435,7 +457,8 @@ function createPlayerStates(
     side: "ct" | "t",
     spawnPoints: Point[],
     ctx: SimulationContext,
-    killEvents: MatchEvent[]
+    killEvents: MatchEvent[],
+    holdPoints?: Point[]
 ): PlayerSimState[] {
     const states: PlayerSimState[] = []
     const sideCount = Math.max(1, players.length)
@@ -449,6 +472,12 @@ function createPlayerStates(
         const seed = ctx.safeSeed + ctx.safeRoundNumber * 101 + hashString(player.id)
         const level = getPlayerLevel(side, index, 0, ctx) || "upper"
         const spawnPoint = projectPoint(ctx.mapId, level, spawnRaw)
+        const holdRaw = holdPoints && holdPoints.length > 0
+            ? holdPoints[index % holdPoints.length]
+            : undefined
+        const holdPoint = holdRaw
+            ? projectPoint(ctx.mapId, level, holdRaw)
+            : undefined
 
         states.push({
             playerId: player.id,
@@ -458,6 +487,7 @@ function createPlayerStates(
             sideCount,
             money: Number.isFinite(player.money) ? player.money : undefined,
             spawnPoint,
+            holdPoint,
             deathTime: getDeathTime(player.id, killEvents),
             staticDead: player.isDead && getDeathTime(player.id, killEvents) === undefined,
             pos: spawnPoint,
@@ -612,7 +642,7 @@ export function computeRadarPositions(
         if (cached) return cached
 
         const tStates = createPlayerStates(tPlayers, "t", layout.tSpawn, simCtx, killEvents)
-        const ctStates = createPlayerStates(ctPlayers, "ct", layout.ctSpawn, simCtx, killEvents)
+        const ctStates = createPlayerStates(ctPlayers, "ct", layout.ctSpawn, simCtx, killEvents, layout.ctHolds)
         const finalStates = simulatePlayersAtTime(tStates, ctStates, simCtx, safeTime)
 
         const dots: RadarPlayerDot[] = []
