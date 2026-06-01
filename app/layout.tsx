@@ -19,7 +19,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Esport Manager',
+  title: 'Esports Manager: FPS',
   description: 'Manage your professional esports team to glory.',
   icons: {
     icon: '/logo.png',

@@ -10,11 +10,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import {
-    AlertTriangle, CheckCircle, Download, Play, RefreshCw, Zap, Trash2, Swords, Eye,
-    Database, Users, Trophy, Calendar, DollarSign, Activity, Server, Shield,
-    FileJson, RotateCcw, Home, Settings, Clock, TrendingUp, Cpu
+    AlertTriangle,
+    CheckCircle,
+    Download,
+    Play,
+    RefreshCw,
+    Zap,
+    Trash2,
+    Swords,
+    Database,
+    Users,
+    Trophy,
+    Calendar,
+    DollarSign,
+    Activity,
+    Server,
+    Shield,
+    RotateCcw,
+    Home,
+    Clock,
+    Cpu
 } from "lucide-react"
 import { MapId } from "@/types"
 import Link from "next/link"

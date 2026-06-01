@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, Star, Crown, Zap, Shield } from "lucide-react"
+import { Trophy, Star, Crown, Zap } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -246,7 +246,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                     "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
                                     selectedId
                                         ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
-                                        : "bg-white/5 text-white/20 cursor-not-allowed"
+                                        : "bg-white/5 text-white/40 cursor-not-allowed"
                                 )}
                             >
                                 {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}

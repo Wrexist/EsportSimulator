@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
-import { useEffect, useCallback } from "react"
+import { memo, useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
 
 export interface ToastData {
@@ -54,7 +54,7 @@ export function ToastNotifications() {
     )
 }
 
-function ToastItem({
+const ToastItem = memo(function ToastItem({
     toast,
     removeToast,
 }: {
@@ -86,10 +86,11 @@ function ToastItem({
             <p className="text-sm font-semibold text-white/90">{toast.message}</p>
             <button
                 onClick={onRemove}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
+                aria-label="Dismiss notification"
+                className="p-1 rounded-lg hover:bg-white/10 active:bg-white/15 active:scale-90 transition-all text-white/50 hover:text-white"
             >
                 <X size={14} />
             </button>
         </motion.div>
     )
-}
+})

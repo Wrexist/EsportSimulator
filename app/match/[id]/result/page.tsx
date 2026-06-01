@@ -1,23 +1,24 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Home, Trophy, Swords, Map as MapIcon, Calendar, Clock, ArrowLeft, Star } from "lucide-react"
+import { Home, Trophy, Swords, Calendar, Clock } from "lucide-react"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
-import { PlayerMatchStats, MapResult, RoundResult, MatchResult } from "@/types"
-import { motion, useSpring, useTransform, AnimatePresence } from "framer-motion"
+import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
+import { motion } from "framer-motion"
 import Image from "next/image"
 import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
+import { soundManager } from "@/lib/sound-manager"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
@@ -104,6 +105,13 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         let cancelled = false
         let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
         let rafId: number | undefined
+
+        // Sound cue lands the moment the result reveal kicks in, regardless
+        // of confetti loading state. Sound manager guards against missing
+        // AudioContext on SSR / muted profiles.
+        if (typeof window !== "undefined") {
+            soundManager.play(playerWon ? "victory" : "defeat")
+        }
 
         if (playerWon) {
             confettiTriggered.current = true
@@ -209,6 +217,50 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         }
     }, [match, playerTeamId, tournaments])
 
+    // NOTE: All useMemos below MUST run unconditionally — the early-return
+    // for `!match` is BELOW them so the hooks are called in the same order
+    // every render. Each memo null-guards against the placeholder match.
+    const homeTeam = useMemo(
+        () => match ? teams.find(t => t.id === match.homeTeamId) : undefined,
+        [teams, match],
+    )
+    const awayTeam = useMemo(
+        () => match ? teams.find(t => t.id === match.awayTeamId) : undefined,
+        [teams, match],
+    )
+
+    // Index once per render of THIS match — not per Tab/map-tab click.
+    // players is the full global list (1000+ entries on big saves) and was
+    // being rebuilt into a Map on every setSelectedMapIndex / setActiveTab
+    // change. Memoized so toggling between Overview/Analysis or clicking a
+    // different map tab no longer re-allocates the index.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
+
+    const playerStatsList = useMemo(
+        () => Object.values(match?.result.playerStats || {}),
+        [match?.result.playerStats],
+    )
+
+    // Sort player rows by rating, once per data-change instead of per render.
+    const homeStats = useMemo(
+        () => playerStatsList
+            .filter(s => homeTeam?.rosterIds.includes(s.playerId))
+            .sort((a, b) => b.rating - a.rating),
+        [playerStatsList, homeTeam],
+    )
+    const awayStats = useMemo(
+        () => playerStatsList
+            .filter(s => awayTeam?.rosterIds.includes(s.playerId))
+            .sort((a, b) => b.rating - a.rating),
+        [playerStatsList, awayTeam],
+    )
+
+    // Loading guard runs AFTER all hooks above so React's hook-order rule
+    // holds. Non-hook derived values (homeWon, mvpPlayer, matchDate) live
+    // below since they only matter after the match has loaded.
     if (!match) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
             <div className="text-center">
@@ -218,32 +270,11 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         </div>
     )
 
-    const homeTeam = teams.find(t => t.id === match.homeTeamId)
-    const awayTeam = teams.find(t => t.id === match.awayTeamId)
     const result = match.result
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
-
-    // Was: `players.find` was called 3+ times in nested .map() loops over
-    // playerStats rows — O(players × rows). Index once.
-    const playersById = new Map(players.map(p => [p.id, p]))
     const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
-
-    // Helper to get stats for the current view (Overall or Specific Map)
-    // Currently match.result.playerStats is OVERALL.
-    // If we want per-map, we'd need to aggregate from rounds or have it stored.
-    // For V1, we'll show Overall Stats.
-    const playerStatsList = Object.values(result.playerStats || {})
-
-    // Sort players by Rating
-    const homeStats = playerStatsList
-        .filter(s => homeTeam?.rosterIds.includes(s.playerId))
-        .sort((a, b) => b.rating - a.rating)
-
-    const awayStats = playerStatsList
-        .filter(s => awayTeam?.rosterIds.includes(s.playerId))
-        .sort((a, b) => b.rating - a.rating)
 
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">

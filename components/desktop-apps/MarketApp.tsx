@@ -5,29 +5,22 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { GameEventSaveData } from "@/engine"
 import {
-    LayoutGrid,
     Users,
-    TrendingUp,
     Search,
-    Filter,
     ArrowRight,
     DollarSign,
     UserPlus,
     Activity,
     Clock,
-    CheckCircle,
-    XCircle,
     ShoppingBag,
     Briefcase,
     AlertCircle,
     X,
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 // Engine & Components
-import { evaluatePlayer, isPlayerForSale, calculateMarketValue } from "@/engine/player-evaluation"
+import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
@@ -381,7 +374,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                     <p className="text-xs text-white/50 font-medium">{selectedPlayer.name}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedPlayer(null)} className="text-white/30 hover:text-white hover:bg-white/10 p-1 rounded-lg transition-all"><X size={16} /></button>
+                            <button onClick={() => setSelectedPlayer(null)} className="text-white/30 hover:text-white hover:bg-white/10 active:bg-white/15 active:scale-90 p-1 rounded-lg transition-all"><X size={16} /></button>
                         </div>
 
                         <div className={cn("flex-1 overflow-y-auto p-4 space-y-6", scrollbarClass)}>
@@ -411,7 +404,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                             <div className="bg-white/5 rounded-2xl p-2 border border-white/5 relative">
                                 {!isPlayerScouted(selectedPlayer.id) && (
                                     <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
-                                        <span className="text-white/20 font-bold uppercase tracking-widest text-[10px]">Stats Hidden</span>
+                                        <span className="text-white/55 font-bold uppercase tracking-widest text-[10px]">Stats Hidden</span>
                                     </div>
                                 )}
                                 <PlayerSpiderChart stats={selectedPlayer as any} size="sm" />

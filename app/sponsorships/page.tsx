@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
 import { DollarSign, Handshake, TrendingUp } from "lucide-react"
-import { cn } from "@/lib/utils"
 import type { SponsorSaveData } from "@/engine/save-types"
 import { ActiveSponsorCard } from "@/components/sponsorships/ActiveSponsorCard"
 import { SponsorOfferCard } from "@/components/sponsorships/SponsorOfferCard"
@@ -63,7 +62,13 @@ export default function SponsorshipsPage() {
     }
   }, [_hasHydrated, isSessionActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activeSponsors = playerTeam?.sponsors || []
+  // Pull sponsors once via useMemo so the `?? []` fallback isn't recreating
+  // an empty array reference on every render and invalidating downstream
+  // useMemo deps.
+  const activeSponsors = useMemo(
+    () => playerTeam?.sponsors ?? [],
+    [playerTeam?.sponsors],
+  )
   const emptySlots = MAX_SPONSORS - activeSponsors.length
   const sponsorSlotsFull = activeSponsors.length >= MAX_SPONSORS
 

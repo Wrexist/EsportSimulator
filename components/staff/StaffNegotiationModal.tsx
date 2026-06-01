@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -16,13 +15,9 @@ import { Separator } from "@/components/ui/separator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import {
     DollarSign,
-    Briefcase,
     CheckCircle2,
     XCircle,
-    Handshake,
-    AlertCircle,
-    Calendar,
-    UserCheck
+    Handshake
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -78,7 +73,10 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
     const [durationOffer, setDurationOffer] = useState<number>(52) // 1 year default
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
 
-    // Reset when opening or changing staff
+    // Reset when opening or changing staff. Deliberately gated on staffId
+    // (not staffMember object) so an unrelated salary update on the same
+    // staff member while the modal is open doesn't reset the negotiation
+    // state mid-flow.
     useEffect(() => {
         if (isOpen && staffMember) {
             setStage("OFFER")
@@ -87,6 +85,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             setDurationOffer(52)
             setNegotiationLog([])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, staffId, isRenewal])
 
     if (!isOpen || !staffMember) return null
@@ -225,7 +224,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     {isRenewal ? "Retaining Talent" : "Hiring New Staff"}
                                 </p>
                             </div>
-                            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg" aria-label="Close dialog">
+                            <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
                                 <XCircle className="text-muted-foreground" />
                             </button>
                         </div>

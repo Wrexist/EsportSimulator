@@ -13,11 +13,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
-  Mail, Hash, TrendingUp, Calendar, Newspaper, Trophy, Clock, Users,
-  DollarSign, Stethoscope, Briefcase, Award, Flame, TrendingDown,
-  ArrowRightLeft, MapPin, Globe, CheckCircle, Loader2, ShoppingBag, Building2, GraduationCap, Rocket, Lightbulb, ClipboardList
+    Mail,
+    Hash,
+    TrendingUp,
+    Calendar,
+    Newspaper,
+    Trophy,
+    Clock,
+    Users,
+    DollarSign,
+    Stethoscope,
+    Flame,
+    Loader2,
+    ShoppingBag,
+    Building2,
+    GraduationCap,
+    Rocket,
+    Lightbulb,
+    ClipboardList
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { generateSocialPosts } from "@/lib/social-generator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -168,7 +183,11 @@ function DesktopContent() {
     return () => {
       if (autoOpenTimer) clearTimeout(autoOpenTimer)
     }
-  }, [appParam]) // Run once on mount (conceptually, though appParam dependency is fine)
+    // Intentional mount-only: re-running on eventsLog/windows changes would
+    // re-auto-open Mail every time the user closes it or a new event lands.
+    // appParam in deps so deep-links (?app=mail) still take effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appParam])
 
   // Update selected event if it changes in the store
   useEffect(() => {
@@ -409,11 +428,16 @@ function DesktopContent() {
     [selectedEvent]
   )
 
-  // Play notification sound when dialog opens
+  // Play notification sound when dialog opens. Deliberately keyed on
+  // selectedEventId only — re-firing the sound on every selectedEvent
+  // object identity change (e.g. when acknowledged flips) would replay
+  // the cue mid-dialog. notificationTheme is derived from selectedEvent
+  // so its sound is always current at fire time.
   useEffect(() => {
     if (selectedEvent && !selectedEvent.acknowledged) {
       soundManager.play(notificationTheme.sound)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEventId])
 
   // Event helpers
@@ -484,11 +508,20 @@ function DesktopContent() {
     }
   }, [players])
 
-  // Unread counts for notifications
-  const unreadCount = eventsLog.filter(e => !e.acknowledged).length
-  const transferUnread = eventsLog.filter(e =>
-    !e.acknowledged && ["TRANSFER_OFFER", "AI_SIGNING", "AI_TRANSFER"].includes(e.type as string)
-  ).length
+  // Unread counts for notifications — single pass over eventsLog and
+  // memoized so the desktop home (which re-renders on every store change)
+  // doesn't re-tally on each repaint.
+  const { unreadCount, transferUnread } = useMemo(() => {
+    let unread = 0
+    let transfer = 0
+    for (const e of eventsLog) {
+      if (e.acknowledged) continue
+      unread++
+      const t = e.type as string
+      if (t === "TRANSFER_OFFER" || t === "AI_SIGNING" || t === "AI_TRANSFER") transfer++
+    }
+    return { unreadCount: unread, transferUnread: transfer }
+  }, [eventsLog])
 
   // Taskbar apps config
   const taskbarApps = [

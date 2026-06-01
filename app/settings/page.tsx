@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
@@ -8,54 +8,50 @@ import { useShallow } from "zustand/react/shallow"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 import {
-  Save,
-  RefreshCw,
-  Home,
-  Download,
-  Volume2,
-  VolumeX,
-  Sparkles,
-  Info,
-  Trophy,
-  Lock,
-  Unlock,
-  Star,
-  Crown,
-  Target,
-  DollarSign,
-  TrendingUp,
-  Users,
-  Award,
-  Zap,
-  Eye,
-  EyeOff,
-  Keyboard,
-  Upload,
-  FolderOpen,
-  FileText,
-  Gauge,
-  Accessibility as AccessibilityIcon,
-  Copy,
-  Settings as SettingsIcon,
-  Flame,
-  Medal,
-  Sparkles as SparklesIcon,
-  Crosshair,
-  Gem,
-  Shield,
-  Globe,
-  Swords,
-  Rocket,
-  Heart,
-  BarChart3,
-  Calendar,
-  Handshake,
-  HeartCrack,
-  RefreshCcw,
-  Landmark,
+    Save,
+    RefreshCw,
+    Home,
+    Download,
+    Volume2,
+    VolumeX,
+    Sparkles,
+    Info,
+    Trophy,
+    Lock,
+    Unlock,
+    Star,
+    Crown,
+    DollarSign,
+    TrendingUp,
+    Award,
+    Zap,
+    Eye,
+    EyeOff,
+    Keyboard,
+    Upload,
+    FolderOpen,
+    FileText,
+    Gauge,
+    Accessibility as AccessibilityIcon,
+    Copy,
+    Settings as SettingsIcon,
+    Flame,
+    Medal,
+    Sparkles as SparklesIcon,
+    Crosshair,
+    Gem,
+    Shield,
+    Globe,
+    Swords,
+    Rocket,
+    Heart,
+    BarChart3,
+    Calendar,
+    Handshake,
+    HeartCrack,
+    RefreshCcw,
+    Landmark
 } from "lucide-react"
 import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import Link from "next/link"
@@ -334,12 +330,21 @@ export default function SettingsPage() {
     return iconMap[id] || <Trophy className={s} />
   }
 
-  const visibleAchievements = showHidden
-    ? achievements
-    : achievements.filter(a => !a.hidden || a.unlocked)
-
-  const unlockedAchievements = visibleAchievements.filter(a => a.unlocked)
-  const lockedAchievements = visibleAchievements.filter(a => !a.unlocked)
+  // Three filters in series, recomputed on every tab click / settings
+  // change / dialog open. Achievements is bounded but the page re-renders
+  // a lot — coalesce into one pass via useMemo.
+  const { visibleAchievements, unlockedAchievements, lockedAchievements } = useMemo(() => {
+    const visible = showHidden
+      ? achievements
+      : achievements.filter(a => !a.hidden || a.unlocked)
+    const unlocked: typeof achievements = []
+    const locked: typeof achievements = []
+    for (const a of visible) {
+      if (a.unlocked) unlocked.push(a)
+      else locked.push(a)
+    }
+    return { visibleAchievements: visible, unlockedAchievements: unlocked, lockedAchievements: locked }
+  }, [achievements, showHidden])
 
   const tabs: Array<{ id: SettingsTab; label: string; icon: typeof SettingsIcon }> = [
     { id: "SETTINGS", label: "Settings", icon: SettingsIcon },
@@ -1170,7 +1175,7 @@ export default function SettingsPage() {
                                   <h3 className="font-semibold text-white/40 truncate text-sm tracking-tight">
                                     {achievement.hidden ? "Secret Achievement" : achievement.name}
                                   </h3>
-                                  <p className="text-[11px] text-white/20 line-clamp-2 leading-relaxed mt-1">
+                                  <p className="text-[11px] text-white/55 line-clamp-2 leading-relaxed mt-1">
                                     {achievement.hidden ? "Continue playing to discover this achievement" : achievement.description}
                                   </p>
                                 </div>

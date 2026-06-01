@@ -2,7 +2,7 @@
 
 import React, { useMemo, memo } from "react"
 import { motion } from "framer-motion"
-import { DollarSign, TrendingUp, TrendingDown, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
+import { TrendingUp, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"

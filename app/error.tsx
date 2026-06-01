@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { errorTracker } from '@/lib/error-tracking'
 
 export default function Error({
     error,
@@ -11,6 +12,13 @@ export default function Error({
     reset: () => void
 }) {
     useEffect(() => {
+        // Route-level errors were previously only console.error'd in dev, so
+        // production crashes went unreported. Funnel them into the same
+        // tracker the component ErrorBoundary uses.
+        errorTracker.captureException(error, {
+            tags: { type: 'route-error-boundary' },
+            context: { digest: error.digest },
+        })
         if (process.env.NODE_ENV !== 'production') {
             console.error('[App Error]', error)
         }

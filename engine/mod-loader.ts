@@ -15,7 +15,7 @@
 
 import { validateSnapshot } from "@/data/snapshot-types"
 import type { SnapshotPlayer, SnapshotTeam, SnapshotTournament } from "@/data/snapshot-types"
-import { safeParse } from "@/lib/json-safe"
+import { safeParseUntrusted } from "@/lib/json-safe"
 import { logger } from "@/lib/logger"
 import { defaultBrandingFor } from "@/lib/branding/fallback"
 
@@ -48,7 +48,7 @@ async function readModJson<T>(filename: string): Promise<T | null> {
     if (!hasElectronMods()) return null
     try {
         const raw = await window.electron.mods!.read(filename)
-        return safeParse<T>(raw, null)
+        return safeParseUntrusted<T>(raw, null)
     } catch (err) {
         logger.warn(`[mod-loader] Failed to read ${filename}`, err)
         return null
@@ -146,6 +146,23 @@ function isFiniteNumber(v: unknown): v is number {
     return typeof v === "number" && Number.isFinite(v)
 }
 
+/**
+ * Mod-supplied art paths (portraitPath / logoPath) are rendered straight into
+ * `<img src>`. Constrain them to relative paths under the asset tree so a
+ * hand-edited mod cannot point at `data:` / `javascript:` URIs, remote URLs,
+ * or traverse out of the app with `..`. Empty strings are allowed — the UI
+ * falls back to a placeholder.
+ */
+function isSafeAssetPath(v: unknown): boolean {
+    if (typeof v !== "string") return false
+    if (v === "") return true
+    if (/^[a-z][a-z0-9+.-]*:/i.test(v)) return false // scheme: http:, data:, javascript:, file:
+    if (v.startsWith("//")) return false             // protocol-relative URL
+    if (v.includes("..")) return false               // parent-directory traversal
+    if (v.includes("\0")) return false               // null byte
+    return true
+}
+
 function validatePlayerEntry(entry: unknown, idx: number): string | null {
     if (!entry || typeof entry !== "object") return `players[${idx}] is not an object`
     const p = entry as Record<string, unknown>
@@ -154,7 +171,7 @@ function validatePlayerEntry(entry: unknown, idx: number): string | null {
     if (typeof p.nickname !== "string") return `players[${idx}].nickname must be a string`
     if (!isFiniteNumber(p.age)) return `players[${idx}].age must be a number`
     if (typeof p.nationality !== "string") return `players[${idx}].nationality must be a string`
-    if (typeof p.portraitPath !== "string") return `players[${idx}].portraitPath must be a string`
+    if (!isSafeAssetPath(p.portraitPath)) return `players[${idx}].portraitPath must be a safe relative asset path`
     if (typeof p.role !== "string") return `players[${idx}].role must be a string`
     if (typeof p.tier !== "string") return `players[${idx}].tier must be a string`
     for (const f of REQUIRED_PLAYER_STAT_FIELDS) {
@@ -170,7 +187,7 @@ function validateTeamEntry(entry: unknown, idx: number): string | null {
     if (typeof t.name !== "string") return `teams[${idx}].name must be a string`
     if (typeof t.tier !== "string") return `teams[${idx}].tier must be a string`
     if (typeof t.region !== "string") return `teams[${idx}].region must be a string`
-    if (typeof t.logoPath !== "string") return `teams[${idx}].logoPath must be a string`
+    if (!isSafeAssetPath(t.logoPath)) return `teams[${idx}].logoPath must be a safe relative asset path`
     if (!Array.isArray(t.rosterIds)) return `teams[${idx}].rosterIds must be an array`
     if (!isFiniteNumber(t.reputation)) return `teams[${idx}].reputation must be a number`
     if (!isFiniteNumber(t.fanbase)) return `teams[${idx}].fanbase must be a number`

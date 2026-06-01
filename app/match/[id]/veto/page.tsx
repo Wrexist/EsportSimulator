@@ -1,17 +1,13 @@
 "use client"
 
-import { useState, useRef, useEffect, use } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { startOfToday } from "date-fns"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Ban, Check, Swords, Map as MapIcon, RotateCw } from "lucide-react"
+import { Ban, Check } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
-import { Team, Player, MatchFormat } from "@/types"
+import { Player } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
 import { MAP_NAMES } from "@/data/map-pool"
 import { simulationEngineV2, SeededRNG } from "@/engine"
@@ -37,6 +33,29 @@ interface VetoTurn {
     team: "home" | "away" | "auto"
     action: "BAN" | "PICK" | "DECIDER" | "SIDE_PICK"
     mapId?: MapId
+}
+
+// Pure helper, lifted out of the component so it doesn't allocate a fresh
+// closure on every render.
+function computeTeamMapStats(
+    completedMatches: ReadonlyArray<{ homeTeamId: string; awayTeamId: string; result?: { maps?: Array<{ map: string; finalScore?: { team1: number; team2: number } }> } }> | null | undefined,
+    teamId: string,
+): Record<string, { wins: number; losses: number }> {
+    const stats: Record<string, { wins: number; losses: number }> = {}
+    if (!completedMatches) return stats
+    for (const match of completedMatches) {
+        if (match.homeTeamId !== teamId && match.awayTeamId !== teamId) continue
+        if (!match.result?.maps) continue
+        const isHome = match.homeTeamId === teamId
+        for (const mapResult of match.result.maps) {
+            const mapName = mapResult.map
+            if (!stats[mapName]) stats[mapName] = { wins: 0, losses: 0 }
+            const homeWonMap = (mapResult.finalScore?.team1 ?? 0) > (mapResult.finalScore?.team2 ?? 0)
+            if (isHome ? homeWonMap : !homeWonMap) stats[mapName].wins++
+            else stats[mapName].losses++
+        }
+    }
+    return stats
 }
 
 
@@ -67,25 +86,20 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
     const [showSideSelection, setShowSideSelection] = useState<MapId | null>(null)
 
 
-    // Compute map win rates for both teams from completed matches
-    const getTeamMapStats = (teamId: string): Record<string, { wins: number, losses: number }> => {
-        const stats: Record<string, { wins: number, losses: number }> = {}
-        if (!completedMatches) return stats
-        completedMatches
-            .filter((m: any) => m.homeTeamId === teamId || m.awayTeamId === teamId)
-            .forEach((match: any) => {
-                if (!match.result?.maps) return
-                const isHome = match.homeTeamId === teamId
-                match.result.maps.forEach((mapResult: any) => {
-                    const mapName = mapResult.map
-                    if (!stats[mapName]) stats[mapName] = { wins: 0, losses: 0 }
-                    const homeWon = mapResult.finalScore?.team1 > mapResult.finalScore?.team2
-                    if (isHome ? homeWon : !homeWon) stats[mapName].wins++
-                    else stats[mapName].losses++
-                })
-            })
-        return stats
-    }
+    // Compute map win rates for both teams from completed matches.
+    // Memoized so the 8-map grid below doesn't re-iterate every completed
+    // match 16× per render (8 maps × {home, away}). For long careers
+    // completedMatches can reach 1000s of entries, and every veto action
+    // (ban, pick, side select) triggers a re-render, so the unmemoized
+    // version did ~16k forEach iterations per click.
+    const homeMapStats = useMemo(
+        () => homeTeam ? computeTeamMapStats(completedMatches, homeTeam.id) : {},
+        [completedMatches, homeTeam],
+    )
+    const awayMapStats = useMemo(
+        () => awayTeam ? computeTeamMapStats(completedMatches, awayTeam.id) : {},
+        [completedMatches, awayTeam],
+    )
 
     // Refs for AI processing
     const processingRef = useRef(false)
@@ -146,6 +160,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             setStatus("Ready to start veto")
         }
 
+        // Only re-fire when the match identity / hydration source changes —
+        // not when intermediate veto state mutates.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduledMatches, teams, id])
 
     // AI Logic Hook
@@ -205,6 +222,10 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             }
         }
 
+        // Driven by veto progression — adding all the AI/team deps would
+        // force the effect to re-run on every closure-captured value
+        // change and break the controlled-progression invariant.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vetoHistory, match, availableMaps])
 
     const executeAiTurn = (side: "home" | "away", action: "BAN" | "PICK" | "SIDE_PICK") => {
@@ -307,6 +328,22 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         router.push(`/match/${id}/tactics`)
     }
 
+    // NOTE: Hooks below MUST run before the early return — null-guard
+    // inside each useMemo body so React sees the same hook order on
+    // every render regardless of whether match/teams are loaded.
+    const playersById = useMemo(
+        () => new Map(players.map(p => [p.id, p])),
+        [players],
+    )
+    const homePlayersList = useMemo(
+        () => (homeTeam?.rosterIds || []).map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [homeTeam?.rosterIds, playersById],
+    )
+    const awayPlayersList = useMemo(
+        () => (awayTeam?.rosterIds || []).map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
+        [awayTeam?.rosterIds, playersById],
+    )
+
     if (!match || !homeTeam || !awayTeam) return <div className="p-8 text-center text-muted-foreground">{status}</div>
 
     const turnIndex = Math.min(vetoHistory.length, vetoSequence.length - 1)
@@ -319,8 +356,6 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
     }
 
-    const homePlayersList = homeTeam.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
-    const awayPlayersList = awayTeam.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
     const homeRatingNum = getTeamRating(homePlayersList)
     const awayRatingNum = getTeamRating(awayPlayersList)
 
@@ -460,8 +495,6 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         const isBanned = actionLog?.action === "BAN"
                         const isPicked = actionLog?.action === "PICK" || actionLog?.action === "DECIDER"
                         const canInteract = isAvailable && !isAiTurn && currentTurn.team !== "auto"
-                        const homeMapStats = homeTeam ? getTeamMapStats(homeTeam.id) : {}
-                        const awayMapStats = awayTeam ? getTeamMapStats(awayTeam.id) : {}
                         const hStats = homeMapStats[mapId] || { wins: 0, losses: 0 }
                         const aStats = awayMapStats[mapId] || { wins: 0, losses: 0 }
 

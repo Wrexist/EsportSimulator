@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -16,15 +16,11 @@ import {
     Star,
     TrendingUp,
     Save,
-    Clock,
-    User,
     Crown,
     Medal,
     UserPlus,
     Trash2,
     Loader2,
-    TrendingUp as TrendingUpIcon,
-    ChevronRight,
     Gamepad2,
     Play,
     Target
@@ -35,7 +31,6 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
 import Image from "next/image"
-import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 
 
@@ -76,30 +71,42 @@ export default function CareerPage() {
     // Calculate Career Stats (Current Save)
     const playerTeam = useCurrentTeam()
 
-    // Matches managed
-    const managedMatches = completedMatches.filter(m =>
-        m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
+    // All derived stats memoized — the page also renders tabs (saves /
+    // achievements / history) which re-trigger render on click, and the
+    // base lists (completedMatches, eventsLog, financeLedger) reach 1000s
+    // of entries on long careers.
+    const { managedMatches, totalMatches, wins, winRate } = useMemo(() => {
+        const m = completedMatches.filter(cm =>
+            cm.homeTeamId === playerTeamId || cm.awayTeamId === playerTeamId
+        )
+        const w = m.filter(cm => {
+            if (!cm.result) return false
+            const homeWon = cm.homeTeamId === playerTeamId && cm.result.homeScore > cm.result.awayScore
+            const awayWon = cm.awayTeamId === playerTeamId && cm.result.awayScore > cm.result.homeScore
+            return homeWon || awayWon
+        }).length
+        return {
+            managedMatches: m,
+            totalMatches: m.length,
+            wins: w,
+            winRate: m.length > 0 ? Math.round((w / m.length) * 100) : 0,
+        }
+    }, [completedMatches, playerTeamId])
+
+    const tournamentsWon = useMemo(
+        () => eventsLog.filter(e => e.type === "TOURNAMENT_WIN").length,
+        [eventsLog],
     )
-    const totalMatches = managedMatches.length
-
-    // Wins
-    const wins = managedMatches.filter(m => {
-        if (!m.result) return false
-        const homeWon = m.homeTeamId === playerTeamId && m.result.homeScore > m.result.awayScore
-        const awayWon = m.awayTeamId === playerTeamId && m.result.awayScore > m.result.homeScore
-        return homeWon || awayWon
-    }).length
-
-    const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0
-
-    // Tournaments Won (Approximate via events)
-    const tournamentsWon = eventsLog.filter(e => e.type === "TOURNAMENT_WIN").length
-
-    // Upcoming Hall of Fame Logic
-    const majorWins = eventsLog.filter(e => e.type === "TOURNAMENT_WIN" && (e.data as any)?.tier === "S_TIER").length
-    const totalEarnings = financeLedger
-        .filter((e: any) => e.teamId === playerTeamId && e.type === "INCOME")
-        .reduce((sum: number, e: any) => sum + (e.amount || 0), 0)
+    const majorWins = useMemo(
+        () => eventsLog.filter(e => e.type === "TOURNAMENT_WIN" && (e.data as any)?.tier === "S_TIER").length,
+        [eventsLog],
+    )
+    const totalEarnings = useMemo(
+        () => financeLedger
+            .filter((e: any) => e.teamId === playerTeamId && e.type === "INCOME")
+            .reduce((sum: number, e: any) => sum + (e.amount || 0), 0),
+        [financeLedger, playerTeamId],
+    )
     const hallOfFameProgress = {
         majors: Math.min(100, (majorWins / 3) * 100),
         wins: Math.min(100, (wins / 500) * 100),
@@ -108,11 +115,11 @@ export default function CareerPage() {
 
     const yearsActive = Math.floor(currentWeek / 52) + 1
 
-    useEffect(() => {
-        loadSaves()
-    }, [currentSaveId])
-
-    const loadSaves = async () => {
+    // useCallback so the effect dep stays stable; state setters from
+    // useState are guaranteed-stable. `listSaves` is a module-level import
+    // — also stable — but eslint-react-hooks can't infer that, so include
+    // it in deps for cleanliness.
+    const loadSaves = useCallback(async () => {
         setIsLoadingSaves(true)
         try {
             const saves = await listSaves()
@@ -122,7 +129,11 @@ export default function CareerPage() {
         } finally {
             setIsLoadingSaves(false)
         }
-    }
+    }, [listSaves])
+
+    useEffect(() => {
+        loadSaves()
+    }, [currentSaveId, loadSaves])
 
     const handleLoadSave = async () => {
         if (!selectedSlot) return
@@ -532,7 +543,7 @@ export default function CareerPage() {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div className="text-[10px] text-white/20 italic">No roster data</div>
+                                                    <div className="text-[10px] text-white/55 italic">No roster data</div>
                                                 )}
                                             </div>
 
@@ -599,7 +610,7 @@ export default function CareerPage() {
                             mt-4 w-full h-14 rounded-2xl font-normal uppercase tracking-[0.2em] text-sm transition-all shadow-xl
                             ${selectedSlot
                                 ? "bg-white text-black hover:bg-white/90 shadow-white/10 scale-100"
-                                : "bg-white/5 text-white/20 cursor-not-allowed border border-white/5 scale-95"
+                                : "bg-white/5 text-white/40 cursor-not-allowed border border-white/5 scale-95"
                             }
                         `}
                     >

@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion } from "framer-motion"
-import { Trophy, Swords, Target, ChevronRight, AlertTriangle, Award, Zap } from "lucide-react"
+import { Trophy, ChevronRight, AlertTriangle, Award } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { TeamLogoImage } from "@/components/ui/asset-images"

@@ -14,7 +14,9 @@ export class IntegrityChecker {
 
         // 1. Player Stats Checks
         save.players.forEach(player => {
-            if (player.skill < 0 || player.skill > 100) {
+            // `< 0 || > 100` is false for NaN, so a non-finite skill would
+            // otherwise slip through this check entirely.
+            if (!Number.isFinite(player.skill) || player.skill < 0 || player.skill > 100) {
                 issues.push({ type: "STAT", message: `Player ${player.nickname} (${player.id}) has invalid skill: ${player.skill}`, severity: "HIGH", entityId: player.id })
             }
             if (player.morale < 0 || player.morale > 100) {
@@ -39,11 +41,40 @@ export class IntegrityChecker {
                 }
             })
 
-            // Check budget
-            if (team.budget < 0 && team.budget > -500000) {
+            // Check budget. The non-finite case is checked first — every
+            // numeric comparison against NaN is false, so a corrupt budget
+            // would otherwise pass silently.
+            if (!Number.isFinite(team.budget)) {
+                issues.push({ type: "FINANCE", message: `Team ${team.name} (${team.id}) has a non-finite budget`, severity: "HIGH", entityId: team.id })
+            } else if (team.budget < 0 && team.budget > -500000) {
                 issues.push({ type: "FINANCE", message: `Team ${team.name} is in debt: $${team.budget}`, severity: "MEDIUM", entityId: team.id })
             } else if (team.budget < -1000000) {
                 issues.push({ type: "FINANCE", message: `Team ${team.name} is bankrupt? $${team.budget}`, severity: "HIGH", entityId: team.id })
+            }
+        })
+
+        // 2b. Cross-roster integrity — a player must not be on two rosters.
+        const rosterMembership = new Map<string, string[]>()
+        save.teams.forEach(team => {
+            team.rosterIds.forEach(id => {
+                const owners = rosterMembership.get(id) ?? []
+                owners.push(team.id)
+                rosterMembership.set(id, owners)
+            })
+        })
+        rosterMembership.forEach((teamIds, playerId) => {
+            if (teamIds.length > 1) {
+                issues.push({ type: "ROSTER", message: `Player ${playerId} appears on multiple rosters: ${teamIds.join(", ")}`, severity: "HIGH", entityId: playerId })
+            }
+        })
+
+        // 2c. Contract sanity — end must come after start, salary finite.
+        save.contracts.forEach(c => {
+            if (c.endWeek <= c.startWeek) {
+                issues.push({ type: "DATA", message: `Contract for player ${c.playerId} on team ${c.teamId} ends (${c.endWeek}) on or before it starts (${c.startWeek})`, severity: "MEDIUM", entityId: c.playerId })
+            }
+            if (!Number.isFinite(c.salaryPerWeek)) {
+                issues.push({ type: "FINANCE", message: `Contract for player ${c.playerId} has a non-finite weekly salary`, severity: "HIGH", entityId: c.playerId })
             }
         })
 
@@ -62,6 +93,15 @@ export class IntegrityChecker {
         save.scheduledMatches.forEach(m => {
             if (completedIds.has(m.id)) {
                 issues.push({ type: "MATCH", message: `Match ${m.id} exists in both Schedule and Completed`, severity: "HIGH", entityId: m.id })
+            }
+        })
+
+        // Completed-match score sanity — scores must be finite & non-negative.
+        save.completedMatches.forEach(m => {
+            const r = m.result
+            if (!r) return
+            if (!Number.isFinite(r.homeScore) || !Number.isFinite(r.awayScore) || r.homeScore < 0 || r.awayScore < 0) {
+                issues.push({ type: "MATCH", message: `Completed match ${m.id} has an invalid score: ${r.homeScore}-${r.awayScore}`, severity: "HIGH", entityId: m.id })
             }
         })
 

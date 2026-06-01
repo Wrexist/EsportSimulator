@@ -6,42 +6,40 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import {
-  Dumbbell,
-  Brain,
-  Zap,
-  Target,
-  Shield,
-  Coffee,
-  LucideIcon,
-  Swords,
-  Crosshair,
-  User,
-  Users,
-  LayoutGrid,
-  Settings2,
-  Coins,
-  Wind
+    Dumbbell,
+    Brain,
+    Zap,
+    Target,
+    Shield,
+    Coffee,
+    LucideIcon,
+    Swords,
+    Crosshair,
+    User,
+    Users,
+    LayoutGrid,
+    Coins,
+    Wind
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { toast } from "@/lib/toast"
-import { TrainingFocus, Role, CustomTactics } from "@/types"
+import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
 const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalLoadoutEditor").then(m => m.TacticalLoadoutEditor), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { DrillManager, ActiveDrill } from "@/engine/drill-manager"
-import { useRef, useEffect, useCallback } from "react"
+import { useMemo, useRef, useEffect, useCallback } from "react"
 
 // Helper for Focus Icons
 const getFocusIcon = (focus: string | undefined): LucideIcon => {
@@ -85,10 +83,18 @@ export default function TrainingPage() {
 
   const terminalEndRef = useRef<HTMLDivElement>(null)
 
-  const teamPlayers = players.filter(p => playerTeam?.rosterIds.includes(p.id))
-
-  const activeStaff = staff.filter(s => s.teamId === playerTeamId)
-  const coach = activeStaff.find(s => s.role === "coach")
+  // Memoized — both filters scan global ~1000-player and ~150-staff lists
+  // every render. Page state (selectedDrill, trainingPlayer, activeRun) is
+  // toggled frequently while running a drill.
+  const teamPlayers = useMemo(
+    () => players.filter(p => playerTeam?.rosterIds.includes(p.id)),
+    [players, playerTeam?.rosterIds],
+  )
+  const activeStaff = useMemo(
+    () => staff.filter(s => s.teamId === playerTeamId),
+    [staff, playerTeamId],
+  )
+  const coach = useMemo(() => activeStaff.find(s => s.role === "coach"), [activeStaff])
   const drillCompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleDrillComplete = useCallback((drill: ActiveDrill) => {

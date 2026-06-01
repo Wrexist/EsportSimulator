@@ -967,6 +967,11 @@ export interface SaveSlotMetadata {
     updatedAt: string | null
     isEmpty: boolean
 
+    // Set when the slot's data failed to parse/validate. The slot is still
+    // surfaced (rather than silently dropped) so the player can see it and
+    // attempt recovery.
+    isCorrupted?: boolean
+
     // Phase 2 Upgrade: Rich Metadata
     teamLogo?: string
     stats?: {

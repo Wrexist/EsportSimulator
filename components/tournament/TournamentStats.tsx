@@ -3,7 +3,7 @@
 import { memo, useMemo } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Trophy, Users, Star, Target, Crosshair, Award } from "lucide-react"
+import { Trophy, Users, Target, Crosshair, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { CompletedMatchSaveData, PlayerSaveData, TeamSaveData } from "@/engine/save-types"

@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Trophy, TrendingUp, Crown, Users, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TeamLogoImage } from "@/components/ui/asset-images"
 import { PlayerCard } from "@/components/ui/PlayerCard"
 import { StatTile } from "@/src/components/ui/StatTile"
 import { panelTransition } from "@/lib/motion"
@@ -72,7 +71,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                 </h1>
                                 <p className="text-white/40 mt-2 text-lg">Celebrating your organization's journey through the last 52 weeks.</p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-lg hover:bg-white/10 text-white/50">
+                            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close season recap" className="rounded-lg hover:bg-white/10 text-white/50">
                                 <X size={24} />
                             </Button>
                         </div>
@@ -112,7 +111,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                                         <p className="text-sm text-white/40">The engine of your success this year.</p>
                                     </>
                                 ) : (
-                                    <div className="text-white/20 italic text-sm mt-12">No data available</div>
+                                    <div className="text-white/55 italic text-sm mt-12">No data available</div>
                                 )}
 
                                 <div className="mt-auto w-full pt-8">

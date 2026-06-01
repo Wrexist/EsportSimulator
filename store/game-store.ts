@@ -1904,11 +1904,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         if (state.currentDay < 6) {
-          set(draft => {
-            const nextDay = Math.min(6, draft.currentDay + 1)
-            draft.currentDay = nextDay
-            simulateDueAIMatchesForDay(draft, nextDay)
-          })
+          const nextDay = Math.min(6, state.currentDay + 1)
+
+          // Two-phase commit so the day number ticks over instantly. The
+          // AI-match simulation that follows can take 5-100ms on heavy
+          // match days; committing it in the same set() as the day bump
+          // delays the visible change by that full amount. Splitting + a
+          // macrotask yield lets React paint the new day FIRST, then the
+          // match results arrive on the next frame.
+          set(draft => { draft.currentDay = nextDay })
+          await new Promise(resolve => setTimeout(resolve, 0))
+          set(draft => { simulateDueAIMatchesForDay(draft, nextDay) })
           return
         }
 
@@ -1932,11 +1938,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         if (playerMatchThisWeek) {
           const matchDay = playerMatchThisWeek.day ?? 6
           if (state.currentDay < matchDay) {
-            // Advance to match day so PLAY MATCH button appears
-            set(draft => {
-              draft.currentDay = matchDay
-              simulateDueAIMatchesForDay(draft, matchDay)
-            })
+            // Advance to match day so PLAY MATCH button appears — same
+            // two-phase commit as advanceDay so the day cursor moves
+            // before the match simulation runs.
+            set(draft => { draft.currentDay = matchDay })
+            await new Promise(resolve => setTimeout(resolve, 0))
+            set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
             return
           }
           // Already on or past match day — match still unplayed, don't skip
@@ -1944,10 +1951,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         if (state.currentDay < 6) {
-          set(draft => {
-            draft.currentDay = 6
-            simulateDueAIMatchesForDay(draft, 6)
-          })
+          set(draft => { draft.currentDay = 6 })
+          await new Promise(resolve => setTimeout(resolve, 0))
+          set(draft => { simulateDueAIMatchesForDay(draft, 6) })
         }
 
         await get().advanceDay()
@@ -1980,30 +1986,39 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         set({ isLoading: true })
+
+        // Yield one macrotask so React can commit the isLoading=true state
+        // and the browser can paint the WeekProcessingOverlay BEFORE we start
+        // the 10-50ms block of synchronous pre-tick work below (structuredClone
+        // + applyPreTickMutations + applyWeeklyActivity + ... + applyFplWeek).
+        // Without this yield, the overlay only appears after that work
+        // finishes — pressing space feels like a stall before the spinner.
+        await new Promise(resolve => setTimeout(resolve, 0))
+
         try {
           const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
 
-          // Batched pre-tick mutations: scouting completion, staff-market
-          // rotation, staff XP, player XP. All four sub-phases live in
-          // engine/processors/pre-tick-mutations.ts so this big imperative
-          // block doesn't sit in the orchestrator. Combined into a single
-          // set() to avoid multiple Immer snapshots + persist serializations.
-          set(draft => {
-            applyPreTickMutations(draft as any, {
-              playerTeamId: state.playerTeamId || "",
-              currentWeek: state.currentWeek,
-              rng: preTickRng,
-              nextId: nextDeterministicId,
-            })
+          // Build a clean GameSave snapshot detached from store state so
+          // the worker thread receives a serialization-safe copy.
+          const latestState = get()
+          const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
+
+          // Pre-tick mutations: scouting completion, staff-market rotation,
+          // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
+          // These are applied to the DETACHED snapshot, not committed to the
+          // live store up-front: a previous version set() them into the store
+          // before the worker ran, so a worker failure left XP advanced on a
+          // week that never advanced. Applying them only to `saveState` keeps
+          // the catch a true all-or-nothing rollback — the store is untouched
+          // until the final commit writes the worker's processed save.
+          applyPreTickMutations(saveState as unknown as Parameters<typeof applyPreTickMutations>[0], {
+            playerTeamId: state.playerTeamId || "",
+            currentWeek: state.currentWeek,
+            rng: preTickRng,
+            nextId: nextDeterministicId,
           })
 
           const rng = new SeededRNG(preTickRng.getState())
-          const latestState = get()
-
-          // Build a clean GameSave snapshot detached from store state so
-          // the worker thread receives a serialization-safe copy. Helper
-          // owns the field-by-field construction.
-          const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
 
           const config = {
             playerTeamId: state.playerTeamId || "",
@@ -2074,6 +2089,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               recalculateAllSynergy(draft.teams, draft.players)
             })
 
+            // Post-week processing. The week is already committed by the set()
+            // above (and isLoading is false). Isolate any failure here in its
+            // own try so it cannot trigger the outer catch's "week failed"
+            // path or leave the store half-updated for an already-advanced
+            // week.
+            try {
             // Process academy weekly training, scouting missions, and prospect development
             get().processAcademyWeek()
 
@@ -2175,6 +2196,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 })
               }
               set({ weekReveal: { week: playedWeek, headline, items: revealItems } })
+            }
+            } catch (postErr) {
+              logger.error("[advanceWeek] post-week processing failed (week already committed)", postErr)
+              // The week stays committed. Rebuild entity indexes defensively
+              // so O(1) lookups keep working despite the failed post-step.
+              try {
+                const s = get()
+                set(buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches))
+              } catch { /* indexes are best-effort */ }
             }
           } else {
             throw new Error(result.error || "Week processing failed")

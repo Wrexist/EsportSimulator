@@ -155,3 +155,24 @@ describe("live-match-utils", () => {
     expect(result.awayEconomy.a1.utility).toEqual([])
   })
 })
+
+describe("getLossBonus — index clamping", () => {
+  // Regression: a negative streak index returned `bonuses[-1]` === undefined,
+  // which then propagated NaN into team economy. The lower bound is now
+  // clamped so every input yields a finite payout.
+  it("returns a finite payout for negative, zero, and oversized streaks", () => {
+    for (const streak of [-5, -1, 0, 1, 4, 9, 99]) {
+      const bonus = EconomyManager.getLossBonus(streak)
+      expect(typeof bonus).toBe("number")
+      expect(Number.isFinite(bonus)).toBe(true)
+    }
+  })
+
+  it("treats a negative streak the same as a zero streak", () => {
+    expect(EconomyManager.getLossBonus(-3)).toBe(EconomyManager.getLossBonus(0))
+  })
+
+  it("caps oversized streaks at the maximum tier", () => {
+    expect(EconomyManager.getLossBonus(99)).toBe(EconomyManager.getLossBonus(4))
+  })
+})

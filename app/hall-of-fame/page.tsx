@@ -17,9 +17,12 @@ const iconMap: Record<string, any> = {
 }
 
 export default function HallOfFamePage() {
-    const hallOfFame = useGameStore((state) => state.hallOfFame) || []
-    const players = useGameStore((state) => state.players) || []
-    const activelyPlayingLegendIds = useGameStore((state) => state.activelyPlayingLegendIds) || []
+    // Direct selectors — store initializes these as arrays so the previous
+    // `|| []` fallback was actually harmful: it returned a NEW empty array
+    // on each call, breaking useMemo dep equality below.
+    const hallOfFame = useGameStore((state) => state.hallOfFame)
+    const players = useGameStore((state) => state.players)
+    const activelyPlayingLegendIds = useGameStore((state) => state.activelyPlayingLegendIds)
 
     const foundingLegendsUnsorted = hallOfFame.filter(l => l.category === "FOUNDING")
     // Sort: retired legends first, still-active legends at the bottom

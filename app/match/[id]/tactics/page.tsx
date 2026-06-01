@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
-import { ArrowLeft, Play, Layout, Swords, Brain, Video, ChevronRight, Zap, Target, Lock, Check } from "lucide-react"
+import { ArrowLeft, Play, Layout, Brain, Video, ChevronRight, Zap, Lock, Check } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -84,11 +83,13 @@ export default function TacticalHQPage() {
     const mentalBoosted = match?.mentalPrep || false
     const vodReviewed = match?.vodReviewed || false
 
-    // Opponent Roster for Antistrat
-    const opponentRoster = opponent?.rosterIds || []
-    const opponentPlayers = useMemo(() => (
-        opponentRoster.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
-    ), [opponentRoster, playersById])
+    // Opponent Roster for Antistrat — `?? []` defaulting moved INSIDE the
+    // useMemo so we don't invalidate the dep array with a fresh empty-array
+    // reference on every render.
+    const opponentPlayers = useMemo(() => {
+        const ids = opponent?.rosterIds ?? []
+        return ids.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
+    }, [opponent?.rosterIds, playersById])
 
     // Facility Levels for Locking
     const tacticalLevel = myTeam?.facilities?.find((f: any) => f.type === "TACTICAL")?.level || 0
@@ -118,12 +119,6 @@ export default function TacticalHQPage() {
     const handleAutoVeto = async () => {
         if (!match || !myTeam || !opponent) return
         setIsSimulatingVeto(true)
-
-        // 1. Simulate Veto Process (Instant)
-        // We need 3 maps for BO3 (Pick, Pick, Decider) or 1 for BO1.
-        // Simplified Logic: Use Engine to simulate "Auto" veto for both sides.
-
-        await new Promise(resolve => setTimeout(resolve, 800)) // UX Delay
 
         const rng = new SeededRNG(
             deterministicSeed(

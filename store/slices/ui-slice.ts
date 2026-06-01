@@ -21,16 +21,51 @@
 import type { UIActions, SliceCreator } from "@/store/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { nextDeterministicId } from "@/store/utils/helpers"
+import { soundManager } from "@/lib/sound-manager"
+
+// Map a toast type → matching pre-defined SFX from lib/sound-manager.
+// Most of these were already implemented in the manager but had no
+// trigger. Hooking addToast wires them up consistently across the
+// ~90 toast call sites without having to touch each one.
+//
+// NOTE: `toast.success(...)` resolves to the "achievement" store type
+// (see lib/toast.ts), which covers both rare wins AND routine
+// confirmations like "Facility Updated". To avoid the celebratory
+// achievement SFX firing 50× per session, we play the light "success"
+// SFX for the achievement type and reserve the louder one for the
+// explicit "level_up" event.
+function toastSoundFor(type: string): string | null {
+    switch (type) {
+        case "level_up":
+            return "achievement"
+        case "achievement":
+        case "xp_gain":
+            return "success"
+        case "warning":
+        case "error":
+            return "error"
+        default:
+            return "notification"
+    }
+}
 
 export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
     // === Setters ===
 
     setTheme: (theme) => set({ theme }),
 
-    addToast: (toast) => set((state) => {
-        const id = nextDeterministicId(state, "toast")
-        state.toasts.push({ ...toast, id })
-    }),
+    addToast: (toast) => {
+        set((state) => {
+            const id = nextDeterministicId(state, "toast")
+            state.toasts.push({ ...toast, id })
+        })
+        // Sound after the state push so a successful toast appears in
+        // lockstep with its cue, not before the visual lands.
+        const sound = toastSoundFor(toast.type)
+        if (sound && typeof window !== "undefined") {
+            soundManager.play(sound as any)
+        }
+    },
 
     removeToast: (id) => set((state) => {
         state.toasts = state.toasts.filter(t => t.id !== id)

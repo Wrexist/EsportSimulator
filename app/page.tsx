@@ -8,7 +8,7 @@ import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Trophy, TrendingUp, ArrowRight, Play, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
+import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -170,7 +170,7 @@ export default function Page() {
         rating: bestPlayer.avgRating || 0
       } : null
     }
-  }, [playerTeam, completedMatches, currentWeek, players, playerTeamId, pendingSeasonRecap])
+  }, [playerTeam, completedMatches, currentWeek, players, playerTeamId, pendingSeasonRecap, financeLedger])
 
   const handleSimulate = async () => {
     if (!nextMatch) return

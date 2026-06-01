@@ -2,7 +2,7 @@
 
 import React, { memo, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, TrendingUp, TrendingDown, Minus, Medal, DollarSign, Users, ChevronDown } from "lucide-react"
+import { Trophy, Minus, DollarSign, Users, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TournamentDefinition, formatPrizePool } from "@/data/tournament-calendar"

@@ -30,6 +30,7 @@
 import type { SliceCreator } from "@/store/types"
 import type { TeamSaveData } from "@/engine/save-types"
 import { checkAchievements } from "@/engine/steam-service"
+import { soundManager } from "@/lib/sound-manager"
 import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
 import { recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import {
@@ -437,6 +438,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 draft.acknowledgedEventIds.push(eventId)
             }
         })
+
+        // Audio cue lands after the state commit so the visual roster +
+        // budget changes paint together with the sound.
+        if (typeof window !== "undefined") {
+            soundManager.play("contractSign")
+        }
     },
 
     renewContract: (playerId) => {

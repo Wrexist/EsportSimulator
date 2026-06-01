@@ -2,23 +2,17 @@
 
 import React, { useState, useMemo, useEffect, memo } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
-import Image from "next/image"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import {
     Search,
-    Filter,
     Users,
     DollarSign,
-    TrendingUp,
     Star,
-    Shield,
-    ChevronRight,
     X,
     Target,
-    Zap,
     Activity,
     ArrowRight,
     ArrowUp,
@@ -29,11 +23,9 @@ import {
     Globe,
     Clock,
     SlidersHorizontal,
-    Bookmark,
     AlertTriangle,
     Heart,
 } from "lucide-react"
-import { toast } from "@/lib/toast"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -56,15 +48,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
-import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
-import { getVisibleStats } from "@/engine/scouting-system"
 import { SynergyCalculator } from "@/engine/synergy-calculator"
 import {
-    REGION_MAP,
     ALL_REGIONS,
     toCountryCode,
     getPlayerRegion,
@@ -189,10 +178,18 @@ export default function ScoutingPage() {
         setIsLoading(false)
     }, [players, gameTeams])
 
-    // Get player's team
-    const getPlayerTeam = (playerId: string) => {
-        return allTeams.find(t => t.rosterIds?.includes(playerId))
-    }
+    // O(1) playerId → team lookup. Was a linear scan of allTeams per call
+    // (~200 teams × ~1500 player evaluations in the player table = 300k
+    // ops per evaluatedPlayers rebuild). Memoize the map once per teams
+    // change so the getPlayerTeam helper below is constant-time.
+    const teamByPlayerId = useMemo(() => {
+        const m = new Map<string, typeof allTeams[number]>()
+        for (const t of allTeams) {
+            for (const pid of (t.rosterIds ?? [])) m.set(pid, t)
+        }
+        return m
+    }, [allTeams])
+    const getPlayerTeam = (playerId: string) => teamByPlayerId.get(playerId)
 
     // My roster for synergy calculations
     const myRoster = useMemo(() => {
@@ -213,11 +210,13 @@ export default function ScoutingPage() {
         return detectMissingRoles(myRoster as any)
     }, [myRoster])
 
-    // Evaluate and filter players
+    // Evaluate and filter players — use teamByPlayerId Map (O(1) lookup)
+    // rather than the getPlayerTeam helper so the dep array sees the
+    // stable Map reference instead of the per-render function identity.
     const evaluatedPlayers = useMemo(() => {
         return allPlayers.map(player => {
             const evaluation = evaluatePlayer(player as any)
-            const team = getPlayerTeam(player.id)
+            const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
             const forSale = isPlayerForSale(player as any, evaluation, teamRanking)
 
@@ -228,7 +227,7 @@ export default function ScoutingPage() {
                 forSale,
             }
         })
-    }, [allPlayers, allTeams])
+    }, [allPlayers, teamByPlayerId])
 
     // Synergy map: playerId → average synergy with my roster
     const synergyMap = useMemo(() => {
@@ -336,6 +335,11 @@ export default function ScoutingPage() {
                 }
                 return sortDirection === "asc" ? cmp : -cmp
             })
+        // isPlayerScouted / isPlayerWatchlisted are pure functions over
+        // scoutedPlayers / watchlist which ARE in deps via showScoutedOnly
+        // / showWatchlistedOnly — listing the functions themselves would
+        // bust this memo on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [evaluatedPlayers, debouncedSearch, selectedRole, showForSaleOnly, priceRange, playerTeamId,
         ageRange, selectedRegions, showFreeAgentsOnly, showScoutedOnly, contractExpiryFilter,
         minSynergy, showWatchlistedOnly, sortField, sortDirection, synergyMap, contracts, currentWeek])
@@ -672,31 +676,31 @@ export default function ScoutingPage() {
                         <GlassTableHeader>
                             <GlassTableRow>
                                 <GlassTableHead>
-                                    <button onClick={() => handleSort("name")} className="flex items-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("name")} className="flex items-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Player <SortIcon field="name" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead>Team</GlassTableHead>
                                 <GlassTableHead className="text-center">Role</GlassTableHead>
                                 <GlassTableHead className="text-center">
-                                    <button onClick={() => handleSort("age")} className="flex items-center justify-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("age")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Age <SortIcon field="age" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 <GlassTableHead className="text-center">
-                                    <button onClick={() => handleSort("ovr")} className="flex items-center justify-center hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("ovr")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         OVR <SortIcon field="ovr" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>
                                 {myRoster.length > 0 && (
                                     <GlassTableHead className="text-center">
-                                        <button onClick={() => handleSort("synergy")} className="flex items-center justify-center hover:text-white transition-colors">
+                                        <button onClick={() => handleSort("synergy")} className="flex items-center justify-center hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                             Syn <SortIcon field="synergy" sortField={sortField} sortDirection={sortDirection} />
                                         </button>
                                     </GlassTableHead>
                                 )}
                                 <GlassTableHead className="text-right">
-                                    <button onClick={() => handleSort("value")} className="flex items-center justify-end hover:text-white transition-colors">
+                                    <button onClick={() => handleSort("value")} className="flex items-center justify-end hover:text-white active:text-cyan-300 active:opacity-80 transition-colors">
                                         Value <SortIcon field="value" sortField={sortField} sortDirection={sortDirection} />
                                     </button>
                                 </GlassTableHead>

@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { X, HelpCircle, ChevronRight } from 'lucide-react'
+import { HelpCircle, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 
 interface HelpTopic {
     id: string

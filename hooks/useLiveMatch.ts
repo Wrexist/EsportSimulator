@@ -149,7 +149,6 @@ export function useLiveMatch(id: string) {
     useEffect(() => {
         if (hasInitialized.current) return
         if (!isMountedRef.current) return
-        hasInitialized.current = true
 
         setActiveMatch(id)
 
@@ -166,6 +165,13 @@ export function useLiveMatch(id: string) {
         const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         if (homePlayers.length === 0 || awayPlayers.length === 0) return
+
+        // All match data resolved — commit init exactly once. The flag is set
+        // HERE, not before the guards above: on the first render the store may
+        // still be hydrating (empty scheduledMatches/teams/players). Setting it
+        // early would permanently block this effect when it re-runs with
+        // populated data, stranding the user on a blank live-match screen.
+        hasInitialized.current = true
 
         const seed = getNormalizedSeed((foundMatch as any).seed, foundMatch.id)
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1

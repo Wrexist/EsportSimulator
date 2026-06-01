@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useState, useMemo, useCallback } from "react"
+import React,{ useState, useMemo } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     GraduationCap,
     Search,
     Trophy,
-    ArrowUp,
     CheckCircle2,
     Users,
     Target,
@@ -17,8 +16,6 @@ import {
     Scale,
     Star,
     Clock,
-    DollarSign,
-    Hammer,
     Gamepad2,
     Plus,
     X,
@@ -105,8 +102,6 @@ export function AcademyApp() {
 
     const team = useCurrentTeam()
     const [activeTab, setActiveTab] = useState<TabId>("ROSTER")
-    const [isUpgrading, setIsUpgrading] = useState(false)
-    const [isBuilding, setIsBuilding] = useState(false)
     const [lastScoutResult, setLastScoutResult] = useState<{ success: boolean; message: string } | null>(null)
 
 
@@ -147,9 +142,7 @@ export function AcademyApp() {
     // ===== HANDLERS =====
 
     const handleBuild = () => {
-        setIsBuilding(true)
         const result = buildAcademy(team.id)
-        setTimeout(() => setIsBuilding(false), 800)
         if (result.success) {
             toast.success("Academy Established", { description: result.message })
         } else {
@@ -158,9 +151,7 @@ export function AcademyApp() {
     }
 
     const handleUpgrade = () => {
-        setIsUpgrading(true)
         const result = upgradeAcademy(team.id)
-        setTimeout(() => setIsUpgrading(false), 800)
         if (result.success) {
             toast.success("Academy Upgraded", { description: result.message })
         } else {
@@ -313,7 +304,7 @@ export function AcademyApp() {
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
                 {academyLevel === 0 ? (
-                    <BuildAcademyPanel budget={team.budget} isBuilding={isBuilding} onBuild={handleBuild} />
+                    <BuildAcademyPanel budget={team.budget} onBuild={handleBuild} />
                 ) : (
                     <div className="max-w-5xl mx-auto space-y-5">
                         {/* Upgrade Banner */}
@@ -332,11 +323,10 @@ export function AcademyApp() {
                                 </div>
                                 <Button
                                     onClick={handleUpgrade}
-                                    disabled={!canAffordUpgrade || isUpgrading}
+                                    disabled={!canAffordUpgrade}
                                     size="sm"
-                                    className={cn("h-7 px-3 text-[10px] font-bold", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/20")}
+                                    className={cn("h-7 px-3 text-[10px] font-bold active:scale-95 transition-transform", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/40")}
                                 >
-                                    {isUpgrading && <Hammer className="animate-spin mr-1" size={10} />}
                                     Upgrade ${upgradeCost.toLocaleString()}
                                 </Button>
                             </div>
@@ -503,7 +493,7 @@ export function AcademyApp() {
 
 // ===== BUILD ACADEMY PANEL =====
 
-function BuildAcademyPanel({ budget, isBuilding, onBuild }: { budget: number; isBuilding: boolean; onBuild: () => void }) {
+function BuildAcademyPanel({ budget, onBuild }: { budget: number; onBuild: () => void }) {
     const cost = 25000
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
@@ -516,8 +506,8 @@ function BuildAcademyPanel({ budget, isBuilding, onBuild }: { budget: number; is
                     <span className={budget >= cost ? "text-white" : "text-red-400"}>${cost.toLocaleString()}</span>
                 </div>
             </div>
-            <Button onClick={onBuild} disabled={budget < cost || isBuilding} className={cn("h-12 px-6 font-bold", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/20")}>
-                {isBuilding ? <><Hammer className="animate-spin mr-2" size={16} /> Building...</> : "Establish Academy"}
+            <Button onClick={onBuild} disabled={budget < cost} className={cn("h-12 px-6 font-bold active:scale-95 transition-transform", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/40")}>
+                Establish Academy
             </Button>
         </motion.div>
     )
@@ -585,7 +575,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                             >
                                 {prospectData ? (
                                     <>
-                                        <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 flex items-center justify-center transition-colors">
+                                        <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 active:bg-red-500 active:scale-90 flex items-center justify-center transition-all">
                                             <X size={10} />
                                         </button>
                                         <Image src={prospectData.player.portraitPath || "/player_placeholder.png"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
@@ -763,7 +753,13 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 // ===== GRADUATES TAB =====
 
 function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
-    const graduates = players.filter(p => p.isAcademyGraduate)
+    // Memoize — the parent (AcademyApp) re-renders on any of its many
+    // useGameStore subscriptions, and players is the global ~1000-entry
+    // list. Filtering by isAcademyGraduate every render is unnecessary.
+    const graduates = useMemo(
+        () => players.filter(p => p.isAcademyGraduate),
+        [players],
+    )
 
     return (
         <motion.div key="graduates" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
@@ -778,7 +774,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         <GraduationCap size={32} className="text-white/10" />
                     </div>
                     <h3 className="text-sm font-bold text-white/40 mb-1">No graduates yet</h3>
-                    <p className="text-xs text-white/20">Develop and promote prospects to see them here.</p>
+                    <p className="text-xs text-white/55">Develop and promote prospects to see them here.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -865,7 +861,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 >
                                     {drill ? (
                                         <>
-                                            <button onClick={() => onRemoveFromDay(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 hover:bg-red-500/70 flex items-center justify-center text-white transition-colors">
+                                            <button onClick={() => onRemoveFromDay(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 hover:bg-red-500/70 active:bg-red-500 active:scale-90 flex items-center justify-center text-white transition-all">
                                                 <X size={8} />
                                             </button>
                                             <Icon size={16} className={drill.color} />
@@ -986,7 +982,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
                         </div>
                     </div>
                     <div className="text-right">
-                        <Button onClick={onPlayMatch} disabled={!canSchedule} className={cn("h-9 px-4 font-bold text-[10px]", canSchedule ? "bg-cyan-500 hover:bg-cyan-400 text-black" : "bg-white/5 text-white/20")}>
+                        <Button onClick={onPlayMatch} disabled={!canSchedule} className={cn("h-9 px-4 font-bold text-[10px]", canSchedule ? "bg-cyan-500 hover:bg-cyan-400 text-black" : "bg-white/5 text-white/40")}>
                             Play ${matchCost.toLocaleString()}
                         </Button>
                         {!canSchedule && (
@@ -1095,8 +1091,19 @@ function ScoutingTab({
     const isFull = currentProspects >= maxProspects
     const hasScout = staff.some((s: any) => s.teamId && s.role === "scout")
 
-    // Get actual player data for pending prospects
-    const pendingPlayers = pendingProspects.map((id: string) => players.find((p: any) => p.id === id)).filter(Boolean)
+    // Get actual player data for pending prospects. Indexed lookup so the
+    // 5×N players.find scan becomes a single Map build (memoized) + 5
+    // O(1) lookups.
+    const playersById = useMemo(
+        () => new Map<string, any>((players as any[]).map((p: any) => [p.id, p])),
+        [players],
+    )
+    const pendingPlayers = useMemo(
+        () => (pendingProspects as string[])
+            .map((id: string) => playersById.get(id))
+            .filter(Boolean),
+        [pendingProspects, playersById],
+    )
 
     return (
         <motion.div key="scouting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4 pb-20">
@@ -1266,7 +1273,7 @@ function ScoutingTab({
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-normal font-mono text-cyan-400 leading-none">{m.weeksRemaining}w</div>
-                                    <div className="text-[8px] text-white/20 uppercase font-normal tracking-tighter mt-1">Remaining</div>
+                                    <div className="text-[8px] text-white/55 uppercase font-normal tracking-tighter mt-1">Remaining</div>
                                 </div>
                             </div>
                         ))}

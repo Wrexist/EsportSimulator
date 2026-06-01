@@ -4,10 +4,7 @@ import { useState, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { PlayerSaveData } from "@/engine/save-types"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
-import { PlayerStatMeter } from "@/components/ui/player-stat-meter"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 
@@ -32,7 +29,6 @@ import {
     Keyboard,
     Monitor,
     Award,
-    Flame,
     Target,
     Heart,
     DollarSign,
@@ -49,7 +45,7 @@ import { useShallow } from "zustand/react/shallow"
 import { TalentTree } from "../staff/TalentTree"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { calculatePlayerTier, getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
+import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import type { EquipmentType } from "@/engine/equipment-manager"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -118,6 +114,8 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
     // Stats for new spider chart. Memoized so the child PlayerSpiderChart
     // receives a stable prop reference; otherwise every tab toggle / parent
     // re-render rebuilt the object and busted child memoization downstream.
+    // Keyed on the whole player object — granular field deps tripped
+    // exhaustive-deps because (player as any).firepower is a complex expr.
     const spiderStats = useMemo(() => ({
         firepower: (player as any).firepower ?? Math.round((player.skill + player.rifle) / 2),
         entrying: (player as any).entrying ?? Math.round((player.skill + player.reaction) / 2),
@@ -126,13 +124,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
         clutching: player.clutch ?? 50,
         sniping: player.awp ?? 50,
         utility: player.grenades ?? 50,
-    }), [
-        (player as any).firepower, (player as any).entrying,
-        (player as any).trading, (player as any).opening,
-        player.skill, player.rifle, player.reaction, player.teamwork,
-        player.tactic, player.creativity, player.clutch, player.awp,
-        player.grenades,
-    ])
+    }), [player])
 
     const getRoleBadgeColor = (role: string) => {
         switch (role?.toUpperCase()) {

@@ -6,6 +6,7 @@
 
 import { useEffect } from "react"
 import { AlertTriangle, RefreshCw } from "lucide-react"
+import { errorTracker } from "@/lib/error-tracking"
 
 export default function GlobalError({
     error,
@@ -15,6 +16,16 @@ export default function GlobalError({
     reset: () => void
 }) {
     useEffect(() => {
+        // Last-resort boundary — report the crash, but guard the reporter
+        // itself since this renders even when the app is badly broken.
+        try {
+            errorTracker.captureException(error, {
+                tags: { type: "global-error-boundary" },
+                context: { digest: error.digest },
+            })
+        } catch {
+            /* reporting must never throw from the global boundary */
+        }
         if (process.env.NODE_ENV !== "production") {
             console.error("[Global Error]", error)
         }

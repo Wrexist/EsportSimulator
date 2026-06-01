@@ -3,15 +3,22 @@
 import React, { useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
-    Trophy, TrendingUp, Users, Search, Star, Crown, Zap,
-    Award, Target, ChevronUp, ChevronDown, Minus, Swords,
-    DollarSign, Pause
+    Trophy,
+    TrendingUp,
+    Users,
+    Search,
+    Star,
+    Crown,
+    Award,
+    ChevronUp,
+    ChevronDown,
+    Swords,
+    DollarSign,
+    Pause
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -25,11 +32,9 @@ import {
     GlassTableCell,
 } from "@/components/ui/GlassTable"
 import {
-    getFPLTierName,
     getFPLTierColor,
     getFPLPlayerTypeLabel,
     getFPLPlayerTypeColor,
-    FPLTier,
     FPL_CONSTANTS
 } from "@/types/fpl"
 

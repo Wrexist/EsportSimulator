@@ -8,7 +8,7 @@ import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
 import { PlayerPortrait } from "@/components/ui/asset-images"
-import { Skull, Swords, Zap as ZapIcon, EyeOff, Repeat, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
+import { Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -241,8 +241,11 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
     // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
     // React.memo. Now it only gets a new object when a/b actually change.
+    // Deps are deliberately narrowed to the two fields we read rather than
+    // the whole radarData object (which mutates more frequently).
     const sitePositions = useMemo(
         () => (radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [radarData?.aSite, radarData?.bSite]
     )
 
