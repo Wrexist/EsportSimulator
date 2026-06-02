@@ -14,6 +14,7 @@ import { soundManager } from "@/lib/sound-manager"
 import { debouncedStorage } from "@/engine/storage-adapter"
 import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
 import { logger } from "@/lib/logger"
+import { MotionConfig } from "framer-motion"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -362,6 +363,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [router, hideChrome])
 
     return (
+        // App-wide MotionConfig honors prefers-reduced-motion automatically
+        // for every framer-motion descendant. Components that need to
+        // override (e.g. a celebration that should still flash briefly) can
+        // wrap themselves in a nested MotionConfig.
+        <MotionConfig reducedMotion="user">
         <div className={`flex h-screen liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
             <div className="pointer-events-none absolute inset-0 liquid-noise" />
             {/* Fixed Sidebar - Hidden on New Game/Main Menu */}
@@ -416,5 +422,6 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         </div >
+        </MotionConfig>
     )
 }

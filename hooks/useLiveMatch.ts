@@ -380,10 +380,13 @@ export function useLiveMatch(id: string) {
         // activeMatchState with stale "still playing" data.
         if (gameState.status === "FINISHED") return
 
+        const currentResult = matchData.current?.result
+        if (!currentResult) return // No match in flight — nothing to checkpoint.
+
         const state: ActiveMatchState = {
             matchId: id,
             gameState,
-            simState: simState as any,
+            simState,
             homeRoster,
             awayRoster,
             logs,
@@ -393,7 +396,7 @@ export function useLiveMatch(id: string) {
             isWaitingForStrategy,
             originalHomePlayers,
             originalAwayPlayers,
-            matchResult: matchData.current?.result as any
+            matchResult: currentResult,
         }
 
         const timer = setTimeout(() => {
@@ -735,11 +738,11 @@ export function useLiveMatch(id: string) {
                     const victimPlayer = nextEvent.victimId ? origPlayerMap.get(nextEvent.victimId) : undefined
                     const assisterPlayer = nextEvent.assisterId ? origPlayerMap.get(nextEvent.assisterId) : undefined
 
-                    let killType = "KILL_GENERIC"
+                    let killType: "KILL_GENERIC" | "KILL_AWP" | "KILL_KNIFE" = "KILL_GENERIC"
                     if (weaponId === "awp") killType = "KILL_AWP"
                     if (weaponId === "knife") killType = "KILL_KNIFE"
 
-                    const message = commentaryManager.generate(killType as any, {
+                    const message = commentaryManager.generate(killType, {
                         player: killer?.name || "Player",
                         victim: victim?.name || "Player",
                         weapon: nextEvent.weapon?.toUpperCase(),
