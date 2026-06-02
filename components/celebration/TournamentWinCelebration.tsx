@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { Trophy, Star, TrendingUp, DollarSign, X, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -24,9 +24,15 @@ interface TournamentWinCelebrationProps {
 
 export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebrationProps) {
     const [mounted, setMounted] = useState(false)
+    const reduceMotion = useReducedMotion()
 
     useEffect(() => {
         setMounted(true)
+
+        // Skip the 5s confetti barrage entirely for users who set
+        // prefers-reduced-motion — the celebration card itself still
+        // renders with its scale-up so the moment is preserved.
+        if (reduceMotion) return
 
         // Trigger initial confetti
         const duration = 5 * 1000
@@ -35,7 +41,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
 
         const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
 
-        const interval: any = setInterval(function () {
+        const interval: ReturnType<typeof setInterval> = setInterval(function () {
             const timeLeft = animationEnd - Date.now()
 
             if (timeLeft <= 0) {
@@ -48,7 +54,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
         }, 250)
 
         return () => clearInterval(interval)
-    }, [])
+    }, [reduceMotion])
 
     if (!mounted) return null
 
