@@ -135,6 +135,20 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
             return smoke.level === resolvedRadarLevel
         }), [smokes, isDualLevel, resolvedRadarLevel])
 
+    // Pre-compute current opacity per kill line. Same motivation as
+    // smokeRenderState: the inline branch ran per kill line per frame
+    // and a busy fight-round can drop 4-6 kill lines simultaneously.
+    const killLineRenderState = useMemo(() => {
+        if (currentTime == null) return [] as Array<{ line: typeof visibleKillLines[number]; fadeOpacity: number }>
+        return visibleKillLines
+            .map(line => {
+                const elapsed = currentTime - line.time
+                const fadeOpacity = Math.max(0, 1 - elapsed / 2)
+                return fadeOpacity > 0 ? { line, fadeOpacity } : null
+            })
+            .filter(Boolean) as Array<{ line: typeof visibleKillLines[number]; fadeOpacity: number }>
+    }, [visibleKillLines, currentTime])
+
     // Pre-compute current opacity per smoke so the JSX map is a flat
     // value-pass instead of repeating the fade-in/hold/fade-out branch
     // per frame per smoke. Was doing 3-7 visible smokes × per-tick math
@@ -399,32 +413,24 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                         />
                                     ))}
 
-                                    {/* Kill flash lines */}
-                                    {visibleKillLines.map((line, idx) => {
-                                        const elapsed = (currentTime ?? 0) - line.time
-                                        const fadeOpacity = Math.max(0, 1 - elapsed / 2)
-                                        if (fadeOpacity <= 0) return null
-                                        return (
-                                            <line
-                                                key={`kill-${idx}`}
-                                                x1={line.fromX}
-                                                y1={line.fromY}
-                                                x2={line.toX}
-                                                y2={line.toY}
-                                                stroke={line.isHeadshot ? "#ff6666" : "#ff3333"}
-                                                strokeWidth={line.isHeadshot ? "0.6" : "0.35"}
-                                                opacity={fadeOpacity * 0.7}
-                                                strokeDasharray={line.isHeadshot ? "none" : "1 0.5"}
-                                            />
-                                        )
-                                    })}
+                                    {/* Kill flash lines — opacity from killLineRenderState. */}
+                                    {killLineRenderState.map(({ line, fadeOpacity }, idx) => (
+                                        <line
+                                            key={`kill-${idx}`}
+                                            x1={line.fromX}
+                                            y1={line.fromY}
+                                            x2={line.toX}
+                                            y2={line.toY}
+                                            stroke={line.isHeadshot ? "#ff6666" : "#ff3333"}
+                                            strokeWidth={line.isHeadshot ? "0.6" : "0.35"}
+                                            opacity={fadeOpacity * 0.7}
+                                            strokeDasharray={line.isHeadshot ? "none" : "1 0.5"}
+                                        />
+                                    ))}
 
                                     {/* Headshot marker at victim position */}
-                                    {visibleKillLines.map((line, idx) => {
+                                    {killLineRenderState.map(({ line, fadeOpacity }, idx) => {
                                         if (!line.isHeadshot) return null
-                                        const elapsed = (currentTime ?? 0) - line.time
-                                        const fadeOpacity = Math.max(0, 1 - elapsed / 2)
-                                        if (fadeOpacity <= 0) return null
                                         return (
                                             <g key={`hs-${idx}`} opacity={fadeOpacity * 0.8}>
                                                 <circle
