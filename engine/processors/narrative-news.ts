@@ -133,21 +133,70 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
 
             if (currentTeam && interestedTeams.length > 0) {
                 const rumoredTeam = interestedTeams[Math.floor(rng.next() * interestedTeams.length)]
-                const rumorTemplates = [
+
+                // Title pool expanded from 3 → 12. Each branches on the
+                // player's profile (form, role, age) so the headline
+                // matches the story instead of always reading the same.
+                const isHotForm = (player.avgRating ?? 1.0) >= 1.15
+                const isVeteran = player.age >= 28
+                const isStar = (player.totalMVPs ?? 0) >= 5 || (player.majorWins ?? 0) >= 1
+
+                const titlePool: string[] = [
                     `RUMOR: ${rumoredTeam.name} eyes ${player.nickname}`,
                     `Transfer Watch: ${player.nickname} linked with move`,
                     `${rumoredTeam.name} in talks with ${player.nickname}?`,
+                    `${player.nickname} on the move? ${rumoredTeam.name} circling.`,
+                    `Sources: ${rumoredTeam.name} prepping an offer for ${player.nickname}`,
                 ]
+                if (isHotForm) {
+                    titlePool.push(
+                        `Hot streak draws interest: ${rumoredTeam.name} watching ${player.nickname}`,
+                        `${player.nickname}'s form sparks bidding war`,
+                    )
+                }
+                if (isVeteran) {
+                    titlePool.push(
+                        `${rumoredTeam.name} eye veteran signing in ${player.nickname}`,
+                        `One last contract? ${player.nickname} linked with ${rumoredTeam.name}`,
+                    )
+                }
+                if (isStar) {
+                    titlePool.push(
+                        `BLOCKBUSTER: ${rumoredTeam.name} chasing star ${player.nickname}`,
+                        `${player.nickname} to ${rumoredTeam.name}? "Everything is possible," says agent`,
+                    )
+                }
+
+                // Content pool — 4 archetypes, picked based on player profile.
+                const contentTemplates = [
+                    `Sources close to ${rumoredTeam.name} suggest they are monitoring ${player.nickname}'s contract situation at ${currentTeam.name}. The ${player.age}-year-old's deal expires soon.`,
+                    `${rumoredTeam.name} are reportedly preparing a formal approach for ${player.nickname} once the transfer window opens. ${currentTeam.name} would be in their rights to demand a premium.`,
+                    `${player.nickname} is "ready for a new challenge," according to people with knowledge of the situation. ${rumoredTeam.name} have been identified as the leading suitor.`,
+                ]
+                if (isHotForm) {
+                    contentTemplates.push(
+                        `${player.nickname}'s career-best ${player.avgRating?.toFixed(2)} rating has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
+                    )
+                }
+                if (isStar) {
+                    contentTemplates.push(
+                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× tournament MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
+                    )
+                }
 
                 save.newsFeed.unshift({
                     id: `rumor_${player.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                    title: rumorTemplates[Math.floor(rng.next() * rumorTemplates.length)],
-                    content: `Sources close to ${rumoredTeam.name} suggest they are monitoring ${player.nickname}'s contract situation at ${currentTeam.name}. The ${player.age}-year-old's deal expires soon.`,
+                    title: titlePool[Math.floor(rng.next() * titlePool.length)],
+                    content: contentTemplates[Math.floor(rng.next() * contentTemplates.length)],
                     category: "TRANSFER",
                     playerId: player.id,
                     teamId: rumoredTeam.id,
                     week: save.currentWeek,
-                    engagement: { likes: 800 + Math.floor(rng.next() * 1200), views: 20000 + Math.floor(rng.next() * 30000) },
+                    engagement: {
+                        // Star + hot-form rumors get higher engagement signal.
+                        likes: (isStar ? 2400 : 800) + Math.floor(rng.next() * 1200),
+                        views: (isStar ? 60000 : 20000) + Math.floor(rng.next() * 30000),
+                    },
                 })
             }
         }
