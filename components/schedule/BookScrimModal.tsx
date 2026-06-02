@@ -68,7 +68,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         for (const team of opponents) {
             const roster = team.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean)
             const avgRating = roster.length > 0
-                ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p as any).overallRating), 0) / roster.length)
+                ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p).overallRating), 0) / roster.length)
                 : 0
             map.set(team.id, avgRating)
         }
@@ -150,7 +150,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-black/30 border border-white/5">
-                                            <TeamLogoDisplay team={team as any} size={40} />
+                                            <TeamLogoDisplay team={team} size={40} />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
