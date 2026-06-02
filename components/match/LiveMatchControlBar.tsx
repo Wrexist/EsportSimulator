@@ -60,6 +60,9 @@ function LiveMatchControlBarComponent({
                     </span>
                     <button
                         onClick={() => setIsAutoTactics(!isAutoTactics)}
+                        role="switch"
+                        aria-checked={isAutoTactics}
+                        aria-label="Auto tactics — let the engine pick the strategy"
                         className={cn(
                             "w-10 h-5 rounded-full relative transition-all border",
                             isAutoTactics
