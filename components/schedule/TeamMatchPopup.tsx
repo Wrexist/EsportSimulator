@@ -13,6 +13,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { RivalryBanner } from "./RivalryBanner"
+import { ScoutingReport } from "./ScoutingReport"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -223,6 +224,16 @@ export function TeamMatchPopup({
                                         <p className="text-[9px] text-white/40 uppercase font-bold">ELO</p>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Auto-generated scouting report — derives 2-4
+                                tendency cards (star-heavy, AWP threat, IGL-
+                                led, veteran, fragmented chemistry, etc.) from
+                                the opponent's roster and team data. Gives
+                                every match a "read" before the player commits
+                                to PLAY MATCH. */}
+                            <div className="px-4 pb-4">
+                                <ScoutingReport opponent={opponent} opponentRoster={opponentRoster} />
                             </div>
 
                             {/* Opponent Roster Preview */}
