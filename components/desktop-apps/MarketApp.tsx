@@ -119,7 +119,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
             const roleMatch = (() => {
                 if (filterRole === "ALL") return true
                 // 1. Explicit Check
-                if (resolvePlayerRole(p as any).toUpperCase().includes(filterRole)) return true
+                if (resolvePlayerRole(p).toUpperCase().includes(filterRole)) return true
                 // 2. Stat Check (Smart Filters for capabilities)
                 const s = p as any
                 switch (filterRole) {
@@ -336,7 +336,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                                 <span className="opacity-30">•</span>
                                                 <span>{p.age}y</span>
                                                 <span className="opacity-30">•</span>
-                                                <span className="text-white/60">{resolvePlayerRole(p as any).split(',')[0]}</span>
+                                                <span className="text-white/60">{resolvePlayerRole(p).split(',')[0]}</span>
                                             </div>
                                         </div>
                                         <div className="text-right shrink-0">
@@ -413,7 +413,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                             <div className="space-y-2 text-xs bg-white/5 rounded-xl p-3 border border-white/5">
                                 <div className="flex justify-between items-center py-1 border-b border-white/5">
                                     <span className="text-white/40 font-bold uppercase text-[10px]">Role</span>
-                                    <span className="font-bold bg-white/10 px-2 py-0.5 rounded text-[10px]">{resolvePlayerRole(selectedPlayer as any)}</span>
+                                    <span className="font-bold bg-white/10 px-2 py-0.5 rounded text-[10px]">{resolvePlayerRole(selectedPlayer)}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-1 border-b border-white/5">
                                     <span className="text-white/40 font-bold uppercase text-[10px]">Nationality</span>
