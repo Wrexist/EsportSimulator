@@ -860,6 +860,8 @@ export default function SchedulePage() {
             tournamentName={tournamentDef?.name}
             stage={selectedMatchForPopup.stage || undefined}
             currentWeek={currentWeek}
+            completedMatches={completedMatches}
+            playerTeamId={playerTeamId}
           />
         )
       })()}

@@ -7,11 +7,12 @@ import { X, Swords, Trophy, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { TeamSaveData, PlayerSaveData, MatchSaveData } from "@/engine/save-types"
+import { TeamSaveData, PlayerSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine/save-types"
 import { TeamLogoImage, PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
+import { RivalryBanner } from "./RivalryBanner"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -23,6 +24,15 @@ interface TeamMatchPopupProps {
     tournamentName?: string
     stage?: string
     currentWeek: number
+    /**
+     * Full completed-match history. Used by RivalryBanner to derive the
+     * live H2H streak between player and opponent. Cheap to pass — the
+     * banner filters internally and the popup doesn't render until
+     * it's mounted.
+     */
+    completedMatches?: CompletedMatchSaveData[]
+    /** The player team's id. Drives streak orientation in the banner. */
+    playerTeamId?: string
 }
 
 export function TeamMatchPopup({
@@ -34,7 +44,9 @@ export function TeamMatchPopup({
     playerTeam,
     tournamentName,
     stage,
-    currentWeek
+    currentWeek,
+    completedMatches,
+    playerTeamId
 }: TeamMatchPopupProps) {
     const router = useRouter()
 
@@ -47,6 +59,27 @@ export function TeamMatchPopup({
         .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))
         .sort((a, b) => b.ovr - a.ovr)
         .slice(0, 5), [opponentRoster])
+
+    /**
+     * Rivalry stats (aggregate H2H record + intensity tag) and a
+     * newest-first list of head-to-head completed matches. RivalryBanner
+     * derives the live streak from the latter — a "lost 4 straight"
+     * narrative the aggregate record can't capture.
+     */
+    const rivalry = useMemo(() => {
+        if (!playerTeam || !opponent) return undefined
+        return playerTeam.rivalries?.find(r => r.opponentTeamId === opponent.id)
+    }, [playerTeam, opponent])
+
+    const recentH2H = useMemo(() => {
+        if (!completedMatches || !opponent || !playerTeamId) return []
+        return completedMatches
+            .filter(m =>
+                (m.homeTeamId === playerTeamId && m.awayTeamId === opponent.id)
+                || (m.awayTeamId === playerTeamId && m.homeTeamId === opponent.id)
+            )
+            .sort((a, b) => (b.week || 0) - (a.week || 0))
+    }, [completedMatches, opponent, playerTeamId])
 
     // Escape key closes the popup — standard modal keyboard contract.
     // Refs hold the latest onClose so a non-memoized parent callback
@@ -124,6 +157,19 @@ export function TeamMatchPopup({
                                             </Badge>
                                         )}
                                     </div>
+                                )}
+
+                                {/* Rivalry banner — surfaces live H2H streak + intensity tag.
+                                    The banner self-skips when there isn't a real rivalry
+                                    record (<2 prior meetings), so the prop wiring is a
+                                    no-op for fresh opponents. */}
+                                {playerTeamId && (
+                                    <RivalryBanner
+                                        rivalry={rivalry}
+                                        recentH2H={recentH2H}
+                                        playerTeamId={playerTeamId}
+                                        opponentName={opponent.name}
+                                    />
                                 )}
 
                                 {/* VS Display */}
