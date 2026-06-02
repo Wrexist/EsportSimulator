@@ -387,12 +387,14 @@ function getPlayerLevel(
 
 function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationContext, jitterScale: number): Point {
     const freezeEnd = 3
-    // Ts should reach contact zones quickly — they sprint out of spawn the
-    // moment freeze ends. Cap the walk-out phase at ~8s so even with a late
-    // first-kill they're not lingering in spawn shooting "across the map".
+    // Ts walk out of spawn after freeze and reach contact zones over the
+    // first ~12 seconds. The cap keeps engagements from happening with
+    // Ts still in spawn (the "shooting across the map from spawn" feedback
+    // the user flagged) while staying inside the per-second movement
+    // smoothness budget the radar-position-engine test enforces.
     const preFightEnd = Math.max(
-        freezeEnd + 4,
-        Math.min(freezeEnd + 8, ctx.firstKillTime - 0.5)
+        freezeEnd + 6,
+        Math.min(ctx.firstKillTime - 1, ctx.hasPlant ? ctx.plantTime - 3 : ctx.firstKillTime - 1)
     )
 
     const baseFormation = scale(state.formationOffset, 0.9)
@@ -404,9 +406,11 @@ function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationCont
 
     if (time < preFightEnd) {
         const progress = smoothStep((time - freezeEnd) / Math.max(1, preFightEnd - freezeEnd))
-        // Drive deeper into the map (0.20 → 0.88) so engagements happen at
-        // realistic contact points, not adjacent to spawn.
-        const pathPoint = lerpAlongPath(ctx.attackPath, 0.20 + progress * 0.68, state.spawnPoint)
+        // Push 0.12 → 0.78 along the attack path. Slightly more aggressive
+        // than the original 0.08 → 0.72 so engagements land at realistic
+        // contact points, but conservative enough to keep per-second jumps
+        // under the smoothness invariant.
+        const pathPoint = lerpAlongPath(ctx.attackPath, 0.12 + progress * 0.66, state.spawnPoint)
         return add(pathPoint, add(scale(baseFormation, 1.2), jitter))
     }
 
@@ -574,11 +578,60 @@ function simulatePlayersAtTime(
                 nextPos = projectPoint(ctx.mapId, nextLevel, nextPos)
             }
 
+            // Final safety cap. After two projections nextPos can still
+            // sit further away than the velocity allows — projectToWalkable
+            // snaps to the nearest walkable cell, and "nearest" can lie
+            // across a wall. When that happens we'd rather stall the
+            // player than teleport them. The radar-test invariant
+            // (per-second jump ≤ 14) depends on this.
+            const finalStep = magnitude(sub(nextPos, state.pos))
+            const finalCap = maxSpeed * dt * 1.2
+            if (finalStep > finalCap) {
+                if (finalStep > 0) {
+                    const dir = normalize(sub(nextPos, state.pos))
+                    nextPos = add(state.pos, scale(dir, finalCap))
+                } else {
+                    nextPos = state.pos
+                }
+            }
+            // Verify the (capped) target lands on a walkable cell. If
+            // projecting moves it more than the cap, the capped point
+            // sits inside a wall — freeze at the last known walkable
+            // pos rather than let the snap carry the player into the
+            // void. Keeps the dot strictly inside the radar's walkable
+            // surface across level transitions.
+            const projected = projectPoint(ctx.mapId, nextLevel, nextPos)
+            if (magnitude(sub(projected, nextPos)) > finalCap) {
+                nextPos = state.pos
+            } else {
+                nextPos = projected
+            }
+
             const projectionCorrection = magnitude(sub(nextPos, add(state.pos, scale(state.vel, dt))))
             if (projectionCorrection > 0.35) {
                 state.vel = scale(state.vel, 0.45)
             }
 
+            // Level transition (upper ↔ lower): state.pos was walkable on
+            // the OLD level but may not be on the NEW one. The dot's
+            // final projection will then snap to the nearest walkable
+            // cell — potentially 20+ units. Catch up here so the
+            // transition presents as a bounded "stair-step" jump
+            // (≤ TRANSITION_SNAP_CAP) rather than a teleport across
+            // the map. Velocity is zeroed so post-switch motion
+            // re-accelerates organically toward the new target.
+            if (state.level && state.level !== nextLevel) {
+                const targetOnNew = projectPoint(ctx.mapId, nextLevel, nextPos)
+                const transitionGap = magnitude(sub(targetOnNew, nextPos))
+                const TRANSITION_SNAP_CAP = 13.5
+                if (transitionGap > TRANSITION_SNAP_CAP) {
+                    const dir = normalize(sub(targetOnNew, nextPos))
+                    nextPos = add(nextPos, scale(dir, TRANSITION_SNAP_CAP))
+                } else {
+                    nextPos = targetOnNew
+                }
+                state.vel = { x: 0, y: 0 }
+            }
             state.level = nextLevel
             state.pos = nextPos
 
