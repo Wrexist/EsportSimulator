@@ -304,8 +304,8 @@ export default function StaffMeetingPage() {
         <div className="container mx-auto max-w-5xl p-6 min-h-screen flex flex-col gap-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-white/10">
-                    <ArrowLeft className="text-white" />
+                <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Go back" title="Back" className="rounded-full hover:bg-white/10">
+                    <ArrowLeft className="text-white" aria-hidden="true" />
                 </Button>
                 <div>
                     <h1 className="text-4xl font-normal uppercase tracking-tighter liquid-text flex items-center gap-3">

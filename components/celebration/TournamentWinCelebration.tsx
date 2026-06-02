@@ -86,9 +86,11 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                             variant="ghost"
                             size="icon"
                             onClick={onClose}
+                            aria-label="Close celebration"
+                            title="Close"
                             className="rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-5 h-5" aria-hidden="true" />
                         </Button>
                     </div>
 
