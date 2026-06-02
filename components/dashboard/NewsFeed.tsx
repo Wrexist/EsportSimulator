@@ -62,9 +62,14 @@ export function NewsFeed() {
 
     if (!newsFeed || newsFeed.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 text-center text-muted-foreground/30">
-                <Newspaper size={48} className="mb-4 opacity-10" />
-                <p className="text-[10px] font-normal uppercase tracking-[0.2em]">Zero News Headlines</p>
+            <div className="flex flex-col items-center justify-center py-24 text-center" role="status" aria-live="polite">
+                <Newspaper size={48} className="mb-4 text-white/10" aria-hidden="true" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-1">
+                    The wires are silent
+                </p>
+                <p className="text-xs text-white/50 max-w-xs leading-relaxed">
+                    No breaking headlines this week. Win a match, sign a player, or upgrade a facility to make the news.
+                </p>
             </div>
         )
     }

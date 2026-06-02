@@ -767,13 +767,28 @@ export function computeRadarPositions(
 
     const smokes: RadarSmoke[] = []
     const smokeRng = new SeededRNG(safeSeed + safeRoundNumber * 4999)
-    const numSmokes = 1 + (smokeRng.next() > 0.45 ? 1 : 0)
+    // Smoke count tied to round phase. Pistol rounds (1, 13) have no
+    // grenade economy so smokes don't make sense; anti-eco rounds (2, 14)
+    // get at most one; everything else can range 1-3 depending on RNG.
+    // Without this, eco rounds rendered the same util spam as full buys.
+    const isPistol = safeRoundNumber === 1 || safeRoundNumber === 13
+    const isAntiEco = safeRoundNumber === 2 || safeRoundNumber === 14
+    const numSmokes = isPistol
+        ? 0
+        : isAntiEco
+            ? (smokeRng.next() > 0.5 ? 1 : 0)
+            : 1 + (smokeRng.next() > 0.35 ? 1 : 0) + (smokeRng.next() > 0.75 ? 1 : 0)
     for (let smokeIndex = 0; smokeIndex < numSmokes; smokeIndex++) {
         const smokeStart = 6 + smokeRng.next() * 4
         const smokeDuration = 15 + smokeRng.next() * 5
+        // Smoke 0 = execute smoke near the target site. Smoke 1 = block CT
+        // rotation. Smoke 2+ = extra util thrown along the attack path
+        // (only happens on full-buy rounds).
         const base = smokeIndex === 0
             ? lerpPoint(simCtx.engageZone, simCtx.targetSite, 0.18 + smokeRng.next() * 0.25)
-            : lerpAlongPath(simCtx.ctRotatePath, 0.35 + smokeRng.next() * 0.55, simCtx.engageZone)
+            : smokeIndex === 1
+                ? lerpAlongPath(simCtx.ctRotatePath, 0.35 + smokeRng.next() * 0.55, simCtx.engageZone)
+                : lerpAlongPath(simCtx.attackPath, 0.55 + smokeRng.next() * 0.3, simCtx.engageZone)
 
         const smokeLevel: RadarLevel = isDualLevel && attackSite === "B" && smokeIndex === 0 ? "lower" : "upper"
         const smokePos = projectPoint(mapId, smokeLevel, base)
