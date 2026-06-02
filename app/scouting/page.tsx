@@ -38,6 +38,7 @@ import {
     CollapsibleTrigger,
     CollapsibleContent,
 } from "@/components/ui/collapsible"
+import type { PlayerSaveData } from "@/engine/save-types"
 import {
     GlassTable,
     GlassTableHeader,
@@ -71,6 +72,7 @@ interface SnapshotPlayer {
     nationality: string
     portraitPath: string
     role: string
+    secondaryRole?: string
     tier: string
     skill: number
     awp: number
@@ -215,10 +217,15 @@ export default function ScoutingPage() {
     // stable Map reference instead of the per-render function identity.
     const evaluatedPlayers = useMemo(() => {
         return allPlayers.map(player => {
-            const evaluation = evaluatePlayer(player)
+            // Scouting works against the SnapshotPlayer shape (which is
+            // structurally a subset of PlayerSaveData — same stat fields,
+            // no energy / talent / dynamic state). evaluatePlayer and
+            // isPlayerForSale only read those subset fields at runtime,
+            // so the bridging cast is safe here.
+            const evaluation = evaluatePlayer(player as unknown as PlayerSaveData)
             const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
-            const forSale = isPlayerForSale(player, evaluation, teamRanking)
+            const forSale = isPlayerForSale(player as unknown as PlayerSaveData, evaluation, teamRanking)
 
             return {
                 ...player,

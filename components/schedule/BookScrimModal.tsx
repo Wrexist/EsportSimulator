@@ -66,7 +66,9 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
     const teamAvgRatings = useMemo(() => {
         const map = new Map<string, number>()
         for (const team of opponents) {
-            const roster = team.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean)
+            const roster = team.rosterIds
+                .map(id => players.find(p => p.id === id))
+                .filter((p): p is typeof players[number] => p !== undefined)
             const avgRating = roster.length > 0
                 ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p).overallRating), 0) / roster.length)
                 : 0

@@ -861,7 +861,7 @@ export default function SchedulePage() {
             stage={selectedMatchForPopup.stage || undefined}
             currentWeek={currentWeek}
             completedMatches={completedMatches}
-            playerTeamId={playerTeamId}
+            playerTeamId={playerTeamId ?? undefined}
           />
         )
       })()}

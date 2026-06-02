@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { CustomTactics, MapId } from "@/types"
+import { CustomTactics, MapId, Team } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
@@ -392,10 +392,14 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             <HalfTimeOverlay active={showHalfTime} />
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 
+                {/* TeamSaveData (engine save shape) → Team (engine runtime
+                    shape). Structural overlap is total for the fields the
+                    scoreboard reads — cast documented in ARCHITECTURE.md
+                    "Known Type-System Debt". */}
                 <LiveMatchScoreboard
                     gameState={gameState}
-                    homeTeam={homeTeam}
-                    awayTeam={awayTeam}
+                    homeTeam={homeTeam as unknown as Team}
+                    awayTeam={awayTeam as unknown as Team}
                     matchFormat={matchData.current.match.format}
                     currentMapId={currentMapId}
                     mapName={mapName}

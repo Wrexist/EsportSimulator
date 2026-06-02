@@ -404,9 +404,14 @@ export function useLiveMatch(id: string) {
             isBombPlanted,
             bombTime,
             isWaitingForStrategy,
-            originalHomePlayers,
-            originalAwayPlayers,
-            matchResult: currentResult,
+            // ActiveMatchState comes from types/game which carries its own
+            // legacy Player[] and MatchResult shapes (see ARCHITECTURE.md
+            // "Known Type-System Debt"). The runtime values are
+            // structurally identical to the canonical types/match versions
+            // — the casts bridge that duplication without changing data.
+            originalHomePlayers: originalHomePlayers as unknown as ActiveMatchState["originalHomePlayers"],
+            originalAwayPlayers: originalAwayPlayers as unknown as ActiveMatchState["originalAwayPlayers"],
+            matchResult: currentResult as unknown as ActiveMatchState["matchResult"],
         }
 
         const timer = setTimeout(() => {
@@ -492,8 +497,8 @@ export function useLiveMatch(id: string) {
         const hStaff = getTeamStaff(homeTeam.id)
         const aStaff = getTeamStaff(awayTeam.id)
 
-        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam, hPlayers, hStaff)
-        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam, aPlayers, aStaff)
+        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam as unknown as Team, hPlayers, hStaff)
+        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam as unknown as Team, aPlayers, aStaff)
         const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.SANDSTONE
         const homeMapStrength = simulationEngineV2.calculateMapStrengths(hPlayers).get(currentMapId) || 50
         const awayMapStrength = simulationEngineV2.calculateMapStrengths(aPlayers).get(currentMapId) || 50
