@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Shield, Sword, X, Save, User, Info, Copy, ClipboardPaste, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -57,6 +57,31 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
     const [clipboard, setClipboard] = useState<PlayerLoadout | null>(null)
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+
+    // Standard modal contract — Escape closes. Ref-stabilized so a
+    // non-memoized parent onClose doesn't churn the listener.
+    const onCloseRef = useRef(onClose)
+    useEffect(() => { onCloseRef.current = onClose }, [onClose])
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onCloseRef.current()
+            // Arrow keys move between slots when nothing is focused on a
+            // form control — slot picker UX without a mouse.
+            const tgt = e.target as HTMLElement | null
+            const isFormField = tgt && (tgt.tagName === "INPUT" || tgt.tagName === "TEXTAREA" || tgt.tagName === "SELECT" || tgt.isContentEditable)
+            if (isFormField) return
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                e.preventDefault()
+                setSelectedPlayer(prev => (prev === null ? 0 : (prev + 1) % 5))
+            }
+            if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                e.preventDefault()
+                setSelectedPlayer(prev => (prev === null ? 4 : (prev + 4) % 5))
+            }
+        }
+        window.addEventListener("keydown", handler)
+        return () => window.removeEventListener("keydown", handler)
+    }, [])
 
     const equipOptions = [
         { id: "kevlar", name: "Kevlar Vest", price: 650, tier: "LIGHT" as const, image: EQUIPMENT.armorKevlar },
