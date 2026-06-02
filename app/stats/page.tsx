@@ -289,9 +289,14 @@ export default function StatsPage() {
                         className="space-y-8"
                     >
                         {teamMatches.length === 0 ? (
-                            <div className="flex items-center justify-center min-h-[30vh]">
-                                <div className="text-center space-y-2">
-                                    <p className="text-muted-foreground text-sm">No match statistics yet. Play some matches first!</p>
+                            <div className="flex items-center justify-center min-h-[30vh]" role="status" aria-live="polite">
+                                <div className="text-center space-y-1 max-w-sm">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+                                        No demos to analyze
+                                    </p>
+                                    <p className="text-sm text-white/55 leading-relaxed">
+                                        Play a few matches and the stat lab will fill up with k/d, ADR, and clutch breakdowns.
+                                    </p>
                                 </div>
                             </div>
                         ) : (
@@ -371,7 +376,16 @@ export default function StatsPage() {
                                 </GlassTableHeader>
                                 <tbody>
                                     {statsWithEIR.length === 0 && (
-                                        <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">No player statistics available yet. Play some matches first!</td></tr>
+                                        <tr>
+                                            <td colSpan={7} className="text-center py-12">
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                                                    Scoreboard empty
+                                                </p>
+                                                <p className="text-xs text-white/55">
+                                                    Play a few matches to populate per-player ratings.
+                                                </p>
+                                            </td>
+                                        </tr>
                                     )}
                                     {statsWithEIR.map((player) => (
                                         <GlassTableRow key={player.id}>
