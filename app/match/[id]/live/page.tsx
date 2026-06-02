@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useMemo, memo } from "react"
+import { useEffect, useMemo, memo, useRef, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
+import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
@@ -293,6 +294,21 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const [editingSide, setEditingSide] = useState<"ct" | "t">("ct")
     const [editingStrategy, setEditingStrategy] = useState<keyof CustomTactics>("FULL")
 
+    // Half-time overlay trigger — fires on the transition into round 13.
+    // Rising-edge detection so the overlay shows once per match, not
+    // every tick while round === 13.
+    const [showHalfTime, setShowHalfTime] = useState(false)
+    const prevRoundRef = useRef(gameState.round)
+    useEffect(() => {
+        if (gameState.round === 13 && prevRoundRef.current !== 13 && prevRoundRef.current > 0) {
+            setShowHalfTime(true)
+            const t = setTimeout(() => setShowHalfTime(false), 2400)
+            prevRoundRef.current = gameState.round
+            return () => clearTimeout(t)
+        }
+        prevRoundRef.current = gameState.round
+    }, [gameState.round])
+
     // Compute live radar positions from round events (must be before early return for hooks rules)
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
 
@@ -373,6 +389,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                 className="fixed inset-0 -z-10 pointer-events-none"
                 style={backgroundStyle}
             />
+            <HalfTimeOverlay active={showHalfTime} />
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 
                 <LiveMatchScoreboard
