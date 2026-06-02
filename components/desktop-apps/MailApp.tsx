@@ -415,11 +415,15 @@ export const MailApp = React.memo(function MailApp({
                         })}
 
                         {filteredEvents.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-16 text-white/30">
-                                <Mail size={32} className="mb-3" />
-                                <p className="text-sm font-medium">No messages</p>
-                                <p className="text-xs text-white/55 mt-1">
-                                    {activeFolder === "actionRequired" ? "No pending actions" : "Folder is empty"}
+                            <div className="flex flex-col items-center justify-center py-16" role="status" aria-live="polite">
+                                <Mail size={32} className="mb-3 text-white/15" aria-hidden="true" />
+                                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                                    {activeFolder === "actionRequired" ? "Inbox zero" : "Quiet on the wires"}
+                                </p>
+                                <p className="text-xs text-white/55 max-w-[220px] text-center leading-relaxed">
+                                    {activeFolder === "actionRequired"
+                                        ? "Nothing waiting on your call. Sponsorship offers and transfer responses land here."
+                                        : "Folder is empty. Check back after the next match week."}
                                 </p>
                             </div>
                         )}

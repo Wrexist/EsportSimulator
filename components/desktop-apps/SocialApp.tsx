@@ -350,8 +350,13 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         </div>
                                     ))}
                                     {posts.filter(p => p.teamId === playerTeam.id).length === 0 && (
-                                        <div className="text-center py-8 text-white/30 text-xs">
-                                            No posts yet.
+                                        <div className="text-center py-10" role="status" aria-live="polite">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                                                Nothing trending
+                                            </p>
+                                            <p className="text-xs text-white/55 max-w-[220px] mx-auto leading-relaxed">
+                                                Win a match or sign a marquee player to start building your brand on the timeline.
+                                            </p>
                                         </div>
                                     )}
                                 </div>

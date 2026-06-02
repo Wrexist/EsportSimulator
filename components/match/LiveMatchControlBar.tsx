@@ -87,13 +87,15 @@ function LiveMatchControlBarComponent({
                     <Button
                         size="icon"
                         variant="ghost"
+                        aria-label={isPlaying ? "Pause match" : "Resume match"}
+                        title={isPlaying ? "Pause (Space)" : "Resume (Space)"}
                         className="rounded-full w-8 h-8 text-white/70 hover:text-white hover:bg-white/10"
                         onClick={() => setIsPlaying(!isPlaying)}
                     >
                         {isPlaying ? (
-                            <PauseCircle size={18} fill="currentColor" className="text-white/20" />
+                            <PauseCircle size={18} fill="currentColor" className="text-white/20" aria-hidden="true" />
                         ) : (
-                            <PlayCircle size={18} fill="currentColor" className="text-white/20" />
+                            <PlayCircle size={18} fill="currentColor" className="text-white/20" aria-hidden="true" />
                         )}
                     </Button>
 
@@ -127,10 +129,12 @@ function LiveMatchControlBarComponent({
                     <Button
                         size="icon"
                         variant="ghost"
+                        aria-label="Increase playback speed"
+                        title="Increase speed"
                         className="w-4 h-4 rounded-full p-0 hover:bg-white/10"
                         onClick={() => setSpeed(s => Math.min(s + 0.5, 5))}
                     >
-                        <Plus size={10} className="text-white/50" />
+                        <Plus size={10} className="text-white/50" aria-hidden="true" />
                     </Button>
                 </div>
             </div>
