@@ -184,6 +184,12 @@ export interface Team {
   targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Coach} (which is
+ * what `types/index.ts` re-exports). This flat-interface version stays
+ * for the `data-generator.ts` path that hasn't been migrated yet; new
+ * staff-handling code should never reference it.
+ */
 export interface Coach {
   id: string
   name: string
@@ -201,6 +207,9 @@ export interface Coach {
   }
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Analyst}.
+ */
 export interface Analyst {
   id: string
   name: string
@@ -216,6 +225,9 @@ export interface Analyst {
   }
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Psychologist}.
+ */
 export interface Psychologist {
   id: string
   name: string
@@ -275,6 +287,13 @@ export interface MapResult {
   mvp: string // player id
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').Match} (which is
+ * what `types/index.ts` re-exports) and {@link import('@/engine/save-types').MatchSaveData}
+ * for the on-disk shape. This one references the deprecated game.ts
+ * MatchResult and only stays alive so the legacy GameState interface
+ * keeps compiling.
+ */
 export interface Match {
   id: string
   homeTeam: Team
