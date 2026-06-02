@@ -49,14 +49,18 @@ export function TeamMatchPopup({
         .slice(0, 5), [opponentRoster])
 
     // Escape key closes the popup — standard modal keyboard contract.
+    // Refs hold the latest onClose so a non-memoized parent callback
+    // doesn't churn the listener every parent render.
+    const onCloseRef = React.useRef(onClose)
+    React.useEffect(() => { onCloseRef.current = onClose }, [onClose])
     useEffect(() => {
         if (!isOpen) return
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose()
+            if (e.key === "Escape") onCloseRef.current()
         }
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
-    }, [isOpen, onClose])
+    }, [isOpen])
 
     if (!isOpen || !opponent) return null
 

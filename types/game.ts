@@ -512,7 +512,7 @@ export interface ActiveMatchState {
   isBombPlanted: boolean
   bombTime: number
   isWaitingForStrategy: boolean
-  originalHomePlayers: any[]
-  originalAwayPlayers: any[]
+  originalHomePlayers: Player[]
+  originalAwayPlayers: Player[]
   matchResult: MatchResult
 }

@@ -110,19 +110,25 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
         }
     }, [enabled, interval, saveGame])
 
-    // Warn before closing with unsaved changes
+    // Surface hasUnsavedChanges via a ref so the beforeunload listener is
+    // bound exactly once for the hook's lifetime. The previous version
+    // re-added/removed the listener on every state change (and
+    // hasUnsavedChanges depends on dirtySignature, which churns every
+    // game action — currentWeek, log length, etc), wasting cycles.
+    const hasUnsavedChangesRef = useRef(hasUnsavedChanges)
+    useEffect(() => { hasUnsavedChangesRef.current = hasUnsavedChanges }, [hasUnsavedChanges])
+
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (hasUnsavedChanges) {
+            if (hasUnsavedChangesRef.current) {
                 e.preventDefault()
                 e.returnValue = 'You have unsaved changes! Are you sure you want to leave?'
                 return e.returnValue
             }
         }
-
         window.addEventListener('beforeunload', handleBeforeUnload)
         return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-    }, [hasUnsavedChanges])
+    }, [])
 
     // Return manual save trigger
     return {

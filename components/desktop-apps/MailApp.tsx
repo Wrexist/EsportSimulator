@@ -269,7 +269,10 @@ export const MailApp = React.memo(function MailApp({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, x: -10 }}
-                                transition={{ delay: idx * 0.02 }}
+                                // Cap stagger so long inboxes don't keep the bottom rows
+                                // invisible for >0.5s. After ~25 items the rest pop in
+                                // together with no perceptible stagger.
+                                transition={{ delay: Math.min(idx * 0.02, 0.5), duration: 0.18 }}
                                 onClick={() => {
                                     setSelectedEventId(event.id)
                                     onEventClick(event)

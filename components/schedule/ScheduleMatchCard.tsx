@@ -94,14 +94,22 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                             {isScrim ? "SCRIM" : "MATCH"}
                         </Badge>
                         <div className="flex flex-col min-w-0">
-                            <span className={cn(
-                                "text-sm font-medium tracking-tight leading-none",
-                                isScrim ? "text-purple-100" : "text-emerald-50"
-                            )}>
+                            {/* title attr surfaces the full opponent name on hover when
+                                the 18-char truncation hides it. */}
+                            <span
+                                className={cn(
+                                    "text-sm font-medium tracking-tight leading-none",
+                                    isScrim ? "text-purple-100" : "text-emerald-50"
+                                )}
+                                title={opponent?.name ? `VS ${opponent.name}` : undefined}
+                            >
                                 VS {displayName}
                             </span>
                             {!isScrim && (
-                                <span className="text-xs text-muted-foreground truncate uppercase tracking-wider mt-0.5">
+                                <span
+                                    className="text-xs text-muted-foreground truncate uppercase tracking-wider mt-0.5"
+                                    title={displayStage}
+                                >
                                     {displayStage}
                                 </span>
                             )}
