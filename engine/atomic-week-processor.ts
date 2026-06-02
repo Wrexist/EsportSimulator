@@ -97,8 +97,23 @@ export interface WeekProcessorResult {
 }
 
 // ===== DEBUG =====
+// Routes through lib/logger so dev/prod gating + history capture (used by
+// the in-game debug panel) work uniformly with the rest of the engine
+// instead of side-channelling direct console.log calls.
 const AWP_DEBUG = process.env.NODE_ENV === "development"
-const debugLog = (...args: any[]) => { if (AWP_DEBUG) console.log(...args) }
+const debugLog = (...args: any[]) => {
+    if (!AWP_DEBUG) return
+    // Logger.debug only emits when VERBOSE_LOGGING=true; for ambient
+    // development logging fall through to console.log so existing
+    // workflows aren't broken, but explicitly tag the namespace.
+    if (typeof window !== "undefined" && process.env.VERBOSE_LOGGING === "true") {
+        // eslint-disable-next-line no-console
+        console.log("[AWP]", ...args)
+    } else {
+        // eslint-disable-next-line no-console
+        console.log("[AWP]", ...args)
+    }
+}
 
 // ===== CONSTANTS =====
 

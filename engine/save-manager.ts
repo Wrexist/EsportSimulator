@@ -89,6 +89,23 @@ export class SaveManager {
         | { ok: true; migrated: GameSave; updatedAtMs: number }
         | { ok: false; error: SaveErrorCode; message?: string }
     > {
+        // Reject obviously-bogus payloads BEFORE handing them to JSON.parse —
+        // a hand-crafted multi-GB save would otherwise OOM the renderer
+        // during the parse step. 32 MiB is comfortably above the largest
+        // realistic save (full career, full bracket history, all logs)
+        // and well below anything that could exhaust device memory.
+        const MAX_SAVE_BYTES = 32 * 1024 * 1024
+        if (typeof data !== "string" || data.length === 0) {
+            return { ok: false, error: "CORRUPTED", message: "Save payload is empty" }
+        }
+        if (data.length > MAX_SAVE_BYTES) {
+            return {
+                ok: false,
+                error: "CORRUPTED",
+                message: `Save payload exceeds ${MAX_SAVE_BYTES / 1024 / 1024} MiB (got ${(data.length / 1024 / 1024).toFixed(1)} MiB) — refusing to parse`,
+            }
+        }
+
         let parsed: Record<string, unknown>
         try {
             parsed = parseUntrustedJson<Record<string, unknown>>(data)

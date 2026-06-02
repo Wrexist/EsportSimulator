@@ -173,7 +173,7 @@ export function useLiveMatch(id: string) {
         // populated data, stranding the user on a blank live-match screen.
         hasInitialized.current = true
 
-        const seed = getNormalizedSeed((foundMatch as any).seed, foundMatch.id)
+        const seed = getNormalizedSeed(foundMatch.seed, foundMatch.id)
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1
         const runtimeMatch: any = {
             ...foundMatch,
@@ -223,7 +223,7 @@ export function useLiveMatch(id: string) {
             format: foundMatch.format,
             seed,
             urlMaps: queryMaps,
-            savedMaps: Array.isArray((foundMatch as any).maps) ? (foundMatch as any).maps : undefined,
+            savedMaps: Array.isArray(foundMatch.maps) ? foundMatch.maps : undefined,
             fallbackMaps: engineFallback.maps.map(map => map.map)
         })
 
@@ -240,7 +240,7 @@ export function useLiveMatch(id: string) {
 
         const activeHomeIds = homePlayers.map(player => player.id)
         const activeAwayIds = awayPlayers.map(player => player.id)
-        const mapStartingSides = (foundMatch as any).mapStartingSides as Record<string, string> | undefined
+        const mapStartingSides = foundMatch.mapStartingSides
 
         if (activeMatchState && activeMatchState.matchId === id) {
             const restoredSim = activeMatchState.simState as SimState | undefined
@@ -373,6 +373,12 @@ export function useLiveMatch(id: string) {
     // Persistence
     useEffect(() => {
         if (!simState || !gameState) return
+        // Don't checkpoint a match that's already finished — the
+        // result/teardown path owns post-match state. Without this guard,
+        // the 500ms debounce can fire AFTER the user has navigated to the
+        // result screen and saveMatchResult ran, overwriting the cleared
+        // activeMatchState with stale "still playing" data.
+        if (gameState.status === "FINISHED") return
 
         const state: ActiveMatchState = {
             matchId: id,
@@ -391,6 +397,10 @@ export function useLiveMatch(id: string) {
         }
 
         const timer = setTimeout(() => {
+            // Re-check the mount flag at fire time. Unmounting between
+            // schedule and fire (route change, fast nav) shouldn't trigger
+            // a write to a stale slot.
+            if (!isMountedRef.current) return
             updateActiveMatchState(state)
         }, 500)
 
