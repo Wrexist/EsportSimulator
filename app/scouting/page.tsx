@@ -215,7 +215,7 @@ export default function ScoutingPage() {
     // stable Map reference instead of the per-render function identity.
     const evaluatedPlayers = useMemo(() => {
         return allPlayers.map(player => {
-            const evaluation = evaluatePlayer(player as any)
+            const evaluation = evaluatePlayer(player)
             const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
             const forSale = isPlayerForSale(player as any, evaluation, teamRanking)

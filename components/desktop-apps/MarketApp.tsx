@@ -92,9 +92,9 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
             .map(p => {
                 const teamId = rosterMap.get(p.id)
                 const team = teamId ? teams.find(t => t.id === teamId) : null
-                const evaluation = evaluatePlayer(p as any)
+                const evaluation = evaluatePlayer(p)
                 const teamRank = team ? (team.worldRanking || 50) : 50
-                const forSale = team ? isPlayerForSale(p as any, evaluation, teamRank) : true
+                const forSale = team ? isPlayerForSale(p, evaluation, teamRank) : true
                 const derivedStats = calculateTacticalStats(p)
 
                 return {

@@ -100,7 +100,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
     const isOwnPlayer = playerTeam?.rosterIds?.includes(player.id) || false
 
     // Get player evaluation and tier
-    const evaluation = evaluatePlayer(player as any)
+    const evaluation = evaluatePlayer(player)
     const viewedPlayerTeam = teams.find(t => t.rosterIds?.includes(player.id))
     const isFreeAgent = !viewedPlayerTeam && !isOwnPlayer
     const playerTier = getDisplayPlayerTier(evaluation.overallRating, viewedPlayerTeam?.tier as TierLevel)
