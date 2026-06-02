@@ -770,6 +770,17 @@ export class TournamentManager {
         const bracketMatch = bracketMap.get(matchId) ?? tournament.playoffBracket.find((m: BracketMatchSaveData) => m.id === matchId)
         if (!bracketMatch) return
 
+        // Idempotency guard. processMatchResult is called from both
+        // atomic-week-processor and tournament-manager.simulateConcurrent,
+        // and the same match can flow through both paths in adjacent
+        // ticks. Without this check, MVP calculation, qualification and
+        // placement would run a second time and double-write tournament
+        // state. Re-applying winnerId is fine — re-running progression
+        // handlers (handleOpeningResult etc) is not.
+        if (bracketMatch.isCompleted && bracketMatch.winnerId === winnerId) {
+            return
+        }
+
         bracketMatch.isCompleted = true
         bracketMatch.winnerId = winnerId
         bracketMatch.loserId = loserId

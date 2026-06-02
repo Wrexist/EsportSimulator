@@ -135,6 +135,27 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
             return smoke.level === resolvedRadarLevel
         }), [smokes, isDualLevel, resolvedRadarLevel])
 
+    // Pre-compute current opacity per smoke so the JSX map is a flat
+    // value-pass instead of repeating the fade-in/hold/fade-out branch
+    // per frame per smoke. Was doing 3-7 visible smokes × per-tick math
+    // inside the render loop.
+    const smokeRenderState = useMemo(() => {
+        if (currentTime == null) return []
+        return visibleSmokes.map(smoke => {
+            if (currentTime < smoke.startTime || currentTime > smoke.endTime + 2) return null
+            let opacity = 0.25
+            const fadeInEnd = smoke.startTime + 1
+            const fadeOutStart = smoke.endTime
+            if (currentTime < fadeInEnd) {
+                opacity = 0.25 * ((currentTime - smoke.startTime) / 1)
+            } else if (currentTime > fadeOutStart) {
+                opacity = 0.25 * Math.max(0, 1 - (currentTime - fadeOutStart) / 2)
+            }
+            if (opacity <= 0) return null
+            return { smoke, opacity }
+        }).filter(Boolean) as Array<{ smoke: typeof visibleSmokes[number]; opacity: number }>
+    }, [visibleSmokes, currentTime])
+
     const safeSitePositions = useMemo(() => sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)
         ? {
             a: { x: clampRadarCoord(sitePositions.a.x), y: clampRadarCoord(sitePositions.a.y) },
@@ -365,31 +386,18 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                         </>
                                     )}
 
-                                    {/* Smoke clouds */}
-                                    {currentTime != null && visibleSmokes.map((smoke, idx) => {
-                                        if (currentTime < smoke.startTime || currentTime > smoke.endTime + 2) return null
-                                        // Fade in over 1s, hold, fade out over 2s
-                                        let opacity = 0.25
-                                        const fadeInEnd = smoke.startTime + 1
-                                        const fadeOutStart = smoke.endTime
-                                        if (currentTime < fadeInEnd) {
-                                            opacity = 0.25 * ((currentTime - smoke.startTime) / 1)
-                                        } else if (currentTime > fadeOutStart) {
-                                            opacity = 0.25 * Math.max(0, 1 - (currentTime - fadeOutStart) / 2)
-                                        }
-                                        if (opacity <= 0) return null
-                                        return (
-                                            <circle
-                                                key={`smoke-${idx}`}
-                                                cx={smoke.x}
-                                                cy={smoke.y}
-                                                r={smoke.radius}
-                                                fill="rgba(180,180,180,0.6)"
-                                                opacity={opacity}
-                                                filter="url(#smokeBlur)"
-                                            />
-                                        )
-                                    })}
+                                    {/* Smoke clouds — opacity precomputed in smokeRenderState. */}
+                                    {smokeRenderState.map(({ smoke, opacity }, idx) => (
+                                        <circle
+                                            key={`smoke-${idx}`}
+                                            cx={smoke.x}
+                                            cy={smoke.y}
+                                            r={smoke.radius}
+                                            fill="rgba(180,180,180,0.6)"
+                                            opacity={opacity}
+                                            filter="url(#smokeBlur)"
+                                        />
+                                    ))}
 
                                     {/* Kill flash lines */}
                                     {visibleKillLines.map((line, idx) => {
