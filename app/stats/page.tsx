@@ -707,9 +707,11 @@ export default function StatsPage() {
                                                             <div className="flex gap-1 flex-wrap">
                                                                 {match.result?.maps?.[0]?.rounds?.map((round: any, rIdx: number) => {
                                                                     const map = match.result.maps[0]
+                                                                    // ctStartTeamId is the canonical engine field; the older
+                                                                    // ctStartTeam shape was the never-emitted game.ts MapResult.
                                                                     const isHomeCT = rIdx < 12
-                                                                        ? (map as any).ctStartTeam === match.homeTeamId || (map as any).ctStartTeamId === match.homeTeamId
-                                                                        : (map as any).ctStartTeam !== match.homeTeamId && (map as any).ctStartTeamId !== match.homeTeamId
+                                                                        ? map.ctStartTeamId === match.homeTeamId
+                                                                        : map.ctStartTeamId !== match.homeTeamId
 
                                                                     const homeWonRound = (isHomeCT && round.winningSide === 'CT') || (!isHomeCT && round.winningSide === 'T')
                                                                     const userIsHome = match.homeTeamId === playerTeamId

@@ -256,6 +256,14 @@ export interface RoundResult {
   deaths?: { playerId: string; deaths: number }[]
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').MapResult} instead.
+ * The runtime engine emits `mvpPlayerId` / `ctStartTeamId` / `tStartTeamId`
+ * (the match.ts shape). This older `mvp` / `ctStartTeam` shape is not
+ * produced by any current engine path and only survives here so the
+ * `GameState.schedule` legacy interface keeps compiling. New code should
+ * never reference it.
+ */
 export interface MapResult {
   map: GameMap
   ctStartTeam: string // Which team started CT
@@ -282,6 +290,10 @@ export interface Match {
   isHighPressure?: boolean // Finals/Semi-finals
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').MatchResult}
+ * instead. See MapResult deprecation note above.
+ */
 export interface MatchResult {
   homeScore: number // Maps won
   awayScore: number // Maps won

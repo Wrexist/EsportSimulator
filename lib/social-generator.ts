@@ -90,7 +90,10 @@ export function generateSocialPosts(
         // 2. Fan Reactions (Performance based)
         const templates = playerWon ? WIN_TEMPLATES : LOSS_TEMPLATES
         const fans = [...FANS].sort(() => Math.random() - 0.5)
-        const mvpId = (lastMatch.result as any).mvp
+        // mvpPlayerId is the canonical field on MatchResult. The previous
+        // (lastMatch.result as any).mvp lookup was the old game.ts shape
+        // that never landed at runtime — engines emit mvpPlayerId.
+        const mvpId = lastMatch.result.mvpPlayerId
         const mvp = players.find(p => p.id === mvpId)
 
         for (let i = 0; i < 2; i++) {
