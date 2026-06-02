@@ -200,7 +200,7 @@ export default function ScoutingPage() {
 
     // My team budget
     const myTeamBudget = useMemo(() => {
-        const myTeam = (gameTeams as any[]).find(t => t.id === playerTeamId)
+        const myTeam = gameTeams.find(t => t.id === playerTeamId)
         return myTeam?.budget || 0
     }, [gameTeams, playerTeamId])
 
@@ -763,11 +763,11 @@ export default function ScoutingPage() {
                                         <GlassTableCell className="text-center">
                                             <div className="flex items-center justify-center gap-1">
                                                 <Badge className="bg-white/5 text-white/60 border-white/10 text-[10px]">
-                                                    {resolvePlayerRole(player as any).split(",")[0].toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
+                                                    {resolvePlayerRole(player).split(",")[0].toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
                                                 </Badge>
-                                                {(player as any).secondaryRole && (
+                                                {player.secondaryRole && (
                                                     <Badge className="bg-white/5 text-white/40 border-white/10 text-[9px]">
-                                                        +{(player as any).secondaryRole.toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
+                                                        +{player.secondaryRole.toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
                                                     </Badge>
                                                 )}
                                             </div>
