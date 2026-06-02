@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { PlayerSaveData } from "@/engine/save-types"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
+import { PlayerSignatureMoments } from "@/components/player/PlayerSignatureMoments"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -882,14 +883,14 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                                 <PlayerMatchHistory playerId={player.id} limit={10} />
                             </div>
 
-                            {/* Achievements */}
+                            {/* Career Signature Moments — derives narrative beats
+                                (major wins, MVP count, peak rating, clutch
+                                specialty, veteran status) from existing save
+                                fields, then appends any explicit stored
+                                achievements from event-processor. */}
                             <div className="glass-panel p-6 border-white/5">
-                                <h4 className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4">Achievements</h4>
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <Award size={48} className="mx-auto mb-3 text-white/10" />
-                                    <p className="text-sm">No achievements yet</p>
-                                    <p className="text-xs">Win tournaments to earn accolades</p>
-                                </div>
+                                <h4 className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4">Signature Moments</h4>
+                                <PlayerSignatureMoments player={player} />
                             </div>
                         </TabsContent>
                     </Tabs>
