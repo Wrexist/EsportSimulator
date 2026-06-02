@@ -195,6 +195,18 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
     )
 })
 
+// Strategy panel constants. Hoisted to module scope so the array and the
+// cost lookup don't reallocate every render of the strategy panel. The
+// icons are JSX nodes (small SVGs) — fine to share as the same reference
+// since they have no state.
+const STRATEGY_OPTIONS = [
+    { id: "ECO", fallback: "SAVE", icon: <Coins className="w-5 h-5" />, baseColor: "bg-white/5 text-white/50 border-white/10", cost: 0 },
+    { id: "FORCE", fallback: "FORCE", icon: <ZapIcon className="w-5 h-5" />, baseColor: "bg-orange-500/10 text-orange-300 border-orange-500/20", cost: 1800 },
+    { id: "SEMIBUY", fallback: "SEMI", icon: <Search className="w-5 h-5" />, baseColor: "bg-purple-500/10 text-purple-300 border-purple-500/20", cost: 3600 },
+    { id: "FULL", fallback: "FULL", icon: <Shield className="w-5 h-5" />, baseColor: "bg-blue-500/20 text-blue-400 border-blue-500/40", cost: 4700 },
+    { id: "DOUBLE AWP", fallback: "2xAWP", icon: <Crosshair className="w-5 h-5" />, baseColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20", cost: 6500 },
+] as const
+
 // Roster row, memoized on the fields it actually reads. Without React.memo
 // each tick re-renders all 10 rows even when only the timer changed; the
 // PlayerPortrait + image lookups inside add up. Memoizing on the shallow
@@ -401,25 +413,8 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                                     const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + p.cash, 0) / 5)
                                     const side = simState.homeStartsCT ? "ct" : "t"
 
-                                    const strategies = [
-                                        { id: "ECO", fallback: "SAVE", icon: <Coins className="w-5 h-5" />, baseColor: "bg-white/5 text-white/50 border-white/10" },
-                                        { id: "FORCE", fallback: "FORCE", icon: <ZapIcon className="w-5 h-5" />, baseColor: "bg-orange-500/10 text-orange-300 border-orange-500/20" },
-                                        { id: "SEMIBUY", fallback: "SEMI", icon: <Search className="w-5 h-5" />, baseColor: "bg-purple-500/10 text-purple-300 border-purple-500/20" },
-                                        { id: "FULL", fallback: "FULL", icon: <Shield className="w-5 h-5" />, baseColor: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
-                                        { id: "DOUBLE AWP", fallback: "2xAWP", icon: <Crosshair className="w-5 h-5" />, baseColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20" }
-                                    ]
-
-                                    const getStrategyCost = (stratId: string) => {
-                                        if (stratId === "ECO") return 0
-                                        if (stratId === "FORCE") return 1800
-                                        if (stratId === "SEMIBUY") return 3600
-                                        if (stratId === "FULL") return 4700
-                                        if (stratId === "DOUBLE AWP") return 6500
-                                        return 0
-                                    }
-
-                                    return strategies.map((strat) => {
-                                        const cost = getStrategyCost(strat.id)
+                                    return STRATEGY_OPTIONS.map((strat) => {
+                                        const cost = strat.cost
                                         const canAfford = avgCash >= cost
 
                                         return (
