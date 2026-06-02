@@ -232,7 +232,13 @@ export interface Psychologist {
   }
 }
 
-export type GameMap = "Sandstone" | "Mirage" | "Inferno" | "Nuke" | "Overpass" | "Vertigo" | "Ancient"
+/**
+ * @deprecated Use {@link MapId} from "@/types/enums" instead. This was a
+ * hand-rolled union missing "Anubis" and drifting from the enum. Alias
+ * preserved so existing consumers keep compiling; remove once every
+ * import site has been migrated.
+ */
+export type GameMap = import("./enums").MapId
 
 export interface MapVeto {
   phase: "ban" | "pick" | "decider"
