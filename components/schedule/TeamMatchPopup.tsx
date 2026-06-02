@@ -14,6 +14,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { RivalryBanner } from "./RivalryBanner"
 import { ScoutingReport } from "./ScoutingReport"
+import { getMatchHeadline, getMatchTone } from "@/lib/match-stakes"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -149,14 +150,35 @@ export function TeamMatchPopup({
 
                                 {/* Tournament Info */}
                                 {tournamentName && (
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <Trophy size={14} className="text-amber-400" />
-                                        <span className="text-sm text-white/80">{tournamentName}</span>
-                                        {stage && (
-                                            <Badge variant="outline" className="text-[8px] border-amber-500/20 text-amber-400 bg-amber-500/10">
-                                                {stage}
-                                            </Badge>
-                                        )}
+                                    <div className="mb-4 space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <Trophy size={14} className="text-amber-400" aria-hidden="true" />
+                                            <span className="text-sm text-white/80">{tournamentName}</span>
+                                            {stage && (
+                                                <Badge variant="outline" className="text-[8px] border-amber-500/20 text-amber-400 bg-amber-500/10">
+                                                    {stage}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {/* Stakes headline — one-sentence narrative on what
+                                            THIS bracket position means. Color-coded by tone
+                                            (championship = gold, elimination = red, etc.). */}
+                                        {stage && (() => {
+                                            const tone = getMatchTone(stage, true)
+                                            const headline = getMatchHeadline(stage, true, opponent.name)
+                                            const toneColor = tone === "championship"
+                                                ? "text-amber-400"
+                                                : tone === "elimination"
+                                                    ? "text-red-400"
+                                                    : tone === "advancement"
+                                                        ? "text-sky-400"
+                                                        : "text-white/55"
+                                            return (
+                                                <p className={cn("text-[11px] leading-snug pl-6", toneColor)}>
+                                                    {headline}
+                                                </p>
+                                            )
+                                        })()}
                                     </div>
                                 )}
 
