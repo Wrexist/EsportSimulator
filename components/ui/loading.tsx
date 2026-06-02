@@ -64,7 +64,10 @@ export function LoadingState({
             aria-live="polite"
             aria-busy="true"
         >
-            <Loader2 className={cn(sizeMap[size], 'animate-spin text-cyan-200')} aria-hidden="true" />
+            {/* motion-safe: gates the spin on prefers-reduced-motion: no-preference.
+                Users who set reduce-motion get a static dimmer icon, which is
+                still readable via the aria-live message. */}
+            <Loader2 className={cn(sizeMap[size], 'motion-safe:animate-spin text-cyan-200 motion-reduce:opacity-50')} aria-hidden="true" />
             {displayMessage && (
                 <p className="text-sm text-white/55">{displayMessage}</p>
             )}
