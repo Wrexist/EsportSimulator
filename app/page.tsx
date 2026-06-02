@@ -406,12 +406,14 @@ export default function Page() {
                         onClick={handleSimulate}
                         disabled={isSimulating || storeLoading}
                         size="icon"
+                        aria-label={isSimulating ? "Simulating match" : "Quick-simulate match"}
+                        title="Quick-simulate (skip live match)"
                         className="h-14 w-14 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg shadow-glass-soft backdrop-blur-md group"
                       >
                         {isSimulating ? (
-                          <Loader2 size={20} className="animate-spin text-white" />
+                          <Loader2 size={20} className="animate-spin text-white" aria-hidden="true" />
                         ) : (
-                          <Zap size={20} className="text-white fill-white transition-transform" />
+                          <Zap size={20} className="text-white fill-white transition-transform" aria-hidden="true" />
                         )}
                       </Button>
                     </>

@@ -17,39 +17,48 @@ import { CustomTactics, MapId } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
-// Helper for Weapon Icons (keep local or move to utils? keeping local for now as it was here)
+// Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
+// on every call, and resolved paths are memoized in a module-level cache so
+// the log list doesn't recompute the same string per row per render tick.
+const WEAPON_ICON_MAP: Record<string, string> = {
+    "m4a1s": "weapon_m4a1s.png",
+    "ak47": "weapon_ak47.png",
+    "m4a4": "weapon_m4a4.png",
+    "awp": "weapon_awp.png",
+    "deagle": "weapon_deagle.png",
+    "usp": "weapon_usp.png",
+    "glock": "weapon_glock.png",
+    "p250": "weapon_p250.png",
+    "mac10": "weapon_mac10.png",
+    "mp9": "weapon_mp9.png",
+    "xm1014": "weapon_xm1014.png",
+    "p90": "weapon_p90.png",
+    "famas": "weapon_famas.png",
+    "galilar": "weapon_galil.png",
+    "galil": "weapon_galil.png",
+    "mp7": "weapon_mp7.png",
+    "aug": "weapon_aug.png",
+    "mag7": "weapon_mag7.png",
+    "fiveseven": "weapon_fiveseven.png",
+    "ssg08": "weapon_awp.png",
+    "dualies": "weapon_p250.png",
+    "tec9": "weapon_glock.png",
+    "sg553": "weapon_ak47.png",
+    "knife": "weapon_glock.png",
+}
+const WEAPON_ICON_FALLBACK = "/assets/weapons/weapon_glock.png"
+const weaponIconCache = new Map<string, string>()
+
 const getWeaponIcon = (weaponName: string | undefined): string => {
-    if (!weaponName) return "/assets/weapons/weapon_glock.png";
-    const name = weaponName.toLowerCase().replace(/-/g, "").replace(/\s+/g, "");
-    const mapping: Record<string, string> = {
-        "m4a1s": "weapon_m4a1s.png",
-        "ak47": "weapon_ak47.png",
-        "m4a4": "weapon_m4a4.png",
-        "awp": "weapon_awp.png",
-        "deagle": "weapon_deagle.png",
-        "usp": "weapon_usp.png",
-        "glock": "weapon_glock.png",
-        "p250": "weapon_p250.png",
-        "mac10": "weapon_mac10.png",
-        "mp9": "weapon_mp9.png",
-        "xm1014": "weapon_xm1014.png",
-        "p90": "weapon_p90.png",
-        "famas": "weapon_famas.png",
-        "galilar": "weapon_galil.png",
-        "galil": "weapon_galil.png",
-        "mp7": "weapon_mp7.png",
-        "aug": "weapon_aug.png",
-        "mag7": "weapon_mag7.png",
-        "fiveseven": "weapon_fiveseven.png",
-        "ssg08": "weapon_awp.png",
-        "dualies": "weapon_p250.png",
-        "tec9": "weapon_glock.png",
-        "sg553": "weapon_ak47.png",
-        "knife": "weapon_glock.png"
-    };
-    const mapped = mapping[name] || "weapon_glock.png";
-    return `/assets/weapons/${mapped}`;
-};
+    if (!weaponName) return WEAPON_ICON_FALLBACK
+    const cached = weaponIconCache.get(weaponName)
+    if (cached) return cached
+    const normalized = weaponName.toLowerCase().replace(/-/g, "").replace(/\s+/g, "")
+    const mapped = WEAPON_ICON_MAP[normalized] || "weapon_glock.png"
+    const path = `/assets/weapons/${mapped}`
+    weaponIconCache.set(weaponName, path)
+    return path
+}
 
 
 // Memoized log list. Without memo this re-evaluates every per-tick parent
@@ -223,6 +232,15 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
     // Compute live radar positions from round events (must be before early return for hooks rules)
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
+
+    // Roster identity hash — only changes when player IDs / dead-mask / money
+    // shift, NOT every render. Without this, radar recompute fired on every
+    // useState update of the roster arrays (~60Hz during a live round).
+    const rosterFingerprint = useMemo(() => {
+        return homeRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
+            + "#" + awayRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
+    }, [homeRoster, awayRoster])
+
     const radarData = useMemo(() => {
         if (!simState || !matchData.current || gameState.time < 0) return null
         return computeRadarPositions(
@@ -235,7 +253,10 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             gameState.round,
             matchData.current.match.seed ?? 0
         )
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, homeRoster, awayRoster])
+        // Intentionally depend on rosterFingerprint instead of the array
+        // refs so an unchanged roster (most ticks) skips the recompute.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
