@@ -458,13 +458,17 @@ export function useLiveMatch(id: string) {
         const roundSeed = (runtime.match.seed as number) + (mapIndex * 1000) + currentRoundNumber
         const rng = createMatchRNG(roundSeed)
 
-        const hEcon: Record<string, any> = {}
-        const aEcon: Record<string, any> = {}
+        // PlayerSimulationState shape — economy carries cash + bought items.
+        // Typed explicitly here so the as-any casts at the simulateRound /
+        // performBuyPhase call sites can be dropped.
+        type EconomyState = import("@/engine/match/round-outcome").PlayerSimulationState
+        const hEcon: Record<string, EconomyState> = {}
+        const aEcon: Record<string, EconomyState> = {}
         Object.keys(currentSimState.homeEconomy).forEach(playerId => {
-            hEcon[playerId] = { ...currentSimState.homeEconomy[playerId] }
+            hEcon[playerId] = { ...currentSimState.homeEconomy[playerId] } as EconomyState
         })
         Object.keys(currentSimState.awayEconomy).forEach(playerId => {
-            aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] }
+            aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] } as EconomyState
         })
 
         simulationEngineV2.performBuyPhase(hPlayers, hEcon, homeStrategy, currentSimState.homeStartsCT, rng, customTactics)
@@ -498,8 +502,8 @@ export function useLiveMatch(id: string) {
             currentSimState.homeLossStreak,
             currentSimState.awayLossStreak,
             currentRoundNumber,
-            hEcon as any,
-            aEcon as any,
+            hEcon,
+            aEcon,
             homeStrategy,
             awayStrategy,
             false,
