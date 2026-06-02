@@ -636,9 +636,16 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                     <div className="text-[10px] text-white/30">{filteredProspects.length} prospect{filteredProspects.length !== 1 ? "s" : ""}</div>
                 </div>
                 {filteredProspects.length === 0 ? (
-                    <div className="p-8 rounded-xl bg-white/5 border border-dashed border-white/10 text-center">
-                        <Users className="mx-auto mb-2 text-white/20" size={32} />
-                        <p className="text-sm text-white/40">{prospects.length === 0 ? "No prospects yet. Scout some talent!" : "No prospects match filters"}</p>
+                    <div className="p-8 rounded-xl bg-white/5 border border-dashed border-white/10 text-center" role="status" aria-live="polite">
+                        <Users className="mx-auto mb-3 text-white/15" size={32} aria-hidden="true" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                            {prospects.length === 0 ? "The pipeline is dry" : "No match"}
+                        </p>
+                        <p className="text-xs text-white/55 max-w-sm mx-auto leading-relaxed">
+                            {prospects.length === 0
+                                ? "Scout a region to surface raw talent — promising kids show up here once you've sent recruiters out."
+                                : "Loosen the filter to widen the search."}
+                        </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -769,12 +776,12 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
             </div>
 
             {graduates.length === 0 ? (
-                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                        <GraduationCap size={32} className="text-white/10" />
+                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                        <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
-                    <h3 className="text-sm font-bold text-white/40 mb-1">No graduates yet</h3>
-                    <p className="text-xs text-white/55">Develop and promote prospects to see them here.</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Class of nobody</p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they'll show up here, immortalised as the first of your academy line.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -997,7 +1004,11 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
             <div>
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Match History</div>
                 {matchHistory.length === 0 ? (
-                    <div className="p-6 rounded-xl bg-white/5 border border-dashed border-white/10 text-center"><Clock size={24} className="mx-auto mb-2 text-white/20" /><p className="text-xs text-white/40">No matches yet</p></div>
+                    <div className="p-6 rounded-xl bg-white/5 border border-dashed border-white/10 text-center" role="status">
+                        <Clock size={24} className="mx-auto mb-2 text-white/15" aria-hidden="true" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-0.5">No fixtures yet</p>
+                        <p className="text-xs text-white/55">Schedule an academy scrimmage to start logging results.</p>
+                    </div>
                 ) : (
                     <div className="space-y-2">
                         {matchHistory.slice(-5).reverse().map((m: any) => (
