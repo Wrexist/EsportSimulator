@@ -151,8 +151,10 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                             </span>
                         )
                     })() : isLocked ? (
-                        <div className="w-8 h-8 rounded-lg bg-black/30 flex items-center justify-center shrink-0 border border-white/5">
-                            <Lock size={14} className="text-white/50" />
+                        // Lock icon bumped from /50 → /70 so the 14px glyph
+                        // clears WCAG AA on the bg-black/30 tile.
+                        <div className="w-8 h-8 rounded-lg bg-black/30 flex items-center justify-center shrink-0 border border-white/5" title="Match locked">
+                            <Lock size={14} className="text-white/70" aria-label="Locked" />
                         </div>
                     ) : (
                         // Show opponent logo for upcoming playable matches
@@ -170,8 +172,11 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
         return (
             <div
                 className={cn(
+                    // bg lifted from /[0.02] → /[0.06] so the projected card
+                    // is distinct from the panel beneath without losing the
+                    // dashed-border "tentative" cue.
                     "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border border-dashed min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
-                    "bg-amber-500/[0.02] hover:bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
+                    "bg-amber-500/[0.06] hover:bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50"
                 )}
             >
                 <div className="flex items-center justify-between gap-3">

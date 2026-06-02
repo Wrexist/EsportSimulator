@@ -52,8 +52,12 @@ function TrophyCabinetInner({ trophies, title = "Trophy Cabinet", className }: T
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
                         <TooltipProvider>
-                            {trophies.map((trophy, idx) => (
-                                <Tooltip key={`${trophy.tournamentId}-${trophy.week}-${idx}`}>
+                            {trophies.map((trophy) => (
+                                // Stable key — dropping the array index so
+                                // re-ordering trophies (e.g. by tier filter)
+                                // doesn't bust the keyed identity and re-
+                                // trigger exit/enter animations.
+                                <Tooltip key={`${trophy.tournamentId}-${trophy.week}`}>
                                     <TooltipTrigger asChild>
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
