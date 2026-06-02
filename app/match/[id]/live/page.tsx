@@ -195,6 +195,57 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
     )
 })
 
+// Roster row, memoized on the fields it actually reads. Without React.memo
+// each tick re-renders all 10 rows even when only the timer changed; the
+// PlayerPortrait + image lookups inside add up. Memoizing on the shallow
+// subset of LivePlayerState the row actually displays keeps idle ticks at
+// O(0) row renders.
+interface RosterRowProps {
+    id: string
+    name: string
+    money: number
+    weapon: string | undefined
+    isDead: boolean
+    kills: number
+    deaths: number
+    assists: number
+    portraitPath: string | undefined
+    defaultWeaponLabel: "USP" | "GLOCK"
+    extraClassName?: string
+}
+
+const RosterRow = memo(function RosterRow({
+    name, money, weapon, isDead, kills, deaths, assists, portraitPath, defaultWeaponLabel, extraClassName,
+}: RosterRowProps) {
+    return (
+        <div className={cn(
+            "p-2 rounded-2xl flex items-center gap-3 border transition-colors",
+            isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5",
+            extraClassName,
+        )}>
+            <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
+                <PlayerPortrait
+                    src={portraitPath}
+                    alt={name}
+                    size={40}
+                    variant="card"
+                />
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                    <div className="font-normal text-xs uppercase truncate pr-2">{name}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${money}</div>
+                </div>
+                <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{weapon?.toUpperCase() || defaultWeaponLabel}</div>
+            </div>
+            <div className="text-right shrink-0">
+                <div className="text-xs font-normal">{kills}/{deaths}/{assists}</div>
+                {isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" aria-hidden="true" />}
+            </div>
+        </div>
+    )
+})
+
 export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const {
         gameState,
@@ -413,32 +464,21 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
                     {/* HOME TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
-                        {homeRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalHomeMap.get(p.id)
-                            return (
-                                <div key={p.id} className={cn("group p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
-                                    <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
-                                        <PlayerPortrait
-                                            src={originalPlayer?.portraitPath}
-                                            alt={p.name}
-                                            size={40}
-                                            variant="card"
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="font-normal text-xs uppercase truncate pr-2">{p.name}</div>
-                                            <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${p.money}</div>
-                                        </div>
-                                        <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{p.weapon?.toUpperCase() || "USP"}</div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <div className="text-xs font-normal">{p.kills}/{p.deaths}/{p.assists}</div>
-                                        {p.isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" />}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {homeRoster.slice(0, 5).map(p => (
+                            <RosterRow
+                                key={p.id}
+                                id={p.id}
+                                name={p.name}
+                                money={p.money}
+                                weapon={p.weapon}
+                                isDead={p.isDead}
+                                kills={p.kills || 0}
+                                deaths={p.deaths || 0}
+                                assists={p.assists || 0}
+                                portraitPath={originalHomeMap.get(p.id)?.portraitPath}
+                                defaultWeaponLabel="USP"
+                            />
+                        ))}
                     </div>
 
                     {/* CONSOLE / CENTER */}
@@ -481,31 +521,21 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
                     {/* AWAY TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
-                        {awayRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalAwayMap.get(p.id)
-                            return (
-                                <div key={p.id} className={cn("p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
-                                    <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
-                                        <PlayerPortrait
-                                            src={originalPlayer?.portraitPath}
-                                            alt={p.name}
-                                            size={40}
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="font-normal text-xs uppercase truncate pr-2">{p.name}</div>
-                                            <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${p.money}</div>
-                                        </div>
-                                        <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{p.weapon?.toUpperCase() || "GLOCK"}</div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <div className="text-xs font-normal">{p.kills}/{p.deaths}/{p.assists}</div>
-                                        {p.isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" />}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {awayRoster.slice(0, 5).map(p => (
+                            <RosterRow
+                                key={p.id}
+                                id={p.id}
+                                name={p.name}
+                                money={p.money}
+                                weapon={p.weapon}
+                                isDead={p.isDead}
+                                kills={p.kills || 0}
+                                deaths={p.deaths || 0}
+                                assists={p.assists || 0}
+                                portraitPath={originalAwayMap.get(p.id)?.portraitPath}
+                                defaultWeaponLabel="GLOCK"
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
