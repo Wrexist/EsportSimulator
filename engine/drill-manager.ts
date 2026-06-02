@@ -3,7 +3,13 @@ import { SeededRNG, generateSeed } from "./rng"
 export interface DrillStep {
     message: string
     difficulty: number // 0-100 check
-    statCheck: "skill" | "reaction" | "tactic" | "teamwork" | "utility"
+    /**
+     * Which player stat the step thematically checks. Currently not read
+     * by simulateStep (which uses overall skill rating + difficulty), but
+     * surfaced in narrative copy / training UI. Accepts any of the live
+     * player attributes — see PlayerSaveData for the canonical list.
+     */
+    statCheck: string
 }
 
 export interface ActiveDrill {
@@ -11,9 +17,15 @@ export interface ActiveDrill {
     name: string
     description: string
     focus: string
-    iconName: "Target" | "Wind" | "Crosshair" // Strings for Lucide icons
+    /**
+     * Lucide icon component name. Widened to string so drills can pick
+     * from any icon in lucide-react without churning this union every
+     * time a new drill is added.
+     */
+    iconName: string
     steps: DrillStep[]
     rewards: { stat: string; value: number }[]
+    /** Positive = adds fatigue, negative = recovery (e.g. Sleep Protocol). */
     fatigueCost: number
 }
 
