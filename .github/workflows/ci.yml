@@ -28,6 +28,11 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
+    # Run type-check FIRST so we fail fast on type errors instead of
+    # wasting CI minutes on a test suite that can pass with type bugs.
+    - name: Type Check
+      run: npm run type-check
+
     - name: Lint
       run: npm run lint
       continue-on-error: true
@@ -35,9 +40,6 @@ jobs:
     - name: Run Tests
       run: npm test
 
-    - name: Type Check
-      run: npm run type-check
-      
     - name: Build
       run: npm run build
       
