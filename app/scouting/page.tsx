@@ -218,7 +218,7 @@ export default function ScoutingPage() {
             const evaluation = evaluatePlayer(player)
             const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
-            const forSale = isPlayerForSale(player as any, evaluation, teamRanking)
+            const forSale = isPlayerForSale(player, evaluation, teamRanking)
 
             return {
                 ...player,
