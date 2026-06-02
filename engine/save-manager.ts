@@ -750,7 +750,7 @@ export class SaveManager {
                                 id: p.id,
                                 nickname: p.nickname,
                                 nationality: p.nationality || "Unknown",
-                                portraitPath: p.portraitPath || "/player_placeholder.png",
+                                portraitPath: p.portraitPath || "/player_placeholder.webp",
                                 ovr: eval_.overallRating
                             })
                         }

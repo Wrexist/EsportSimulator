@@ -22,6 +22,16 @@ const nextConfig = {
         ignoreBuildErrors: false,
     },
     productionBrowserSourceMaps: false,
+    // Tree-shake lucide-react. Without this, importing { Foo } from 'lucide-react'
+    // pulls the full barrel into the client bundle (~150 KB+ depending on icon
+    // set). modularizeImports rewrites each named import to its own deep path
+    // at compile time so only the icons we actually use ship.
+    modularizeImports: {
+        'lucide-react': {
+            transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+            preventFullImport: true,
+        },
+    },
     // Disable worker threads for build (fixes spawn UNKNOWN error)
     experimental: {
         workerThreads: false,

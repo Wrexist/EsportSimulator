@@ -420,7 +420,7 @@ export function generateFPLNonProPlayer(
         name: `${firstName} "${nickname}" ${lastName}`,
         age,
         nationality,
-        portraitPath: "/player_placeholder.png",
+        portraitPath: "/player_placeholder.webp",
         role,
         secondaryRole: undefined,
         tier: tier === 'FPL' ? 'SEMI_PRO' : 'ACADEMY',

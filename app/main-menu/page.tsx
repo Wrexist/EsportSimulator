@@ -126,7 +126,7 @@ export default function MainMenuPage() {
             >
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl overflow-hidden">
-                        <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.png' }} />
+                        <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.webp' }} />
                     </div>
                     <span className="text-white/60 text-sm font-medium tracking-wide">ESPORT MANAGER</span>
                 </div>

@@ -578,7 +578,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                         <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 active:bg-red-500 active:scale-90 flex items-center justify-center transition-all">
                                             <X size={10} />
                                         </button>
-                                        <Image src={prospectData.player.portraitPath || "/player_placeholder.png"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
+                                        <Image src={prospectData.player.portraitPath || "/player_placeholder.webp"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
                                         <div className="text-[10px] font-bold truncate w-full text-center">{prospectData.player.nickname}</div>
                                         <Badge className="text-[8px] h-4 px-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mt-1">{role}</Badge>
                                     </>
@@ -672,7 +672,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 
                                     <div className="flex items-center gap-3">
                                         <GripVertical size={14} className="text-white/20 shrink-0" />
-                                        <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shrink-0" unoptimized />
+                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shrink-0" unoptimized />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5 mb-0.5">
                                                 <span className="font-bold text-sm truncate">{player.nickname}</span>
@@ -783,7 +783,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         return (
                             <div key={player.id} className="p-4 rounded-2xl bg-[#0d0d10] border border-white/10 flex items-center gap-4 group hover:border-emerald-500/30 transition-colors duration-100 ease-out">
                                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 overflow-hidden">
-                                    <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                    <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
@@ -1204,7 +1204,7 @@ function ScoutingTab({
 
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="relative w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
-                                        <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
                                         <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-sm rounded-tl-md">
                                             <div className={cn("w-2.5 h-1.5 rounded-sm", player.nationality === "Sweden" ? "bg-blue-600" : "bg-zinc-600")} />
                                         </div>

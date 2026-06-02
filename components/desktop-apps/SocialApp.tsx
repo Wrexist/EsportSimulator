@@ -206,7 +206,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                             style={{ borderColor: team.branding?.primaryColor ?? "transparent" }}
                                         >
                                             {team.logoPath ? (
-                                                <Image src={team.logoPath || "/team_placeholder.png"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
+                                                <Image src={team.logoPath || "/team_placeholder.webp"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
                                                 team.name.substring(0, 2).toUpperCase()
                                             )}
@@ -261,7 +261,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         >
                                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">
                                                 {team.logoPath ? (
-                                                    <Image src={team.logoPath || "/team_placeholder.png"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
+                                                    <Image src={team.logoPath || "/team_placeholder.webp"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                                 ) : (
                                                     team.name.substring(0, 2).toUpperCase()
                                                 )}
@@ -306,7 +306,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                 <div className="flex justify-between items-end mb-4">
                                     <div className="w-16 h-16 rounded-2xl bg-neutral-900 border-4 border-neutral-950 flex items-center justify-center text-xl font-normal shadow-2xl shadow-cyan-900/20 overflow-hidden">
                                         {playerTeam.logoPath ? (
-                                            <Image src={playerTeam.logoPath || "/team_placeholder.png"} alt={playerTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
+                                            <Image src={playerTeam.logoPath || "/team_placeholder.webp"} alt={playerTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                         ) : (
                                             playerTeam.name.substring(0, 2).toUpperCase()
                                         )}
@@ -393,7 +393,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     <div className="flex justify-between items-end mb-3">
                                         <div className="w-14 h-14 rounded-2xl bg-neutral-900 border-4 border-neutral-950 flex items-center justify-center text-lg font-normal overflow-hidden">
                                             {selectedTeam.logoPath ? (
-                                                <Image src={selectedTeam.logoPath || "/team_placeholder.png"} alt={selectedTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
+                                                <Image src={selectedTeam.logoPath || "/team_placeholder.webp"} alt={selectedTeam.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
                                                 selectedTeam.name.substring(0, 2).toUpperCase()
                                             )}

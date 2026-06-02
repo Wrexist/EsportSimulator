@@ -178,7 +178,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                 {staffMember.portraitPath ? (
                                     <Image src={staffMember.portraitPath} alt={staffMember.name} fill className="object-cover" />
                                 ) : (
-                                    <Image src="/staff_placeholder.png" alt={staffMember.name} fill className="object-cover opacity-80" />
+                                    <Image src="/staff_placeholder.webp" alt={staffMember.name} fill className="object-cover opacity-80" />
                                 )}
                             </div>
                             <h2 id="modal-title-staff-negotiation" className="text-2xl font-normal text-white">{staffMember.name}</h2>

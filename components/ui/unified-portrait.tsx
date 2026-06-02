@@ -24,9 +24,9 @@ const sizeMap = {
 }
 
 const fallbackImages = {
-    player: '/player_placeholder.png',
-    staff: '/staff_placeholder.png',
-    team: '/team_placeholder.png'
+    player: '/player_placeholder.webp',
+    staff: '/staff_placeholder.webp',
+    team: '/team_placeholder.webp'
 }
 
 /**
