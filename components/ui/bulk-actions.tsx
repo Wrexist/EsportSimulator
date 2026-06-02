@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Square } from 'lucide-react'
+import { logger } from "@/lib/logger"
 
 interface BulkActionsBarProps<T> {
     items: T[]
@@ -88,9 +89,7 @@ export function BulkActionsBar<T>({
             await action.onClick(selectedIds)
             onDeselectAll()
         } catch (error) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Bulk action failed:', error)
-            }
+            logger.error('Bulk action failed', error)
         } finally {
             setLoading(false)
         }

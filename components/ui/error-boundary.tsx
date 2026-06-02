@@ -4,6 +4,7 @@ import React, { Component, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw, Home, Clipboard, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { captureComponentError } from '@/lib/error-tracking'
+import { logger } from '@/lib/logger'
 
 interface ErrorBoundaryProps {
     children: ReactNode
@@ -34,9 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('ErrorBoundary caught an error:', error, errorInfo)
-        }
+        logger.error('ErrorBoundary caught an error', error, errorInfo)
         this.setState({ errorInfo })
         captureComponentError(error, errorInfo)
     }
@@ -74,10 +73,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 setTimeout(() => this.setState({ copied: false }), 2000)
             }
         } catch {
-            // Fallback: log to console in dev only — clipboard may be unavailable in some Electron contexts
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Failed to copy error details:', details)
-            }
+            // Clipboard may be unavailable in some Electron contexts — fall
+            // back to the logger so the payload is at least captured for
+            // the in-game debug panel.
+            logger.error('Failed to copy error details', details)
         }
     }
 

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { AlertTriangle, Trash2, UserX } from 'lucide-react'
 import { toast } from "@/lib/toast"
+import { logger } from "@/lib/logger"
 
 interface ConfirmDialogProps {
     children: ReactNode
@@ -77,9 +78,7 @@ export function ConfirmDialog({
             const message = err instanceof Error ? err.message : "Action failed"
             setError(message)
             toast.error(`${title}: ${message}`)
-            if (process.env.NODE_ENV !== "production") {
-                console.error("[ConfirmDialog] onConfirm failed:", err)
-            }
+            logger.error("[ConfirmDialog] onConfirm failed", err)
         } finally {
             setLoading(false)
         }
