@@ -114,13 +114,13 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
     // Stats for new spider chart. Memoized so the child PlayerSpiderChart
     // receives a stable prop reference; otherwise every tab toggle / parent
     // re-render rebuilt the object and busted child memoization downstream.
-    // Keyed on the whole player object — granular field deps tripped
-    // exhaustive-deps because (player as any).firepower is a complex expr.
+    // firepower/entrying/trading/opening aren't on PlayerSaveData — they're
+    // pure derivations from base stats, so always compute them.
     const spiderStats = useMemo(() => ({
-        firepower: (player as any).firepower ?? Math.round((player.skill + player.rifle) / 2),
-        entrying: (player as any).entrying ?? Math.round((player.skill + player.reaction) / 2),
-        trading: (player as any).trading ?? Math.round((player.teamwork + player.tactic) / 2),
-        opening: (player as any).opening ?? Math.round((player.skill + player.creativity) / 2),
+        firepower: Math.round((player.skill + player.rifle) / 2),
+        entrying: Math.round((player.skill + player.reaction) / 2),
+        trading: Math.round((player.teamwork + player.tactic) / 2),
+        opening: Math.round((player.skill + player.creativity) / 2),
         clutching: player.clutch ?? 50,
         sniping: player.awp ?? 50,
         utility: player.grenades ?? 50,
@@ -166,7 +166,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                         <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 border border-white/10 relative shadow-2xl">
                             <div className="absolute inset-0">
                                 <PlayerPortrait
-                                    src={(player as any).portraitPath}
+                                    src={player.portraitPath}
                                     alt={player.nickname}
                                     size={112}
                                     variant="hero"
@@ -200,7 +200,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
 
                             {/* Signature Weapon Badge */}
                             {player.weaponMastery && Object.values(player.weaponMastery).some(w => {
-                                const xp = typeof w === 'number' ? w : (w as any)?.xp || 0
+                                const xp = typeof w === 'number' ? w : w?.xp || 0
                                 return getMasteryInfo(xp).isMaster
                             }) && (
                                     <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-400 uppercase tracking-widest px-2 py-0.5 bg-yellow-500/5 font-normal flex items-center gap-1">
@@ -228,7 +228,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                             <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-2 hover:bg-white/[0.08] transition-colors relative">
                                 <div className="text-right pr-4 border-r border-white/10">
                                     <div className="text-sm font-normal text-white/40 uppercase tracking-widest leading-none mb-1">LVL</div>
-                                    <div className="text-2xl font-normal text-white leading-none">{(player as any).level || 1}</div>
+                                    <div className="text-2xl font-normal text-white leading-none">{player.level || 1}</div>
                                 </div>
                                 <div className="text-right">
                                     <div className={cn(
@@ -250,12 +250,12 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                             <div className="flex-1 space-y-1.5">
                                 <div className="flex justify-between text-[9px] text-white/40 uppercase font-bold tracking-wider">
                                     <span>XP Progress</span>
-                                    <span className="text-white/60">{Math.floor((player as any).xp || 0)} <span className="text-white/20">/</span> {(player as any).xpToNextLevel || 1000}</span>
+                                    <span className="text-white/60">{Math.floor(player.xp || 0)} <span className="text-white/20">/</span> {player.xpToNextLevel || 1000}</span>
                                 </div>
                                 <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
                                     <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ width: `${Math.min(100, (((player as any).xp || 0) / ((player as any).xpToNextLevel || 1000)) * 100)}%` }}
+                                        animate={{ width: `${Math.min(100, ((player.xp || 0) / (player.xpToNextLevel || 1000)) * 100)}%` }}
                                         className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]"
                                     />
                                 </div>
@@ -493,16 +493,16 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
 
                         {isOwnPlayer && (
                             <Button
-                                variant={(player as any).forSale ? "destructive" : "outline"}
+                                variant={player.forSale ? "destructive" : "outline"}
                                 className={cn(
                                     "h-9 px-4 text-xs font-normal uppercase tracking-wider flex-1 sm:flex-none",
-                                    (player as any).forSale
+                                    player.forSale
                                         ? "bg-red-500 hover:bg-red-600 text-white border-transparent"
                                         : "bg-transparent text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
                                 )}
                                 onClick={() => setTransferModalOpen(true)}
                             >
-                                {(player as any).forSale ? "Unlist" : "Sell"}
+                                {player.forSale ? "Unlist" : "Sell"}
                             </Button>
                         )}
 
@@ -678,7 +678,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {Object.entries(player.weaponMastery).map(([weapon, data]) => {
                                             // Handle both simple number and complex object formats
-                                            const xp = typeof data === 'number' ? data : (data as any)?.xp || 0
+                                            const xp = typeof data === 'number' ? data : data?.xp || 0
                                             const masteryInfo = getMasteryInfo(xp)
                                             const isMaster = masteryInfo.isMaster
                                             const levelNum = ["NOVICE", "COMPETENT", "SKILLED", "EXPERT", "MASTER"].indexOf(masteryInfo.level) + 1
@@ -741,7 +741,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                                     </div>
                                     <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                                         <Star className="text-amber-400 fill-amber-400" size={16} />
-                                        <span className="font-bold text-white">{(player as any).talentPoints || 0} Points Available</span>
+                                        <span className="font-bold text-white">{player.talentPoints || 0} Points Available</span>
                                     </div>
                                 </div>
 
