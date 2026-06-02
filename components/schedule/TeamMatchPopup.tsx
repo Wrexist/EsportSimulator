@@ -40,11 +40,11 @@ export function TeamMatchPopup({
 
     // Memoize opponent rating and top players to avoid recalculating evaluatePlayer on every render
     const opponentRating = useMemo(() => opponentRoster.length > 0
-        ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p as any).overallRating, 0) / opponentRoster.length)
+        ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / opponentRoster.length)
         : 0, [opponentRoster])
 
     const topPlayers = useMemo(() => [...opponentRoster]
-        .map(p => ({ ...p, ovr: evaluatePlayer(p as any).overallRating }))
+        .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))
         .sort((a, b) => b.ovr - a.ovr)
         .slice(0, 5), [opponentRoster])
 
@@ -196,7 +196,7 @@ export function TeamMatchPopup({
                                                     <span className="text-xs font-bold text-white truncate">{player.nickname}</span>
                                                     <CountryFlag country={player.nationality} size={10} className="opacity-60" />
                                                 </div>
-                                                <span className="text-[10px] text-white/40">{resolvePlayerRole(player as any)}</span>
+                                                <span className="text-[10px] text-white/40">{resolvePlayerRole(player)}</span>
                                             </div>
                                             <div className="text-right shrink-0">
                                                 <span className={cn(

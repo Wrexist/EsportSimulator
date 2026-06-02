@@ -66,7 +66,7 @@ function LiveMatchScoreboardImpl({
             {/* HOME TEAM */}
             <div className={cn("flex items-center gap-6 w-1/3 pl-3", homeBorderClass)}>
                 <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden relative group">
-                    <TeamLogoDisplay team={homeTeam as any} size={40} />
+                    <TeamLogoDisplay team={homeTeam} size={40} />
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div>
@@ -163,7 +163,7 @@ function LiveMatchScoreboardImpl({
                     </div>
                 </div>
                 <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden">
-                    <TeamLogoDisplay team={awayTeam as any} size={40} />
+                    <TeamLogoDisplay team={awayTeam} size={40} />
                 </div>
             </div>
         </div>
