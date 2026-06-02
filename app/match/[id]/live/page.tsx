@@ -286,7 +286,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
             <div className="text-center">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match...</p>
+                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Warming up servers…</p>
             </div>
         </div>
     )

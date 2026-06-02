@@ -107,8 +107,13 @@ function LiveMatchScoreboardImpl({
                         <div className="text-[10px] font-bold tracking-[0.2em] text-white/50 bg-white/5 px-3 py-1 rounded-full uppercase">
                             {mapName}
                         </div>
-                        <div className={cn("text-xs font-bold px-2 py-0.5 rounded text-white/80", gameState.status === "FINISHED" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5")}>
-                            {gameState.status === "FINISHED" ? "FINAL" : `RND ${gameState.round} / 24`}
+                        <div className={cn("text-xs font-bold px-2 py-0.5 rounded text-white/80 flex items-center gap-1.5", gameState.status === "FINISHED" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5")}>
+                            <span>{gameState.status === "FINISHED" ? "FINAL" : `RND ${gameState.round} / 24`}</span>
+                            {gameState.status !== "FINISHED" && (
+                                <span className="text-[9px] uppercase tracking-widest text-white/40">
+                                    · {roundPhaseLabel(gameState.round)}
+                                </span>
+                            )}
                         </div>
                         {showTimer && (
                             <div className={cn(
@@ -169,6 +174,20 @@ function mapsToWinForFormat(format: string): number {
     if (format === "BO3") return 2
     if (format === "BO5") return 3
     return 1
+}
+
+/**
+ * Broadcast-style label for what kind of round this is. Round 1 and 13 are
+ * pistol rounds (frozen economy), rounds 2-3 and 14-15 are usually anti-eco
+ * or force-buy follow-ups, and the rest are full-buy unless the engine
+ * forces an eco — the round-tag here is the BROADCAST framing, not the
+ * actual buy decision (which the player/AI sets in the strategy panel).
+ */
+function roundPhaseLabel(round: number): string {
+    if (round === 1 || round === 13) return "Pistol"
+    if (round === 2 || round === 14) return "Anti-Eco"
+    if (round === 12 || round === 24) return "Last Round"
+    return "Full Buy"
 }
 
 export const LiveMatchScoreboard = memo(LiveMatchScoreboardImpl)
