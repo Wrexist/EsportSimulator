@@ -5,7 +5,7 @@
  * functions stay easy to unit-test and reason about in isolation.
  */
 
-import { MapId, Player, LivePlayerState } from "@/types"
+import { MapId, MapResult, Player, LivePlayerState } from "@/types"
 import { EconomyManager } from "@/engine"
 import { createRoundStartEconomy, resolveHomeStartsCT, selectActiveRosterIds } from "@/lib/live-match-utils"
 
@@ -55,7 +55,7 @@ export function createMapResultShell(
     homeStartsCT: boolean,
     homeTeamId: string,
     awayTeamId: string
-): any {
+): MapResult {
     return {
         map: mapId,
         ctStartTeamId: homeStartsCT ? homeTeamId : awayTeamId,
@@ -74,13 +74,13 @@ export function createMapResultShell(
  * full series shape.
  */
 export function buildCanonicalResultMaps(
-    existingMaps: any[] | undefined,
+    existingMaps: MapResult[] | undefined,
     canonicalMaps: MapId[],
     homeTeamId: string,
     awayTeamId: string,
     mapStartingSides: Record<string, string> | undefined,
     seed: number
-): any[] {
+): MapResult[] {
     const sourceMaps = Array.isArray(existingMaps) ? existingMaps : []
     return canonicalMaps.map((mapId, mapIndex) => {
         const existing = sourceMaps[mapIndex]

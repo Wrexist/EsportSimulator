@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
+import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState, Coach, Analyst, Psychologist } from "@/types"
+import type { TeamSaveData } from "@/engine/save-types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
@@ -34,8 +35,13 @@ type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 interface LiveMatchRuntimeData {
     match: any
     result: MatchResult
-    homeTeam: any
-    awayTeam: any
+    // home/awayTeam are stored as the on-disk TeamSaveData shape. The
+    // engine entry points accept the runtime `Team` (from types/team.ts);
+    // their read paths only touch fields TeamSaveData also has (`id`,
+    // `playstyle`), so the `as unknown as Team` casts at the call sites
+    // are structurally safe. See ARCHITECTURE.md "Known Type-System Debt".
+    homeTeam: TeamSaveData
+    awayTeam: TeamSaveData
     homePlayerIds: string[]
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
@@ -210,8 +216,12 @@ export function useLiveMatch(id: string) {
             aTeam as unknown as Team,
             homePlayers,
             awayPlayers,
-            homeStaff as any,
-            awayStaff as any
+            // RuntimeTeamStaff (from live-staff-adapter) has the same
+            // {coach?, analyst?, psychologist?} bundle shape the engine
+            // expects. The `as unknown as` cast bridges the runtime-vs-
+            // builder type identity without `as any`.
+            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         )
 
         const queryMaps = searchParams
@@ -233,8 +243,8 @@ export function useLiveMatch(id: string) {
             aTeam as unknown as Team,
             homePlayers,
             awayPlayers,
-            homeStaff as any,
-            awayStaff as any,
+            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             canonicalMaps
         )
 
@@ -276,7 +286,7 @@ export function useLiveMatch(id: string) {
                 homeScore: sanitizedSimState.homeSeriesScore,
                 awayScore: sanitizedSimState.awaySeriesScore,
                 maps: buildCanonicalResultMaps(
-                    restoredResultSource.maps as any[],
+                    restoredResultSource.maps,
                     canonicalMaps,
                     hTeam.id,
                     aTeam.id,
@@ -507,15 +517,15 @@ export function useLiveMatch(id: string) {
             homeStrategy,
             awayStrategy,
             false,
-            homeTeam as any,
-            awayTeam as any,
+            homeTeam as unknown as Team,
+            awayTeam as unknown as Team,
             homeTeam.id,
             awayTeam.id,
             customTactics,
             currentSimState.homeMomentumScore,
             currentSimState.awayMomentumScore,
-            hStaff as any,
-            aStaff as any,
+            hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             currentMapId
         )
 

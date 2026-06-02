@@ -1,4 +1,12 @@
-// Generates initial game data for Pro FPS esports manager
+/**
+ * Test-fixture data generator. Builds the legacy `Team`/`Coach`/`Analyst`/
+ * `Psychologist` shapes from `types/game.ts` (NOT the runtime save
+ * shapes — `TeamSaveData`, `StaffSaveData`). Currently only consumed by
+ * `__tests__/engine.test.ts` to seed deterministic match-engine tests.
+ *
+ * Don't reach for this module in production code paths — use the
+ * snapshot loader in `engine/save-manager` instead.
+ */
 import type {
   Team,
   Player,
