@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Search, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { evaluatePlayer } from "@/engine/player-evaluation"
 import { TableBody } from "@/components/ui/table"
 import {
   GlassTable,
@@ -141,8 +142,12 @@ function TransfersPageInner() {
   const getContractTerms = (player: any) => {
     const team = getTeamForPlayer(player.id)
     const isFreeAgent = !team
-    const ovr = (player.skill + player.tactic + player.teamwork) / 3
-    const transferFee = isFreeAgent ? 0 : Math.floor(ovr * 1000 * (1 + (player.potential / 100)))
+    // Use the SAME valuation the negotiation modal demands
+    // (evaluatePlayer().transferValue) so the displayed fee + the BUY
+    // affordability gate match what the modal will actually ask for. The old
+    // ovr*1000 estimate was far lower, so the BUY button could be enabled yet
+    // every offer the modal generated was unaffordable.
+    const transferFee = isFreeAgent ? 0 : Math.floor(evaluatePlayer(player).transferValue)
     const salary = getEstimatedSalary(player)
 
     return {

@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 14** — transfers fee parity
+39. **[Phase 3.6]** The transfers table's displayed fee + the BUY affordability gate now use `evaluatePlayer().transferValue` — the same valuation the negotiation modal demands — instead of a much lower `ovr*1000` estimate, so the BUY button no longer enables for offers the modal will immediately reject (`app/transfers/page.tsx`). _(The dead `weeksOnTransferList` field remains — set but never read; left as trivial.)_
+
 **Pass 13** — low-risk cleanup sweep
 36. **[Phase 2.6 leftover]** The rankings page now sorts by the engine's tiebreaker (`elo → reputation → numeric id`, matching `LeagueEngine.refreshWorldRankings`) instead of Elo-only, so equal-Elo teams get a deterministic, consistent rank (`app/rankings/page.tsx`).
 37. **[Phase 6.6]** Academy `ReportsTab` keys by `report.week` / `pr.nickname` instead of array index (the list is reversed + prepended, so index keys reused animation/DOM state); the live-match speed control gained a decrement (`−`) button with disabled bounds, so playback speed is no longer a one-way ratchet (`components/desktop-apps/AcademyApp.tsx`, `components/match/LiveMatchControlBar.tsx`).
@@ -180,7 +183,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** Make the `rng` param required, or derive the fallback deterministically from `save.lastRngSeed + save.currentWeek`; dev-assert when the fallback path is hit.
 - **Verify:** Two identical saves processed twice produce identical results.
 
-### 3.6 Transfers page fee mismatch + dead `weeksOnTransferList` [LOW]
+### 3.6 Transfers page fee mismatch (✅ DONE Pass 14) + dead `weeksOnTransferList` (still open) [LOW]
 - **Problem:** Transfers table gates BUY on `ovr*1000*(1+potential/100)` but the NegotiationModal demands `evaluatePlayer().transferValue` (`app/transfers/page.tsx:141-155` vs `NegotiationModal.tsx:170-175`) — button can be enabled yet every offer rejected. `weeksOnTransferList` (`transfer-market.ts:81,265`) is set but never read (implied listing-decay never wired).
 - **Steps:** Drive the table's fee/affordability from `evaluatePlayer(player).transferValue`. Implement listing aging/price-decay or remove the field.
 
