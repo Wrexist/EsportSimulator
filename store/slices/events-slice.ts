@@ -40,9 +40,13 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
 
     markAllEventsAsRead: () => {
         set((state) => {
+            // O(1) membership via a Set rather than `.includes` inside the
+            // loop (was O(events × acknowledged) on long campaigns).
+            const acked = new Set(state.acknowledgedEventIds)
             state.eventsLog.forEach(e => {
                 e.acknowledged = true
-                if (!state.acknowledgedEventIds.includes(e.id)) {
+                if (!acked.has(e.id)) {
+                    acked.add(e.id)
                     state.acknowledgedEventIds.push(e.id)
                 }
             })

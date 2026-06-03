@@ -234,9 +234,13 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             }
 
             team.sponsors.push(normalizedSponsor)
-            // Remove from the available offers pool so the UI doesn't
-            // show it as still pickable after signing.
-            state.sponsorOffers = state.sponsorOffers.filter(o => o.id !== sponsor.id)
+            // Remove from the available offers pool so the UI doesn't show it
+            // as still pickable after signing. Match on id when present, else
+            // fall back to name+tier (offers are unique by name) so an id-less
+            // offer can't linger as still-pickable.
+            state.sponsorOffers = state.sponsorOffers.filter(o =>
+                sponsor.id ? o.id !== sponsor.id : !(o.name === sponsor.name && o.tier === sponsor.tier)
+            )
             result = { success: true, message: `${normalizedSponsor.name} signed successfully.` }
         })
         return result

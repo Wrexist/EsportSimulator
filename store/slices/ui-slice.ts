@@ -20,7 +20,6 @@
 
 import type { UIActions, SliceCreator } from "@/store/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { nextDeterministicId } from "@/store/utils/helpers"
 import { soundManager } from "@/lib/sound-manager"
 
 // Map a toast type → matching pre-defined SFX from lib/sound-manager.
@@ -49,6 +48,17 @@ function toastSoundFor(type: string): string | null {
     }
 }
 
+// Transient toast IDs must NOT be drawn from the deterministic game RNG.
+// `nextDeterministicId` advances `state.lastRngSeed`, and `advanceWeek`
+// seeds the whole week simulation from that seed — so generating toast IDs
+// from the RNG meant the number of cosmetic toasts a player happened to
+// trigger between ticks would shift the next week's match/transfer results
+// (a real reproducibility leak found in audit). Toasts are stripped from
+// persistence, so a plain monotonic counter is safe and sufficient.
+let toastIdCounter = 0
+const nextToastId = (): string =>
+    `toast_${Date.now().toString(36)}_${(toastIdCounter++).toString(36)}`
+
 export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
     // === Setters ===
 
@@ -56,7 +66,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
 
     addToast: (toast) => {
         set((state) => {
-            const id = nextDeterministicId(state, "toast")
+            const id = nextToastId()
             state.toasts.push({ ...toast, id })
         })
         // Sound after the state push so a successful toast appears in
