@@ -64,6 +64,20 @@ export function compactPersistentState(save: GameSave): void {
         }
     }
 
+    // scheduledActivities accumulates ~7 auto-generated REST days per week
+    // forever (training-processor.processRestDays) on top of any planned
+    // activities. Every consumer only looks at the current week or a
+    // duration-spanning window (currentWeek < a.week + a.duration), so an
+    // activity whose window ended before last week is dead weight. Drop those
+    // to keep the save lean across multi-season careers (a 1-week grace keeps
+    // the just-finished week visible to any recent-history UI).
+    if (save.scheduledActivities && save.scheduledActivities.length > 0) {
+        const keepFromWeek = save.currentWeek - 1
+        save.scheduledActivities = save.scheduledActivities.filter(
+            a => (a.week + (a.duration || 0)) >= keepFromWeek
+        )
+    }
+
     // Drop acknowledgements that reference events the compactor just pruned
     // so the set doesn't accumulate stale IDs across long campaigns.
     const knownEventIds = new Set(save.eventsLog.map(e => e.id))

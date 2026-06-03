@@ -9,7 +9,6 @@
  * Coverage:
  *   - unlockPlayerTalent: cost gate, idempotency, STAT_BOOST applies,
  *     prerequisites enforced, event logged
- *   - unlockSkill: cost gate, idempotency, debits availableSkillPoints
  *   - unlockStaffTalent: rejects non-player-team staff (engine owns those),
  *     cost gate, idempotency
  *   - setPlayerTrainingFocus: writes focus on the player
@@ -150,44 +149,6 @@ describe("unlockPlayerTalent", () => {
         // No additional unlock, no extra debit.
         expect(h.state().players[0].unlockedTalentIds.filter(t => t === root.id).length).toBe(1)
         expect(h.state().players[0].talentPoints).toBe(root.cost * 3)
-    })
-})
-
-describe("unlockSkill", () => {
-    test("debits availableSkillPoints and adds the skill id to perks", () => {
-        const h = makeHarness(makeBaseState())
-        const slice = createPlayerDevelopmentSlice(h.set, h.get)
-        slice.unlockSkill("p1", "skill_aim_boost", 2)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(((h.state().players[0] as any).perks)).toEqual(["skill_aim_boost"])
-        expect(h.state().players[0].availableSkillPoints).toBe(3)
-    })
-
-    test("refuses when availableSkillPoints < cost", () => {
-        const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { availableSkillPoints: 1 })],
-        }))
-        const slice = createPlayerDevelopmentSlice(h.set, h.get)
-        slice.unlockSkill("p1", "expensive_skill", 5)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(((h.state().players[0] as any).perks ?? [])).toEqual([])
-        expect(h.state().players[0].availableSkillPoints).toBe(1)
-    })
-
-    test("idempotent: same skill won't be added twice", () => {
-        const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", {
-                availableSkillPoints: 10,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                perks: ["existing"] as any,
-            })],
-        }))
-        const slice = createPlayerDevelopmentSlice(h.set, h.get)
-        slice.unlockSkill("p1", "existing", 2)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(((h.state().players[0] as any).perks)).toEqual(["existing"])
-        // No debit either.
-        expect(h.state().players[0].availableSkillPoints).toBe(10)
     })
 })
 

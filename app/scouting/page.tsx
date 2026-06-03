@@ -63,6 +63,7 @@ import {
     getAffordabilityStatus,
     getContractWeeksRemaining,
 } from "@/engine/scouting-helpers"
+import { fuzzyBand } from "@/engine/scouting-system"
 
 interface SnapshotPlayer {
     id: string
@@ -800,9 +801,11 @@ export default function ScoutingPage() {
                                                         </span>
                                                     )
                                                 } else {
-                                                    // Show fuzzy range for unscouted
-                                                    const min = Math.max(0, ovr - 15)
-                                                    const max = Math.min(99, ovr + 15)
+                                                    // Show a fuzzy range for unscouted players. The band is
+                                                    // OFFSET (not centered on the true rating) and deterministic
+                                                    // per player — previously it was [ovr-15, ovr+15], whose
+                                                    // midpoint leaked the exact OVR.
+                                                    const [min, max] = fuzzyBand(ovr, 15, player.id)
                                                     return (
                                                         <span className="text-sm font-sans text-white/40" title="Scout to reveal exact rating">
                                                             {min}-{max}

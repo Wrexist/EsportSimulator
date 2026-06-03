@@ -736,13 +736,18 @@ export default function TournamentDetailPage() {
                                                         }
                                                         // 2. League Logic (or fallback)
                                                         else if (displayTournament?.format === "league" || !finalMatch) {
-                                                            const standings = displayTournament?.teamIds?.map((tid: string) => {
-                                                                const team = teamsById.get(tid)
-                                                                const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
-                                                                const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
-                                                                const points = wins * 3
-                                                                return { team, points }
-                                                            }).sort((a: any, b: any) => b.points - a.points)
+                                                            // Use the engine-sorted standings (compareStandings) for the
+                                                            // podium; fall back to a points-only recompute if empty.
+                                                            const engineStandings = displayTournament?.standings as { teamId: string }[] | undefined
+                                                            const standings = (engineStandings && engineStandings.length > 0)
+                                                                ? engineStandings.map(s => ({ team: teamsById.get(s.teamId) }))
+                                                                : (displayTournament?.teamIds?.map((tid: string) => {
+                                                                    const team = teamsById.get(tid)
+                                                                    const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
+                                                                    const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
+                                                                    const points = wins * 3
+                                                                    return { team, points }
+                                                                }).sort((a: any, b: any) => b.points - a.points) ?? [])
 
                                                             if (standings && standings[0]) podium.push({ place: 1, team: standings[0].team, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
                                                             if (standings && standings[1]) podium.push({ place: 2, team: standings[1].team, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })
@@ -867,45 +872,59 @@ export default function TournamentDetailPage() {
                                                         if (runnerUp) standings.push({ team: runnerUp, place: 2, prize: prizePool * 0.20, share: "Medium" })
                                                     }
 
-                                                    // 3rd-4th
-                                                    semiFinals.forEach(m => {
-                                                        const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
-                                                        if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                            const t = teamsById.get(loserId)
-                                                            if (t) standings.push({ team: t, place: 3, prize: prizePool * 0.10, share: "Low" })
-                                                        }
-                                                    })
+                                                    // 3rd / 4th — prefer the 3rd-place decider (engine-authoritative);
+                                                    // otherwise fall back to semi-final losers. Sequential placements
+                                                    // (previously every semi loser was labelled "3rd").
+                                                    const thirdDecider = tournamentMatches.find(m => m.stage === "3rd Place Decider")
+                                                    if (thirdDecider?.result) {
+                                                        const dWin = thirdDecider.result.winnerId || (thirdDecider.result.homeScore > thirdDecider.result.awayScore ? thirdDecider.homeTeamId : thirdDecider.awayTeamId)
+                                                        const dLose = dWin === thirdDecider.homeTeamId ? thirdDecider.awayTeamId : thirdDecider.homeTeamId
+                                                        const third = teamsById.get(dWin)
+                                                        const fourth = teamsById.get(dLose)
+                                                        if (third && !standings.some(s => s.team.id === dWin)) standings.push({ team: third, place: 3, prize: prizePool * 0.10, share: "Low" })
+                                                        if (fourth && !standings.some(s => s.team.id === dLose)) standings.push({ team: fourth, place: 4, prize: prizePool * 0.10, share: "Low" })
+                                                    } else {
+                                                        let semiPlace = 3
+                                                        semiFinals.forEach(m => {
+                                                            const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
+                                                            if (loserId && !standings.some(s => s.team.id === loserId)) {
+                                                                const t = teamsById.get(loserId)
+                                                                if (t) { standings.push({ team: t, place: semiPlace, prize: prizePool * 0.10, share: "Low" }); semiPlace++ }
+                                                            }
+                                                        })
+                                                    }
 
-                                                    // 5th-8th
+                                                    // 5th-8th — quarter-final losers, sequential (was all labelled "5th").
+                                                    let qfPlace = 5
                                                     quarterFinals.forEach(m => {
                                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
                                                             const t = teamsById.get(loserId)
-                                                            if (t) standings.push({ team: t, place: 5, prize: prizePool * 0.05, share: "Low" })
+                                                            if (t) { standings.push({ team: t, place: qfPlace, prize: prizePool * 0.05, share: "Low" }); qfPlace++ }
                                                         }
                                                     })
                                                 }
-                                                // B. League Logic
+                                                // B. League Logic — render from the engine-sorted standings
+                                                // (recomputeStandings already orders by compareStandings:
+                                                // points → wins → head-to-head → map/round diff) instead of a
+                                                // points-only re-sort, so the table matches the authoritative
+                                                // order + the prize ledger. Falls back to teamId order if the
+                                                // standings haven't been populated yet.
                                                 else {
-                                                    const leagueSorted = displayTournament?.teamIds?.map((tid: string) => {
-                                                        const team = teamsById.get(tid)
-                                                        const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
-                                                        const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
-                                                        const points = wins * 3
-                                                        return { team, points }
-                                                    }).sort((a: any, b: any) => b.points - a.points)
+                                                    const engineStandings = displayTournament?.standings as { teamId: string }[] | undefined
+                                                    const ordered = (engineStandings && engineStandings.length > 0)
+                                                        ? engineStandings.map(s => teamsById.get(s.teamId))
+                                                        : (displayTournament?.teamIds?.map((tid: string) => teamsById.get(tid)) ?? [])
 
-                                                    if (leagueSorted) {
-                                                        leagueSorted.forEach((entry: any, idx: number) => {
-                                                            if (!entry.team) return
-                                                            let pct = 0
-                                                            if (idx === 0) pct = 0.40
-                                                            else if (idx === 1) pct = 0.20
-                                                            else if (idx <= 3) pct = 0.10
-                                                            else if (idx <= 7) pct = 0.05
-                                                            standings.push({ team: entry.team, place: idx + 1, prize: prizePool * pct, share: "Standard" })
-                                                        })
-                                                    }
+                                                    ordered.forEach((team: any, idx: number) => {
+                                                        if (!team) return
+                                                        let pct = 0
+                                                        if (idx === 0) pct = 0.40
+                                                        else if (idx === 1) pct = 0.20
+                                                        else if (idx <= 3) pct = 0.10
+                                                        else if (idx <= 7) pct = 0.05
+                                                        standings.push({ team, place: idx + 1, prize: prizePool * pct, share: "Standard" })
+                                                    })
                                                 }
 
                                                 // Sort by place
@@ -1215,15 +1234,24 @@ export default function TournamentDetailPage() {
 
                                         {/* League Table Calculation */}
                                         {(() => {
-                                            const leagueStandings = displayTournament?.teamIds?.map((tid: string) => {
-                                                const team = teamsById.get(tid)
-                                                // Calculate actual stats from completed matches
-                                                const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
-                                                const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
-                                                const losses = matches.length - wins
-                                                const points = wins * 3
-                                                return { team, wins, losses, points, matchesPlayed: matches.length }
-                                            }).sort((a: any, b: any) => b.points - a.points || b.wins - a.wins)
+                                            // Prefer the engine's authoritative standings (already ordered by
+                                            // compareStandings: points → wins → head-to-head → map/round diff)
+                                            // so this table matches the rest of the app. Fall back to a local
+                                            // recompute only if standings haven't been populated yet.
+                                            const engineStandings = displayTournament?.standings as Array<{ teamId: string; wins: number; losses: number; points: number; matchesPlayed: number }> | undefined
+                                            const leagueStandings = (engineStandings && engineStandings.length > 0)
+                                                ? engineStandings.map(s => ({
+                                                    team: teamsById.get(s.teamId),
+                                                    wins: s.wins, losses: s.losses, points: s.points, matchesPlayed: s.matchesPlayed,
+                                                }))
+                                                : (displayTournament?.teamIds?.map((tid: string) => {
+                                                    const team = teamsById.get(tid)
+                                                    const matches = tournamentMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid)
+                                                    const wins = matches.filter(m => (m.result.homeScore > m.result.awayScore && m.homeTeamId === tid) || (m.result.awayScore > m.result.homeScore && m.awayTeamId === tid)).length
+                                                    const losses = matches.length - wins
+                                                    const points = wins * 3
+                                                    return { team, wins, losses, points, matchesPlayed: matches.length }
+                                                }).sort((a: any, b: any) => b.points - a.points || b.wins - a.wins) ?? [])
 
                                             return (
                                                 <div className="overflow-hidden rounded-3xl border border-white/5">

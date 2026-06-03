@@ -63,7 +63,7 @@ export interface VisibleStats {
  * the band, and it is deterministic per player so the band does not flicker
  * between renders.
  */
-function fuzzyBand(trueValue: number, halfWidth: number, playerId: string): [number, number] {
+export function fuzzyBand(trueValue: number, halfWidth: number, playerId: string): [number, number] {
     let h = 0
     for (let i = 0; i < playerId.length; i++) h = (h * 31 + playerId.charCodeAt(i)) | 0
     const frac = ((Math.abs(h) % 2001) / 1000) - 1 // -1 .. 1

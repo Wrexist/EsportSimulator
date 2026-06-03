@@ -12,8 +12,6 @@
  *     passive bonuses are referenced elsewhere by talent-id presence.
  *   - unlockStaffTalent — same idea but for staff, against
  *     STAFF_TALENT_TREES keyed by role. STAT_BOOST applies to staff.stats.
- *   - unlockSkill — spend availableSkillPoints to add a perk id to the
- *     player's perks array (idempotent).
  *   - setPlayerTrainingFocus — set the per-player "trainingFocus" hint
  *     read by the weekly training engine.
  *   - updatePlayer — sanitized writeback for dynamic stats (energy,
@@ -30,7 +28,6 @@ const STAT_CLAMP_MAX = 100
 
 export interface PlayerDevelopmentActions {
     unlockPlayerTalent: (playerId: string, talentId: string) => void
-    unlockSkill: (playerId: string, skillId: string, cost: number) => void
     unlockStaffTalent: (staffId: string, talentId: string) => void
     setPlayerTrainingFocus: (playerId: string, focus: string) => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,13 +65,26 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
             if (node.effect?.type === "STAT_BOOST") {
                 const clamp = (v: number) => Math.max(0, Math.min(STAT_CLAMP_MAX, v))
                 if (node.effect.target === "all") {
-                    p.skill = clamp(p.skill + node.effect.value)
-                    p.rifle = clamp(p.rifle + node.effect.value)
-                    p.awp = clamp(p.awp + node.effect.value)
-                    p.creativity = clamp(p.creativity + node.effect.value)
-                    p.tactic = clamp(p.tactic + node.effect.value)
-                    p.teamwork = clamp(p.teamwork + node.effect.value)
-                    p.clutch = clamp(p.clutch + node.effect.value)
+                    // Boost the full set of core competitive attributes. This
+                    // previously covered only 7 stats, so "+N All Stats" talents
+                    // silently skipped reaction/pistol/grenades/entry/trading/
+                    // leader/stressResistance/eyesight. Excludes fluctuating
+                    // states (morale/form/fatigue/energy/health) and soft traits
+                    // (amicability/productivity/loyalty).
+                    const ALL_STAT_KEYS = [
+                        "skill", "rifle", "awp", "pistol", "grenades", "creativity",
+                        "clutch", "tactic", "entry", "trading",
+                        "leader", "teamwork", "stressResistance",
+                        "reaction", "eyesight",
+                    ] as const
+                    for (const k of ALL_STAT_KEYS) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const cur = (p as any)[k]
+                        if (typeof cur === "number") {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            ;(p as any)[k] = clamp(cur + node.effect.value)
+                        }
+                    }
                 } else {
                     const target = node.effect.target as keyof typeof p
                     if (typeof p[target] === "number") {
@@ -96,20 +106,6 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
                 },
                 acknowledged: false,
             })
-        })
-    },
-
-    unlockSkill: (playerId, skillId, cost) => {
-        set((state) => {
-            const player = state.players.find(p => p.id === playerId)
-            if (!player) return
-            if ((player.availableSkillPoints || 0) < cost) return
-
-            if (!player.perks) player.perks = []
-            if (player.perks.includes(skillId)) return
-
-            player.perks.push(skillId)
-            player.availableSkillPoints = (player.availableSkillPoints || 0) - cost
         })
     },
 

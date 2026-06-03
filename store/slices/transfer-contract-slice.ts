@@ -473,7 +473,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
             contract.salaryPerWeek = newSalary
             contract.endWeek += RENEWAL_EXTENSION_WEEKS
-            team.budget -= minBudgetNeeded
+            // NOTE: `minBudgetNeeded` is an affordability GATE (require runway
+            // against the salary delta), not an upfront fee. It must not be
+            // deducted — the raised weekly salary is already charged every week
+            // by the finance processor. Deducting it here double-charged the
+            // team 26× the delta with no ledger entry.
             toastMsg = "Contract renewed successfully."
             toastType = "info"
         })
@@ -510,10 +514,15 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                         playerId,
                         teamId: team.id,
                         salaryPerWeek: Math.floor(potential * PROMOTION_SALARY_RATIO),
-                        weeksRemaining: PROMOTION_CONTRACT_WEEKS_REMAINING,
+                        // ContractSaveData uses startWeek/endWeek — the finance
+                        // processor expires contracts on `endWeek <= currentWeek`.
+                        // Previously this wrote a non-schema `weeksRemaining` with
+                        // no endWeek, so promoted players had an undefined endWeek
+                        // and their contract never expired (and payroll showed NaN).
+                        startWeek: state.currentWeek,
+                        endWeek: state.currentWeek + PROMOTION_CONTRACT_WEEKS_REMAINING,
                         buyout: Math.floor(potential * PROMOTION_BUYOUT_RATIO),
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    } as any)
+                    })
                 }
                 return
             }

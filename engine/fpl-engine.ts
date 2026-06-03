@@ -263,6 +263,12 @@ export function processFPLWeek(
     // Update league standings with zone indicators
     updateLeagueStandings(fplData)
 
+    // Advance the idempotency marker for BOTH paths. The season-end branch
+    // below returns early, so this previously sat at the end (line ~290) and
+    // was skipped on rollover weeks — leaving the marker a week stale and
+    // defeating the `lastProcessedWeek >= currentWeek` double-tick guard.
+    fplData.lastProcessedWeek = currentWeek
+
     // Check for season end
     if (currentWeek > fplData.currentSeason.endWeek) {
         const endedSeasonNumber = fplData.currentSeason.seasonNumber
@@ -286,8 +292,6 @@ export function processFPLWeek(
         // Return tier changes so game store can generate news
         return { fplData, matchesPlayed, tierChanges }
     }
-
-    fplData.lastProcessedWeek = currentWeek
 
     return { fplData, matchesPlayed, tierChanges: [] }
 }

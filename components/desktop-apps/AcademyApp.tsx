@@ -70,7 +70,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 export function AcademyApp() {
     const {
         playerTeamId, academyPlayers, academyMatchHistory, players,
-        buildAcademy, upgradeAcademy, scoutProspect, enrollProspect,
+        buildAcademy, upgradeAcademy, scoutProspect,
         setProspectTraining, releaseProspect, promoteProspect, scheduleDevMatch,
         academyRoster, updateAcademyRoster, academyTrainingSchedule, updateAcademySchedule,
         academyWeeklyReports, academyScoutingMissions, staff,
@@ -83,7 +83,6 @@ export function AcademyApp() {
         buildAcademy: state.buildAcademy,
         upgradeAcademy: state.upgradeAcademy,
         scoutProspect: state.scoutProspect,
-        enrollProspect: state.enrollProspect,
         setProspectTraining: state.setProspectTraining,
         releaseProspect: state.releaseProspect,
         promoteProspect: state.promoteProspect,
@@ -160,11 +159,12 @@ export function AcademyApp() {
     }
 
     const handleScout = (tier: "LOCAL" | "REGIONAL" | "INTERNATIONAL") => {
+        // scoutProspect starts a multi-week mission and never returns a `player`
+        // synchronously (prospects arrive later via the pending-prospect pool),
+        // so the old success+player enroll branch was dead. Just surface failure.
         const result = scoutProspect(tier)
         setLastScoutResult(result)
-        if (result.success && result.player) {
-            enrollProspect(result.player.id)
-        } else if (!result.success) {
+        if (!result.success) {
             toast.error("Scouting Failed", { description: result.message })
         }
     }
@@ -1042,8 +1042,10 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 py-2">
-            {[...reports].reverse().slice(0, 5).map((report: any, idx: number) => (
-                <div key={idx} className="bg-[#0b0b0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            {[...reports].reverse().slice(0, 5).map((report: any) => (
+                // Key by week, not array index — the list is reversed + prepended,
+                // so index-keying reused DOM/animation state across different reports.
+                <div key={report.week} className="bg-[#0b0b0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
                     <div className="px-4 py-3 border-b border-white/5 bg-white/[0.03] flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <Activity className="text-emerald-400" size={14} />
@@ -1055,7 +1057,7 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
                     </div>
                     <div className="divide-y divide-white/5">
                         {report.prospectReports.map((pr: any, pIdx: number) => (
-                            <div key={pIdx} className="p-4 flex items-center justify-between hover:bg-white/[0.01] transition-colors group">
+                            <div key={pr.nickname ?? pIdx} className="p-4 flex items-center justify-between hover:bg-white/[0.01] transition-colors group">
                                 <div className="flex items-center gap-4 min-w-0 flex-1">
                                     <div className={cn("w-1 h-8 rounded-full", pr.isStarter ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-white/10")} />
                                     <div className="min-w-0 flex-1">

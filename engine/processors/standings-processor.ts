@@ -75,37 +75,52 @@ function recomputeStandings(
     tournament: TournamentSaveData,
     tournamentMatches: CompletedMatchSaveData[],
 ): void {
-    tournament.standings.forEach(standing => {
-        const teamMatches = tournamentMatches.filter(
-            m => m.homeTeamId === standing.teamId || m.awayTeamId === standing.teamId
-        )
+    // Swiss standings are owned incrementally by handleSwissResult — including
+    // BYE wins, which have NO completed match. A from-scratch rebuild from
+    // `tournamentMatches` would set wins = match-wins-only and erase those BYE
+    // wins, corrupting Swiss qualification (teams advance at exactly 3 wins).
+    // So for Swiss we leave the incrementally-maintained wins/losses/maps/rounds
+    // intact and only keep `points` in sync with the wins*3 convention the UI
+    // expects; everything is still sorted below.
+    if (tournament.format !== "swiss") {
+        tournament.standings.forEach(standing => {
+            const teamMatches = tournamentMatches.filter(
+                m => m.homeTeamId === standing.teamId || m.awayTeamId === standing.teamId
+            )
 
-        standing.matchesPlayed = teamMatches.length
-        standing.wins = teamMatches.filter(m => {
-            const isHome = m.homeTeamId === standing.teamId
-            return isHome
-                ? m.result.homeScore > m.result.awayScore
-                : m.result.awayScore > m.result.homeScore
-        }).length
-        standing.losses = standing.matchesPlayed - standing.wins
-        standing.points = standing.wins * 3
+            standing.matchesPlayed = teamMatches.length
+            standing.wins = teamMatches.filter(m => {
+                const isHome = m.homeTeamId === standing.teamId
+                return isHome
+                    ? m.result.homeScore > m.result.awayScore
+                    : m.result.awayScore > m.result.homeScore
+            }).length
+            standing.losses = standing.matchesPlayed - standing.wins
+            standing.points = standing.wins * 3
 
-        standing.mapsWon = teamMatches.reduce((sum, m) => {
-            const isHome = m.homeTeamId === standing.teamId
-            return sum + (isHome ? m.result.homeScore : m.result.awayScore)
-        }, 0)
-        standing.mapsLost = teamMatches.reduce((sum, m) => {
-            const isHome = m.homeTeamId === standing.teamId
-            return sum + (isHome ? m.result.awayScore : m.result.homeScore)
-        }, 0)
-        standing.mapDiff = standing.mapsWon - standing.mapsLost
-        standing.roundDiff = teamMatches.reduce((sum, m) => {
-            const homeRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.homeScore || 0), 0)
-            const awayRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.awayScore || 0), 0)
-            const isHome = m.homeTeamId === standing.teamId
-            return sum + (isHome ? (homeRounds - awayRounds) : (awayRounds - homeRounds))
-        }, 0)
-    })
+            standing.mapsWon = teamMatches.reduce((sum, m) => {
+                const isHome = m.homeTeamId === standing.teamId
+                return sum + (isHome ? m.result.homeScore : m.result.awayScore)
+            }, 0)
+            standing.mapsLost = teamMatches.reduce((sum, m) => {
+                const isHome = m.homeTeamId === standing.teamId
+                return sum + (isHome ? m.result.awayScore : m.result.homeScore)
+            }, 0)
+            standing.mapDiff = standing.mapsWon - standing.mapsLost
+            standing.roundDiff = teamMatches.reduce((sum, m) => {
+                const homeRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.homeScore || 0), 0)
+                const awayRounds = (m.result.maps || []).reduce((acc, map) => acc + (map.awayScore || 0), 0)
+                const isHome = m.homeTeamId === standing.teamId
+                return sum + (isHome ? (homeRounds - awayRounds) : (awayRounds - homeRounds))
+            }, 0)
+        })
+    } else {
+        // handleSwissResult maintains wins/losses/maps/rounds (incl. BYEs) but
+        // not points — keep it consistent so the standings sort is correct.
+        tournament.standings.forEach(standing => {
+            standing.points = standing.wins * 3
+        })
+    }
 
     tournament.standings.sort((a, b) => compareStandings(a, b, tournamentMatches))
 }
@@ -126,12 +141,20 @@ export function updateStandings(
         // Completion now requires a terminal competitive state — not just
         // end-week — so a stalled bracket doesn't auto-award.
         if (!tournament.isCompleted && hasTerminalTournamentCompletion(save, tournament)) {
-            tournament.isCompleted = true
-            if (!tournament.winnerId) {
+            let resolvedWinnerId = tournament.winnerId
+            if (!resolvedWinnerId) {
                 const terminalMatch = tournament.playoffBracket
                     ?.filter(m => isTerminalBracketStage(m.stage) && m.isCompleted && m.winnerId)
                     .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-                tournament.winnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
+                resolvedWinnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
+            }
+            // Only lock the tournament as complete once a concrete champion is
+            // resolvable. Flipping isCompleted=true with no winnerId would
+            // permanently lock a stalled bracket with no trophy/prizes/
+            // qualifications and no way to finish it via the repair pass.
+            if (resolvedWinnerId) {
+                tournament.isCompleted = true
+                tournament.winnerId = resolvedWinnerId
             }
         }
 

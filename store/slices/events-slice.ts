@@ -40,9 +40,13 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
 
     markAllEventsAsRead: () => {
         set((state) => {
+            // O(1) membership via a Set rather than `.includes` inside the
+            // loop (was O(events × acknowledged) on long campaigns).
+            const acked = new Set(state.acknowledgedEventIds)
             state.eventsLog.forEach(e => {
                 e.acknowledged = true
-                if (!state.acknowledgedEventIds.includes(e.id)) {
+                if (!acked.has(e.id)) {
+                    acked.add(e.id)
                     state.acknowledgedEventIds.push(e.id)
                 }
             })
@@ -206,6 +210,29 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
             // === CRITICAL: switch the player's team ===
             state.playerTeamId = newTeam.id
 
+            // Honor the advertised signing bonus: credit it to the new club's
+            // budget (one-time, ledgered). Derived from the *current* salaryOffer
+            // so a successful negotiation actually pays off (negotiateJobOffer
+            // raises data.salaryOffer). The weekly manager salary stays personal
+            // flavor — crediting it to the club budget every week would compound
+            // into a balance-breaking income stream, and accepting an offer is a
+            // one-off career move (can't be farmed), so only the bonus lands.
+            const negotiatedSalary = Math.max(0, Math.floor(Number(offerData.salaryOffer) || 0))
+            const signingBonus = negotiatedSalary * 4
+            if (signingBonus > 0) {
+                newTeam.budget = (newTeam.budget || 0) + signingBonus
+                state.financeLedger.push({
+                    id: nextDeterministicId(state, "fin_signing", newTeam.id),
+                    week: state.currentWeek,
+                    teamId: newTeam.id,
+                    type: "INCOME",
+                    category: "OTHER",
+                    amount: signingBonus,
+                    description: `Manager signing bonus — ${newTeam.name}`,
+                    balance: newTeam.budget,
+                })
+            }
+
             event.acknowledged = true
             event.selectedChoiceId = "ACCEPT"
 
@@ -217,7 +244,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 acknowledged: false,
                 data: {
                     title: `Welcome to ${newTeam.name}!`,
-                    message: `You have accepted the position as manager of ${newTeam.name}.`,
+                    message: `You have accepted the position as manager of ${newTeam.name}. A $${signingBonus.toLocaleString()} signing bonus has been added to the club budget.`,
                     severity: "success",
                 },
             })

@@ -12,7 +12,10 @@ import {
     Cpu,
     Check,
     ArrowUpCircle,
-    X
+    X,
+    Gauge,
+    Sparkles,
+    TrendingUp
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,15 +48,6 @@ export default function EquipmentPage() {
     const [selectedItem, setSelectedItem] = useState<EquipmentCatalogItem | null>(null)
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
-
-    const equipmentStatus = useMemo(() => {
-        if (!playerTeam) return []
-        return EQUIPMENT_TYPES.map(type => ({
-            type,
-            ...EQUIPMENT_TYPE_DISPLAY[type],
-            current: EquipmentManager.getTeamEquipment(playerTeam, type),
-        }))
-    }, [playerTeam])
 
     // Index team's currently-equipped items by type for O(1) lookup in the
     // catalog .map() below. Was doing EquipmentManager.getTeamEquipment per
@@ -151,6 +145,60 @@ export default function EquipmentPage() {
             </div>
 
             <div className="max-w-7xl mx-auto px-8 space-y-8">
+                {/* Loadout Performance Summary — equipment translates into concrete
+                    player stat bonuses; surfacing completeness, average tier and the
+                    active bonuses gives upgrade decisions visible stakes. (These were
+                    computed but never rendered before — completed in audit.) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Loadout completeness */}
+                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03]">
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                                <Gauge size={12} /> Loadout Completeness
+                            </p>
+                            <span className="text-sm font-bold text-white">{completeness}%</span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all"
+                                style={{ width: `${completeness}%` }}
+                            />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-2">
+                            {completeness === 100 ? "Full pro-grade setup" : "Equip every slot for maximum gains"}
+                        </p>
+                    </div>
+
+                    {/* Average tier */}
+                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03] flex flex-col justify-between">
+                        <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                            <TrendingUp size={12} /> Average Tier
+                        </p>
+                        <div className="flex items-end gap-2 mt-2">
+                            <span className="text-3xl font-normal text-white tracking-tight">{avgTier.toFixed(1)}</span>
+                            <span className="text-xs text-muted-foreground mb-1">/ 3.0</span>
+                        </div>
+                    </div>
+
+                    {/* Active stat bonuses */}
+                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03]">
+                        <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 mb-3">
+                            <Sparkles size={12} /> Active Bonuses
+                        </p>
+                        {Object.keys(bonuses || {}).length === 0 ? (
+                            <p className="text-[11px] text-muted-foreground italic">No equipment bonuses yet — purchase gear below.</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                                {Object.entries(bonuses || {}).map(([stat, value]) => (
+                                    <Badge key={stat} variant="outline" className="text-[10px] h-5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                                        +{value} {stat.replace(/([A-Z])/g, " $1").replace(/^./, c => c.toUpperCase()).trim()}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* Category Filter */}
                 <div className="flex flex-wrap items-center justify-center gap-3 py-4 sticky top-4 z-30">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-xl -z-10 rounded-2xl border border-white/5 shadow-2xl" />

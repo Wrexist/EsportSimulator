@@ -49,9 +49,15 @@ export const STAFF_TALENT_TREES: Record<string, TalentNode[]> = {
         },
         // Capstone
         {
-            id: "coach_master", name: "The Visionary", description: "All players gain +2 to random stat weekly.",
+            id: "coach_master", name: "The Visionary", description: "Greatly accelerates squad training (+15% efficiency).",
             icon: "Eye", tier: 4, cost: 3, requirements: ["coach_tac_2", "coach_dev_2"], position: { x: 2, y: 3 },
-            effect: { type: "STAT_BOOST", target: "all", value: 2 }
+            // Was a STAT_BOOST target:"all" that nothing applied (getStaffPassiveBonuses
+            // only reads PASSIVE_BONUS, and a weekly +2-to-every-stat would compound
+            // into runaway inflation anyway). Repurposed to a strong, bounded
+            // training-efficiency bonus that the existing training processor already
+            // consumes (training-processor.ts: staffTrainingEfficiency), stacking
+            // with coach_basics' +5 — so the tier-4 capstone is actually functional.
+            effect: { type: "PASSIVE_BONUS", target: "training_efficiency", value: 15 }
         }
     ],
 
@@ -63,7 +69,7 @@ export const STAFF_TALENT_TREES: Record<string, TalentNode[]> = {
             effect: { type: "PASSIVE_BONUS", target: "scout_info", value: 1 }
         },
         {
-            id: "analyst_demo", name: "Demo Review", description: "Post-match analysis grants more XP.",
+            id: "analyst_demo", name: "Demo Review", description: "Post-match analysis grants the manager more XP.",
             icon: "Video", tier: 2, cost: 1, requirements: ["analyst_basics"], position: { x: 1, y: 1 },
             effect: { type: "PASSIVE_BONUS", target: "xp_gain", value: 10 }
         },

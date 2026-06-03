@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search, X, Filter } from 'lucide-react'
@@ -71,8 +71,11 @@ export function SearchFilter<T extends Record<string, any>>({
         })
     }, [data, searchQuery, filters, searchFields])
 
-    // Update parent when filtered data changes
-    useMemo(() => {
+    // Update parent when filtered data changes. This MUST be useEffect, not
+    // useMemo — calling a parent setter (onFilter typically setState) during the
+    // render phase triggers React's "cannot update while rendering" warning and,
+    // if onFilter isn't memoized by the caller, an infinite render loop.
+    useEffect(() => {
         onFilter(filtered)
     }, [filtered, onFilter])
 

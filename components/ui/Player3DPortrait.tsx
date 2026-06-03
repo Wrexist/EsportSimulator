@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber"
 import { ContactShadows, OrbitControls } from "@react-three/drei"
-import { memo, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import {
@@ -74,6 +74,16 @@ function Head({ features }: { features: PortraitFeatures }) {
         () => new THREE.MeshStandardMaterial({ color: features.browColor, roughness: 0.7 }),
         [features.browColor],
     )
+
+    // Materials built via useMemo + passed through the `material` prop are NOT
+    // auto-disposed by R3F (only declarative <meshStandardMaterial> children
+    // are). Dispose them on unmount — and on recompute, the cleanup runs against
+    // the previous set, freeing the orphaned GPU material. Without this, browsing
+    // many player portraits leaks WebGL memory until contexts are exhausted.
+    useEffect(() => {
+        const mats = [skinMat, hairMat, beardMat, shirtMat, accessoryDark, accentMat, eyeMat, eyeWhiteMat, mouthMat, browMat]
+        return () => { mats.forEach(m => m.dispose()) }
+    }, [skinMat, hairMat, beardMat, shirtMat, accessoryDark, accentMat, eyeMat, eyeWhiteMat, mouthMat, browMat])
 
     const [hx, hy, hz] = HEAD_GEOM[features.headShape]
 

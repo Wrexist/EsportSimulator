@@ -115,11 +115,13 @@ export function Sidebar() {
 
     const managerInitials = useMemo(() => {
         const name = managerDetails?.name || "Manager"
-        const parts = name.split(" ")
+        // Trim + collapse whitespace so a trailing space ("Neo ") doesn't
+        // yield an empty second part → "NUNDEFINED".
+        const parts = name.trim().split(/\s+/).filter(Boolean)
         if (parts.length >= 2) {
             return (parts[0][0] + parts[1][0]).toUpperCase()
         }
-        return name.slice(0, 2).toUpperCase()
+        return (parts[0] || "M").slice(0, 2).toUpperCase()
     }, [managerDetails])
 
     const isMatchLocked = activeMatchId && pathname?.includes("/live")

@@ -255,8 +255,21 @@ export class TournamentManager {
             return
         }
 
-        // Double-elim and generic bracket formats skip Swiss regardless of team count
-        if (tournament.format === "double_elim" || tournament.format === "bracket") {
+        // Real double-elimination: two GSL-style groups (each an 8-team
+        // double-elim producing 1st/2nd/3rd) that feed the playoff bridge
+        // (checkAndStartPlayoffs → generatePlayoffs). Requires an even field of
+        // >= 16 so each group has the >= 8 teams createDoubleElimGroup needs to
+        // build a full upper+lower bracket; otherwise fall back to single-elim.
+        if (tournament.format === "double_elim") {
+            if (uniqueTeamIds.length >= 16 && uniqueTeamIds.length % 2 === 0) {
+                this.setupDoubleElim(save, tournament, uniqueTeamIds, rng)
+            } else {
+                this.setupGenericBracket(save, tournament, uniqueTeamIds, rng)
+            }
+            return
+        }
+
+        if (tournament.format === "bracket") {
             this.setupGenericBracket(save, tournament, uniqueTeamIds, rng)
             return
         }
@@ -295,6 +308,30 @@ export class TournamentManager {
         rng: SeededRNG,
     ): void {
         generateSwissRoundFn(save, tournament, roundNum, rng)
+    }
+
+    /**
+     * Real double-elimination setup: split the seeded field into two balanced
+     * GSL groups. Each group is an independent 8-team double-elim
+     * (createDoubleElimGroup) that resolves to 1st (upper-final winner), 2nd
+     * (lower-final winner) and 3rd (lower-final loser); once BOTH groups finish,
+     * handleLowerResult → checkAndStartPlayoffs → generatePlayoffs builds the
+     * top-6 playoff bracket (QF/SF/GF).
+     */
+    private static setupDoubleElim(
+        save: GameSave,
+        tournament: TournamentSaveData,
+        teamIds: string[],
+        rng: SeededRNG
+    ): void {
+        tournament.currentStage = "Group Stage"
+        tournament.groups = []
+        // Snake the seeded field across two balanced groups (1→A, 2→B, 3→A, …).
+        const groupA: string[] = []
+        const groupB: string[] = []
+        teamIds.forEach((id, i) => { (i % 2 === 0 ? groupA : groupB).push(id) })
+        tournament.groups.push(this.createDoubleElimGroup(save, tournament, "Group A", groupA, rng))
+        tournament.groups.push(this.createDoubleElimGroup(save, tournament, "Group B", groupB, rng))
     }
 
     private static createDoubleElimGroup(
@@ -360,7 +397,7 @@ export class TournamentManager {
                 tournamentId: tournament.id,
                 stage: `${groupName} Upper Final`,
                 isCompleted: false,
-                week: startWeek + 1,
+                week: startWeek + 2,
                 format: "BO3",
                 seed: rng.int(0, 999999),
                 sourceMatchIds: [`${groupId}_upper_semi_0`, `${groupId}_upper_semi_1`]
@@ -919,6 +956,25 @@ export class TournamentManager {
         })
     }
 
+    /**
+     * Schedule a bracket match — but if both slots resolved to the SAME team
+     * (a degenerate self-match, e.g. two source matches with the same winner),
+     * auto-advance the lone team immediately instead of letting
+     * scheduleBracketMatch silently drop it, which would stall the bracket
+     * until the next repair pass. Mirrors repairTournamentProgression's
+     * self-match handling so progression and repair stay in lockstep.
+     */
+    private static scheduleOrAutoAdvanceBracketMatch(save: GameSave, tournament: TournamentSaveData, m: BracketMatchSaveData): void {
+        if (m.homeTeamId && m.awayTeamId && m.homeTeamId === m.awayTeamId) {
+            m.isCompleted = true
+            m.winnerId = m.homeTeamId
+            save.scheduledMatches = save.scheduledMatches.filter(sm => sm.id !== m.id)
+            this.handlePlayoffProgression(save, tournament, m, m.homeTeamId)
+            return
+        }
+        this.scheduleBracketMatch(save, m)
+    }
+
     private static handlePlayoffProgression(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId?: string): void {
         const nextMatch = tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.sourceMatchIds?.includes(match.id))
         if (nextMatch) {
@@ -932,7 +988,7 @@ export class TournamentManager {
             // through natural progression.
 
             // Only schedule the next match if BOTH teams are ready (both source matches completed)
-            if (nextMatch.homeTeamId && nextMatch.awayTeamId) this.scheduleBracketMatch(save, nextMatch)
+            if (nextMatch.homeTeamId && nextMatch.awayTeamId) this.scheduleOrAutoAdvanceBracketMatch(save, tournament, nextMatch)
         }
 
         // Special case for 3rd place decider
@@ -941,7 +997,7 @@ export class TournamentManager {
             if (decider) {
                 if (!decider.homeTeamId) decider.homeTeamId = loserId
                 else decider.awayTeamId = loserId
-                if (decider.homeTeamId && decider.awayTeamId) this.scheduleBracketMatch(save, decider)
+                if (decider.homeTeamId && decider.awayTeamId) this.scheduleOrAutoAdvanceBracketMatch(save, tournament, decider)
             }
         }
 
@@ -981,7 +1037,12 @@ export class TournamentManager {
 
     private static generatePlayoffs(save: GameSave, tournament: TournamentSaveData, pA: { first: string, second: string, third: string }, pB: { first: string, second: string, third: string }): void {
         tournament.currentStage = "Playoffs"
-        const startWeek = tournament.endWeek - 1
+        // Start the playoff bracket the week AFTER the group stage resolved. This
+        // only runs from checkAndStartPlayoffs (once both double-elim groups
+        // finish), so anchoring to the current week guarantees future-dated
+        // matches regardless of how long the group stage took (the old
+        // endWeek-1 offset could land in the past).
+        const startWeek = save.currentWeek + 1
 
         const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: 101, sourceMatchIds: [] }
         const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: 102, sourceMatchIds: [] }
@@ -1230,86 +1291,6 @@ export class TournamentManager {
         }
     }
 
-    /**
-     * Simulate AI teams registering for upcoming tournaments
-     */
-    static simulateWeeklyRegistrations(save: GameSave, currentWeek: number, rng: SeededRNG): void {
-        const { FULL_TOURNAMENT_CALENDAR } = require("@/data/tournament-calendar")
-
-        // 1. Find upcoming tournaments (starting in next 1-4 weeks)
-        // We only care about tournaments that haven't started yet
-        const upcoming = FULL_TOURNAMENT_CALENDAR.filter((t: TournamentDefinition) =>
-            t.startWeek > currentWeek &&
-            t.startWeek <= currentWeek + 8 // 8 week lookahead for registration
-        )
-
-        const idx = buildSaveIndexes(save)
-        upcoming.forEach((def: TournamentDefinition) => {
-            // Get or create dynamic tournament data
-            let tournament = idx.tournamentIndex.get(def.id) ?? save.tournaments.find(t => t.id === def.id)
-            if (!tournament) {
-                const duration = def.duration || 1
-                tournament = {
-                    id: def.id,
-                    seriesId: def.id,
-                    instanceId: def.id,
-                    seasonNumber: getSeasonFromWeek(def.startWeek),
-                    name: def.name,
-                    shortName: def.shortName || def.name,
-                    tier: def.tier,
-                    region: def.region || "INTERNATIONAL",
-                    startWeek: def.startWeek,
-                    endWeek: def.startWeek + duration,
-                    duration: duration,
-                    format: def.format,
-                    prizePool: def.prizePool,
-                    isCompleted: false,
-                    teamIds: [],
-                    playoffBracket: [],
-                    currentStage: "Registration",
-                    standings: []
-                }
-                save.tournaments.push(tournament)
-            }
-
-            // Skip if full
-            if (tournament.teamIds.length >= def.slots) return
-
-            // Registration chance increases as we get closer to start
-            const weeksUntilStart = def.startWeek - currentWeek
-            const urgency = Math.max(0.1, 1 - (weeksUntilStart / 8)) // 0.1 to 1.0
-
-            // Find eligible teams not yet registered
-            const currentTournament = tournament
-            const potentialTeams = save.teams.filter(team => {
-                if (team.id === save.playerTeamId) return false // Player registers manually
-                if (currentTournament.teamIds.includes(team.id)) return false // Already registered
-
-                // Logic: Higher tier teams prefer higher tier tournaments
-                // S, A tiers for S_TIER team
-                // A, B tiers for A_TIER team etc.
-                // Simplified: worldRanking check
-                const ranking = team.worldRanking || 100
-
-                if (def.tier === "S_TIER" && ranking > 30) return false
-                if (def.tier === "A_TIER" && ranking > 60) return false
-
-                return true
-            })
-
-            // Attempt to register random teams
-            const availableSlots = def.slots - currentTournament.teamIds.length
-            const slotsToFillNow = Math.ceil(availableSlots * urgency * rng.next())
-
-            const candidates = rng.shuffle(potentialTeams).slice(0, slotsToFillNow)
-
-            candidates.forEach(team => {
-                tournament!.teamIds.push(team.id)
-                // Add to qualifications tracking
-                this.addRegistrationQualification(save, def.id, team.id, "Direct Invite")
-            })
-        })
-    }
     static simulateWeeklyRegistrationsV2(save: GameSave, currentWeek: number, rng: SeededRNG): void {
         const { FULL_TOURNAMENT_CALENDAR } = require("@/data/tournament-calendar")
         const idx = buildSaveIndexes(save)

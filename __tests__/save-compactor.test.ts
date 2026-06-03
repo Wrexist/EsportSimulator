@@ -226,3 +226,45 @@ describe("compactPersistentState — tournamentQualifications dedup + cap", () =
         }
     })
 })
+
+describe("compactPersistentState — scheduledActivities pruning (Phase 4.2)", () => {
+    test("drops activities whose window ended before last week; keeps current/future/spanning", () => {
+        const save = makeSave({
+            currentWeek: 100,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            scheduledActivities: [
+                { id: "rest_old", type: "REST", week: 1, day: 3, duration: 0 },
+                { id: "rest_50", type: "REST", week: 50, day: 3, duration: 0 },
+                { id: "rest_99", type: "REST", week: 99, day: 3, duration: 0 },      // grace week
+                { id: "rest_100", type: "REST", week: 100, day: 3, duration: 0 },    // current
+                { id: "boot_future", type: "BOOTCAMP", week: 105, day: 0, duration: 2 },
+                { id: "mkt_spanning", type: "MARKETING", week: 98, day: 0, duration: 5 }, // 98..103 still spans 100
+                { id: "mkt_ended", type: "MARKETING", week: 90, day: 0, duration: 3 },    // 90..93 ended
+            ] as any,
+        })
+
+        compactPersistentState(save)
+        const ids = save.scheduledActivities.map(a => a.id)
+
+        expect(ids).not.toContain("rest_old")
+        expect(ids).not.toContain("rest_50")
+        expect(ids).not.toContain("mkt_ended")
+        expect(ids).toContain("rest_99")
+        expect(ids).toContain("rest_100")
+        expect(ids).toContain("boot_future")
+        expect(ids).toContain("mkt_spanning")
+    })
+
+    test("bounds growth — 700 accumulated REST days collapse to the recent ~14", () => {
+        const acts: unknown[] = []
+        for (let w = 1; w <= 100; w++) {
+            for (let d = 0; d < 7; d++) acts.push({ id: `rest_${w}_${d}`, type: "REST", week: w, day: d, duration: 0 })
+        }
+        const save = makeSave({ currentWeek: 100, scheduledActivities: acts as never })
+
+        compactPersistentState(save)
+
+        expect(save.scheduledActivities.length).toBeLessThanOrEqual(14)
+        expect(save.scheduledActivities.every(a => a.week >= 99)).toBe(true)
+    })
+})

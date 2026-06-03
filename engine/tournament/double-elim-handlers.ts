@@ -153,12 +153,12 @@ export function handleUpperFinalResult(
         addBracketMatch(tournament, lowerFinal)
     }
     lowerFinal.homeTeamId = loserId
-    // Pair with the lower-semi winner. (Simplified: assumes a single lower
-    // semi feeds the final — matches the pre-existing implementation.)
-    const lowerSemi = bracketMap?.get(`${groupId}_lower_semi_0`)
-        ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_0`)
-    if (lowerSemi?.winnerId) {
-        lowerFinal.awayTeamId = lowerSemi.winnerId
+    // Pair with the lower-bracket survivor (the lower-R2 winner). If R2 hasn't
+    // resolved yet, handleLowerResult's lower_r2 branch fills + schedules this.
+    const lowerR2 = bracketMap?.get(`${groupId}_lower_r2`)
+        ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_r2`)
+    if (lowerR2?.winnerId) {
+        lowerFinal.awayTeamId = lowerR2.winnerId
         scheduleBracketMatch(save, lowerFinal)
     }
 }
@@ -172,32 +172,64 @@ export function handleLowerResult(
     deps: BracketHandlerDeps,
 ): void {
     const bracketMap = tournament.playoffBracket ? buildBracketIndex(tournament.playoffBracket) : undefined
+    const find = (id: string) =>
+        bracketMap?.get(id) ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === id)
     const groupId = match.id.split("_lower")[0]
+    const isLowerFinal = match.id.includes("lower_final")
+
     if (match.id.includes("lower_r1")) {
+        // R1 winner → matching lower semi (away slot; home is the upper-semi loser).
         const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
-        const semi = bracketMap?.get(`${groupId}_lower_semi_${matchIdx}`)
-            ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_semi_${matchIdx}`)
+        const semi = find(`${groupId}_lower_semi_${matchIdx}`)
         if (semi) {
             semi.awayTeamId = winnerId
             if (semi.homeTeamId && semi.awayTeamId) scheduleBracketMatch(save, semi)
         }
     } else if (match.id.includes("lower_semi")) {
-        const final = bracketMap?.get(`${groupId}_lower_final`)
-            ?? tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.id === `${groupId}_lower_final`)
+        // Both lower-semi winners meet in lower R2 (created on demand): semi_0 →
+        // home, semi_1 → away. This is the round the previous (incomplete)
+        // implementation was missing, which orphaned a lower-semi winner.
+        const matchIdx = parseInt(match.id.split("_").pop() || "0", 10)
+        const r2Id = `${groupId}_lower_r2`
+        let r2 = find(r2Id)
+        if (!r2) {
+            r2 = {
+                id: r2Id,
+                tournamentId: tournament.id,
+                stage: `${match.stage.split(" ")[0]} Lower R2`,
+                isCompleted: false,
+                week: match.week + 1,
+                format: "BO3",
+                seed: match.seed + 1,
+                sourceMatchIds: [],
+            }
+            addBracketMatch(tournament, r2)
+        }
+        if (matchIdx === 0) r2.homeTeamId = winnerId
+        else r2.awayTeamId = winnerId
+        if (r2.homeTeamId && r2.awayTeamId) scheduleBracketMatch(save, r2)
+    } else if (match.id.includes("lower_r2")) {
+        // R2 winner → lower final (away; home is the upper-final loser).
+        const final = find(`${groupId}_lower_final`)
         if (final) {
             final.awayTeamId = winnerId
             if (final.homeTeamId && final.awayTeamId) scheduleBracketMatch(save, final)
         }
-    } else if (match.id.includes("lower_final")) {
+    } else if (isLowerFinal) {
+        // Lower-final winner is the group's 2nd seed; both groups done → playoffs.
         deps.checkAndStartPlayoffs(save, tournament.id)
     }
 
-    // Losing in the lower bracket = eliminated from the tournament.
-    save.tournamentQualifications = QualificationEngine.updateStatus(
-        save.tournamentQualifications,
-        tournament.id,
-        loserId,
-        "ELIMINATED",
-    )
-    deps.notifyPlayerElimination(save, tournament, loserId)
+    // Losing in the lower bracket eliminates you — EXCEPT the lower-final loser,
+    // who is the group's 3rd seed and still advances to the playoff QF (see
+    // generatePlayoffs, which seeds pA.third / pB.third).
+    if (!isLowerFinal) {
+        save.tournamentQualifications = QualificationEngine.updateStatus(
+            save.tournamentQualifications,
+            tournament.id,
+            loserId,
+            "ELIMINATED",
+        )
+        deps.notifyPlayerElimination(save, tournament, loserId)
+    }
 }

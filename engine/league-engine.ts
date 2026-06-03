@@ -264,9 +264,11 @@ export class LeagueEngine {
         winner.elo = Math.max(500, winner.elo + finalWinnerChange)
         loser.elo = Math.max(500, loser.elo + finalLoserChange)
 
-        // Refresh world rankings after every Elo change
-        this.refreshWorldRankings(save)
-
+        // NOTE: world rankings are refreshed ONCE per tick (ai-world-processor,
+        // after all matches resolve) — not here. Re-sorting all teams after every
+        // single Elo change made this O(n log n) per match, hundreds of times per
+        // simulated week. The live-match path refreshes explicitly after the
+        // player's match (see match-simulation-slice).
         return { winnerChange: finalWinnerChange, loserChange: finalLoserChange }
     }
 

@@ -40,6 +40,8 @@ import type { PlayerSaveData } from "@/engine/save-types"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
 import { getStaffPassiveBonuses, isFeatureUnlocked } from "@/engine/talent-trees"
+import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
+import { recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import {
     SCOUTING_COSTS,
     ACADEMY_LEVELS,
@@ -420,6 +422,13 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 buyout: Math.min(MAX_TRANSFER_FEE, normalizedSalary * PROMOTION_BUYOUT_MULTIPLIER),
             })
 
+            // Roster changed: recompute synergy and apply the standard chemistry
+            // penalty + lastRosterChangeWeek bump, mirroring transferPlayer.
+            // Without this, promotions were "free" chemistry-wise and weekly
+            // chemistry growth kept treating the roster as unchanged.
+            recalculateTeamSynergy(team, state.players)
+            applyRosterChangePenalty(team, state.currentWeek, 1)
+
             // Flag as academy graduate for achievement tracking + tier reset.
             player.isAcademyGraduate = true
             player.tier = "ACADEMY"
@@ -496,7 +505,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             // Apply per-starter energy cost + XP + progress + match count.
             activeStarters.forEach(prospect => {
                 const xp = matchResult.xpGained[prospect.playerId] || 0
-                prospect.energy = (prospect.energy ?? 100) - ENERGY_CONFIG.matchCost
+                prospect.energy = Math.max(0, (prospect.energy ?? 100) - ENERGY_CONFIG.matchCost)
                 prospect.totalXpGained += xp
                 prospect.academyMatchesPlayed += 1
                 prospect.developmentProgress = Math.min(
