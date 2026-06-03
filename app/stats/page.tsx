@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/GlassTable"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
@@ -213,6 +214,14 @@ export default function StatsPage() {
 
     // Recent match results for history
     const recentMatches = teamMatches.slice(0, 20)
+
+    // O(1) team lookup for the results table — was teams.find() twice per row
+    // (O(rows × teams)) on every render of the tab.
+    const teamById = useMemo(() => {
+        const m = new Map<string, typeof teams[number]>()
+        for (const t of teams) m.set(t.id, t)
+        return m
+    }, [teams])
 
     // Get rivalries. Build a teamsById index once so the rivalry list does an
     // O(1) lookup per row instead of O(teams) on every map iteration.
@@ -410,7 +419,7 @@ export default function StatsPage() {
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-white uppercase text-base tracking-wide">{player.nickname}</p>
-                                                        <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">{player.role}</p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">{formatRole(player.role)}</p>
                                                     </div>
                                                 </div>
                                             </GlassTableCell>
@@ -418,7 +427,7 @@ export default function StatsPage() {
                                             <GlassStatCell value={Math.round((player.avgRating || 1.1) * 70)} max={140} />
                                             <GlassTableCell className="text-center font-sans font-normal text-emerald-400">{player.eir}</GlassTableCell>
                                             <GlassTableCell className="text-center font-sans text-amber-400">{player.headshots || 0}</GlassTableCell>
-                                            <GlassTableCell className="text-center font-sans">{((player.clutchSuccessRate ?? 0) * 100).toFixed(0)}%</GlassTableCell>
+                                            <GlassTableCell className="text-center font-sans">{(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(0)}%</GlassTableCell>
                                             <GlassTableCell className="text-right">
                                                 <div className="flex items-end justify-end gap-0.5 h-6">
                                                     {player.formTrend.length > 0 ? player.formTrend.map((v: number, i: number) => (
@@ -573,8 +582,8 @@ export default function StatsPage() {
                         ) : (
                             recentMatches.map((match, idx) => {
                                 const isHome = match.homeTeamId === playerTeamId
-                                const homeTeam = teams.find(t => t.id === match.homeTeamId)
-                                const awayTeam = teams.find(t => t.id === match.awayTeamId)
+                                const homeTeam = teamById.get(match.homeTeamId)
+                                const awayTeam = teamById.get(match.awayTeamId)
                                 const opponent = isHome ? awayTeam : homeTeam
                                 const homeWon = match.result.homeScore > match.result.awayScore
                                 const won = (isHome && homeWon) || (!isHome && !homeWon)

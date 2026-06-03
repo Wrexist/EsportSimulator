@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -340,7 +341,7 @@ export default function FinancesPage() {
                             </div>
                             <div>
                               <div className="font-bold">{p.nickname}</div>
-                              <div className="text-[10px] text-muted-foreground uppercase">{p.role}</div>
+                              <div className="text-[10px] text-muted-foreground uppercase">{formatRole(p.role)}</div>
                             </div>
                           </td>
                           <td className="p-4 font-sans">${salary.toLocaleString()}</td>

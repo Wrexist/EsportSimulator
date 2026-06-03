@@ -735,9 +735,10 @@ export default function ScoutingPage() {
                                                 {isWatchlisted && (
                                                     <Star size={10} className="text-amber-400 shrink-0 fill-amber-400" />
                                                 )}
-                                                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
                                                     <PlayerPortrait
                                                         src={player.portraitPath}
+                                                        seed={player.id}
                                                         alt={player.nickname}
                                                         size={40}
                                                         variant="card"
@@ -929,9 +930,10 @@ export default function ScoutingPage() {
                                 {/* Header */}
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
+                                        <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
                                             <PlayerPortrait
                                                 src={selectedPlayer.portraitPath}
+                                                seed={selectedPlayer.id}
                                                 alt={selectedPlayer.nickname}
                                                 size={64}
                                             />
@@ -1400,9 +1402,9 @@ export default function ScoutingPage() {
                                                         return (
                                                             <div key={t.id} className="bg-white/5 rounded-xl p-3 flex items-center justify-between group hover:bg-white/10 transition-colors">
                                                                 <div className="flex items-center gap-3">
-                                                                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/20 shrink-0 border border-white/10">
+                                                                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/20 shrink-0">
                                                                         {p ? (
-                                                                            <PlayerPortrait src={p.portraitPath} alt={p.nickname} className="w-full h-full object-cover" />
+                                                                            <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} className="w-full h-full object-cover" />
                                                                         ) : (
                                                                             <div className={cn("w-full h-full flex items-center justify-center font-bold text-xs uppercase text-white/50", t.type === "SIGNING" ? "bg-emerald-500/10" : "bg-blue-500/10")}>
                                                                                 {t.playerName.substring(0, 1)}

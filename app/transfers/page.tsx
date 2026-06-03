@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
+import { PlayerPortrait } from "@/components/ui/asset-images"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { TableBody } from "@/components/ui/table"
@@ -245,8 +246,8 @@ function TransfersPageInner() {
                   <GlassTableRow key={player.id} className="group/row">
                     <GlassTableCell>
                       <Link href={`/player/${player.id}`} className="flex items-center gap-3 group-hover/row:translate-x-1 transition-transform">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center font-bold text-xs text-white">
-                          {player.nickname[0]}
+                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                          <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={32} variant="card" />
                         </div>
                         <span className="font-bold text-white transition-colors group-hover/row:text-primary">{player.nickname}</span>
                       </Link>

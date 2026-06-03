@@ -6,6 +6,7 @@ import { X, Trophy, Star, Crown, Sparkles, Target, Crosshair, Users } from "luci
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { AnnualAwards, Top20Player } from "@/engine/pro-awards-engine"
@@ -308,7 +309,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                             {/* Meta */}
                                             <div className="text-center text-[10px] text-white/30 space-y-1">
                                                 <p>{selectedPlayer.mapsPlayed} maps played at Big Events</p>
-                                                <p>{selectedPlayer.age} years old • {selectedPlayer.role}</p>
+                                                <p>{selectedPlayer.age} years old • {formatRole(selectedPlayer.role)}</p>
                                             </div>
                                         </motion.div>
                                     ) : (

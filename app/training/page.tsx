@@ -63,6 +63,7 @@ import {
     SelectTrigger
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
@@ -456,7 +457,7 @@ export default function TrainingPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-bold text-white truncate">{player.nickname}</h4>
-                        <span className="text-[10px] text-white/40 uppercase font-bold">{player.role}</span>
+                        <span className="text-[10px] text-white/40 uppercase font-bold">{formatRole(player.role)}</span>
                         {activeTraining && (
                           <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[8px] h-4">
                             Training {activeTraining.targetRole}

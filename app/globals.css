@@ -294,7 +294,14 @@ body[data-scroll-locked] {
   .r-card  { border-radius: var(--radius-card); }
   .r-panel { border-radius: var(--radius-panel); }
   .r-hero  { border-radius: var(--radius-hero); }
+}
 
+/* Glass / Liquid material system — defined in @layer components so that
+   Tailwind utility classes (position, z-index, etc.) always win over these
+   base styles. Previously these were in @layer utilities which caused
+   `.liquid-panel { position: relative }` to override `.fixed`, breaking
+   dialog/modal centering game-wide. */
+@layer components {
   .glass-panel {
     position: relative;
     background:

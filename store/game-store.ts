@@ -1623,7 +1623,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }, 500)
           }
 
-          const inferredTeamId = save.playerTeamId || "team_navi"
+          // Prefer the saved team; otherwise fall back to a team that's
+          // guaranteed to exist in THIS save (first team) rather than a
+          // hardcoded id that may not exist in custom-team/modded snapshots —
+          // which would strand the player on an unowned team via getPlayerTeam().
+          const inferredTeamId = save.playerTeamId || save.teams?.[0]?.id || "team_navi"
           // structuredClone is ~10x faster than JSON parse/stringify and preserves
           // Date, Map, Set, etc. Falls back for ancient runtimes that lack it.
           const hydratedSave: GameSave = typeof structuredClone === "function"
@@ -2001,6 +2005,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const latestState = get()
           const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
 
+          // Yield so the browser can paint the overlay spinner frame after
+          // the structuredClone (the most expensive synchronous step).
+          await new Promise(resolve => setTimeout(resolve, 0))
+
           // Pre-tick mutations: scouting completion, staff-market rotation,
           // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
           // These are applied to the DETACHED snapshot, not committed to the
@@ -2053,6 +2061,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Phase 20 Enhancement: Simulate Weekly AI Registrations
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
+
+          // Yield before the FPL update (~1 800 players) so the spinner can
+          // animate at least one frame between the two heaviest sync steps.
+          await new Promise(resolve => setTimeout(resolve, 0))
 
           // Process FPL (Individual Rankings) before the week processor.
           // Surfaces tier-change events on the inbox; toasts the user on
@@ -2418,29 +2430,51 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       name: 'esports-sim-storage',
       storage: createJSONStorage(() => debouncedStorage),
       skipHydration: false,
-      partialize: (state) => {
-        // Exclude transient UI state and entity indexes from persistence
-        const { isLoading, error, lastLoadError, toasts, _hasHydrated, _teamIndex, _playerIndex, _contractByPlayerIndex, _staffIndex, _completedMatchIds, ...rest } = state
-        return rest as typeof state
-      },
+      // Persist ONLY the ~1 KB of user settings + the active saveId.
+      // Previously the full multi-MB game state was included, causing
+      // JSON.stringify to run synchronously on the main thread for every
+      // single store mutation — the debounce only batched the IndexedDB
+      // write, not the serialization cost. Game state is now owned
+      // exclusively by saveManager; onRehydrateStorage calls loadGame()
+      // to restore it from the save file on page refresh.
+      partialize: (state) => ({
+        // User settings — must survive app restarts without an active game
+        onboardingCompleted: state.onboardingCompleted,
+        tutorialCompleted: state.tutorialCompleted,
+        showTutorialOnNewGame: state.showTutorialOnNewGame,
+        manualTutorialTrigger: state.manualTutorialTrigger,
+        soundEnabled: state.soundEnabled,
+        resolution: state.resolution,
+        masterVolume: state.masterVolume,
+        musicVolume: state.musicVolume,
+        gameSpeed: state.gameSpeed,
+        difficulty: state.difficulty,
+        autoSave: state.autoSave,
+        notifications: state.notifications,
+        showBugReportButton: state.showBugReportButton,
+        // UI preference
+        theme: state.theme,
+        // Bootstrap: which save to reload on page refresh
+        saveId: state.saveId,
+      }) as typeof state,
       onRehydrateStorage: () => (state, error) => {
         if (error) {
           logger.error('[Store] Rehydration failed', error)
         }
-        // Always mark hydrated — even on error — so the UI doesn't hang forever.
-        // Critical ordering: rebuild indexes BEFORE flipping _hasHydrated, so
-        // the first render after hydration doesn't see an empty index window
-        // (any read paths still keyed on _teamIndex/_playerIndex would return
-        // undefined for valid IDs during that window).
-        if (state) {
-          const s = useGameStore.getState()
-          const indexes = buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches)
-          useGameStore.setState(indexes)
-          // Defensive: clear stale isLoading from legacy persisted states.
-          if (state.isLoading) {
-            useGameStore.setState({ isLoading: false, error: null })
-          }
-          state.setHasHydrated(true)
+        // If there's an active saveId, kick off an async game reload from
+        // saveManager. Setting isLoading=true before _hasHydrated=true
+        // ensures page.tsx shows the progress spinner rather than
+        // redirecting to main menu while the save file loads.
+        // loadGame() sets isLoading=false and isInitialized=true when done,
+        // and rebuilds entity indexes — no need to do it here.
+        const saveId = state?.saveId ?? null
+        if (saveId) {
+          useGameStore.setState({ isLoading: true, _hasHydrated: true })
+          useGameStore.getState().loadGame(saveId).catch((err) => {
+            // loadGame already set isLoading: false and error on the store.
+            // _hasHydrated is already true so the UI can render the error.
+            logger.error('[Store] Auto-reload from persist saveId failed', err)
+          })
         } else {
           useGameStore.setState({ _hasHydrated: true })
         }

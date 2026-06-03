@@ -37,9 +37,11 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
 
             {/* Content */}
             <div className="relative h-full flex items-center justify-between px-4">
-                {/* Left: Team Logo / Start */}
-                <button
-                    className="w-9 h-9 rounded-lg liquid-button flex items-center justify-center hover:bg-white/10 transition-colors duration-75 ease-out overflow-hidden touch-manipulation select-none will-change-transform hover:scale-[1.02] active:scale-[0.97] active:duration-0"
+                {/* Left: Team Logo (brand badge — presentational, not a control) */}
+                <div
+                    title={teamName || undefined}
+                    aria-label={teamName ? `${teamName} desktop` : "Desktop"}
+                    className="w-9 h-9 rounded-lg liquid-button flex items-center justify-center overflow-hidden select-none"
                 >
                     {teamLogo ? (
                         <Image src={teamLogo} alt={teamName || ""} width={24} height={24} className="w-6 h-6 object-contain" unoptimized />
@@ -48,7 +50,7 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
                             {teamName?.substring(0, 2).toUpperCase() || "ES"}
                         </span>
                     )}
-                </button>
+                </div>
 
                 {/* Center: App Icons */}
                 <div className="flex items-center gap-1 bg-white/[0.04] rounded-lg px-2 py-1.5 border border-white/10">
@@ -56,6 +58,8 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
                         <button
                             key={app.id}
                             onClick={() => onAppClick(app.id)}
+                            aria-label={app.label}
+                            title={app.label}
                             className={cn(
                                 "relative w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-75 ease-out touch-manipulation select-none will-change-transform hover:-translate-y-px active:scale-[0.96] active:translate-y-0 active:duration-0",
                                 app.isOpen

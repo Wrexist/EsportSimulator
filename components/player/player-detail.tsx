@@ -49,6 +49,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import type { EquipmentType } from "@/engine/equipment-manager"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
 import { motion } from "framer-motion"
 import { resolvePlayerRole } from "@/engine/role-determination"
 
@@ -160,25 +161,27 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                 <div className={cn("absolute -top-12 -right-12 w-48 h-48 blur-[100px] opacity-20 pointer-events-none", tierStyle.color.replace('text-', 'bg-'))} />
 
                 <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
-                    {/* Portrait Section — 3D portrait sits on top of the SVG;
-                        the SVG shows instantly while three.js warms up, then
-                        fades behind the live canvas. */}
+                    {/* Portrait Section — use real portrait when available; 3D portrait
+                        is only shown for players without a team-specific portrait image. */}
                     <div className="flex-shrink-0 group">
-                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 border border-white/10 relative shadow-2xl">
-                            <div className="absolute inset-0">
-                                <PlayerPortrait
-                                    src={player.portraitPath}
-                                    alt={player.nickname}
-                                    size={112}
-                                    variant="hero"
-                                />
-                            </div>
-                            <div className="absolute inset-0">
-                                <Player3DPortrait
-                                    seed={player.id}
-                                    size={112}
-                                />
-                            </div>
+                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 relative shadow-2xl">
+                            {player.portraitPath && player.portraitPath !== '/player_placeholder.webp' ? (
+                                <div className="absolute inset-0">
+                                    <PlayerPortrait
+                                        src={player.portraitPath}
+                                        alt={player.nickname}
+                                        size={112}
+                                        variant="hero"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0">
+                                    <Player3DPortrait
+                                        seed={player.id}
+                                        size={112}
+                                    />
+                                </div>
+                            )}
 
                             {/* Nationality Flag Over Portrait corner */}
                             <div className="absolute bottom-1 right-1 z-10">
@@ -307,7 +310,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                             {player.secondaryRole && (
                                 <Badge variant="outline" className={cn("text-[10px] font-normal px-2.5 py-1 border-white/10 bg-white/5", getRoleBadgeColor(player.secondaryRole))}>
                                     {getRoleIcon(player.secondaryRole)}
-                                    <span className="ml-2 uppercase tracking-wider">{player.secondaryRole}</span>
+                                    <span className="ml-2 uppercase tracking-wider">{formatRole(player.secondaryRole)}</span>
                                 </Badge>
                             )}
 
@@ -781,7 +784,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                                     <div className="text-center p-4 bg-white/5 rounded-xl">
                                         <div className="text-xs text-muted-foreground mb-1">Clutch Rate</div>
                                         <div className="text-3xl font-normal text-amber-400">
-                                            {((player.clutchSuccessRate || 0) * 100).toFixed(1)}%
+                                            {(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(1)}%
                                         </div>
                                     </div>
                                 </div>

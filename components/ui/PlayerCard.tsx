@@ -9,6 +9,7 @@ import {
 import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 
 // Lazy three.js so cards that don't enable 3D never pull the bundle.
 const Player3DPortrait = dynamic(
@@ -143,12 +144,6 @@ function roleIcon(role: string | undefined, px = 12) {
   }
 }
 
-function formatRole(role: string | undefined) {
-  if (!role) return ""
-  if (role.toUpperCase() === "ENTRY_FRAGGER") return "Entry"
-  return role
-}
-
 function ovrColor(rating: number | undefined) {
   if (rating === undefined) return "text-white/80"
   if (rating >= 90) return "text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600"
@@ -219,8 +214,10 @@ function PlayerCardImpl({
         "relative z-10 flex items-center gap-3",
         isReveal && size === "lg" && "flex-col text-center gap-4",
       )}>
-        {/* Portrait — when 3D is enabled, the SVG underlay shows instantly
-            while WebGL warms up, then the 3D canvas overlays it. */}
+        {/* Portrait — real photo when the player has one; otherwise a generated
+            portrait: the live 3D head where enabled (few cards on screen), or the
+            matching procedural face (via `seed`) for dense lists. Never a bare
+            placeholder silhouette. */}
         <div
           className={cn(
             "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
@@ -228,17 +225,24 @@ function PlayerCardImpl({
               ? "bg-red-500/10 border-red-500/40"
               : selected
                 ? "bg-primary/10 border-primary/60"
-                : "bg-gradient-to-br from-white/10 to-transparent border-white/10",
+                : "bg-gradient-to-br from-white/10 to-transparent border-white/5",
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >
-          <div className="absolute inset-0">
-            <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
-          </div>
-          {enable3DPortrait && (
+          {player.portraitPath && player.portraitPath !== '/player_placeholder.webp' ? (
             <div className="absolute inset-0">
-              <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
+              <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
             </div>
+          ) : (
+            enable3DPortrait ? (
+              <div className="absolute inset-0">
+                <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
+              </div>
+            ) : (
+              <div className="absolute inset-0">
+                <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
+              </div>
+            )
           )}
         </div>
 

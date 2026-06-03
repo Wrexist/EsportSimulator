@@ -38,6 +38,21 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
+ * Normalize a clutch success rate to a 0–1 fraction.
+ *
+ * The field is canonically a fraction (e.g. 0.41 = 41%), but some seed/legacy
+ * data stored it as a 0–100 percentage instead (e.g. 41, or legends at 71).
+ * Display code multiplies by 100, so an un-normalized 41 rendered as "4100%".
+ * Any value above 1 is therefore a percentage-scale value and is divided down.
+ * Clamped to [0, 1] so a stray out-of-range number can't produce silly output.
+ */
+export function clutchRateFraction(raw: number | undefined | null): number {
+    if (!raw || raw <= 0) return 0
+    const fraction = raw > 1 ? raw / 100 : raw
+    return Math.min(1, fraction)
+}
+
+/**
  * Format currency consistently with smart abbreviation
  * e.g., $1.2M, $50k, $500
  */
@@ -56,6 +71,28 @@ export function formatCurrency(amount: number, prefix = '$', abbreviate = true):
  */
 export function formatPercentage(value: number, decimals = 0): string {
     return `${(value * 100).toFixed(decimals)}%`
+}
+
+/**
+ * Convert an internal player-role token to a clean, human-readable label.
+ *
+ * Roles are stored as uppercase tokens (AWPER, RIFLER, IGL, SUPPORT,
+ * ENTRY_FRAGGER). Rendering the raw token shows players the ugly
+ * "ENTRY_FRAGGER" string, so every user-facing role display should route
+ * through this. Returns a Title-case label; screens that want all-caps can
+ * still apply `uppercase` styling on top.
+ */
+export function formatRole(role: string | undefined | null): string {
+    if (!role) return ''
+    switch (role.toUpperCase()) {
+        case 'ENTRY_FRAGGER':
+        case 'ENTRY': return 'Entry'
+        case 'AWPER': return 'AWPer'
+        case 'RIFLER': return 'Rifler'
+        case 'IGL': return 'IGL'
+        case 'SUPPORT': return 'Support'
+        default: return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+    }
 }
 
 /**

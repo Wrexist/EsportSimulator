@@ -174,7 +174,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
-                            <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 mb-4 overflow-hidden shadow-lg relative">
+                            <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg relative">
                                 {staffMember.portraitPath ? (
                                     <Image src={staffMember.portraitPath} alt={staffMember.name} fill className="object-cover" />
                                 ) : (

@@ -9,6 +9,7 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
@@ -136,7 +137,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
                                         {/* Portrait area */}
                                         <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
-                                            <div className="w-28 h-28 rounded-xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
+                                            <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
                                             {/* Skill badge */}
@@ -166,7 +167,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
                                             <div className="flex items-center gap-2 mb-3">
                                                 <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
-                                                    {legend.role}
+                                                    {formatRole(legend.role)}
                                                 </Badge>
                                                 <Badge className="bg-white/10 text-white/60 border-white/10 text-[10px]">
                                                     {legend.majorWins || 0}x Major

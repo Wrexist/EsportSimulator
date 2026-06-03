@@ -96,7 +96,7 @@ function MVPBanner({ mvp }: { mvp: TournamentMVP }) {
                 </div>
 
                 {/* Player Portrait */}
-                <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 relative">
+                <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 relative">
                     {mvp.portraitPath ? (
                         <Image
                             src={mvp.portraitPath}

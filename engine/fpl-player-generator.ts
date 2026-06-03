@@ -464,7 +464,7 @@ export function generateFPLNonProPlayer(
         matchesPlayed: rng.int(50, 500),
         roundsPlayed: rng.int(1000, 10000),
         avgRating: 0.9 + rng.next() * 0.3,
-        clutchSuccessRate: rng.int(20, 50),
+        clutchSuccessRate: 0.2 + rng.next() * 0.3, // 0.20–0.50 fraction (not a 0–100%)
 
         // Progression
         level: rng.int(1, 10),

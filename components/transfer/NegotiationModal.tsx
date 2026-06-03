@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -24,6 +25,13 @@ import {
     AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+// Lazy three.js — only this single focal portrait spins up a WebGL context,
+// so the cost is bounded to one modal at a time.
+const Player3DPortrait = dynamic(
+    () => import("@/components/ui/Player3DPortrait").then(m => m.Player3DPortrait),
+    { ssr: false, loading: () => null },
+)
 
 interface NegotiationModalProps {
     playerId: string
@@ -273,8 +281,12 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
-                            <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 mb-4 overflow-hidden shadow-lg">
-                                <PlayerPortrait src={playerSave.portraitPath} alt={playerSave.nickname} size={96} />
+                            <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg">
+                                {playerSave.portraitPath && playerSave.portraitPath !== '/player_placeholder.webp' ? (
+                                    <PlayerPortrait src={playerSave.portraitPath} alt={playerSave.nickname} size={96} variant="hero" />
+                                ) : (
+                                    <Player3DPortrait seed={playerSave.id} size={96} interactive={false} />
+                                )}
                             </div>
                             <h2 id="modal-title-negotiation" className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
                             <p className="text-sm text-muted-foreground mb-2">{playerSave.name}</p>
