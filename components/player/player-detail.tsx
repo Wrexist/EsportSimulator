@@ -49,6 +49,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import type { EquipmentType } from "@/engine/equipment-manager"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction } from "@/lib/utils-extended"
 import { motion } from "framer-motion"
 import { resolvePlayerRole } from "@/engine/role-determination"
 
@@ -783,7 +784,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                                     <div className="text-center p-4 bg-white/5 rounded-xl">
                                         <div className="text-xs text-muted-foreground mb-1">Clutch Rate</div>
                                         <div className="text-3xl font-normal text-amber-400">
-                                            {((player.clutchSuccessRate || 0) * 100).toFixed(1)}%
+                                            {(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(1)}%
                                         </div>
                                     </div>
                                 </div>

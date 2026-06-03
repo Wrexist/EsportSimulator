@@ -4,6 +4,7 @@ import { Search, AlertCircle, Crosshair, Brain, Users, Trophy } from "lucide-rea
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction } from "@/lib/utils-extended"
 
 interface ScoutingReportProps {
     opponent: TeamSaveData
@@ -102,7 +103,7 @@ function deriveTendencies(opponent: TeamSaveData, roster: PlayerSaveData[]): Ten
     }
 
     // ─── Clutch danger ────────────────────────────────────────────────────
-    const clutchers = active.filter(p => p.clutchSuccessRate >= 0.35)
+    const clutchers = active.filter(p => clutchRateFraction(p.clutchSuccessRate) >= 0.35)
     if (clutchers.length >= 2) {
         tendencies.push({
             icon: Trophy,

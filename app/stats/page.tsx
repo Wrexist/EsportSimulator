@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/GlassTable"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction } from "@/lib/utils-extended"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
@@ -418,7 +419,7 @@ export default function StatsPage() {
                                             <GlassStatCell value={Math.round((player.avgRating || 1.1) * 70)} max={140} />
                                             <GlassTableCell className="text-center font-sans font-normal text-emerald-400">{player.eir}</GlassTableCell>
                                             <GlassTableCell className="text-center font-sans text-amber-400">{player.headshots || 0}</GlassTableCell>
-                                            <GlassTableCell className="text-center font-sans">{((player.clutchSuccessRate ?? 0) * 100).toFixed(0)}%</GlassTableCell>
+                                            <GlassTableCell className="text-center font-sans">{(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(0)}%</GlassTableCell>
                                             <GlassTableCell className="text-right">
                                                 <div className="flex items-end justify-end gap-0.5 h-6">
                                                     {player.formTrend.length > 0 ? player.formTrend.map((v: number, i: number) => (

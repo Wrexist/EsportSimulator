@@ -38,6 +38,21 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
+ * Normalize a clutch success rate to a 0–1 fraction.
+ *
+ * The field is canonically a fraction (e.g. 0.41 = 41%), but some seed/legacy
+ * data stored it as a 0–100 percentage instead (e.g. 41, or legends at 71).
+ * Display code multiplies by 100, so an un-normalized 41 rendered as "4100%".
+ * Any value above 1 is therefore a percentage-scale value and is divided down.
+ * Clamped to [0, 1] so a stray out-of-range number can't produce silly output.
+ */
+export function clutchRateFraction(raw: number | undefined | null): number {
+    if (!raw || raw <= 0) return 0
+    const fraction = raw > 1 ? raw / 100 : raw
+    return Math.min(1, fraction)
+}
+
+/**
  * Format currency consistently with smart abbreviation
  * e.g., $1.2M, $50k, $500
  */

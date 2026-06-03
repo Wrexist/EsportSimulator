@@ -3,6 +3,7 @@
 import { Award, Trophy, Crosshair, Zap, Star, Flame, Crown, Skull } from "lucide-react"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
+import { clutchRateFraction } from "@/lib/utils-extended"
 
 interface Moment {
     icon: typeof Trophy
@@ -57,11 +58,12 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
         })
     }
 
-    if (player.clutchSuccessRate >= 0.40) {
+    const clutchRate = clutchRateFraction(player.clutchSuccessRate)
+    if (clutchRate >= 0.40) {
         moments.push({
             icon: Crown,
             title: "Clutch Specialist",
-            description: `${Math.round(player.clutchSuccessRate * 100)}% win rate in 1vX situations. They want the bomb.`,
+            description: `${Math.round(clutchRate * 100)}% win rate in 1vX situations. They want the bomb.`,
             tone: "gold",
         })
     }
