@@ -549,7 +549,7 @@ export default function TournamentsPage() {
                         Tournament Hub
                     </h1>
                     <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">
-                        {FULL_TOURNAMENT_CALENDAR.length} tournaments • Season 1
+                        {FULL_TOURNAMENT_CALENDAR.length} tournaments • Season {getSeasonFromWeek(currentWeek)}
                     </p>
                 </div>
 

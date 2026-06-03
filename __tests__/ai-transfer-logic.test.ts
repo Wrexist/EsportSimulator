@@ -241,3 +241,57 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
         expect(aiTeam.rosterIds.length).toBe(before)
     })
 })
+
+describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
+    test("3.3 — a non-emergency free-agent signing charges a signing fee", () => {
+        // 5 players + missing IGL → non-emergency 6th signing (fee applies).
+        const aiTeam = makeTeam("ai1", {
+            rosterIds: ["r1", "r2", "r3", "r4", "r5"],
+            budget: 500_000, financialState: "STABLE",
+        })
+        const players: PlayerSaveData[] = [
+            makePlayer("r1", { role: "RIFLER" }),
+            makePlayer("r2", { role: "RIFLER" }),
+            makePlayer("r3", { role: "RIFLER" }),
+            makePlayer("r4", { role: "RIFLER" }),
+            makePlayer("r5", { role: "RIFLER" }),
+            makePlayer("igl_fa", { role: "IGL", skill: 75 }),
+        ]
+        const save = makeSave([makeTeam(PLAYER_TEAM_ID), aiTeam], players)
+        const budgetBefore = aiTeam.budget
+
+        AIManager.processWeeklyAI(save, PLAYER_TEAM_ID, new SeededRNG(1))
+
+        expect(aiTeam.rosterIds.length).toBe(6)          // signed the 6th
+        expect(aiTeam.budget).toBeLessThan(budgetBefore) // a signing fee was charged
+    })
+
+    test("3.4 — an AI↔AI transfer fee honors the seller's contract buyout", () => {
+        // A listed low-skill star (skill*2000 fallback = 80k) with a 5M buyout.
+        // Pre-fix the buyer paid the 80k fallback; post-fix it must pay the buyout.
+        let executed = false
+        for (let seed = 1; seed <= 300 && !executed; seed++) {
+            const seller = makeTeam("seller", { rosterIds: ["star", "s2", "s3", "s4", "s5"], budget: 100_000 })
+            const buyer = makeTeam("buyer", { rosterIds: ["b1", "b2", "b3"], budget: 50_000_000 })
+            const players: PlayerSaveData[] = [
+                makePlayer("star", { skill: 40, forSale: true }),
+                makePlayer("s2"), makePlayer("s3"), makePlayer("s4"), makePlayer("s5"),
+                makePlayer("b1"), makePlayer("b2"), makePlayer("b3"),
+            ]
+            const save = makeSave([makeTeam(PLAYER_TEAM_ID), seller, buyer], players)
+            save.contracts = [{
+                id: "c_star", playerId: "star", teamId: "seller",
+                salaryPerWeek: 1000, startWeek: 1, endWeek: 60, buyout: 5_000_000,
+            } as never]
+            const buyerBudgetBefore = buyer.budget
+
+            AIManager.processAIToAITransfers(save, PLAYER_TEAM_ID, new SeededRNG(seed))
+
+            if (buyer.rosterIds.includes("star")) {
+                executed = true
+                expect(buyerBudgetBefore - buyer.budget).toBe(5_000_000) // buyout, not skill*2000
+            }
+        }
+        expect(executed).toBe(true) // at least one seed triggered the transfer
+    })
+})

@@ -51,6 +51,11 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 8** — AI transfer fairness + season label
+26. **[Phase 3.3]** AI free-agent signings now charge a `salary * 4` signing fee (parity with the human path, which pays a 4-week bonus), waived in emergency sub-quorum signings (`engine/ai/roster-management.ts`).
+27. **[Phase 3.4]** AI↔AI transfer fees now honor the seller's contract `buyout` (was a flat `skill * 2000` that ignored buyout clauses), and the hard roster cap is re-asserted before the push (`engine/ai/transfer-market.ts`).
+28. **[Phase 2.8]** Tournament Hub header now shows the real season via `getSeasonFromWeek(currentWeek)` instead of a hardcoded "Season 1" (`app/tournaments/page.tsx`).
+
 **Pass 7** — manager signing bonus
 25. **[Phase 3.2]** `acceptJobOffer` now actually pays the advertised signing bonus — credits `salaryOffer * 4` to the new club's budget (ledgered, one-time), derived from the *current* salaryOffer so a successful negotiation pays off. _Design call:_ the **weekly** manager salary is kept as personal flavor — there is no manager-wallet concept (only team budget), and crediting it to the club budget every week would compound into a balance-breaking, farmable income stream. Accepting an offer is a one-off career move, so only the bonus lands. (`store/slices/events-slice.ts`)
 
@@ -120,7 +125,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** Move the refresh to once per tick after all matches.
 - **Verify:** Week-tick perf profile improves; rankings identical at end of tick.
 
-### 2.8 Hardcoded "Season 1" + dead V1 registration [LOW]
+### 2.8 Hardcoded "Season 1" (✅ DONE Pass 8) + dead V1 registration (still open) [LOW]
 - **Problem:** `app/tournaments/page.tsx:552` always prints "Season 1"; `simulateWeeklyRegistrations` V1 (`tournament-manager.ts:1236`) is dead (only V2 is called).
 - **Steps:** Use `LeagueEngine.getCurrentSeason(currentWeek)`; delete V1.
 
@@ -140,12 +145,12 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
   - **Remove:** drop the salary/bonus/negotiation UI so it doesn't advertise a non-existent mechanic.
 - **Verify:** Accepting an offer changes budget as advertised (or the UI no longer shows phantom numbers).
 
-### 3.3 AI free-agent signings pay no fee; player pays 4× [MEDIUM — fairness]
+### 3.3 AI free-agent signings pay no fee; player pays 4× — ✅ DONE (Pass 8) [MEDIUM — fairness]
 - **Problem:** `roster-management.ts:135-150` adds an FA with no budget debit, while the player pays `salary * 4` (`MarketApp.tsx:175-180`). AI even charges itself a fee for staff (`infrastructure.ts:58-61`), so it's internally inconsistent.
 - **Steps:** Charge AI a comparable signing bonus (`salary * 4` or 2-week fee) and ledger it.
 - **Verify:** AI budgets decrease on FA signings; season-long AI wealth no longer structurally outpaces the player.
 
-### 3.4 AI-to-AI transfers ignore buyout + roster cap [MEDIUM]
+### 3.4 AI-to-AI transfers ignore buyout + roster cap — ✅ DONE (Pass 8) [MEDIUM]
 - **Problem:** `transfer-market.ts:236-278` fees are `skill*2000` (real `buyout` never consulted), and the `<= 5` cap is only checked at filter time, not before `push` (`:257`).
 - **Steps:** Base fee on the seller's contract `buyout`; re-assert `buyer.rosterIds.length < MAX_ROSTER_SIZE` immediately before the push.
 - **Verify:** AI↔AI fees track buyouts; no AI roster exceeds the cap.

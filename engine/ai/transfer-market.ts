@@ -40,6 +40,7 @@ const MAX_AI_TRANSFERS_PER_WEEK = 3
 const POACHER_MIN_BUDGET = 50_000
 const BUYER_MIN_BUDGET = 100_000
 const BUYER_MAX_ROSTER = 5
+const MAX_ROSTER_SIZE = 7
 const BENCH_DUMP_MIN_ROSTER = 6
 const BENCH_DUMP_SKILL_CEILING = 55
 const TRANSFER_CONTRACT_WEEKS = 52
@@ -269,9 +270,20 @@ export function processAIToAITransfers(
             .sort((a, b) => (b.player.skill ?? 0) - (a.player.skill ?? 0))[0]
         if (!candidate) continue
 
-        const fee = (candidate.player.skill ?? 50) * 2000
+        // Fee is anchored to the seller's actual contract buyout when present
+        // (so buyout clauses mean something in AI↔AI trades), falling back to a
+        // skill-based estimate for contract-less/ghost players.
+        const sellerContract = save.contracts.find(
+            c => c.playerId === candidate.player.id && c.teamId === candidate.team.id
+        )
+        const fee = (sellerContract?.buyout && sellerContract.buyout > 0)
+            ? sellerContract.buyout
+            : (candidate.player.skill ?? 50) * 2000
         const weeklySalary = (candidate.player.skill ?? 50) * 50
         if (buyer.budget < fee + weeklySalary * 26) continue
+        // Re-assert the hard roster cap immediately before the push (the buyer
+        // filter only checks <= BUYER_MAX_ROSTER at selection time).
+        if (buyer.rosterIds.length >= MAX_ROSTER_SIZE) continue
 
         // Execute.
         candidate.team.rosterIds = candidate.team.rosterIds.filter(id => id !== candidate.player.id)

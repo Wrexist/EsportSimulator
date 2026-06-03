@@ -140,6 +140,16 @@ export function signFreeAgent(team: TeamSaveData, save: GameSave, emergency = fa
     team.rosterIds.push(target.id)
     applyRosterChangePenalty(team, save.currentWeek, 1)
 
+    // Charge a signing fee matching the player's cost (a 4-week sign-on, same as
+    // the human path) so AI free agents aren't free while the player pays — the
+    // prior asymmetry handed AI a structural budget advantage. Waived in
+    // emergency mode, where a sub-quorum team is allowed to go negative to field
+    // five. The affordability filter above already guaranteed weeks of runway,
+    // so this stays positive in the normal path.
+    if (!emergency) {
+        team.budget -= salary * 4
+    }
+
     save.contracts.push({
         playerId: target.id,
         teamId: team.id,
