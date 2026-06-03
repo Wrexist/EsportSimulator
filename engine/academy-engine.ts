@@ -12,7 +12,6 @@
 import {
     AcademyPlayer,
     AcademyMatchResult,
-    AcademyTrainingFocus,
     AcademyLevelInfo,
     TrainableStat
 } from "../types/academy"
@@ -55,25 +54,6 @@ interface PlayerData {
     form: number
     fatigue: number
     [key: string]: unknown
-}
-
-// ===== TRAINING FOCUS STAT MAPPINGS =====
-
-const TRAINING_FOCUS_STATS: Record<AcademyTrainingFocus, TrainableStat[]> = {
-    MECHANICAL: ["skill", "awp", "rifle", "pistol", "reaction"],
-    TACTICAL: ["tactic", "grenades", "creativity", "trading"],
-    MENTAL: ["leader", "teamwork", "stressResistance", "clutch"],
-    PHYSICAL: ["reaction", "endurance", "health"],
-    BALANCED: ["skill", "rifle", "tactic", "teamwork", "reaction"]
-}
-
-// XP multipliers by focus (specialized = faster, balanced = slower but broader)
-const TRAINING_FOCUS_XP_MULTIPLIER: Record<AcademyTrainingFocus, number> = {
-    MECHANICAL: 1.2,
-    TACTICAL: 1.15,
-    MENTAL: 1.1,
-    PHYSICAL: 1.0,
-    BALANCED: 0.85
 }
 
 // ===== DEVELOPMENT MATCH OPPONENT GENERATION =====
@@ -142,64 +122,6 @@ function generateOpponent(academyLevel: number, rng?: SeededRNG): SimulatedOppon
 // ===== ACADEMY ENGINE CLASS =====
 
 export class AcademyEngine {
-
-    /**
-     * Process weekly development for a single prospect
-     * Returns XP gained and stats improved
-     */
-    static processWeeklyDevelopment(
-        prospect: AcademyPlayer,
-        player: PlayerData,
-        facilityLevel: number,
-        rng?: SeededRNG
-    ): { xpGained: number; statsImproved: Partial<Record<TrainableStat, number>> } {
-        const levelInfo = getAcademyLevelInfo(facilityLevel)
-        if (!levelInfo) {
-            return { xpGained: 0, statsImproved: {} }
-        }
-
-        // Calculate base XP
-        let xpGained: number = DEVELOPMENT_CONFIG.baseWeeklyXP
-
-        // Apply facility development bonus
-        xpGained = Math.round(xpGained * levelInfo.devBonus)
-
-        // Apply training focus multiplier
-        xpGained = Math.round(xpGained * TRAINING_FOCUS_XP_MULTIPLIER[prospect.trainingFocus])
-
-        // Age factor: younger players develop faster
-        const ageFactor = 1 + (18 - Math.min(player.age, 18)) * 0.05
-        xpGained = Math.round(xpGained * ageFactor)
-
-        // Morale/form factor
-        const conditionFactor = (player.morale + player.form) / 200
-        xpGained = Math.round(xpGained * (0.8 + conditionFactor * 0.4))
-
-        // Calculate stat improvements
-        const statsImproved: Partial<Record<TrainableStat, number>> = {}
-        const focusStats = TRAINING_FOCUS_STATS[prospect.trainingFocus]
-
-        // Improvement is based on XP, potential ceiling, and current stat level
-        const statGainBase = DEVELOPMENT_CONFIG.statGainPer100XP * (xpGained / 100)
-
-        focusStats.forEach(stat => {
-            const currentValue = player[stat] as number
-            if (typeof currentValue !== "number") return
-
-            // Calculate improvement (harder to improve closer to potential)
-            const potentialCap = player.potential
-            const roomToGrow = Math.max(0, potentialCap - currentValue)
-            const growthFactor = roomToGrow / 100
-
-            const improvement = statGainBase * growthFactor * (0.8 + random(rng) * 0.4)
-
-            if (improvement > 0.01) {
-                statsImproved[stat] = Math.round(improvement * 100) / 100
-            }
-        })
-
-        return { xpGained, statsImproved }
-    }
 
     /**
      * Simulate a development match

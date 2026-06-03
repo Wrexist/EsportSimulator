@@ -493,8 +493,6 @@ interface GameStoreActions {
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
 
 
-  // Tactics (Phase 17)
-  unlockSkill: (playerId: string, skillId: string, cost: number) => void
 
   // Empire (Phase 18)
   upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => { success: boolean; message: string }
@@ -2246,8 +2244,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
       // fireStaff moved to store/slices/staff-management-slice.ts (spread above).
-
-      // unlockSkill moved to store/slices/player-development-slice.ts (spread above).
 
       // upgradeFacility / signSponsor / purchaseEquipment / upgradeMerchStore / toggleMerchItem
       // moved to store/slices/team-facilities-slice.ts (spread above).

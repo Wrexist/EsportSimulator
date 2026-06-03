@@ -12,8 +12,6 @@
  *     passive bonuses are referenced elsewhere by talent-id presence.
  *   - unlockStaffTalent — same idea but for staff, against
  *     STAFF_TALENT_TREES keyed by role. STAT_BOOST applies to staff.stats.
- *   - unlockSkill — spend availableSkillPoints to add a perk id to the
- *     player's perks array (idempotent).
  *   - setPlayerTrainingFocus — set the per-player "trainingFocus" hint
  *     read by the weekly training engine.
  *   - updatePlayer — sanitized writeback for dynamic stats (energy,
@@ -30,7 +28,6 @@ const STAT_CLAMP_MAX = 100
 
 export interface PlayerDevelopmentActions {
     unlockPlayerTalent: (playerId: string, talentId: string) => void
-    unlockSkill: (playerId: string, skillId: string, cost: number) => void
     unlockStaffTalent: (staffId: string, talentId: string) => void
     setPlayerTrainingFocus: (playerId: string, focus: string) => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,20 +106,6 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
                 },
                 acknowledged: false,
             })
-        })
-    },
-
-    unlockSkill: (playerId, skillId, cost) => {
-        set((state) => {
-            const player = state.players.find(p => p.id === playerId)
-            if (!player) return
-            if ((player.availableSkillPoints || 0) < cost) return
-
-            if (!player.perks) player.perks = []
-            if (player.perks.includes(skillId)) return
-
-            player.perks.push(skillId)
-            player.availableSkillPoints = (player.availableSkillPoints || 0) - cost
         })
     },
 

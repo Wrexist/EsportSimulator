@@ -210,7 +210,6 @@ export interface EntitiesActions {
   renewContract: (playerId: string) => void
   startRoleTraining: (playerId: string, targetRole: Role) => { success: boolean, message: string }
   cancelRoleTraining: (playerId: string) => void
-  unlockSkill: (playerId: string, skillId: string, cost: number) => void
   unlockStaffTalent: (staffId: string, talentId: string) => void
   unlockPlayerTalent: (playerId: string, talentId: string) => void
   runTeamDrill: (drillId: string, gains: { stat: string; amount: number }[], cost: number) => { success: boolean, message: string }

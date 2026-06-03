@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 16** — Phase 5.2 fully resolved (dead progression features)
+41. **[Phase 5.2]** Resolved all three dead progression features: (a) **removed** the dead `unlockSkill` action (+ its 3 type decls) and the unrendered `SkillTree.tsx` — the skill-points/perks system was superseded by the working `talentPoints`/talents system, plus its now-dead tests; (b) **implemented** the `coach_master` "The Visionary" capstone by repurposing its no-op `STAT_BOOST target:all` to a `+15% training_efficiency` `PASSIVE_BONUS` the training processor already consumes (functional via existing tested infra, balance-safe — no compounding stat inflation); (c) **removed** the dead `AcademyEngine.processWeeklyDevelopment` + its two `TRAINING_FOCUS_*` constants (superseded by the slice's `processAcademyWeek`). (`store/slices/player-development-slice.ts`, `store/types.ts`, `store/game-store.ts`, `engine/talent-trees.ts`, `engine/academy-engine.ts`)
+
 **Pass 15** — dead-feature safe cleanups (no-decision subset of 5.2)
 40. **[Phase 5.2 — safe parts]** Corrected the `analyst_demo` talent description to "grants the manager more XP" (its `xp_gain` effect feeds manager XP, not player XP); removed the dead synchronous-enroll branch in `AcademyApp.handleScout` (`scoutProspect` starts a multi-week mission and never returns a `player`, so the branch never fired) plus the now-orphaned `enrollProspect` destructure (`engine/talent-trees.ts`, `components/desktop-apps/AcademyApp.tsx`). _(The implement-vs-remove items — `unlockSkill`/perks, `coach_master`, `processWeeklyDevelopment` — still need a product decision.)_
 
@@ -219,7 +222,7 @@ _The compactor (`engine/processors/save-compactor.ts:67-70`) already filters `ac
 - **Steps:** Wire `getVisibleStats`/`fuzzyBand` from `scouting-system.ts` (offset band that scales with `getScoutingLevel()`) into the scouting page; or delete the dead module and fix the inline fuzz to be offset + level-scaled.
 - **Verify:** Unscouted OVR can't be reverse-engineered from the midpoint; higher scout level narrows the band.
 
-### 5.2 Dead progression features — implement or remove [MEDIUM]
+### 5.2 Dead progression features — ✅ DONE (Pass 16) [MEDIUM]
 - **`unlockSkill`/`perks`/`availableSkillPoints`** (`player-development-slice.ts:102-114`): currency accumulated, never spent or read by the sim. → Wire a perks UI + have the match engine read `perks`, or remove.
 - **Coach `coach_master` "The Visionary"** (`talent-trees.ts:51-55`): "+2 random stat weekly" never implemented. → Add a weekly pass for teams whose coach holds it, or remove.
 - **`AcademyEngine.processWeeklyDevelopment`** (`academy-engine.ts:150-202`) + `TRAINING_FOCUS_STATS`/`_XP_MULTIPLIER`: dead; logic reimplemented (and drifted) in `processAcademyWeek`. → Delete or unify.
