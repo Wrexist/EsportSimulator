@@ -219,8 +219,10 @@ function PlayerCardImpl({
         "relative z-10 flex items-center gap-3",
         isReveal && size === "lg" && "flex-col text-center gap-4",
       )}>
-        {/* Portrait — show real portrait image when the player has one;
-            fall back to 3D generated portrait only when no image is available. */}
+        {/* Portrait — real photo when the player has one; otherwise a generated
+            portrait: the live 3D head where enabled (few cards on screen), or the
+            matching procedural face (via `seed`) for dense lists. Never a bare
+            placeholder silhouette. */}
         <div
           className={cn(
             "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
@@ -243,7 +245,7 @@ function PlayerCardImpl({
               </div>
             ) : (
               <div className="absolute inset-0">
-                <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
+                <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
               </div>
             )
           )}

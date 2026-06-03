@@ -1,11 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS } from "@/lib/asset-utils";
 import { cn } from "@/lib/utils";
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
 import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";
+import { renderPortraitSVG } from "@/lib/safe-branding/portrait-generator";
+
+/**
+ * Build an inline data-URI for the procedural portrait of `seed`. Same hash →
+ * same person as the live 3D portrait (both consume derivePortraitFeatures),
+ * but this is a pure SVG string — no WebGL context, no network — so it's safe
+ * to render hundreds at once in tables and grids.
+ */
+function proceduralPortraitDataUri(seed: string, label: string): string {
+    return `data:image/svg+xml,${encodeURIComponent(renderPortraitSVG(seed, label))}`;
+}
 
 interface PlayerImageProps {
     playerName: string;
@@ -193,11 +204,20 @@ interface PlayerPortraitProps {
     variant?: PlayerPortraitVariant;
     teamColor?: string;
     imageClassName?: string;
+    /**
+     * Stable per-player key (use `player.id`). When the portrait would
+     * otherwise fall back to the generic placeholder silhouette — i.e. the
+     * player has no real photo — a deterministic procedural face is generated
+     * from this seed instead. Matches the face the 3D portrait would render.
+     * Omit it to keep the plain placeholder behaviour.
+     */
+    seed?: string;
 }
 
 /**
- * Simple player portrait component that takes a direct src path
- * Automatically falls back to player_placeholder.webp on error
+ * Simple player portrait component that takes a direct src path.
+ * Resolution order: real photo (.png) → baked .svg sibling → procedural
+ * portrait from `seed` (if provided) → static placeholder.
  */
 export function PlayerPortrait({
     src,
@@ -208,10 +228,11 @@ export function PlayerPortrait({
     variant = "avatar",
     teamColor,
     imageClassName,
+    seed,
 }: PlayerPortraitProps) {
     // If the snapshot points to a baked .png and it fails to load (404, network),
     // fall back to the procedural .svg at the same path. Only THEN fall back to
-    // the static placeholder.
+    // the placeholder / generated portrait.
     const [stage, setStage] = useState<"primary" | "svg" | "placeholder">("primary");
 
     const svgFallbackSrc =
@@ -231,24 +252,33 @@ export function PlayerPortrait({
         else setStage("placeholder");
     };
 
-    const framedSrc =
-        !src || stage === "placeholder"
-            ? null
-            : resolvedSrc;
+    // When there's no real photo (missing src, the static placeholder, or a
+    // failed load), render a generated procedural portrait from `seed` instead
+    // of the generic silhouette. Memoized so the SVG string is built once.
+    const wouldShowPlaceholder =
+        !src || src === PLACEHOLDERS.player || stage === "placeholder";
+    const proceduralSrc = useMemo(
+        () => (wouldShowPlaceholder && seed ? proceduralPortraitDataUri(seed, alt) : null),
+        [wouldShowPlaceholder, seed, alt],
+    );
 
     if (fill) {
+        const fillSrc = proceduralSrc || resolvedSrc || PLACEHOLDERS.player;
         return (
             <Image
-                key={resolvedSrc || "ph"}
-                src={resolvedSrc || PLACEHOLDERS.player}
+                key={fillSrc}
+                src={fillSrc}
                 alt={alt}
                 fill
                 className={cn("object-cover", className)}
-                onError={onError}
+                onError={proceduralSrc ? undefined : onError}
                 unoptimized
             />
         );
     }
+
+    const framedSrc =
+        proceduralSrc ?? (!src || stage === "placeholder" ? null : resolvedSrc);
 
     return (
         <PlayerPortraitFrame
@@ -260,7 +290,7 @@ export function PlayerPortrait({
             teamColor={teamColor}
             className={className}
             imageClassName={imageClassName}
-            onImageError={onError}
+            onImageError={proceduralSrc ? undefined : onError}
         />
     );
 }
