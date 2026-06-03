@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 12** — UI standings parity
+35. **[Phase 2.6]** The tournament detail page now renders standings/placements from engine-authoritative data: the bracket "Final Standings" use **sequential** placements (3rd-place-decider-aware for 3rd/4th, sequential 5th–8th — no more two teams labelled "3rd" / four labelled "5th"), and the league final-standings prize table, the live "League Standings" table, and the league podium all render from the engine-sorted `displayTournament.standings` (`compareStandings`: points → wins → head-to-head → map/round diff) instead of points-only re-sorts (`app/tournaments/[id]/page.tsx`). _(The rankings-page Elo-only rank tiebreaker remains as a separate, lower-priority spot.)_
+
 **Pass 11** — dead-code cleanup + a dead-component landmine
 33. **[Phase 7.2 / 6.4]** Deleted three zero-importer dead components — `virtualized-list.tsx`, `SocialFeed.tsx`, `player-stat-meter.tsx` (verified no references anywhere, incl. docs). This also resolves 6.4 (the `player-stat-meter` NaN/`.toFixed` hazard) and the `SocialFeed` a11y gap by removal.
 34. **[Phase 6.3]** `search-filter` (kept — referenced by a `docs/` example) had its parent-callback fired from a `useMemo` (render phase); converted to `useEffect` so it can't trigger React's "update while rendering" warning / an infinite loop if adopted (`components/ui/search-filter.tsx`).
@@ -127,7 +130,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
   - **Reclassify (smaller):** change the 1 calendar entry to `"bracket"` and delete the dead handlers so the format isn't falsely advertised.
 - **Verify:** If implemented: test a full double-elim run (a team loses once, drops to lower bracket, can still win). If reclassified: UI no longer shows an empty lower bracket.
 
-### 2.6 UI standings/placements diverge from engine [MEDIUM]
+### 2.6 UI standings/placements diverge from engine — ✅ DONE (Pass 12, tournament detail page; rankings-page rank tiebreaker still open) [MEDIUM]
 - **Problem:** UI recomputes its own ordering instead of using engine-sorted data: duplicate "3rd"/"5th" placements (`app/tournaments/[id]/page.tsx:871-886`), points-only sorts ignoring head-to-head & map/round diff (`:1226,:745,:896`), Elo-only rank with no tiebreaker (`app/rankings/page.tsx:360-364`, `app/tournaments/page.tsx:107-111`).
 - **Steps:** Render from `displayTournament.standings` (already sorted by `compareStandings`) and `TournamentManager.calculatePlacements(...)`; reuse `team.worldRanking` for rank.
 - **Verify:** Final-standings table shows unique sequential placements and matches the prize ledger.
