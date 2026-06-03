@@ -70,7 +70,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 export function AcademyApp() {
     const {
         playerTeamId, academyPlayers, academyMatchHistory, players,
-        buildAcademy, upgradeAcademy, scoutProspect, enrollProspect,
+        buildAcademy, upgradeAcademy, scoutProspect,
         setProspectTraining, releaseProspect, promoteProspect, scheduleDevMatch,
         academyRoster, updateAcademyRoster, academyTrainingSchedule, updateAcademySchedule,
         academyWeeklyReports, academyScoutingMissions, staff,
@@ -83,7 +83,6 @@ export function AcademyApp() {
         buildAcademy: state.buildAcademy,
         upgradeAcademy: state.upgradeAcademy,
         scoutProspect: state.scoutProspect,
-        enrollProspect: state.enrollProspect,
         setProspectTraining: state.setProspectTraining,
         releaseProspect: state.releaseProspect,
         promoteProspect: state.promoteProspect,
@@ -160,11 +159,12 @@ export function AcademyApp() {
     }
 
     const handleScout = (tier: "LOCAL" | "REGIONAL" | "INTERNATIONAL") => {
+        // scoutProspect starts a multi-week mission and never returns a `player`
+        // synchronously (prospects arrive later via the pending-prospect pool),
+        // so the old success+player enroll branch was dead. Just surface failure.
         const result = scoutProspect(tier)
         setLastScoutResult(result)
-        if (result.success && result.player) {
-            enrollProspect(result.player.id)
-        } else if (!result.success) {
+        if (!result.success) {
             toast.error("Scouting Failed", { description: result.message })
         }
     }

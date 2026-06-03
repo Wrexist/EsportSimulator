@@ -63,7 +63,7 @@ export const STAFF_TALENT_TREES: Record<string, TalentNode[]> = {
             effect: { type: "PASSIVE_BONUS", target: "scout_info", value: 1 }
         },
         {
-            id: "analyst_demo", name: "Demo Review", description: "Post-match analysis grants more XP.",
+            id: "analyst_demo", name: "Demo Review", description: "Post-match analysis grants the manager more XP.",
             icon: "Video", tier: 2, cost: 1, requirements: ["analyst_basics"], position: { x: 1, y: 1 },
             effect: { type: "PASSIVE_BONUS", target: "xp_gain", value: 10 }
         },

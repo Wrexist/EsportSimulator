@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 15** — dead-feature safe cleanups (no-decision subset of 5.2)
+40. **[Phase 5.2 — safe parts]** Corrected the `analyst_demo` talent description to "grants the manager more XP" (its `xp_gain` effect feeds manager XP, not player XP); removed the dead synchronous-enroll branch in `AcademyApp.handleScout` (`scoutProspect` starts a multi-week mission and never returns a `player`, so the branch never fired) plus the now-orphaned `enrollProspect` destructure (`engine/talent-trees.ts`, `components/desktop-apps/AcademyApp.tsx`). _(The implement-vs-remove items — `unlockSkill`/perks, `coach_master`, `processWeeklyDevelopment` — still need a product decision.)_
+
 **Pass 14** — transfers fee parity
 39. **[Phase 3.6]** The transfers table's displayed fee + the BUY affordability gate now use `evaluatePlayer().transferValue` — the same valuation the negotiation modal demands — instead of a much lower `ovr*1000` estimate, so the BUY button no longer enables for offers the modal will immediately reject (`app/transfers/page.tsx`). _(The dead `weeksOnTransferList` field remains — set but never read; left as trivial.)_
 
