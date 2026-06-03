@@ -30,6 +30,7 @@
     "audit:steam-ready:strict": "tsx scripts/steam-ready-audit.ts --strict",
     "audit:full": "npm run check:conflicts && npm run type-check && npm run audit:steam-ready && npm run compliance:steam && npm run release:hardening",
     "preflight": "npm run type-check && npm test",
+    "preflight:full": "npm run type-check && npm test && npm run build",
     "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
     "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
     "bake:portraits": "tsx scripts/bake-portraits.ts",
