@@ -10,34 +10,47 @@
  * - Worker responds on error: { type: "ERROR", error: string }
  */
 
-import { AtomicWeekProcessor, type WeekProcessorConfig, type WeekProcessorResult } from "../atomic-week-processor"
-import { type GameSave } from "../save-types"
+import { AtomicWeekProcessor, type WeekProcessorConfig } from "../atomic-week-processor"
+import { type GameSave, type WeekTickState } from "../save-types"
 import { SeededRNG } from "../rng"
 import { SaveManager } from "../save-manager"
+import type { AsyncStorage } from "../storage-adapter"
 import type { TrainingFocus } from "@/types"
 
-// Create a no-op SaveManager for the worker context
-// The worker doesn't need persistence - it just processes the week
+// Storage adapter that persists NOTHING. The worker COMPUTES the week and
+// returns the mutated save to the main thread, which performs the single
+// authoritative write. Without this, the base SaveManager picks the IndexedDB
+// adapter (a Worker has no `window`) and writes the full save + per-step
+// transaction state to a worker-LOCAL store that diverges from — and in
+// Electron bypasses — the store every other load/save in the app uses.
+const noopStorage: AsyncStorage = {
+  async getItem() { return null },
+  async setItem() { /* no-op */ },
+  async removeItem() { /* no-op */ },
+  async clear() { /* no-op */ },
+  async getAllKeys() { return [] },
+}
+
+// Compute-only SaveManager for the worker context. The no-op storage turns
+// every transaction write (beginWeekTick / markStepComplete /
+// recordMatchComplete / completeWeekTick) into a no-op while still building the
+// in-memory transaction object the processor needs. `saveGame` is overridden
+// explicitly because `processWeek` throws on a non-success result and the base
+// method's verify-by-read-back would fail under no-op storage.
 class WorkerSaveManager extends SaveManager {
   constructor() {
-    super()
+    super(noopStorage)
   }
 
-  // Override methods that interact with storage
-  async getIncompleteTransaction(): Promise<null> {
+  // Resume/rollback is never used in the worker — always process the tick fresh
+  // from the save the main thread sent.
+  async getIncompleteTransaction(): Promise<WeekTickState | null> {
     return null
   }
 
-  async saveTransaction(): Promise<void> {
-    // No-op in worker
-  }
-
-  async clearTransaction(): Promise<void> {
-    // No-op in worker
-  }
-
-  async saveCheckpoint(): Promise<void> {
-    // No-op in worker
+  // The worker must NOT persist; the main thread owns the authoritative save.
+  async saveGame(): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+    return { success: true }
   }
 }
 

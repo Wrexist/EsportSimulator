@@ -34,13 +34,17 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 14. Academy dev-match energy clamped at 0 (`academy-slice.ts`).
 15. Academy promotion now recomputes synergy + applies the roster-change chemistry penalty, matching transfers (`academy-slice.ts`).
 
+**Pass 3** (each behind a new regression test; 908/908 tests, 0 type errors)
+16. **[Phase 3.1]** AI transfer valuation fixed — `potential` is 0-100, but the multiplier/overpay thresholds were 0-20 leftovers so every listed player hit the max boost (sell-any-bench-player-for-a-fortune). Extracted a pure, tested `aiMarketValuation` with correct 0-100 thresholds (`engine/ai/transfer-market.ts`, `__tests__/ai-market-valuation.test.ts`).
+17. **[Phase 1.1]** Worker is now compute-only (no-op storage adapter + no-op `saveGame`) so it no longer writes a divergent full save to a worker-local IndexedDB; the main thread now performs the single authoritative `saveGame()` after post-tick steps so academy budget/history, pruning, synergy, and the correct `lastRngSeed` are actually persisted (`engine/worker/week-processor.worker.ts`, `store/game-store.ts`, `__tests__/worker-compute-only.test.ts`).
+
 ---
 
 ## Phase 1 — Save & persistence integrity (CRITICAL — data-loss risk)
 
 > Biggest correctness risk in the codebase. Do this first, behind tests.
 
-### 1.1 Worker self-saves to a divergent store; post-tick mutations never persisted [CRITICAL]
+### 1.1 Worker self-saves to a divergent store; post-tick mutations never persisted — ✅ DONE (Pass 3)
 - **Problem:** `WorkerSaveManager` (`engine/worker/week-processor.worker.ts:31-41`) overrides `saveTransaction`/`clearTransaction`/`saveCheckpoint` — **methods that don't exist** on `SaveManager` — so the real `saveGame`/`beginWeekTick`/`recordMatchComplete`/`completeWeekTick` run **inside the worker**. A Worker has no `window`, so `storage-adapter` picks `IndexedDBAdapter`: the worker writes the full save to a worker-local IndexedDB (in Electron, bypassing the disk-backed `electron-store`). Meanwhile the main thread runs post-tick steps (`store/game-store.ts:2073-2208`: `pruneGameState`, `recalculateAllSynergy`, `processAcademyWeek` budget deduction + match history, achievements) and then **never saves** — the only durable write predates them. Persisted `lastRngSeed` can also lag the in-memory one → determinism break on reload.
 - **Files:** `engine/worker/week-processor.worker.ts`, `store/game-store.ts:2073-2208`, `engine/worker/week-processor-bridge.ts`.
 - **Steps:**
@@ -108,7 +112,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 
 ## Phase 3 — Economy / transfer integrity & AI fairness (HIGH)
 
-### 3.1 AI valuations use a 0-20 potential scale but potential is 0-100 [HIGH — exploit]
+### 3.1 AI valuations use a 0-20 potential scale but potential is 0-100 — ✅ DONE (Pass 3) [HIGH — exploit]
 - **Problem:** `transfer-market.ts:133-159` reads `player.potential` as 0-20 (`potential*150`, `potential > 16/17` tiers), but potential is 0-100. Every listed player hits max multipliers → AI offers balloon to absurd amounts; sell any benched player for a fortune.
 - **Steps:** Normalize to the 0-100 scale: rescale the `potential*150` base term and rewrite thresholds (`> 85`, `> 70`) — or divide potential by 5 before comparisons.
 - **Verify:** Test valuations for low/mid/high-potential players land in sane ranges; the multiplier tiers are no longer always-max.

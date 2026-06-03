@@ -2206,6 +2206,21 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 set(buildEntityIndexes(s.teams, s.players, s.contracts, s.staff, s.completedMatches))
               } catch { /* indexes are best-effort */ }
             }
+
+            // Authoritative persist of the fully post-processed week. The week
+            // processor runs in a Worker that writes nothing (compute-only), and
+            // even on the synchronous fallback the processor's own save happens
+            // BEFORE the post-tick steps above (academy budget/history, array
+            // pruning, synergy recompute, correct lastRngSeed) — which live only
+            // in memory until now. Persist once, from the main thread, so the
+            // on-disk save matches what the player sees. A failure here must NOT
+            // roll back the already-committed week: saveGame surfaces its own
+            // error toast and the next autosave retries.
+            try {
+              await get().saveGame()
+            } catch (saveErr) {
+              logger.error("[advanceWeek] post-tick authoritative save failed (week committed in memory)", saveErr)
+            }
           } else {
             throw new Error(result.error || "Week processing failed")
           }

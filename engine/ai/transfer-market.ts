@@ -45,6 +45,33 @@ const BENCH_DUMP_SKILL_CEILING = 55
 const TRANSFER_CONTRACT_WEEKS = 52
 
 /**
+ * Market valuation for an AI offer on a listed player.
+ *
+ * `potential` is on a 0-100 scale. The multiplier/overpay thresholds were
+ * previously 0-20-scale leftovers (16/14 and 17/15), so virtually EVERY
+ * listed player cleared them and always got the max 1.5× / 1.2× — the tiers
+ * were dead branches and any benched player could be sold for an inflated
+ * fortune. Thresholds are now expressed against the real 0-100 scale so the
+ * boosts apply only to genuinely high-potential prospects.
+ *
+ * Extracted as a pure function so the valuation can be unit-tested directly.
+ */
+export function aiMarketValuation(
+    skill: number,
+    potential: number,
+    tier: string | undefined,
+): { baseValue: number; potentialMultiplier: number; overpayBuffer: number } {
+    let baseValue = (skill * 100) + (potential * 150)
+    if (tier === "ELITE") baseValue *= 50
+    else if (tier === "PRO") baseValue *= 20
+    else baseValue *= 5
+
+    const potentialMultiplier = potential > 80 ? 1.5 : potential > 70 ? 1.2 : 1.0
+    const overpayBuffer = potential > 85 ? 1.2 : potential > 75 ? 1.1 : 1.0
+    return { baseValue, potentialMultiplier, overpayBuffer }
+}
+
+/**
  * Crisis-mode panic sale. Flag the player whose salary-to-value ratio
  * hurts the team most. No mutation of save.contracts — the listing is
  * just a `forSale` flag + a sticker price; the actual transfer happens
@@ -129,16 +156,13 @@ export function processAITransferMarket(
             const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
             if (existingOffer) return
 
-            // Market value: skill + potential (potential weighted heavier).
-            let baseValue = (player.skill * 100) + (player.potential * 150)
-            if (player.tier === "ELITE") baseValue *= 50
-            else if (player.tier === "PRO") baseValue *= 20
-            else baseValue *= 5
+            // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).
+            const { baseValue, potentialMultiplier, overpayBuffer } = aiMarketValuation(
+                player.skill, player.potential, player.tier,
+            )
 
             const listingPrice = player.transferListingPrice || baseValue
             const priceRatio = listingPrice / baseValue
-
-            const potentialMultiplier = player.potential > 16 ? 1.5 : (player.potential > 14 ? 1.2 : 1.0)
 
             // Role-fit: missing role = +40% interest; saturated role = -15%.
             const playerRole = (player.role ?? "RIFLER").toString().toUpperCase()
@@ -154,8 +178,7 @@ export function processAITransferMarket(
             if (aiRoll(rng) > finalChance) return
 
             // Offer: anchored to baseValue, 10% pull toward asking price,
-            // overpay buffer for high-potential prospects, ±15% random.
-            const overpayBuffer = player.potential > 17 ? 1.2 : (player.potential > 15 ? 1.1 : 1.0)
+            // overpay buffer for high-potential prospects (from aiMarketValuation), ±15% random.
             const anchoredValue = ((baseValue * 0.9) + (listingPrice * 0.1)) * overpayBuffer
 
             const offerAmount = Math.round(anchoredValue * (0.85 + aiRoll(rng) * 0.3))
