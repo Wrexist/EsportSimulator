@@ -464,7 +464,7 @@ export function generateProspect(
         region,
         role,
         stats,
-        portraitPath: "/player_placeholder.png"
+        portraitPath: "/player_placeholder.webp"
     }
 }
 

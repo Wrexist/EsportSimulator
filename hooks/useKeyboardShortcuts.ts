@@ -120,6 +120,14 @@ export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
     const lastExecRef = useRef<Record<string, number>>({})
     const THROTTLE_MS = 300
 
+    // Surface shortcuts via a ref so the keydown listener is bound exactly
+    // once for the hook's lifetime. Without this, `shortcuts` is a fresh
+    // object literal every render → handleKeyDown identity changes →
+    // listener re-binds → in long-lived screens this churn is wasted
+    // work on every parent re-render.
+    const shortcutsRef = useRef(shortcuts)
+    useEffect(() => { shortcutsRef.current = shortcuts })
+
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         // Build key string (e.g., 'ctrl+s', 'shift+?', 'space')
         const parts: string[] = []
@@ -131,7 +139,7 @@ export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
         parts.push(key === ' ' ? 'space' : key)
 
         const keyCombo = parts.join('+')
-        const shortcut = shortcuts[keyCombo]
+        const shortcut = shortcutsRef.current[keyCombo]
 
         if (!shortcut) return
 
@@ -151,7 +159,7 @@ export function useKeyboardShortcuts(customShortcuts?: ShortcutConfig) {
         e.preventDefault()
         logger.debug(`Keyboard shortcut triggered: ${keyCombo}`)
         shortcut.action()
-    }, [shortcuts])
+    }, [])
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown)

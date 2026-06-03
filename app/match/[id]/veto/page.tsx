@@ -19,7 +19,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
-    [MapId.SANDSTONE]: "/maps/sandstone.png",
+    [MapId.SANDSTONE]: "/maps/dust2.png",
     [MapId.MIRAGE]: "/maps/mirage.png",
     [MapId.INFERNO]: "/maps/inferno.png",
     [MapId.NUKE]: "/maps/nuke.png",
@@ -514,7 +514,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                             >
                                 {/* Map Wallpaper */}
                                 <Image
-                                    src={MAP_WALLPAPERS[mapId] || "/maps/sandstone.png"}
+                                    src={MAP_WALLPAPERS[mapId] || "/maps/dust2.png"}
                                     alt={mapId}
                                     fill
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"

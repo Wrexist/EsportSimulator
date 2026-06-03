@@ -163,7 +163,7 @@ export function ShopApp() {
                                             )}>TIER {item.tier}</Badge>
                                         </div>
                                         <img
-                                            src={item.imagePath || "/team_placeholder.png"}
+                                            src={item.imagePath || "/team_placeholder.webp"}
                                             alt={item.name}
                                             className="max-w-[80%] max-h-[80%] object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
                                         />

@@ -38,3 +38,25 @@ export function getMapName(mapId: string | MapId | undefined | null): string {
     if (!mapId) return "Unknown Map"
     return MAP_NAMES[mapId as string] ?? String(mapId)
 }
+
+/**
+ * Map IDs → public asset filenames. The enum value for Dust II is "Sandstone"
+ * (legacy rebrand), but the artwork file is /maps/dust2.png. All other maps
+ * use their lowercased enum value.
+ */
+export const MAP_ASSET_FILENAMES: Record<string, string> = {
+    [MapId.SANDSTONE]: "dust2",
+    [MapId.MIRAGE]: "mirage",
+    [MapId.INFERNO]: "inferno",
+    [MapId.NUKE]: "nuke",
+    [MapId.OVERPASS]: "overpass",
+    [MapId.VERTIGO]: "vertigo",
+    [MapId.ANCIENT]: "ancient",
+    [MapId.ANUBIS]: "anubis",
+}
+
+/** Resolve a MapId to its `/public/maps/<file>.png` filename (no extension). */
+export function getMapAssetName(mapId: string | MapId | undefined | null): string {
+    if (!mapId) return "dust2"
+    return MAP_ASSET_FILENAMES[mapId as string] ?? String(mapId).toLowerCase()
+}

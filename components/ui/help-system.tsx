@@ -142,9 +142,11 @@ export function HelpSystem() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(true)}
+                aria-label="Open help"
+                title="Help (?)"
                 className="fixed bottom-4 right-4 rounded-full w-12 h-12 shadow-lg z-50"
             >
-                <HelpCircle className="w-6 h-6" />
+                <HelpCircle className="w-6 h-6" aria-hidden="true" />
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>

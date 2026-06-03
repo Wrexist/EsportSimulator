@@ -96,7 +96,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                                     {staff.portraitPath ? (
                                         <Image src={staff.portraitPath} alt={staff.name} width={112} height={112} className="w-full h-full object-cover" unoptimized />
                                     ) : (
-                                        <Image src="/staff_placeholder.png" alt={staff.name} width={112} height={112} className="w-full h-full object-cover opacity-80" unoptimized />
+                                        <Image src="/staff_placeholder.webp" alt={staff.name} width={112} height={112} className="w-full h-full object-cover opacity-80" unoptimized />
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                                 </div>

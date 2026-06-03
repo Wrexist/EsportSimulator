@@ -204,7 +204,7 @@ function SquadPageInner() {
       .map((id, index) => {
         const player = playerById.get(id)
         if (!player) return null
-        const evaluation = evaluatePlayer(player as any)
+        const evaluation = evaluatePlayer(player)
         const playerTier = getDisplayPlayerTier(evaluation.overallRating, teamData?.tier as TierLevel)
         return { ...player, evaluation, playerTier, originalIndex: index }
       })

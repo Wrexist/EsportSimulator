@@ -396,7 +396,7 @@ export default function Page() {
                 <div className="flex justify-center items-center gap-5">
                   {isMatchLive ? (
                     <>
-                      <Button asChild className="h-14 px-10 bg-amber-400 hover:bg-amber-300 text-black rounded-lg text-xs uppercase font-black tracking-[0.15em]">
+                      <Button asChild variant="play" className="h-14 px-10 text-xs uppercase tracking-[0.15em]">
                         <Link href={`/match/${nextMatch.id}/tactics`}>
                           <Swords size={18} className="mr-3" /> Play Match
                         </Link>
@@ -406,12 +406,14 @@ export default function Page() {
                         onClick={handleSimulate}
                         disabled={isSimulating || storeLoading}
                         size="icon"
+                        aria-label={isSimulating ? "Simulating match" : "Quick-simulate match"}
+                        title="Quick-simulate (skip live match)"
                         className="h-14 w-14 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg shadow-glass-soft backdrop-blur-md group"
                       >
                         {isSimulating ? (
-                          <Loader2 size={20} className="animate-spin text-white" />
+                          <Loader2 size={20} className="animate-spin text-white" aria-hidden="true" />
                         ) : (
-                          <Zap size={20} className="text-white fill-white transition-transform" />
+                          <Zap size={20} className="text-white fill-white transition-transform" aria-hidden="true" />
                         )}
                       </Button>
                     </>

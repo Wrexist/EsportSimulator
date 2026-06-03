@@ -19,6 +19,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { simulationEngineV2, SeededRNG } from "@/engine"
 import { MapId } from "@/types/enums"
 import { Player } from "@/types"
+import { getMapAssetName } from "@/data/map-pool"
 // If MAP_WALLPAPERS is missing, I'll fallback gracefully or use string paths
 
 
@@ -506,14 +507,12 @@ export default function TacticalHQPage() {
                                     <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-lg bg-red-500 text-white text-[10px] font-normal uppercase tracking-widest shadow-lg shadow-red-500/20">
                                         LIVE DEMO
                                     </div>
-                                    <div className={cn(
-                                        "w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-700",
-                                        match.maps && match.maps.length > 0
-                                            ? `bg-[url('/maps/${match.maps[0].toLowerCase()}.png')]`
-                                            : "bg-[url('/maps/mirage.png')]"
-                                    )} style={{
-                                        backgroundImage: match.maps && match.maps.length > 0 ? `url('/maps/${match.maps[0].toLowerCase()}.png')` : undefined
-                                    }} />
+                                    <div
+                                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-700"
+                                        style={{
+                                            backgroundImage: `url('/maps/${getMapAssetName(match.maps?.[0])}.png')`
+                                        }}
+                                    />
 
                                     <div className="absolute bottom-4 left-6 z-20 w-[90%]">
                                         <h4 className="font-normal text-xl mb-1 text-white tracking-tight">{opponent.name}</h4>
@@ -764,7 +763,7 @@ export default function TacticalHQPage() {
                                             return (
                                                 <div key={i} className="aspect-video relative rounded-xl border border-white/10 overflow-hidden group">
                                                     <Image
-                                                        src={`/maps/${map.toLowerCase()}.png`}
+                                                        src={`/maps/${getMapAssetName(map)}.png`}
                                                         alt={map}
                                                         fill
                                                         className="object-cover opacity-60 group-hover:opacity-100 transition-opacity"

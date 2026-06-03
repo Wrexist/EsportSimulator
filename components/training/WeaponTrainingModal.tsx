@@ -56,12 +56,15 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
         saveGame: state.saveGame,
         players: state.players,
     })))
-    const playerTeam = teams.find((t: any) => t.id === playerTeamId)
+    const playerTeam = teams.find(t => t.id === playerTeamId)
     const budget = playerTeam?.budget || 0
 
-    // Get live player data from store
-    const livePlayer = players.find((p: any) => p.id === player.id) || player
-    const playerEnergy = (livePlayer as any).energy ?? 100
+    // Get live player data from store. PlayerSaveData has `energy` as a
+    // required number so the cast is unnecessary — fall back here only
+    // covers the case where the player prop predates the live store
+    // (legacy `Player` shape from a tournament fixture).
+    const livePlayer = players.find(p => p.id === player.id) || player
+    const playerEnergy = "energy" in livePlayer ? livePlayer.energy : 100
 
     const [selectedWeapon, setSelectedWeapon] = useState<WeaponType>("RIFLE")
     const [isTraining, setIsTraining] = useState(false)

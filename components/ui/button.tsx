@@ -10,6 +10,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'liquid-button bg-white text-black hover:bg-white/90 active:bg-white/85 active:text-black shadow-glass-soft',
+        /**
+         * The prominent "act-on-this-match" CTA. White with a soft halo ring
+         * so it reads as premium on every glass background. Use for PLAY
+         * MATCH, START MATCH, View Result-style primary actions.
+         */
+        play:
+          'bg-white text-black hover:bg-white/90 active:bg-white/85 ring-1 ring-white/40 shadow-[0_18px_44px_-20px_rgba(255,255,255,0.55)] font-bold',
+        /**
+         * "Advance time" CTA — Next Day, Continue, Skip Week. Emerald so
+         * it's visually distinct from PLAY MATCH but still premium.
+         */
+        continue:
+          'bg-emerald-500/90 text-white hover:bg-emerald-400 active:bg-emerald-600 ring-1 ring-emerald-300/30 shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)] font-bold',
         destructive:
           'border border-red-400/25 bg-red-500/80 text-white shadow-glass-soft hover:bg-red-500 focus-visible:ring-destructive/20 dark:aria-invalid:ring-destructive/40 dark:bg-destructive/60 active:bg-red-600 active:text-white',
         outline:

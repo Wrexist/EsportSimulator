@@ -1462,7 +1462,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 nickname: prospect.nickname,
                 age: prospect.age,
                 nationality: prospect.nationality,
-                portraitPath: prospect.portraitPath || "/player_placeholder.png",
+                portraitPath: prospect.portraitPath || "/player_placeholder.webp",
                 role: prospect.role,
                 tier: "ACADEMY" as const,
                 skill: prospect.stats.skill,

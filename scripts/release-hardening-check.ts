@@ -103,7 +103,7 @@ function createPlayer(id: string, name: string, role: string, tier = "PRO"): Pla
     nickname: name,
     age: 18,
     nationality: "Sweden",
-    portraitPath: "/player_placeholder.png",
+    portraitPath: "/player_placeholder.webp",
     role,
     tier,
     energy: 100,

@@ -346,7 +346,7 @@ export default function TeamSelectionPage() {
                             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                             className="w-20 h-20 mx-auto mb-6 flex items-center justify-center p-0 overflow-visible"
                         >
-                            <Image src="/logo.png" alt="Icon" width={80} height={80} className="object-contain w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.png' }} />
+                            <Image src="/logo.png" alt="Icon" width={80} height={80} className="object-contain w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.webp' }} />
                         </motion.div>
 
                         {/* Welcome Text */}

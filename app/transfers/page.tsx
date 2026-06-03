@@ -344,9 +344,12 @@ function TransfersPageInner() {
             ) : (
               <GlassTableRow>
                 <GlassTableCell colSpan={10} className="h-48 text-center">
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    <p className="text-muted-foreground uppercase font-normal tracking-widest text-[10px]">
-                      No players match your filters
+                  <div className="flex flex-col items-center justify-center gap-2" role="status" aria-live="polite">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+                      Scouts came up empty
+                    </p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">
+                      No prospects match these filters. Loosen the role or search and check again.
                     </p>
                     {(roleFilter || debouncedSearch) && (
                       <Button

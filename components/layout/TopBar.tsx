@@ -189,14 +189,13 @@ export function TopBar() {
                     if (pendingMatch) {
                         return (
                             <Button
+                                variant="play"
                                 onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
                                 disabled={isLoading}
-                                className="bg-amber-400 hover:bg-amber-300 text-black font-normal h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(245,158,11,0.7)]"
+                                className="h-10 px-6"
                             >
-                                <div className="flex items-center gap-2">
-                                    <span className="tracking-wide">PLAY MATCH</span>
-                                    <Swords size={16} />
-                                </div>
+                                <span className="tracking-wide">PLAY MATCH</span>
+                                <Swords size={16} />
                             </Button>
                         )
                     }
@@ -205,12 +204,13 @@ export function TopBar() {
                         return (
                             <div className="flex items-center gap-2">
                                 <Button
+                                    variant="continue"
                                     onClick={() => {
                                         soundManager.play('weekAdvance')
                                         advanceDay()
                                     }}
                                     disabled={isLoading}
-                                    className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-4 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
+                                    className="h-10 px-4"
                                 >
                                     {isLoading ? (
                                         <motion.div
@@ -240,12 +240,13 @@ export function TopBar() {
 
                     return (
                         <Button
+                            variant="continue"
                             onClick={() => {
                                 soundManager.play('weekAdvance')
                                 advanceWeek()
                             }}
                             disabled={isLoading}
-                            className="bg-emerald-500/90 hover:bg-emerald-400 active:bg-emerald-600 text-white active:text-white/90 font-bold h-10 px-6 rounded-lg shadow-[0_14px_34px_-20px_rgba(16,185,129,0.7)]"
+                            className="h-10 px-6"
                         >
                             {isLoading ? (
                                 <motion.div

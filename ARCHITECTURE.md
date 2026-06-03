@@ -659,4 +659,23 @@ list.
 | Simulation engine determinism    | `__tests__/engine.test.ts`                |
 | Critical user paths              | `__tests__/critical-path.test.ts`         |
 
-Run with `npm test`. Current coverage: 234 tests across 19 suites.
+Run with `npm test`. Current coverage: 74 test files (auto-counted; the
+prior "234 tests across 19 suites" figure here was stale through several
+refactors — regenerate by running `npm test` and reading the Jest summary).
+
+## Known Type-System Debt
+
+The following duplicate type declarations exist and are bridged at call
+sites via `as any` / `as unknown as` casts. Resolving them is a focused
+refactor PR rather than incremental work — listed here so the casts are
+discoverable.
+
+| Type | Locations | Notes |
+|------|-----------|-------|
+| `Match` | `types/game.ts`, `types/match.ts` | `types/index.ts` re-exports from `match.ts`; the `game.ts` one is used internally by other game.ts shapes. |
+| `MatchResult` | `types/game.ts`, `types/match.ts` | Same — index uses `match.ts`. |
+| `MapResult` | `types/game.ts`, `types/match.ts` | Runtime shapes differ (`mvp` vs `mvpPlayerId`, `ctStartTeam` vs `ctStartTeamId`+`tStartTeamId`). |
+| `Coach` / `Analyst` / `Psychologist` | `types/game.ts`, `types/team.ts` | `game.ts` is a flat interface; `team.ts` extends `Staff`. `data-generator.ts` builds the `game.ts` shape; everything else expects the `team.ts` shape. |
+| `Team` | `types/game.ts`, `types/team.ts` | `TeamSaveData` (`engine/save-types.ts`) is the runtime save shape; `Team` is the engine-expected shape. The `as unknown as Team` casts in `useLiveMatch` bridge them. |
+| `Role` (lowercase union) vs `PlayerRole` (UPPERCASE enum) | `types/game.ts`, `types/enums.ts` | Different case conventions; needs a string-transform at every call site. |
+| `GameMap` | resolved — now `type GameMap = MapId` in game.ts | Kept as alias for compile-compat with the legacy union. |

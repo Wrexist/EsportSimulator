@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState } from "@/types"
+import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState, Coach, Analyst, Psychologist } from "@/types"
+import type { TeamSaveData } from "@/engine/save-types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
@@ -34,8 +35,13 @@ type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 interface LiveMatchRuntimeData {
     match: any
     result: MatchResult
-    homeTeam: any
-    awayTeam: any
+    // home/awayTeam are stored as the on-disk TeamSaveData shape. The
+    // engine entry points accept the runtime `Team` (from types/team.ts);
+    // their read paths only touch fields TeamSaveData also has (`id`,
+    // `playstyle`), so the `as unknown as Team` casts at the call sites
+    // are structurally safe. See ARCHITECTURE.md "Known Type-System Debt".
+    homeTeam: TeamSaveData
+    awayTeam: TeamSaveData
     homePlayerIds: string[]
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
@@ -173,7 +179,7 @@ export function useLiveMatch(id: string) {
         // populated data, stranding the user on a blank live-match screen.
         hasInitialized.current = true
 
-        const seed = getNormalizedSeed((foundMatch as any).seed, foundMatch.id)
+        const seed = getNormalizedSeed(foundMatch.seed, foundMatch.id)
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1
         const runtimeMatch: any = {
             ...foundMatch,
@@ -210,8 +216,12 @@ export function useLiveMatch(id: string) {
             aTeam as unknown as Team,
             homePlayers,
             awayPlayers,
-            homeStaff as any,
-            awayStaff as any
+            // RuntimeTeamStaff (from live-staff-adapter) has the same
+            // {coach?, analyst?, psychologist?} bundle shape the engine
+            // expects. The `as unknown as` cast bridges the runtime-vs-
+            // builder type identity without `as any`.
+            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         )
 
         const queryMaps = searchParams
@@ -223,7 +233,7 @@ export function useLiveMatch(id: string) {
             format: foundMatch.format,
             seed,
             urlMaps: queryMaps,
-            savedMaps: Array.isArray((foundMatch as any).maps) ? (foundMatch as any).maps : undefined,
+            savedMaps: Array.isArray(foundMatch.maps) ? foundMatch.maps : undefined,
             fallbackMaps: engineFallback.maps.map(map => map.map)
         })
 
@@ -233,14 +243,14 @@ export function useLiveMatch(id: string) {
             aTeam as unknown as Team,
             homePlayers,
             awayPlayers,
-            homeStaff as any,
-            awayStaff as any,
+            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             canonicalMaps
         )
 
         const activeHomeIds = homePlayers.map(player => player.id)
         const activeAwayIds = awayPlayers.map(player => player.id)
-        const mapStartingSides = (foundMatch as any).mapStartingSides as Record<string, string> | undefined
+        const mapStartingSides = foundMatch.mapStartingSides
 
         if (activeMatchState && activeMatchState.matchId === id) {
             const restoredSim = activeMatchState.simState as SimState | undefined
@@ -276,7 +286,7 @@ export function useLiveMatch(id: string) {
                 homeScore: sanitizedSimState.homeSeriesScore,
                 awayScore: sanitizedSimState.awaySeriesScore,
                 maps: buildCanonicalResultMaps(
-                    restoredResultSource.maps as any[],
+                    restoredResultSource.maps,
                     canonicalMaps,
                     hTeam.id,
                     aTeam.id,
@@ -373,11 +383,20 @@ export function useLiveMatch(id: string) {
     // Persistence
     useEffect(() => {
         if (!simState || !gameState) return
+        // Don't checkpoint a match that's already finished — the
+        // result/teardown path owns post-match state. Without this guard,
+        // the 500ms debounce can fire AFTER the user has navigated to the
+        // result screen and saveMatchResult ran, overwriting the cleared
+        // activeMatchState with stale "still playing" data.
+        if (gameState.status === "FINISHED") return
+
+        const currentResult = matchData.current?.result
+        if (!currentResult) return // No match in flight — nothing to checkpoint.
 
         const state: ActiveMatchState = {
             matchId: id,
             gameState,
-            simState: simState as any,
+            simState,
             homeRoster,
             awayRoster,
             logs,
@@ -385,12 +404,21 @@ export function useLiveMatch(id: string) {
             isBombPlanted,
             bombTime,
             isWaitingForStrategy,
-            originalHomePlayers,
-            originalAwayPlayers,
-            matchResult: matchData.current?.result as any
+            // ActiveMatchState comes from types/game which carries its own
+            // legacy Player[] and MatchResult shapes (see ARCHITECTURE.md
+            // "Known Type-System Debt"). The runtime values are
+            // structurally identical to the canonical types/match versions
+            // — the casts bridge that duplication without changing data.
+            originalHomePlayers: originalHomePlayers as unknown as ActiveMatchState["originalHomePlayers"],
+            originalAwayPlayers: originalAwayPlayers as unknown as ActiveMatchState["originalAwayPlayers"],
+            matchResult: currentResult as unknown as ActiveMatchState["matchResult"],
         }
 
         const timer = setTimeout(() => {
+            // Re-check the mount flag at fire time. Unmounting between
+            // schedule and fire (route change, fast nav) shouldn't trigger
+            // a write to a stale slot.
+            if (!isMountedRef.current) return
             updateActiveMatchState(state)
         }, 500)
 
@@ -445,13 +473,17 @@ export function useLiveMatch(id: string) {
         const roundSeed = (runtime.match.seed as number) + (mapIndex * 1000) + currentRoundNumber
         const rng = createMatchRNG(roundSeed)
 
-        const hEcon: Record<string, any> = {}
-        const aEcon: Record<string, any> = {}
+        // PlayerSimulationState shape — economy carries cash + bought items.
+        // Typed explicitly here so the as-any casts at the simulateRound /
+        // performBuyPhase call sites can be dropped.
+        type EconomyState = import("@/engine/match/round-outcome").PlayerSimulationState
+        const hEcon: Record<string, EconomyState> = {}
+        const aEcon: Record<string, EconomyState> = {}
         Object.keys(currentSimState.homeEconomy).forEach(playerId => {
-            hEcon[playerId] = { ...currentSimState.homeEconomy[playerId] }
+            hEcon[playerId] = { ...currentSimState.homeEconomy[playerId] } as EconomyState
         })
         Object.keys(currentSimState.awayEconomy).forEach(playerId => {
-            aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] }
+            aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] } as EconomyState
         })
 
         simulationEngineV2.performBuyPhase(hPlayers, hEcon, homeStrategy, currentSimState.homeStartsCT, rng, customTactics)
@@ -465,8 +497,8 @@ export function useLiveMatch(id: string) {
         const hStaff = getTeamStaff(homeTeam.id)
         const aStaff = getTeamStaff(awayTeam.id)
 
-        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam, hPlayers, hStaff)
-        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam, aPlayers, aStaff)
+        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam as unknown as Team, hPlayers, hStaff)
+        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam as unknown as Team, aPlayers, aStaff)
         const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.SANDSTONE
         const homeMapStrength = simulationEngineV2.calculateMapStrengths(hPlayers).get(currentMapId) || 50
         const awayMapStrength = simulationEngineV2.calculateMapStrengths(aPlayers).get(currentMapId) || 50
@@ -485,20 +517,20 @@ export function useLiveMatch(id: string) {
             currentSimState.homeLossStreak,
             currentSimState.awayLossStreak,
             currentRoundNumber,
-            hEcon as any,
-            aEcon as any,
+            hEcon,
+            aEcon,
             homeStrategy,
             awayStrategy,
             false,
-            homeTeam as any,
-            awayTeam as any,
+            homeTeam as unknown as Team,
+            awayTeam as unknown as Team,
             homeTeam.id,
             awayTeam.id,
             customTactics,
             currentSimState.homeMomentumScore,
             currentSimState.awayMomentumScore,
-            hStaff as any,
-            aStaff as any,
+            hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+            aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             currentMapId
         )
 
@@ -725,11 +757,11 @@ export function useLiveMatch(id: string) {
                     const victimPlayer = nextEvent.victimId ? origPlayerMap.get(nextEvent.victimId) : undefined
                     const assisterPlayer = nextEvent.assisterId ? origPlayerMap.get(nextEvent.assisterId) : undefined
 
-                    let killType = "KILL_GENERIC"
+                    let killType: "KILL_GENERIC" | "KILL_AWP" | "KILL_KNIFE" = "KILL_GENERIC"
                     if (weaponId === "awp") killType = "KILL_AWP"
                     if (weaponId === "knife") killType = "KILL_KNIFE"
 
-                    const message = commentaryManager.generate(killType as any, {
+                    const message = commentaryManager.generate(killType, {
                         player: killer?.name || "Player",
                         victim: victim?.name || "Player",
                         weapon: nextEvent.weapon?.toUpperCase(),

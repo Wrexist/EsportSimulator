@@ -95,7 +95,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             }
 
             // Default salary suggestion
-            const ev = evaluatePlayer(playerSave as any)
+            const ev = evaluatePlayer(playerSave)
             const suggestedSalary = Math.round(ev.transferValue / 100)
             setSalaryOffer(suggestedSalary)
 
@@ -108,7 +108,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
     if (!isOpen || !playerSave) return null
 
-    const evaluation = evaluatePlayer(playerSave as any)
+    const evaluation = evaluatePlayer(playerSave)
     const playerTier = getDisplayPlayerTier(evaluation.overallRating, currentTeam?.tier as TierLevel)
     const tierStyle = getTierStyle(playerTier)
     const getNegotiationRng = (phase: string) => new SeededRNG(
@@ -134,7 +134,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         else idealWeeks = 36                               // ~8 months - near retirement
 
         // Loyalty modifier: high loyalty = longer commitment comfort
-        const loyalty = (playerSave as any).loyalty ?? 50
+        const loyalty = playerSave.loyalty ?? 50
         const loyaltyFactor = loyalty / 100
         idealWeeks = Math.round(idealWeeks * (0.8 + loyaltyFactor * 0.4)) // ±20%
 

@@ -84,6 +84,8 @@ interface PlayerSimState {
     sideCount: number
     money?: number
     spawnPoint: Point
+    /** CT-only: their assigned hold position (where they walk to from spawn). */
+    holdPoint?: Point
     deathTime?: number
     staticDead: boolean
     pos: Point
@@ -188,6 +190,26 @@ function clampVector(v: Point, maxLength: number): Point {
     if (len <= maxLength) return v
     const dir = normalize(v)
     return scale(dir, maxLength)
+}
+
+/**
+ * True if line segments (a1→a2) and (b1→b2) cross. Uses standard CCW
+ * orientation tests. Endpoint-only touches don't count as a crossing so a
+ * kill-line that just grazes a wall corner stays visible.
+ */
+function segmentsIntersect(
+    a1x: number, a1y: number, a2x: number, a2y: number,
+    b1x: number, b1y: number, b2x: number, b2y: number,
+): boolean {
+    function ccw(ax: number, ay: number, bx: number, by: number, cx: number, cy: number): number {
+        return (cy - ay) * (bx - ax) - (by - ay) * (cx - ax)
+    }
+    const d1 = ccw(b1x, b1y, b2x, b2y, a1x, a1y)
+    const d2 = ccw(b1x, b1y, b2x, b2y, a2x, a2y)
+    const d3 = ccw(a1x, a1y, a2x, a2y, b1x, b1y)
+    const d4 = ccw(a1x, a1y, a2x, a2y, b2x, b2y)
+    return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0))
+        && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
 }
 
 function projectPoint(mapId: MapId, level: RadarLevel, rawPoint: Point): Point {
@@ -365,8 +387,13 @@ function getPlayerLevel(
 
 function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationContext, jitterScale: number): Point {
     const freezeEnd = 3
+    // Ts walk out of spawn after freeze and reach contact zones over the
+    // first ~12 seconds. The cap keeps engagements from happening with
+    // Ts still in spawn (the "shooting across the map from spawn" feedback
+    // the user flagged) while staying inside the per-second movement
+    // smoothness budget the radar-position-engine test enforces.
     const preFightEnd = Math.max(
-        freezeEnd + 4,
+        freezeEnd + 6,
         Math.min(ctx.firstKillTime - 1, ctx.hasPlant ? ctx.plantTime - 3 : ctx.firstKillTime - 1)
     )
 
@@ -379,7 +406,11 @@ function resolveTTarget(state: PlayerSimState, time: number, ctx: SimulationCont
 
     if (time < preFightEnd) {
         const progress = smoothStep((time - freezeEnd) / Math.max(1, preFightEnd - freezeEnd))
-        const pathPoint = lerpAlongPath(ctx.attackPath, 0.08 + progress * 0.72, state.spawnPoint)
+        // Push 0.12 → 0.78 along the attack path. Slightly more aggressive
+        // than the original 0.08 → 0.72 so engagements land at realistic
+        // contact points, but conservative enough to keep per-second jumps
+        // under the smoothness invariant.
+        const pathPoint = lerpAlongPath(ctx.attackPath, 0.12 + progress * 0.66, state.spawnPoint)
         return add(pathPoint, add(scale(baseFormation, 1.2), jitter))
     }
 
@@ -402,27 +433,42 @@ function resolveCTTarget(state: PlayerSimState, time: number, ctx: SimulationCon
     const freezeEnd = 3
     const baseFormation = scale(state.formationOffset, 0.85)
     const jitter = getMicroJitter(time, state.seed + 77, jitterScale)
+    // Each CT has an assigned hold (site/mid). They walk from ctSpawn → hold
+    // during the freeze and the first few seconds of the round, so the radar
+    // shows them rotating OUT instead of starting pre-deployed at bombsites.
+    const hold = state.holdPoint || ctx.engageZone
 
     if (time <= freezeEnd) {
-        return add(state.spawnPoint, add(scale(baseFormation, 0.4), jitter))
+        // Edge their hold direction during freeze (slight lean-out), but
+        // stay clustered around the actual CT spawn.
+        const freezeTarget = lerpPoint(state.spawnPoint, hold, 0.18)
+        return add(freezeTarget, add(scale(baseFormation, 0.55), jitter))
     }
 
+    // Walk from spawn to assigned hold over ~8 seconds after the freeze ends,
+    // staggered slightly by player index so they don't move in lockstep.
+    const setupDuration = 8
+    const setupT = clamp((time - freezeEnd - state.index * 0.35) / setupDuration, 0, 1)
+    const setupProgress = smoothStep(setupT)
+    const setupTarget = lerpPoint(state.spawnPoint, hold, setupProgress)
+
     if (time < ctx.firstKillTime) {
-        const holdBlend = 0.12 + Math.min(0.2, state.index * 0.04)
-        const holdTarget = lerpPoint(state.spawnPoint, ctx.engageZone, holdBlend)
-        return add(holdTarget, add(scale(baseFormation, 0.9), jitter))
+        return add(setupTarget, add(scale(baseFormation, 0.85), jitter))
     }
 
     if (ctx.hasPlant && time >= ctx.plantTime) {
         const retakeProgress = smoothStep((time - ctx.plantTime) / (17 + state.index))
-        const entry = lerpPoint(state.spawnPoint, ctx.engageZone, 0.35)
+        const entry = lerpPoint(hold, ctx.engageZone, 0.35)
         const retakeTarget = lerpPoint(entry, ctx.targetSite, 0.2 + retakeProgress * 0.75)
         return add(retakeTarget, add(scale(baseFormation, 0.9), jitter))
     }
 
     const rotateProgress = smoothStep((time - ctx.firstKillTime) / (18 + state.index))
     const rotateAnchor = lerpAlongPath(ctx.ctRotatePath, clamp(rotateProgress + state.index * 0.06, 0, 1), ctx.engageZone)
-    return add(rotateAnchor, add(scale(baseFormation, 1.05), jitter))
+    // Blend FROM the hold (not spawn) so the rotation looks like they're
+    // leaving their setup position.
+    const rotateTarget = lerpPoint(hold, rotateAnchor, smoothStep(rotateProgress))
+    return add(rotateTarget, add(scale(baseFormation, 1.05), jitter))
 }
 
 function getTargetForPlayer(state: PlayerSimState, time: number, ctx: SimulationContext, jitterScale: number): Point {
@@ -435,7 +481,8 @@ function createPlayerStates(
     side: "ct" | "t",
     spawnPoints: Point[],
     ctx: SimulationContext,
-    killEvents: MatchEvent[]
+    killEvents: MatchEvent[],
+    holdPoints?: Point[]
 ): PlayerSimState[] {
     const states: PlayerSimState[] = []
     const sideCount = Math.max(1, players.length)
@@ -449,6 +496,12 @@ function createPlayerStates(
         const seed = ctx.safeSeed + ctx.safeRoundNumber * 101 + hashString(player.id)
         const level = getPlayerLevel(side, index, 0, ctx) || "upper"
         const spawnPoint = projectPoint(ctx.mapId, level, spawnRaw)
+        const holdRaw = holdPoints && holdPoints.length > 0
+            ? holdPoints[index % holdPoints.length]
+            : undefined
+        const holdPoint = holdRaw
+            ? projectPoint(ctx.mapId, level, holdRaw)
+            : undefined
 
         states.push({
             playerId: player.id,
@@ -458,6 +511,7 @@ function createPlayerStates(
             sideCount,
             money: Number.isFinite(player.money) ? player.money : undefined,
             spawnPoint,
+            holdPoint,
             deathTime: getDeathTime(player.id, killEvents),
             staticDead: player.isDead && getDeathTime(player.id, killEvents) === undefined,
             pos: spawnPoint,
@@ -524,11 +578,60 @@ function simulatePlayersAtTime(
                 nextPos = projectPoint(ctx.mapId, nextLevel, nextPos)
             }
 
+            // Final safety cap. After two projections nextPos can still
+            // sit further away than the velocity allows — projectToWalkable
+            // snaps to the nearest walkable cell, and "nearest" can lie
+            // across a wall. When that happens we'd rather stall the
+            // player than teleport them. The radar-test invariant
+            // (per-second jump ≤ 14) depends on this.
+            const finalStep = magnitude(sub(nextPos, state.pos))
+            const finalCap = maxSpeed * dt * 1.2
+            if (finalStep > finalCap) {
+                if (finalStep > 0) {
+                    const dir = normalize(sub(nextPos, state.pos))
+                    nextPos = add(state.pos, scale(dir, finalCap))
+                } else {
+                    nextPos = state.pos
+                }
+            }
+            // Verify the (capped) target lands on a walkable cell. If
+            // projecting moves it more than the cap, the capped point
+            // sits inside a wall — freeze at the last known walkable
+            // pos rather than let the snap carry the player into the
+            // void. Keeps the dot strictly inside the radar's walkable
+            // surface across level transitions.
+            const projected = projectPoint(ctx.mapId, nextLevel, nextPos)
+            if (magnitude(sub(projected, nextPos)) > finalCap) {
+                nextPos = state.pos
+            } else {
+                nextPos = projected
+            }
+
             const projectionCorrection = magnitude(sub(nextPos, add(state.pos, scale(state.vel, dt))))
             if (projectionCorrection > 0.35) {
                 state.vel = scale(state.vel, 0.45)
             }
 
+            // Level transition (upper ↔ lower): state.pos was walkable on
+            // the OLD level but may not be on the NEW one. The dot's
+            // final projection will then snap to the nearest walkable
+            // cell — potentially 20+ units. Catch up here so the
+            // transition presents as a bounded "stair-step" jump
+            // (≤ TRANSITION_SNAP_CAP) rather than a teleport across
+            // the map. Velocity is zeroed so post-switch motion
+            // re-accelerates organically toward the new target.
+            if (state.level && state.level !== nextLevel) {
+                const targetOnNew = projectPoint(ctx.mapId, nextLevel, nextPos)
+                const transitionGap = magnitude(sub(targetOnNew, nextPos))
+                const TRANSITION_SNAP_CAP = 13.5
+                if (transitionGap > TRANSITION_SNAP_CAP) {
+                    const dir = normalize(sub(targetOnNew, nextPos))
+                    nextPos = add(nextPos, scale(dir, TRANSITION_SNAP_CAP))
+                } else {
+                    nextPos = targetOnNew
+                }
+                state.vel = { x: 0, y: 0 }
+            }
             state.level = nextLevel
             state.pos = nextPos
 
@@ -612,7 +715,7 @@ export function computeRadarPositions(
         if (cached) return cached
 
         const tStates = createPlayerStates(tPlayers, "t", layout.tSpawn, simCtx, killEvents)
-        const ctStates = createPlayerStates(ctPlayers, "ct", layout.ctSpawn, simCtx, killEvents)
+        const ctStates = createPlayerStates(ctPlayers, "ct", layout.ctSpawn, simCtx, killEvents, layout.ctHolds)
         const finalStates = simulatePlayersAtTime(tStates, ctStates, simCtx, safeTime)
 
         const dots: RadarPlayerDot[] = []
@@ -691,6 +794,18 @@ export function computeRadarPositions(
         const maxDistance = getMaxKillLineDistance(kill.weapon)
         if (distance > maxDistance) continue
 
+        // Wall plausibility: if the layout has authored walls, drop any kill
+        // line that crosses one. Drawn-through-walls lines were the
+        // "shooting across the map from spawn" feedback — this stops them
+        // visually even when the simulator places the players unrealistically.
+        if (layout.walls && layout.walls.length > 0) {
+            const crosses = layout.walls.some(wall => segmentsIntersect(
+                killerDot.x, killerDot.y, victimDot.x, victimDot.y,
+                wall.from.x, wall.from.y, wall.to.x, wall.to.y,
+            ))
+            if (crosses) continue
+        }
+
         killLines.push({
             fromX: clamp(killerDot.x, 0, 100),
             fromY: clamp(killerDot.y, 0, 100),
@@ -705,13 +820,28 @@ export function computeRadarPositions(
 
     const smokes: RadarSmoke[] = []
     const smokeRng = new SeededRNG(safeSeed + safeRoundNumber * 4999)
-    const numSmokes = 1 + (smokeRng.next() > 0.45 ? 1 : 0)
+    // Smoke count tied to round phase. Pistol rounds (1, 13) have no
+    // grenade economy so smokes don't make sense; anti-eco rounds (2, 14)
+    // get at most one; everything else can range 1-3 depending on RNG.
+    // Without this, eco rounds rendered the same util spam as full buys.
+    const isPistol = safeRoundNumber === 1 || safeRoundNumber === 13
+    const isAntiEco = safeRoundNumber === 2 || safeRoundNumber === 14
+    const numSmokes = isPistol
+        ? 0
+        : isAntiEco
+            ? (smokeRng.next() > 0.5 ? 1 : 0)
+            : 1 + (smokeRng.next() > 0.35 ? 1 : 0) + (smokeRng.next() > 0.75 ? 1 : 0)
     for (let smokeIndex = 0; smokeIndex < numSmokes; smokeIndex++) {
         const smokeStart = 6 + smokeRng.next() * 4
         const smokeDuration = 15 + smokeRng.next() * 5
+        // Smoke 0 = execute smoke near the target site. Smoke 1 = block CT
+        // rotation. Smoke 2+ = extra util thrown along the attack path
+        // (only happens on full-buy rounds).
         const base = smokeIndex === 0
             ? lerpPoint(simCtx.engageZone, simCtx.targetSite, 0.18 + smokeRng.next() * 0.25)
-            : lerpAlongPath(simCtx.ctRotatePath, 0.35 + smokeRng.next() * 0.55, simCtx.engageZone)
+            : smokeIndex === 1
+                ? lerpAlongPath(simCtx.ctRotatePath, 0.35 + smokeRng.next() * 0.55, simCtx.engageZone)
+                : lerpAlongPath(simCtx.attackPath, 0.55 + smokeRng.next() * 0.3, simCtx.engageZone)
 
         const smokeLevel: RadarLevel = isDualLevel && attackSite === "B" && smokeIndex === 0 ? "lower" : "upper"
         const smokePos = projectPoint(mapId, smokeLevel, base)

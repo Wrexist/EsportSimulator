@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useMemo, memo } from "react"
+import { useEffect, useMemo, memo, useRef, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
+import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
@@ -13,43 +14,52 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { CustomTactics, MapId } from "@/types"
+import { CustomTactics, MapId, Team } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
-import { MAP_NAMES } from "@/data/map-pool"
+import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
-// Helper for Weapon Icons (keep local or move to utils? keeping local for now as it was here)
+// Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
+// on every call, and resolved paths are memoized in a module-level cache so
+// the log list doesn't recompute the same string per row per render tick.
+const WEAPON_ICON_MAP: Record<string, string> = {
+    "m4a1s": "weapon_m4a1s.png",
+    "ak47": "weapon_ak47.png",
+    "m4a4": "weapon_m4a4.png",
+    "awp": "weapon_awp.png",
+    "deagle": "weapon_deagle.png",
+    "usp": "weapon_usp.png",
+    "glock": "weapon_glock.png",
+    "p250": "weapon_p250.png",
+    "mac10": "weapon_mac10.png",
+    "mp9": "weapon_mp9.png",
+    "xm1014": "weapon_xm1014.png",
+    "p90": "weapon_p90.png",
+    "famas": "weapon_famas.png",
+    "galilar": "weapon_galil.png",
+    "galil": "weapon_galil.png",
+    "mp7": "weapon_mp7.png",
+    "aug": "weapon_aug.png",
+    "mag7": "weapon_mag7.png",
+    "fiveseven": "weapon_fiveseven.png",
+    "ssg08": "weapon_awp.png",
+    "dualies": "weapon_p250.png",
+    "tec9": "weapon_glock.png",
+    "sg553": "weapon_ak47.png",
+    "knife": "weapon_glock.png",
+}
+const WEAPON_ICON_FALLBACK = "/assets/weapons/weapon_glock.png"
+const weaponIconCache = new Map<string, string>()
+
 const getWeaponIcon = (weaponName: string | undefined): string => {
-    if (!weaponName) return "/assets/weapons/weapon_glock.png";
-    const name = weaponName.toLowerCase().replace(/-/g, "").replace(/\s+/g, "");
-    const mapping: Record<string, string> = {
-        "m4a1s": "weapon_m4a1s.png",
-        "ak47": "weapon_ak47.png",
-        "m4a4": "weapon_m4a4.png",
-        "awp": "weapon_awp.png",
-        "deagle": "weapon_deagle.png",
-        "usp": "weapon_usp.png",
-        "glock": "weapon_glock.png",
-        "p250": "weapon_p250.png",
-        "mac10": "weapon_mac10.png",
-        "mp9": "weapon_mp9.png",
-        "xm1014": "weapon_xm1014.png",
-        "p90": "weapon_p90.png",
-        "famas": "weapon_famas.png",
-        "galilar": "weapon_galil.png",
-        "galil": "weapon_galil.png",
-        "mp7": "weapon_mp7.png",
-        "aug": "weapon_aug.png",
-        "mag7": "weapon_mag7.png",
-        "fiveseven": "weapon_fiveseven.png",
-        "ssg08": "weapon_awp.png",
-        "dualies": "weapon_p250.png",
-        "tec9": "weapon_glock.png",
-        "sg553": "weapon_ak47.png",
-        "knife": "weapon_glock.png"
-    };
-    const mapped = mapping[name] || "weapon_glock.png";
-    return `/assets/weapons/${mapped}`;
-};
+    if (!weaponName) return WEAPON_ICON_FALLBACK
+    const cached = weaponIconCache.get(weaponName)
+    if (cached) return cached
+    const normalized = weaponName.toLowerCase().replace(/-/g, "").replace(/\s+/g, "")
+    const mapped = WEAPON_ICON_MAP[normalized] || "weapon_glock.png"
+    const path = `/assets/weapons/${mapped}`
+    weaponIconCache.set(weaponName, path)
+    return path
+}
 
 
 // Memoized log list. Without memo this re-evaluates every per-tick parent
@@ -186,6 +196,69 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
     )
 })
 
+// Strategy panel constants. Hoisted to module scope so the array and the
+// cost lookup don't reallocate every render of the strategy panel. The
+// icons are JSX nodes (small SVGs) — fine to share as the same reference
+// since they have no state.
+const STRATEGY_OPTIONS = [
+    { id: "ECO", fallback: "SAVE", icon: <Coins className="w-5 h-5" />, baseColor: "bg-white/5 text-white/50 border-white/10", cost: 0 },
+    { id: "FORCE", fallback: "FORCE", icon: <ZapIcon className="w-5 h-5" />, baseColor: "bg-orange-500/10 text-orange-300 border-orange-500/20", cost: 1800 },
+    { id: "SEMIBUY", fallback: "SEMI", icon: <Search className="w-5 h-5" />, baseColor: "bg-purple-500/10 text-purple-300 border-purple-500/20", cost: 3600 },
+    { id: "FULL", fallback: "FULL", icon: <Shield className="w-5 h-5" />, baseColor: "bg-blue-500/20 text-blue-400 border-blue-500/40", cost: 4700 },
+    { id: "DOUBLE AWP", fallback: "2xAWP", icon: <Crosshair className="w-5 h-5" />, baseColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20", cost: 6500 },
+] as const
+
+// Roster row, memoized on the fields it actually reads. Without React.memo
+// each tick re-renders all 10 rows even when only the timer changed; the
+// PlayerPortrait + image lookups inside add up. Memoizing on the shallow
+// subset of LivePlayerState the row actually displays keeps idle ticks at
+// O(0) row renders.
+interface RosterRowProps {
+    id: string
+    name: string
+    money: number
+    weapon: string | undefined
+    isDead: boolean
+    kills: number
+    deaths: number
+    assists: number
+    portraitPath: string | undefined
+    defaultWeaponLabel: "USP" | "GLOCK"
+    extraClassName?: string
+}
+
+const RosterRow = memo(function RosterRow({
+    name, money, weapon, isDead, kills, deaths, assists, portraitPath, defaultWeaponLabel, extraClassName,
+}: RosterRowProps) {
+    return (
+        <div className={cn(
+            "p-2 rounded-2xl flex items-center gap-3 border transition-colors",
+            isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5",
+            extraClassName,
+        )}>
+            <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
+                <PlayerPortrait
+                    src={portraitPath}
+                    alt={name}
+                    size={40}
+                    variant="card"
+                />
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                    <div className="font-normal text-xs uppercase truncate pr-2">{name}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${money}</div>
+                </div>
+                <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{weapon?.toUpperCase() || defaultWeaponLabel}</div>
+            </div>
+            <div className="text-right shrink-0">
+                <div className="text-xs font-normal">{kills}/{deaths}/{assists}</div>
+                {isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" aria-hidden="true" />}
+            </div>
+        </div>
+    )
+})
+
 export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const {
         gameState,
@@ -210,7 +283,10 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         playerTeam,
         originalHomePlayers,
         originalAwayPlayers,
-        currentRoundEvents
+        currentRoundEvents,
+        roundTime,
+        isBombPlanted,
+        bombTime,
     } = useLiveMatch(params.id)
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -218,8 +294,32 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     const [editingSide, setEditingSide] = useState<"ct" | "t">("ct")
     const [editingStrategy, setEditingStrategy] = useState<keyof CustomTactics>("FULL")
 
+    // Half-time overlay trigger — fires on the transition into round 13.
+    // Rising-edge detection so the overlay shows once per match, not
+    // every tick while round === 13.
+    const [showHalfTime, setShowHalfTime] = useState(false)
+    const prevRoundRef = useRef(gameState.round)
+    useEffect(() => {
+        if (gameState.round === 13 && prevRoundRef.current !== 13 && prevRoundRef.current > 0) {
+            setShowHalfTime(true)
+            const t = setTimeout(() => setShowHalfTime(false), 2400)
+            prevRoundRef.current = gameState.round
+            return () => clearTimeout(t)
+        }
+        prevRoundRef.current = gameState.round
+    }, [gameState.round])
+
     // Compute live radar positions from round events (must be before early return for hooks rules)
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
+
+    // Roster identity hash — only changes when player IDs / dead-mask / money
+    // shift, NOT every render. Without this, radar recompute fired on every
+    // useState update of the roster arrays (~60Hz during a live round).
+    const rosterFingerprint = useMemo(() => {
+        return homeRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
+            + "#" + awayRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
+    }, [homeRoster, awayRoster])
+
     const radarData = useMemo(() => {
         if (!simState || !matchData.current || gameState.time < 0) return null
         return computeRadarPositions(
@@ -232,7 +332,10 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             gameState.round,
             matchData.current.match.seed ?? 0
         )
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, homeRoster, awayRoster])
+        // Intentionally depend on rosterFingerprint instead of the array
+        // refs so an unchanged roster (most ticks) skips the recompute.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
@@ -249,21 +352,20 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         [radarData?.aSite, radarData?.bSite]
     )
 
-    // Memoize the root style object. With useLiveMatch ticking at 30-60Hz this
-    // was being allocated as a fresh object (and the backgroundImage URL as a
-    // fresh string) every frame, defeating any style-diffing in the renderer.
-    const rootStyle = useMemo(() => ({
-        backgroundImage: `radial-gradient(circle at center, rgba(0,0,0,0.7) 0%, #0e1217 100%), url(/maps/${currentMapId}.png)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundBlendMode: "overlay" as const,
+    // Background lives in a fixed-position layer so it stays viewport-sized.
+    // Heavy dark gradient over the map photo keeps panels readable; the map
+    // is a subtle atmospheric backdrop, not the foreground.
+    const backgroundStyle = useMemo(() => ({
+        backgroundImage: `linear-gradient(180deg, rgba(10,14,20,0.92) 0%, rgba(10,14,20,0.78) 55%, rgba(10,14,20,0.96) 100%), url(/maps/${getMapAssetName(currentMapId)}.png)`,
+        backgroundSize: "cover, cover",
+        backgroundPosition: "center, center",
     }), [currentMapId])
 
     if (!matchData.current || !simState) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
             <div className="text-center">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match...</p>
+                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Warming up servers…</p>
             </div>
         </div>
     )
@@ -278,17 +380,26 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
     return (
         <ErrorBoundary section="Live Match">
-        <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col overflow-hidden font-sans select-none relative"
+        <div className="min-h-screen liquid-app-bg text-white p-6 flex flex-col font-sans select-none relative"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
-            style={rootStyle}
         >
+            <div
+                aria-hidden="true"
+                className="fixed inset-0 -z-10 pointer-events-none"
+                style={backgroundStyle}
+            />
+            <HalfTimeOverlay active={showHalfTime} />
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 
+                {/* TeamSaveData (engine save shape) → Team (engine runtime
+                    shape). Structural overlap is total for the fields the
+                    scoreboard reads — cast documented in ARCHITECTURE.md
+                    "Known Type-System Debt". */}
                 <LiveMatchScoreboard
                     gameState={gameState}
-                    homeTeam={homeTeam}
-                    awayTeam={awayTeam}
+                    homeTeam={homeTeam as unknown as Team}
+                    awayTeam={awayTeam as unknown as Team}
                     matchFormat={matchData.current.match.format}
                     currentMapId={currentMapId}
                     mapName={mapName}
@@ -296,6 +407,9 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                     awaySeriesScore={simState.awaySeriesScore}
                     homeScore={gameState.homeScore}
                     awayScore={gameState.awayScore}
+                    roundTime={roundTime}
+                    isBombPlanted={isBombPlanted}
+                    bombTime={bombTime}
                 />
 
                 {/* STRATEGY PANEL */}
@@ -320,25 +434,8 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                                     const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + p.cash, 0) / 5)
                                     const side = simState.homeStartsCT ? "ct" : "t"
 
-                                    const strategies = [
-                                        { id: "ECO", fallback: "SAVE", icon: <Coins className="w-5 h-5" />, baseColor: "bg-white/5 text-white/50 border-white/10" },
-                                        { id: "FORCE", fallback: "FORCE", icon: <ZapIcon className="w-5 h-5" />, baseColor: "bg-orange-500/10 text-orange-300 border-orange-500/20" },
-                                        { id: "SEMIBUY", fallback: "SEMI", icon: <Search className="w-5 h-5" />, baseColor: "bg-purple-500/10 text-purple-300 border-purple-500/20" },
-                                        { id: "FULL", fallback: "FULL", icon: <Shield className="w-5 h-5" />, baseColor: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
-                                        { id: "DOUBLE AWP", fallback: "2xAWP", icon: <Crosshair className="w-5 h-5" />, baseColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20" }
-                                    ]
-
-                                    const getStrategyCost = (stratId: string) => {
-                                        if (stratId === "ECO") return 0
-                                        if (stratId === "FORCE") return 1800
-                                        if (stratId === "SEMIBUY") return 3600
-                                        if (stratId === "FULL") return 4700
-                                        if (stratId === "DOUBLE AWP") return 6500
-                                        return 0
-                                    }
-
-                                    return strategies.map((strat) => {
-                                        const cost = getStrategyCost(strat.id)
+                                    return STRATEGY_OPTIONS.map((strat) => {
+                                        const cost = strat.cost
                                         const canAfford = avgCash >= cost
 
                                         return (
@@ -383,32 +480,21 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
                     {/* HOME TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
-                        {homeRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalHomeMap.get(p.id)
-                            return (
-                                <div key={p.id} className={cn("group p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
-                                    <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
-                                        <PlayerPortrait
-                                            src={originalPlayer?.portraitPath}
-                                            alt={p.name}
-                                            size={40}
-                                            variant="card"
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="font-normal text-xs uppercase truncate pr-2">{p.name}</div>
-                                            <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${p.money}</div>
-                                        </div>
-                                        <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{p.weapon?.toUpperCase() || "USP"}</div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <div className="text-xs font-normal">{p.kills}/{p.deaths}/{p.assists}</div>
-                                        {p.isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" />}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {homeRoster.slice(0, 5).map(p => (
+                            <RosterRow
+                                key={p.id}
+                                id={p.id}
+                                name={p.name}
+                                money={p.money}
+                                weapon={p.weapon}
+                                isDead={p.isDead}
+                                kills={p.kills || 0}
+                                deaths={p.deaths || 0}
+                                assists={p.assists || 0}
+                                portraitPath={originalHomeMap.get(p.id)?.portraitPath}
+                                defaultWeaponLabel="USP"
+                            />
+                        ))}
                     </div>
 
                     {/* CONSOLE / CENTER */}
@@ -451,31 +537,21 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
 
                     {/* AWAY TEAM ROSTER */}
                     <div className={cn("col-span-3 glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
-                        {awayRoster.slice(0, 5).map(p => {
-                            const originalPlayer = originalAwayMap.get(p.id)
-                            return (
-                                <div key={p.id} className={cn("p-2 rounded-2xl flex items-center gap-3 border transition-colors", p.isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5")}>
-                                    <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
-                                        <PlayerPortrait
-                                            src={originalPlayer?.portraitPath}
-                                            alt={p.name}
-                                            size={40}
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="font-normal text-xs uppercase truncate pr-2">{p.name}</div>
-                                            <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${p.money}</div>
-                                        </div>
-                                        <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{p.weapon?.toUpperCase() || "GLOCK"}</div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <div className="text-xs font-normal">{p.kills}/{p.deaths}/{p.assists}</div>
-                                        {p.isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" />}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {awayRoster.slice(0, 5).map(p => (
+                            <RosterRow
+                                key={p.id}
+                                id={p.id}
+                                name={p.name}
+                                money={p.money}
+                                weapon={p.weapon}
+                                isDead={p.isDead}
+                                kills={p.kills || 0}
+                                deaths={p.deaths || 0}
+                                assists={p.assists || 0}
+                                portraitPath={originalAwayMap.get(p.id)?.portraitPath}
+                                defaultWeaponLabel="GLOCK"
+                            />
+                        ))}
                     </div>
                 </div>
             </div>

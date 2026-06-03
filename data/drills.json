@@ -7,36 +7,14 @@
         "iconName": "Target",
         "fatigueCost": 15,
         "rewards": [
-            {
-                "stat": "Rifle",
-                "value": 3
-            },
-            {
-                "stat": "Skill",
-                "value": 1
-            }
+            { "stat": "Rifle", "value": 3 },
+            { "stat": "Skill", "value": 1 }
         ],
         "steps": [
-            {
-                "message": "Initial burst control...",
-                "difficulty": 30,
-                "statCheck": "skill"
-            },
-            {
-                "message": "Pulling down for spray...",
-                "difficulty": 50,
-                "statCheck": "skill"
-            },
-            {
-                "message": "Transferring to second target...",
-                "difficulty": 70,
-                "statCheck": "reaction"
-            },
-            {
-                "message": "Resetting accuracy...",
-                "difficulty": 40,
-                "statCheck": "skill"
-            }
+            { "message": "Initial burst control...", "difficulty": 30, "statCheck": "skill" },
+            { "message": "Pulling down for spray...", "difficulty": 50, "statCheck": "skill" },
+            { "message": "Transferring to second target...", "difficulty": 70, "statCheck": "reaction" },
+            { "message": "Resetting accuracy...", "difficulty": 40, "statCheck": "skill" }
         ]
     },
     {
@@ -47,36 +25,14 @@
         "iconName": "Wind",
         "fatigueCost": 10,
         "rewards": [
-            {
-                "stat": "Agility",
-                "value": 2
-            },
-            {
-                "stat": "Focus",
-                "value": 2
-            }
+            { "stat": "Agility", "value": 2 },
+            { "stat": "Focus", "value": 2 }
         ],
         "steps": [
-            {
-                "message": "Strafing into the first ramp...",
-                "difficulty": 40,
-                "statCheck": "reaction"
-            },
-            {
-                "message": "Maintaining velocity through the spiral...",
-                "difficulty": 60,
-                "statCheck": "skill"
-            },
-            {
-                "message": "Landing the skip jump...",
-                "difficulty": 80,
-                "statCheck": "reaction"
-            },
-            {
-                "message": "Final smooth landing...",
-                "difficulty": 30,
-                "statCheck": "skill"
-            }
+            { "message": "Strafing into the first ramp...", "difficulty": 40, "statCheck": "reaction" },
+            { "message": "Maintaining velocity through the spiral...", "difficulty": 60, "statCheck": "skill" },
+            { "message": "Landing the skip jump...", "difficulty": 80, "statCheck": "reaction" },
+            { "message": "Final smooth landing...", "difficulty": 30, "statCheck": "skill" }
         ]
     },
     {
@@ -87,36 +43,321 @@
         "iconName": "Crosshair",
         "fatigueCost": 20,
         "rewards": [
-            {
-                "stat": "Entry",
-                "value": 3
-            },
-            {
-                "stat": "Tactic",
-                "value": 1
-            }
+            { "stat": "Entry", "value": 3 },
+            { "stat": "Tactic", "value": 1 }
         ],
         "steps": [
-            {
-                "message": "Clearing Palace angle...",
-                "difficulty": 50,
-                "statCheck": "tactic"
-            },
-            {
-                "message": "Checking Sandwich...",
-                "difficulty": 60,
-                "statCheck": "reaction"
-            },
-            {
-                "message": "Isolating the CT spawn angle...",
-                "difficulty": 75,
-                "statCheck": "tactic"
-            },
-            {
-                "message": "Jiggle peaking Connector...",
-                "difficulty": 65,
-                "statCheck": "skill"
-            }
+            { "message": "Clearing Palace angle...", "difficulty": 50, "statCheck": "tactic" },
+            { "message": "Checking Sandwich...", "difficulty": 60, "statCheck": "reaction" },
+            { "message": "Isolating the CT spawn angle...", "difficulty": 75, "statCheck": "tactic" },
+            { "message": "Jiggle peaking Connector...", "difficulty": 65, "statCheck": "skill" }
+        ]
+    },
+    {
+        "id": "awp_flicks",
+        "name": "AWP Flick Camp",
+        "description": "Hour-long deathmatch session focused on no-scope flicks and quick-scope tracking.",
+        "focus": "AWP Mechanics",
+        "iconName": "Crosshair",
+        "fatigueCost": 18,
+        "rewards": [
+            { "stat": "AWP", "value": 4 },
+            { "stat": "Reaction", "value": 1 }
+        ],
+        "steps": [
+            { "message": "Warm-up flicks at static targets...", "difficulty": 35, "statCheck": "reaction" },
+            { "message": "Quick-scope while strafing...", "difficulty": 60, "statCheck": "skill" },
+            { "message": "180° turn-and-shoot on cue...", "difficulty": 80, "statCheck": "reaction" },
+            { "message": "Hold-angle discipline under fire...", "difficulty": 55, "statCheck": "tactic" }
+        ]
+    },
+    {
+        "id": "pistol_precision",
+        "name": "Pistol Precision",
+        "description": "Tap-fire drills for USP, Glock, P250 and Deagle headshot consistency.",
+        "focus": "Pistol Aim",
+        "iconName": "Crosshair",
+        "fatigueCost": 10,
+        "rewards": [
+            { "stat": "Pistol", "value": 3 },
+            { "stat": "Skill", "value": 1 }
+        ],
+        "steps": [
+            { "message": "USP tap rhythm at 12m...", "difficulty": 30, "statCheck": "skill" },
+            { "message": "Glock 3-tap bursts...", "difficulty": 45, "statCheck": "reaction" },
+            { "message": "Deagle one-tap drill...", "difficulty": 80, "statCheck": "skill" },
+            { "message": "Cross-map P250 spam...", "difficulty": 50, "statCheck": "skill" }
+        ]
+    },
+    {
+        "id": "smoke_lineups",
+        "name": "Smoke Lineup Lab",
+        "description": "Map-by-map smoke and molotov setups for executes and retakes.",
+        "focus": "Utility Mastery",
+        "iconName": "Bomb",
+        "fatigueCost": 12,
+        "rewards": [
+            { "stat": "Grenades", "value": 4 },
+            { "stat": "Tactic", "value": 1 }
+        ],
+        "steps": [
+            { "message": "Mirage A-site execute smokes...", "difficulty": 40, "statCheck": "tactic" },
+            { "message": "Inferno banana one-way...", "difficulty": 70, "statCheck": "tactic" },
+            { "message": "Nuke heaven from ramp...", "difficulty": 60, "statCheck": "skill" },
+            { "message": "Anubis pyramid retake stack...", "difficulty": 75, "statCheck": "tactic" }
+        ]
+    },
+    {
+        "id": "flash_assists",
+        "name": "Flash Assist Drill",
+        "description": "Pop-flash timing with a teammate for entry-frag setups.",
+        "focus": "Teamwork & Utility",
+        "iconName": "Zap",
+        "fatigueCost": 12,
+        "rewards": [
+            { "stat": "Grenades", "value": 2 },
+            { "stat": "Teamwork", "value": 3 }
+        ],
+        "steps": [
+            { "message": "Counting down the bounce timing...", "difficulty": 40, "statCheck": "teamwork" },
+            { "message": "Flashing for the entry...", "difficulty": 60, "statCheck": "tactic" },
+            { "message": "Double-flash on the rotate...", "difficulty": 75, "statCheck": "teamwork" },
+            { "message": "Debrief & adjust flight time...", "difficulty": 30, "statCheck": "tactic" }
+        ]
+    },
+    {
+        "id": "vod_review",
+        "name": "VOD Review Session",
+        "description": "Pro-match film study with the coach. Pause, rewind, dissect.",
+        "focus": "Game IQ",
+        "iconName": "Video",
+        "fatigueCost": 5,
+        "rewards": [
+            { "stat": "Tactic", "value": 3 },
+            { "stat": "Leadership", "value": 1 }
+        ],
+        "steps": [
+            { "message": "Spotting the default setup...", "difficulty": 40, "statCheck": "tactic" },
+            { "message": "Identifying the rotate trigger...", "difficulty": 55, "statCheck": "tactic" },
+            { "message": "Reading the post-plant fake...", "difficulty": 70, "statCheck": "tactic" },
+            { "message": "Drawing up a counter-strat...", "difficulty": 60, "statCheck": "leader" }
+        ]
+    },
+    {
+        "id": "scrim_block",
+        "name": "Scrim Block",
+        "description": "Three-game scrim against a similarly-ranked team. Pure repetition.",
+        "focus": "Team Cohesion",
+        "iconName": "Swords",
+        "fatigueCost": 25,
+        "rewards": [
+            { "stat": "Teamwork", "value": 3 },
+            { "stat": "Tactic", "value": 2 }
+        ],
+        "steps": [
+            { "message": "First-half feel-out rounds...", "difficulty": 50, "statCheck": "teamwork" },
+            { "message": "Mid-game adjustments calling...", "difficulty": 65, "statCheck": "leader" },
+            { "message": "Closing out a tight 13-10...", "difficulty": 75, "statCheck": "tactic" },
+            { "message": "Map 2 reset & re-strat...", "difficulty": 55, "statCheck": "teamwork" }
+        ]
+    },
+    {
+        "id": "clutch_lab",
+        "name": "1vX Clutch Lab",
+        "description": "Trainer-set 1v2, 1v3, 1v4 retake scenarios with limited time.",
+        "focus": "Clutch Composure",
+        "iconName": "Trophy",
+        "fatigueCost": 18,
+        "rewards": [
+            { "stat": "Clutch", "value": 4 },
+            { "stat": "Focus", "value": 1 }
+        ],
+        "steps": [
+            { "message": "1v2 with kit, 35 seconds...", "difficulty": 55, "statCheck": "clutch" },
+            { "message": "1v3 post-plant, no kit...", "difficulty": 75, "statCheck": "clutch" },
+            { "message": "1v4 sniper retake...", "difficulty": 90, "statCheck": "skill" },
+            { "message": "Recover-and-reset breath drill...", "difficulty": 30, "statCheck": "stressResistance" }
+        ]
+    },
+    {
+        "id": "mental_reset",
+        "name": "Mental Reset",
+        "description": "Sports-psych session: breathing, visualization, tilt recovery.",
+        "focus": "Mental Stamina",
+        "iconName": "Brain",
+        "fatigueCost": 0,
+        "rewards": [
+            { "stat": "Morale", "value": 5 },
+            { "stat": "StressResistance", "value": 3 }
+        ],
+        "steps": [
+            { "message": "Box-breathing for 4 minutes...", "difficulty": 20, "statCheck": "stressResistance" },
+            { "message": "Visualizing a clutch win...", "difficulty": 40, "statCheck": "focus" },
+            { "message": "Verbalizing post-tilt reset...", "difficulty": 50, "statCheck": "morale" },
+            { "message": "Setting next-match intention...", "difficulty": 30, "statCheck": "leader" }
+        ]
+    },
+    {
+        "id": "comms_drill",
+        "name": "Comms Discipline",
+        "description": "Voice-overlay analysis. Cut the chatter, sharpen the callouts.",
+        "focus": "Communication",
+        "iconName": "Megaphone",
+        "fatigueCost": 8,
+        "rewards": [
+            { "stat": "Leadership", "value": 3 },
+            { "stat": "Teamwork", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Stripping filler words...", "difficulty": 40, "statCheck": "leader" },
+            { "message": "Standardizing callout vocabulary...", "difficulty": 55, "statCheck": "teamwork" },
+            { "message": "Mid-round info-priority sort...", "difficulty": 70, "statCheck": "leader" },
+            { "message": "Quiet-the-IGL exercise...", "difficulty": 45, "statCheck": "teamwork" }
+        ]
+    },
+    {
+        "id": "deathmatch_hour",
+        "name": "Deathmatch Hour",
+        "description": "FFA HSDM warmup. Pure aim, no thinking.",
+        "focus": "Aim Warmup",
+        "iconName": "Zap",
+        "fatigueCost": 10,
+        "rewards": [
+            { "stat": "Skill", "value": 2 },
+            { "stat": "Reaction", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Hot-drop to crowded spawn...", "difficulty": 35, "statCheck": "reaction" },
+            { "message": "Forcing headshots only...", "difficulty": 65, "statCheck": "skill" },
+            { "message": "Off-hand challenge round...", "difficulty": 80, "statCheck": "skill" },
+            { "message": "Closing kill ratio above 1.5...", "difficulty": 55, "statCheck": "reaction" }
+        ]
+    },
+    {
+        "id": "fitness_block",
+        "name": "Gym & Cardio",
+        "description": "Off-keyboard conditioning. Stamina for the third hour of a BO5.",
+        "focus": "Physical Health",
+        "iconName": "Activity",
+        "fatigueCost": -10,
+        "rewards": [
+            { "stat": "Health", "value": 5 },
+            { "stat": "StressResistance", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Stretching out wrist & shoulders...", "difficulty": 20, "statCheck": "health" },
+            { "message": "Light cardio block...", "difficulty": 40, "statCheck": "health" },
+            { "message": "Posture & ergonomic check...", "difficulty": 30, "statCheck": "focus" },
+            { "message": "Cool-down & hydrate...", "difficulty": 15, "statCheck": "health" }
+        ]
+    },
+    {
+        "id": "team_dinner",
+        "name": "Team Dinner",
+        "description": "Coach treats the roster to dinner. Officially \"team bonding,\" actually about the group chat memes.",
+        "focus": "Chemistry",
+        "iconName": "Users",
+        "fatigueCost": -5,
+        "rewards": [
+            { "stat": "Teamwork", "value": 4 },
+            { "stat": "Morale", "value": 3 }
+        ],
+        "steps": [
+            { "message": "Walking into the steakhouse...", "difficulty": 10, "statCheck": "morale" },
+            { "message": "Cracking the first inside-joke...", "difficulty": 30, "statCheck": "teamwork" },
+            { "message": "Half-serious tactics talk over dessert...", "difficulty": 45, "statCheck": "leader" },
+            { "message": "Coach picks up the tab...", "difficulty": 10, "statCheck": "morale" }
+        ]
+    },
+    {
+        "id": "demo_review",
+        "name": "Opponent Demo Review",
+        "description": "Watch last week's opponent demos. Build map-specific anti-strats.",
+        "focus": "Antistrat",
+        "iconName": "Search",
+        "fatigueCost": 7,
+        "rewards": [
+            { "stat": "Tactic", "value": 4 },
+            { "stat": "Focus", "value": 1 }
+        ],
+        "steps": [
+            { "message": "Cataloguing default opens...", "difficulty": 50, "statCheck": "tactic" },
+            { "message": "Spotting an AWP timing tell...", "difficulty": 70, "statCheck": "tactic" },
+            { "message": "Designing a counter-execute...", "difficulty": 75, "statCheck": "leader" },
+            { "message": "Walkthroughs on the dry run...", "difficulty": 50, "statCheck": "teamwork" }
+        ]
+    },
+    {
+        "id": "molly_lineups",
+        "name": "Molotov Crash Course",
+        "description": "Post-plant molotovs, T-side ignites, CT-side stall throws.",
+        "focus": "Post-Plant Util",
+        "iconName": "Flame",
+        "fatigueCost": 12,
+        "rewards": [
+            { "stat": "Grenades", "value": 3 },
+            { "stat": "Tactic", "value": 2 }
+        ],
+        "steps": [
+            { "message": "A-site post-plant molly on Mirage...", "difficulty": 45, "statCheck": "tactic" },
+            { "message": "Banana stall on Inferno...", "difficulty": 60, "statCheck": "tactic" },
+            { "message": "Bombsite delay molotov on Anubis...", "difficulty": 65, "statCheck": "skill" },
+            { "message": "Stairwell line on Vertigo...", "difficulty": 70, "statCheck": "tactic" }
+        ]
+    },
+    {
+        "id": "igl_drill",
+        "name": "IGL Decision Drill",
+        "description": "Coach feeds the IGL a series of mid-round mini-puzzles. 10 seconds to decide.",
+        "focus": "In-Game Leadership",
+        "iconName": "Brain",
+        "fatigueCost": 14,
+        "rewards": [
+            { "stat": "Leadership", "value": 4 },
+            { "stat": "Tactic", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Reading the 3v3 mid info...", "difficulty": 60, "statCheck": "leader" },
+            { "message": "Calling the fake-rotate trap...", "difficulty": 75, "statCheck": "leader" },
+            { "message": "Economy gamble: force or save?", "difficulty": 70, "statCheck": "tactic" },
+            { "message": "Timeout-vs-keep-pushing call...", "difficulty": 80, "statCheck": "leader" }
+        ]
+    },
+    {
+        "id": "trade_kill_drill",
+        "name": "Trade-Kill Choreography",
+        "description": "Pair-up footwork: the second man peeks at the exact moment the first dies.",
+        "focus": "Trade Discipline",
+        "iconName": "Swords",
+        "fatigueCost": 14,
+        "rewards": [
+            { "stat": "Teamwork", "value": 3 },
+            { "stat": "Reaction", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Spacing distance at corners...", "difficulty": 40, "statCheck": "teamwork" },
+            { "message": "Listening for the lead death cue...", "difficulty": 55, "statCheck": "reaction" },
+            { "message": "Counter-strafe the trade peek...", "difficulty": 70, "statCheck": "skill" },
+            { "message": "Reset & repeat at the next angle...", "difficulty": 50, "statCheck": "teamwork" }
+        ]
+    },
+    {
+        "id": "sleep_protocol",
+        "name": "Recovery Protocol",
+        "description": "Sleep-hygiene & nutrition consult with the team psychologist. Fights burnout.",
+        "focus": "Recovery",
+        "iconName": "Moon",
+        "fatigueCost": -20,
+        "rewards": [
+            { "stat": "Health", "value": 3 },
+            { "stat": "Morale", "value": 4 },
+            { "stat": "StressResistance", "value": 2 }
+        ],
+        "steps": [
+            { "message": "Reviewing the past week's sleep log...", "difficulty": 25, "statCheck": "focus" },
+            { "message": "Adjusting practice-end times...", "difficulty": 35, "statCheck": "stressResistance" },
+            { "message": "Nutrition plan handoff...", "difficulty": 30, "statCheck": "health" },
+            { "message": "Setting a wind-down ritual...", "difficulty": 40, "statCheck": "stressResistance" }
         ]
     }
 ]

@@ -578,7 +578,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                         <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 active:bg-red-500 active:scale-90 flex items-center justify-center transition-all">
                                             <X size={10} />
                                         </button>
-                                        <Image src={prospectData.player.portraitPath || "/player_placeholder.png"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
+                                        <Image src={prospectData.player.portraitPath || "/player_placeholder.webp"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
                                         <div className="text-[10px] font-bold truncate w-full text-center">{prospectData.player.nickname}</div>
                                         <Badge className="text-[8px] h-4 px-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mt-1">{role}</Badge>
                                     </>
@@ -636,9 +636,16 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                     <div className="text-[10px] text-white/30">{filteredProspects.length} prospect{filteredProspects.length !== 1 ? "s" : ""}</div>
                 </div>
                 {filteredProspects.length === 0 ? (
-                    <div className="p-8 rounded-xl bg-white/5 border border-dashed border-white/10 text-center">
-                        <Users className="mx-auto mb-2 text-white/20" size={32} />
-                        <p className="text-sm text-white/40">{prospects.length === 0 ? "No prospects yet. Scout some talent!" : "No prospects match filters"}</p>
+                    <div className="p-8 rounded-xl bg-white/5 border border-dashed border-white/10 text-center" role="status" aria-live="polite">
+                        <Users className="mx-auto mb-3 text-white/15" size={32} aria-hidden="true" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                            {prospects.length === 0 ? "The pipeline is dry" : "No match"}
+                        </p>
+                        <p className="text-xs text-white/55 max-w-sm mx-auto leading-relaxed">
+                            {prospects.length === 0
+                                ? "Scout a region to surface raw talent — promising kids show up here once you've sent recruiters out."
+                                : "Loosen the filter to widen the search."}
+                        </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -672,7 +679,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 
                                     <div className="flex items-center gap-3">
                                         <GripVertical size={14} className="text-white/20 shrink-0" />
-                                        <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shrink-0" unoptimized />
+                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shrink-0" unoptimized />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5 mb-0.5">
                                                 <span className="font-bold text-sm truncate">{player.nickname}</span>
@@ -769,12 +776,12 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
             </div>
 
             {graduates.length === 0 ? (
-                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                        <GraduationCap size={32} className="text-white/10" />
+                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                        <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
-                    <h3 className="text-sm font-bold text-white/40 mb-1">No graduates yet</h3>
-                    <p className="text-xs text-white/55">Develop and promote prospects to see them here.</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Class of nobody</p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they'll show up here, immortalised as the first of your academy line.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -783,7 +790,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         return (
                             <div key={player.id} className="p-4 rounded-2xl bg-[#0d0d10] border border-white/10 flex items-center gap-4 group hover:border-emerald-500/30 transition-colors duration-100 ease-out">
                                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 overflow-hidden">
-                                    <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                    <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
@@ -997,7 +1004,11 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
             <div>
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Match History</div>
                 {matchHistory.length === 0 ? (
-                    <div className="p-6 rounded-xl bg-white/5 border border-dashed border-white/10 text-center"><Clock size={24} className="mx-auto mb-2 text-white/20" /><p className="text-xs text-white/40">No matches yet</p></div>
+                    <div className="p-6 rounded-xl bg-white/5 border border-dashed border-white/10 text-center" role="status">
+                        <Clock size={24} className="mx-auto mb-2 text-white/15" aria-hidden="true" />
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-0.5">No fixtures yet</p>
+                        <p className="text-xs text-white/55">Schedule an academy scrimmage to start logging results.</p>
+                    </div>
                 ) : (
                     <div className="space-y-2">
                         {matchHistory.slice(-5).reverse().map((m: any) => (
@@ -1204,7 +1215,7 @@ function ScoutingTab({
 
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="relative w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
-                                        <Image src={player.portraitPath || "/player_placeholder.png"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
                                         <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-sm rounded-tl-md">
                                             <div className={cn("w-2.5 h-1.5 rounded-sm", player.nationality === "Sweden" ? "bg-blue-600" : "bg-zinc-600")} />
                                         </div>

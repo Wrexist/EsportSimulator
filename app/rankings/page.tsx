@@ -370,7 +370,7 @@ function RankingsPageInner() {
                 for (const id of team.rosterIds) {
                     const player = playerById.get(id)
                     if (!player) continue
-                    ratingSum += evaluatePlayer(player as any).overallRating
+                    ratingSum += evaluatePlayer(player).overallRating
                     ratingCount++
                 }
                 const avgRating = ratingCount > 0 ? Math.round(ratingSum / ratingCount) : 0
@@ -874,7 +874,7 @@ function RankingsPageInner() {
                                     {selectedTeam.rosterIds.map((id: string) => {
                                         const player = playerById.get(id)
                                         if (!player) return null
-                                        const ev = evaluatePlayer(player as any)
+                                        const ev = evaluatePlayer(player)
                                         const pTier = getDisplayPlayerTier(ev.overallRating, selectedTeam?.tier as TierLevel)
                                         const pStyle = getTierStyle(pTier)
 

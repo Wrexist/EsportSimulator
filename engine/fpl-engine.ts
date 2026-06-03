@@ -665,10 +665,29 @@ function endSeason(fplData: FPLSaveData, players: PlayerSaveData[]): FPLTierChan
         }
     })
 
-    // === PROMOTION: Top 3 from FPL-C get promoted to FPL ===
+    // === PROMOTION: Top N from FPL-C get promoted to FPL ===
+    // Cap-aware: never promote more than (MAX_FPL_TIER_PLAYERS - current
+    // tier count + planned demotions). Without this, the post-promotion
+    // enforcement loop could immediately demote the same players we just
+    // promoted, producing nonsensical "PROMOTION then DEMOTION" pairs in
+    // tierChanges for the same player in the same week.
+    const plannedDemotions = Math.min(
+        FPL_CONSTANTS.RELEGATION_SLOTS,
+        fplData.fplStandings.filter(s =>
+            s.matchesPlayed >= FPL_CONSTANTS.MIN_MATCHES_FOR_ELIGIBILITY
+            && fplData.nonProPlayers.some(np => np.playerId === s.playerId)
+        ).length,
+    )
+    const currentFplCount = Object.values(fplData.playerStats)
+        .filter(s => s.fplTier === 'FPL').length
+    const availableSlots = Math.max(
+        0,
+        FPL_CONSTANTS.MAX_FPL_TIER_PLAYERS - currentFplCount + plannedDemotions,
+    )
+    const promotionLimit = Math.min(FPL_CONSTANTS.PROMOTION_SLOTS, availableSlots)
     const fplCEligible = fplData.fplCStandings
         .filter(s => s.matchesPlayed >= FPL_CONSTANTS.MIN_MATCHES_FOR_ELIGIBILITY)
-        .slice(0, FPL_CONSTANTS.PROMOTION_SLOTS)
+        .slice(0, promotionLimit)
 
     fplCEligible.forEach(standing => {
         const stats = fplData.playerStats[standing.playerId]
@@ -779,6 +798,13 @@ function getKFactor(tier: FPLTier): number {
         case 'FPL': return FPL_CONSTANTS.K_FACTOR_FPL
         case 'FPL_C': return FPL_CONSTANTS.K_FACTOR_FPL_C
         case 'HUBS': return FPL_CONSTANTS.K_FACTOR_HUBS
+        default: {
+            // Exhaustiveness guard — if FPLTier gets a new variant, this
+            // forces a compile error here so we don't silently return
+            // undefined into ELO math.
+            const _exhaustive: never = tier
+            return FPL_CONSTANTS.K_FACTOR_HUBS
+        }
     }
 }
 

@@ -289,9 +289,14 @@ export default function StatsPage() {
                         className="space-y-8"
                     >
                         {teamMatches.length === 0 ? (
-                            <div className="flex items-center justify-center min-h-[30vh]">
-                                <div className="text-center space-y-2">
-                                    <p className="text-muted-foreground text-sm">No match statistics yet. Play some matches first!</p>
+                            <div className="flex items-center justify-center min-h-[30vh]" role="status" aria-live="polite">
+                                <div className="text-center space-y-1 max-w-sm">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+                                        No demos to analyze
+                                    </p>
+                                    <p className="text-sm text-white/55 leading-relaxed">
+                                        Play a few matches and the stat lab will fill up with k/d, ADR, and clutch breakdowns.
+                                    </p>
                                 </div>
                             </div>
                         ) : (
@@ -371,7 +376,16 @@ export default function StatsPage() {
                                 </GlassTableHeader>
                                 <tbody>
                                     {statsWithEIR.length === 0 && (
-                                        <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">No player statistics available yet. Play some matches first!</td></tr>
+                                        <tr>
+                                            <td colSpan={7} className="text-center py-12">
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
+                                                    Scoreboard empty
+                                                </p>
+                                                <p className="text-xs text-white/55">
+                                                    Play a few matches to populate per-player ratings.
+                                                </p>
+                                            </td>
+                                        </tr>
                                     )}
                                     {statsWithEIR.map((player) => (
                                         <GlassTableRow key={player.id}>
@@ -603,9 +617,9 @@ export default function StatsPage() {
                                             <div className="text-right">
                                                 <p className="text-xl font-sans font-bold text-white">{score}</p>
                                                 {/* Map Details - Showing detailed scores */}
-                                                {(match.result as any).maps && (match.result as any).maps.length > 0 && (
+                                                {match.result.maps && match.result.maps.length > 0 && (
                                                     <div className="flex flex-col items-end gap-0.5 mt-1">
-                                                        {(match.result as any).maps.map((m: any, i: number) => {
+                                                        {match.result.maps.map((m: any, i: number) => {
                                                             const home = m.homeScore ?? m.finalScore?.team1 ?? 0
                                                             const away = m.awayScore ?? m.finalScore?.team2 ?? 0
                                                             const mapName = typeof m.map === 'string' ? m.map : (m.mapName || `Map ${i + 1}`)
@@ -626,7 +640,7 @@ export default function StatsPage() {
 
                                         {/* Match Analysis Details */}
                                         <AnimatePresence>
-                                            {expandedMatchId === match.id && (match as any).analysis && (
+                                            {expandedMatchId === match.id && match.analysis && (
                                                 <motion.div
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: "auto", opacity: 1 }}
@@ -642,7 +656,7 @@ export default function StatsPage() {
                                                             <div>
                                                                 <p className="text-sm font-medium text-white">Match Analysis</p>
                                                                 <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                                                                    {(match as any).analysis.summary}
+                                                                    {match.analysis.summary}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -650,11 +664,11 @@ export default function StatsPage() {
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div className="bg-white/5 rounded p-3">
                                                                 <p className="text-[10px] uppercase font-bold text-emerald-400 mb-1">Winning Factor</p>
-                                                                <p className="text-xs text-white">{(match as any).analysis.winningFactor}</p>
+                                                                <p className="text-xs text-white">{match.analysis.winningFactor}</p>
                                                             </div>
                                                             <div className="bg-white/5 rounded p-3">
                                                                 <p className="text-[10px] uppercase font-bold text-rose-400 mb-1">Losing Factor</p>
-                                                                <p className="text-xs text-white">{(match as any).analysis.losingFactor}</p>
+                                                                <p className="text-xs text-white">{match.analysis.losingFactor}</p>
                                                             </div>
                                                         </div>
 
@@ -662,25 +676,25 @@ export default function StatsPage() {
                                                             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2">Team Performance Ratings</p>
                                                             <div className="grid grid-cols-4 gap-2">
                                                                 <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{(match as any).analysis.teamPerformance.aimRating}</p>
+                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.aimRating}</p>
                                                                     <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
                                                                         <Target size={8} /> Aim
                                                                     </p>
                                                                 </div>
                                                                 <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{(match as any).analysis.teamPerformance.tradingRating}</p>
+                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.tradingRating}</p>
                                                                     <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
                                                                         <Users size={8} /> Trades
                                                                     </p>
                                                                 </div>
                                                                 <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{(match as any).analysis.teamPerformance.economyRating}</p>
+                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.economyRating}</p>
                                                                     <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
                                                                         <Zap size={8} /> Eco
                                                                     </p>
                                                                 </div>
                                                                 <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{(match as any).analysis.teamPerformance.utilityRating}</p>
+                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.utilityRating}</p>
                                                                     <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
                                                                         <Activity size={8} /> Util
                                                                     </p>
@@ -693,9 +707,11 @@ export default function StatsPage() {
                                                             <div className="flex gap-1 flex-wrap">
                                                                 {match.result?.maps?.[0]?.rounds?.map((round: any, rIdx: number) => {
                                                                     const map = match.result.maps[0]
+                                                                    // ctStartTeamId is the canonical engine field; the older
+                                                                    // ctStartTeam shape was the never-emitted game.ts MapResult.
                                                                     const isHomeCT = rIdx < 12
-                                                                        ? (map as any).ctStartTeam === match.homeTeamId || (map as any).ctStartTeamId === match.homeTeamId
-                                                                        : (map as any).ctStartTeam !== match.homeTeamId && (map as any).ctStartTeamId !== match.homeTeamId
+                                                                        ? map.ctStartTeamId === match.homeTeamId
+                                                                        : map.ctStartTeamId !== match.homeTeamId
 
                                                                     const homeWonRound = (isHomeCT && round.winningSide === 'CT') || (!isHomeCT && round.winningSide === 'T')
                                                                     const userIsHome = match.homeTeamId === playerTeamId

@@ -184,6 +184,12 @@ export interface Team {
   targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Coach} (which is
+ * what `types/index.ts` re-exports). This flat-interface version stays
+ * for the `data-generator.ts` path that hasn't been migrated yet; new
+ * staff-handling code should never reference it.
+ */
 export interface Coach {
   id: string
   name: string
@@ -201,6 +207,9 @@ export interface Coach {
   }
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Analyst}.
+ */
 export interface Analyst {
   id: string
   name: string
@@ -216,6 +225,9 @@ export interface Analyst {
   }
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./team').Psychologist}.
+ */
 export interface Psychologist {
   id: string
   name: string
@@ -232,7 +244,13 @@ export interface Psychologist {
   }
 }
 
-export type GameMap = "Sandstone" | "Mirage" | "Inferno" | "Nuke" | "Overpass" | "Vertigo" | "Ancient"
+/**
+ * @deprecated Use {@link MapId} from "@/types/enums" instead. This was a
+ * hand-rolled union missing "Anubis" and drifting from the enum. Alias
+ * preserved so existing consumers keep compiling; remove once every
+ * import site has been migrated.
+ */
+export type GameMap = import("./enums").MapId
 
 export interface MapVeto {
   phase: "ban" | "pick" | "decider"
@@ -250,6 +268,14 @@ export interface RoundResult {
   deaths?: { playerId: string; deaths: number }[]
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').MapResult} instead.
+ * The runtime engine emits `mvpPlayerId` / `ctStartTeamId` / `tStartTeamId`
+ * (the match.ts shape). This older `mvp` / `ctStartTeam` shape is not
+ * produced by any current engine path and only survives here so the
+ * `GameState.schedule` legacy interface keeps compiling. New code should
+ * never reference it.
+ */
 export interface MapResult {
   map: GameMap
   ctStartTeam: string // Which team started CT
@@ -261,6 +287,13 @@ export interface MapResult {
   mvp: string // player id
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').Match} (which is
+ * what `types/index.ts` re-exports) and {@link import('@/engine/save-types').MatchSaveData}
+ * for the on-disk shape. This one references the deprecated game.ts
+ * MatchResult and only stays alive so the legacy GameState interface
+ * keeps compiling.
+ */
 export interface Match {
   id: string
   homeTeam: Team
@@ -276,6 +309,10 @@ export interface Match {
   isHighPressure?: boolean // Finals/Semi-finals
 }
 
+/**
+ * @deprecated Legacy shape — use {@link import('./match').MatchResult}
+ * instead. See MapResult deprecation note above.
+ */
 export interface MatchResult {
   homeScore: number // Maps won
   awayScore: number // Maps won
@@ -512,7 +549,7 @@ export interface ActiveMatchState {
   isBombPlanted: boolean
   bombTime: number
   isWaitingForStrategy: boolean
-  originalHomePlayers: any[]
-  originalAwayPlayers: any[]
+  originalHomePlayers: Player[]
+  originalAwayPlayers: Player[]
   matchResult: MatchResult
 }

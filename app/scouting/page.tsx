@@ -38,6 +38,7 @@ import {
     CollapsibleTrigger,
     CollapsibleContent,
 } from "@/components/ui/collapsible"
+import type { PlayerSaveData } from "@/engine/save-types"
 import {
     GlassTable,
     GlassTableHeader,
@@ -71,6 +72,7 @@ interface SnapshotPlayer {
     nationality: string
     portraitPath: string
     role: string
+    secondaryRole?: string
     tier: string
     skill: number
     awp: number
@@ -200,7 +202,7 @@ export default function ScoutingPage() {
 
     // My team budget
     const myTeamBudget = useMemo(() => {
-        const myTeam = (gameTeams as any[]).find(t => t.id === playerTeamId)
+        const myTeam = gameTeams.find(t => t.id === playerTeamId)
         return myTeam?.budget || 0
     }, [gameTeams, playerTeamId])
 
@@ -215,10 +217,15 @@ export default function ScoutingPage() {
     // stable Map reference instead of the per-render function identity.
     const evaluatedPlayers = useMemo(() => {
         return allPlayers.map(player => {
-            const evaluation = evaluatePlayer(player as any)
+            // Scouting works against the SnapshotPlayer shape (which is
+            // structurally a subset of PlayerSaveData — same stat fields,
+            // no energy / talent / dynamic state). evaluatePlayer and
+            // isPlayerForSale only read those subset fields at runtime,
+            // so the bridging cast is safe here.
+            const evaluation = evaluatePlayer(player as unknown as PlayerSaveData)
             const team = teamByPlayerId.get(player.id)
             const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
-            const forSale = isPlayerForSale(player as any, evaluation, teamRanking)
+            const forSale = isPlayerForSale(player as unknown as PlayerSaveData, evaluation, teamRanking)
 
             return {
                 ...player,
@@ -763,11 +770,11 @@ export default function ScoutingPage() {
                                         <GlassTableCell className="text-center">
                                             <div className="flex items-center justify-center gap-1">
                                                 <Badge className="bg-white/5 text-white/60 border-white/10 text-[10px]">
-                                                    {resolvePlayerRole(player as any).split(",")[0].toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
+                                                    {resolvePlayerRole(player).split(",")[0].toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
                                                 </Badge>
-                                                {(player as any).secondaryRole && (
+                                                {player.secondaryRole && (
                                                     <Badge className="bg-white/5 text-white/40 border-white/10 text-[9px]">
-                                                        +{(player as any).secondaryRole.toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
+                                                        +{player.secondaryRole.toUpperCase().replace("ENTRY_FRAGGER", "ENTRY")}
                                                     </Badge>
                                                 )}
                                             </div>

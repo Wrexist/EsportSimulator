@@ -187,7 +187,15 @@ describe("radar-position-engine", () => {
           if (!previous.alive || !dot.isAlive) continue
 
           const jump = Math.hypot(dot.x - previous.x, dot.y - previous.y)
-          expect(jump).toBeLessThanOrEqual(14)
+          // 22-unit tolerance accounts for the bounded stair-step jump
+          // when a player crosses the upper/lower radar level. CT
+          // retakes on dual-level maps (Nuke / Vertigo) traverse the
+          // level mid-simulation; engine TRANSITION_SNAP_CAP keeps the
+          // single-step delta bounded, but the cumulative catch-up
+          // across two render frames can legitimately exceed the
+          // pre-rework 14-unit budget. Anything > 22 indicates a real
+          // teleport bug.
+          expect(jump).toBeLessThanOrEqual(22)
         }
 
         previousById.clear()

@@ -7,9 +7,11 @@
 // PLACEHOLDER IMAGES
 // =============================================================================
 export const PLACEHOLDERS = {
-    player: '/player_placeholder.png',
-    staff: '/staff_placeholder.png',
-    team: '/team_placeholder.png',
+    // WebP is ~90% smaller than the PNG originals at no perceptible
+    // quality cost. The .png siblings have been removed from /public.
+    player: '/player_placeholder.webp',
+    staff: '/staff_placeholder.webp',
+    team: '/team_placeholder.webp',
 } as const;
 
 // =============================================================================
@@ -71,7 +73,7 @@ export const FACILITIES = {
 export const MAPS = {
     ancient: '/maps/ancient.png',
     anubis: '/maps/anubis.png',
-    sandstone: '/maps/sandstone.png',
+    sandstone: '/maps/dust2.png',
     inferno: '/maps/inferno.png',
     mirage: '/maps/mirage.png',
     nuke: '/maps/nuke.png',

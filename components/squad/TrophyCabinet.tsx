@@ -53,7 +53,11 @@ function TrophyCabinetInner({ trophies, title = "Trophy Cabinet", className }: T
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
                         <TooltipProvider>
                             {trophies.map((trophy, idx) => (
-                                <Tooltip key={`${trophy.tournamentId}-${trophy.week}-${idx}`}>
+                                // Stable key — the index isn't in the key
+                                // (so re-ordering doesn't bust identity)
+                                // but it IS used to stagger the entrance
+                                // animation delay below.
+                                <Tooltip key={`${trophy.tournamentId}-${trophy.week}`}>
                                     <TooltipTrigger asChild>
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}

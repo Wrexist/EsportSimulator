@@ -118,7 +118,7 @@ interface TeamLogoImageProps {
 /**
  * Simple team logo component that takes a direct src path
  * Supports custom teams via optional team prop (renders generated shield logo)
- * Automatically falls back to team_placeholder.png on error
+ * Automatically falls back to team_placeholder.webp on error
  */
 export function TeamLogoImage({
     src,
@@ -197,7 +197,7 @@ interface PlayerPortraitProps {
 
 /**
  * Simple player portrait component that takes a direct src path
- * Automatically falls back to player_placeholder.png on error
+ * Automatically falls back to player_placeholder.webp on error
  */
 export function PlayerPortrait({
     src,
@@ -274,7 +274,7 @@ interface StaffPortraitProps {
 
 /**
  * Simple staff portrait component that takes a direct src path
- * Automatically falls back to staff_placeholder.png on error
+ * Automatically falls back to staff_placeholder.webp on error
  */
 export function StaffPortrait({
     src,

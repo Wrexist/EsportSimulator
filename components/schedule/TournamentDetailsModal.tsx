@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Globe, Calendar, Users, DollarSign, Target, List, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -47,6 +47,16 @@ export function TournamentDetailsModal({
         activeMatchId: state.activeMatchId,
     })))
     const [activeTab, setActiveTab] = useState<"overview" | "matches" | "standings" | "bracket">("standings")
+
+    // Standard modal contract — Escape closes.
+    useEffect(() => {
+        if (!isOpen) return
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose()
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [isOpen, onClose])
 
     // Find the actual seasonal tournament instance
     // e.g. "major" -> "major_s1"

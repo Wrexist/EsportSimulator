@@ -1,17 +1,20 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Swords, Trophy, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { TeamSaveData, PlayerSaveData, MatchSaveData } from "@/engine/save-types"
+import { TeamSaveData, PlayerSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine/save-types"
 import { TeamLogoImage, PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
+import { RivalryBanner } from "./RivalryBanner"
+import { ScoutingReport } from "./ScoutingReport"
+import { getMatchHeadline, getMatchTone } from "@/lib/match-stakes"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -23,6 +26,15 @@ interface TeamMatchPopupProps {
     tournamentName?: string
     stage?: string
     currentWeek: number
+    /**
+     * Full completed-match history. Used by RivalryBanner to derive the
+     * live H2H streak between player and opponent. Cheap to pass — the
+     * banner filters internally and the popup doesn't render until
+     * it's mounted.
+     */
+    completedMatches?: CompletedMatchSaveData[]
+    /** The player team's id. Drives streak orientation in the banner. */
+    playerTeamId?: string
 }
 
 export function TeamMatchPopup({
@@ -34,19 +46,56 @@ export function TeamMatchPopup({
     playerTeam,
     tournamentName,
     stage,
-    currentWeek
+    currentWeek,
+    completedMatches,
+    playerTeamId
 }: TeamMatchPopupProps) {
     const router = useRouter()
 
     // Memoize opponent rating and top players to avoid recalculating evaluatePlayer on every render
     const opponentRating = useMemo(() => opponentRoster.length > 0
-        ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p as any).overallRating, 0) / opponentRoster.length)
+        ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / opponentRoster.length)
         : 0, [opponentRoster])
 
     const topPlayers = useMemo(() => [...opponentRoster]
-        .map(p => ({ ...p, ovr: evaluatePlayer(p as any).overallRating }))
+        .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))
         .sort((a, b) => b.ovr - a.ovr)
         .slice(0, 5), [opponentRoster])
+
+    /**
+     * Rivalry stats (aggregate H2H record + intensity tag) and a
+     * newest-first list of head-to-head completed matches. RivalryBanner
+     * derives the live streak from the latter — a "lost 4 straight"
+     * narrative the aggregate record can't capture.
+     */
+    const rivalry = useMemo(() => {
+        if (!playerTeam || !opponent) return undefined
+        return playerTeam.rivalries?.find(r => r.opponentTeamId === opponent.id)
+    }, [playerTeam, opponent])
+
+    const recentH2H = useMemo(() => {
+        if (!completedMatches || !opponent || !playerTeamId) return []
+        return completedMatches
+            .filter(m =>
+                (m.homeTeamId === playerTeamId && m.awayTeamId === opponent.id)
+                || (m.awayTeamId === playerTeamId && m.homeTeamId === opponent.id)
+            )
+            .sort((a, b) => (b.week || 0) - (a.week || 0))
+    }, [completedMatches, opponent, playerTeamId])
+
+    // Escape key closes the popup — standard modal keyboard contract.
+    // Refs hold the latest onClose so a non-memoized parent callback
+    // doesn't churn the listener every parent render.
+    const onCloseRef = React.useRef(onClose)
+    React.useEffect(() => { onCloseRef.current = onClose }, [onClose])
+    useEffect(() => {
+        if (!isOpen) return
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onCloseRef.current()
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [isOpen])
 
     if (!isOpen || !opponent) return null
 
@@ -101,15 +150,49 @@ export function TeamMatchPopup({
 
                                 {/* Tournament Info */}
                                 {tournamentName && (
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <Trophy size={14} className="text-amber-400" />
-                                        <span className="text-sm text-white/80">{tournamentName}</span>
-                                        {stage && (
-                                            <Badge variant="outline" className="text-[8px] border-amber-500/20 text-amber-400 bg-amber-500/10">
-                                                {stage}
-                                            </Badge>
-                                        )}
+                                    <div className="mb-4 space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <Trophy size={14} className="text-amber-400" aria-hidden="true" />
+                                            <span className="text-sm text-white/80">{tournamentName}</span>
+                                            {stage && (
+                                                <Badge variant="outline" className="text-[8px] border-amber-500/20 text-amber-400 bg-amber-500/10">
+                                                    {stage}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {/* Stakes headline — one-sentence narrative on what
+                                            THIS bracket position means. Color-coded by tone
+                                            (championship = gold, elimination = red, etc.). */}
+                                        {stage && (() => {
+                                            const tone = getMatchTone(stage, true)
+                                            const headline = getMatchHeadline(stage, true, opponent.name)
+                                            const toneColor = tone === "championship"
+                                                ? "text-amber-400"
+                                                : tone === "elimination"
+                                                    ? "text-red-400"
+                                                    : tone === "advancement"
+                                                        ? "text-sky-400"
+                                                        : "text-white/55"
+                                            return (
+                                                <p className={cn("text-[11px] leading-snug pl-6", toneColor)}>
+                                                    {headline}
+                                                </p>
+                                            )
+                                        })()}
                                     </div>
+                                )}
+
+                                {/* Rivalry banner — surfaces live H2H streak + intensity tag.
+                                    The banner self-skips when there isn't a real rivalry
+                                    record (<2 prior meetings), so the prop wiring is a
+                                    no-op for fresh opponents. */}
+                                {playerTeamId && (
+                                    <RivalryBanner
+                                        rivalry={rivalry}
+                                        recentH2H={recentH2H}
+                                        playerTeamId={playerTeamId}
+                                        opponentName={opponent.name}
+                                    />
                                 )}
 
                                 {/* VS Display */}
@@ -165,6 +248,16 @@ export function TeamMatchPopup({
                                 </div>
                             </div>
 
+                            {/* Auto-generated scouting report — derives 2-4
+                                tendency cards (star-heavy, AWP threat, IGL-
+                                led, veteran, fragmented chemistry, etc.) from
+                                the opponent's roster and team data. Gives
+                                every match a "read" before the player commits
+                                to PLAY MATCH. */}
+                            <div className="px-4 pb-4">
+                                <ScoutingReport opponent={opponent} opponentRoster={opponentRoster} />
+                            </div>
+
                             {/* Opponent Roster Preview */}
                             <div className="p-4">
                                 <div className="flex items-center justify-between mb-3">
@@ -182,7 +275,7 @@ export function TeamMatchPopup({
                                                     <span className="text-xs font-bold text-white truncate">{player.nickname}</span>
                                                     <CountryFlag country={player.nationality} size={10} className="opacity-60" />
                                                 </div>
-                                                <span className="text-[10px] text-white/40">{resolvePlayerRole(player as any)}</span>
+                                                <span className="text-[10px] text-white/40">{resolvePlayerRole(player)}</span>
                                             </div>
                                             <div className="text-right shrink-0">
                                                 <span className={cn(
@@ -208,8 +301,9 @@ export function TeamMatchPopup({
                                         Close
                                     </Button>
                                     <Button
+                                        variant="play"
                                         onClick={handleGoToMatch}
-                                        className="flex-1 h-11 bg-amber-500 hover:bg-amber-400 text-black font-bold shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        className="flex-1 h-11"
                                     >
                                         <Play size={16} className="mr-2 fill-black" />
                                         {match.result ? "View Result" : "PLAY MATCH"}

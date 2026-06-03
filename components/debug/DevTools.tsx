@@ -141,8 +141,8 @@ export function DevTools() {
                                 <span className="text-[10px] text-muted-foreground font-mono bg-white/5 px-2 py-0.5 rounded">
                                     {gameLoaded ? `W${store.currentWeek}` : "No Game"}
                                 </span>
-                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-7 w-7 text-muted-foreground hover:text-white">
-                                    <X size={14} />
+                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close dev tools" title="Close" className="h-7 w-7 text-muted-foreground hover:text-white">
+                                    <X size={14} aria-hidden="true" />
                                 </Button>
                             </div>
                         </div>

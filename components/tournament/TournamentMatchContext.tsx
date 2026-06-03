@@ -6,6 +6,7 @@ import { Trophy, ChevronRight, AlertTriangle, Award } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { TeamLogoImage } from "@/components/ui/asset-images"
+import { getStakes as sharedGetStakes } from "@/lib/match-stakes"
 
 interface MatchOutcome {
     won: boolean
@@ -27,65 +28,9 @@ interface TournamentMatchContextProps {
     outcome?: MatchOutcome
 }
 
-// Helper to determine what happens on win/loss based on stage
-function getStakes(stage: string, isElimination: boolean, nextStage?: string): { win: string; loss: string } {
-    const stageLower = stage?.toLowerCase() || ""
-
-    if (stageLower.includes("grand final") || stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter")) {
-        return {
-            win: "Win the tournament!",
-            loss: isElimination ? "Runner-up finish" : "Second place"
-        }
-    }
-
-    if (stageLower.includes("semi")) {
-        return {
-            win: nextStage || "Advance to Grand Final",
-            loss: isElimination ? "Eliminated (3rd-4th place)" : "Drop to losers bracket"
-        }
-    }
-
-    if (stageLower.includes("quarter")) {
-        return {
-            win: nextStage || "Advance to Semi-finals",
-            loss: isElimination ? "Eliminated (5th-8th place)" : "Drop to losers bracket"
-        }
-    }
-
-    if (stageLower.includes("round of 16") || stageLower.includes("ro16")) {
-        return {
-            win: nextStage || "Advance to Quarter-finals",
-            loss: isElimination ? "Eliminated" : "Drop to losers bracket"
-        }
-    }
-
-    if (stageLower.includes("round of 32") || stageLower.includes("ro32")) {
-        return {
-            win: nextStage || "Advance to Round of 16",
-            loss: isElimination ? "Eliminated" : "Drop to losers bracket"
-        }
-    }
-
-    if (stageLower.includes("swiss")) {
-        return {
-            win: "Improve record, move toward qualification",
-            loss: "Record worsens, risk elimination at 0-3"
-        }
-    }
-
-    if (stageLower.includes("group")) {
-        return {
-            win: "Improve group standings",
-            loss: "Drop in group standings"
-        }
-    }
-
-    // Generic
-    return {
-        win: nextStage || "Advance to next round",
-        loss: isElimination ? "Eliminated from tournament" : "Continue in bracket"
-    }
-}
+// Re-export the canonical stakes derivation from lib/match-stakes so
+// every screen (tactics, result, pre-match popup) shares one vocabulary.
+const getStakes = sharedGetStakes
 
 // Helper to get tier styling
 function getTierStyle(tier?: string) {

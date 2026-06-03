@@ -204,6 +204,22 @@ body[data-scroll-locked] {
     --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --accent-glass: rgba(34, 211, 238, 0.14);
 
+    /* ── Text-on-glass opacity tiers ──────────────────────────────────
+       4 tiers only. Stop introducing white/15, white/35, white/55 etc.
+       Floor at /50 keeps everything at or above WCAG AA on glass panels. */
+    --text-primary:    rgba(255, 255, 255, 0.96);  /* headings, titles, scores */
+    --text-secondary:  rgba(255, 255, 255, 0.72);  /* body, player names, values */
+    --text-tertiary:   rgba(255, 255, 255, 0.50);  /* labels, metadata, timestamps */
+    --text-decorative: rgba(255, 255, 255, 0.30);  /* dividers, hairline icons */
+
+    /* ── Radius scale ─────────────────────────────────────────────────
+       Use these named tokens instead of raw rounded-{md|lg|xl|2xl|3xl}
+       so elevation hierarchy is consistent. */
+    --radius-chip:   0.375rem;  /* badges, status pills */
+    --radius-card:   0.75rem;   /* buttons, list rows, small cards */
+    --radius-panel:  1rem;      /* main panels */
+    --radius-hero:   1.5rem;    /* heroes, big modals */
+
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -266,6 +282,19 @@ body[data-scroll-locked] {
 }
 
 @layer utilities {
+  /* Semantic text utilities — prefer these over arbitrary text-white/XX.
+     If you find yourself reaching for text-white/35 etc, pick one of these. */
+  .text-pri { color: var(--text-primary); }
+  .text-sec { color: var(--text-secondary); }
+  .text-ter { color: var(--text-tertiary); }
+  .text-dec { color: var(--text-decorative); }
+
+  /* Semantic radius utilities */
+  .r-chip  { border-radius: var(--radius-chip); }
+  .r-card  { border-radius: var(--radius-card); }
+  .r-panel { border-radius: var(--radius-panel); }
+  .r-hero  { border-radius: var(--radius-hero); }
+
   .glass-panel {
     position: relative;
     background:

@@ -6,6 +6,8 @@
 
 import { MapId } from "@/types"
 import { projectToWalkable } from "./radar-nav"
+import { MAP_LAYOUT_JSONS } from "@/data/map-layouts"
+import type { MapLayoutJson } from "@/data/map-layouts/types"
 
 export interface Point {
     x: number  // 0-100, left to right
@@ -21,7 +23,17 @@ export interface MapBounds {
 
 export interface MapLayoutData {
     tSpawn: Point[]       // 5 staggered T spawn positions
-    ctSpawn: Point[]      // 5 staggered CT default hold positions (spread across sites + mid)
+    /**
+     * 5 CT spawn positions clustered in the actual CT spawn area. CT rotates
+     * OUT from here to ctHolds during the freeze + early round. This used to
+     * be the hold positions, which made CTs appear pre-deployed at bomb sites.
+     */
+    ctSpawn: Point[]
+    /**
+     * 5 CT default hold positions spread across sites + mid. Players reach
+     * these only after walking out of ctSpawn.
+     */
+    ctHolds: Point[]
     aSite: Point          // A bombsite center
     bSite: Point          // B bombsite center
     tToA: Point[]         // Waypoints: T spawn → A site attack path
@@ -34,6 +46,14 @@ export interface MapLayoutData {
     // For dual-level maps only
     bSiteLevel?: "lower"  // If B site is on the lower radar level
     bounds: MapBounds     // Playable area bounds (auto-computed from all points)
+    /**
+     * Optional authored geometry from /dev/map-builder. When present the
+     * radar engine uses walls for kill-line plausibility and named regions
+     * for richer event resolution. Both undefined = falls back to today's
+     * straight-line behavior.
+     */
+    walls?: Array<{ from: Point; to: Point }>
+    namedRegions?: Record<string, Point[]>
 }
 
 /** Compute playable area bounds from all defined points in a layout, with padding */
@@ -41,6 +61,7 @@ function computeBounds(layout: Omit<MapLayoutData, "bounds">): MapBounds {
     const allPoints: Point[] = [
         ...layout.tSpawn,
         ...layout.ctSpawn,
+        ...layout.ctHolds,
         layout.aSite,
         layout.bSite,
         ...layout.tToA,
@@ -98,6 +119,7 @@ function projectLayoutPoints(mapId: MapId, base: Omit<MapLayoutData, "bounds">):
     return {
         tSpawn: base.tSpawn.map(point => projectPointForLevel(mapId, point, "upper")),
         ctSpawn: base.ctSpawn.map(point => projectPointForLevel(mapId, point, "upper")),
+        ctHolds: base.ctHolds.map(point => projectPointForLevel(mapId, point, "upper")),
         aSite: projectPointForLevel(mapId, base.aSite, "upper"),
         bSite: projectPointForLevel(mapId, base.bSite, usesLowerB ? "lower" : "upper"),
         tToA: projectPathForLevel(mapId, base.tToA, "upper"),
@@ -117,7 +139,9 @@ function projectLayoutPoints(mapId: MapId, base: Omit<MapLayoutData, "bounds">):
 // Long A runs down the left, B tunnels through center-right
 const sandstoneBase = {
     tSpawn: stagger({ x: 38, y: 88 }, 3, 5),
-    ctSpawn: [
+    // CT spawn (top-center, behind the bombsites — green hatched box on radar)
+    ctSpawn: stagger({ x: 50, y: 8 }, 3, 5),
+    ctHolds: [
         { x: 15, y: 20 },  // A site hold
         { x: 25, y: 30 },  // A long/short
         { x: 48, y: 22 },  // Mid doors
@@ -156,7 +180,8 @@ const sandstone: MapLayoutData = { ...sandstoneProjected, bounds: computeBounds(
 // A site: upper-left (orange), B site: center-bottom (orange)
 const mirageBase = {
     tSpawn: stagger({ x: 30, y: 72 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 78, y: 50 }, 3, 5),
+    ctHolds: [
         { x: 22, y: 22 },  // A site hold
         { x: 30, y: 30 },  // A ramp
         { x: 50, y: 35 },  // Mid connector
@@ -195,7 +220,8 @@ const mirage: MapLayoutData = { ...mirageProjected, bounds: computeBounds(mirage
 // Banana: bottom-center running up to B
 const infernoBase = {
     tSpawn: stagger({ x: 4, y: 52 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 90, y: 25 }, 3, 5),
+    ctHolds: [
         { x: 35, y: 15 },  // A site
         { x: 28, y: 25 },  // Arch/library
         { x: 48, y: 35 },  // Mid
@@ -234,7 +260,8 @@ const inferno: MapLayoutData = { ...infernoProjected, bounds: computeBounds(infe
 // A site: left-center (orange), B site: top-right (orange)
 const anubisBase = {
     tSpawn: stagger({ x: 40, y: 85 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 50, y: 12 }, 3, 5),
+    ctHolds: [
         { x: 28, y: 42 },  // A site hold
         { x: 22, y: 50 },  // A main
         { x: 48, y: 45 },  // Mid
@@ -273,7 +300,8 @@ const anubis: MapLayoutData = { ...anubisProjected, bounds: computeBounds(anubis
 // A site: upper-left (orange), B site: right (orange)
 const ancientBase = {
     tSpawn: stagger({ x: 46, y: 83 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 46, y: 10 }, 3, 5),
+    ctHolds: [
         { x: 20, y: 28 },  // A site hold
         { x: 30, y: 35 },  // A main
         { x: 44, y: 20 },  // Mid
@@ -312,7 +340,8 @@ const ancient: MapLayoutData = { ...ancientProjected, bounds: computeBounds(anci
 // A site: upper-left (orange), B site: center-right (orange)
 const overpassBase = {
     tSpawn: stagger({ x: 25, y: 75 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 70, y: 10 }, 3, 5),
+    ctHolds: [
         { x: 30, y: 18 },  // A site hold
         { x: 22, y: 30 },  // A long
         { x: 45, y: 25 },  // Mid/connector
@@ -351,12 +380,13 @@ const overpass: MapLayoutData = { ...overpassProjected, bounds: computeBounds(ov
 // A site: center (upper level), B site: center (lower level)
 const nukeBase = {
     tSpawn: stagger({ x: 20, y: 48 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 90, y: 48 }, 3, 5),
+    ctHolds: [
         { x: 55, y: 42 },  // A site hold
         { x: 48, y: 35 },  // Hut
         { x: 62, y: 48 },  // Ramp
         { x: 75, y: 45 },  // Heaven
-        { x: 88, y: 48 },  // CT spawn area
+        { x: 80, y: 50 },  // Outside near CT spawn
     ],
     aSite: { x: 52, y: 44 },
     bSite: { x: 52, y: 52 },  // lower level
@@ -391,7 +421,8 @@ const nuke: MapLayoutData = { ...nukeProjected, bounds: computeBounds(nukeProjec
 // A site: upper-left (orange), B site: center-right (orange, lower)
 const vertigoBase = {
     tSpawn: stagger({ x: 35, y: 82 }, 3, 5),
-    ctSpawn: [
+    ctSpawn: stagger({ x: 50, y: 12 }, 3, 5),
+    ctHolds: [
         { x: 18, y: 22 },  // A site hold
         { x: 25, y: 30 },  // A ramp
         { x: 42, y: 28 },  // Mid
@@ -426,13 +457,46 @@ const vertigoBase = {
 const vertigoProjected = projectLayoutPoints(MapId.VERTIGO, vertigoBase)
 const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vertigoProjected) }
 
+// Hard-coded layouts above are the bootstrap source. Authored JSON in
+// data/map-layouts/*.json takes precedence — that's where /dev/map-builder
+// writes back to. The hard-coded blocks stay as a safety net so a deleted
+// JSON doesn't blank the radar.
+function fromJson(mapId: MapId, json: MapLayoutJson | undefined, fallback: MapLayoutData): MapLayoutData {
+    if (!json) return fallback
+    const base: Omit<MapLayoutData, "bounds" | "walls" | "namedRegions"> = {
+        tSpawn: json.tSpawn,
+        ctSpawn: json.ctSpawn,
+        ctHolds: json.ctHolds,
+        aSite: json.aSite,
+        bSite: json.bSite,
+        tToA: json.tToA,
+        tToB: json.tToB,
+        ctRotateA: json.ctRotateA,
+        ctRotateB: json.ctRotateB,
+        engageA: json.engageA,
+        engageB: json.engageB,
+        mid: json.mid,
+        bSiteLevel: json.bSiteLevel,
+    }
+    const projected = projectLayoutPoints(mapId, base)
+    return {
+        ...projected,
+        bounds: computeBounds(projected),
+        // Walls / named regions are kept in raw layout space — they're
+        // overlays describing geometry, not player paths, so they don't go
+        // through projectToWalkable.
+        walls: json.walls,
+        namedRegions: json.namedRegions,
+    }
+}
+
 export const MAP_LAYOUTS: Record<string, MapLayoutData> = {
-    [MapId.SANDSTONE]: sandstone,
-    [MapId.MIRAGE]: mirage,
-    [MapId.INFERNO]: inferno,
-    [MapId.ANUBIS]: anubis,
-    [MapId.ANCIENT]: ancient,
-    [MapId.OVERPASS]: overpass,
-    [MapId.NUKE]: nuke,
-    [MapId.VERTIGO]: vertigo,
+    [MapId.SANDSTONE]: fromJson(MapId.SANDSTONE, MAP_LAYOUT_JSONS[MapId.SANDSTONE], sandstone),
+    [MapId.MIRAGE]: fromJson(MapId.MIRAGE, MAP_LAYOUT_JSONS[MapId.MIRAGE], mirage),
+    [MapId.INFERNO]: fromJson(MapId.INFERNO, MAP_LAYOUT_JSONS[MapId.INFERNO], inferno),
+    [MapId.ANUBIS]: fromJson(MapId.ANUBIS, MAP_LAYOUT_JSONS[MapId.ANUBIS], anubis),
+    [MapId.ANCIENT]: fromJson(MapId.ANCIENT, MAP_LAYOUT_JSONS[MapId.ANCIENT], ancient),
+    [MapId.OVERPASS]: fromJson(MapId.OVERPASS, MAP_LAYOUT_JSONS[MapId.OVERPASS], overpass),
+    [MapId.NUKE]: fromJson(MapId.NUKE, MAP_LAYOUT_JSONS[MapId.NUKE], nuke),
+    [MapId.VERTIGO]: fromJson(MapId.VERTIGO, MAP_LAYOUT_JSONS[MapId.VERTIGO], vertigo),
 }

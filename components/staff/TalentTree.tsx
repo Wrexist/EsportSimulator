@@ -1,10 +1,76 @@
 import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Unlock, Check } from 'lucide-react'
+import {
+    Lock,
+    Unlock,
+    Check,
+    // Talent-node icons. The set must cover every `icon:` value used in
+    // engine/talent-trees.ts. The TALENT_ICON_MAP below dispatches at
+    // render time; new icons need to be added here AND to the map. This
+    // replaces the previous `import * as LucideIcons from 'lucide-react'`
+    // namespace import, which is incompatible with the lucide-react
+    // modularizeImports rule (which refuses namespace imports because
+    // they pull the entire icon library into the bundle).
+    Anchor,
+    BookOpen,
+    Brain,
+    Crosshair,
+    Crown,
+    Diamond,
+    Dumbbell,
+    Ear,
+    Eye,
+    FileSpreadsheet,
+    Flame,
+    Flower2,
+    Globe,
+    GraduationCap,
+    Heart,
+    MessageSquare,
+    SearchCheck,
+    ShieldAlert,
+    Star,
+    Target,
+    Users2,
+    Video,
+    Zap,
+    type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import * as LucideIcons from 'lucide-react'
 import { TalentNode } from '@/engine/talent-trees'
+
+/**
+ * Talent-node icon dispatch. Mirrors the talent definitions in
+ * engine/talent-trees.ts — keep both in sync. Unknown icon names fall
+ * back to Star (the original namespace-lookup default).
+ */
+const TALENT_ICON_MAP: Record<string, LucideIcon> = {
+    Anchor,
+    BookOpen,
+    Brain,
+    Crosshair,
+    Crown,
+    Diamond,
+    Dumbbell,
+    Ear,
+    Eye,
+    FileSpreadsheet,
+    Flame,
+    Flower2,
+    Globe,
+    GraduationCap,
+    Heart,
+    MessageSquare,
+    SearchCheck,
+    ShieldAlert,
+    Star,
+    Target,
+    Unlock,
+    Users2,
+    Video,
+    Zap,
+}
 
 interface TalentTreeProps {
     nodes: TalentNode[]
@@ -94,7 +160,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                     const requirementsMet = node.requirements.every(req => unlockedIds.includes(req))
                     const canUnlock = !isUnlocked && requirementsMet && availablePoints >= node.cost && !readonly
 
-                    const Icon = (LucideIcons as any)[node.icon] || LucideIcons.Star
+                    const Icon = TALENT_ICON_MAP[node.icon] ?? Star
 
                     return (
                         <div

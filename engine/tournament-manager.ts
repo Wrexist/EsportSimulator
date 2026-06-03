@@ -659,12 +659,39 @@ export class TournamentManager {
 
         if (homePlayers.length < 5 || awayPlayers.length < 5) {
             debug.warn(`[Tournament] Cannot simulate ${bracketMatch.id}: Not enough players (${homePlayers.length} vs ${awayPlayers.length})`)
-            // Award walkover to the team with enough players
+            // Award walkover to the team with enough players.
             if (homePlayers.length >= 5) {
                 bracketMatch.winnerId = bracketMatch.homeTeamId
                 bracketMatch.isCompleted = true
             } else if (awayPlayers.length >= 5) {
                 bracketMatch.winnerId = bracketMatch.awayTeamId
+                bracketMatch.isCompleted = true
+            } else {
+                // BOTH teams understaffed: bracket would otherwise stall
+                // forever waiting for a winner that never arrives. Use a
+                // deterministic tiebreaker (higher roster count → higher
+                // ELO → coin-flip seeded by match ID) so the bracket
+                // progresses and remains reproducible across saves.
+                let winnerId: string
+                if (homePlayers.length !== awayPlayers.length) {
+                    winnerId = homePlayers.length > awayPlayers.length
+                        ? bracketMatch.homeTeamId
+                        : bracketMatch.awayTeamId
+                } else if (homeTeam.elo !== awayTeam.elo) {
+                    winnerId = homeTeam.elo > awayTeam.elo
+                        ? bracketMatch.homeTeamId
+                        : bracketMatch.awayTeamId
+                } else {
+                    const matchSeed = Array.from(bracketMatch.id).reduce(
+                        (acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0,
+                        0,
+                    )
+                    winnerId = (matchSeed & 1) === 0
+                        ? bracketMatch.homeTeamId
+                        : bracketMatch.awayTeamId
+                }
+                debug.warn(`[Tournament] Both teams in ${bracketMatch.id} understaffed (${homePlayers.length} vs ${awayPlayers.length}) — forced walkover to ${winnerId}`)
+                bracketMatch.winnerId = winnerId
                 bracketMatch.isCompleted = true
             }
             return
@@ -742,6 +769,17 @@ export class TournamentManager {
         const bracketMap = buildBracketIndex(tournament.playoffBracket)
         const bracketMatch = bracketMap.get(matchId) ?? tournament.playoffBracket.find((m: BracketMatchSaveData) => m.id === matchId)
         if (!bracketMatch) return
+
+        // Idempotency guard. processMatchResult is called from both
+        // atomic-week-processor and tournament-manager.simulateConcurrent,
+        // and the same match can flow through both paths in adjacent
+        // ticks. Without this check, MVP calculation, qualification and
+        // placement would run a second time and double-write tournament
+        // state. Re-applying winnerId is fine — re-running progression
+        // handlers (handleOpeningResult etc) is not.
+        if (bracketMatch.isCompleted && bracketMatch.winnerId === winnerId) {
+            return
+        }
 
         bracketMatch.isCompleted = true
         bracketMatch.winnerId = winnerId

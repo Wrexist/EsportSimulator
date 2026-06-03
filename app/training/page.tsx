@@ -19,8 +19,40 @@ import {
     Users,
     LayoutGrid,
     Coins,
-    Wind
+    Wind,
+    // New drill icons (data/drills.json expansion)
+    Trophy,
+    Megaphone,
+    Activity,
+    Search,
+    Flame,
+    Moon,
+    Video,
+    Bomb,
 } from "lucide-react"
+
+/**
+ * Drill iconName → lucide component. Keep this in sync with the
+ * iconName values in data/drills.json. Defaults to Target so a typo
+ * doesn't blank the card.
+ */
+const DRILL_ICONS: Record<string, LucideIcon> = {
+    Target,
+    Wind,
+    Crosshair,
+    Zap,
+    Trophy,
+    Brain,
+    Megaphone,
+    Activity,
+    Users,
+    Search,
+    Flame,
+    Moon,
+    Video,
+    Bomb,
+    Swords,
+}
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -286,10 +318,10 @@ export default function TrainingPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-0.5">
                       <div className="w-full h-full bg-neutral-950 rounded-[inherit] flex items-center justify-center">
-                        {/* Dynamic Icon Mapping */}
-                        {drill.iconName === "Target" && <Target className="text-rose-400" />}
-                        {drill.iconName === "Wind" && <Wind className="text-sky-400" />}
-                        {drill.iconName === "Crosshair" && <Crosshair className="text-amber-400" />}
+                        {(() => {
+                            const Icon = DRILL_ICONS[drill.iconName] ?? Target
+                            return <Icon className="text-rose-400" />
+                        })()}
                       </div>
                     </div>
                     <Badge className="bg-white/10 text-muted-foreground uppercase text-[8px] font-normal">

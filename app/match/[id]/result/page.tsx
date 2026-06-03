@@ -21,6 +21,7 @@ import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimati
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { DefeatOverlay } from "@/components/match/DefeatOverlay"
 
 // Animated counter component for stats.
 // Earlier version had a bug: the inner `return () => clearInterval(timer)` was
@@ -276,8 +277,19 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
 
+    // Compute outcome for the brief defeat-vignette moment that mirrors the
+    // victory confetti. Mirrors the win check in the confetti effect above.
+    const playerLostThisMatch = (() => {
+        const isPlayerHome = match.homeTeamId === playerTeamId
+        const isPlayerAway = match.awayTeamId === playerTeamId
+        const homeWon = match.result.homeScore > match.result.awayScore
+        const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
+        return (isPlayerHome || isPlayerAway) && !playerWon
+    })()
+
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
+            <DefeatOverlay active={playerLostThisMatch} />
             {/* Header / Nav */}
             <div className="max-w-7xl mx-auto flex items-center gap-4">
                 <Button
