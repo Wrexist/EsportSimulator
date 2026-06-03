@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 7** — manager signing bonus
+25. **[Phase 3.2]** `acceptJobOffer` now actually pays the advertised signing bonus — credits `salaryOffer * 4` to the new club's budget (ledgered, one-time), derived from the *current* salaryOffer so a successful negotiation pays off. _Design call:_ the **weekly** manager salary is kept as personal flavor — there is no manager-wallet concept (only team budget), and crediting it to the club budget every week would compound into a balance-breaking, farmable income stream. Accepting an offer is a one-off career move, so only the bonus lands. (`store/slices/events-slice.ts`)
+
 ---
 
 ## Phase 1 — Save & persistence integrity (CRITICAL — data-loss risk)
@@ -130,7 +133,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** Normalize to the 0-100 scale: rescale the `potential*150` base term and rewrite thresholds (`> 85`, `> 70`) — or divide potential by 5 before comparisons.
 - **Verify:** Test valuations for low/mid/high-potential players land in sane ranges; the multiplier tiers are no longer always-max.
 
-### 3.2 Manager salary / signing bonus / negotiation are never applied [HIGH — incomplete feature]
+### 3.2 Manager salary / signing bonus / negotiation are never applied — ✅ DONE (Pass 7, signing bonus paid; weekly salary kept as flavor by design) [HIGH — incomplete feature]
 - **Problem:** Job offers advertise `salaryOffer` + `signingBonus` (`job-offer-generator.ts:202-204`) and render them (`app/desktop/page.tsx:571-573`), but `acceptJobOffer` (`events-slice.ts:188`) only flips `playerTeamId` — no bonus credited, no recurring manager wage anywhere, and `negotiateJobOffer`'s result is discarded.
 - **Steps (choose one):**
   - **Implement:** on accept, credit `signingBonus` to the new team (or a manager wallet) and add a recurring `MANAGER_SALARY` income line in `finance-processor.ts`; make `negotiateJobOffer` actually change the accepted salary.

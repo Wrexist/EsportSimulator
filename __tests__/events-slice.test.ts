@@ -190,6 +190,66 @@ describe("acceptJobOffer", () => {
         expect(((h.state().eventsLog[0] as any).data).title).toContain("Beta")
     })
 
+    // Phase 3.2 — the advertised signing bonus is now actually paid.
+    test("credits the signing bonus (salaryOffer * 4) to the new club budget + ledger", () => {
+        const offerEvent = makeEvent("offer1", {
+            type: "JOB_OFFER",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: { offeringTeamId: "team_b", deadlineWeek: 10, salaryOffer: 10_000 } as any,
+        })
+        const h = makeHarness(makeBaseState({
+            currentWeek: 5, playerTeamId: "team_a",
+            teams: [makeTeam("team_a"), makeTeam("team_b", { name: "Beta", budget: 200_000 })],
+            eventsLog: [offerEvent],
+            financeLedger: [],
+        }))
+        const res = createEventsSlice(h.set, h.get).acceptJobOffer("offer1")
+
+        expect(res.success).toBe(true)
+        const teamB = h.state().teams.find(t => t.id === "team_b")!
+        expect(teamB.budget).toBe(200_000 + 40_000) // salaryOffer 10k * 4
+        const ledger = h.state().financeLedger.filter(e => e.teamId === "team_b")
+        expect(ledger).toHaveLength(1)
+        expect(ledger[0].amount).toBe(40_000)
+        expect(ledger[0].type).toBe("INCOME")
+    })
+
+    test("a higher (negotiated) salaryOffer yields a proportionally higher bonus", () => {
+        const mkHarness = (salary: number) => {
+            const offerEvent = makeEvent("offer1", {
+                type: "JOB_OFFER",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: { offeringTeamId: "team_b", deadlineWeek: 10, salaryOffer: salary } as any,
+            })
+            return makeHarness(makeBaseState({
+                currentWeek: 5, playerTeamId: "team_a",
+                teams: [makeTeam("team_a"), makeTeam("team_b", { budget: 100_000 })],
+                eventsLog: [offerEvent], financeLedger: [],
+            }))
+        }
+        const low = mkHarness(5_000); createEventsSlice(low.set, low.get).acceptJobOffer("offer1")
+        const high = mkHarness(20_000); createEventsSlice(high.set, high.get).acceptJobOffer("offer1")
+        const lowB = low.state().teams.find(t => t.id === "team_b")!.budget
+        const highB = high.state().teams.find(t => t.id === "team_b")!.budget
+        expect(highB - lowB).toBe((20_000 - 5_000) * 4)
+    })
+
+    test("no bonus / no crash when the offer carries no salary", () => {
+        const offerEvent = makeEvent("offer1", {
+            type: "JOB_OFFER",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: { offeringTeamId: "team_b", deadlineWeek: 10 } as any,
+        })
+        const h = makeHarness(makeBaseState({
+            currentWeek: 5, playerTeamId: "team_a",
+            teams: [makeTeam("team_a"), makeTeam("team_b", { budget: 100_000 })],
+            eventsLog: [offerEvent], financeLedger: [],
+        }))
+        const res = createEventsSlice(h.set, h.get).acceptJobOffer("offer1")
+        expect(res.success).toBe(true)
+        expect(h.state().teams.find(t => t.id === "team_b")!.budget).toBe(100_000)
+    })
+
     test("rejects when current week is past deadlineWeek", () => {
         const h = makeHarness({
             ...makeJobOfferState(),
