@@ -53,7 +53,6 @@ import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fan
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
-import { awardCircuitPoints as awardCircuitPointsFn } from "./processors/circuit-points-awarder"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
 import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
 import { detectAchievementFlags } from "./processors/match-achievement-flags"
@@ -64,10 +63,10 @@ import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/n
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
-import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition, CIRCUIT_POINTS } from "@/data/tournament-calendar"
+import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
-import { QualificationEngine } from "./tournament-qualification"
+import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { generateAnnualTop20, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
@@ -320,6 +319,11 @@ export class AtomicWeekProcessor {
                 if (LeagueEngine.isSeasonEnd(save.currentWeek)) {
                     debugLog(`[Week ${save.currentWeek}] Season End! Processing promotions/relegations...`)
                     LeagueEngine.processSeasonEnd(save, config.playerTeamId)
+
+                    // Decay circuit points 25% at season rollover so they don't
+                    // accumulate unbounded across seasons (was implemented but
+                    // never called — POINTS-gated eligibility never reset).
+                    save.circuitPoints = CircuitPointsManager.applySeasonalDecay(save.circuitPoints || [])
                 }
 
                 // Phase 63: Pro Top 20 Awards - Trigger at start of each new year (Week 53, 105, etc.)
@@ -1289,51 +1293,13 @@ export class AtomicWeekProcessor {
             }
         })
 
-        // Check for tournaments ending this week - award circuit points
-        const endingTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => {
-            const duration = t.duration || 1
-            const endWeekOfSeason = ((t.startWeek + duration - 2) % 52) + 1
-            return weekOfSeason === endWeekOfSeason
-        })
-
-        for (const tournamentDef of endingTournaments) {
-            debugLog(`[Tournament] ${tournamentDef.name} finals this week!`)
-
-            // Find the actual tournament instance (may have seasonal ID like "major_copenhagen_s1")
-            const season = Math.floor((currentWeek - 1) / 52) + 1
-            const seasonalId = `${tournamentDef.id}_s${season}`
-            const liveTournament = idx?.tournamentIndex.get(seasonalId) ?? idx?.tournamentIndex.get(tournamentDef.id) ?? save.tournaments.find(t =>
-                t.id === seasonalId || t.id === tournamentDef.id
-            )
-
-            const pointsTable = CIRCUIT_POINTS[tournamentDef.tier] as Record<number, number> | undefined
-            if (!pointsTable) continue
-
-            // Award points only from real completed instances to avoid phantom season points.
-            if (liveTournament && liveTournament.isCompleted && liveTournament.playoffBracket && !liveTournament.rewardsGranted) {
-                debugLog(`[Circuit] Using actual tournament placements for ${tournamentDef.name}`)
-
-                // Get actual placements from the tournament bracket
-                const placements = TournamentManager.calculatePlacements(save, liveTournament)
-
-                // Award points based on actual tournament results
-                for (const { teamId, position } of placements) {
-                    const points = pointsTable[position] || 0
-                    if (points > 0) {
-                        this.awardPoints(save, teamId, points, tournamentDef.name, position, idx)
-                    }
-                }
-            } else {
-                debugLog(`[Circuit] Skipping points for ${tournamentDef.name}: instance not terminally complete.`)
-            }
-        }
-    }
-
-    // Circuit-points + trophy awarding extracted to
-    // engine/processors/circuit-points-awarder.ts (Phase M3).
-    private awardPoints(save: GameSave, teamId: string, points: number, tournamentName: string, placement: number = 0, idx?: SaveIndexes) {
-        awardCircuitPointsFn(save, teamId, points, tournamentName, placement, idx)
-        debugLog(`[Circuit] Awarded ${points} points to team ${teamId} for ${tournamentName} (P${placement})`)
+        // Circuit points are awarded SOLELY by standings-processor.updateStandings
+        // (Step 6) — the single idempotent owner, gated by + setting
+        // tournament.rewardsGranted, and covering every completed tournament
+        // (bracket/league/swiss alike). A duplicate award loop used to live here
+        // but never set rewardsGranted, so any tournament that became complete
+        // within this step (e.g. via the bracket-repair pass above) had its
+        // circuit points awarded twice. Removed to keep one source of truth.
     }
 
     private generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {

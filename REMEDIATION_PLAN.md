@@ -38,6 +38,11 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 16. **[Phase 3.1]** AI transfer valuation fixed — `potential` is 0-100, but the multiplier/overpay thresholds were 0-20 leftovers so every listed player hit the max boost (sell-any-bench-player-for-a-fortune). Extracted a pure, tested `aiMarketValuation` with correct 0-100 thresholds (`engine/ai/transfer-market.ts`, `__tests__/ai-market-valuation.test.ts`).
 17. **[Phase 1.1]** Worker is now compute-only (no-op storage adapter + no-op `saveGame`) so it no longer writes a divergent full save to a worker-local IndexedDB; the main thread now performs the single authoritative `saveGame()` after post-tick steps so academy budget/history, pruning, synergy, and the correct `lastRngSeed` are actually persisted (`engine/worker/week-processor.worker.ts`, `store/game-store.ts`, `__tests__/worker-compute-only.test.ts`).
 
+**Pass 4** — tournament-integrity cluster (each behind a new test in `__tests__/tournament-integrity.test.ts`)
+18. **[Phase 2.1]** `recomputeStandings` now preserves Swiss standings (incl. BYE wins, which have no completed match) instead of rebuilding wins from scratch each tick — Swiss qualification (advance at 3 wins) is no longer corrupted; non-Swiss recompute is unchanged (`engine/processors/standings-processor.ts`).
+19. **[Phase 2.2]** Removed the duplicate circuit-points award loop from the week processor (it never set `rewardsGranted`, so a tournament completed within that step got points twice). `updateStandings` is now the single idempotent owner; deleted the now-dead `awardPoints` + unused imports (`engine/atomic-week-processor.ts`).
+20. **[Phase 2.3]** Wired `CircuitPointsManager.applySeasonalDecay` (25% reduction, drop-to-zero) into the season-end branch — circuit points no longer accumulate unbounded across seasons (`engine/atomic-week-processor.ts`).
+
 ---
 
 ## Phase 1 — Save & persistence integrity (CRITICAL — data-loss risk)
@@ -67,17 +72,17 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 
 ## Phase 2 — Tournament / competition correctness (HIGH)
 
-### 2.1 Per-tick recompute clobbers Swiss standings (BYE wins erased) [HIGH]
+### 2.1 Per-tick recompute clobbers Swiss standings (BYE wins erased) — ✅ DONE (Pass 4) [HIGH]
 - **Problem:** `recomputeStandings` (`standings-processor.ts:74-124`) rebuilds `wins/losses/mapDiff/roundDiff` from `completedMatches` every tick, erasing Swiss BYE wins (which have no match — `swiss-handlers.ts:131-140`). Swiss advance/elim thresholds are `wins === 3`/`losses >= 3`, so a BYE-advanced team can be silently un-qualified.
 - **Steps:** In `recomputeStandings`, early-return for Swiss tournaments (`if (tournament.format === "swiss" || tournament.currentStage === "Swiss Stage") return`). Swiss owns its standings via `handleSwissResult`. (Alt: record BYEs as synthetic completed matches.)
 - **Verify:** Test: simulate a Swiss stage with a BYE, tick twice, assert the BYE team's `wins` and ELIMINATED/ADVANCED status are stable.
 
-### 2.2 Circuit points can double-award on a repair-completed tournament [HIGH]
+### 2.2 Circuit points can double-award on a repair-completed tournament — ✅ DONE (Pass 4) [HIGH]
 - **Problem:** Two award paths — `atomic-week-processor.ts:1312-1328` (Path A, gated on `!rewardsGranted` but never sets it) and `standings-processor.ts:205-232` (Path B, gated and sets `rewardsGranted`). Tick order is A → matches → B, so normally A is skipped (tournament not yet complete). But when `repairTournamentProgression` (`:1288`) completes a tournament **inside** `processTournaments`, both A and B fire in the same tick → doubled points.
 - **Steps:** Delete the duplicate loop at `atomic-week-processor.ts:1312-1328`; let `standings-processor` be the sole awarder (it already covers every `isCompleted` tournament and is idempotent via `rewardsGranted`). Keep the trophy logic that already lives in `standings-processor`.
 - **Verify:** Test: tick a bracket tournament to completion (incl. a repair-completed final) and assert each team's circuit points increase exactly once.
 
-### 2.3 Circuit points never decay across seasons [HIGH]
+### 2.3 Circuit points never decay across seasons — ✅ DONE (Pass 4) [HIGH]
 - **Problem:** `CircuitPointsManager.applySeasonalDecay` (`tournament-qualification.ts:124`) has **zero callers**; points accumulate forever, trivializing POINTS-gated eligibility and never resetting the leaderboard.
 - **Steps:** In the season-end branch (`atomic-week-processor.ts:320-323`), add `save.circuitPoints = CircuitPointsManager.applySeasonalDecay(save.circuitPoints)`.
 - **Verify:** Test: cross a season boundary, assert points are reduced by the documented decay (and a regression test on `applySeasonalDecay` itself, which is currently untested).
