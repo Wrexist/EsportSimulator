@@ -271,6 +271,13 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 }
             }
 
+            // World rankings are no longer re-sorted inside updateEloAfterMatch
+            // (that was O(n log n) per match on the week-tick hot path). Refresh
+            // once here on the live path so the player's post-match rankingChange
+            // below reflects the new standings immediately.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            LeagueEngine.refreshWorldRankings(state as any)
+
             completedMatch.rankingChange = {
                 home: oldHomeRank - (homeTeam.worldRanking || 999),
                 away: oldAwayRank - (awayTeam.worldRanking || 999),

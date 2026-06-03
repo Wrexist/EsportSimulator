@@ -76,7 +76,12 @@ export default function StatsPage() {
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null)
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
-    const teamPlayers = players.filter(p => playerTeam?.rosterIds.includes(p.id))
+    // Memoize so the dependent useMemos (statsWithEIR, teamDNA) don't recompute
+    // every render off a fresh array identity.
+    const teamPlayers = useMemo(
+        () => players.filter(p => playerTeam?.rosterIds.includes(p.id)),
+        [players, playerTeam]
+    )
 
     // Calculate EIR (Economy Impact Rating) = (Rating * 1000) / Salary
     const statsWithEIR = useMemo(() => {

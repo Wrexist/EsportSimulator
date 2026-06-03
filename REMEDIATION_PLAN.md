@@ -51,6 +51,11 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 10** — perf + UI defensive polish
+30. **[Phase 2.7]** `refreshWorldRankings` no longer re-sorts all teams after *every* Elo change (was O(n log n) × hundreds of matches/week). The week tick already refreshes once via the AI world processor; the live-match path refreshes explicitly so the player's post-match rankingChange stays correct (`engine/league-engine.ts`, `store/slices/match-simulation-slice.ts`).
+31. **[Phase 6.2]** `Player3DPortrait` now disposes its 10 `useMemo`'d Three.js materials on unmount/recompute — they were passed via the `material` prop, which R3F doesn't auto-dispose, leaking WebGL memory while browsing portraits (`components/ui/Player3DPortrait.tsx`).
+32. **[Phase 6.x]** `SynergyChart` guards missing stats (`Number()||0`) so a missing field can't produce `NaN` SVG coords; the result screen's BO1 score block guards `result.maps[0]`; the stats page memoizes `teamPlayers` so dependent memos don't recompute every render (`components/squad/SynergyChart.tsx`, `app/match/[id]/result/page.tsx`, `app/stats/page.tsx`).
+
 **Pass 9** — real double-elimination
 29. **[Phase 2.5]** Implemented real double-elim (was silently single-elim). `setupDoubleElim` splits the 16-team field into two 8-team GSL groups; **fixed the structurally-incomplete lower bracket** (added the orphaned lower-R2 round so both lower-semi winners feed the lower final; the lower-final loser is the group's 3rd seed and now *advances* to the playoff QF instead of being eliminated); the playoff bridge starts the week after the group stage resolves; bumped the event's `duration` so the full bracket fits. End-to-end test drives a 16-team event to a single champion with no stall (`engine/tournament-manager.ts`, `engine/tournament/double-elim-handlers.ts`, `data/tournaments.json`, `__tests__/double-elim.test.ts`).
 
@@ -123,7 +128,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** Render from `displayTournament.standings` (already sorted by `compareStandings`) and `TournamentManager.calculatePlacements(...)`; reuse `team.worldRanking` for rank.
 - **Verify:** Final-standings table shows unique sequential placements and matches the prize ledger.
 
-### 2.7 `refreshWorldRankings` re-sorts all teams after every Elo update [MEDIUM — perf]
+### 2.7 `refreshWorldRankings` re-sorts all teams after every Elo update — ✅ DONE (Pass 10) [MEDIUM — perf]
 - **Problem:** Called inside `updateEloAfterMatch` (`league-engine.ts:268`) → O(n log n) per match, hundreds/week.
 - **Steps:** Move the refresh to once per tick after all matches.
 - **Verify:** Week-tick perf profile improves; rankings identical at end of tick.
@@ -212,7 +217,7 @@ _The compactor (`engine/processors/save-compactor.ts:67-70`) already filters `ac
 - **Steps:** `useCallback` the caller's `onComplete`, or store it in a ref inside the component and drop it from the dep array (`[show, isChampionship]`).
 - **Verify:** Confetti/sound fire once; animation doesn't restart on store ticks/hover.
 
-### 6.2 `Player3DPortrait` Three.js materials never disposed [MEDIUM — GPU leak]
+### 6.2 `Player3DPortrait` Three.js materials never disposed — ✅ DONE (Pass 10) [MEDIUM — GPU leak]
 - **Problem:** ~11 `new THREE.MeshStandardMaterial` built in `useMemo` and passed via `material={...}` (`Player3DPortrait.tsx:37-76`) — R3F doesn't auto-dispose manually-constructed materials. Rendered in `PlayerCard`/player lists; leaks WebGL memory over a browsing session.
 - **Steps:** Add a cleanup effect disposing each material on unmount/recompute, or switch to declarative `<meshStandardMaterial>` children.
 - **Verify:** WebGL memory stable after mounting/unmounting many portraits.

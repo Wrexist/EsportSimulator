@@ -442,7 +442,10 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
 
                             {/* Score Display Logic: Round score for BO1, Map score for others */}
                             {(() => {
-                                const isBO1 = match.format === "bo1" || (result.homeScore + result.awayScore === 1 && result.maps.length === 1);
+                                // Require a real map record before reading maps[0] — a
+                                // malformed/legacy BO1 with an empty maps array would crash
+                                // the route; fall back to the series score instead.
+                                const isBO1 = (match.format === "bo1" || (result.homeScore + result.awayScore === 1 && result.maps.length === 1)) && result.maps.length > 0;
                                 const hScore = isBO1 ? result.maps[0].finalScore.team1 : result.homeScore;
                                 const aScore = isBO1 ? result.maps[0].finalScore.team2 : result.awayScore;
 

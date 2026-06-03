@@ -21,7 +21,9 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
 
         const getAvg = (keys: (keyof PlayerSaveData)[]) => {
             const sum = players.reduce((acc, p) => {
-                const pSum = keys.reduce((kAcc, k) => kAcc + (p[k] as number), 0)
+                // Guard missing stats — an undefined field would make pSum NaN and
+                // poison the SVG polygon coordinates ("NaN,NaN" → blank chart).
+                const pSum = keys.reduce((kAcc, k) => kAcc + (Number(p[k]) || 0), 0)
                 return acc + (pSum / keys.length)
             }, 0)
             return sum / players.length
