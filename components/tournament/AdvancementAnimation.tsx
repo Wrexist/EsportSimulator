@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
@@ -30,6 +30,14 @@ export function AdvancementAnimation({
     onComplete
 }: AdvancementAnimationProps) {
     const [phase, setPhase] = useState<"idle" | "intro" | "transition" | "reveal" | "celebrate">("idle")
+
+    // Keep the latest onComplete in a ref so it doesn't have to be an effect
+    // dependency. The caller passes an inline arrow (fresh identity each render),
+    // so including it below would tear down + recreate the timers on every
+    // parent re-render while `show` is true — resetting `phase` to "intro" and
+    // RE-FIRING confetti + the victory sound mid-sequence.
+    const onCompleteRef = useRef(onComplete)
+    useEffect(() => { onCompleteRef.current = onComplete }, [onComplete])
 
     useEffect(() => {
         if (!show) {
@@ -62,7 +70,7 @@ export function AdvancementAnimation({
         }, 2600)
 
         const completeTimer = setTimeout(() => {
-            onComplete?.()
+            onCompleteRef.current?.()
         }, 5000)
 
         return () => {
@@ -71,7 +79,7 @@ export function AdvancementAnimation({
             clearTimeout(celebrateTimer)
             clearTimeout(completeTimer)
         }
-    }, [show, isChampionship, onComplete])
+    }, [show, isChampionship])
 
     // Get display name for stage with cleaner formatting
     const formatStage = (stage: string) => {

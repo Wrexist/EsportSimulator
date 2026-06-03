@@ -47,6 +47,10 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 21. **[Phase 2.4]** `handlePlayoffProgression` now auto-advances a degenerate self-match (both bracket slots resolved to the same team) instead of letting `scheduleBracketMatch` silently drop it, and `standings-processor` only flips a tournament to `isCompleted` once a concrete `winnerId` is resolvable — so a stalled bracket can't lock with no champion (`engine/tournament-manager.ts`, `engine/processors/standings-processor.ts`).
 22. **[Phase 4.2]** `compactPersistentState` now prunes `scheduledActivities` whose window ended before last week — the ~7 auto-generated REST days/week no longer accumulate unbounded (700+/career → recent ~14). 4.3 (`acknowledgedEventIds`) was already handled by the same compactor (`engine/processors/save-compactor.ts`).
 
+**Pass 6** — UI correctness + scouting integrity
+23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
+24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
+
 ---
 
 ## Phase 1 — Save & persistence integrity (CRITICAL — data-loss risk)
@@ -176,7 +180,7 @@ _The compactor (`engine/processors/save-compactor.ts:67-70`) already filters `ac
 
 ## Phase 5 — Player progression completeness (MEDIUM)
 
-### 5.1 Scouting fuzzing is dead / leaks true OVR [HIGH]
+### 5.1 Scouting fuzzing is dead / leaks true OVR — ✅ DONE (Pass 6) [HIGH]
 - **Problem:** `engine/scouting-system.ts` (tiered ±accuracy fuzzing) is imported by **no** non-test file. The live UI fuzzes inline at `app/scouting/page.tsx:803-808` with `min = ovr-15; max = ovr+15` — band centered on the true value (midpoint reveals true OVR) and ignores scout level.
 - **Steps:** Wire `getVisibleStats`/`fuzzyBand` from `scouting-system.ts` (offset band that scales with `getScoutingLevel()`) into the scouting page; or delete the dead module and fix the inline fuzz to be offset + level-scaled.
 - **Verify:** Unscouted OVR can't be reverse-engineered from the midpoint; higher scout level narrows the band.
@@ -192,7 +196,7 @@ _The compactor (`engine/processors/save-compactor.ts:67-70`) already filters `ac
 
 ## Phase 6 — UI correctness & leaks (MEDIUM/LOW)
 
-### 6.1 `AdvancementAnimation` re-fires confetti + victory sound [HIGH on the result screen]
+### 6.1 `AdvancementAnimation` re-fires confetti + victory sound — ✅ DONE (Pass 6) [HIGH on the result screen]
 - **Problem:** Effect deps include `onComplete` (`AdvancementAnimation.tsx:74`), and the caller passes an inline arrow (`app/match/[id]/result/page.tsx:1002`) with fresh identity each render. Any re-render while `show` is true tears down + recreates the timers, resetting `phase` and re-triggering `fireConfetti`/`soundManager.play("victory")`.
 - **Steps:** `useCallback` the caller's `onComplete`, or store it in a ref inside the component and drop it from the dep array (`[show, isChampionship]`).
 - **Verify:** Confetti/sound fire once; animation doesn't restart on store ticks/hover.
