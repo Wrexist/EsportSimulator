@@ -255,8 +255,21 @@ export class TournamentManager {
             return
         }
 
-        // Double-elim and generic bracket formats skip Swiss regardless of team count
-        if (tournament.format === "double_elim" || tournament.format === "bracket") {
+        // Real double-elimination: two GSL-style groups (each an 8-team
+        // double-elim producing 1st/2nd/3rd) that feed the playoff bridge
+        // (checkAndStartPlayoffs → generatePlayoffs). Requires an even field of
+        // >= 16 so each group has the >= 8 teams createDoubleElimGroup needs to
+        // build a full upper+lower bracket; otherwise fall back to single-elim.
+        if (tournament.format === "double_elim") {
+            if (uniqueTeamIds.length >= 16 && uniqueTeamIds.length % 2 === 0) {
+                this.setupDoubleElim(save, tournament, uniqueTeamIds, rng)
+            } else {
+                this.setupGenericBracket(save, tournament, uniqueTeamIds, rng)
+            }
+            return
+        }
+
+        if (tournament.format === "bracket") {
             this.setupGenericBracket(save, tournament, uniqueTeamIds, rng)
             return
         }
@@ -295,6 +308,30 @@ export class TournamentManager {
         rng: SeededRNG,
     ): void {
         generateSwissRoundFn(save, tournament, roundNum, rng)
+    }
+
+    /**
+     * Real double-elimination setup: split the seeded field into two balanced
+     * GSL groups. Each group is an independent 8-team double-elim
+     * (createDoubleElimGroup) that resolves to 1st (upper-final winner), 2nd
+     * (lower-final winner) and 3rd (lower-final loser); once BOTH groups finish,
+     * handleLowerResult → checkAndStartPlayoffs → generatePlayoffs builds the
+     * top-6 playoff bracket (QF/SF/GF).
+     */
+    private static setupDoubleElim(
+        save: GameSave,
+        tournament: TournamentSaveData,
+        teamIds: string[],
+        rng: SeededRNG
+    ): void {
+        tournament.currentStage = "Group Stage"
+        tournament.groups = []
+        // Snake the seeded field across two balanced groups (1→A, 2→B, 3→A, …).
+        const groupA: string[] = []
+        const groupB: string[] = []
+        teamIds.forEach((id, i) => { (i % 2 === 0 ? groupA : groupB).push(id) })
+        tournament.groups.push(this.createDoubleElimGroup(save, tournament, "Group A", groupA, rng))
+        tournament.groups.push(this.createDoubleElimGroup(save, tournament, "Group B", groupB, rng))
     }
 
     private static createDoubleElimGroup(
@@ -360,7 +397,7 @@ export class TournamentManager {
                 tournamentId: tournament.id,
                 stage: `${groupName} Upper Final`,
                 isCompleted: false,
-                week: startWeek + 1,
+                week: startWeek + 2,
                 format: "BO3",
                 seed: rng.int(0, 999999),
                 sourceMatchIds: [`${groupId}_upper_semi_0`, `${groupId}_upper_semi_1`]
@@ -1000,7 +1037,12 @@ export class TournamentManager {
 
     private static generatePlayoffs(save: GameSave, tournament: TournamentSaveData, pA: { first: string, second: string, third: string }, pB: { first: string, second: string, third: string }): void {
         tournament.currentStage = "Playoffs"
-        const startWeek = tournament.endWeek - 1
+        // Start the playoff bracket the week AFTER the group stage resolved. This
+        // only runs from checkAndStartPlayoffs (once both double-elim groups
+        // finish), so anchoring to the current week guarantees future-dated
+        // matches regardless of how long the group stage took (the old
+        // endWeek-1 offset could land in the past).
+        const startWeek = save.currentWeek + 1
 
         const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: 101, sourceMatchIds: [] }
         const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: 102, sourceMatchIds: [] }

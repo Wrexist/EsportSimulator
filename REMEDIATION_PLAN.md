@@ -51,6 +51,9 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 9** — real double-elimination
+29. **[Phase 2.5]** Implemented real double-elim (was silently single-elim). `setupDoubleElim` splits the 16-team field into two 8-team GSL groups; **fixed the structurally-incomplete lower bracket** (added the orphaned lower-R2 round so both lower-semi winners feed the lower final; the lower-final loser is the group's 3rd seed and now *advances* to the playoff QF instead of being eliminated); the playoff bridge starts the week after the group stage resolves; bumped the event's `duration` so the full bracket fits. End-to-end test drives a 16-team event to a single champion with no stall (`engine/tournament-manager.ts`, `engine/tournament/double-elim-handlers.ts`, `data/tournaments.json`, `__tests__/double-elim.test.ts`).
+
 **Pass 8** — AI transfer fairness + season label
 26. **[Phase 3.3]** AI free-agent signings now charge a `salary * 4` signing fee (parity with the human path, which pays a 4-week bonus), waived in emergency sub-quorum signings (`engine/ai/roster-management.ts`).
 27. **[Phase 3.4]** AI↔AI transfer fees now honor the seller's contract `buyout` (was a flat `skill * 2000` that ignored buyout clauses), and the hard roster cap is re-asserted before the push (`engine/ai/transfer-market.ts`).
@@ -108,7 +111,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** On a self-match, auto-complete it (award the lone team the win, call `handlePlayoffProgression`), mirroring the repair logic at `tournament-manager.ts:169-177`. Also gate `standings-processor.ts:128-135`'s `isCompleted = true` on a resolvable `winnerId` so a stalled bracket can't lock as "complete, no champion".
 - **Verify:** Test: feed a bracket where a slot resolves to a duplicate team; assert it auto-advances and the tournament completes with a winner.
 
-### 2.5 `double_elim` runs as single-elimination [HIGH — incomplete feature]
+### 2.5 `double_elim` runs as single-elimination — ✅ DONE (Pass 9) [HIGH — incomplete feature]
 - **Problem:** `tournament-manager.ts:259` routes `"double_elim"` to `setupGenericBracket`; the real machinery (`createDoubleElimGroup:300`, `tournament/double-elim-handlers.ts`, `checkAndStartPlayoffs`/`generatePlayoffs`) is **dead** (`tournament.groups` never populated). `data/tournaments.json` has 1 such event; the Lower-Bracket UI (`app/tournaments/[id]/page.tsx:1346-1368`) is always empty.
 - **Steps (choose one):**
   - **Implement:** add a `setupDoubleElim` entry that builds the opening/upper/lower bracket via `createDoubleElimGroup`, populates `tournament.groups`, routes `"double_elim"` to it, and wires `handleOpeningResult`/`handleUpperSemiResult`/`handleLowerResult` into match completion.
