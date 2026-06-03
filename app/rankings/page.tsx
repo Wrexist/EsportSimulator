@@ -359,7 +359,17 @@ function RankingsPageInner() {
     // roster lookup and `recentFormByTeamId` for O(1) form lookup.
     const rankedTeams = useMemo(() => {
         return [...teams]
-            .sort((a, b) => (b.elo || 1000) - (a.elo || 1000))
+            // Match the engine's tiebreaker (LeagueEngine.refreshWorldRankings:
+            // elo → reputation → numeric id) so the displayed rank is
+            // deterministic and consistent with team.worldRanking used elsewhere
+            // — an Elo-only sort left equal-Elo teams in arbitrary order.
+            .sort((a, b) => {
+                if ((b.elo || 1000) !== (a.elo || 1000)) return (b.elo || 1000) - (a.elo || 1000)
+                if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
+                const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
+                const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
+                return aNum - bNum
+            })
             .map((team, index) => {
                 const worldRanking = index + 1
                 const tier = calculateTeamTier(worldRanking)

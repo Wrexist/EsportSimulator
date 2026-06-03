@@ -2,7 +2,7 @@ import { memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PlayCircle, PauseCircle, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, Plus } from "lucide-react"
+import { PlayCircle, PauseCircle, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, Plus, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LiveGameState } from "@/types"
 
@@ -128,13 +128,25 @@ function LiveMatchControlBarComponent({
 
                 {/* SPEED CONTROL */}
                 <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-1 border border-white/5">
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label="Decrease playback speed"
+                        title="Decrease speed"
+                        disabled={speed <= 1}
+                        className="w-4 h-4 rounded-full p-0 hover:bg-white/10 disabled:opacity-30"
+                        onClick={() => setSpeed(s => Math.max(s - 0.5, 1))}
+                    >
+                        <Minus size={10} className="text-white/50" aria-hidden="true" />
+                    </Button>
                     <span className="text-[10px] font-bold text-white/40 w-4 text-center">{speed.toFixed(0)}x</span>
                     <Button
                         size="icon"
                         variant="ghost"
                         aria-label="Increase playback speed"
                         title="Increase speed"
-                        className="w-4 h-4 rounded-full p-0 hover:bg-white/10"
+                        disabled={speed >= 5}
+                        className="w-4 h-4 rounded-full p-0 hover:bg-white/10 disabled:opacity-30"
                         onClick={() => setSpeed(s => Math.min(s + 0.5, 5))}
                     >
                         <Plus size={10} className="text-white/50" aria-hidden="true" />
