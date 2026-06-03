@@ -10,13 +10,26 @@ import { ArrowLeft } from "lucide-react"
 export default function PlayerPage() {
     const { id } = useParams()
     const router = useRouter()
-    const { players } = useGameStore(useShallow(state => ({
+    const { players, _hasHydrated } = useGameStore(useShallow(state => ({
         players: state.players,
+        _hasHydrated: state._hasHydrated,
     })))
 
     // Find player directly in the global players collection
     const itemId = Array.isArray(id) ? id[0] : id
     const player = players.find(p => p.id === itemId)
+
+    // The store hydrates asynchronously from persisted storage. On a hard
+    // load / refresh / deep-link of a player URL, `players` is briefly empty —
+    // calling notFound() then would 404 a perfectly valid profile. Wait for
+    // hydration before deciding the player doesn't exist.
+    if (!_hasHydrated) {
+        return (
+            <div className="container mx-auto px-4 py-6">
+                <div className="h-64 animate-pulse rounded-lg bg-white/5" />
+            </div>
+        )
+    }
 
     if (!player) {
         return notFound()

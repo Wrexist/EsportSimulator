@@ -68,13 +68,26 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
             if (node.effect?.type === "STAT_BOOST") {
                 const clamp = (v: number) => Math.max(0, Math.min(STAT_CLAMP_MAX, v))
                 if (node.effect.target === "all") {
-                    p.skill = clamp(p.skill + node.effect.value)
-                    p.rifle = clamp(p.rifle + node.effect.value)
-                    p.awp = clamp(p.awp + node.effect.value)
-                    p.creativity = clamp(p.creativity + node.effect.value)
-                    p.tactic = clamp(p.tactic + node.effect.value)
-                    p.teamwork = clamp(p.teamwork + node.effect.value)
-                    p.clutch = clamp(p.clutch + node.effect.value)
+                    // Boost the full set of core competitive attributes. This
+                    // previously covered only 7 stats, so "+N All Stats" talents
+                    // silently skipped reaction/pistol/grenades/entry/trading/
+                    // leader/stressResistance/eyesight. Excludes fluctuating
+                    // states (morale/form/fatigue/energy/health) and soft traits
+                    // (amicability/productivity/loyalty).
+                    const ALL_STAT_KEYS = [
+                        "skill", "rifle", "awp", "pistol", "grenades", "creativity",
+                        "clutch", "tactic", "entry", "trading",
+                        "leader", "teamwork", "stressResistance",
+                        "reaction", "eyesight",
+                    ] as const
+                    for (const k of ALL_STAT_KEYS) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const cur = (p as any)[k]
+                        if (typeof cur === "number") {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            ;(p as any)[k] = clamp(cur + node.effect.value)
+                        }
+                    }
                 } else {
                     const target = node.effect.target as keyof typeof p
                     if (typeof p[target] === "number") {

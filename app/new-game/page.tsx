@@ -133,7 +133,10 @@ export default function TeamSelectionPage() {
 
     // Rank teams and assign tiers dynamically
     const rankedTeams = useMemo(() => {
-        return teams
+        // Spread before sort — `Array.prototype.sort` mutates in place, and
+        // `teams` is component state; sorting it directly mutates state outside
+        // a setter (StrictMode/concurrent-render footgun).
+        return [...teams]
             .sort((a, b) => (b.reputation || 0) - (a.reputation || 0))
             .map((team, index): RankedTeam => ({
                 ...team,
