@@ -252,6 +252,55 @@ export function validateModPayload(raw: unknown): { ok: true; value: ModSnapshot
     if (!out.players && !out.teams && !out.tournaments) {
         return { ok: false, error: "No players, teams, or tournaments found in payload" }
     }
+
+    // Referential-integrity checks: duplicate IDs within the mod's own data
+    // would produce teams with no valid roster (silently failing matches) or
+    // players that share state across two teams. Catch them at import time.
+    if (out.players) {
+        const playerIds = new Set<string>()
+        for (const p of out.players) {
+            if (playerIds.has(p.id)) {
+                return { ok: false, error: `Duplicate player id "${p.id}" in mod payload` }
+            }
+            playerIds.add(p.id)
+        }
+    }
+    if (out.teams) {
+        const teamIds = new Set<string>()
+        for (const t of out.teams) {
+            if (teamIds.has(t.id)) {
+                return { ok: false, error: `Duplicate team id "${t.id}" in mod payload` }
+            }
+            teamIds.add(t.id)
+        }
+        // If the mod supplies both teams AND players, every rosterIds entry
+        // must resolve to a player within the mod. Mods that supply only teams
+        // (overlaying existing rosters) are allowed to reference base-game ids.
+        if (out.players) {
+            const playerIds = new Set(out.players.map(p => p.id))
+            for (const t of out.teams) {
+                if (!Array.isArray(t.rosterIds)) continue
+                for (const pid of t.rosterIds) {
+                    if (typeof pid === "string" && !playerIds.has(pid)) {
+                        return {
+                            ok: false,
+                            error: `Team "${t.id}" references unknown player id "${pid}". Add the player to the payload or remove the id from rosterIds.`
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (out.tournaments) {
+        const tournamentIds = new Set<string>()
+        for (const t of out.tournaments) {
+            if (tournamentIds.has(t.id)) {
+                return { ok: false, error: `Duplicate tournament id "${t.id}" in mod payload` }
+            }
+            tournamentIds.add(t.id)
+        }
+    }
+
     // If the payload is a full snapshot (has version + sources), validate strictly.
     if (typeof obj.version === "string" && Array.isArray(obj.sources)) {
         if (!validateSnapshot(obj)) return { ok: false, error: "Full snapshot validation failed" }

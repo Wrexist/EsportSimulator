@@ -82,4 +82,25 @@ export function compactPersistentState(save: GameSave): void {
     // so the set doesn't accumulate stale IDs across long campaigns.
     const knownEventIds = new Set(save.eventsLog.map(e => e.id))
     save.acknowledgedEventIds = save.acknowledgedEventIds.filter(id => knownEventIds.has(id))
+
+    // Strip per-round detail from completed matches older than the retention
+    // window. Player-team matches retain their rounds[] so the match-result
+    // page can render the round-by-round replay for recent games. AI-vs-AI
+    // matches already have rounds=[] from the week processor (Phase O.2).
+    // After ROUNDS_RETENTION_WEEKS, the per-round data is dead weight —
+    // players don't re-watch old matches, and the rounds arrays are the
+    // single largest contributor to save-file bloat at ~50-120 KB per map.
+    const ROUNDS_RETENTION_WEEKS = 4
+    const roundsAgeThreshold = save.currentWeek - ROUNDS_RETENTION_WEEKS
+    if (roundsAgeThreshold > 0) {
+        for (const match of save.completedMatches) {
+            if (match.week < roundsAgeThreshold && match.result?.maps) {
+                for (const map of match.result.maps) {
+                    if (Array.isArray(map.rounds) && map.rounds.length > 0) {
+                        map.rounds = []
+                    }
+                }
+            }
+        }
+    }
 }
