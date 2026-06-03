@@ -51,6 +51,10 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 23. **[Phase 6.1]** `AdvancementAnimation` now holds `onComplete` in a ref and drops it from the effect deps — the result screen passed an inline arrow, so every re-render restarted the animation and RE-FIRED the confetti + victory sound. (`components/tournament/AdvancementAnimation.tsx`)
 24. **[Phase 5.1]** Scouting's unscouted-rating band now uses the (previously dead) `fuzzyBand` — an offset, deterministic-per-player band — instead of `[ovr-15, ovr+15]` whose midpoint leaked the exact OVR. Revived + exported `fuzzyBand`; the page imports it (`engine/scouting-system.ts`, `app/scouting/page.tsx`). _(Scout-level band-narrowing was left out — no scout-level signal is in scope on that page; the leak closure is the key fix.)_
 
+**Pass 11** — dead-code cleanup + a dead-component landmine
+33. **[Phase 7.2 / 6.4]** Deleted three zero-importer dead components — `virtualized-list.tsx`, `SocialFeed.tsx`, `player-stat-meter.tsx` (verified no references anywhere, incl. docs). This also resolves 6.4 (the `player-stat-meter` NaN/`.toFixed` hazard) and the `SocialFeed` a11y gap by removal.
+34. **[Phase 6.3]** `search-filter` (kept — referenced by a `docs/` example) had its parent-callback fired from a `useMemo` (render phase); converted to `useEffect` so it can't trigger React's "update while rendering" warning / an infinite loop if adopted (`components/ui/search-filter.tsx`).
+
 **Pass 10** — perf + UI defensive polish
 30. **[Phase 2.7]** `refreshWorldRankings` no longer re-sorts all teams after *every* Elo change (was O(n log n) × hundreds of matches/week). The week tick already refreshes once via the AI world processor; the live-match path refreshes explicitly so the player's post-match rankingChange stays correct (`engine/league-engine.ts`, `store/slices/match-simulation-slice.ts`).
 31. **[Phase 6.2]** `Player3DPortrait` now disposes its 10 `useMemo`'d Three.js materials on unmount/recompute — they were passed via the `material` prop, which R3F doesn't auto-dispose, leaking WebGL memory while browsing portraits (`components/ui/Player3DPortrait.tsx`).
