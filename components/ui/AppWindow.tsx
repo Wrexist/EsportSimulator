@@ -275,18 +275,21 @@ export function AppWindow({
                         {/* Traffic Lights */}
                         <div className="flex items-center gap-2 z-10">
                             <button
+                                aria-label="Close window"
                                 onClick={(e) => { e.stopPropagation(); onClose(); }}
                                 className="w-3 h-3 rounded-full bg-rose-400/80 hover:bg-rose-400 active:bg-rose-500 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >
                                 <X size={8} className="opacity-0 group-hover:opacity-100 text-rose-900" />
                             </button>
                             <button
+                                aria-label="Minimize window"
                                 onClick={(e) => { e.stopPropagation(); onMinimize(); }}
                                 className="w-3 h-3 rounded-full bg-amber-300/80 hover:bg-amber-300 active:bg-amber-400 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >
                                 <Minus size={8} className="opacity-0 group-hover:opacity-100 text-amber-900" />
                             </button>
                             <button
+                                aria-label="Maximize window"
                                 onClick={(e) => { e.stopPropagation(); toggleMaximize(); }}
                                 className="w-3 h-3 rounded-full bg-emerald-300/80 hover:bg-emerald-300 active:bg-emerald-400 transition-colors duration-75 ease-out flex items-center justify-center group active:scale-90"
                             >

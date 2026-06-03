@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react"
 import { Role } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
+import { formatRole } from "@/lib/utils-extended"
 import { Coins, Clock, ArrowRight, Activity, TrendingUp, Users } from "lucide-react"
 
 interface RoleTrainingModalProps {
@@ -144,7 +145,7 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                         {/* Comparison */}
                         {selectedRole && (
                             <div className="flex items-center justify-center gap-3 text-sm font-bold uppercase">
-                                <Badge variant="outline" className="border-white/20 text-white/60">{player.role}</Badge>
+                                <Badge variant="outline" className="border-white/20 text-white/60">{formatRole(player.role)}</Badge>
                                 <ArrowRight size={14} className="text-white/20" />
                                 <Badge className="bg-primary/20 text-primary hover:bg-primary/30">{ROLES.find(r => r.id === selectedRole)?.label}</Badge>
                                 <span className="text-[10px] text-white/30 font-normal normal-case">(new primary)</span>
@@ -158,9 +159,9 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                             Maximum role capability reached.
                         </p>
                         <div className="flex justify-center gap-2">
-                            <Badge variant="secondary">{player.role}</Badge>
+                            <Badge variant="secondary">{formatRole(player.role)}</Badge>
                             <span className="text-white/20">+</span>
-                            <Badge variant="secondary">{player.secondaryRole}</Badge>
+                            <Badge variant="secondary">{formatRole(player.secondaryRole)}</Badge>
                         </div>
                     </div>
                 )}

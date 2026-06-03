@@ -74,6 +74,28 @@ export function formatPercentage(value: number, decimals = 0): string {
 }
 
 /**
+ * Convert an internal player-role token to a clean, human-readable label.
+ *
+ * Roles are stored as uppercase tokens (AWPER, RIFLER, IGL, SUPPORT,
+ * ENTRY_FRAGGER). Rendering the raw token shows players the ugly
+ * "ENTRY_FRAGGER" string, so every user-facing role display should route
+ * through this. Returns a Title-case label; screens that want all-caps can
+ * still apply `uppercase` styling on top.
+ */
+export function formatRole(role: string | undefined | null): string {
+    if (!role) return ''
+    switch (role.toUpperCase()) {
+        case 'ENTRY_FRAGGER':
+        case 'ENTRY': return 'Entry'
+        case 'AWPER': return 'AWPer'
+        case 'RIFLER': return 'Rifler'
+        case 'IGL': return 'IGL'
+        case 'SUPPORT': return 'Support'
+        default: return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+    }
+}
+
+/**
  * Calculate average
  */
 export function average(numbers: number[]): number {

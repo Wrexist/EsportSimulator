@@ -9,6 +9,7 @@ import {
 import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 
 // Lazy three.js so cards that don't enable 3D never pull the bundle.
 const Player3DPortrait = dynamic(
@@ -141,12 +142,6 @@ function roleIcon(role: string | undefined, px = 12) {
     case "ENTRY_FRAGGER": return <Zap size={px} className="text-orange-400" />
     default: return <UserIcon size={px} />
   }
-}
-
-function formatRole(role: string | undefined) {
-  if (!role) return ""
-  if (role.toUpperCase() === "ENTRY_FRAGGER") return "Entry"
-  return role
 }
 
 function ovrColor(rating: number | undefined) {

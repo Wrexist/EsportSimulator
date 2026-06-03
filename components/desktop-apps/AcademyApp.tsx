@@ -30,6 +30,7 @@ import {
     MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
@@ -1225,7 +1226,7 @@ function ScoutingTab({
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h4 className="text-sm font-normal tracking-tight">{player.nickname}</h4>
-                                            <span className="text-[10px] text-white/30">{player.age}y • {player.role}</span>
+                                            <span className="text-[10px] text-white/30">{player.age}y • {formatRole(player.role)}</span>
                                         </div>
                                         <div className="flex gap-2 mt-1">
                                             <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 flex items-center gap-1">

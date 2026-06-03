@@ -1623,7 +1623,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }, 500)
           }
 
-          const inferredTeamId = save.playerTeamId || "team_navi"
+          // Prefer the saved team; otherwise fall back to a team that's
+          // guaranteed to exist in THIS save (first team) rather than a
+          // hardcoded id that may not exist in custom-team/modded snapshots —
+          // which would strand the player on an unowned team via getPlayerTeam().
+          const inferredTeamId = save.playerTeamId || save.teams?.[0]?.id || "team_navi"
           // structuredClone is ~10x faster than JSON parse/stringify and preserves
           // Date, Map, Set, etc. Falls back for ancient runtimes that lack it.
           const hydratedSave: GameSave = typeof structuredClone === "function"

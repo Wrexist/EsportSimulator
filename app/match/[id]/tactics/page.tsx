@@ -13,6 +13,7 @@ import Link from "next/link"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { cn, deterministicSeed } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 // Engine Imports for Auto-Veto
@@ -694,7 +695,7 @@ export default function TacticalHQPage() {
                                             </div>
                                             <div className="flex flex-col items-center w-full">
                                                 <span className="truncate w-full text-center text-[9px] font-bold leading-tight">{player.nickname}</span>
-                                                <span className="text-[7px] opacity-60 truncate w-full text-center">{player.role}</span>
+                                                <span className="text-[7px] opacity-60 truncate w-full text-center">{formatRole(player.role)}</span>
                                             </div>
                                         </Button>
                                     ))}

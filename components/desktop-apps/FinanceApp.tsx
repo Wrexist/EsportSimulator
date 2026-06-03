@@ -4,6 +4,7 @@ import React, { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -117,7 +118,7 @@ function FinanceAppComponent() {
                             >
                                 <div className="absolute inset-2 bg-neutral-900 rounded-full flex items-center justify-center flex-col">
                                     <span className="text-[10px] text-white/40">Total</span>
-                                    <span className="text-xs font-bold text-white">${(expenseBreakdown.total / 1000000).toFixed(1)}M</span>
+                                    <span className="text-xs font-bold text-white">{formatCurrency(expenseBreakdown.total)}</span>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +132,7 @@ function FinanceAppComponent() {
                                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[cat] || CATEGORY_COLORS.OTHER }} />
                                             <span className="text-white/70 capitalize">{cat.toLowerCase()}</span>
                                         </div>
-                                        <div className="text-white font-mono">${(amount / 1000).toFixed(0)}k</div>
+                                        <div className="text-white font-mono">{formatCurrency(amount)}</div>
                                     </div>
                                 ))
                             }

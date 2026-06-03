@@ -24,14 +24,24 @@ export default function HallOfFamePage() {
     const players = useGameStore((state) => state.players)
     const activelyPlayingLegendIds = useGameStore((state) => state.activelyPlayingLegendIds)
 
-    const foundingLegendsUnsorted = hallOfFame.filter(l => l.category === "FOUNDING")
-    // Sort: retired legends first, still-active legends at the bottom
-    const foundingLegends = [...foundingLegendsUnsorted].sort((a, b) => {
-        const aActive = activelyPlayingLegendIds.includes(a.id) ? 1 : 0
-        const bActive = activelyPlayingLegendIds.includes(b.id) ? 1 : 0
-        return aActive - bActive
-    })
-    const inductedLegends = hallOfFame.filter(l => l.category === "INDUCTED")
+    // Memoized: these filter/sort passes ran on every render (and the component
+    // re-renders on any of three store selectors), rebuilding arrays each time.
+    const activeLegendKey = activelyPlayingLegendIds.join(",")
+    const foundingLegends = useMemo(() => {
+        // Sort: retired legends first, still-active legends at the bottom
+        return hallOfFame
+            .filter(l => l.category === "FOUNDING")
+            .sort((a, b) => {
+                const aActive = activelyPlayingLegendIds.includes(a.id) ? 1 : 0
+                const bActive = activelyPlayingLegendIds.includes(b.id) ? 1 : 0
+                return aActive - bActive
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hallOfFame, activeLegendKey])
+    const inductedLegends = useMemo(
+        () => hallOfFame.filter(l => l.category === "INDUCTED"),
+        [hallOfFame],
+    )
 
     // O(1) player lookup. Without this, the render path was
     // legends.length × players.length linear scans (66 × ~2000 = 132k ops).

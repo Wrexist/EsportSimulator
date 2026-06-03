@@ -49,7 +49,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import type { EquipmentType } from "@/engine/equipment-manager"
 import { cn } from "@/lib/utils"
-import { clutchRateFraction } from "@/lib/utils-extended"
+import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
 import { motion } from "framer-motion"
 import { resolvePlayerRole } from "@/engine/role-determination"
 
@@ -310,7 +310,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                             {player.secondaryRole && (
                                 <Badge variant="outline" className={cn("text-[10px] font-normal px-2.5 py-1 border-white/10 bg-white/5", getRoleBadgeColor(player.secondaryRole))}>
                                     {getRoleIcon(player.secondaryRole)}
-                                    <span className="ml-2 uppercase tracking-wider">{player.secondaryRole}</span>
+                                    <span className="ml-2 uppercase tracking-wider">{formatRole(player.secondaryRole)}</span>
                                 </Badge>
                             )}
 

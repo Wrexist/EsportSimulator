@@ -65,7 +65,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
         id: "squad",
         title: "Squad Management",
         subtitle: "Build Your Roster",
-        content: "Your team needs 5 active players, each with a specific role: AWPer, Entry Fragger, IGL, Support, and Lurker. Each player has unique stats that affect match performance. Monitor their morale, energy, and form to keep them performing at their best.",
+        content: "Your team needs 5 active players, each with a specific role: AWPer, Entry Fragger, IGL, Support, and Rifler. Each player has unique stats that affect match performance. Monitor their morale, energy, and form to keep them performing at their best.",
         icon: <Users size={32} />,
         color: "from-emerald-500 to-teal-500",
         tips: [

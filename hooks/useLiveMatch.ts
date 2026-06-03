@@ -32,6 +32,9 @@ import {
 
 type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 
+/** Max kill/event-feed rows kept in state + DOM during a live match. */
+const MAX_LIVE_LOG_ENTRIES = 200
+
 interface LiveMatchRuntimeData {
     match: any
     result: MatchResult
@@ -86,6 +89,15 @@ export function useLiveMatch(id: string) {
     const [homeRoster, setHomeRoster] = useState<LivePlayerState[]>([])
     const [awayRoster, setAwayRoster] = useState<LivePlayerState[]>([])
     const [logs, setLogs] = useState<LogEntry[]>([])
+    // Cap the kill/event feed. Entries are prepended newest-first from ~10 call
+    // sites; a fast-forwarded BO5 can produce 400+ rows, all kept in state and
+    // in the DOM (kill feed visibly chugs on Steam Deck). One trim effect bounds
+    // it regardless of source — keep the newest MAX_LIVE_LOG_ENTRIES.
+    useEffect(() => {
+        if (logs.length > MAX_LIVE_LOG_ENTRIES) {
+            setLogs(prev => (prev.length > MAX_LIVE_LOG_ENTRIES ? prev.slice(0, MAX_LIVE_LOG_ENTRIES) : prev))
+        }
+    }, [logs])
     const [speed, setSpeed] = useState(1)
     const [isPlaying, setIsPlaying] = useState(false)
     const [isAutoTactics, setIsAutoTactics] = useState(false)

@@ -14,6 +14,7 @@ import Image from "next/image"
 import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
+import { formatRole } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
@@ -86,9 +87,20 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         clearActiveMatchState()
     }, [clearActiveMatchState])
 
+    const [notFound, setNotFound] = useState(false)
     useEffect(() => {
         const found = completedMatches.find(m => m.id === id)
-        if (found) setMatch(found)
+        if (found) {
+            setMatch(found)
+            setNotFound(false)
+            return
+        }
+        // Not found yet — could just be store-hydration lag. Give it a grace
+        // window, then surface a not-found screen instead of spinning forever
+        // (deep-link to a bad id, browser-back to a match pruned from a long
+        // save, or a match this save never recorded).
+        const t = setTimeout(() => setNotFound(true), 4000)
+        return () => clearTimeout(t)
     }, [completedMatches, id])
 
     // Trigger confetti on player victory
@@ -264,10 +276,25 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     // below since they only matter after the match has loaded.
     if (!match) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-            <div className="text-center">
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
-            </div>
+            {notFound ? (
+                <div className="text-center max-w-sm px-6">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+                    <p className="text-muted-foreground text-sm mb-6">
+                        This match result isn&apos;t available — it may belong to a different save or has aged out of match history.
+                    </p>
+                    <button
+                        onClick={() => router.push("/schedule")}
+                        className="px-6 py-2.5 rounded-lg bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/80 transition-colors"
+                    >
+                        Back to Schedule
+                    </button>
+                </div>
+            ) : (
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
+                </div>
+            )}
         </div>
     )
 
@@ -1060,7 +1087,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                                         </div>
                                         <div className="text-[9px] text-muted-foreground flex items-center gap-1">
                                             <CountryFlag country={player?.nationality || ""} size={9} />
-                                            {player?.role}
+                                            {formatRole(player?.role)}
                                         </div>
                                     </div>
                                 </td>
