@@ -141,12 +141,20 @@ export function updateStandings(
         // Completion now requires a terminal competitive state — not just
         // end-week — so a stalled bracket doesn't auto-award.
         if (!tournament.isCompleted && hasTerminalTournamentCompletion(save, tournament)) {
-            tournament.isCompleted = true
-            if (!tournament.winnerId) {
+            let resolvedWinnerId = tournament.winnerId
+            if (!resolvedWinnerId) {
                 const terminalMatch = tournament.playoffBracket
                     ?.filter(m => isTerminalBracketStage(m.stage) && m.isCompleted && m.winnerId)
                     .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-                tournament.winnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
+                resolvedWinnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
+            }
+            // Only lock the tournament as complete once a concrete champion is
+            // resolvable. Flipping isCompleted=true with no winnerId would
+            // permanently lock a stalled bracket with no trophy/prizes/
+            // qualifications and no way to finish it via the repair pass.
+            if (resolvedWinnerId) {
+                tournament.isCompleted = true
+                tournament.winnerId = resolvedWinnerId
             }
         }
 

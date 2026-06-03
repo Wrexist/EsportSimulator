@@ -13,6 +13,7 @@
 
 import { updateStandings } from "@/engine/processors/standings-processor"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
+import { TournamentManager } from "@/engine/tournament-manager"
 import type {
     GameSave,
     TournamentSaveData,
@@ -166,5 +167,39 @@ describe("Phase 2.3 — applySeasonalDecay", () => {
         ]
         const out = CircuitPointsManager.applySeasonalDecay(input)
         expect(out[0].results).toHaveLength(1)
+    })
+})
+
+describe("Phase 2.4 — a degenerate self-match cannot deadlock a bracket", () => {
+    test("repair auto-advances a self-match Grand Final and completes the tournament", () => {
+        const tournament = {
+            id: "t1", name: "Self-Match Major", shortName: "SMM", tier: "A_TIER", region: "GLOBAL",
+            teamIds: ["A", "B"], format: "bracket", currentStage: "Playoffs",
+            standings: [makeStanding("A"), makeStanding("B")],
+            prizePool: 0, startWeek: 1, duration: 8, endWeek: 9,
+            isCompleted: false, rewardsGranted: false,
+            // Degenerate state: both Grand Final slots resolved to the same team.
+            // scheduleBracketMatch would silently drop this, stalling the bracket.
+            playoffBracket: [{
+                id: "gf", tournamentId: "t1", stage: "Grand Final",
+                homeTeamId: "A", awayTeamId: "A", isCompleted: false,
+                week: 8, format: "BO3", seed: 1, sourceMatchIds: [],
+            }],
+        } as unknown as TournamentSaveData
+        const save = makeSave(tournament, [])
+        save.scheduledMatches = [{
+            id: "gf", homeTeamId: "A", awayTeamId: "A", tournamentId: "t1",
+            stage: "Grand Final", week: 8, day: 5, format: "BO3", seed: 1,
+        } as any]
+
+        TournamentManager.repairTournamentProgression(save, "t1")
+
+        const gf = tournament.playoffBracket!.find(m => m.id === "gf")!
+        expect(gf.isCompleted).toBe(true)
+        expect(gf.winnerId).toBe("A")
+        expect(tournament.isCompleted).toBe(true)
+        expect(tournament.winnerId).toBe("A")
+        // The dropped/stalled match is no longer pending.
+        expect(save.scheduledMatches.some(m => m.id === "gf")).toBe(false)
     })
 })

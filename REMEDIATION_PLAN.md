@@ -43,6 +43,10 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 19. **[Phase 2.2]** Removed the duplicate circuit-points award loop from the week processor (it never set `rewardsGranted`, so a tournament completed within that step got points twice). `updateStandings` is now the single idempotent owner; deleted the now-dead `awardPoints` + unused imports (`engine/atomic-week-processor.ts`).
 20. **[Phase 2.3]** Wired `CircuitPointsManager.applySeasonalDecay` (25% reduction, drop-to-zero) into the season-end branch — circuit points no longer accumulate unbounded across seasons (`engine/atomic-week-processor.ts`).
 
+**Pass 5** — bracket-deadlock hardening + save bloat
+21. **[Phase 2.4]** `handlePlayoffProgression` now auto-advances a degenerate self-match (both bracket slots resolved to the same team) instead of letting `scheduleBracketMatch` silently drop it, and `standings-processor` only flips a tournament to `isCompleted` once a concrete `winnerId` is resolvable — so a stalled bracket can't lock with no champion (`engine/tournament-manager.ts`, `engine/processors/standings-processor.ts`).
+22. **[Phase 4.2]** `compactPersistentState` now prunes `scheduledActivities` whose window ended before last week — the ~7 auto-generated REST days/week no longer accumulate unbounded (700+/career → recent ~14). 4.3 (`acknowledgedEventIds`) was already handled by the same compactor (`engine/processors/save-compactor.ts`).
+
 ---
 
 ## Phase 1 — Save & persistence integrity (CRITICAL — data-loss risk)
@@ -87,7 +91,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** In the season-end branch (`atomic-week-processor.ts:320-323`), add `save.circuitPoints = CircuitPointsManager.applySeasonalDecay(save.circuitPoints)`.
 - **Verify:** Test: cross a season boundary, assert points are reduced by the documented decay (and a regression test on `applySeasonalDecay` itself, which is currently untested).
 
-### 2.4 Self-match can deadlock a bracket [HIGH]
+### 2.4 Self-match can deadlock a bracket — ✅ DONE (Pass 5) [HIGH]
 - **Problem:** `scheduleBracketMatch` (`bracket-scheduling.ts:59-63`) silently returns (warn only) on `homeTeamId === awayTeamId`; if progression ever assigns one team to both slots, the match never completes and the bracket stalls.
 - **Steps:** On a self-match, auto-complete it (award the lone team the win, call `handlePlayoffProgression`), mirroring the repair logic at `tournament-manager.ts:169-177`. Also gate `standings-processor.ts:128-135`'s `isCompleted = true` on a resolvable `winnerId` so a stalled bracket can't lock as "complete, no champion".
 - **Verify:** Test: feed a bracket where a slot resolves to a duplicate team; assert it auto-advances and the tournament completes with a winner.
@@ -157,12 +161,13 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 - **Steps:** Make these IDs content-addressed (`${prefix}_${week}_${stableKey}`, no RNG draw); de-duplicate the two helper copies.
 - **Verify:** Re-running a pre-tick phase yields identical IDs; adding an event doesn't change downstream match outcomes.
 
-### 4.2 `scheduledActivities` grows unbounded [HIGH — save bloat]
+### 4.2 `scheduledActivities` grows unbounded — ✅ DONE (Pass 5) [HIGH — save bloat]
 - **Problem:** `processRestDays` (`training-processor.ts:151-204`) pushes up to 7 REST entries/week; not in `ARRAY_CAPS`, `array-pruning`, or `save-compactor` (~364 dead entries/year; scanned every tick by FPL + fanbase processors).
 - **Steps:** Add `scheduledActivities` to `compactPersistentState` (drop `week < currentWeek - N`, keep ~8 weeks) and/or stop persisting auto-generated REST days (recomputable). Add `ARRAY_CAPS.scheduledActivities`.
 - **Verify:** Save size stays flat over many simulated seasons; rest-day energy bonuses still apply.
 
-### 4.3 `acknowledgedEventIds` grows unbounded [LOW]
+### 4.3 `acknowledgedEventIds` grows unbounded — ✅ ALREADY HANDLED [LOW]
+_The compactor (`engine/processors/save-compactor.ts:67-70`) already filters `acknowledgedEventIds` down to IDs still present in `eventsLog` every tick, so it's bounded. No further action needed._
 - **Problem:** Not capped anywhere (`array-pruning.ts`, `ARRAY_CAPS`).
 - **Steps:** Prune to event IDs still present in `eventsLog` (or cap to a multiple of the `eventsLog` cap) — carefully, so acknowledged events don't reappear.
 - **Verify:** Long-campaign save size bounded; previously-read events stay read.

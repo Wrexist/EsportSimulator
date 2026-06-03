@@ -919,6 +919,25 @@ export class TournamentManager {
         })
     }
 
+    /**
+     * Schedule a bracket match — but if both slots resolved to the SAME team
+     * (a degenerate self-match, e.g. two source matches with the same winner),
+     * auto-advance the lone team immediately instead of letting
+     * scheduleBracketMatch silently drop it, which would stall the bracket
+     * until the next repair pass. Mirrors repairTournamentProgression's
+     * self-match handling so progression and repair stay in lockstep.
+     */
+    private static scheduleOrAutoAdvanceBracketMatch(save: GameSave, tournament: TournamentSaveData, m: BracketMatchSaveData): void {
+        if (m.homeTeamId && m.awayTeamId && m.homeTeamId === m.awayTeamId) {
+            m.isCompleted = true
+            m.winnerId = m.homeTeamId
+            save.scheduledMatches = save.scheduledMatches.filter(sm => sm.id !== m.id)
+            this.handlePlayoffProgression(save, tournament, m, m.homeTeamId)
+            return
+        }
+        this.scheduleBracketMatch(save, m)
+    }
+
     private static handlePlayoffProgression(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId?: string): void {
         const nextMatch = tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.sourceMatchIds?.includes(match.id))
         if (nextMatch) {
@@ -932,7 +951,7 @@ export class TournamentManager {
             // through natural progression.
 
             // Only schedule the next match if BOTH teams are ready (both source matches completed)
-            if (nextMatch.homeTeamId && nextMatch.awayTeamId) this.scheduleBracketMatch(save, nextMatch)
+            if (nextMatch.homeTeamId && nextMatch.awayTeamId) this.scheduleOrAutoAdvanceBracketMatch(save, tournament, nextMatch)
         }
 
         // Special case for 3rd place decider
@@ -941,7 +960,7 @@ export class TournamentManager {
             if (decider) {
                 if (!decider.homeTeamId) decider.homeTeamId = loserId
                 else decider.awayTeamId = loserId
-                if (decider.homeTeamId && decider.awayTeamId) this.scheduleBracketMatch(save, decider)
+                if (decider.homeTeamId && decider.awayTeamId) this.scheduleOrAutoAdvanceBracketMatch(save, tournament, decider)
             }
         }
 
