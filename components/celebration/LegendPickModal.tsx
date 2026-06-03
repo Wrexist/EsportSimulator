@@ -136,7 +136,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
                                         {/* Portrait area */}
                                         <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
-                                            <div className="w-28 h-28 rounded-xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
+                                            <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
                                             {/* Skill badge */}

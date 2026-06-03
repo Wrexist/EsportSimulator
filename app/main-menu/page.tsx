@@ -406,7 +406,7 @@ export default function MainMenuPage() {
                                                         slot.topPlayerPreviews.map((p) => (
                                                             <div key={p.id} className="flex flex-col items-center gap-1 shrink-0">
                                                                 <div className="relative">
-                                                                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
+                                                                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] overflow-hidden">
                                                                         <PlayerPortrait
                                                                             src={p.portraitPath}
                                                                             alt={p.nickname}
@@ -431,7 +431,7 @@ export default function MainMenuPage() {
                                                     ) : slot.topPlayerPortraits && slot.topPlayerPortraits.length > 0 ? (
                                                         // Fallback for legacy saves - Use PlayerPortrait for fallback
                                                         slot.topPlayerPortraits.map((src, i) => (
-                                                            <div key={i} className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden shrink-0">
+                                                            <div key={i} className="w-10 h-10 rounded-xl bg-white/[0.03] overflow-hidden shrink-0">
                                                                 <PlayerPortrait src={src} alt="Player" size={40} />
                                                             </div>
                                                         ))

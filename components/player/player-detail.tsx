@@ -160,25 +160,27 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                 <div className={cn("absolute -top-12 -right-12 w-48 h-48 blur-[100px] opacity-20 pointer-events-none", tierStyle.color.replace('text-', 'bg-'))} />
 
                 <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
-                    {/* Portrait Section — 3D portrait sits on top of the SVG;
-                        the SVG shows instantly while three.js warms up, then
-                        fades behind the live canvas. */}
+                    {/* Portrait Section — use real portrait when available; 3D portrait
+                        is only shown for players without a team-specific portrait image. */}
                     <div className="flex-shrink-0 group">
-                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 border border-white/10 relative shadow-2xl">
-                            <div className="absolute inset-0">
-                                <PlayerPortrait
-                                    src={player.portraitPath}
-                                    alt={player.nickname}
-                                    size={112}
-                                    variant="hero"
-                                />
-                            </div>
-                            <div className="absolute inset-0">
-                                <Player3DPortrait
-                                    seed={player.id}
-                                    size={112}
-                                />
-                            </div>
+                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white/5 relative shadow-2xl">
+                            {player.portraitPath && player.portraitPath !== '/player_placeholder.webp' ? (
+                                <div className="absolute inset-0">
+                                    <PlayerPortrait
+                                        src={player.portraitPath}
+                                        alt={player.nickname}
+                                        size={112}
+                                        variant="hero"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0">
+                                    <Player3DPortrait
+                                        seed={player.id}
+                                        size={112}
+                                    />
+                                </div>
+                            )}
 
                             {/* Nationality Flag Over Portrait corner */}
                             <div className="absolute bottom-1 right-1 z-10">

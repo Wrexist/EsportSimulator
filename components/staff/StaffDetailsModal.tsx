@@ -92,7 +92,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                         <div className="relative z-10 flex items-center gap-8">
                             {/* Portrait with fluid ring */}
                             <div className="relative">
-                                <div className={`w-28 h-28 rounded-2xl border-2 flex items-center justify-center bg-black/50 overflow-hidden shadow-2xl ${staff.rarity === "Legendary" ? "border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)]" : "border-white/10"}`}>
+                                <div className={`w-28 h-28 rounded-2xl border flex items-center justify-center bg-black/50 overflow-hidden shadow-2xl ${staff.rarity === "Legendary" ? "border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)]" : "border-white/[0.08]"}`}>
                                     {staff.portraitPath ? (
                                         <Image src={staff.portraitPath} alt={staff.name} width={112} height={112} className="w-full h-full object-cover" unoptimized />
                                     ) : (

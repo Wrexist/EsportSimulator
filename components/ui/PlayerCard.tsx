@@ -219,8 +219,8 @@ function PlayerCardImpl({
         "relative z-10 flex items-center gap-3",
         isReveal && size === "lg" && "flex-col text-center gap-4",
       )}>
-        {/* Portrait — when 3D is enabled, the SVG underlay shows instantly
-            while WebGL warms up, then the 3D canvas overlays it. */}
+        {/* Portrait — show real portrait image when the player has one;
+            fall back to 3D generated portrait only when no image is available. */}
         <div
           className={cn(
             "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
@@ -228,17 +228,24 @@ function PlayerCardImpl({
               ? "bg-red-500/10 border-red-500/40"
               : selected
                 ? "bg-primary/10 border-primary/60"
-                : "bg-gradient-to-br from-white/10 to-transparent border-white/10",
+                : "bg-gradient-to-br from-white/10 to-transparent border-white/5",
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >
-          <div className="absolute inset-0">
-            <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
-          </div>
-          {enable3DPortrait && (
+          {player.portraitPath && player.portraitPath !== '/player_placeholder.webp' ? (
             <div className="absolute inset-0">
-              <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
+              <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
             </div>
+          ) : (
+            enable3DPortrait ? (
+              <div className="absolute inset-0">
+                <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
+              </div>
+            ) : (
+              <div className="absolute inset-0">
+                <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
+              </div>
+            )
           )}
         </div>
 
