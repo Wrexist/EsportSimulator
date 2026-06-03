@@ -1123,7 +1123,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         totalMVPs: 18, majorWins: 2,
         isRetired: true, retirementWeek: 0, isLegendary: true,
         legendaryAchievements: ["Signature 1v5 ace at the Rio Major", "2x Major MVP", "Best AWPER 2017"],
-        careerTeams: ["FuriaSP", "MIBR", "FuriaSP"],
+        careerTeams: ["FuriaSP", "Brava BR", "FuriaSP"],
         proHistory: [
             { year: 2015, rank: 11 }, { year: 2016, rank: 4 }, { year: 2017, rank: 1 },
             { year: 2018, rank: 2 }, { year: 2019, rank: 8 }
@@ -1301,7 +1301,7 @@ export const LEGENDARY_PLAYERS: PlayerSaveData[] = [
         totalMVPs: 4, majorWins: 1,
         isRetired: true, retirementWeek: 0, isLegendary: true,
         legendaryAchievements: ["Founded three top-10 rosters", "1x Major Champion", "Decade-long IGL career across 3 continents"],
-        careerTeams: ["NRG", "Liquid", "Cloud9", "NRG"],
+        careerTeams: ["Kinetic", "Fluxx", "Cirrus Nine", "Kinetic"],
         proHistory: [
             { year: 2014, rank: 20 }, { year: 2015, rank: 12 }, { year: 2016, rank: 6 },
             { year: 2017, rank: 3 }, { year: 2018, rank: 7 }, { year: 2019, rank: 2 },
