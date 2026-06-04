@@ -12,11 +12,26 @@ export interface FinanceProcessorResult {
 export class FinanceProcessor {
     static processFinance(
         save: GameSave,
-        playerTeamId: string
+        playerTeamId: string,
+        eventIdSet?: Set<string>,
+        ledgerIdSet?: Set<string>
     ): FinanceProcessorResult {
         let totalIncome = 0
         let totalExpenses = 0
         const rng = new SeededRNG(save.lastRngSeed || generateSeed())
+
+        // Idempotency guards: like every other week-processor step, dedup ledger
+        // and event pushes by their deterministic IDs so a replayed/resumed week
+        // can't double-charge wages or re-emit a budget warning. When the caller
+        // doesn't thread a set (e.g. unit tests), fall back to the live arrays so
+        // the guard is still correct, just O(n) instead of O(1).
+        const ledgerIds = ledgerIdSet ?? new Set(save.financeLedger.map(e => e.id))
+        const eventIds = eventIdSet ?? new Set(save.eventsLog.map(e => e.id))
+        const pushLedger = (entry: FinanceLedgerEntry): void => {
+            if (ledgerIds.has(entry.id)) return
+            save.financeLedger.push(entry)
+            ledgerIds.add(entry.id)
+        }
 
         // Build player map for O(1) lookups inside team roster loops
         const playerMap = new Map<string, typeof save.players[0]>()
@@ -51,7 +66,7 @@ export class FinanceProcessor {
                     if (team.id === playerTeamId) {
                         // Equipment is folded into totalExpenses below where
                         // we read report.expenses.total + equipmentCosts.
-                        save.financeLedger.push({
+                        pushLedger({
                             id: `exp_equip_${save.currentWeek}_${team.id}`,
                             week: save.currentWeek,
                             teamId: team.id,
@@ -112,14 +127,16 @@ export class FinanceProcessor {
                         INSOLVENT: { desc: `Team is INSOLVENT. Budget is depleted. Immediate action required to avoid collapse.`, importance: "HIGH" },
                     }
                     const msg = messages[report.state]
-                    if (msg) {
+                    const warnId = `budget_warning_${save.currentWeek}_${report.state}`
+                    if (msg && !eventIds.has(warnId)) {
                         save.eventsLog.unshift({
-                            id: `budget_warning_${save.currentWeek}_${report.state}`,
+                            id: warnId,
                             week: save.currentWeek,
                             type: "BUDGET_WARNING",
                             data: { description: msg.desc, importance: msg.importance },
                             acknowledged: false,
                         })
+                        eventIds.add(warnId)
                     }
                 }
                 team._prevFinancialState = report.state
@@ -134,7 +151,7 @@ export class FinanceProcessor {
 
                 // Income Entries
                 if (report.income.sponsors > 0) {
-                    save.financeLedger.push({
+                    pushLedger({
                         id: `inc_spon_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
                         teamId: team.id,
@@ -146,7 +163,7 @@ export class FinanceProcessor {
                     })
                 }
                 if (report.income.fanbase > 0) {
-                    save.financeLedger.push({
+                    pushLedger({
                         id: `inc_fan_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
                         teamId: team.id,
@@ -160,7 +177,7 @@ export class FinanceProcessor {
 
                 // Expense Entries
                 if (report.expenses.playerWages > 0) {
-                    save.financeLedger.push({
+                    pushLedger({
                         id: `exp_wage_p_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
                         teamId: team.id,
@@ -172,7 +189,7 @@ export class FinanceProcessor {
                     })
                 }
                 if (report.expenses.staffWages > 0) {
-                    save.financeLedger.push({
+                    pushLedger({
                         id: `exp_wage_s_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
                         teamId: team.id,
@@ -184,7 +201,7 @@ export class FinanceProcessor {
                     })
                 }
                 if (report.expenses.facilities > 0) {
-                    save.financeLedger.push({
+                    pushLedger({
                         id: `exp_fac_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
                         teamId: team.id,

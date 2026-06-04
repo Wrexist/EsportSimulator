@@ -120,6 +120,15 @@ const nextRandomInt = (state: RngBackedState, min: number, max: number): number 
   return Math.floor(nextRandom(state) * (max - min + 1)) + min
 }
 
+// Serializes saveGame() calls. The post-tick authoritative save, a 60s
+// autosave, and any rapid manual save can otherwise overlap and interleave
+// SaveManager's tmp-stage → commit → backup-rotation on the same key. Each
+// call chains onto the previous one (appended synchronously, so concurrent
+// callers queue in invocation order) and runs on the freshest state at its
+// turn. The chain swallows prior rejections so one failed save can't block the
+// next; the caller still receives its own save's real result/rejection.
+let saveChain: Promise<void> = Promise.resolve()
+
 const nextDeterministicId = (
   state: RngBackedState,
   prefix: string,
@@ -1802,6 +1811,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       saveGame: async () => {
+        // Run serialized through saveChain so two saves never write concurrently.
+        const run = async () => {
         const state = get()
         if (!state.saveId) {
           get().addToast({ message: "Cannot save: no active save slot", type: "error", duration: 5000 })
@@ -1896,6 +1907,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           })
           throw new Error(message)
         }
+        }
+
+        // Append to the chain synchronously so concurrent callers queue in
+        // order. The caller awaits its own link (with the real rejection); the
+        // chain itself swallows rejections so a failure can't wedge later saves.
+        const chained = saveChain.then(run, run)
+        saveChain = chained.catch(() => {})
+        return chained
       },
 
       advanceDay: async () => {

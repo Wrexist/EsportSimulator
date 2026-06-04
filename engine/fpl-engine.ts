@@ -499,7 +499,11 @@ function simulateFPLMatch(
     const maps = ["Mirage", "Inferno", "Sandstone", "Ancient", "Nuke", "Anubis", "Vertigo"]
 
     return {
-        id: `fpl_match_${week}_${Date.now()}_${rng.int(1000, 9999)}`,
+        // Deterministic ID — this record is persisted in fplData.matchHistory,
+        // so embedding Date.now() made two games with the same seed produce
+        // divergent saves (and broke save-hash reproducibility). The rng draw
+        // already gives a deterministic, collision-resistant id within the week.
+        id: `fpl_match_${week}_${rng.int(0, 0x7fffffff).toString(36)}`,
         week,
         mapPlayed: maps[rng.int(0, maps.length - 1)],
         teamA: teamA.map(p => p.id),

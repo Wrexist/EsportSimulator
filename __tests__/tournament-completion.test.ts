@@ -217,7 +217,10 @@ describe("hasTerminalTournamentCompletion — league format path", () => {
         expect(hasTerminalTournamentCompletion(save, tournament)).toBe(true)
     })
 
-    test("scheduled match for FUTURE week (> currentWeek) doesn't block completion", () => {
+    test("a still-scheduled FUTURE-week match blocks completion (whole season must finish)", () => {
+        // A round-robin schedules every match up front, so a remaining
+        // future-week match means later rounds haven't been played yet. The
+        // league must NOT complete (and award the title) early.
         const save = makeSave({
             currentWeek: 10,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -226,6 +229,24 @@ describe("hasTerminalTournamentCompletion — league format path", () => {
             scheduledMatches: [{ id: "s1", tournamentId: "t1", week: 15 } as any as MatchSaveData],
         })
         const tournament = makeTournament({ format: "league" })
+        expect(hasTerminalTournamentCompletion(save, tournament)).toBe(false)
+    })
+
+    test("a populated playoffBracket (as setupLeagueSchedule produces) does NOT block league completion", () => {
+        // Regression for the dead-branch bug: leagues store every "League Match"
+        // in playoffBracket, which previously routed them into the bracket path
+        // (no terminal "final" → never completes). The league path must win.
+        const save = makeSave({
+            currentWeek: 20,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            completedMatches: [{ id: "c1", tournamentId: "t1", week: 5 } as any as CompletedMatchSaveData],
+            scheduledMatches: [],
+        })
+        const tournament = makeTournament({
+            format: "league",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            playoffBracket: [{ id: "b1", stage: "League Match", isCompleted: true, winnerId: "t1" } as any],
+        })
         expect(hasTerminalTournamentCompletion(save, tournament)).toBe(true)
     })
 })

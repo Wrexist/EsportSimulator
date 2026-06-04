@@ -245,7 +245,7 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 4: Finance...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 FinanceProcessor.processContractExpiry(save, config.playerTeamId) // Process expiring contracts
-                result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId)
+                result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
             }
@@ -375,7 +375,10 @@ export class AtomicWeekProcessor {
                     // Move legendary players to Hall of Fame
                     retirementResult.legends.forEach(playerId => {
                         const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
-                        if (player && player.isLegendary) {
+                        // Dedup by id: a legend can surface from both retirement
+                        // passes in the same tick; without this guard the heavy
+                        // full-player clone is pushed twice and the array bloats.
+                        if (player && player.isLegendary && !save.legendaryPlayers.some(lp => lp.id === player.id)) {
                             save.legendaryPlayers.push({ ...player })
                         }
                     })
@@ -385,7 +388,9 @@ export class AtomicWeekProcessor {
                 const midSeasonResult = EventProcessor.processMidSeasonRetirements(save, config.playerTeamId, rng)
                 midSeasonResult.legends.forEach(playerId => {
                     const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
-                    if (player?.isLegendary) save.legendaryPlayers.push({ ...player })
+                    if (player?.isLegendary && !save.legendaryPlayers.some(lp => lp.id === player.id)) {
+                        save.legendaryPlayers.push({ ...player })
+                    }
                 })
 
                 perfTrace.step("step.9_worldAI", __s)
