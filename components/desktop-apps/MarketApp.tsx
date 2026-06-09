@@ -84,6 +84,9 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
 
     // Evaluation Cache
     const marketPlayers = useMemo(() => {
+        // Index once: the previous teams.find() inside the map made this
+        // O(players × teams) on every recompute (each week-tick while open).
+        const teamById = new Map(teams.map(t => [t.id, t]))
         const rosterMap = new Map<string, string>() // playerId -> teamId
         teams.forEach(t => t.rosterIds.forEach(pid => rosterMap.set(pid, t.id)))
 
@@ -91,7 +94,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
             .filter(p => !p.isRetired)
             .map(p => {
                 const teamId = rosterMap.get(p.id)
-                const team = teamId ? teams.find(t => t.id === teamId) : null
+                const team = teamId ? teamById.get(teamId) ?? null : null
                 const evaluation = evaluatePlayer(p)
                 const teamRank = team ? (team.worldRanking || 50) : 50
                 const forSale = team ? isPlayerForSale(p, evaluation, teamRank) : true
@@ -111,10 +114,11 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
 
     // Filtered List
     const filteredPlayers = useMemo(() => {
+        const query = searchQuery.toLowerCase()
         return marketPlayers.filter(p => {
-            const searchMatch = !searchQuery ||
-                p.nickname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.team?.name.toLowerCase().includes(searchQuery.toLowerCase())
+            const searchMatch = !query ||
+                p.nickname?.toLowerCase().includes(query) ||
+                p.team?.name.toLowerCase().includes(query)
 
             const roleMatch = (() => {
                 if (filterRole === "ALL") return true
