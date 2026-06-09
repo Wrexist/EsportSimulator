@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
 import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -655,8 +656,16 @@ export default function Page() {
           </Card>
         </div>
 
-        {/* Sidebar Column: News Feed */}
+        {/* Sidebar Column: Objectives + News Feed */}
         <div className="space-y-6">
+          {playerTeam && (
+            <SeasonObjectives
+              worldRanking={playerTeam.worldRanking ?? 0}
+              trophiesThisSeason={playerTeam.trophies?.filter(t => t.week > (currentWeek - 53)).length ?? 0}
+              followers={playerTeam.followers ?? playerTeam.fanbase ?? 0}
+              financialState={playerTeam.financialState}
+            />
+          )}
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-normal uppercase tracking-[0.3em] text-white/50">Intelligence Feed</h3>
             <div className="flex items-center gap-2">
