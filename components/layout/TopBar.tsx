@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo } from "react"
 import { format } from "date-fns"
 import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { spinTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { motion } from "framer-motion"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -115,7 +116,7 @@ export function TopBar() {
                             ) : (
                                 <div className="w-[14px] h-[11px] bg-white/10 rounded-sm animate-pulse" />
                             )}
-                            <span className="text-sm font-semibold text-white whitespace-nowrap">
+                            <span className="text-sm font-semibold text-white truncate max-w-[180px]" title={playerTeam?.name}>
                                 {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
                             </span>
                         </div>
@@ -215,7 +216,7 @@ export function TopBar() {
                                     {isLoading ? (
                                         <motion.div
                                             animate={{ rotate: 360 }}
-                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                            transition={spinTransition}
                                         >
                                             <Clock size={18} />
                                         </motion.div>
@@ -251,7 +252,7 @@ export function TopBar() {
                             {isLoading ? (
                                 <motion.div
                                     animate={{ rotate: 360 }}
-                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    transition={spinTransition}
                                 >
                                     <Clock size={18} />
                                 </motion.div>

@@ -599,7 +599,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Rating</p>
-                                        <p className="text-2xl font-normal text-amber-400">{result.playerStats[mvpPlayer.id]?.rating.toFixed(2)}</p>
+                                        <p className="text-2xl font-normal text-amber-400">{result.playerStats[mvpPlayer.id]?.rating?.toFixed(2) ?? "—"}</p>
                                     </div>
                                     <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground">K/D Diff</p>
@@ -697,7 +697,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                                         </div>
 
                                                         {/* Running score under each round */}
-                                                        <div className="text-[8px] text-white/30 mt-0.5 font-sans">
+                                                        <div className="text-[8px] text-white/50 mt-0.5 font-sans">
                                                             {currentScore}
                                                         </div>
                                                     </div>

@@ -49,7 +49,8 @@ export function GlassTableRow({ className, ...props }: React.ComponentProps<type
     return (
         <tr
             className={cn(
-                "border-b-white/5 group cursor-default transition-colors duration-75 ease-out hover:bg-white/[0.045]",
+                "border-b-white/5 group transition-colors duration-75 ease-out hover:bg-white/[0.045]",
+                (props as any).onClick ? "cursor-pointer" : "cursor-default",
                 className
             )}
             {...(props as any)}

@@ -242,9 +242,9 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
                                             {getNewsContent(event)}
                                         </p>
                                         <div className="flex items-center gap-2 mt-1.5">
-                                            <span className="text-[8px] text-white/30">Week {event.week}</span>
+                                            <span className="text-[8px] text-white/50">Week {event.week}</span>
                                             <span className="text-[8px] text-white/20">•</span>
-                                            <span className="text-[8px] text-white/30 capitalize">
+                                            <span className="text-[8px] text-white/50 capitalize">
                                                 {(event.type as string).replace(/_/g, ' ').toLowerCase()}
                                             </span>
                                         </div>

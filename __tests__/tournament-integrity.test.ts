@@ -203,3 +203,98 @@ describe("Phase 2.4 — a degenerate self-match cannot deadlock a bracket", () =
         expect(save.scheduledMatches.some(m => m.id === "gf")).toBe(false)
     })
 })
+
+describe("League completion — round-robin leagues complete, crown standings[0], and pay out", () => {
+    // setupLeagueSchedule stores every "League Match" in playoffBracket, which
+    // previously routed leagues into the bracket-completion path: it looked for a
+    // terminal "final" stage (a league has none), returned false forever, and the
+    // league never completed — no champion, no prizes, no circuit points. These
+    // pin the fix: leagues complete on "all matches played", rank by standings,
+    // and award the champion (position 1).
+    function makeLeague(): TournamentSaveData {
+        return {
+            id: "t1", name: "Pro League", shortName: "PL", tier: "A_TIER", region: "GLOBAL",
+            teamIds: ["A", "B", "C", "D"], format: "league", currentStage: "League Stage",
+            standings: [makeStanding("A"), makeStanding("B"), makeStanding("C"), makeStanding("D")],
+            prizePool: 100_000, startWeek: 1, duration: 8, endWeek: 9,
+            isCompleted: false, rewardsGranted: false,
+            // A populated bracket of "League Match" rows — exactly what
+            // setupLeagueSchedule produces and what used to wedge the league.
+            playoffBracket: [
+                { id: "l0", tournamentId: "t1", stage: "League Match", homeTeamId: "A", awayTeamId: "B", isCompleted: true, winnerId: "A", week: 1, format: "BO1", seed: 1, sourceMatchIds: [] },
+                { id: "l5", tournamentId: "t1", stage: "League Match", homeTeamId: "C", awayTeamId: "D", isCompleted: true, winnerId: "C", week: 6, format: "BO1", seed: 1, sourceMatchIds: [] },
+            ],
+        } as unknown as TournamentSaveData
+    }
+
+    // Full round-robin (6 matches): A 3-0, B 2-1, C 1-2, D 0-3.
+    function roundRobinMatches(): CompletedMatchSaveData[] {
+        return [
+            makeMatch("A", "B", 2, 0, "l0"),
+            makeMatch("A", "C", 2, 1, "l1"),
+            makeMatch("A", "D", 2, 0, "l2"),
+            makeMatch("B", "C", 2, 1, "l3"),
+            makeMatch("B", "D", 2, 0, "l4"),
+            makeMatch("C", "D", 2, 1, "l5"),
+        ]
+    }
+
+    test("does NOT complete while a future-week match is still scheduled", () => {
+        const t = makeLeague()
+        const save = makeSave(t, roundRobinMatches())
+        // One round still on the calendar → season unfinished.
+        save.scheduledMatches = [{
+            id: "lX", homeTeamId: "A", awayTeamId: "C", tournamentId: "t1",
+            stage: "League Match", week: 9, day: 5, format: "BO1", seed: 1,
+        } as any]
+
+        updateStandings(save)
+
+        expect(t.isCompleted).toBeFalsy()
+        expect(t.rewardsGranted).toBeFalsy()
+    })
+
+    test("completes once every match is played, crowning the standings leader", () => {
+        const t = makeLeague()
+        const save = makeSave(t, roundRobinMatches())
+        save.scheduledMatches = [] // whole season done
+
+        updateStandings(save)
+
+        expect(t.isCompleted).toBe(true)
+        expect(t.winnerId).toBe("A") // best record tops the sorted standings
+        expect(t.rewardsGranted).toBe(true)
+
+        // Champion gets the trophy.
+        const champ = save.teams.find(tm => tm.id === "A")!
+        expect(champ.trophies.some(tr => tr.tournamentId === "t1")).toBe(true)
+
+        // Champion gets the 40% first-place prize (was $0 pre-fix: placements
+        // never included position 1 for a league).
+        const champPrize = save.financeLedger.find(e => e.id === "prize_t1_A_p1")
+        expect(champPrize?.amount).toBe(40_000)
+
+        // Circuit points by placement: A_TIER position 1 = 500.
+        const champPoints = save.circuitPoints!.find(cp => cp.teamId === "A")
+        expect(champPoints?.points).toBe(500)
+        // Last place (D, position 4) still scores A_TIER pos-4 points (200).
+        const lastPoints = save.circuitPoints!.find(cp => cp.teamId === "D")
+        expect(lastPoints?.points).toBe(200)
+    })
+
+    test("re-running updateStandings does not double-award the league", () => {
+        const t = makeLeague()
+        const save = makeSave(t, roundRobinMatches())
+        save.scheduledMatches = []
+
+        updateStandings(save)
+        const ledgerLen = save.financeLedger.length
+        const champPoints = save.circuitPoints!.find(cp => cp.teamId === "A")!.points
+
+        updateStandings(save) // idempotent via rewardsGranted
+
+        expect(save.financeLedger.length).toBe(ledgerLen)
+        expect(save.circuitPoints!.find(cp => cp.teamId === "A")!.points).toBe(champPoints)
+        expect(save.teams.find(tm => tm.id === "A")!.trophies.filter(tr => tr.tournamentId === "t1").length).toBe(1)
+    })
+})

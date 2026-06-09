@@ -213,7 +213,7 @@ function TopPlayersTable({ players }: { players: TournamentPlayerStats[] }) {
                             )}>
                                 {player.rating.toFixed(2)}
                             </div>
-                            <div className="text-[10px] text-white/30 uppercase">Rating</div>
+                            <div className="text-[10px] text-white/50 uppercase">Rating</div>
                         </div>
 
                         {/* Maps */}
@@ -310,7 +310,7 @@ function TopTeamsTable({ teams: topTeams, allTeams }: { teams: TournamentTeamSta
                                 )}>
                                     {team.avgRating.toFixed(2)}
                                 </div>
-                                <div className="text-[10px] text-white/30 uppercase">Rating</div>
+                                <div className="text-[10px] text-white/50 uppercase">Rating</div>
                             </div>
 
                             {/* Maps */}

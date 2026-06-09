@@ -688,7 +688,7 @@ export default function FPLPage() {
                                                             <div className="flex items-center gap-2 justify-end">
                                                                 <p className="text-[10px] text-white/40 uppercase tracking-widest">Champion</p>
                                                                 {championStats && (championStats.fplChampionships || 0) > 1 && (
-                                                                    <Badge className="text-[8px] px-1 py-0 bg-amber-500/20 text-amber-400 border-amber-500/30">
+                                                                    <Badge size="xs" className="px-1 bg-amber-500/20 text-amber-400 border-amber-500/30">
                                                                         {championStats.fplChampionships}x
                                                                     </Badge>
                                                                 )}

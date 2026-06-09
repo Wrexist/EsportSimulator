@@ -106,13 +106,11 @@ const RosterCard = memo(function RosterCard({
           </Badge>
           <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">{player.injury.description}</p>
           <div className="flex flex-col gap-2 w-full max-w-[180px]">
-            <Link
-              href={`/player/${player.id}`}
-              className="inline-flex items-center justify-center h-8 border border-white/20 text-white/80 hover:bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View Profile
-            </Link>
+            <Button asChild variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest">
+              <Link href={`/player/${player.id}`} onClick={(e) => e.stopPropagation()}>
+                View Profile
+              </Link>
+            </Button>
             <ConfirmDialog
               title="Hire Medical Specialist?"
               description="This will cost $5,000 and reduce recovery time by 2 weeks."

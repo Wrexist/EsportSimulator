@@ -695,7 +695,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                         </div>
                                         <div className="text-right shrink-0">
                                             <div className="text-lg font-normal text-white/70">{rating}</div>
-                                            <div className="text-[8px] text-white/30 uppercase">OVR</div>
+                                            <div className="text-[8px] text-white/50 uppercase">OVR</div>
                                         </div>
                                     </div>
                                     {/* Potential & Progress Row */}
@@ -804,7 +804,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                                 </div>
                                 <div className="text-right shrink-0">
                                     <div className="text-2xl font-normal text-emerald-400 leading-none">{rating}</div>
-                                    <div className="text-[8px] text-white/30 uppercase mt-1">CUR OVR</div>
+                                    <div className="text-[8px] text-white/50 uppercase mt-1">CUR OVR</div>
                                 </div>
                             </div>
                         )
@@ -963,7 +963,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
 
                     return (
                         <div key={role} className="p-2 rounded-lg bg-white/5 border border-white/10 text-center">
-                            <div className="text-[8px] font-normal text-white/30 uppercase mb-1">{role}</div>
+                            <div className="text-[8px] font-normal text-white/50 uppercase mb-1">{role}</div>
                             {player ? (
                                 <div className="space-y-1">
                                     <div className="text-[10px] font-bold truncate">{player.nickname}</div>
@@ -1069,7 +1069,7 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
                                         <div className="flex flex-wrap gap-2">
                                             {Object.entries(pr.statImprovements).map(([stat, val]: [string, any]) => (
                                                 <div key={stat} className="flex items-center gap-1 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
-                                                    <span className="text-[8px] font-bold text-white/30 uppercase">{stat}</span>
+                                                    <span className="text-[8px] font-bold text-white/50 uppercase">{stat}</span>
                                                     <span className="text-[8px] font-normal text-emerald-400">+{val.toFixed(2)}</span>
                                                 </div>
                                             ))}

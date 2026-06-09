@@ -98,47 +98,80 @@ export function generateSwissRound(
 
     const matchedTeams = new Set<string>()
     const week = tournament.startWeek + roundNum - 1
+    const recordOf = (tid: string) => tournament.standings?.find(s => s.teamId === tid)
+    const isClose = (tid: string) => {
+        const r = recordOf(tid)
+        return !!r && (r.wins >= 2 || r.losses >= 2)
+    }
 
+    const scheduleSwissMatch = (home: string, away: string) => {
+        matchedTeams.add(home)
+        matchedTeams.add(away)
+        const r = recordOf(home)
+        const bucketKey = r ? `${r.wins}-${r.losses}` : "?"
+        // BO3 when either side is one match from advance/elim.
+        const format = (isClose(home) || isClose(away)) ? "BO3" : "BO1"
+
+        const match: BracketMatchSaveData = {
+            id: `${tournament.id}_swiss_r${roundNum}_${home}_${away}`,
+            tournamentId: tournament.id,
+            stage: `Swiss Round ${roundNum} (${bucketKey})`,
+            homeTeamId: home,
+            awayTeamId: away,
+            isCompleted: false,
+            week,
+            format,
+            seed: rng.int(0, 999999),
+            sourceMatchIds: [],
+        }
+        addBracketMatchFn(tournament, match)
+        scheduleBracketMatchFn(save, match)
+    }
+
+    // Pair within each W-L bucket. Defer the odd-one-out instead of granting an
+    // immediate BYE — otherwise every odd bucket would award a free win, so a
+    // round with N odd buckets hands out N BYEs. Real Swiss grants at most ONE
+    // BYE per round, which matters because qualification is "advance at exactly
+    // 3 wins": extra BYEs push the wrong teams over the line.
+    const leftovers: string[] = []
     Object.keys(buckets).sort().forEach(key => {
         const bucketTeams = rng.shuffle(buckets[key].filter(tid => !matchedTeams.has(tid)))
 
         while (bucketTeams.length >= 2) {
             const home = bucketTeams.pop()!
             const away = bucketTeams.pop()!
-            matchedTeams.add(home)
-            matchedTeams.add(away)
-
-            // BO3 when close to elimination — one match decides advance or out.
-            const [w, l] = key.split("-").map(Number)
-            const format = (w >= 2 || l >= 2) ? "BO3" : "BO1"
-
-            const match: BracketMatchSaveData = {
-                id: `${tournament.id}_swiss_r${roundNum}_${home}_${away}`,
-                tournamentId: tournament.id,
-                stage: `Swiss Round ${roundNum} (${key})`,
-                homeTeamId: home,
-                awayTeamId: away,
-                isCompleted: false,
-                week,
-                format,
-                seed: rng.int(0, 999999),
-                sourceMatchIds: [],
-            }
-            addBracketMatchFn(tournament, match)
-            scheduleBracketMatchFn(save, match)
+            scheduleSwissMatch(home, away)
         }
 
-        // Odd team in this bucket auto-advances with a free win.
-        if (bucketTeams.length === 1) {
-            const loneTeam = bucketTeams.pop()!
-            matchedTeams.add(loneTeam)
-            const byeRecord = tournament.standings?.find(s => s.teamId === loneTeam)
-            if (byeRecord) {
-                byeRecord.wins++
-                byeRecord.matchesPlayed++
-            }
-        }
+        if (bucketTeams.length === 1) leftovers.push(bucketTeams.pop()!)
     })
+
+    // Float: pair leftover teams across adjacent buckets (strongest first —
+    // more wins, then fewer losses, then a stable tiebreak), so a lone team in
+    // each of several buckets plays a real match instead of getting a free win.
+    leftovers.sort((a, b) => {
+        const ra = recordOf(a)
+        const rb = recordOf(b)
+        if (rb && ra && rb.wins !== ra.wins) return rb.wins - ra.wins
+        if (ra && rb && ra.losses !== rb.losses) return ra.losses - rb.losses
+        return stableTeamIdNumber(a) - stableTeamIdNumber(b)
+    })
+    while (leftovers.length >= 2) {
+        const home = leftovers.shift()!
+        const away = leftovers.shift()!
+        scheduleSwissMatch(home, away)
+    }
+
+    // At most ONE BYE — to the single remaining (weakest) leftover.
+    if (leftovers.length === 1) {
+        const loneTeam = leftovers.pop()!
+        matchedTeams.add(loneTeam)
+        const byeRecord = recordOf(loneTeam)
+        if (byeRecord) {
+            byeRecord.wins++
+            byeRecord.matchesPlayed++
+        }
+    }
 }
 
 /**
@@ -207,6 +240,16 @@ export function handleSwissResult(
             // Derive a fresh RNG seed from the main chain so re-runs are deterministic.
             const rng = new SeededRNG((save.lastRngSeed ?? 1) + roundNum)
             generateSwissRound(save, tournament, roundNum + 1, rng)
+
+            // Deadlock guard: if the new round scheduled no real matches (≤1
+            // active team remains, so it only produced a BYE), nothing will ever
+            // call handleSwissResult to advance it. Jump straight to playoffs.
+            const nextRoundMatches = tournament.playoffBracket?.filter(m =>
+                m.id.includes(`_swiss_r${roundNum + 1}_`),
+            ) ?? []
+            if (nextRoundMatches.length === 0) {
+                generateSwissPlayoffs(save, tournament, deps)
+            }
         }
     }
 

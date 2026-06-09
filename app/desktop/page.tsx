@@ -9,7 +9,9 @@ import { useGameStore } from "@/store/game-store"
 import { getNotificationTheme } from "./notification-themes"
 import { GameEventSaveData } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
+import { toast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
@@ -400,7 +402,12 @@ function DesktopContent() {
         setSelectedEventId(null)
       } else if (choiceId === "NEGOTIATE") {
         const result = negotiateJobOffer(selectedEvent.id)
-        if (!result.success && result.withdrew) {
+        // Always surface the outcome — otherwise NEGOTIATE looks like a dead
+        // button when the club holds firm or withdraws.
+        if (result.message) {
+          (result.success ? toast.success : toast.error)(result.message)
+        }
+        if (result.withdrew) {
           setSelectedEventId(null)
         }
         return
@@ -543,7 +550,7 @@ function DesktopContent() {
     // Check expiry (1 week deadline default)
     const isExpired = currentWeek > (data.deadlineWeek ?? (event.week + 1))
 
-    if (!offeringTeam) return <p>Team data not found.</p>
+    if (!offeringTeam) return <EmptyState title="Offer unavailable" description="The team behind this offer no longer exists." />
 
     return (
       <div className="space-y-4 pt-2">

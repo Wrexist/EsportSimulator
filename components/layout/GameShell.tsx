@@ -25,6 +25,7 @@ const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod =
 const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTools), { ssr: false })
 const WeekProcessingOverlay = dynamic(() => import("../ui/WeekProcessingOverlay").then(mod => mod.WeekProcessingOverlay), { ssr: false })
 const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModal").then(mod => mod.KeyboardShortcutsModal), { ssr: false })
+const HelpSystem = dynamic(() => import("../ui/help-system").then(mod => mod.HelpSystem), { ssr: false })
 
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -380,9 +381,12 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
                 {/* Scrollable Content Area */}
                 <main id="main-content" className="flex-1 overflow-x-hidden relative overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-black/20">
+                    {/* Single uniform page-entry animation for every route —
+                        keyed on pathname so it re-runs per navigation. Pages
+                        must NOT add their own entry fade (double-animation). */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full"}
+                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in duration-300"}
                     >
                         <ErrorBoundary>
                             {children}
@@ -418,6 +422,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 )
             }
             {showBugReportButton && !hideChrome && <BugReportButton />}
+            {!hideChrome && <HelpSystem />}
             <DevTools />
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />

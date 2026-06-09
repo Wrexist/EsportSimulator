@@ -15,6 +15,15 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
 
 ## Phase 0 — DONE ✅ (committed in this audit)
 
+**Pass 17** (2026-06 comprehensive audit — see `AUDIT_2026-06.md`; +11 tests, 935 passing)
+- **[Phase 1.2]** `processFinance` now threads `eventIdSet`/`ledgerIdSet` and guards every ledger/budget-warning push — the last week-step missing replay/resume dedup is closed (latent wage double-charge).
+- **[NEW — HIGH]** League-format tournaments now actually complete: the league branch in `hasTerminalTournamentCompletion` was dead (leagues populate `playoffBracket`, so the bracket branch intercepted and never found a "final"); reordered it, fixed a premature-completion bug (`week<=now` → "no scheduled matches remain"), and added a league branch to `calculatePlacements` so the champion is placed 1st and prizes/points actually pay out.
+- **[NEW — MEDIUM]** Swiss now grants at most one BYE per round (was one per odd bucket → wrong teams hit the 3-win advance threshold); odd teams float-pair across buckets. Added a zero-match-round deadlock guard.
+- **[NEW — MEDIUM]** `saveGame()` serialized through a promise chain so the post-tick save, autosave, and manual saves can't interleave the write protocol.
+- **[NEW — LOW]** `legendaryPlayers` push deduped by id; FPL match IDs made deterministic (dropped `Date.now()`); corrected the misleading "live" comment on the dead `circuit-points-awarder`.
+- Still open (documented in `AUDIT_2026-06.md §2`): mid-tick `lastRngSeed` re-seeding → Swiss-pairing determinism (HIGH-risk refactor), `nextDeterministicId` RNG draw (4.1), `"swiss"`-vs-count routing (needs small-field validation), dead save paths (1.3), `circuitPoints.results` cap, dev-only integrity-checker false positives.
+
+
 **Pass 1**
 1. Toast IDs no longer consume the deterministic RNG (`ui-slice.ts`) — clicking UI no longer alters match results.
 2. Equipment summary panel completed — renders computed `bonuses`/`completeness`/`avgTier` (`app/equipment/page.tsx`).
@@ -103,7 +112,7 @@ Baseline (held green throughout): `tsc` 0 errors · `jest` 901 passing · `next 
   3. Confirm `lastRngSeed` written to disk equals the post-tick in-memory value.
 - **Verify:** Advance a week in browser + Electron; quit immediately; reload → academy budget/match-history/pruning/synergy persisted and on-disk `lastRngSeed` matches. Add a test that asserts `saveGame` is called exactly once per tick from the main thread and zero times from the worker.
 
-### 1.2 `processFinance` is not dedup-guarded (latent double-charge) [MEDIUM]
+### 1.2 `processFinance` is not dedup-guarded (latent double-charge) — ✅ DONE (Pass 17) [MEDIUM]
 - **Problem:** `finance-processor.ts:54-197` pushes deterministic-ID ledger entries with **no** existence check (unlike every other processor, which take a `ledgerIdSet`). Harmless only while resume is disabled; any replay re-charges wages and duplicates ledger IDs, breaking `integrity-checker.ts:123-142`.
 - **Steps:** Thread `ledgerIdSet` into `processFinance(save, playerTeamId, ledgerIdSet)`; guard each `push` with `if (ledgerIdSet.has(id)) continue; …; ledgerIdSet.add(id)`. Do the same for the unguarded event pushes in `event-processor.ts` (budget warnings, injury/recovery/retirement).
 - **Verify:** Unit test: run `processFinance` twice on the same week → ledger length and `team.budget` unchanged on the second call.

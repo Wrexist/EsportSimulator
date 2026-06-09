@@ -394,7 +394,7 @@ export default function MainMenuPage() {
                                                         <div className="text-2xl font-bold text-white/80 leading-none">
                                                             {slot.teamOvr || "-"}
                                                         </div>
-                                                        <div className="text-[8px] font-medium text-white/30 uppercase tracking-widest mt-0.5">
+                                                        <div className="text-[8px] font-medium text-white/50 uppercase tracking-widest mt-0.5">
                                                             OVR
                                                         </div>
                                                     </div>

@@ -277,7 +277,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-bold text-[11px] text-white/80">{(team.followers || 0).toLocaleString()}</p>
-                                                <p className="text-[8px] text-white/30 uppercase tracking-wider">Followers</p>
+                                                <p className="text-[8px] text-white/50 uppercase tracking-wider">Followers</p>
                                             </div>
                                         </div>
                                     ))}

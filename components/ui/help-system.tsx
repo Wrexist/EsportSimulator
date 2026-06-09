@@ -143,10 +143,12 @@ export function HelpSystem() {
                 size="icon"
                 onClick={() => setIsOpen(true)}
                 aria-label="Open help"
-                title="Help (?)"
-                className="fixed bottom-4 right-4 rounded-full w-12 h-12 shadow-lg z-50"
+                title="Help & Game Guide"
+                // Stacked above the (conditional) bug-report button at bottom-6
+                // so the two never overlap.
+                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur shadow-lg z-50"
             >
-                <HelpCircle className="w-6 h-6" aria-hidden="true" />
+                <HelpCircle className="w-5 h-5" aria-hidden="true" />
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -212,7 +214,7 @@ export function HelpSystem() {
                                     <h4 className="font-bold mb-2">Quick Tips</h4>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
                                         <li>• Press <kbd className="px-1 rounded bg-white/10">?</kbd> anytime for keyboard shortcuts</li>
-                                        <li>• Hover over stats for detailed explanations</li>
+                                        <li>• Replay the full tutorial from <span className="text-white/80 font-medium">Settings → Replay Tutorial</span></li>
                                         <li>• Auto-save runs every minute</li>
                                     </ul>
                                 </div>

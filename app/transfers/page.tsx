@@ -332,6 +332,9 @@ function TransfersPageInner() {
                         size="sm"
                         onClick={() => handleBuy(player)}
                         disabled={playerTeam.budget < terms.transferFee}
+                        title={playerTeam.budget < terms.transferFee
+                          ? `Insufficient budget — need $${(terms.transferFee - playerTeam.budget).toLocaleString()} more`
+                          : undefined}
                         className={cn(
                           "rounded-lg h-8 px-4 font-normal text-[10px] uppercase tracking-widest transition-all",
                           playerTeam.budget >= terms.transferFee

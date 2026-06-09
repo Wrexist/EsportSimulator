@@ -60,7 +60,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
           </div>
         ))}
 
-        <p className="text-[11px] text-white/30 text-center pt-2">
+        <p className="text-[11px] text-white/50 text-center pt-2">
           macOS users: use <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">⌘</kbd> in place of <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Ctrl</kbd>
           <br />
           Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Esc</kbd> to close

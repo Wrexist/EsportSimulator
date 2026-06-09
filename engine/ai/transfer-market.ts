@@ -132,10 +132,15 @@ export function processAITransferMarket(
 
     const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
 
-    // Build Set of existing pending transfer offer keys for O(1) dedup.
+    // Build Set of existing pending transfer-offer keys for O(1) dedup. This
+    // must span ALL weeks, not just the current one: an offer the player hasn't
+    // resolved yet (no selectedChoiceId) should block the same AI team from
+    // re-offering for the same player. Scoping this to the current week let a
+    // fresh offer pile up every week for a left-listed player, growing the
+    // inbox/save unbounded.
     const existingOfferKeys = new Set<string>()
     for (const e of save.eventsLog) {
-        if (e.week === save.currentWeek && e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
+        if (e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
             existingOfferKeys.add(`${e.data.teamId}_${e.data.playerId}`)
         }
     }

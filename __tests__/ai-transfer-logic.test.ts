@@ -295,3 +295,49 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         expect(executed).toBe(true) // at least one seed triggered the transfer
     })
 })
+
+import { processAITransferMarket } from "@/engine/ai/transfer-market"
+
+describe("processAITransferMarket — pending offers don't pile up across weeks", () => {
+    function listedSave() {
+        const player = makePlayer("star", { skill: 70, potential: 90, forSale: true, transferListingPrice: 10_000 } as any)
+        const playerTeam = makeTeam("player", { rosterIds: ["star"] })
+        const aiTeam = makeTeam("ai", { budget: 5_000_000, worldRanking: 5 })
+        return makeSave([playerTeam, aiTeam], [player])
+    }
+
+    test("control: with no prior offer, the AI does make an offer for an attractively-priced listing", () => {
+        const save = listedSave()
+        let made = false
+        for (let w = 1; w <= 12 && !made; w++) {
+            save.currentWeek = w
+            processAITransferMarket(save, "player", new SeededRNG(w * 13 + 1))
+            made = save.eventsLog.some(e => e.type === "TRANSFER_OFFER" && e.data?.teamId === "ai" && e.data?.playerId === "star")
+        }
+        expect(made).toBe(true)
+    })
+
+    test("a still-pending offer from a prior week blocks new ones (no inbox pile-up)", () => {
+        const save = listedSave()
+        // A pending (unresolved) offer placed back in week 1.
+        save.eventsLog.push({
+            id: "offer_1_ai_star_100000",
+            type: "TRANSFER_OFFER" as any,
+            week: 1,
+            acknowledged: false,
+            data: { teamId: "ai", teamName: "ai", playerId: "star", playerName: "star", offerAmount: 100000 },
+            choices: [{ id: "accept", text: "Accept", effects: {} }, { id: "reject", text: "Reject", effects: {} }],
+        } as any)
+
+        for (let w = 5; w < 15; w++) {
+            save.currentWeek = w
+            processAITransferMarket(save, "player", new SeededRNG(w * 7 + 1))
+        }
+
+        const aiStarOffers = save.eventsLog.filter(e =>
+            e.type === "TRANSFER_OFFER" && (e.data as any)?.teamId === "ai" && (e.data as any)?.playerId === "star"
+        )
+        // Pre-fix this grew by one most weeks; now the pending offer blocks them.
+        expect(aiStarOffers.length).toBe(1)
+    })
+})

@@ -871,6 +871,23 @@ export class TournamentManager {
 
     static calculatePlacements(save: GameSave, tournament: TournamentSaveData): { teamId: string, position: number }[] {
         const placements: { teamId: string, position: number }[] = []
+
+        // Round-robin leagues have no playoff bracket stages (every match is a
+        // "League Match"), so final placement is simply the standings order.
+        // `standings` is kept sorted by the standings processor's
+        // compareStandings (points → wins → head-to-head → map/round diff), so
+        // index+1 is the placement. Without this, league prize distribution
+        // would only place teams with ≥3 losses (the Swiss-fallback branch
+        // below) at positions 9+, leaving the champion with no prize.
+        if (tournament.format === "league") {
+            if (tournament.standings) {
+                tournament.standings.forEach((s, idx) => {
+                    placements.push({ teamId: s.teamId, position: idx + 1 })
+                })
+            }
+            return placements
+        }
+
         if (!tournament.playoffBracket) return placements
 
         // 1. Winner & Runner-up (Grand Final)

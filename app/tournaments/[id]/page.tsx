@@ -749,9 +749,12 @@ export default function TournamentDetailPage() {
                                                                     return { team, points }
                                                                 }).sort((a: any, b: any) => b.points - a.points) ?? [])
 
-                                                            if (standings && standings[0]) podium.push({ place: 1, team: standings[0].team, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
-                                                            if (standings && standings[1]) podium.push({ place: 2, team: standings[1].team, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })
-                                                            if (standings && standings[2]) podium.push({ place: 3, team: standings[2].team, color: "from-amber-700 to-amber-900", startHeight: "h-0", endHeight: "h-20" })
+                                                            // Only podium a placement whose team actually resolved —
+                                                            // teamsById.get() can miss, leaving team undefined and
+                                                            // crashing the render at entry.team.name[0] below.
+                                                            if (standings?.[0]?.team) podium.push({ place: 1, team: standings[0].team, color: "from-amber-300 to-amber-500", startHeight: "h-0", endHeight: "h-48" })
+                                                            if (standings?.[1]?.team) podium.push({ place: 2, team: standings[1].team, color: "from-gray-300 to-gray-500", startHeight: "h-0", endHeight: "h-32" })
+                                                            if (standings?.[2]?.team) podium.push({ place: 3, team: standings[2].team, color: "from-amber-700 to-amber-900", startHeight: "h-0", endHeight: "h-20" })
                                                         }
 
                                                         // Re-order for visual podium (2 - 1 - 3)

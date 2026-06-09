@@ -73,6 +73,7 @@ import { buildQualificationGraph, isQualificationForTournament } from "./circuit
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
+import { processSeasonBoardReview, ensureBoardState } from "./board-expectations"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 
 // ===== TYPES =====
@@ -245,7 +246,7 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 4: Finance...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 FinanceProcessor.processContractExpiry(save, config.playerTeamId) // Process expiring contracts
-                result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId)
+                result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
             }
@@ -375,7 +376,10 @@ export class AtomicWeekProcessor {
                     // Move legendary players to Hall of Fame
                     retirementResult.legends.forEach(playerId => {
                         const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
-                        if (player && player.isLegendary) {
+                        // Dedup by id: a legend can surface from both retirement
+                        // passes in the same tick; without this guard the heavy
+                        // full-player clone is pushed twice and the array bloats.
+                        if (player && player.isLegendary && !save.legendaryPlayers.some(lp => lp.id === player.id)) {
                             save.legendaryPlayers.push({ ...player })
                         }
                     })
@@ -385,7 +389,9 @@ export class AtomicWeekProcessor {
                 const midSeasonResult = EventProcessor.processMidSeasonRetirements(save, config.playerTeamId, rng)
                 midSeasonResult.legends.forEach(playerId => {
                     const player = idx.playerIndex.get(playerId) ?? save.players.find(p => p.id === playerId)
-                    if (player?.isLegendary) save.legendaryPlayers.push({ ...player })
+                    if (player?.isLegendary && !save.legendaryPlayers.some(lp => lp.id === player.id)) {
+                        save.legendaryPlayers.push({ ...player })
+                    }
                 })
 
                 perfTrace.step("step.9_worldAI", __s)
@@ -474,10 +480,29 @@ export class AtomicWeekProcessor {
             if (isSeasonEnd(save.currentWeek)) {
                 save.careerStats = updateCareerStats(save)
                 debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
+
+                // Board verdict on the season — moves confidence, can sack the
+                // manager (game-over), and posts a review to the news feed.
+                const review = processSeasonBoardReview(save)
+                if (review.reviewed && review.newsTitle) {
+                    save.newsFeed.unshift({
+                        id: `board_review_s${getSeasonNumber(save.currentWeek)}_${save.playerTeamId}`,
+                        title: review.newsTitle,
+                        content: review.newsContent ?? "",
+                        week: save.currentWeek,
+                        category: "FINANCE",
+                        teamId: save.playerTeamId,
+                    })
+                    debug.log(`[Week ${save.currentWeek}] Board review: ${review.outcome}, confidence ${review.confidence}${review.sacked ? " — MANAGER SACKED" : ""}`)
+                }
             } else if (!save.careerStats) {
                 // First-time migration for existing saves
                 save.careerStats = migrateCareerStats(save)
             }
+
+            // Keep board state present every week so the dashboard can always
+            // show the current expectation + confidence (cheap no-op once set).
+            ensureBoardState(save)
 
             // Guard long-running saves against unbounded log growth.
             compactPersistentState(save)

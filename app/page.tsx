@@ -8,7 +8,9 @@ import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
+import { AnimatedNumber } from "@/components/ui/animated-number"
+import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
+import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -59,6 +61,7 @@ export default function Page() {
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
+  const boardState = useGameStore(s => s.boardState)
 
   const [isSimulating, setIsSimulating] = useState(false)
 
@@ -204,16 +207,21 @@ export default function Page() {
     const weeksPlayed = gameOverWeek ?? currentWeek
     const seasonsPlayed = Math.floor((weeksPlayed - 1) / 52) + 1
     const totalTrophies = playerTeam?.trophies?.length ?? 0
+    const isSacked = gameOverReason === "SACKED"
     return (
       <div className="min-h-[80vh] flex items-center justify-center animate-in fade-in duration-1000">
         <div className="max-w-lg w-full text-center space-y-8">
           <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/30">
-            <Skull className="w-10 h-10 text-red-500" />
+            {isSacked ? <DoorOpen className="w-10 h-10 text-red-500" /> : <Skull className="w-10 h-10 text-red-500" />}
           </div>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight uppercase text-red-400 mb-2">Organization Dissolved</h1>
+            <h1 className="text-4xl font-bold tracking-tight uppercase text-red-400 mb-2">
+              {isSacked ? "Relieved of Duty" : "Organization Dissolved"}
+            </h1>
             <p className="text-muted-foreground text-sm">
-              After 8 consecutive weeks of insolvency, {playerTeam?.name ?? "your team"} has been forced to disband.
+              {isSacked
+                ? `After consecutive seasons below the board's expectations, ${playerTeam?.name ?? "your club"} has terminated your contract.`
+                : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
             </p>
           </div>
           <Card className="bg-white/[0.02] border-white/5">
@@ -238,7 +246,7 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-8">
       {seasonRecapStats && (
         <SeasonRecapModal
           isOpen={!!pendingSeasonRecap}
@@ -603,7 +611,11 @@ export default function Page() {
                 <div className="space-y-1">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Available Funds</p>
                   <div className="flex items-end gap-2">
-                    <span className="text-3xl font-normal text-white">${(financialData.budget / 1000000).toFixed(2)}M</span>
+                    <AnimatedNumber
+                      value={financialData.budget}
+                      format={(n) => `$${(n / 1000000).toFixed(2)}M`}
+                      className="text-3xl font-normal text-white"
+                    />
                   </div>
                 </div>
 
@@ -631,11 +643,11 @@ export default function Page() {
               {/* Mini Budget Bar */}
               <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Salaries</p>
+                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Salaries</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.salaries / 1000).toFixed(1)}k</p>
                 </div>
                 <div>
-                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Facilities</p>
+                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Facilities</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.facilities / 1000).toFixed(1)}k</p>
                 </div>
                 <div className="col-span-2 flex items-center justify-end">
@@ -650,8 +662,20 @@ export default function Page() {
           </Card>
         </div>
 
-        {/* Sidebar Column: News Feed */}
+        {/* Sidebar Column: Objectives + News Feed */}
         <div className="space-y-6">
+          {playerTeam && (
+            <SeasonObjectives
+              worldRanking={playerTeam.worldRanking ?? 0}
+              trophiesThisSeason={playerTeam.trophies?.filter(t => t.week > (currentWeek - 53)).length ?? 0}
+              followers={playerTeam.followers ?? playerTeam.fanbase ?? 0}
+              financialState={playerTeam.financialState}
+              reputation={playerTeam.reputation}
+              boardConfidence={boardState?.confidence}
+              boardExpectation={boardState?.seasonExpectation}
+              boardOnNotice={boardState?.onNotice}
+            />
+          )}
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-normal uppercase tracking-[0.3em] text-white/50">Intelligence Feed</h3>
             <div className="flex items-center gap-2">
@@ -660,7 +684,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="max-h-[1100px] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
+          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
             <NewsFeed />
           </div>
         </div>

@@ -1,9 +1,17 @@
 /**
  * Circuit-points + trophy awarder for tournament completions.
  *
- * Extracted from atomic-week-processor.ts (Phase M3). Called from
- * processTournaments inside the per-team loop that processes a
- * finished tournament's placement results.
+ * ⚠️ DEAD CODE — DO NOT RE-WIRE. As of the tournament-integrity pass,
+ * `standings-processor.updateStandings` is the SOLE awarder of circuit points,
+ * prizes, and trophies (idempotent via `tournament.rewardsGranted`). This
+ * function has no production callers; re-introducing a call here would
+ * double-award points/trophies alongside `updateStandings`. It is retained only
+ * because `__tests__/circuit-points-awarder.test.ts` documents the per-placement
+ * points + season-aware trophy-dedup rules. Delete both together if removing.
+ *
+ * (Originally extracted from atomic-week-processor.ts and called from
+ * processTournaments — that call site was removed when standings-processor
+ * became the single owner.)
  *
  * Two side effects in one function:
  *   1. Adds `points` to the team's circuit-points entry, creating

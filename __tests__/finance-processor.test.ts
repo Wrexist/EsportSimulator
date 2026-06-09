@@ -101,6 +101,23 @@ describe("FinanceProcessor.processFinance", () => {
         expect(equipLedger[0].category).toBe("FACILITIES")
     })
 
+    test("weeklyNet reflects equipment upkeep (AI economy reads team.weeklyNet)", () => {
+        const equipTeam = makeTeam({
+            id: "ai", budget: 200_000, reputation: 60,
+            equipment: [{ id: "eq1", type: "MOUSE", tier: 2, name: "M", bonus: { stat: "reaction", value: 5 }, weeklyCost: 1000, purchasedWeek: 1 } as any],
+        })
+        const baselineTeam = makeTeam({ id: "ai", budget: 200_000, reputation: 60 })
+        const saveEquip = makeSave(equipTeam, "other") // AI team (not player)
+        const saveBase = makeSave(baselineTeam, "other")
+
+        FinanceProcessor.processFinance(saveEquip, "other")
+        FinanceProcessor.processFinance(saveBase, "other")
+
+        // Pre-fix the equipment team's weeklyNet stayed at the pre-equipment
+        // value, reading $1000 too high; now it's exactly its upkeep lower.
+        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000)
+    })
+
     test("AI team equipment cost is deducted but NOT logged to ledger", () => {
         const aiTeam = makeTeam({
             id: "ai_team",
@@ -230,5 +247,90 @@ describe("FinanceProcessor.processFinance", () => {
         expect(players[0].morale).toBe(78)
         expect(players[1].morale).toBe(58)
         expect(players[2].morale).toBe(48)
+    })
+})
+
+describe("FinanceProcessor.processFinance — replay/resume idempotency (ledger dedup)", () => {
+    function makeWageSave() {
+        const rosterIds = ["p1", "p2", "p3", "p4", "p5"]
+        const team = makeTeam({
+            id: "t1",
+            budget: 500_000,
+            reputation: 70,
+            fanbase: 20_000,
+            rosterIds,
+            staffIds: ["s1"],
+            equipment: [{ id: "eq1", type: "MOUSE", tier: 2, name: "M", bonus: { stat: "reaction", value: 5 }, weeklyCost: 500, purchasedWeek: 1 } as any],
+        })
+        const contracts: ContractSaveData[] = rosterIds.map((pid, i) => ({
+            id: `c${i}`, playerId: pid, teamId: "t1", salaryPerWeek: 4000, startWeek: 1, endWeek: 52, buyout: 0,
+        } as any))
+        const staff: StaffSaveData[] = [
+            { id: "s1", teamId: "t1", name: "Coach", role: "coach", salaryPerWeek: 2000, level: 1, contractEndWeek: 52, stats: {} as any, unlockedTalentIds: [] } as any,
+        ]
+        return makeSave(team, "t1", { contracts, staff })
+    }
+
+    test("re-running the same week does not duplicate ledger entries (threaded dedup sets)", () => {
+        const save = makeWageSave()
+
+        // First pass — like the normal week tick.
+        FinanceProcessor.processFinance(save, "t1")
+        const idsAfterFirst = save.financeLedger.map(e => e.id).sort()
+        expect(idsAfterFirst.length).toBeGreaterThan(0) // wages + equipment recorded
+
+        // Simulate a resume: the dedup sets are rebuilt from the persisted
+        // ledger/events at the top of the tick, then the finance step re-runs.
+        const ledgerIdSet = new Set(save.financeLedger.map(e => e.id))
+        const eventIdSet = new Set(save.eventsLog.map(e => e.id))
+        FinanceProcessor.processFinance(save, "t1", eventIdSet, ledgerIdSet)
+
+        // No duplicate ledger entries — the deterministic IDs collide and are skipped.
+        expect(save.financeLedger.map(e => e.id).sort()).toEqual(idsAfterFirst)
+    })
+
+    test("the internal fallback set also prevents duplicate entries when no sets are threaded", () => {
+        const save = makeWageSave()
+
+        FinanceProcessor.processFinance(save, "t1")
+        const countAfterFirst = save.financeLedger.length
+
+        // Even without threaded sets, processFinance rebuilds the guard from the
+        // live ledger, so a second pass over the same week is idempotent.
+        FinanceProcessor.processFinance(save, "t1")
+        expect(save.financeLedger.length).toBe(countAfterFirst)
+    })
+
+    test("a budget warning already in the event log is not re-emitted on replay", () => {
+        const team = makeTeam({
+            id: "t1",
+            budget: 20_000,
+            reputation: 10,
+            fanbase: 100,
+            rosterIds: ["p1", "p2", "p3", "p4", "p5"],
+            staffIds: ["s1"],
+        })
+        team._prevFinancialState = "STABLE"
+        const contracts: ContractSaveData[] = ["p1", "p2", "p3", "p4", "p5"].map((pid, i) => ({
+            id: `c${i}`, playerId: pid, teamId: "t1", salaryPerWeek: 5000, startWeek: 1, endWeek: 52, buyout: 0,
+        } as any))
+        const staff: StaffSaveData[] = [
+            { id: "s1", teamId: "t1", name: "Coach", role: "coach", salaryPerWeek: 2000, level: 1, contractEndWeek: 52, stats: {} as any, unlockedTalentIds: [] } as any,
+        ]
+        const save = makeSave(team, "t1", { contracts, staff })
+
+        // First pass emits exactly one budget-warning event.
+        FinanceProcessor.processFinance(save, "t1")
+        const warningsAfterFirst = save.eventsLog.filter(e => e.type === "BUDGET_WARNING").length
+        expect(warningsAfterFirst).toBe(1)
+
+        // Resume: reset the state-change trigger so the warning path runs again,
+        // but thread the existing event IDs — the duplicate must be suppressed.
+        team._prevFinancialState = "STABLE"
+        const eventIdSet = new Set(save.eventsLog.map(e => e.id))
+        const ledgerIdSet = new Set(save.financeLedger.map(e => e.id))
+        FinanceProcessor.processFinance(save, "t1", eventIdSet, ledgerIdSet)
+
+        expect(save.eventsLog.filter(e => e.type === "BUDGET_WARNING").length).toBe(1)
     })
 })

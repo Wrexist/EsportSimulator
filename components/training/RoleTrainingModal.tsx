@@ -146,7 +146,7 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                         {selectedRole && (
                             <div className="flex items-center justify-center gap-3 text-sm font-bold uppercase">
                                 <Badge variant="outline" className="border-white/20 text-white/60">{formatRole(player.role)}</Badge>
-                                <ArrowRight size={14} className="text-white/20" />
+                                <ArrowRight size={14} className="text-white/45" />
                                 <Badge className="bg-primary/20 text-primary hover:bg-primary/30">{ROLES.find(r => r.id === selectedRole)?.label}</Badge>
                                 <span className="text-[10px] text-white/30 font-normal normal-case">(new primary)</span>
                             </div>

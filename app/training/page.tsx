@@ -325,7 +325,7 @@ export default function TrainingPage() {
                         })()}
                       </div>
                     </div>
-                    <Badge className="bg-white/10 text-muted-foreground uppercase text-[8px] font-normal">
+                    <Badge size="xs" className="bg-white/10 text-muted-foreground uppercase font-normal">
                       Authentic Pro FPS
                     </Badge>
                   </div>
@@ -340,7 +340,7 @@ export default function TrainingPage() {
                     </span>
                     <div className="flex gap-1">
                       {drill.rewards.map((g: any) => (
-                        <Badge key={g.stat} className="text-[8px] font-bold text-emerald-400 bg-white/5 border-none">
+                        <Badge key={g.stat} size="xs" className="font-bold text-emerald-400 bg-white/5 border-none">
                           +{g.value} {g.stat}
                         </Badge>
                       ))}
@@ -459,7 +459,7 @@ export default function TrainingPage() {
                         <h4 className="font-bold text-white truncate">{player.nickname}</h4>
                         <span className="text-[10px] text-white/40 uppercase font-bold">{formatRole(player.role)}</span>
                         {activeTraining && (
-                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[8px] h-4">
+                          <Badge size="xs" className="bg-purple-500/20 text-purple-400 border-purple-500/30 h-4">
                             Training {activeTraining.targetRole}
                           </Badge>
                         )}

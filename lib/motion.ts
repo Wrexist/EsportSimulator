@@ -18,6 +18,13 @@ export const shortEase: Transition = {
   ease: [...tokens.motion.easeOutExpo],
 }
 
+/** Continuous loading/processing spinner (pair with animate={{ rotate: 360 }}) */
+export const spinTransition: Transition = {
+  repeat: Infinity,
+  duration: 1,
+  ease: "linear",
+}
+
 /** Modals, sheets, desktop windows opening */
 export const modalTransition: Variants = {
   initial: { opacity: 0, y: 16, scale: 0.98 },

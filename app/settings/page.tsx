@@ -279,10 +279,14 @@ export default function SettingsPage() {
   }
 
   const handleReplayTutorial = () => {
-    useGameStore.setState({ onboardingCompleted: false })
+    // Use the real trigger the TutorialOverlay listens to (manualTutorialTrigger
+    // via triggerTutorial). The previous version set `onboardingCompleted`, a
+    // flag nothing reads — so the button claimed the guide would reappear but it
+    // never did. The overlay lives on the dashboard, so it shows on arrival.
+    useGameStore.getState().triggerTutorial()
     toast({
-      title: "Tutorial Reset",
-      description: "The onboarding guide will appear on your next visit to the dashboard.",
+      title: "Tutorial Ready",
+      description: "Head to the dashboard and the guide will walk you through the basics again.",
     })
   }
 
