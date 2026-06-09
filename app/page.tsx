@@ -684,7 +684,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="max-h-[1100px] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
+          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
             <NewsFeed />
           </div>
         </div>

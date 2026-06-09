@@ -116,7 +116,7 @@ export function TopBar() {
                             ) : (
                                 <div className="w-[14px] h-[11px] bg-white/10 rounded-sm animate-pulse" />
                             )}
-                            <span className="text-sm font-semibold text-white whitespace-nowrap">
+                            <span className="text-sm font-semibold text-white truncate max-w-[180px]" title={playerTeam?.name}>
                                 {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
                             </span>
                         </div>
