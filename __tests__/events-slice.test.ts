@@ -319,3 +319,46 @@ describe("acceptJobOffer", () => {
         expect(h.state().managerDetails.lastJobChangeWeek).toBe(20)
     })
 })
+
+describe("resolveEventChoice — legend coach hire affordability", () => {
+    function legendEventState(budget: number) {
+        return makeBaseState({
+            currentWeek: 5,
+            playerTeamId: "player",
+            teams: [makeTeam("player", { budget } as never)],
+            staff: [],
+            financeLedger: [],
+            toasts: [],
+            acknowledgedEventIds: [],
+            eventsLog: [makeEvent("legend_coach_opportunity_x", {
+                type: "INFO",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: { legendId: "L1", legendName: "Legend", salaryCost: 15000 } as any,
+            })],
+        })
+    }
+
+    test("refuses the hire when the team can't pay — no debt, choice stays open", () => {
+        const h = makeHarness(legendEventState(3_000))
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        const after = h.state()
+        expect(after.teams[0].budget).toBe(3_000) // unchanged, not -12k
+        expect(after.staff).toHaveLength(0)
+        // Choice NOT consumed — can hire later once funds exist.
+        expect(after.eventsLog[0].selectedChoiceId).toBeUndefined()
+        expect(after.toasts.some(t => t.message.includes("Insufficient funds"))).toBe(true)
+    })
+
+    test("hires + charges + ledgers when affordable", () => {
+        const h = makeHarness(legendEventState(50_000))
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        const after = h.state()
+        expect(after.teams[0].budget).toBe(35_000)
+        expect(after.staff).toHaveLength(1)
+        const entry = after.financeLedger.find(e => e.description.includes("Legend coach"))
+        expect(entry).toBeDefined()
+        expect(entry!.type).toBe("EXPENSE")
+        expect(entry!.amount).toBe(15_000)
+        expect(after.eventsLog[0].selectedChoiceId).toBe("hire")
+    })
+})

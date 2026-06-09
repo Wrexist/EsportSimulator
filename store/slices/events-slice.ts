@@ -131,6 +131,18 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 const team = state.teams.find(t => t.id === state.playerTeamId)
                 if (team && legendData) {
                     const salaryCost = legendData.salaryCost || 15000
+                    // Refuse without consuming the choice — the event stays
+                    // answerable once the team can actually pay. This was the
+                    // one player-facing debit with no affordability guard
+                    // (budget went straight negative on a $15k hire).
+                    if (team.budget < salaryCost) {
+                        state.toasts.push({
+                            id: nextDeterministicId(state, "toast_legend_coach_funds"),
+                            message: `Insufficient funds — hiring requires $${salaryCost.toLocaleString()} up front`,
+                            type: "warning",
+                        })
+                        return
+                    }
                     const existingCoachIdx = state.staff.findIndex(s => s.teamId === team.id && s.role === "coach")
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const legendCoach: any = {
@@ -159,6 +171,16 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                     }
                     // Deduct first week's salary up-front and boost team buffs.
                     team.budget -= salaryCost
+                    state.financeLedger.push({
+                        id: nextDeterministicId(state, "fin_legend_coach", team.id),
+                        week: state.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "WAGES_STAFF",
+                        amount: salaryCost,
+                        description: `Legend coach signing — ${legendData.legendName || "Legend Coach"}`,
+                        balance: team.budget,
+                    })
                     team.chemistry = Math.min(100, (team.chemistry ?? 50) + 10)
                     team.reputation = Math.min(100, team.reputation + 5)
                 }

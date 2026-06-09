@@ -207,6 +207,12 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
 
     const playerTeam = getPlayerTeam()
     const [signedPlayers, setSignedPlayers] = useState<string[]>([])
+    // Actual buyout fees paid per signing. transferPlayer deducts the budget
+    // live, so "spent" must be recorded at sign time — re-deriving it from the
+    // signed players' contracts is wrong: after signing, their contract is the
+    // NEW one whose buyout is salary×52, not what was paid (that bug displayed
+    // weeklyCommitment×52 as "spent on buyouts" and a fake negative budget).
+    const [feesPaid, setFeesPaid] = useState<Record<string, number>>({})
     const [isSkipping, setIsSkipping] = useState(false)
     const [roleFilter, setRoleFilter] = useState<string>('ALL')
     const [sortBy, setSortBy] = useState<'skill' | 'potential' | 'salary' | 'age'>('skill')
@@ -348,20 +354,11 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signedPlayers, playersWithTeamInfo])
 
-    // Calculate total transfer fees spent
-    const transferFeesSpent = useMemo(() => {
-        return signedPlayers.reduce((total, playerId) => {
-            const player = playersWithTeamInfo.find(p => p.id === playerId)
-            if (player && !player.isFreeAgent) {
-                const contract = getAutoContract(player)
-                return total + contract.transferFee
-            }
-            return total
-        }, 0)
-        // getAutoContract is a stable local helper that reads currentWeek;
-        // intentionally omitted since the modal doesn't survive a week tick.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [signedPlayers, playersWithTeamInfo])
+    // Total buyout fees actually paid (recorded at sign time, see feesPaid).
+    const transferFeesSpent = useMemo(
+        () => Object.values(feesPaid).reduce((sum, fee) => sum + fee, 0),
+        [feesPaid],
+    )
 
     // Get full details for signed players (for roster display)
     const signedPlayerDetails = useMemo(() => {
@@ -373,11 +370,14 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signedPlayers, playersWithTeamInfo])
 
-    // Check if we can afford a player (salary + transfer fee if contracted)
+    // Check if we can afford a player (salary + transfer fee if contracted).
+    // playerTeam.budget is LIVE — transferPlayer already deducted earlier fees —
+    // so the fee compares against it directly. Adding the spent tally on top
+    // double-counted and eventually flagged everything "Cannot Afford".
     const canAffordPlayer = (player: PlayerWithTeamInfo) => {
         const contract = getAutoContract(player)
         const salaryFits = weeklyCommitment + contract.salaryPerWeek <= salaryCap
-        const budgetFits = playerTeam ? (transferFeesSpent + contract.transferFee <= playerTeam.budget) : false
+        const budgetFits = playerTeam ? (contract.transferFee <= playerTeam.budget) : false
         return salaryFits && budgetFits
     }
 
@@ -395,8 +395,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
             return
         }
 
-        // Check transfer budget for contracted players
-        if (!player.isFreeAgent && transferFeesSpent + contract.transferFee > playerTeam.budget) {
+        // Check transfer budget for contracted players (live budget — earlier
+        // fees are already deducted from it). The engine re-checks this too.
+        if (!player.isFreeAgent && contract.transferFee > playerTeam.budget) {
             toast.error("Transfer budget exceeded!", {
                 description: `You need $${contract.transferFee.toLocaleString()} to buy out this player's contract.`
             })
@@ -420,6 +421,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
 
         if (result.success) {
             setSignedPlayers(prev => [...prev, player.id])
+            if (contract.transferFee > 0) {
+                setFeesPaid(prev => ({ ...prev, [player.id]: contract.transferFee }))
+            }
             const feeText = contract.transferFee > 0
                 ? ` (Buyout: $${contract.transferFee.toLocaleString()})`
                 : " (Free Agent)"
@@ -442,7 +446,18 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         const result = transferPlayer(playerId, playerTeam.id, "FA", 0)
         if (result.success) {
             setSignedPlayers(prev => prev.filter(id => id !== playerId))
-            toast.success(`Released ${player.nickname}`)
+            // Releasing does not refund a paid buyout — drop the record but
+            // tell the player money was burned (pool is FA-only today, so this
+            // path only fires if contracted players ever re-enter the pool).
+            const paid = feesPaid[playerId]
+            setFeesPaid(prev => {
+                const next = { ...prev }
+                delete next[playerId]
+                return next
+            })
+            toast.success(`Released ${player.nickname}`, paid
+                ? { description: `The $${paid.toLocaleString()} buyout is not refunded.` }
+                : undefined)
         }
     }
 
@@ -500,11 +515,15 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-muted-foreground">Transfer Budget</p>
+                                {/* playerTeam.budget is live — fees are already
+                                    deducted by the store, so display it as-is.
+                                    Subtracting the spent tally again showed a
+                                    fake negative balance. */}
                                 <p className={cn(
                                     "text-xl font-bold",
                                     transferFeesSpent > 0 ? "text-amber-400" : "text-emerald-400"
                                 )}>
-                                    ${(playerTeam.budget - transferFeesSpent).toLocaleString()}
+                                    ${playerTeam.budget.toLocaleString()}
                                 </p>
                                 {transferFeesSpent > 0 && (
                                     <p className="text-xs text-muted-foreground">
@@ -805,10 +824,15 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                                     </span>
                                                     <span className="font-bold">${contract.salaryPerWeek.toLocaleString()}/week</span>
                                                 </div>
-                                                {!player.isFreeAgent && contract.transferFee > 0 && (
+                                                {!player.isFreeAgent && contract.transferFee > 0 ? (
                                                     <div className="flex items-center justify-between text-amber-400">
                                                         <span>Buyout:</span>
                                                         <span className="font-bold">${contract.transferFee.toLocaleString()}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center justify-between text-emerald-400">
+                                                        <span>Signing fee:</span>
+                                                        <span className="font-bold">FREE</span>
                                                     </div>
                                                 )}
                                                 {!affordable && (
@@ -836,7 +860,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                             >
                                                 <UserPlus size={16} />
                                                 {affordable
-                                                    ? (player.isFreeAgent ? "Sign Free Agent" : "Pay Buyout & Sign")
+                                                    ? (player.isFreeAgent
+                                                        ? `Sign — $${contract.salaryPerWeek.toLocaleString()}/wk`
+                                                        : `Pay $${contract.transferFee.toLocaleString()} & Sign`)
                                                     : "Cannot Afford"}
                                             </Button>
                                         </motion.div>
