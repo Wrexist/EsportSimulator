@@ -4,8 +4,8 @@
 
 ## Status snapshot (2026-06-09)
 
-- Branch: `claude/great-knuth-0Wbbf` — **7 commits ahead of main, pushed, unmerged.**
-- Quality gates: `tsc` 0 errors · `jest` 954 passed / 81 suites · `next lint` 0 errors.
+- Branch: `claude/great-knuth-0Wbbf` — **9 commits ahead of main, pushed; PR open.**
+- Quality gates: `tsc` 0 errors · `jest` 958 passed / 82 suites · `next lint` 0 errors.
 - Working tree: clean.
 
 ## On the branch (awaiting review/merge)
@@ -25,7 +25,7 @@ Open PR → review → merge. **Blocked on user's explicit go for PR creation.**
 
 ### P1 — Manual verification debt (not covered by unit tests; jest is node-env only)
 - [ ] Play a 52-week season in the browser: board review fires once, news posts, confidence moves, reward ledgered.
-- [ ] `boardState` survives a real IndexedDB save → reload round-trip.
+- [x] `boardState` survives the save-builder round-trip — `__tests__/save-snapshot-roundtrip.test.ts` (the *real IndexedDB* write is still browser-only, but the field-drop failure mode is now guarded).
 - [ ] SACKED game-over overlay renders correctly (use DevTools to force confidence low + on-notice).
 - [ ] Toast sounds: confirm sparse/not annoying in normal play; respect mute toggle.
 - [ ] Help "?" button placement vs BugReportButton on small viewports.
