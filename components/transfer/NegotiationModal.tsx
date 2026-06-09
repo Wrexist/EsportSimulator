@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
@@ -61,7 +61,7 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
     const router = useRouter()
-    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId, addToast } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         contracts: state.contracts,
@@ -69,6 +69,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         transferPlayer: state.transferPlayer,
         currentWeek: state.currentWeek,
         saveId: state.saveId,
+        addToast: state.addToast,
     })))
 
     // Derived Data
@@ -85,6 +86,11 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
     const [aiMood, setAiMood] = useState<"HAPPY" | "NEUTRAL" | "ANGRY">("NEUTRAL")
     const [hasInitialized, setHasInitialized] = useState(false)
+    const [failureMessage, setFailureMessage] = useState<string | null>(null)
+    // transferPlayer is synchronous, but React batches state updates — a
+    // same-frame double-click would call the handler twice before `stage`
+    // re-renders. A ref updates synchronously and closes that window.
+    const dealSubmittedRef = useRef(false)
 
     // Initialization
     useEffect(() => {
@@ -111,6 +117,8 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         } else if (!isOpen) {
             setHasInitialized(false)
             setNegotiationLog([])
+            setFailureMessage(null)
+            dealSubmittedRef.current = false
         }
     }, [isOpen, hasInitialized, playerSave, playerId, teams, contracts])
 
@@ -230,6 +238,8 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             // the engine refused (roster full, contract conflict, etc.),
             // showing a "deal done" screen for a transfer that never happened.
             if (myTeam) {
+                if (dealSubmittedRef.current) return
+                dealSubmittedRef.current = true
                 const result = transferPlayer(
                     playerId,
                     currentTeam?.id || "FA",
@@ -245,9 +255,13 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                 if (result.success) {
                     setNegotiationLog(prev => [...prev, `Player accepted contract!`])
                     setStage("SUCCESS")
+                    addToast({ message: `${playerSave.nickname} signed for ${formatMoney(sanitizedSalary)}/wk`, type: "achievement" })
                 } else {
-                    setNegotiationLog(prev => [...prev, `Transfer rejected by board: ${result.message || "unknown error"}`])
+                    const reason = result.message || "The deal could not be completed."
+                    setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
+                    setFailureMessage(reason)
                     setStage("FAILED")
+                    addToast({ message: `Transfer failed: ${reason}`, type: "error" })
                 }
             } else {
                 setNegotiationLog(prev => [...prev, `Player accepted contract!`])
@@ -477,6 +491,38 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     }} className="w-full h-14 text-lg font-normal bg-emerald-500 hover:bg-emerald-600 text-black">
                                         GO TO SQUAD
                                     </Button>
+                                </div>
+                            )}
+
+                            {stage === "FAILED" && (
+                                <div className="text-center space-y-6 relative z-10 animate-in fade-in zoom-in">
+                                    <div className="w-24 h-24 bg-rose-500/15 rounded-full flex items-center justify-center mx-auto border border-rose-500/40">
+                                        <XCircle size={48} className="text-rose-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-normal text-white uppercase transform skew-x-[-10deg]">Deal Collapsed</h2>
+                                        <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                                            {failureMessage || "The transfer could not be completed."}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                                // Re-arm the submit guard: the player may fix the
+                                                // blocker (e.g. sell first) and re-offer.
+                                                dealSubmittedRef.current = false
+                                                setFailureMessage(null)
+                                                setStage("CONTRACT")
+                                            }}
+                                            className="flex-1 h-12 font-normal"
+                                        >
+                                            BACK TO OFFER
+                                        </Button>
+                                        <Button onClick={onClose} className="flex-1 h-12 font-normal bg-white/10 hover:bg-white/15 text-white">
+                                            CLOSE
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
 

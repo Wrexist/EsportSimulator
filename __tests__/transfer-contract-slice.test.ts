@@ -297,6 +297,38 @@ describe("transferPlayer — successful trade", () => {
         // No fee → no ledger rows at all (the fee=0 branch skips ledger writes).
         expect(after.financeLedger.length).toBe(0)
     })
+
+    // Backs the NegotiationModal double-click guard: even if the UI fires the
+    // action twice in one frame, the store must charge the fee exactly once.
+    test("double-firing the same transfer charges the buyer exactly once", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [
+                makeTeam("seller", { rosterIds: ["p1"], budget: 100_000 }),
+                makeTeam("buyer", { rosterIds: [], budget: 500_000 }),
+            ],
+            players: [makePlayer("p1")],
+            contracts: [
+                { id: "c1", playerId: "p1", teamId: "seller", salaryPerWeek: 1000, startWeek: 1, endWeek: 80, buyout: 50_000 } as ContractSaveData,
+            ],
+        }))
+        const slice = createTransferContractSlice(h.set, h.get)
+        const contract = { salaryPerWeek: 3000, startWeek: 10, endWeek: 62, buyout: 100_000 }
+
+        const first = slice.transferPlayer("p1", "seller", "buyer", 50_000, contract)
+        const second = slice.transferPlayer("p1", "seller", "buyer", 50_000, contract)
+
+        expect(first.success).toBe(true)
+        expect(second.success).toBe(false)
+        expect(second.message).toContain("already on the destination team")
+
+        const after = h.state()
+        const buyer = after.teams.find(t => t.id === "buyer")!
+        expect(buyer.budget).toBe(500_000 - 50_000) // charged once, not twice
+        expect(buyer.rosterIds).toEqual(["p1"])     // no duplicate roster entry
+        // Exactly one buyer EXPENSE row in the ledger.
+        const buyerExpenses = after.financeLedger.filter(e => e.teamId === "buyer" && e.type === "EXPENSE")
+        expect(buyerExpenses.length).toBe(1)
+    })
 })
 
 describe("renewContract — ownership guard", () => {
