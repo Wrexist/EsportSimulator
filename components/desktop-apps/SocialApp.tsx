@@ -6,35 +6,48 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircle, Heart, Repeat2, Bookmark, MoreHorizontal, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { TeamSaveData } from "@/engine/save-types"
-
-interface SocialPost {
-    id: string
-    teamId?: string
-    user: {
-        name: string
-        handle: string
-        avatar: string
-        isVerified?: boolean
-    }
-    content: string
-    timestamp: string
-    likes: number
-    retweets: number
-    replies: number
-    image?: string
-}
+import { TeamSaveData, SocialPost } from "@/engine/save-types"
 
 interface SocialAppProps {
     posts: SocialPost[]
     teams: TeamSaveData[]
     playerTeam?: TeamSaveData
+    currentWeek?: number
+    onPublish?: (content: string) => void
 }
 
-export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
+// Render a handle without doubling the "@" — stored handles already include it.
+function displayHandle(handle: string): string {
+    return handle.startsWith("@") ? handle : `@${handle}`
+}
+
+// Avatars are short initials (e.g. "MC"), not asset paths. Only treat a value
+// as an image when it actually looks like one — otherwise render the initials.
+function isImagePath(avatar: string): boolean {
+    return /^(\/|https?:|data:)/.test(avatar) || /\.(png|jpe?g|webp|svg|gif)$/i.test(avatar)
+}
+
+// Cross-week aging for the persisted timeline: this week shows the intra-week
+// hint ("2h"), older posts show "{N}w".
+function postAge(post: SocialPost, currentWeek?: number): string {
+    if (currentWeek == null || !post.week) return post.timestamp
+    const diff = currentWeek - post.week
+    if (diff <= 0) return post.timestamp
+    return `${diff}w`
+}
+
+export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: SocialAppProps) {
     const [activeTab, setActiveTab] = useState<"feed" | "trending" | "profiles" | "profile">("feed")
     const [selectedTeamProfile, setSelectedTeamProfile] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
+    const [draft, setDraft] = useState("")
+
+    const submitPost = () => {
+        const text = draft.trim()
+        if (!text || !onPublish) return
+        onPublish(text)
+        setDraft("")
+    }
 
     const selectedTeam = teams.find(t => t.id === selectedTeamProfile)
 
@@ -98,9 +111,29 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                         {playerTeam?.name?.substring(0, 2).toUpperCase() || "ME"}
                                     </div>
                                     <div className="flex-1">
-                                        <div className="bg-white/5 rounded-xl px-3 py-2 text-[10px] text-white/40 cursor-pointer hover:bg-white/10 transition-colors">
-                                            What's happening in esports?
-                                        </div>
+                                        <textarea
+                                            value={draft}
+                                            onChange={(e) => setDraft(e.target.value.slice(0, 280))}
+                                            onKeyDown={(e) => {
+                                                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submitPost()
+                                            }}
+                                            placeholder="What's happening in esports?"
+                                            rows={draft ? 2 : 1}
+                                            aria-label="Write a post"
+                                            className="w-full resize-none bg-white/5 rounded-xl px-3 py-2 text-[11px] text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all"
+                                        />
+                                        {draft.trim() && (
+                                            <div className="flex items-center justify-between mt-2">
+                                                <span className="text-[9px] text-white/30">{280 - draft.length} left · ⌘↵ to post</span>
+                                                <Button
+                                                    size="sm"
+                                                    onClick={submitPost}
+                                                    className="h-7 px-4 rounded-full text-[10px] font-bold bg-cyan-500 hover:bg-cyan-400 text-black"
+                                                >
+                                                    Post
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -119,19 +152,19 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                             onClick={() => post.teamId && setSelectedTeamProfile(post.teamId)}
                                             className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
                                         >
-                                            {post.user.avatar ? (
+                                            {isImagePath(post.user.avatar) ? (
                                                 <Image src={post.user.avatar} alt="" width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                             ) : (
-                                                post.user.name.substring(0, 2).toUpperCase()
+                                                post.user.avatar || post.user.name.substring(0, 2).toUpperCase()
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1 mb-0.5">
                                                 <span className="text-[11px] font-semibold text-white truncate">{post.user.name}</span>
                                                 {post.user.isVerified && <CheckCircle size={10} className="text-blue-400 shrink-0" />}
-                                                <span className="text-[10px] text-white/40 truncate">@{post.user.handle}</span>
+                                                <span className="text-[10px] text-white/40 truncate">{displayHandle(post.user.handle)}</span>
                                                 <span className="text-[10px] text-white/30">·</span>
-                                                <span className="text-[10px] text-white/30">{post.timestamp}</span>
+                                                <span className="text-[10px] text-white/30">{postAge(post, currentWeek)}</span>
                                             </div>
                                             <p className="text-[11px] text-white/80 leading-relaxed mb-2">{post.content}</p>
 
@@ -344,7 +377,7 @@ export function SocialApp({ posts, teams, playerTeam }: SocialAppProps) {
                                     {posts.filter(p => p.teamId === playerTeam.id).map(post => (
                                         <div key={post.id} className="p-3 bg-white/5 rounded-xl border border-white/5">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-[10px] text-white/50">{post.timestamp}</span>
+                                                <span className="text-[10px] text-white/50">{postAge(post, currentWeek)}</span>
                                             </div>
                                             <p className="text-xs text-white/80">{post.content}</p>
                                         </div>

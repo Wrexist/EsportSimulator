@@ -147,6 +147,30 @@ export interface GameSave {
 
     // === BOARD EXPECTATIONS & CONFIDENCE ===
     boardState?: BoardState
+
+    // === SOCIAL FEED (persisted timeline) ===
+    socialFeed?: SocialPost[]
+}
+
+/** A single post in the persisted social timeline. `week` is when it was
+ *  posted (drives cross-week aging); `timestamp` is an intra-week hint. */
+export interface SocialPost {
+    id: string
+    week: number
+    teamId?: string
+    authoredByPlayer?: boolean
+    user: {
+        name: string
+        handle: string
+        avatar: string
+        isVerified?: boolean
+    }
+    content: string
+    timestamp: string
+    likes: number
+    retweets: number
+    replies: number
+    image?: string
 }
 
 /** A board's standing expectation tier, derived from club stature. */

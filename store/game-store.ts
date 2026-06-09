@@ -517,6 +517,7 @@ interface GameStoreState {
 
   // Board Expectations & Confidence
   boardState?: import("@/engine/save-types").BoardState
+  socialFeed?: import("@/engine/save-types").SocialPost[]
 
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
@@ -548,6 +549,8 @@ interface GameStoreActions {
   saveGame: () => Promise<void>
   initAchievements: () => void
   addNewsItem: (item: Omit<GameStoreState["newsFeed"][0], "id" | "week">) => void
+  syncSocialFeed: () => void
+  publishSocialPost: (content: string) => void
 
   // Game Loop
   advanceDay: () => Promise<void>
@@ -1941,6 +1944,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
             fplData: state.fplData,
             boardState: state.boardState,
+            socialFeed: state.socialFeed,
             pendingCelebration: state.pendingCelebration,
             pendingSeasonRecap: state.pendingSeasonRecap,
             pendingLegendPick: state.pendingLegendPick,

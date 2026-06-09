@@ -139,6 +139,7 @@ export interface UIState {
   selectedWeeklyActivity: WeeklyActivityType | null
   fplData?: FPLSaveData
   boardState?: import("@/engine/save-types").BoardState
+  socialFeed?: import("@/engine/save-types").SocialPost[]
 }
 
 export interface SettingsState {
@@ -246,6 +247,11 @@ export interface EventsActions {
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
   negotiateJobOffer: (eventId: string) => { success: boolean; message: string; newOffer?: number; withdrew?: boolean }
+  /** Merge this week's generated NPC posts into the persisted social feed
+   *  (idempotent per week — deduped by id, capped). */
+  syncSocialFeed: () => void
+  /** Publish a player-authored post to the social feed. */
+  publishSocialPost: (content: string) => void
 }
 
 export interface ScoutingActions {

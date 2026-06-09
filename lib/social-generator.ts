@@ -1,22 +1,8 @@
 import { PlayerSaveData, TeamSaveData, CompletedMatchSaveData, StaffSaveData, MatchSaveData } from "@/engine"
 import { SeededRNG } from "@/engine/rng"
+import type { SocialPost } from "@/engine/save-types"
 
-export interface SocialPost {
-    id: string
-    teamId?: string // PHASE 24: Link to team profile
-    user: {
-        name: string
-        handle: string
-        avatar: string
-        isVerified?: boolean
-    }
-    content: string
-    timestamp: string
-    likes: number
-    retweets: number
-    replies: number
-    image?: string
-}
+export type { SocialPost } from "@/engine/save-types"
 
 export interface SocialFeedInput {
     playerTeam: TeamSaveData | undefined
@@ -140,7 +126,8 @@ export function generateSocialPosts(input: SocialFeedInput): SocialPost[] {
     if (!playerTeam) return []
 
     const rng = new SeededRNG(seedFrom(saveId || "local", currentWeek, playerTeam.id))
-    const posts: SocialPost[] = []
+    // Built without `week`; stamped with the generation week on return.
+    const posts: Omit<SocialPost, "week">[] = []
     const usedTemplates = new Set<string>()
 
     const followers = playerTeam.followers || playerTeam.fanbase || 5000
@@ -354,7 +341,9 @@ export function generateSocialPosts(input: SocialFeedInput): SocialPost[] {
         })
     }
 
-    // Sort newest first (timestamps are "Nh" / "Nd").
+    // Sort newest first (timestamps are "Nh" / "Nd"), then stamp the week.
     const toHours = (t: string) => t.includes("d") ? parseInt(t) * 24 : parseInt(t)
-    return posts.sort((a, b) => toHours(a.timestamp) - toHours(b.timestamp))
+    return posts
+        .sort((a, b) => toHours(a.timestamp) - toHours(b.timestamp))
+        .map(p => ({ ...p, week: currentWeek }))
 }

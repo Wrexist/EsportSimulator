@@ -36,7 +36,6 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { generateSocialPosts } from "@/lib/social-generator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -98,7 +97,7 @@ function DesktopContent() {
   const router = useRouter()
   const {
     eventsLog, players, teams, currentWeek, pendingSeasonRecap, playerTeamId,
-    staff, scheduledMatches, saveId,
+    socialFeed,
   } = useGameStore(useShallow(state => ({
     eventsLog: state.eventsLog,
     players: state.players,
@@ -106,10 +105,10 @@ function DesktopContent() {
     currentWeek: state.currentWeek,
     pendingSeasonRecap: state.pendingSeasonRecap,
     playerTeamId: state.playerTeamId,
-    staff: state.staff,
-    scheduledMatches: state.scheduledMatches,
-    saveId: state.saveId,
+    socialFeed: state.socialFeed,
   })))
+  const syncSocialFeed = useGameStore(s => s.syncSocialFeed)
+  const publishSocialPost = useGameStore(s => s.publishSocialPost)
 
   const {
     resolveEventChoice, completedMatches, acceptTransferOffer, acceptJobOffer,
@@ -211,15 +210,13 @@ function DesktopContent() {
   }, [selectedEventId, eventsLog, acknowledgeEvent])
 
 
-  // Dynamic Social Posts — deterministic per (saveId, week), built from real
-  // game entities (roster, coach, rival orgs, rankings, fixtures).
-  const socialPosts = useMemo(() => {
-    return generateSocialPosts({
-      playerTeam, teams, players, staff,
-      completedMatches, scheduledMatches,
-      currentWeek, saveId: saveId || "local",
-    })
-  }, [playerTeam, teams, players, staff, completedMatches, scheduledMatches, currentWeek, saveId])
+  // Persisted social timeline — generation is deterministic per (save, week);
+  // this merges the current week's NPC posts into the saved feed (idempotent)
+  // so the timeline accumulates and the player's own posts survive.
+  useEffect(() => {
+    if (playerTeamId) syncSocialFeed()
+  }, [playerTeamId, currentWeek, syncSocialFeed])
+  const socialPosts = socialFeed ?? []
 
   // DEV: Keyboard shortcut (Ctrl+Shift+H) to test Pro Awards Modal
   useEffect(() => {
@@ -1153,7 +1150,7 @@ function DesktopContent() {
             onMinimize={() => minimizeWindow("social")}
             onFocus={() => focusWindow("social")}
           >
-            <SocialApp posts={socialPosts} teams={teams} playerTeam={playerTeam} />
+            <SocialApp posts={socialPosts} teams={teams} playerTeam={playerTeam} currentWeek={currentWeek} onPublish={publishSocialPost} />
           </AppWindow>
 
           <AppWindow
