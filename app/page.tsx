@@ -246,7 +246,7 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-8">
       {seasonRecapStats && (
         <SeasonRecapModal
           isOpen={!!pendingSeasonRecap}
@@ -643,11 +643,11 @@ export default function Page() {
               {/* Mini Budget Bar */}
               <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Salaries</p>
+                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Salaries</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.salaries / 1000).toFixed(1)}k</p>
                 </div>
                 <div>
-                  <p className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Facilities</p>
+                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Facilities</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.facilities / 1000).toFixed(1)}k</p>
                 </div>
                 <div className="col-span-2 flex items-center justify-end">

@@ -697,7 +697,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                                         </div>
 
                                                         {/* Running score under each round */}
-                                                        <div className="text-[8px] text-white/30 mt-0.5 font-sans">
+                                                        <div className="text-[8px] text-white/50 mt-0.5 font-sans">
                                                             {currentScore}
                                                         </div>
                                                     </div>

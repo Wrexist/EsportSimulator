@@ -188,7 +188,7 @@ export default function CareerPage() {
     }
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8 animate-in fade-in duration-500">
+        <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
@@ -507,7 +507,7 @@ export default function CareerPage() {
                                                     <div className="text-2xl font-bold text-white/80 leading-none">
                                                         {slot.teamOvr || "-"}
                                                     </div>
-                                                    <div className="text-[8px] font-medium text-white/30 uppercase tracking-widest mt-0.5">
+                                                    <div className="text-[8px] font-medium text-white/50 uppercase tracking-widest mt-0.5">
                                                         OVR
                                                     </div>
                                                 </div>

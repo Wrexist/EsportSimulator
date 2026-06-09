@@ -197,7 +197,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                     )}>
                                                         {player.proRating.toFixed(2)}
                                                     </p>
-                                                    <p className="text-[8px] text-white/30 uppercase">Rating</p>
+                                                    <p className="text-[8px] text-white/50 uppercase">Rating</p>
                                                 </div>
                                             </motion.div>
                                         ))}

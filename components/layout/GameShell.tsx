@@ -381,9 +381,12 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
                 {/* Scrollable Content Area */}
                 <main id="main-content" className="flex-1 overflow-x-hidden relative overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-black/20">
+                    {/* Single uniform page-entry animation for every route —
+                        keyed on pathname so it re-runs per navigation. Pages
+                        must NOT add their own entry fade (double-animation). */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full"}
+                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in duration-300"}
                     >
                         <ErrorBoundary>
                             {children}

@@ -309,7 +309,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                     </div>
                                                 ))}
                                                 {weekTournaments.length > 2 && (
-                                                    <div className="text-[8px] text-white/40">
+                                                    <div className="text-[8px] text-white/55">
                                                         +{weekTournaments.length - 2} more
                                                     </div>
                                                 )}
