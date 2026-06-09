@@ -658,7 +658,7 @@ export default function TeamSelectionPage() {
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-bold text-white text-sm truncate">{team.name}</h3>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <Badge className={cn("text-[8px] uppercase font-normal px-1.5 py-0", tierStyle.bgColor, tierStyle.borderColor, tierStyle.color)}>
+                                                <Badge size="xs" className={cn("uppercase font-normal", tierStyle.bgColor, tierStyle.borderColor, tierStyle.color)}>
                                                     {tierStyle.shortLabel}
                                                 </Badge>
                                                 <span className="text-[10px] text-muted-foreground">#{team.worldRanking}</span>
@@ -804,7 +804,7 @@ export default function TeamSelectionPage() {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
                                                         <p className="font-bold text-white">{player.nickname}</p>
-                                                        <Badge className={cn("text-[8px] px-1.5 py-0", playerTierStyle.bgColor, playerTierStyle.borderColor, playerTierStyle.color)}>
+                                                        <Badge size="xs" className={cn(playerTierStyle.bgColor, playerTierStyle.borderColor, playerTierStyle.color)}>
                                                             {playerTierStyle.shortLabel}
                                                         </Badge>
                                                     </div>
