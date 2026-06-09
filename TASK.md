@@ -34,6 +34,11 @@ Open PR → review → merge. **Blocked on user's explicit go for PR creation.**
 - [ ] **Determinism hardening** — mid-tick `lastRngSeed` re-seeding + cosmetic RNG draws (e.g. news engagement numbers) can shift sim outcomes between otherwise-identical runs. Invisible to players; highest-risk refactor in the codebase. Needs a dedicated seed-replay test harness FIRST (run same seed twice, assert identical save JSON), then split cosmetic vs sim RNG streams.
 - [ ] Proper small-field Swiss (8-team) — currently relabeled honestly as `bracket` in `data/tournaments.json`. Only worth doing with pairing tests like `swiss-pairing.test.ts` extended to 8-team fields.
 
+### P2.5 — UI/UX polish program
+Six audits completed + verified → **`UI_POLISH_PLAN.md`** (phased: money-flow correctness → global
+quick wins → semantic visual system → feedback → performance → 1024×640 layout → a11y → QA gate).
+Phase 0 is correctness, not polish — do it regardless. Awaiting go.
+
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. **Board war-chest** — confidence gates transfer budget (high confidence unlocks funds, low tightens). ~3 files; compounds the shipped board system. Recommended next.
 2. **Mid-season board check-ins** — interim confidence nudges + ultimatum events, so pressure isn't end-of-season-only.
