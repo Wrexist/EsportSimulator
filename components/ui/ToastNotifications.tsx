@@ -5,6 +5,7 @@ import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
 import { memo, useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
+import { soundManager } from "@/lib/sound-manager"
 
 export interface ToastData {
     id: string
@@ -12,6 +13,16 @@ export interface ToastData {
     type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"
     icon?: React.ReactNode
     duration?: number
+}
+
+// Audio feedback for meaningful in-game moments. Deliberately sparse — the
+// high-frequency types (xp_gain, info) stay silent so feedback feels earned,
+// not spammy. soundManager.play() self-gates on the global sound setting.
+const TOAST_SOUND: Partial<Record<ToastData["type"], "achievement" | "success" | "error">> = {
+    achievement: "achievement",
+    level_up: "success",
+    warning: "error",
+    error: "error",
 }
 
 function getToastIcon(toast: ToastData) {
@@ -62,6 +73,14 @@ const ToastItem = memo(function ToastItem({
     removeToast: (id: string) => void,
 }) {
     const onRemove = useCallback(() => removeToast(toast.id), [removeToast, toast.id])
+
+    // Play the matching sound once when the toast first appears (keyed on id so
+    // it doesn't re-fire on re-render).
+    useEffect(() => {
+        const sfx = TOAST_SOUND[toast.type]
+        if (sfx) soundManager.play(sfx)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [toast.id])
 
     // Use toast.id (not the toast object reference) so the auto-dismiss timer
     // does NOT reset every time the parent re-renders. Previously the inline

@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { formatRole } from "@/lib/utils-extended"
@@ -224,7 +225,7 @@ export default function FinancesPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  ${(currentMoney / 1000000).toFixed(2)}M
+                  <AnimatedNumber value={currentMoney} format={(n) => `$${(n / 1000000).toFixed(2)}M`} />
                 </motion.p>
                 <div className={cn("flex items-center justify-center gap-1 mt-1 text-[10px] font-bold", isPositiveCashflow ? "text-emerald-400" : "text-red-400")}>
                   {isPositiveCashflow ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}

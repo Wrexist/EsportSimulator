@@ -8,6 +8,7 @@ import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -603,7 +604,11 @@ export default function Page() {
                 <div className="space-y-1">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Available Funds</p>
                   <div className="flex items-end gap-2">
-                    <span className="text-3xl font-normal text-white">${(financialData.budget / 1000000).toFixed(2)}M</span>
+                    <AnimatedNumber
+                      value={financialData.budget}
+                      format={(n) => `$${(n / 1000000).toFixed(2)}M`}
+                      className="text-3xl font-normal text-white"
+                    />
                   </div>
                 </div>
 
