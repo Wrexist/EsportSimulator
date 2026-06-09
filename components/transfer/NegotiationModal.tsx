@@ -400,6 +400,11 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     <Button
                                         onClick={handleBuyoutSubmit}
                                         disabled={buyoutOffer <= 0 || buyoutOffer > (myTeam?.budget || 0)}
+                                        title={buyoutOffer <= 0
+                                            ? "Enter an offer amount"
+                                            : buyoutOffer > (myTeam?.budget || 0)
+                                                ? "Offer exceeds your available budget"
+                                                : undefined}
                                         className="w-full h-14 text-lg font-normal bg-emerald-500 hover:bg-emerald-600 text-black disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         SUBMIT OFFER
