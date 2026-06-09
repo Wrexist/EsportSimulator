@@ -97,14 +97,18 @@ import { Suspense } from "react"
 function DesktopContent() {
   const router = useRouter()
   const {
-    eventsLog, players, teams, currentWeek, pendingSeasonRecap, playerTeamId
+    eventsLog, players, teams, currentWeek, pendingSeasonRecap, playerTeamId,
+    staff, scheduledMatches, saveId,
   } = useGameStore(useShallow(state => ({
     eventsLog: state.eventsLog,
     players: state.players,
     teams: state.teams,
     currentWeek: state.currentWeek,
     pendingSeasonRecap: state.pendingSeasonRecap,
-    playerTeamId: state.playerTeamId
+    playerTeamId: state.playerTeamId,
+    staff: state.staff,
+    scheduledMatches: state.scheduledMatches,
+    saveId: state.saveId,
   })))
 
   const {
@@ -207,10 +211,15 @@ function DesktopContent() {
   }, [selectedEventId, eventsLog, acknowledgeEvent])
 
 
-  // Dynamic Social Posts
+  // Dynamic Social Posts — deterministic per (saveId, week), built from real
+  // game entities (roster, coach, rival orgs, rankings, fixtures).
   const socialPosts = useMemo(() => {
-    return generateSocialPosts(playerTeam, completedMatches, players)
-  }, [playerTeam, completedMatches, players])
+    return generateSocialPosts({
+      playerTeam, teams, players, staff,
+      completedMatches, scheduledMatches,
+      currentWeek, saveId: saveId || "local",
+    })
+  }, [playerTeam, teams, players, staff, completedMatches, scheduledMatches, currentWeek, saveId])
 
   // DEV: Keyboard shortcut (Ctrl+Shift+H) to test Pro Awards Modal
   useEffect(() => {
