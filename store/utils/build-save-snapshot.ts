@@ -76,6 +76,7 @@ export function buildSaveSnapshot(state: any): GameSave {
         sponsorOffers: state.sponsorOffers || [],
         declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
         fplData: state.fplData,
+        boardState: state.boardState,
         pendingCelebration: state.pendingCelebration,
         pendingSeasonRecap: state.pendingSeasonRecap,
         pendingLegendPick: state.pendingLegendPick,

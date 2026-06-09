@@ -144,6 +144,22 @@ export interface GameSave {
 
     // === CROSS-SEASON CAREER STATISTICS ===
     careerStats?: CareerStats
+
+    // === BOARD EXPECTATIONS & CONFIDENCE ===
+    boardState?: BoardState
+}
+
+/** A board's standing expectation tier, derived from club stature. */
+export type BoardExpectationTier = "SURVIVE" | "COMPETE" | "CONTEND" | "WIN"
+
+/** Persisted board-confidence state (see engine/board-expectations.ts). */
+export interface BoardState {
+    teamId: string
+    confidence: number // 0-100
+    seasonExpectation: BoardExpectationTier
+    expectationSetSeason: number
+    lastReviewedSeason: number
+    onNotice: boolean
 }
 
 /**

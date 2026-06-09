@@ -1,8 +1,10 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trophy, TrendingUp, Users, ShieldCheck, CheckCircle2 } from "lucide-react"
+import { Trophy, TrendingUp, Users, ShieldCheck, CheckCircle2, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { deriveExpectationTier, getTierTargets } from "@/engine/board-expectations"
+import type { BoardExpectationTier } from "@/engine/save-types"
 
 interface SeasonObjectivesProps {
     worldRanking: number
@@ -10,6 +12,14 @@ interface SeasonObjectivesProps {
     followers: number
     /** "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT" */
     financialState?: string
+    /** Manager/club reputation, used to derive the board expectation fallback. */
+    reputation?: number
+    /** Persisted board confidence (0-100). Falls back to a neutral default. */
+    boardConfidence?: number
+    /** Persisted board expectation tier; derived from stature if absent. */
+    boardExpectation?: BoardExpectationTier
+    /** Whether the manager is on notice (one bad season from the sack). */
+    boardOnNotice?: boolean
 }
 
 interface Objective {
@@ -41,7 +51,14 @@ const FAN_LADDER = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000, 2_000_
  * climb the rankings tier by tier, grow the fanbase to the next milestone, win
  * silverware, and keep the books healthy.
  */
-export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, financialState }: SeasonObjectivesProps) {
+export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, financialState, reputation = 50, boardConfidence, boardExpectation, boardOnNotice }: SeasonObjectivesProps) {
+    // Board expectation: prefer the persisted tier; otherwise derive from stature
+    // so the panel is meaningful even before the first season has been reviewed.
+    const tier = boardExpectation ?? deriveExpectationTier(worldRanking, reputation)
+    const tierTargets = getTierTargets(tier)
+    const confidence = Math.max(0, Math.min(100, boardConfidence ?? 60))
+    const confColor = confidence >= 60 ? "bg-emerald-400/70" : confidence >= 30 ? "bg-amber-400/70" : "bg-red-400/70"
+    const confText = confidence >= 60 ? "text-emerald-400" : confidence >= 30 ? "text-amber-400" : "text-red-400"
     // Ranking: find the best tier not yet reached (rank still above it).
     const rankTarget = RANK_LADDER.find(tier => worldRanking > tier) ?? null
     const rankMet = rankTarget === null
@@ -100,6 +117,27 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
+                {/* Board expectation + confidence */}
+                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Board Expects</span>
+                        {boardOnNotice && (
+                            <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 rounded px-1.5 py-0.5">
+                                <AlertTriangle size={9} /> On Notice
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-sm font-semibold text-white/90 leading-tight">{tierTargets.label}</p>
+                    <p className="text-[10px] text-white/40 leading-snug">{tierTargets.blurb}</p>
+                    <div className="flex items-center gap-2 pt-0.5">
+                        <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold shrink-0">Confidence</span>
+                        <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
+                            <div className={cn("h-full rounded-full transition-all duration-700", confColor)} style={{ width: `${confidence}%` }} />
+                        </div>
+                        <span className={cn("text-[10px] font-mono font-bold shrink-0", confText)}>{confidence}</span>
+                    </div>
+                </div>
+
                 {objectives.map(obj => (
                     <div key={obj.id} className="space-y-1.5">
                         <div className="flex items-center justify-between gap-2">

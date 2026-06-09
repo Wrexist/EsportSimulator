@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
-import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull } from "lucide-react"
+import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -61,6 +61,7 @@ export default function Page() {
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
+  const boardState = useGameStore(s => s.boardState)
 
   const [isSimulating, setIsSimulating] = useState(false)
 
@@ -206,16 +207,21 @@ export default function Page() {
     const weeksPlayed = gameOverWeek ?? currentWeek
     const seasonsPlayed = Math.floor((weeksPlayed - 1) / 52) + 1
     const totalTrophies = playerTeam?.trophies?.length ?? 0
+    const isSacked = gameOverReason === "SACKED"
     return (
       <div className="min-h-[80vh] flex items-center justify-center animate-in fade-in duration-1000">
         <div className="max-w-lg w-full text-center space-y-8">
           <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/30">
-            <Skull className="w-10 h-10 text-red-500" />
+            {isSacked ? <DoorOpen className="w-10 h-10 text-red-500" /> : <Skull className="w-10 h-10 text-red-500" />}
           </div>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight uppercase text-red-400 mb-2">Organization Dissolved</h1>
+            <h1 className="text-4xl font-bold tracking-tight uppercase text-red-400 mb-2">
+              {isSacked ? "Relieved of Duty" : "Organization Dissolved"}
+            </h1>
             <p className="text-muted-foreground text-sm">
-              After 8 consecutive weeks of insolvency, {playerTeam?.name ?? "your team"} has been forced to disband.
+              {isSacked
+                ? `After consecutive seasons below the board's expectations, ${playerTeam?.name ?? "your club"} has terminated your contract.`
+                : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
             </p>
           </div>
           <Card className="bg-white/[0.02] border-white/5">
@@ -664,6 +670,10 @@ export default function Page() {
               trophiesThisSeason={playerTeam.trophies?.filter(t => t.week > (currentWeek - 53)).length ?? 0}
               followers={playerTeam.followers ?? playerTeam.fanbase ?? 0}
               financialState={playerTeam.financialState}
+              reputation={playerTeam.reputation}
+              boardConfidence={boardState?.confidence}
+              boardExpectation={boardState?.seasonExpectation}
+              boardOnNotice={boardState?.onNotice}
             />
           )}
           <div className="flex items-center justify-between px-1">

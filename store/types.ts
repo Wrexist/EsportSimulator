@@ -138,6 +138,7 @@ export interface UIState {
   activelyPlayingLegendIds: string[]
   selectedWeeklyActivity: WeeklyActivityType | null
   fplData?: FPLSaveData
+  boardState?: import("@/engine/save-types").BoardState
 }
 
 export interface SettingsState {

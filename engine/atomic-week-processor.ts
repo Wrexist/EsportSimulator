@@ -73,6 +73,7 @@ import { buildQualificationGraph, isQualificationForTournament } from "./circuit
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
+import { processSeasonBoardReview, ensureBoardState } from "./board-expectations"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 
 // ===== TYPES =====
@@ -479,10 +480,29 @@ export class AtomicWeekProcessor {
             if (isSeasonEnd(save.currentWeek)) {
                 save.careerStats = updateCareerStats(save)
                 debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
+
+                // Board verdict on the season — moves confidence, can sack the
+                // manager (game-over), and posts a review to the news feed.
+                const review = processSeasonBoardReview(save)
+                if (review.reviewed && review.newsTitle) {
+                    save.newsFeed.unshift({
+                        id: `board_review_s${getSeasonNumber(save.currentWeek)}_${save.playerTeamId}`,
+                        title: review.newsTitle,
+                        content: review.newsContent ?? "",
+                        week: save.currentWeek,
+                        category: "FINANCE",
+                        teamId: save.playerTeamId,
+                    })
+                    debug.log(`[Week ${save.currentWeek}] Board review: ${review.outcome}, confidence ${review.confidence}${review.sacked ? " — MANAGER SACKED" : ""}`)
+                }
             } else if (!save.careerStats) {
                 // First-time migration for existing saves
                 save.careerStats = migrateCareerStats(save)
             }
+
+            // Keep board state present every week so the dashboard can always
+            // show the current expectation + confidence (cheap no-op once set).
+            ensureBoardState(save)
 
             // Guard long-running saves against unbounded log growth.
             compactPersistentState(save)

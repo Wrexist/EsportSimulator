@@ -515,6 +515,9 @@ interface GameStoreState {
   // Phase 80: FPL System
   fplData?: import("@/types/fpl").FPLSaveData
 
+  // Board Expectations & Confidence
+  boardState?: import("@/engine/save-types").BoardState
+
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
   declinedSponsorOfferIds: string[]
@@ -1937,6 +1940,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             sponsorOffers: state.sponsorOffers || [],
             declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
             fplData: state.fplData,
+            boardState: state.boardState,
             pendingCelebration: state.pendingCelebration,
             pendingSeasonRecap: state.pendingSeasonRecap,
             pendingLegendPick: state.pendingLegendPick,
