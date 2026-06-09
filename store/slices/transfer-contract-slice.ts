@@ -456,6 +456,15 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 toastType = "warning"
                 return
             }
+            // Only the player team can renew its own contracts — guard against a
+            // playerId that isn't on the player's roster (the budget gate below
+            // is the player team's, so without this it could extend a rival's
+            // contract on the player's dime).
+            if (contract.teamId !== state.playerTeamId) {
+                toastMsg = "You can only renew your own players' contracts."
+                toastType = "warning"
+                return
+            }
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
 

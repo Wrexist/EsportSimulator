@@ -298,3 +298,44 @@ describe("transferPlayer — successful trade", () => {
         expect(after.financeLedger.length).toBe(0)
     })
 })
+
+describe("renewContract — ownership guard", () => {
+    test("refuses to renew a contract owned by another team (no salary raise / extension)", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [
+                makeTeam("player", { rosterIds: ["p1"], budget: 5_000_000 }),
+                makeTeam("rival", { rosterIds: ["p2"] }),
+            ],
+            players: [makePlayer("p1"), makePlayer("p2")],
+            contracts: [
+                { id: "c2", playerId: "p2", teamId: "rival", salaryPerWeek: 1000, startWeek: 1, endWeek: 52, buyout: 50000 } as ContractSaveData,
+            ],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            addToast: () => {},
+        } as any))
+        const slice = createTransferContractSlice(h.set, h.get)
+        slice.renewContract("p2") // p2 belongs to "rival", not the player team
+
+        const contract = h.state().contracts.find(c => c.playerId === "p2")!
+        expect(contract.endWeek).toBe(52)        // unchanged — not extended
+        expect(contract.salaryPerWeek).toBe(1000) // unchanged — not raised
+    })
+
+    test("renews the player team's own contract (raises salary, extends term)", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { rosterIds: ["p1"], budget: 5_000_000 })],
+            players: [makePlayer("p1")],
+            contracts: [
+                { id: "c1", playerId: "p1", teamId: "player", salaryPerWeek: 1000, startWeek: 1, endWeek: 52, buyout: 50000 } as ContractSaveData,
+            ],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            addToast: () => {},
+        } as any))
+        const slice = createTransferContractSlice(h.set, h.get)
+        slice.renewContract("p1")
+
+        const contract = h.state().contracts.find(c => c.playerId === "p1")!
+        expect(contract.endWeek).toBeGreaterThan(52)
+        expect(contract.salaryPerWeek).toBeGreaterThan(1000)
+    })
+})

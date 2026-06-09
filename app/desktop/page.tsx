@@ -9,6 +9,7 @@ import { useGameStore } from "@/store/game-store"
 import { getNotificationTheme } from "./notification-themes"
 import { GameEventSaveData } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
+import { toast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -400,7 +401,12 @@ function DesktopContent() {
         setSelectedEventId(null)
       } else if (choiceId === "NEGOTIATE") {
         const result = negotiateJobOffer(selectedEvent.id)
-        if (!result.success && result.withdrew) {
+        // Always surface the outcome — otherwise NEGOTIATE looks like a dead
+        // button when the club holds firm or withdraws.
+        if (result.message) {
+          (result.success ? toast.success : toast.error)(result.message)
+        }
+        if (result.withdrew) {
           setSelectedEventId(null)
         }
         return

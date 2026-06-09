@@ -87,6 +87,10 @@ export class FinanceProcessor {
                     else if (updatedRunway < 12) team.financialState = "TIGHT"
                     else                         team.financialState = "STABLE"
                     team.runwayWeeks = Math.floor(updatedRunway)
+                    // Reflect equipment upkeep in the reported net too — AI
+                    // economy decisions read team.weeklyNet, so leaving it at the
+                    // pre-equipment value lets cash-negative AI act as if positive.
+                    team.weeklyNet = report.net - equipmentCosts
                 }
             }
 

@@ -101,6 +101,23 @@ describe("FinanceProcessor.processFinance", () => {
         expect(equipLedger[0].category).toBe("FACILITIES")
     })
 
+    test("weeklyNet reflects equipment upkeep (AI economy reads team.weeklyNet)", () => {
+        const equipTeam = makeTeam({
+            id: "ai", budget: 200_000, reputation: 60,
+            equipment: [{ id: "eq1", type: "MOUSE", tier: 2, name: "M", bonus: { stat: "reaction", value: 5 }, weeklyCost: 1000, purchasedWeek: 1 } as any],
+        })
+        const baselineTeam = makeTeam({ id: "ai", budget: 200_000, reputation: 60 })
+        const saveEquip = makeSave(equipTeam, "other") // AI team (not player)
+        const saveBase = makeSave(baselineTeam, "other")
+
+        FinanceProcessor.processFinance(saveEquip, "other")
+        FinanceProcessor.processFinance(saveBase, "other")
+
+        // Pre-fix the equipment team's weeklyNet stayed at the pre-equipment
+        // value, reading $1000 too high; now it's exactly its upkeep lower.
+        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000)
+    })
+
     test("AI team equipment cost is deducted but NOT logged to ledger", () => {
         const aiTeam = makeTeam({
             id: "ai_team",

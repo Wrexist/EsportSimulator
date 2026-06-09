@@ -203,6 +203,7 @@ export function FacilitiesApp() {
                                         {/* Quick Action (Collapsed) */}
                                         {!isExpanded && !isMaxed && (
                                             <Button
+                                                onClick={(e) => handleUpgrade(fac.id, e)}
                                                 disabled={!canAfford}
                                                 className={cn(
                                                     "h-10 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all",

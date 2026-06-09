@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Badge } from "@/components/ui/badge"
-import { Ban, Check } from "lucide-react"
+import { Ban, Check, ArrowLeft } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
 import { Player } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
@@ -363,6 +363,15 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         <div className="min-h-screen bg-[#0e1217] text-white p-6 overflow-hidden relative">
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/5 blur-[120px] pointer-events-none" />
+
+            {/* Escape hatch: a required multi-step flow must always have a way
+                out, so a stalled veto sequence can never trap the player. */}
+            <button
+                onClick={() => router.push(`/match/${id}/tactics`)}
+                className="absolute top-5 left-5 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/70 hover:text-white transition-colors"
+            >
+                <ArrowLeft size={14} /> Back to HQ
+            </button>
 
             {/* Header / Team Comparison */}
             <div className="max-w-7xl mx-auto mb-12 relative z-10">

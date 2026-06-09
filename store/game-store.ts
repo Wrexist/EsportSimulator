@@ -193,6 +193,19 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   const findTeam = (id: string) => localTeams.get(id)
   const findPlayer = (id: string) => localPlayers.get(id)
 
+  // Pre-match games-played per team (for the Elo K-factor calibration window),
+  // taken before this loop's sims so each match reads its true prior count.
+  const matchesPlayedByTeam = new Map<string, number>()
+  for (const cm of state.completedMatches) {
+    matchesPlayedByTeam.set(cm.homeTeamId, (matchesPlayedByTeam.get(cm.homeTeamId) || 0) + 1)
+    matchesPlayedByTeam.set(cm.awayTeamId, (matchesPlayedByTeam.get(cm.awayTeamId) || 0) + 1)
+  }
+  const pushForm = (team: TeamSaveData, outcome: "W" | "L" | "D") => {
+    if (!team.recentForm) team.recentForm = []
+    team.recentForm.push(outcome)
+    if (team.recentForm.length > 5) team.recentForm.shift()
+  }
+
   const mapStaff = (staffIds: string[]) => {
     const rows = staffIds.map(id => localStaff.get(id)).filter(Boolean) as StaffSaveData[]
     return {
@@ -250,6 +263,52 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
     }
     state.completedMatches.push(completedMatch)
     completedIds.add(match.id)
+
+    // Elo + recent-form update. The atomic week tick's processMatches normally
+    // does this, but these day-simmed AI matches are spliced out of
+    // scheduledMatches below — so the tick never sees them. Without this, AI
+    // Elo never moves in HYBRID_DAILY mode and refreshWorldRankings ranks off
+    // stale Elo, drifting tournament seeding/qualification over a season.
+    // (updateEloAfterMatch is pure math — no RNG — so determinism is unaffected.)
+    const scoreDiff = Math.abs(result.homeScore - result.awayScore)
+    const homeWon = result.homeScore > result.awayScore
+    if (scoreDiff === 0) {
+      pushForm(homeTeam, "D")
+      pushForm(awayTeam, "D")
+    } else {
+      const winnerId = homeWon ? homeTeam.id : awayTeam.id
+      const loserId = homeWon ? awayTeam.id : homeTeam.id
+      pushForm(homeWon ? homeTeam : awayTeam, "W")
+      pushForm(homeWon ? awayTeam : homeTeam, "L")
+
+      const tournamentTier = (match.tournamentId && match.tournamentId !== "SCRIM")
+        ? state.tournaments.find(t => t.id === match.tournamentId)?.tier
+        : undefined
+
+      let homeRounds = 0
+      let awayRounds = 0
+      result.maps.forEach(m => { homeRounds += m.homeScore || 0; awayRounds += m.awayScore || 0 })
+      const roundDiff = homeWon ? (homeRounds - awayRounds) : (awayRounds - homeRounds)
+
+      const eloResult = LeagueEngine.updateEloAfterMatch(
+        state as unknown as GameSave,
+        winnerId,
+        loserId,
+        scoreDiff,
+        tournamentTier,
+        matchesPlayedByTeam.get(winnerId) || 0,
+        matchesPlayedByTeam.get(loserId) || 0,
+        roundDiff
+      )
+      if (eloResult) {
+        completedMatch.eloChange = {
+          home: homeWon ? eloResult.winnerChange : eloResult.loserChange,
+          away: homeWon ? eloResult.loserChange : eloResult.winnerChange,
+        }
+      }
+    }
+    matchesPlayedByTeam.set(homeTeam.id, (matchesPlayedByTeam.get(homeTeam.id) || 0) + 1)
+    matchesPlayedByTeam.set(awayTeam.id, (matchesPlayedByTeam.get(awayTeam.id) || 0) + 1)
 
     if (match.tournamentId && match.tournamentId !== "SCRIM") {
       const winnerId =
