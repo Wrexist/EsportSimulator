@@ -1356,4 +1356,7 @@ export interface ManagerDetails {
     totalHS?: number
     careerMatches?: number
     maxBudget?: number
+    /** Week of the most recent accepted job change — gates the signing-bonus
+     *  cooldown so serial job-hopping can't farm signing bonuses. */
+    lastJobChangeWeek?: number
 }

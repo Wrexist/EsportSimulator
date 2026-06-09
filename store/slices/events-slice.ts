@@ -207,8 +207,23 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 return
             }
 
+            // Anti-exploit cooldown: each accepted offer pays a salary×4 signing
+            // bonus to the new club. Without a cooldown, serial job-hopping farms
+            // that bonus every few weeks. Block another move for a set window.
+            const JOB_CHANGE_COOLDOWN_WEEKS = 12
+            const lastChange = state.managerDetails?.lastJobChangeWeek
+            if (typeof lastChange === "number" && state.currentWeek - lastChange < JOB_CHANGE_COOLDOWN_WEEKS) {
+                const weeksLeft = JOB_CHANGE_COOLDOWN_WEEKS - (state.currentWeek - lastChange)
+                result = {
+                    success: false,
+                    message: `You recently joined a club. You can't take another job for ${weeksLeft} more week${weeksLeft !== 1 ? "s" : ""}.`,
+                }
+                return
+            }
+
             // === CRITICAL: switch the player's team ===
             state.playerTeamId = newTeam.id
+            if (state.managerDetails) state.managerDetails.lastJobChangeWeek = state.currentWeek
 
             // Honor the advertised signing bonus: credit it to the new club's
             // budget (one-time, ledgered). Derived from the *current* salaryOffer

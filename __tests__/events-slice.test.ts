@@ -281,4 +281,41 @@ describe("acceptJobOffer", () => {
         expect(res.success).toBe(false)
         expect(res.message).toContain("Job offer not found")
     })
+
+    // Anti-exploit: each accept pays a salary×4 signing bonus, so without a
+    // cooldown a player could job-hop to farm cash. A recent change blocks the
+    // next move.
+    test("blocks accepting another offer within the job-change cooldown", () => {
+        const h = makeHarness({
+            ...makeJobOfferState(),
+            currentWeek: 8,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            managerDetails: { name: "C", level: 1, xp: 0, reputation: 50, careerWins: 0, careerLosses: 0, championships: 0, lastJobChangeWeek: 2 } as any,
+        })
+        const res = createEventsSlice(h.set, h.get).acceptJobOffer("offer1")
+        expect(res.success).toBe(false)
+        expect(res.message).toContain("week") // "...for N more weeks"
+        expect(h.state().playerTeamId).toBe("team_a") // not switched
+        // No farmed bonus.
+        expect(h.state().teams.find(t => t.id === "team_b")!.budget).toBe(makeTeam("team_b").budget)
+    })
+
+    test("allows the move once the cooldown has elapsed and records the new change week", () => {
+        const h = makeHarness({
+            ...makeJobOfferState(),
+            currentWeek: 20, // well past lastJobChangeWeek 2 + 12
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            managerDetails: { name: "C", level: 1, xp: 0, reputation: 50, careerWins: 0, careerLosses: 0, championships: 0, lastJobChangeWeek: 2 } as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            teams: [makeTeam("team_a"), makeTeam("team_b", { name: "Beta" })] as any,
+            // deadline must be in the future for week 20
+        })
+        // bump the offer deadline past week 20
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(h.state().eventsLog[0].data as any).deadlineWeek = 25
+        const res = createEventsSlice(h.set, h.get).acceptJobOffer("offer1")
+        expect(res.success).toBe(true)
+        expect(h.state().playerTeamId).toBe("team_b")
+        expect(h.state().managerDetails.lastJobChangeWeek).toBe(20)
+    })
 })
