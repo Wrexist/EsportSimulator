@@ -1,0 +1,73 @@
+# AUDIT_WAVE3.md — Six deep audits (match sim, lifecycle, progression, income, paid-feature wiring, orphans)
+
+> 2026-06-09. Six parallel subsystem audits; **every load-bearing claim re-verified against code
+> before classification**. Status legend: ✅ FIXED (this wave, behind tests where node-testable),
+> ❌ REJECTED (claim disproven — recorded so future audits don't resurrect it), 📋 OPEN (real,
+> deliberately not auto-fixed: design decision or bigger refactor).
+
+## The two headline P0s (both fixed ✅)
+
+1. **Players never aged.** No code path incremented `player.age` (only a birthday *event* and a
+   debug setter existed). Decline curves and the `age >= 33` retirement filter only ever caught the
+   initial old cohort; 16-year-old prospects stayed 16 forever — no career arcs at all.
+   → Annual increment for all non-retired players at season end (`atomic-week-processor`, season block).
+2. **Facility upgrades never reached match day.** `upgradeFacility` mutates `team.facilities[].level`,
+   but match strength read the legacy `team.facilitiesLevel` scalar — set once at init, mutated by
+   nothing (grep: zero writers). Players paid for upgrades whose match bonus stayed at level 1.
+   (Training/recovery/tactical processors DID read the array — partial wiring.)
+   → `team-strength.ts` now derives from the facilities array (max level, legacy fallback). Tested.
+
+## Fixed this wave ✅
+
+| # | Finding | Where |
+|---|---------|-------|
+| 3 | Retired players could be signed/transferred (no `isRetired` guard) | `transfer-contract-slice.ts` + test |
+| 4 | `renewContract` extended already-expired contracts | `transfer-contract-slice.ts` + test |
+| 5 | Retirement left players occupying academy slots/roster | `event-processor.ts` retirePlayer |
+| 6 | AI retirement skipped `recalculateTeamSynergy` (every other roster mutation recalcs) | `ai-manager.ts` processSeasonEnd |
+| 7 | `updateTeamBudget` was the one unledgered budget mutation (weapon-training costs vanished from the books) | `team-settings-slice.ts` |
+| 8 | Instant-sim played 3v5 with depleted rosters (week-tick path forfeits properly) — now refuses the player's own depleted match with a reason; can't softlock since advancing forfeits it | `match-simulation-slice.ts` |
+| 9 | Fatigue/stat clamps missing lower bound at 4 mutation sites (one inconsistent with its own comment) | training-processor, team-drills ×2, player-development |
+| 10 | Role-training capped stats at 99 while every other path allows 100 | `training-manager.ts` |
+| 11 | `followers` unbounded → merch income explosion over long campaigns — capped at 2M (top of the in-game fan-milestone ladder) | `fanbase-growth.ts` |
+| 12 | `merchHype` documented 0-100 but unenforced — clamped at the read site | `economy-engine.ts` |
+
+## Rejected on verification ❌ (do not re-report)
+
+- **"Zero free-agent replenishment / long-campaign death spiral"** — `ai-world-processor.ts` runs in
+  the tick: weekly AI roster management incl. FA signings, AI↔AI transfers, season-end retirement
+  **and youth-prospect intake** (`save.players.push(newProspect)`, facilities-gated). The agent
+  missed the file.
+- **"AI roster collapse from missing renewals"** — expiring AI contracts drop players to the FA pool
+  and `signFreeAgent` (with emergency path) refills rosters weekly. Renewal-less churn is a balance
+  quirk, not collapse.
+- **"Aging only applied to rostered players"** — retracted by its own auditor; loop covers all.
+- Match-sim core: economy clamps, OT/side-swap, veto, probability clamps [0.1,0.9], live-vs-instant
+  parity — **all verified clean** (good news finding).
+- Facility `monthlyCost` "never deducted" — retracted; weekly upkeep is charged.
+- Board backing & league revenue share — capped/by-design, no farm.
+
+## Open — real but deliberately not auto-fixed 📋
+
+| Priority | Item | Why deferred |
+|----------|------|--------------|
+| P1 | **`activeMerchItems` toggles have zero revenue effect** (UI lets you curate a shop that changes nothing) | Wiring items into income is an economy-balance decision (free toggles = free money). Recommend: gate items behind merch level, +3-5%/item capped. |
+| P1 | **Dead settings: Notifications, Resolution, Game Speed** — persisted, displayed, zero consumers (verified: only settings page + DevTools read them) | Honest options: remove the controls, or implement (resolution → Electron API; speed → tick scheduler). Removal is one small PR; pick one. |
+| P1 | **Sponsor cycling** — expired sponsors can be re-signed immediately; no per-sponsor cooldown or season volume cap | Needs a design decision on sponsor-economy pacing (mirror the 12-week job-offer cooldown?). |
+| P2 | **`staff.specialization` is cosmetic** — written by generator/db, read by no logic | Wiring = new feature (per-specialization bonuses), not a bug fix. |
+| P2 | **Orphan component files**: `feedback-animations.tsx` (8 exports), `match-animations.tsx` (7 exports, incl. a whole kill-feed/round-banner kit); **dead hooks**: `useAutoSave`, `useKeyboardShortcuts`, `use-local-storage` (GameShell has its own autosave + shortcuts — these are parallel duplicates) | Wire-or-delete decision. Recommend delete (recoverable from git); match-animations could alternatively feed the live-match screen. |
+| P2 | Clutch stat is `rng.int(0,2)`, not derived from actual clutch events | Cosmetic stat honesty; derive from event log. |
+| P2 | Match rating denominator uses series-total rounds, not per-player participation | Plausibly intentional; needs a balance pass, not a hotfix. |
+| P2 | Prize rounding can underpay total pool by <1% (no remainder redistribution) | Cents-level; fold remainder into 1st place when next touching standings-processor. |
+| P2 | Sponsor-goal payouts: two processors with different ledger-id schemes (match-time + weekly); `isCompleted` ordering makes normal play safe, replay safety relies on tick re-running from persisted save | Consolidate to one processor when next touching sponsor goals. |
+| P2 | Contract-expiry warnings only for the player team; AI roster churn is silent in the event log | Add neutral events if log noise is acceptable. |
+
+## Systemic patterns (wave 3 confirms prior waves)
+
+1. **Written-but-never-read state is this codebase's dominant bug class** — facilities scalar,
+   merch items, specialization, three settings, two animation kits, three hooks. Grep for readers
+   before building on any field.
+2. **Clamp discipline is inconsistent** — standardize `Math.max(0, Math.min(100, …))` on every stat
+   mutation; one-sided clamps keep appearing.
+3. **The sim core is solid** — match engine, economy guards, integrity checker all came back clean.
+   The rot concentrates at the *edges*: lifecycle transitions and purchase→effect wiring.

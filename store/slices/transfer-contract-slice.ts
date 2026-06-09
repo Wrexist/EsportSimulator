@@ -118,6 +118,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 result = { success: false, message: "Player not found" }
                 return
             }
+            if (transferPlayerRecord.isRetired) {
+                result = { success: false, message: `${transferPlayerRecord.nickname} has retired and cannot be signed` }
+                return
+            }
 
             if (fromTeamId && fromTeamId !== "FA" && fromTeamId === toTeamId) {
                 result = { success: false, message: "Cannot transfer a player to the same team" }
@@ -453,6 +457,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const contract = state.contracts.find(c => c.playerId === playerId)
             if (!contract) {
                 toastMsg = "Contract not found."
+                toastType = "warning"
+                return
+            }
+            if (contract.endWeek <= state.currentWeek) {
+                toastMsg = "Contract has already expired - sign the player as a free agent instead."
                 toastType = "warning"
                 return
             }

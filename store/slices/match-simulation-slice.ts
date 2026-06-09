@@ -553,6 +553,19 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             .map(id => state.players.find(p => p.id === id))
             .filter(Boolean) as unknown as Player[]
 
+        // The week-tick auto-sim forfeits depleted rosters (match-forfeit.ts);
+        // this path silently played 3v5 instead. Refuse the player's own
+        // depleted match with a clear reason - advancing the week forfeits it
+        // properly, so this can't softlock.
+        if (state.playerTeamId === hTeam.id && hPlayers.length < 5) {
+            get().addToast({ message: `You need 5 active players to play - your roster has ${hPlayers.length}.`, type: "warning" })
+            return
+        }
+        if (state.playerTeamId === aTeam.id && aPlayers.length < 5) {
+            get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
+            return
+        }
+
         const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id))
         const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id))
 

@@ -478,6 +478,14 @@ export class AtomicWeekProcessor {
             // === Cross-Season Career Statistics ===
             // Compute at season boundaries (every 52 weeks)
             if (isSeasonEnd(save.currentWeek)) {
+                // Annual aging — the only place player.age advances. Without
+                // this, decline curves and the age>=33 retirement filter only
+                // ever caught the initial old cohort and 16-year-old prospects
+                // stayed 16 forever (no career arcs across seasons).
+                for (const p of save.players) {
+                    if (!p.isRetired) p.age = (p.age || 20) + 1
+                }
+
                 save.careerStats = updateCareerStats(save)
                 debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
 

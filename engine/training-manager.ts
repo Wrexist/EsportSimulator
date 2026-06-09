@@ -282,7 +282,7 @@ export class TrainingManager {
   private static applyRoleBonuses(player: PlayerSaveData, role: Role, coachBonus: number = 0) {
     // Boost relevant stats (0-100 scale)
     // Training completion provides a significant bump, enhanced by coach
-    const boost = (val: number, amount: number) => Math.min(99, (val || 50) + Math.round(amount * (1 + coachBonus)))
+    const boost = (val: number, amount: number) => Math.min(100, (val || 50) + Math.round(amount * (1 + coachBonus)))
 
     switch (role) {
       case "igl":

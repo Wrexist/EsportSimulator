@@ -96,7 +96,7 @@ export class TrainingProcessor {
                 if (playerFatigueReduction > 0) {
                     fatigueGain *= (1 - Math.min(playerFatigueReduction, 90) / 100)
                 }
-                player.fatigue = Math.min(100, player.fatigue + fatigueGain)
+                player.fatigue = Math.max(0, Math.min(100, player.fatigue + fatigueGain))
 
                 // REST bonus
                 if (focus === TrainingFocus.REST) {

@@ -39,6 +39,12 @@ Six audits completed + verified → **`UI_POLISH_PLAN.md`** (phased: money-flow 
 quick wins → semantic visual system → feedback → performance → 1024×640 layout → a11y → QA gate).
 Phase 0 is correctness, not polish — do it regardless. Awaiting go.
 
+### P2.6 — Audit wave 3 (see AUDIT_WAVE3.md)
+12 verified findings FIXED (aging was entirely missing; facility upgrades never reached match
+strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). 10 OPEN items
+recorded with recommendations — top three: activeMerchItems inert toggle, dead settings
+(Notifications/Resolution/Game Speed), sponsor re-sign cycling.
+
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. **Board war-chest** — confidence gates transfer budget (high confidence unlocks funds, low tightens). ~3 files; compounds the shipped board system. Recommended next.
 2. **Mid-season board check-ins** — interim confidence nudges + ultimatum events, so pressure isn't end-of-season-only.

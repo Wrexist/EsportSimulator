@@ -130,7 +130,7 @@ export class EconomyEngine {
         // Phase 24: Use followers and merchLevel
         const followers = team.followers ?? ((team.fanbase ?? 0) * 7)
         const merchLevel = team.merchStoreLevel || 1
-        const hypeMultiplier = (team.merchHype || 10) / 10
+        const hypeMultiplier = Math.max(0, Math.min(100, team.merchHype || 10)) / 10
 
         // Phase 18: Fan Zone Facility Bonus (20% revenue boost per level)
         const fanZoneFacility = team.facilities?.find(f => f.type === "FANZONE")
