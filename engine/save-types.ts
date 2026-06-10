@@ -184,6 +184,8 @@ export interface BoardState {
     expectationSetSeason: number
     lastReviewedSeason: number
     onNotice: boolean
+    /** Week of the last quarterly mid-season pulse (idempotency guard). */
+    lastPulseWeek?: number
 }
 
 /**

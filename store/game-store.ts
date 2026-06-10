@@ -2258,6 +2258,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   detail: `${myScore}–${oppScore}${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
                 })
               }
+              // Board moments surface in the reveal so quarterly pulses and
+              // season verdicts are felt, not buried in the news feed.
+              for (const n of revealState.newsFeed) {
+                if (n.week !== playedWeek && n.week !== revealState.currentWeek) continue
+                if (!n.id.startsWith("board_pulse_") && !n.id.startsWith("board_review_")) continue
+                const negative = /uneasy|alarmed|furious|concerned|Sacked/i.test(n.title)
+                revealItems.push({
+                  id: `board-${n.id}`,
+                  kind: "event",
+                  tone: negative ? "loss" : "win",
+                  title: n.title,
+                  detail: n.content.length > 110 ? `${n.content.slice(0, 107)}...` : n.content,
+                })
+              }
               const seenEvent = new Set<string>()
               let eventCount = 0
               for (const e of revealState.eventsLog) {

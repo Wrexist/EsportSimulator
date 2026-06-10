@@ -47,7 +47,7 @@ recorded with recommendations — top three: activeMerchItems inert toggle, dead
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
-2. **Mid-season board check-ins** — interim confidence nudges + ultimatum events, so pressure isn't end-of-season-only.
+2. ~~**Mid-season board check-ins**~~ — SHIPPED: quarterly pulses (weeks 13/26/39) nudge confidence from recent form (+4/+1/-3/-6 by win rate, min 3 matches, never sacks — the sack stays season-end/telegraphed). Surfaced in news feed AND the week-reveal overlay. Tested.
 3. **Rivalries** — repeated opponents become rivals; derbies swing morale/fans/confidence harder. New persisted system; needs schema + plumbing care (CLAUDE.md invariant #1).
 4. **Transfer negotiation depth** — counter-offers, agent personalities, holdouts.
 
