@@ -518,6 +518,7 @@ interface GameStoreState {
   // Board Expectations & Confidence
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
+  careerStats?: import("@/engine/save-types").CareerStats
 
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
@@ -1945,6 +1946,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             fplData: state.fplData,
             boardState: state.boardState,
             socialFeed: state.socialFeed,
+            careerStats: state.careerStats,
+            nextMarketRefreshWeek: state.nextMarketRefreshWeek,
             pendingCelebration: state.pendingCelebration,
             pendingSeasonRecap: state.pendingSeasonRecap,
             pendingLegendPick: state.pendingLegendPick,

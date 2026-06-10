@@ -140,6 +140,7 @@ export interface UIState {
   fplData?: FPLSaveData
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
+  careerStats?: import("@/engine/save-types").CareerStats
 }
 
 export interface SettingsState {

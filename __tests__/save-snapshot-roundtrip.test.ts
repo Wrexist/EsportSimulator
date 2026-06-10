@@ -66,6 +66,17 @@ describe("buildSaveSnapshot — stateful optional fields survive the builder", (
         expect(snap.boardState).toBeUndefined()
     })
 
+    test("reconciled builder fields survive (careerStats / difficulty / nextMarketRefreshWeek)", () => {
+        const careerStats = { seasons: [{ seasonNumber: 1 }], totalWins: 12 } as unknown as never
+        const snap = buildSaveSnapshot(makeState({
+            careerStats, difficulty: "hard", nextMarketRefreshWeek: 17,
+        }))
+        expect(snap.careerStats).toBe(careerStats)
+        expect(snap.difficulty).toBe("hard")
+        expect(snap.nextMarketRefreshWeek).toBe(17)
+        expect(typeof snap.lastPlayedAt).toBe("string")
+    })
+
     test("game-over reason + week persist through the builder", () => {
         const snap = buildSaveSnapshot(makeState({ gameOverReason: "SACKED", gameOverWeek: 104 }))
         expect(snap.gameOverReason).toBe("SACKED")

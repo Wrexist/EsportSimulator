@@ -54,6 +54,17 @@ export function compactPersistentState(save: GameSave): void {
             .slice(0, ARRAY_CAPS.newsFeed)
     }
 
+    // circuitPoints is bounded by team count, but each entry's `results` log
+    // appends one row per tournament placement forever — trim to the recent
+    // window (the running `points` total is preserved either way).
+    if (save.circuitPoints) {
+        for (const entry of save.circuitPoints) {
+            if (entry.results && entry.results.length > ARRAY_CAPS.circuitPointResults) {
+                entry.results = entry.results.slice(-ARRAY_CAPS.circuitPointResults)
+            }
+        }
+    }
+
     if (save.tournamentQualifications.length > 0) {
         save.tournamentQualifications = dedupeQualifications(
             save.tournamentQualifications,
