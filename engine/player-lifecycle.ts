@@ -45,9 +45,45 @@ export class PlayerLifecycleManager {
      * @param recoveryBonus Phase 18: Bonus to recovery from facilities (0-5)
      */
     static processWeeklyUpdates(player: PlayerLike, currentYear: number, week: number, recoveryBonus: number = 0, rng?: SeededRNG): void {
+        this.processNaturalGrowth(player, rng)
         this.processAging(player, week, rng)
         this.processPsychology(player, recoveryBonus)
         this.updatePrestige(player, currentYear)
+    }
+
+    /**
+     * Natural development for young players toward their potential. Runs for
+     * EVERY player each week, which is what keeps AI/free-agent talent rising
+     * instead of stagnating while only the player team trained — previously the
+     * player's squad pulled away and trivially dominated by season 3. Modest
+     * and bounded: a single point at a time, gated on potential headroom, never
+     * past `potential`. The player team still develops far faster via focused
+     * training, so this doesn't erase the value of training — it just stops
+     * everyone else from standing still.
+     */
+    private static processNaturalGrowth(player: PlayerLike, rng?: SeededRNG): void {
+        const p = player as unknown as Record<string, number | boolean | undefined>
+        const age = player.age ?? 22
+        if (age > 24 || p.isRetired === true) return
+        const potential = (typeof p.potential === "number" ? p.potential : 75)
+        const skill = player.skill ?? 50
+        const headroom = potential - skill
+        if (headroom <= 0) return
+
+        // Younger + more headroom = more likely. Scales with the gap; peaks
+        // around a couple of points per season for a raw high-ceiling teenager,
+        // tapering to near-zero as they approach potential.
+        const ageFactor = age <= 19 ? 1 : age <= 21 ? 0.7 : age <= 23 ? 0.45 : 0.25
+        const growthChance = Math.min(0.04, (headroom / 100) * 0.18 * ageFactor)
+        if (this.roll(rng) >= growthChance) return
+
+        // Grow a random developing stat that still has room, capped at potential.
+        const growableStats = ['skill', 'rifle', 'reaction', 'clutch', 'tactic', 'awp']
+        const stat = growableStats[Math.floor(this.roll(rng) * growableStats.length)]
+        const cur = p[stat]
+        if (typeof cur === 'number' && cur < potential && cur < 100) {
+            p[stat] = Math.min(potential, cur + 1)
+        }
     }
 
     /**
