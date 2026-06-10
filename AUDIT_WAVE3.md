@@ -64,19 +64,33 @@ The three decision-gated items are now done — none needed removal; all three b
 (Correction to the wave-3 list: "Resolution dead" was itself a mis-verification — it was wired in
 `lib/settings-store`, which the agent didn't check. The real defect was the missing apply-on-change.)
 
-## Open — real but deliberately not auto-fixed 📋
+## P2 cleanup tail — EXECUTED ✅
+
+- **Orphans deleted** (verified zero importers, GameShell has its own autosave + keyboard handling):
+  `components/ui/feedback-animations.tsx`, `components/ui/match-animations.tsx`,
+  `hooks/useAutoSave.ts`, `hooks/useKeyboardShortcuts.ts`, `hooks/use-local-storage.ts` — 5 files, ~31KB.
+- **Clutch stat** now counts real `CLUTCH` events from the round log (round-outcome.ts emits one per
+  1vX win) instead of `rng.int(0,2)`. Tested.
+- **Prize rounding** drift now folds into 1st place so the placed-field total is exact to the dollar
+  (verified neutral for ≤8-team fields where the table sums to 1.0; existing tests unchanged). Tested-adjacent.
+
+## ⚠️ Discovered while fixing prizes — NEEDS A BALANCE DECISION
+
+**`TROPHY_PRIZE_DISTRIBUTION` sums to 1.12, not 1.0.** Places 1-8 sum to exactly 100%, but 9-16 add
+another 12% (`0.025×4 + 0.005×4`). A full **16-team field is paid 112% of the advertised prize pool** —
+a real ~12% overpay, the opposite of the audit's "<1% underpay" claim. This is NOT auto-fixed: capping
+the awarded total at the pool reduces large-event income ~11% for every team, an economy shift the
+tuning was built around. **Decide:** (a) confirm 112% is intended for prestige events, (b) renormalize
+the placed shares to ≤100%, or (c) fix the table so 1-16 sums to 1.0. `standings-processor.ts:34`.
+
+## Open — still deferred 📋
 
 | Priority | Item | Why deferred |
 |----------|------|--------------|
-| P1 | **`activeMerchItems` toggles have zero revenue effect** (UI lets you curate a shop that changes nothing) | Wiring items into income is an economy-balance decision (free toggles = free money). Recommend: gate items behind merch level, +3-5%/item capped. |
-| P1 | **Dead settings: Notifications, Resolution, Game Speed** — persisted, displayed, zero consumers (verified: only settings page + DevTools read them) | Honest options: remove the controls, or implement (resolution → Electron API; speed → tick scheduler). Removal is one small PR; pick one. |
-| P1 | **Sponsor cycling** — expired sponsors can be re-signed immediately; no per-sponsor cooldown or season volume cap | Needs a design decision on sponsor-economy pacing (mirror the 12-week job-offer cooldown?). |
+| P1 | **Prize pool over-distribution (1.12 sum)** — see the ⚠️ box above | Money-balance decision; flagged, not silently changed. |
 | P2 | **`staff.specialization` is cosmetic** — written by generator/db, read by no logic | Wiring = new feature (per-specialization bonuses), not a bug fix. |
-| P2 | **Orphan component files**: `feedback-animations.tsx` (8 exports), `match-animations.tsx` (7 exports, incl. a whole kill-feed/round-banner kit); **dead hooks**: `useAutoSave`, `useKeyboardShortcuts`, `use-local-storage` (GameShell has its own autosave + shortcuts — these are parallel duplicates) | Wire-or-delete decision. Recommend delete (recoverable from git); match-animations could alternatively feed the live-match screen. |
-| P2 | Clutch stat is `rng.int(0,2)`, not derived from actual clutch events | Cosmetic stat honesty; derive from event log. |
 | P2 | Match rating denominator uses series-total rounds, not per-player participation | Plausibly intentional; needs a balance pass, not a hotfix. |
-| P2 | Prize rounding can underpay total pool by <1% (no remainder redistribution) | Cents-level; fold remainder into 1st place when next touching standings-processor. |
-| P2 | Sponsor-goal payouts: two processors with different ledger-id schemes (match-time + weekly); `isCompleted` ordering makes normal play safe, replay safety relies on tick re-running from persisted save | Consolidate to one processor when next touching sponsor goals. |
+| P2 | Sponsor-goal payouts: two processors with different ledger-id schemes; normal play is safe (isCompleted ordering), replay relies on tick re-running from persisted save | Consolidate to one processor when next touching sponsor goals. |
 | P2 | Contract-expiry warnings only for the player team; AI roster churn is silent in the event log | Add neutral events if log noise is acceptable. |
 
 ## Systemic patterns (wave 3 confirms prior waves)

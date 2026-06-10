@@ -72,6 +72,23 @@ describe("generateMatchStats", () => {
         expect(stats["a1"].deaths).toBe(2)
     })
 
+    test("clutches are counted from CLUTCH events, not random", () => {
+        const home = [makePlayer("h1"), makePlayer("h2")]
+        const away = [makePlayer("a1")]
+        // Two rounds: h1 clutches the first, nobody the second.
+        const r1 = makeRound({ h1: 1 }) as any
+        r1.events = [{ type: "CLUTCH", playerId: "h1", time: 90, details: "1v2" }]
+        const r2 = makeRound({ h2: 1 }) as any
+        r2.events = []
+        const stats = generateMatchStats(new SeededRNG(7), home, away, [makeMap([r1, r2])], true)
+        expect(stats["h1"].clutches).toBe(1)
+        expect(stats["h2"].clutches).toBe(0)
+        expect(stats["a1"].clutches).toBe(0)
+        // Determinism: a different seed can't change an event-derived count.
+        const stats2 = generateMatchStats(new SeededRNG(999), home, away, [makeMap([r1, r2])], true)
+        expect(stats2["h1"].clutches).toBe(1)
+    })
+
     test("rating is bounded to [0.3, 2.0]", () => {
         const home = [makePlayer("h1")]
         const away = [makePlayer("a1")]

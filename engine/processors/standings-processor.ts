@@ -191,10 +191,23 @@ export function updateStandings(
 
         // Prize distribution by placement (UI-matching percentages).
         if (tournament.prizePool > 0) {
-            for (const p of placements) {
-                const prizePct = TROPHY_PRIZE_DISTRIBUTION[p.position] ?? 0
-                if (prizePct <= 0) continue
-                const prizeAmount = Math.round(tournament.prizePool * prizePct)
+            // Pre-round each placed team's share, then fold the rounding DRIFT
+            // (not the value of any unfilled places — small fields legitimately
+            // don't pay the full pool) into 1st place so the awarded total
+            // matches the intended total to the dollar.
+            const awards = placements
+                .map(p => ({ p, pct: TROPHY_PRIZE_DISTRIBUTION[p.position] ?? 0 }))
+                .filter(a => a.pct > 0)
+                .map(a => ({ p: a.p, pct: a.pct, amount: Math.round(tournament.prizePool * a.pct) }))
+            const exactTotal = Math.round(awards.reduce((s, a) => s + tournament.prizePool * a.pct, 0))
+            const roundedTotal = awards.reduce((s, a) => s + a.amount, 0)
+            const drift = exactTotal - roundedTotal
+            if (drift !== 0) {
+                const champ = awards.find(a => a.p.position === 1)
+                if (champ) champ.amount += drift
+            }
+
+            for (const { p, amount: prizeAmount } of awards) {
                 if (prizeAmount <= 0) continue
 
                 const prizeLedgerId = `prize_${tournament.id}_${p.teamId}_p${p.position}`
