@@ -74,7 +74,15 @@ The three decision-gated items are now done — none needed removal; all three b
 - **Prize rounding** drift now folds into 1st place so the placed-field total is exact to the dollar
   (verified neutral for ≤8-team fields where the table sums to 1.0; existing tests unchanged). Tested-adjacent.
 
-## ⚠️ Discovered while fixing prizes — NEEDS A BALANCE DECISION
+## Prize over-distribution — RESOLVED ✅
+
+Fixed with field-size-aware tables, the way real events publish payouts: compact fields (≤8 placed)
+keep the historical top-8 split (sums to 1.0 — zero economy change for most events); deep fields use
+a new 16-place table modeled on real Major payouts (36/18/9/9/4×4/2×4/1×4 = exactly 1.0). A full
+16-team field now pays exactly 100% of the pool (was 112%); every placed team is still paid. Tested:
+$1M pool → $1,000,000 awarded to the dollar, champion $360k.
+
+## ⚠️ (resolved above) Original finding — NEEDS A BALANCE DECISION
 
 **`TROPHY_PRIZE_DISTRIBUTION` sums to 1.12, not 1.0.** Places 1-8 sum to exactly 100%, but 9-16 add
 another 12% (`0.025×4 + 0.005×4`). A full **16-team field is paid 112% of the advertised prize pool** —
@@ -87,7 +95,6 @@ the placed shares to ≤100%, or (c) fix the table so 1-16 sums to 1.0. `standin
 
 | Priority | Item | Why deferred |
 |----------|------|--------------|
-| P1 | **Prize pool over-distribution (1.12 sum)** — see the ⚠️ box above | Money-balance decision; flagged, not silently changed. |
 | P2 | **`staff.specialization` is cosmetic** — written by generator/db, read by no logic | Wiring = new feature (per-specialization bonuses), not a bug fix. |
 | P2 | Match rating denominator uses series-total rounds, not per-player participation | Plausibly intentional; needs a balance pass, not a hotfix. |
 | P2 | Sponsor-goal payouts: two processors with different ledger-id schemes; normal play is safe (isCompleted ordering), replay relies on tick re-running from persisted save | Consolidate to one processor when next touching sponsor goals. |

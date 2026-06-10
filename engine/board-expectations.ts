@@ -102,6 +102,25 @@ export function confidenceDelta(outcome: BoardOutcome): number {
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n))
 
+/**
+ * Board war-chest: the fraction of the club budget the board will sanction
+ * for a SINGLE transfer fee, gated by confidence. A backed manager spends
+ * freely; a doubted one can't blow the budget on a blockbuster. Missing
+ * board state (fresh saves pre-tick) sanctions everything — never blocks
+ * on absent data.
+ */
+export function getBoardSanctionedFee(
+    board: BoardState | undefined,
+    budget: number,
+): { maxFee: number; fraction: number } {
+    if (!board) return { maxFee: budget, fraction: 1 }
+    const fraction = board.onNotice || board.confidence < 25 ? 0.4
+        : board.confidence < 40 ? 0.6
+        : board.confidence < 70 ? 0.8
+        : 1
+    return { maxFee: Math.floor(budget * fraction), fraction }
+}
+
 /** Trophies the player's club lifted within a given season window. */
 export function trophiesInSeason(save: GameSave, seasonNumber: number): number {
     const start = (seasonNumber - 1) * 52 + 1

@@ -46,7 +46,7 @@ recorded with recommendations — top three: activeMerchItems inert toggle, dead
 (Notifications/Resolution/Game Speed), sponsor re-sign cycling.
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
-1. **Board war-chest** — confidence gates transfer budget (high confidence unlocks funds, low tightens). ~3 files; compounds the shipped board system. Recommended next.
+1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
 2. **Mid-season board check-ins** — interim confidence nudges + ultimatum events, so pressure isn't end-of-season-only.
 3. **Rivalries** — repeated opponents become rivals; derbies swing morale/fans/confidence harder. New persisted system; needs schema + plumbing care (CLAUDE.md invariant #1).
 4. **Transfer negotiation depth** — counter-offers, agent personalities, holdouts.

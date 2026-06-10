@@ -1,4 +1,5 @@
 import {
+    getBoardSanctionedFee,
     deriveExpectationTier,
     evaluateOutcome,
     confidenceDelta,
@@ -151,5 +152,24 @@ describe("processSeasonBoardReview", () => {
         const second = processSeasonBoardReview(save)
         expect(second.reviewed).toBe(false)
         expect(save.boardState!.confidence).toBe(70) // unchanged by the 2nd call
+    })
+})
+
+describe("getBoardSanctionedFee — board war-chest", () => {
+    const board = (confidence: number, onNotice = false) => ({
+        teamId: "player", confidence, seasonExpectation: "COMPETE",
+        expectationSetSeason: 1, lastReviewedSeason: 0, onNotice,
+    }) as unknown as BoardState
+
+    test("tiers: full backing >=70, 80% at 40-69, 60% at 25-39, 40% below/on-notice", () => {
+        expect(getBoardSanctionedFee(board(85), 100_000).maxFee).toBe(100_000)
+        expect(getBoardSanctionedFee(board(60), 100_000).maxFee).toBe(80_000)
+        expect(getBoardSanctionedFee(board(30), 100_000).maxFee).toBe(60_000)
+        expect(getBoardSanctionedFee(board(10), 100_000).maxFee).toBe(40_000)
+        expect(getBoardSanctionedFee(board(80, true), 100_000).maxFee).toBe(40_000) // on notice overrides
+    })
+
+    test("missing board state never blocks (fresh saves pre-tick)", () => {
+        expect(getBoardSanctionedFee(undefined, 100_000)).toEqual({ maxFee: 100_000, fraction: 1 })
     })
 })

@@ -81,6 +81,30 @@ describe("lifecycle guards", () => {
         expect(h.state().teams.find(t => t.id === "player")!.budget).toBe(500_000) // not charged
     })
 
+    test("board war-chest blocks a fee above the sanction limit; low fee passes", () => {
+        const state = makeState() as Record<string, unknown>
+        state.players = [{ id: "star", nickname: "Star", age: 24 }]
+        state.teams = [
+            { id: "player", name: "P", rosterIds: [], budget: 500_000, staffIds: [], trophies: [] },
+            { id: "seller", name: "S", rosterIds: ["star"], budget: 100_000, staffIds: [], trophies: [] },
+        ]
+        state.contracts = [{ id: "c1", playerId: "star", teamId: "seller", salaryPerWeek: 1000, startWeek: 1, endWeek: 80, buyout: 10_000 }]
+        state.boardState = { teamId: "player", confidence: 10, seasonExpectation: "COMPETE", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: false }
+        const h = makeHarness(state as never)
+        const slice = createTransferContractSlice(h.set, h.get)
+        const contract = { salaryPerWeek: 2000, startWeek: 10, endWeek: 62, buyout: 50_000 }
+
+        // 300k fee > 40% sanction of 500k (200k) → board refuses.
+        const blocked = slice.transferPlayer("star", "seller", "player", 300_000, contract)
+        expect(blocked.success).toBe(false)
+        expect(blocked.message).toContain("board won't sanction")
+        expect(h.state().teams.find(t => t.id === "player")!.budget).toBe(500_000)
+
+        // 150k fee <= 200k sanction → goes through.
+        const ok = slice.transferPlayer("star", "seller", "player", 150_000, contract)
+        expect(ok.success).toBe(true)
+    })
+
     test("renewContract refuses an already-expired contract", () => {
         const h = makeHarness(makeState())
         const slice = createTransferContractSlice(h.set, h.get)
