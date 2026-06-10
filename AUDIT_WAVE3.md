@@ -47,6 +47,23 @@
 - Facility `monthlyCost` "never deducted" — retracted; weekly upkeep is charged.
 - Board backing & league revenue share — capped/by-design, no farm.
 
+## Open items EXECUTED (follow-up) ✅
+
+The three decision-gated items are now done — none needed removal; all three became real:
+- **activeMerchItems** — wired into fan income: each active line +4%, capped at 5 (+20%). Items
+  are level-gated, so bounded/non-farmable. The UI's "diversify your catalog" claim is now true and
+  shows the live bonus. Tested.
+- **Dead settings — all three turned out wireable, not removed:**
+  - *Resolution* was actually wired to Electron `setSize` via `applyWindowSettings()`, but the live
+    `/settings` page never CALLED it on change (only the main-menu modal did) — now it does.
+  - *Game Speed* now seeds live-match playback speed (normal=1×, fast=2×, very-fast=3×) — was inert.
+  - *Notifications* now gates the chatty info/xp_gain toasts (meaningful types always show).
+- **Sponsor cycling** — expiring a sponsor now stamps a 16-week re-sign cooldown per brand
+  (`team.sponsorCooldowns`); signSponsor refuses within the window. Tested.
+
+(Correction to the wave-3 list: "Resolution dead" was itself a mis-verification — it was wired in
+`lib/settings-store`, which the agent didn't check. The real defect was the missing apply-on-change.)
+
 ## Open — real but deliberately not auto-fixed 📋
 
 | Priority | Item | Why deferred |

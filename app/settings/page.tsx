@@ -108,6 +108,7 @@ export default function SettingsPage() {
     musicVolumeS, setMusicVolumeS,
     sfxVolumeS, setSfxVolumeS,
     autoSaveInterval, setAutoSaveInterval,
+    applyWindowSettings,
   } = useSettingsStore(useShallow(state => ({
     windowMode: state.windowMode,
     setWindowMode: state.setWindowMode,
@@ -123,6 +124,7 @@ export default function SettingsPage() {
     setSfxVolumeS: state.setSfxVolume,
     autoSaveInterval: state.autoSaveInterval,
     setAutoSaveInterval: state.setAutoSaveInterval,
+    applyWindowSettings: state.applyWindowSettings,
   })))
 
   // Accessibility: colorblind mode — persisted to localStorage
@@ -457,7 +459,7 @@ export default function SettingsPage() {
                   </div>
                   <select
                     value={resolution}
-                    onChange={(e) => setResolution(e.target.value)}
+                    onChange={(e) => { setResolution(e.target.value); applyWindowSettings() }}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="1920x1080" className="bg-[#1a1f2e]">1920 × 1080</option>

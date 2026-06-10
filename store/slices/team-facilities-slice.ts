@@ -202,6 +202,12 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 result = { success: false, message: "This sponsor is already signed." }
                 return
             }
+            // Re-sign cooldown after a contract lapses (anti-cycling).
+            const cooldownWeek = team.sponsorCooldowns?.[sponsor.name]
+            if (typeof cooldownWeek === "number" && cooldownWeek > state.currentWeek) {
+                result = { success: false, message: `${sponsor.name} won't return for ${cooldownWeek - state.currentWeek} more week(s) after the last deal lapsed.` }
+                return
+            }
 
             // Tier gating by world ranking + tournament achievements.
             const ranking = team.worldRanking || 999

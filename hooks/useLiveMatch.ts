@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState, Coach, Analyst, Psychologist } from "@/types"
 import type { TeamSaveData } from "@/engine/save-types"
@@ -98,7 +99,12 @@ export function useLiveMatch(id: string) {
             setLogs(prev => (prev.length > MAX_LIVE_LOG_ENTRIES ? prev.slice(0, MAX_LIVE_LOG_ENTRIES) : prev))
         }
     }, [logs])
-    const [speed, setSpeed] = useState(1)
+    // Seed live-match playback speed from the user's Game Speed setting
+    // (the only thing that setting drives — was previously inert).
+    const gameSpeedSetting = useSettingsStore(s => s.gameSpeed)
+    const [speed, setSpeed] = useState(() =>
+        gameSpeedSetting === "very-fast" ? 3 : gameSpeedSetting === "fast" ? 2 : 1
+    )
     const [isPlaying, setIsPlaying] = useState(false)
     const [isAutoTactics, setIsAutoTactics] = useState(false)
 

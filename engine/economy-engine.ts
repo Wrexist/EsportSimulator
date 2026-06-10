@@ -143,11 +143,18 @@ export class EconomyEngine {
         const effectiveRate = BASE_FAN_INCOME_PER_FAN
         const levelMultiplier = 1 + (merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE
 
+        // Active merch lines add a small, capped conversion bonus. Items unlock
+        // via paid store level-ups (UI gates each behind a level), so this is
+        // bounded (≤5 lines → +20%) and non-farmable — and it makes the
+        // "diversify your catalog" UI claim actually true.
+        const activeLines = Math.min(5, team.activeMerchItems?.length ?? 0)
+        const merchLineBonus = 1 + activeLines * 0.04
+
         // Apply difficulty multipliers for custom teams
         const fansMultiplier = team.difficultySettings?.fansMultiplier ?? 1.0
         const incomeMultiplier = team.difficultySettings?.incomeMultiplier ?? 1.0
 
-        return Math.floor(followers * effectiveRate * levelMultiplier * hypeMultiplier * fanZoneMultiplier * incomeMultiplier)
+        return Math.floor(followers * effectiveRate * levelMultiplier * hypeMultiplier * fanZoneMultiplier * merchLineBonus * incomeMultiplier)
     }
 
     // === EXPENSE LOGIC ===

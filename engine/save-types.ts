@@ -384,6 +384,8 @@ export interface TeamSaveData {
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]
     sponsors?: SponsorSaveData[]
+    /** Sponsor name → earliest week it can be re-signed (anti re-cycling). */
+    sponsorCooldowns?: Record<string, number>
     merchHype?: number // 0-100 multiplier for merchandise revenue
 
     // === NEW: Fan Base & Merch System ===
