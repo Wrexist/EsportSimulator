@@ -273,6 +273,7 @@ export function TutorialOverlay() {
                                 {/* Skip Button */}
                                 <button
                                     onClick={handleSkip}
+                                    aria-label="Skip tutorial"
                                     className="absolute top-4 right-4 p-2 rounded-xl bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all"
                                 >
                                     <X size={18} />

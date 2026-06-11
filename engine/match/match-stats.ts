@@ -122,10 +122,11 @@ export function generateMatchStats(
         })
         const kast = totalRounds > 0 ? Math.round((kastRounds / totalRounds) * 100) : 0
 
-        // First-blood + headshot counts from event log.
+        // First-blood + headshot + clutch counts from event log.
         let fKills = 0
         let fDeaths = 0
         let headshots = 0
+        let clutchCount = 0
         mapResults.forEach(map => {
             map.rounds.forEach(round => {
                 if (round.events) {
@@ -138,6 +139,12 @@ export function generateMatchStats(
                     round.events.forEach(e => {
                         if (e.type === "KILL" && e.playerId === player.id && e.isHeadshot) {
                             headshots++
+                        }
+                        // Real CLUTCH events (round-outcome.ts emits one per
+                        // 1vX win) — previously the stat was rng.int(0,2),
+                        // unrelated to whether the player actually clutched.
+                        if (e.type === "CLUTCH" && e.playerId === player.id) {
+                            clutchCount++
                         }
                     })
                 }
@@ -160,7 +167,7 @@ export function generateMatchStats(
             adr,
             kast,
             rating,
-            clutches: rng.int(0, 2),
+            clutches: clutchCount,
             firstKills: fKills,
             firstDeaths: fDeaths,
             mapsPlayed: mapResults.length,

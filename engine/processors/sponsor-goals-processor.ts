@@ -20,6 +20,9 @@
 
 import type { GameSave } from "../save-types"
 
+// Weeks before an expired sponsor can be re-signed (mirrors job-change cooldown).
+const SPONSOR_RESIGN_COOLDOWN_WEEKS = 16
+
 export function processWeeklySponsorGoals(
     save: GameSave,
     eventIdSet?: Set<string>,
@@ -109,6 +112,11 @@ export function processWeeklySponsorGoals(
                 activeSponsors.push(sponsor)
                 return
             }
+
+            // Sponsor expired — bar re-signing the same brand for a window so
+            // the 3-slot cap can't be bypassed by cycling the same sponsors.
+            if (!team.sponsorCooldowns) team.sponsorCooldowns = {}
+            team.sponsorCooldowns[sponsor.name] = save.currentWeek + SPONSOR_RESIGN_COOLDOWN_WEEKS
 
             // Sponsor expired this tick — notify player team only.
             if (team.id === save.playerTeamId) {

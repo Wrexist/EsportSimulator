@@ -73,7 +73,7 @@ import { buildQualificationGraph, isQualificationForTournament } from "./circuit
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
-import { processSeasonBoardReview, ensureBoardState } from "./board-expectations"
+import { processSeasonBoardReview, ensureBoardState, processMidSeasonBoardPulse } from "./board-expectations"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 
 // ===== TYPES =====
@@ -478,6 +478,14 @@ export class AtomicWeekProcessor {
             // === Cross-Season Career Statistics ===
             // Compute at season boundaries (every 52 weeks)
             if (isSeasonEnd(save.currentWeek)) {
+                // Annual aging — the only place player.age advances. Without
+                // this, decline curves and the age>=33 retirement filter only
+                // ever caught the initial old cohort and 16-year-old prospects
+                // stayed 16 forever (no career arcs across seasons).
+                for (const p of save.players) {
+                    if (!p.isRetired) p.age = (p.age || 20) + 1
+                }
+
                 save.careerStats = updateCareerStats(save)
                 debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
 
@@ -503,6 +511,23 @@ export class AtomicWeekProcessor {
             // Keep board state present every week so the dashboard can always
             // show the current expectation + confidence (cheap no-op once set).
             ensureBoardState(save)
+
+            // Quarterly board pulse (weeks 13/26/39): confidence tracks form
+            // mid-season so the war-chest tier isn't frozen for 52 weeks.
+            const pulse = processMidSeasonBoardPulse(save)
+            if (pulse.pulsed && pulse.newsTitle) {
+                const pulseNewsId = `board_pulse_w${save.currentWeek}_${save.playerTeamId}`
+                if (!save.newsFeed.some(n => n.id === pulseNewsId)) {
+                    save.newsFeed.unshift({
+                        id: pulseNewsId,
+                        title: pulse.newsTitle,
+                        content: pulse.newsContent ?? "",
+                        week: save.currentWeek,
+                        category: "FINANCE",
+                        teamId: save.playerTeamId,
+                    })
+                }
+            }
 
             // Guard long-running saves against unbounded log growth.
             compactPersistentState(save)

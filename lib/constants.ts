@@ -289,6 +289,8 @@ export const ARRAY_CAPS = {
     academyMatchHistory: 200,
     academyWeeklyReports: 100,
     hallOfFame: 500,
+    /** Placement-history entries kept inside each per-team circuitPoints entry. */
+    circuitPointResults: 60,
 } as const
 
 // ============================================

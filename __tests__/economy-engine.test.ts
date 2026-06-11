@@ -268,3 +268,15 @@ describe("processWeeklyFinances — net + balance math", () => {
         expect(r.newBalance).toBe(team.budget + r.net)
     })
 })
+
+describe("merch active-line bonus (wired activeMerchItems)", () => {
+    test("active merch lines increase fan income, capped at 5 lines", () => {
+        const base = EconomyEngine.processWeeklyFinances(makeTeam({ followers: 1_000_000, activeMerchItems: [] }), [], [], [])
+        const two = EconomyEngine.processWeeklyFinances(makeTeam({ followers: 1_000_000, activeMerchItems: ["JERSEY", "HOODIE"] }), [], [], [])
+        const seven = EconomyEngine.processWeeklyFinances(makeTeam({ followers: 1_000_000, activeMerchItems: ["A", "B", "C", "D", "E", "F", "G"] }), [], [], [])
+        expect(two.income.fanbase).toBeGreaterThan(base.income.fanbase)
+        // 7 lines is capped at the 5-line bonus, not 7x.
+        const fiveCap = EconomyEngine.processWeeklyFinances(makeTeam({ followers: 1_000_000, activeMerchItems: ["A", "B", "C", "D", "E"] }), [], [], [])
+        expect(seven.income.fanbase).toBe(fiveCap.income.fanbase)
+    })
+})

@@ -298,3 +298,41 @@ describe("League completion — round-robin leagues complete, crown standings[0]
         expect(save.teams.find(tm => tm.id === "A")!.trophies.filter(tr => tr.tournamentId === "t1").length).toBe(1)
     })
 })
+
+describe("prize pool exactness — 16-team fields (was paid 112% of pool)", () => {
+    function makeBigLeague(teamIds: string[]): TournamentSaveData {
+        return {
+            id: "t16", name: "Big League", shortName: "BL", tier: "A_TIER", region: "GLOBAL",
+            teamIds, format: "league", currentStage: "League Stage",
+            standings: teamIds.map(makeStanding),
+            prizePool: 1_000_000, startWeek: 1, duration: 8, endWeek: 9,
+            isCompleted: false, rewardsGranted: false,
+            playoffBracket: [],
+        } as unknown as TournamentSaveData
+    }
+
+    test("awards exactly 100% of the pool across all 16 placements; champion gets 36%", () => {
+        const teamIds = Array.from({ length: 16 }, (_, i) => `T${String(i).padStart(2, "0")}`)
+        // Strict ordering: Ti beats Tj for all i<j → 16 distinct records.
+        const matches: CompletedMatchSaveData[] = []
+        for (let i = 0; i < 16; i++) {
+            for (let j = i + 1; j < 16; j++) {
+                matches.push(makeMatch(teamIds[i], teamIds[j], 2, 0, `m_${i}_${j}`, "t16"))
+            }
+        }
+        const t = makeBigLeague(teamIds)
+        const save = makeSave(t, matches)
+        save.scheduledMatches = []
+
+        updateStandings(save)
+
+        expect(t.isCompleted).toBe(true)
+        const prizeEntries = save.financeLedger.filter(e => e.id.startsWith("prize_t16_"))
+        expect(prizeEntries.length).toBe(16) // every placed team is paid
+        const totalPaid = prizeEntries.reduce((s, e) => s + e.amount, 0)
+        expect(totalPaid).toBe(1_000_000) // exactly the pool — not 1,120,000
+        const champ = save.financeLedger.find(e => e.id === "prize_t16_T00_p1")
+        expect(champ?.amount).toBe(360_000) // 36% on the 16-place table
+    })
+})
+

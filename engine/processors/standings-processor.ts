@@ -31,10 +31,19 @@ import {
     hasTerminalTournamentCompletion,
 } from "./tournament-completion"
 
-const TROPHY_PRIZE_DISTRIBUTION: Record<number, number> = {
+// Field-size-aware prize tables, the way real events publish them: each table
+// sums to exactly 1.0 so a field is never paid more than the advertised pool.
+// (The old single table summed to 1.12 — a full 16-team event paid 112%.)
+// Compact fields (≤8 placed) keep the historical top-8 split unchanged.
+const PRIZE_DISTRIBUTION_8: Record<number, number> = {
     1: 0.40, 2: 0.20, 3: 0.10, 4: 0.10, 5: 0.05, 6: 0.05, 7: 0.05, 8: 0.05,
-    9: 0.025, 10: 0.025, 11: 0.025, 12: 0.025,
-    13: 0.005, 14: 0.005, 15: 0.005, 16: 0.005,
+}
+// Modeled on real Major payouts: top-heavy, every placed team paid.
+const PRIZE_DISTRIBUTION_16: Record<number, number> = {
+    1: 0.36, 2: 0.18, 3: 0.09, 4: 0.09,
+    5: 0.04, 6: 0.04, 7: 0.04, 8: 0.04,
+    9: 0.02, 10: 0.02, 11: 0.02, 12: 0.02,
+    13: 0.01, 14: 0.01, 15: 0.01, 16: 0.01,
 }
 
 const TIER_FAN_MULTIPLIER: Record<string, number> = {
@@ -191,10 +200,29 @@ export function updateStandings(
 
         // Prize distribution by placement (UI-matching percentages).
         if (tournament.prizePool > 0) {
-            for (const p of placements) {
-                const prizePct = TROPHY_PRIZE_DISTRIBUTION[p.position] ?? 0
-                if (prizePct <= 0) continue
-                const prizeAmount = Math.round(tournament.prizePool * prizePct)
+            // Table choice follows the placed field: deep fields (anything
+            // placed past 8th) use the 16-place split; compact fields keep
+            // the historical top-8 split.
+            const deepField = placements.some(p => p.position > 8)
+            const prizeTable = deepField ? PRIZE_DISTRIBUTION_16 : PRIZE_DISTRIBUTION_8
+
+            // Pre-round each placed team's share, then fold the rounding DRIFT
+            // (not the value of any unfilled places — small fields legitimately
+            // don't pay the full pool) into 1st place so the awarded total
+            // matches the intended total to the dollar.
+            const awards = placements
+                .map(p => ({ p, pct: prizeTable[p.position] ?? 0 }))
+                .filter(a => a.pct > 0)
+                .map(a => ({ p: a.p, pct: a.pct, amount: Math.round(tournament.prizePool * a.pct) }))
+            const exactTotal = Math.round(awards.reduce((s, a) => s + tournament.prizePool * a.pct, 0))
+            const roundedTotal = awards.reduce((s, a) => s + a.amount, 0)
+            const drift = exactTotal - roundedTotal
+            if (drift !== 0) {
+                const champ = awards.find(a => a.p.position === 1)
+                if (champ) champ.amount += drift
+            }
+
+            for (const { p, amount: prizeAmount } of awards) {
                 if (prizeAmount <= 0) continue
 
                 const prizeLedgerId = `prize_${tournament.id}_${p.teamId}_p${p.position}`

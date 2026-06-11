@@ -102,6 +102,25 @@ export function confidenceDelta(outcome: BoardOutcome): number {
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n))
 
+/**
+ * Board war-chest: the fraction of the club budget the board will sanction
+ * for a SINGLE transfer fee, gated by confidence. A backed manager spends
+ * freely; a doubted one can't blow the budget on a blockbuster. Missing
+ * board state (fresh saves pre-tick) sanctions everything — never blocks
+ * on absent data.
+ */
+export function getBoardSanctionedFee(
+    board: BoardState | undefined,
+    budget: number,
+): { maxFee: number; fraction: number } {
+    if (!board) return { maxFee: budget, fraction: 1 }
+    const fraction = board.onNotice || board.confidence < 25 ? 0.4
+        : board.confidence < 40 ? 0.6
+        : board.confidence < 70 ? 0.8
+        : 1
+    return { maxFee: Math.floor(budget * fraction), fraction }
+}
+
 /** Trophies the player's club lifted within a given season window. */
 export function trophiesInSeason(save: GameSave, seasonNumber: number): number {
     const start = (seasonNumber - 1) * 52 + 1
@@ -133,6 +152,75 @@ export function ensureBoardState(save: GameSave): BoardState {
         return fresh
     }
     return existing
+}
+
+// ============ Mid-season pulses ============
+// Quarterly check-ins (weeks 13/26/39 of each season) so confidence — and the
+// war-chest tier it drives — moves with form instead of freezing for 52 weeks.
+// Pulses are gentle relative to the season verdict (±28) and NEVER sack: the
+// sack stays a season-end decision so it remains telegraphed a season ahead.
+
+const PULSE_WEEKS = new Set([13, 26, 39])
+const PULSE_MIN_MATCHES = 3
+const PULSE_WINDOW = 8
+
+export interface BoardPulseResult {
+    pulsed: boolean
+    delta?: number
+    confidence?: number
+    winRate?: number
+    newsTitle?: string
+    newsContent?: string
+}
+
+export function isPulseWeek(week: number): boolean {
+    return PULSE_WEEKS.has(((week - 1) % 52) + 1)
+}
+
+/** Quarterly confidence nudge from recent form. Idempotent per week. */
+export function processMidSeasonBoardPulse(save: GameSave): BoardPulseResult {
+    if (!isPulseWeek(save.currentWeek)) return { pulsed: false }
+    const board = save.boardState
+    if (!board || board.teamId !== save.playerTeamId) return { pulsed: false }
+    if (board.lastPulseWeek === save.currentWeek) return { pulsed: false }
+
+    const team = save.teams.find(t => t.id === save.playerTeamId)
+    if (!team) return { pulsed: false }
+
+    // Recent form: last PULSE_WINDOW player matches this season.
+    const seasonStart = Math.floor((save.currentWeek - 1) / 52) * 52 + 1
+    const recent = save.completedMatches
+        .filter(m => (m.homeTeamId === team.id || m.awayTeamId === team.id) && m.week >= seasonStart)
+        .sort((a, b) => b.week - a.week)
+        .slice(0, PULSE_WINDOW)
+    // Too few games to judge — boards don't react to nothing.
+    if (recent.length < PULSE_MIN_MATCHES) {
+        board.lastPulseWeek = save.currentWeek
+        return { pulsed: false }
+    }
+
+    const wins = recent.filter(m => m.result?.winnerId === team.id).length
+    const winRate = wins / recent.length
+    const delta = winRate >= 0.65 ? 4 : winRate >= 0.45 ? 1 : winRate >= 0.25 ? -3 : -6
+    board.confidence = clamp(board.confidence + delta, 0, 100)
+    board.lastPulseWeek = save.currentWeek
+
+    const pct = Math.round(winRate * 100)
+    const title = delta > 1 ? `Board pleased with ${team.name}'s form`
+        : delta > 0 ? `Board steady on ${team.name}`
+        : delta > -5 ? `Board uneasy about ${team.name}'s form`
+        : `Board alarmed by ${team.name}'s slump`
+    const warning = board.confidence < 25
+        ? " The message is blunt: deliver results before the season review, or face one."
+        : ""
+    return {
+        pulsed: true,
+        delta,
+        confidence: board.confidence,
+        winRate,
+        newsTitle: title,
+        newsContent: `Quarterly check-in: ${wins}/${recent.length} recent wins (${pct}%). Board confidence ${delta >= 0 ? "+" : ""}${delta} → ${board.confidence}/100.${warning}`,
+    }
 }
 
 /**

@@ -319,3 +319,103 @@ describe("acceptJobOffer", () => {
         expect(h.state().managerDetails.lastJobChangeWeek).toBe(20)
     })
 })
+
+describe("resolveEventChoice — legend coach hire affordability", () => {
+    function legendEventState(budget: number) {
+        return makeBaseState({
+            currentWeek: 5,
+            playerTeamId: "player",
+            teams: [makeTeam("player", { budget } as never)],
+            staff: [],
+            financeLedger: [],
+            toasts: [],
+            acknowledgedEventIds: [],
+            eventsLog: [makeEvent("legend_coach_opportunity_x", {
+                type: "INFO",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: { legendId: "L1", legendName: "Legend", salaryCost: 15000 } as any,
+            })],
+        })
+    }
+
+    test("refuses the hire when the team can't pay — no debt, choice stays open", () => {
+        const h = makeHarness(legendEventState(3_000))
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        const after = h.state()
+        expect(after.teams[0].budget).toBe(3_000) // unchanged, not -12k
+        expect(after.staff).toHaveLength(0)
+        // Choice NOT consumed — can hire later once funds exist.
+        expect(after.eventsLog[0].selectedChoiceId).toBeUndefined()
+        expect(after.toasts.some(t => t.message.includes("Insufficient funds"))).toBe(true)
+    })
+
+    test("hires + charges + ledgers when affordable", () => {
+        const h = makeHarness(legendEventState(50_000))
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        const after = h.state()
+        expect(after.teams[0].budget).toBe(35_000)
+        expect(after.staff).toHaveLength(1)
+        const entry = after.financeLedger.find(e => e.description.includes("Legend coach"))
+        expect(entry).toBeDefined()
+        expect(entry!.type).toBe("EXPENSE")
+        expect(entry!.amount).toBe(15_000)
+        expect(after.eventsLog[0].selectedChoiceId).toBe("hire")
+    })
+})
+
+describe("social feed actions", () => {
+    function socialState() {
+        return makeBaseState({
+            currentWeek: 8,
+            saveId: "save_x",
+            playerTeamId: "player",
+            teams: [
+                makeTeam("player", { rosterIds: ["p1", "p2"], worldRanking: 5, followers: 50_000 } as never),
+                makeTeam("rivA", { worldRanking: 1 } as never),
+                makeTeam("rivB", { worldRanking: 2 } as never),
+            ],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            players: [{ id: "p1", nickname: "ace", role: "RIFLER" }, { id: "p2", nickname: "smokey", role: "AWPER" }] as any,
+            staff: [],
+            completedMatches: [],
+            scheduledMatches: [],
+            financeLedger: [],
+            socialFeed: [],
+        })
+    }
+
+    test("syncSocialFeed populates the feed and is idempotent within a week", () => {
+        const h = makeHarness(socialState())
+        const slice = createEventsSlice(h.set, h.get)
+        slice.syncSocialFeed()
+        const n = h.state().socialFeed!.length
+        expect(n).toBeGreaterThan(0)
+        slice.syncSocialFeed() // same week → no duplicates
+        expect(h.state().socialFeed!.length).toBe(n)
+        // Every post stamped with the current week + unique ids.
+        const ids = h.state().socialFeed!.map(p => p.id)
+        expect(new Set(ids).size).toBe(ids.length)
+        expect(h.state().socialFeed!.every(p => p.week === 8)).toBe(true)
+    })
+
+    test("publishSocialPost prepends a verified player-authored post; sync preserves it", () => {
+        const h = makeHarness(socialState())
+        const slice = createEventsSlice(h.set, h.get)
+        slice.publishSocialPost("  We move different. GGs everyone 🔥  ")
+        const top = h.state().socialFeed![0]
+        expect(top.authoredByPlayer).toBe(true)
+        expect(top.user.isVerified).toBe(true)
+        expect(top.content).toBe("We move different. GGs everyone 🔥") // trimmed
+        expect(top.likes).toBeGreaterThan(0) // engagement scaled by followers
+
+        slice.syncSocialFeed()
+        expect(h.state().socialFeed!.some(p => p.authoredByPlayer && p.content.includes("We move different"))).toBe(true)
+    })
+
+    test("publishSocialPost ignores empty/whitespace content", () => {
+        const h = makeHarness(socialState())
+        const slice = createEventsSlice(h.set, h.get)
+        slice.publishSocialPost("   ")
+        expect(h.state().socialFeed!.length).toBe(0)
+    })
+})

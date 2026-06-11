@@ -88,7 +88,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                 if (p.unlockedTalentIds && p.unlockedTalentIds.includes(IRON_LUNG_TALENT_ID)) {
                     fatigueHit = Math.ceil(fatigueHit * IRON_LUNG_FATIGUE_REDUCTION)
                 }
-                p.fatigue = Math.min(100, (p.fatigue || 0) + fatigueHit)
+                p.fatigue = Math.max(0, Math.min(100, (p.fatigue || 0) + fatigueHit))
 
                 // Flat XP.
                 p.xp = (p.xp || 0) + DRILL_XP_GAIN
@@ -119,7 +119,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                     const currentVal = (p as any)[statKey]
                     if (currentVal !== undefined && typeof currentVal === "number") {
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        ;(p as any)[statKey] = Math.min(100, currentVal + gain.amount)
+                        ;(p as any)[statKey] = Math.max(0, Math.min(100, currentVal + gain.amount))
                     }
                 })
             })

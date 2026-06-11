@@ -117,6 +117,20 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             const nextBudget = (team.budget || 0) + amountValidation.value
             if (nextBudget < 0) return
             team.budget = nextBudget
+
+            // Invariant: every budget mutation is ledgered. This API was the
+            // one unledgered mutation path (weapon-training costs vanished
+            // from the books).
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_adjust", teamId),
+                week: state.currentWeek,
+                teamId,
+                type: amountValidation.value >= 0 ? "INCOME" : "EXPENSE",
+                category: "TRAINING",
+                amount: Math.abs(amountValidation.value),
+                description: "Training expense",
+                balance: team.budget,
+            })
         })
     },
 

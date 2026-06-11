@@ -517,6 +517,8 @@ interface GameStoreState {
 
   // Board Expectations & Confidence
   boardState?: import("@/engine/save-types").BoardState
+  socialFeed?: import("@/engine/save-types").SocialPost[]
+  careerStats?: import("@/engine/save-types").CareerStats
 
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
@@ -548,6 +550,8 @@ interface GameStoreActions {
   saveGame: () => Promise<void>
   initAchievements: () => void
   addNewsItem: (item: Omit<GameStoreState["newsFeed"][0], "id" | "week">) => void
+  syncSocialFeed: () => void
+  publishSocialPost: (content: string) => void
 
   // Game Loop
   advanceDay: () => Promise<void>
@@ -1941,6 +1945,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
             fplData: state.fplData,
             boardState: state.boardState,
+            socialFeed: state.socialFeed,
+            careerStats: state.careerStats,
+            nextMarketRefreshWeek: state.nextMarketRefreshWeek,
             pendingCelebration: state.pendingCelebration,
             pendingSeasonRecap: state.pendingSeasonRecap,
             pendingLegendPick: state.pendingLegendPick,
@@ -2252,6 +2259,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   tone: won ? "win" : "loss",
                   title: `${won ? "Beat" : "Lost to"} ${teamName(isHome ? m.awayTeamId : m.homeTeamId)}`,
                   detail: `${myScore}–${oppScore}${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
+                })
+              }
+              // Board moments surface in the reveal so quarterly pulses and
+              // season verdicts are felt, not buried in the news feed.
+              for (const n of revealState.newsFeed) {
+                if (n.week !== playedWeek && n.week !== revealState.currentWeek) continue
+                if (!n.id.startsWith("board_pulse_") && !n.id.startsWith("board_review_")) continue
+                const negative = /uneasy|alarmed|furious|concerned|Sacked/i.test(n.title)
+                revealItems.push({
+                  id: `board-${n.id}`,
+                  kind: "event",
+                  tone: negative ? "loss" : "win",
+                  title: n.title,
+                  detail: n.content.length > 110 ? `${n.content.slice(0, 107)}...` : n.content,
                 })
               }
               const seenEvent = new Set<string>()

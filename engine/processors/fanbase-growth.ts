@@ -75,6 +75,8 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
             }
         }
 
-        team.followers = Math.max(0, Math.floor((team.followers || 0) + weeklyGrowth))
+        // Ceiling matches the top of the in-game fan-milestone ladder (2M);
+        // unbounded growth made merch income explode over long campaigns.
+        team.followers = Math.min(2_000_000, Math.max(0, Math.floor((team.followers || 0) + weeklyGrowth)))
     })
 }

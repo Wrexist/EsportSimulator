@@ -152,6 +152,24 @@ describe("signSponsor", () => {
         expect(res.message).toContain("slots are full")
     })
 
+    test("refuses re-signing a sponsor still in its lapse cooldown", () => {
+        const h = makeHarness(makeBaseState({
+            currentWeek: 20,
+            teams: [makeTeam("player", { sponsorCooldowns: { PixelBrand: 28 } } as never)],
+        }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        const res = slice.signSponsor("player", makeSponsor("PixelBrand", "BASIC"))
+        expect(res.success).toBe(false)
+        expect(res.message).toContain("won't return")
+        // Same brand is fine once the cooldown has elapsed.
+        const h2 = makeHarness(makeBaseState({
+            currentWeek: 30,
+            teams: [makeTeam("player", { sponsorCooldowns: { PixelBrand: 28 } } as never)],
+        }))
+        const res2 = createTeamFacilitiesSlice(h2.set, h2.get).signSponsor("player", makeSponsor("PixelBrand", "BASIC"))
+        expect(res2.success).toBe(true)
+    })
+
     test("refuses duplicate tier", () => {
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", { sponsors: [makeSponsor("Already", "BASIC")] as never })],

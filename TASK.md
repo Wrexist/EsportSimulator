@@ -39,10 +39,16 @@ Six audits completed + verified → **`UI_POLISH_PLAN.md`** (phased: money-flow 
 quick wins → semantic visual system → feedback → performance → 1024×640 layout → a11y → QA gate).
 Phase 0 is correctness, not polish — do it regardless. Awaiting go.
 
+### P2.6 — Audit wave 3 (see AUDIT_WAVE3.md)
+12 verified findings FIXED (aging was entirely missing; facility upgrades never reached match
+strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). 10 OPEN items
+recorded with recommendations — top three: activeMerchItems inert toggle, dead settings
+(Notifications/Resolution/Game Speed), sponsor re-sign cycling.
+
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
-1. **Board war-chest** — confidence gates transfer budget (high confidence unlocks funds, low tightens). ~3 files; compounds the shipped board system. Recommended next.
-2. **Mid-season board check-ins** — interim confidence nudges + ultimatum events, so pressure isn't end-of-season-only.
-3. **Rivalries** — repeated opponents become rivals; derbies swing morale/fans/confidence harder. New persisted system; needs schema + plumbing care (CLAUDE.md invariant #1).
+1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
+2. ~~**Mid-season board check-ins**~~ — SHIPPED: quarterly pulses (weeks 13/26/39) nudge confidence from recent form (+4/+1/-3/-6 by win rate, min 3 matches, never sacks — the sack stays season-end/telegraphed). Surfaced in news feed AND the week-reveal overlay. Tested.
+3. **Rivalries** — PARTIALLY EXISTS (the classic pattern): `engine/history-tracker.ts` already tracks per-team rivalry intensity every tick (atomic-week-processor:882) and the stats page lists them. What's missing is rivalries having EFFECTS — derby morale/fan/confidence swings in the match + fanbase processors, and pre-match derby framing in the UI. Surface-and-wire job, not a new system.
 4. **Transfer negotiation depth** — counter-offers, agent personalities, holdouts.
 
 ### P4 — Steam release (manual, external)

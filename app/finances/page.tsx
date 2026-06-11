@@ -845,7 +845,9 @@ export default function FinancesPage() {
               <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl space-y-2">
                 <p className="text-[10px] uppercase font-bold text-primary tracking-widest">Revenue Impact</p>
                 <p className="text-xs text-muted-foreground leading-tight">
-                  Each active item increases your conversion potential. Diversifying your catalog helps capture more value from your {playerTeam.followers?.toLocaleString()} followers.
+                  Each active line adds <span className="text-emerald-400 font-bold">+4%</span> merchandise revenue
+                  {" — "}currently <span className="text-emerald-400 font-bold">+{Math.min(5, playerTeam.activeMerchItems?.length ?? 0) * 4}%</span> from
+                  your {playerTeam.followers?.toLocaleString()} followers. Unlock more lines by upgrading the store.
                 </p>
               </div>
             </Card>

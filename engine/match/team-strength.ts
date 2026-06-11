@@ -36,7 +36,18 @@ export function calculateTeamStrength(
 ): number {
     if (players.length === 0) return 0
 
-    const facilitiesLevel = team.facilitiesLevel || 1
+    // Facility level comes from the facilities ARRAY the player actually
+    // upgrades (upgradeFacility mutates facilities[].level). The legacy
+    // team.facilitiesLevel scalar is set once at init and never mutated -
+    // reading only it meant paid facility upgrades never reached match day.
+    // Runtime reality: callers cast the SAVE team straight in, so
+    // `facilities` is the save-shaped array ({type, level}[]) - the local
+    // Team type's object shape never exists at runtime.
+    const facilityArr = (team as unknown as { facilities?: { level?: number }[] }).facilities
+    const facilitiesLevel = Math.max(
+        (team as unknown as { facilitiesLevel?: number }).facilitiesLevel || 1,
+        ...(Array.isArray(facilityArr) ? facilityArr.map(f => f.level || 1) : [1]),
+    )
 
     // Average skill: the headline number — 0-100, normalized output.
     const avgSkill = players.reduce((sum, p) => sum + p.skill, 0) / players.length

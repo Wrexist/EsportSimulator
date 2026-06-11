@@ -21,6 +21,11 @@
 import type { UIActions, SliceCreator } from "@/store/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { soundManager } from "@/lib/sound-manager"
+import { useSettingsStore } from "@/lib/settings-store"
+
+// Low-value toast types suppressed when the "Notifications" setting is off.
+// Meaningful types (achievement, level_up, warning, error) always show.
+const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
 
 // Map a toast type → matching pre-defined SFX from lib/sound-manager.
 // Most of these were already implemented in the manager but had no
@@ -65,6 +70,13 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
     setTheme: (theme) => set({ theme }),
 
     addToast: (toast) => {
+        // Respect the Notifications setting: when off, drop the chatty
+        // info/xp_gain toasts but never the meaningful ones.
+        if (LOW_PRIORITY_TOASTS.has(toast.type) && typeof window !== "undefined") {
+            try {
+                if (!useSettingsStore.getState().notifications) return
+            } catch { /* settings store unavailable (tests) — show the toast */ }
+        }
         set((state) => {
             const id = nextToastId()
             state.toasts.push({ ...toast, id })

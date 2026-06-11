@@ -138,7 +138,7 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
                 const stats = staff.stats
                 if (effect.target === "all") {
                     Object.keys(stats).forEach(key => {
-                        stats[key] = Math.min(STAT_CLAMP_MAX, stats[key] + effect.value)
+                        stats[key] = Math.max(0, Math.min(STAT_CLAMP_MAX, stats[key] + effect.value))
                     })
                 } else if (stats[effect.target] !== undefined) {
                     stats[effect.target] = Math.min(

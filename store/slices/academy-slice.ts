@@ -233,6 +233,12 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
                 return
             }
+            // Don't take the player's money for a prospect the full desk will
+            // discard on completion — refuse the mission up front instead.
+            if ((state.academyPendingProspects || []).length >= PENDING_POOL_MAX_SIZE) {
+                result = { success: false, message: `Your review desk is full (max ${PENDING_POOL_MAX_SIZE}). Enroll or release a pending prospect first.` }
+                return
+            }
 
             team.budget -= cost
             const duration = SCOUTING_DURATIONS[tier]
@@ -356,6 +362,15 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const playerIndex = state.players.findIndex(p => p.id === prospect.playerId)
             if (playerIndex !== -1) {
                 state.players.splice(playerIndex, 1)
+            }
+            // Clear any dev-match roster slot referencing the released prospect
+            // so scheduleDevMatch doesn't resolve a stale id to a missing starter.
+            if (state.academyRoster) {
+                for (const role of Object.keys(state.academyRoster)) {
+                    if (state.academyRoster[role] === prospect.id || state.academyRoster[role] === prospect.playerId) {
+                        state.academyRoster[role] = null
+                    }
+                }
             }
 
             result = {

@@ -33,6 +33,7 @@ import { checkAchievements } from "@/engine/steam-service"
 import { soundManager } from "@/lib/sound-manager"
 import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
 import { recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
+import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import {
     nextDeterministicId,
     parseBoundedInt,
@@ -116,6 +117,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const transferPlayerRecord = state.players.find(p => p.id === playerId)
             if (!transferPlayerRecord) {
                 result = { success: false, message: "Player not found" }
+                return
+            }
+            if (transferPlayerRecord.isRetired) {
+                result = { success: false, message: `${transferPlayerRecord.nickname} has retired and cannot be signed` }
                 return
             }
 
@@ -206,6 +211,19 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (toTeam.budget < normalizedFee) {
                 result = { success: false, message: `${toTeam.name} cannot afford this transfer fee.` }
                 return
+            }
+
+            // Board war-chest (player team buying only): a doubting board
+            // won't sanction blowing the budget on one blockbuster fee.
+            if (toTeamId === state.playerTeamId && normalizedFee > 0) {
+                const sanction = getBoardSanctionedFee(state.boardState, toTeam.budget)
+                if (normalizedFee > sanction.maxFee) {
+                    result = {
+                        success: false,
+                        message: `The board won't sanction a $${normalizedFee.toLocaleString()} fee — with confidence at ${state.boardState?.confidence ?? "?"}/100 they cap single signings at $${sanction.maxFee.toLocaleString()} (${Math.round(sanction.fraction * 100)}% of budget). Win their trust back.`,
+                    }
+                    return
+                }
             }
 
             // Apply from-team side: drop roster entry, credit fee, clean training.
@@ -453,6 +471,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const contract = state.contracts.find(c => c.playerId === playerId)
             if (!contract) {
                 toastMsg = "Contract not found."
+                toastType = "warning"
+                return
+            }
+            if (contract.endWeek <= state.currentWeek) {
+                toastMsg = "Contract has already expired - sign the player as a free agent instead."
                 toastType = "warning"
                 return
             }

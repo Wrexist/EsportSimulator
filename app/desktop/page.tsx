@@ -36,7 +36,6 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { generateSocialPosts } from "@/lib/social-generator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -97,15 +96,19 @@ import { Suspense } from "react"
 function DesktopContent() {
   const router = useRouter()
   const {
-    eventsLog, players, teams, currentWeek, pendingSeasonRecap, playerTeamId
+    eventsLog, players, teams, currentWeek, pendingSeasonRecap, playerTeamId,
+    socialFeed,
   } = useGameStore(useShallow(state => ({
     eventsLog: state.eventsLog,
     players: state.players,
     teams: state.teams,
     currentWeek: state.currentWeek,
     pendingSeasonRecap: state.pendingSeasonRecap,
-    playerTeamId: state.playerTeamId
+    playerTeamId: state.playerTeamId,
+    socialFeed: state.socialFeed,
   })))
+  const syncSocialFeed = useGameStore(s => s.syncSocialFeed)
+  const publishSocialPost = useGameStore(s => s.publishSocialPost)
 
   const {
     resolveEventChoice, completedMatches, acceptTransferOffer, acceptJobOffer,
@@ -207,10 +210,13 @@ function DesktopContent() {
   }, [selectedEventId, eventsLog, acknowledgeEvent])
 
 
-  // Dynamic Social Posts
-  const socialPosts = useMemo(() => {
-    return generateSocialPosts(playerTeam, completedMatches, players)
-  }, [playerTeam, completedMatches, players])
+  // Persisted social timeline — generation is deterministic per (save, week);
+  // this merges the current week's NPC posts into the saved feed (idempotent)
+  // so the timeline accumulates and the player's own posts survive.
+  useEffect(() => {
+    if (playerTeamId) syncSocialFeed()
+  }, [playerTeamId, currentWeek, syncSocialFeed])
+  const socialPosts = socialFeed ?? []
 
   // DEV: Keyboard shortcut (Ctrl+Shift+H) to test Pro Awards Modal
   useEffect(() => {
@@ -1144,7 +1150,7 @@ function DesktopContent() {
             onMinimize={() => minimizeWindow("social")}
             onFocus={() => focusWindow("social")}
           >
-            <SocialApp posts={socialPosts} teams={teams} playerTeam={playerTeam} />
+            <SocialApp posts={socialPosts} teams={teams} playerTeam={playerTeam} currentWeek={currentWeek} onPublish={publishSocialPost} />
           </AppWindow>
 
           <AppWindow

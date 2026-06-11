@@ -10,6 +10,7 @@ import { useShallow } from "zustand/react/shallow"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
+import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider" // Assuming we have or will treat as standard input
 import { Badge } from "@/components/ui/badge"
@@ -61,7 +62,7 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
     const router = useRouter()
-    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId, addToast } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         contracts: state.contracts,
@@ -70,6 +71,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         currentWeek: state.currentWeek,
         saveId: state.saveId,
         addToast: state.addToast,
+        boardState: state.boardState,
     })))
 
     // Derived Data
@@ -77,6 +79,8 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
     const activeContract = contracts.find(c => c.playerId === playerId)
     const currentTeam = teams.find(t => t.id === activeContract?.teamId)
     const myTeam = teams.find(t => t.id === playerTeamId)
+    // Board war-chest: the single-fee ceiling the board will sanction.
+    const boardSanction = getBoardSanctionedFee(boardState, myTeam?.budget || 0)
 
     // Local State
     const [stage, setStage] = useState<NegotiationStage>("BUYOUT")
@@ -389,6 +393,12 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                 Budget: {formatMoney(myTeam?.budget || 0)}
                                             </span>
                                         </div>
+                                        {boardSanction.fraction < 1 && (
+                                            <div className="mt-2 flex justify-between text-xs font-bold uppercase tracking-wider text-amber-400/90">
+                                                <span>Board sanction limit</span>
+                                                <span>{formatMoney(boardSanction.maxFee)} ({Math.round(boardSanction.fraction * 100)}% of budget)</span>
+                                            </div>
+                                        )}
                                         {(myTeam?.budget || 0) < evaluation.transferValue * 0.5 && (
                                             <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-[10px] font-bold uppercase">
                                                 <AlertCircle size={14} />

@@ -147,6 +147,30 @@ export interface GameSave {
 
     // === BOARD EXPECTATIONS & CONFIDENCE ===
     boardState?: BoardState
+
+    // === SOCIAL FEED (persisted timeline) ===
+    socialFeed?: SocialPost[]
+}
+
+/** A single post in the persisted social timeline. `week` is when it was
+ *  posted (drives cross-week aging); `timestamp` is an intra-week hint. */
+export interface SocialPost {
+    id: string
+    week: number
+    teamId?: string
+    authoredByPlayer?: boolean
+    user: {
+        name: string
+        handle: string
+        avatar: string
+        isVerified?: boolean
+    }
+    content: string
+    timestamp: string
+    likes: number
+    retweets: number
+    replies: number
+    image?: string
 }
 
 /** A board's standing expectation tier, derived from club stature. */
@@ -160,6 +184,8 @@ export interface BoardState {
     expectationSetSeason: number
     lastReviewedSeason: number
     onNotice: boolean
+    /** Week of the last quarterly mid-season pulse (idempotency guard). */
+    lastPulseWeek?: number
 }
 
 /**
@@ -360,6 +386,8 @@ export interface TeamSaveData {
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]
     sponsors?: SponsorSaveData[]
+    /** Sponsor name → earliest week it can be re-signed (anti re-cycling). */
+    sponsorCooldowns?: Record<string, number>
     merchHype?: number // 0-100 multiplier for merchandise revenue
 
     // === NEW: Fan Base & Merch System ===

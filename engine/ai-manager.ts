@@ -28,6 +28,7 @@ import {
     processAIToAITransfers as processAIToAITransfersFn,
 } from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
+import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
 
 /**
  * AI Manager
@@ -450,12 +451,17 @@ export class AIManager {
                 .map(id => playerIndex.get(id))
                 .filter((p): p is PlayerSaveData => !!p && (p.age || 20) >= 33 && (p.skill || 50) < 40)
 
+            let teamRetired = false
             for (const player of retirementCandidates) {
                 if (team.rosterIds.length <= 5) break // Keep minimum roster
                 team.rosterIds = team.rosterIds.filter(id => id !== player.id)
                 applyRosterChangePenalty(team, save.currentWeek, 1)
                 player.isRetired = true
+                teamRetired = true
             }
+            // Every other roster-mutation path (transfers, academy promotion)
+            // recalculates synergy; retirement must too or the matrix goes stale.
+            if (teamRetired) recalculateTeamSynergy(team, save.players)
         }
 
         // Refresh world rankings at season end

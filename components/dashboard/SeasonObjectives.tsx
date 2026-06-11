@@ -129,6 +129,11 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
                     </div>
                     <p className="text-sm font-semibold text-white/90 leading-tight">{tierTargets.label}</p>
                     <p className="text-[10px] text-white/40 leading-snug">{tierTargets.blurb}</p>
+                    {confidence < 70 && (
+                        <p className="text-[10px] text-amber-400/80 leading-snug">
+                            War chest limited: the board sanctions single transfer fees up to {confidence < 25 || boardOnNotice ? 40 : confidence < 40 ? 60 : 80}% of budget.
+                        </p>
+                    )}
                     <div className="flex items-center gap-2 pt-0.5">
                         <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold shrink-0">Confidence</span>
                         <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">

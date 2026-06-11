@@ -1,4 +1,6 @@
 import {
+    getBoardSanctionedFee,
+    processMidSeasonBoardPulse,
     deriveExpectationTier,
     evaluateOutcome,
     confidenceDelta,
@@ -151,5 +153,82 @@ describe("processSeasonBoardReview", () => {
         const second = processSeasonBoardReview(save)
         expect(second.reviewed).toBe(false)
         expect(save.boardState!.confidence).toBe(70) // unchanged by the 2nd call
+    })
+})
+
+describe("getBoardSanctionedFee — board war-chest", () => {
+    const board = (confidence: number, onNotice = false) => ({
+        teamId: "player", confidence, seasonExpectation: "COMPETE",
+        expectationSetSeason: 1, lastReviewedSeason: 0, onNotice,
+    }) as unknown as BoardState
+
+    test("tiers: full backing >=70, 80% at 40-69, 60% at 25-39, 40% below/on-notice", () => {
+        expect(getBoardSanctionedFee(board(85), 100_000).maxFee).toBe(100_000)
+        expect(getBoardSanctionedFee(board(60), 100_000).maxFee).toBe(80_000)
+        expect(getBoardSanctionedFee(board(30), 100_000).maxFee).toBe(60_000)
+        expect(getBoardSanctionedFee(board(10), 100_000).maxFee).toBe(40_000)
+        expect(getBoardSanctionedFee(board(80, true), 100_000).maxFee).toBe(40_000) // on notice overrides
+    })
+
+    test("missing board state never blocks (fresh saves pre-tick)", () => {
+        expect(getBoardSanctionedFee(undefined, 100_000)).toEqual({ maxFee: 100_000, fraction: 1 })
+    })
+})
+
+describe("processMidSeasonBoardPulse — quarterly check-ins", () => {
+    const mkMatch = (id: string, week: number, won: boolean) => ({
+        id, week, homeTeamId: "player", awayTeamId: "rival",
+        result: { homeScore: won ? 2 : 0, awayScore: won ? 0 : 2, winnerId: won ? "player" : "rival", maps: [] },
+    })
+
+    function pulseSave(week: number, wins: number, losses: number, confidence = 60) {
+        const save = makeSave({ currentWeek: week }, { confidence, seasonExpectation: "COMPETE", expectationSetSeason: 1, lastReviewedSeason: 0 })
+        const matches = []
+        for (let i = 0; i < wins; i++) matches.push(mkMatch(`w${i}`, week - 1 - i, true))
+        for (let i = 0; i < losses; i++) matches.push(mkMatch(`l${i}`, week - 1 - wins - i, false))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(save as any).completedMatches = matches
+        return save
+    }
+
+    test("only fires on quarter weeks (13/26/39, season-relative)", () => {
+        expect(processMidSeasonBoardPulse(pulseSave(12, 5, 1)).pulsed).toBe(false)
+        expect(processMidSeasonBoardPulse(pulseSave(13, 5, 1)).pulsed).toBe(true)
+        expect(processMidSeasonBoardPulse(pulseSave(65, 5, 1)).pulsed).toBe(true) // week 13 of season 2
+        expect(processMidSeasonBoardPulse(pulseSave(52, 5, 1)).pulsed).toBe(false) // season review week, not a pulse
+    })
+
+    test("hot form (+4), steady (+1), poor (-3), slump (-6); clamped; never sacks", () => {
+        const hot = pulseSave(13, 6, 1)
+        expect(processMidSeasonBoardPulse(hot)).toMatchObject({ pulsed: true, delta: 4, confidence: 64 })
+
+        const steady = pulseSave(13, 4, 4)
+        expect(processMidSeasonBoardPulse(steady)).toMatchObject({ delta: 1, confidence: 61 })
+
+        const poor = pulseSave(13, 3, 5) // 37.5% in [0.25, 0.45)
+        expect(processMidSeasonBoardPulse(poor)).toMatchObject({ delta: -3, confidence: 57 })
+
+        const slump = pulseSave(13, 0, 6, 4) // 0% from confidence 4 → clamps at 0, no sack
+        const res = processMidSeasonBoardPulse(slump)
+        expect(res).toMatchObject({ delta: -6, confidence: 0 })
+        expect(slump.gameOverReason).toBeUndefined()
+    })
+
+    test("idempotent within a week; skips with too few matches", () => {
+        const save = pulseSave(13, 5, 1)
+        processMidSeasonBoardPulse(save)
+        const after = save.boardState!.confidence
+        expect(processMidSeasonBoardPulse(save).pulsed).toBe(false) // same week again
+        expect(save.boardState!.confidence).toBe(after)
+
+        const quiet = pulseSave(13, 1, 1) // only 2 matches < min 3
+        expect(processMidSeasonBoardPulse(quiet).pulsed).toBe(false)
+        expect(quiet.boardState!.confidence).toBe(60) // untouched
+    })
+
+    test("low-confidence pulse carries the ultimatum warning", () => {
+        const save = pulseSave(13, 0, 6, 25) // → 19 after -6
+        const res = processMidSeasonBoardPulse(save)
+        expect(res.newsContent).toContain("deliver results")
     })
 })

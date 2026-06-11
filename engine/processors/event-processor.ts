@@ -363,6 +363,16 @@ export class EventProcessor {
             player.retirementWeek = save.currentWeek
             retired.push(player.id)
 
+            // A retiree can't keep occupying academy slots.
+            if (save.academyPlayers?.length) {
+                save.academyPlayers = save.academyPlayers.filter(ap => ap.playerId !== player.id)
+            }
+            if (save.academyRoster) {
+                for (const role of Object.keys(save.academyRoster)) {
+                    if (save.academyRoster[role] === player.id) save.academyRoster[role] = null
+                }
+            }
+
             // Auto-terminate contract and remove from roster
             const contract = contractMap.get(player.id)
             const lastTeamId = contract?.teamId
