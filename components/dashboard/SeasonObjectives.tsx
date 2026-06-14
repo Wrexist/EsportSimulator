@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Trophy, TrendingUp, Users, ShieldCheck, CheckCircle2, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { deriveExpectationTier, getTierTargets } from "@/engine/board-expectations"
+import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
 import type { BoardExpectationTier } from "@/engine/save-types"
 
 interface SeasonObjectivesProps {
@@ -135,7 +136,7 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
                         </p>
                     )}
                     <div className="flex items-center gap-2 pt-0.5">
-                        <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold shrink-0">Confidence</span>
+                        <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold shrink-0 inline-flex items-center gap-1">Confidence <HelpTooltip content={StatExplanations.boardConfidence} size={10} /></span>
                         <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
                             <div className={cn("h-full rounded-full transition-all duration-700", confColor)} style={{ width: `${confidence}%` }} />
                         </div>

@@ -6,6 +6,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
 import {
     TrendingUp,
     Award,
@@ -239,7 +240,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                 <div>Rank</div>
                 <div>Team</div>
                 <div className="text-center">League</div>
-                <div className="text-center">Elo</div>
+                <div className="text-center flex items-center justify-center gap-1">Elo <HelpTooltip content={StatExplanations.elo} size={11} /></div>
                 <div className="text-center">OVR</div>
                 <div className="text-center">Form</div>
                 <div className="text-right" />

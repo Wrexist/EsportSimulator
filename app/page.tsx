@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
+import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
 import Link from "next/link"
@@ -666,6 +667,7 @@ export default function Page() {
 
         {/* Sidebar Column: Action Center + Weekly Focus + Objectives + News Feed */}
         <div className="space-y-6">
+          <GettingStartedChecklist />
           <ActionCenter />
           <WeeklyFocusWidget />
           {playerTeam && (
