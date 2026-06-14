@@ -21,9 +21,10 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **Wave 4 — Teach:** stat tooltips wired (Elo/potential/form/energy/board confidence), glossary grown to 13 topics, Getting Started checklist. → E1, E2, E3, E4.
 - **Wave 5a — Verified fixes:** facility bonus (avg + correct scale), `tacticalPrep` weekly reset, role-training refund ledgered, veto dead-end, Pro Awards auto-open, prize count-up, dashboard money formatter. → C7, B13, G2, F5, D5, D10, F6.
 - **Wave 5b — Depth/celebration:** career milestone toasts (firsts/totals/streaks), sponsor brand trade-offs, team OVR on dashboard, trophy-cabinet art, roster-swap toast. → D6, D7, D8, B7, C6, D9, F4.
-- **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds — a live-only edge over quick-sim. Behind a determinism harness + boost test. → B5.
+- **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds + neutralises the opponent's momentum for the window. Behind a determinism harness + boost test. → B5.
+- **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
-**Still open:** B4/B12/C8/C9–C11 · D11/D12 · E5–E10 · F3/F7–F10 · G1 (passive-training pipeline decision) · G3.
+**Still open:** B4 · C8/C9–C11 · E5/E6/E8/E9 · F3/F9/F10 · G1 (passive-training pipeline decision) · G3.
 
 ## The five dominant themes
 
