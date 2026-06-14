@@ -514,6 +514,14 @@ export interface SponsorSaveData {
         bonusPayout: number
         isCompleted: boolean
     }[]
+    /** Per-week non-cash side-effects from the brand (AUDIT_UX_2026-06 B7) — the
+     *  trade-off that makes signing a choice, not just "pick the biggest payout".
+     *  Carried through signSponsor (spread) and applied weekly by the processor. */
+    brandEffect?: {
+        reputationPerWeek?: number
+        moralePerWeek?: number
+        followerGrowthPerWeek?: number
+    }
 }
 
 /**

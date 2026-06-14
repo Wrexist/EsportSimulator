@@ -104,6 +104,23 @@ export function processWeeklySponsorGoals(
                 })
             }
 
+            // B7: apply the brand's per-week non-cash side-effects (clamped,
+            // non-farmable). Runs once/week per sponsor via the lastProcessedWeek
+            // guard above. Followers respect the same 2M cap as fanbase growth.
+            const fx = sponsor.brandEffect
+            if (fx) {
+                if (fx.reputationPerWeek) {
+                    team.reputation = Math.max(0, Math.min(100, (team.reputation || 0) + fx.reputationPerWeek))
+                }
+                if (fx.followerGrowthPerWeek) {
+                    team.followers = Math.min(2_000_000, Math.max(0, (team.followers || 0) + fx.followerGrowthPerWeek))
+                }
+                if (fx.moralePerWeek) {
+                    const delta = fx.moralePerWeek
+                    rosterPlayers.forEach(p => { p.morale = Math.max(0, Math.min(100, (p.morale || 0) + delta)) })
+                }
+            }
+
             sponsor.followerCheckpoint = followers
             sponsor.lastProcessedWeek = save.currentWeek
             sponsor.remainingWeeks = Math.max(0, (sponsor.remainingWeeks || 0) - 1)
