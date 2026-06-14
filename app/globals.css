@@ -404,6 +404,56 @@ body[data-scroll-locked] {
       linear-gradient(165deg, #010204 0%, #04070b 48%, #020305 100%);
   }
 
+  /* Living ambient backdrop — two oversized, heavily-blurred accent blobs that
+     drift very slowly behind all chrome. Adds depth and life without clutter:
+     low opacity + 80px blur keep it a whisper, not a light show. Animation is
+     paused under reduced-motion (system or the .reduce-motion class). */
+  .liquid-aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .liquid-aurora::before,
+  .liquid-aurora::after {
+    content: "";
+    position: absolute;
+    width: 66vw;
+    height: 66vw;
+    border-radius: 50%;
+    filter: blur(90px);
+    will-change: transform;
+  }
+  .liquid-aurora::before {
+    top: -24%;
+    left: -14%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 64%);
+    animation: aurora-drift-a 38s ease-in-out infinite alternate;
+  }
+  .liquid-aurora::after {
+    bottom: -30%;
+    right: -14%;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.14), transparent 64%);
+    animation: aurora-drift-b 46s ease-in-out infinite alternate;
+  }
+  .onyx .liquid-aurora::before { background: radial-gradient(circle, rgba(56, 189, 248, 0.06), transparent 62%); }
+  .onyx .liquid-aurora::after  { background: radial-gradient(circle, rgba(129, 140, 248, 0.05), transparent 62%); }
+
+  @keyframes aurora-drift-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(7%, 5%, 0) scale(1.18); }
+  }
+  @keyframes aurora-drift-b {
+    from { transform: translate3d(0, 0, 0) scale(1.12); }
+    to   { transform: translate3d(-6%, -7%, 0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-aurora::before,
+    .liquid-aurora::after { animation: none; }
+  }
+  .reduce-motion .liquid-aurora::before,
+  .reduce-motion .liquid-aurora::after { animation: none; }
+
   /* Ultrathin material — chips, hover layers, inline pills. The lightest
      glass tier; sits directly on top of a heavier surface. */
   .glass-ultrathin {

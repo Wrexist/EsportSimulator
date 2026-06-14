@@ -373,6 +373,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         // wrap themselves in a nested MotionConfig.
         <MotionConfig reducedMotion="user">
         <div className={`flex h-screen liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
+            {/* Ambient depth layers — sit behind all chrome (z-[-1]); grain over aurora. */}
+            <div className="liquid-aurora z-[-1]" />
             <div className="pointer-events-none absolute inset-0 liquid-noise" />
             {/* Fixed Sidebar - Hidden on New Game/Main Menu */}
             {!hideChrome && <Sidebar />}
@@ -389,7 +391,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                         must NOT add their own entry fade (double-animation). */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in duration-300"}
+                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out"}
                     >
                         <ErrorBoundary>
                             {children}
