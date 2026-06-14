@@ -31,6 +31,7 @@ export function getEventTitle(event: GameEventSaveData): string {
         case "RETIREMENT": return "Retirement News"
         case "JOB_OFFER": return "Job Offer"
         case "CAREER_UPDATE": return "Career Update"
+        case "MILESTONE": return "🏆 Milestone"
         case "TOURNAMENT": return "Tournament"
         case "MEDIA":
             if (data?.proAwards) {

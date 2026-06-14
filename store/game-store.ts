@@ -93,6 +93,7 @@ import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-process
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
+import { checkMilestones } from "@/engine/milestone-checker"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
@@ -2207,6 +2208,34 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Rich Presence from the post-tick snapshot. Self-guards on
             // playerTeam — no-ops if the player isn't on a team yet.
             evaluatePostTickAchievements(get() as unknown as GameSave)
+
+            // Career milestones (firsts, round-number totals, streaks). Dedup
+            // against the durable acknowledgedEventIds set — each milestone has a
+            // stable id, so it fires exactly once ever. Toast + acknowledge so the
+            // id persists and it never re-fires.
+            try {
+              const msState = get()
+              const firedIds = new Set<string>([
+                ...msState.acknowledgedEventIds,
+                ...msState.eventsLog.map(e => e.id),
+              ])
+              const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
+              milestones.forEach(ms => {
+                get().addToast({ message: ms.message, type: "achievement" })
+                set((s) => {
+                  s.eventsLog.unshift({
+                    id: ms.id,
+                    week: s.currentWeek,
+                    type: "MILESTONE",
+                    data: { description: ms.message, importance: "MEDIUM" },
+                    acknowledged: true,
+                  })
+                  if (!s.acknowledgedEventIds.includes(ms.id)) s.acknowledgedEventIds.push(ms.id)
+                })
+              })
+            } catch (msErr) {
+              logger.error("[advanceWeek] milestone check failed", msErr)
+            }
 
             // Route transient (one-shot UI) events to in-game toasts and
             // auto-acknowledge so they don't pile up in the inbox.
