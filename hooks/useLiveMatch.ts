@@ -862,6 +862,18 @@ export function useLiveMatch(id: string) {
                 const roundEndMessage = commentaryManager.generate(winType, { team: winnerName })
                 setLogs(prev => [{ type: "ROUND_END", message: `${roundEndMessage} (Winner: ${winnerName})` }, ...prev])
 
+                // Per-round audio feedback for the player's team — the most
+                // repeated beat on the centerpiece screen was silent. Skip the
+                // map-clinching round (it gets the victory/defeat cue below, so
+                // the two don't stack). soundManager self-gates on the setting.
+                const mapClinched = roundState.homeRounds >= 13 || roundState.awayRounds >= 13
+                const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
+                const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide)) {
+                    const playerWonRound = playerIsHomeSide ? isHomeWinner : !isHomeWinner
+                    soundManager.play(playerWonRound ? "roundWin" : "roundLose")
+                }
+
                 if (roundState.homeRounds >= 13 || roundState.awayRounds >= 13) {
                     const homeWonMap = roundState.homeRounds > roundState.awayRounds
                     const newHomeSeries = roundState.homeSeriesScore + (homeWonMap ? 1 : 0)

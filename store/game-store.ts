@@ -2210,20 +2210,32 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Route transient (one-shot UI) events to in-game toasts and
             // auto-acknowledge so they don't pile up in the inbox.
             const freshState = get()
-            const toastEventTypes = ["TRAINING_COMPLETE", "SPONSOR_OFFER"]
+            const toastEventTypes = ["TRAINING_COMPLETE", "SPONSOR_OFFER", "MANAGER_LEVEL_UP", "PLAYER_LEVEL_UP"]
             const toastEvents = freshState.eventsLog.filter(
-              e => toastEventTypes.includes(e.type as string)
-                && e.week === freshState.currentWeek
+              e => e.week === freshState.currentWeek
                 && !e.acknowledged
+                && (
+                  toastEventTypes.includes(e.type as string)
+                  // Promotion/relegation ride on MEDIA events flagged in data —
+                  // surface the climb beat instead of leaving it silent in the feed.
+                  || (e.type === "MEDIA" && !!((e.data as { isPromotion?: boolean; isRelegation?: boolean })?.isPromotion || (e.data as { isPromotion?: boolean; isRelegation?: boolean })?.isRelegation))
+                )
             )
             toastEvents.forEach(event => {
-              const data = event.data as { title?: string; description?: string; message?: string }
+              const data = event.data as { title?: string; description?: string; message?: string; playerName?: string; newLevel?: number; isPromotion?: boolean; isRelegation?: boolean }
+              const etype = event.type as string
+              const message =
+                etype === "PLAYER_LEVEL_UP" && !data.message && data.playerName
+                  ? `${data.playerName} reached Level ${data.newLevel}!`
+                  : data.title
+                    ? `${data.title}${data.message ? ` — ${data.message}` : ""}`
+                    : data.description || data.message || "Event notification"
               get().addToast({
-                message: data.title
-                  ? `${data.title}${data.message ? ` — ${data.message}` : ""}`
-                  : data.description || data.message || "Event notification",
-                type: event.type === "TRAINING_COMPLETE" ? "level_up"
-                  : event.type === "SPONSOR_OFFER" ? "achievement"
+                message,
+                type: etype === "TRAINING_COMPLETE" || etype === "MANAGER_LEVEL_UP" || etype === "PLAYER_LEVEL_UP" ? "level_up"
+                  : etype === "SPONSOR_OFFER" ? "achievement"
+                  : data.isPromotion ? "achievement"
+                  : data.isRelegation ? "warning"
                   : "info",
               })
               get().acknowledgeEvent(event.id)

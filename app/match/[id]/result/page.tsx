@@ -10,7 +10,6 @@ import { Home, Trophy, Swords, Calendar, Clock, ArrowRight } from "lucide-react"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
-import Image from "next/image"
 import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
@@ -24,39 +23,6 @@ import { TournamentMatchContext } from "@/components/tournament/TournamentMatchC
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { DefeatOverlay } from "@/components/match/DefeatOverlay"
 
-// Animated counter component for stats.
-// Earlier version had a bug: the inner `return () => clearInterval(timer)` was
-// returning from the setTimeout callback, not from useEffect. If the component
-// unmounted while the interval was still running it kept ticking. Track the
-// interval id via ref so the real useEffect cleanup can always cancel it.
-function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, duration?: number, delay?: number }) {
-    const [displayValue, setDisplayValue] = useState(0)
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            let start = 0
-            const increment = value / (duration * 60)
-            intervalRef.current = setInterval(() => {
-                start += increment
-                if (start >= value) {
-                    setDisplayValue(value)
-                    if (intervalRef.current) clearInterval(intervalRef.current)
-                    intervalRef.current = null
-                } else {
-                    setDisplayValue(Math.floor(start))
-                }
-            }, 1000 / 60)
-        }, delay * 1000)
-        return () => {
-            clearTimeout(timeout)
-            if (intervalRef.current) clearInterval(intervalRef.current)
-            intervalRef.current = null
-        }
-    }, [value, duration, delay])
-
-    return <>{displayValue}</>
-}
 
 export default function MatchResultPage({ params }: { params: { id: string } }) {
     const { id } = params

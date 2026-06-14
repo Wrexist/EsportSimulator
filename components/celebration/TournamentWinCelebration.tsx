@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { panelTransition } from "@/lib/motion"
+import { soundManager } from "@/lib/sound-manager"
 
 interface TournamentWinCelebrationProps {
     data: {
@@ -28,6 +29,10 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
 
     useEffect(() => {
         setMounted(true)
+
+        // The peak moment of the game — give it fanfare. soundManager self-gates
+        // on the user's sound setting, and sound is independent of reduced-motion.
+        soundManager.play("victory")
 
         // Skip the 5s confetti barrage entirely for users who set
         // prefers-reduced-motion — the celebration card itself still
