@@ -11,6 +11,19 @@
 > **[ADD]** missing · **[IMPROVE]** exists-but-weak. Severity P0 (breaks the goal) / P1 (notably
 > hurts) / P2 (polish).
 
+## Implementation status (updated 2026-06-14)
+
+Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lint 0):
+
+- **Wave 1 + A1 — Hub:** unified on `/` (land there, desktop reframed as Inbox, duplicate apps deep-link to canonical pages); Action Center surfaces decisions inline + Weekly Focus on the hub; result-screen "next match" CTA. → A1, A2, A3, B1, B3, B6.
+- **Wave 2 — Feedback:** promotion/relegation + level-up toasts, championship-modal sound, live-match round sounds, TopBar count-up, dead result-screen counter removed. → D1, D2, D3, D4, F1, F2.
+- **Wave 3 — Progression:** cross-save manager career profile; new-game unlock gate reads peak level (was hardcoded); Career Legacy tier ladder. → C1, C2, C3.
+- **Wave 4 — Teach:** stat tooltips wired (Elo/potential/form/energy/board confidence), glossary grown to 13 topics, Getting Started checklist. → E1, E2, E3, E4.
+- **Wave 5a — Verified fixes:** facility bonus (avg + correct scale), `tacticalPrep` weekly reset, role-training refund ledgered, veto dead-end, Pro Awards auto-open, prize count-up, dashboard money formatter. → C7, B13, G2, F5, D5, D10, F6.
+- **Wave 5b — Depth/celebration:** career milestone toasts (firsts/totals/streaks), sponsor brand trade-offs, team OVR on dashboard, trophy-cabinet art, roster-swap toast. → D6, D7, D8, B7, C6, D9, F4.
+
+**Still open:** B5 (live-match agency — touches the deterministic sim; needs a planned sign-off) · B4/B12/C8/C9–C11 · D11/D12 · E5–E10 · F3/F7–F10 · G1 (passive-training pipeline decision) · G3.
+
 ## The five dominant themes
 
 1. **The two-hub split is the #1 structural problem.** `/` (sidebar "Home", the dashboard with

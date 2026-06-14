@@ -2,6 +2,16 @@
 
 > Update this file when state changes. Definition of done = closer to shipped on Steam.
 
+## Status snapshot (2026-06-14)
+
+- Branch: `claude/nice-babbage-uusrux` — UX/feel/progression program (`AUDIT_UX_2026-06.md`).
+  Shipped Waves 1→5b (hub unification, feedback, cross-save progression, onboarding,
+  verified fixes, milestones, sponsor depth, polish). Gates green throughout
+  (tsc 0 · jest 1007 · lint 0); +24 regression tests.
+- Open from that audit: **B5 live-match agency** (deterministic-sim, needs planned
+  sign-off), plus minor polish (D11/D12, E5–E10, F3/F7–F10) and the **G1** passive-
+  training-pipeline decision. See `AUDIT_UX_2026-06.md` "Implementation status".
+
 ## Status snapshot (2026-06-09)
 
 - Branch: `claude/great-knuth-0Wbbf` — **9 commits ahead of main, pushed; PR open.**
