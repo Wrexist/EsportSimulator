@@ -48,6 +48,7 @@ import { Taskbar } from "@/components/ui/Taskbar"
 
 // Desktop Apps
 import { MailApp } from "@/components/desktop-apps/MailApp"
+import { getEventTitle } from "@/lib/event-format"
 import { SocialApp } from "@/components/desktop-apps/SocialApp"
 import { MarketApp } from "@/components/desktop-apps/MarketApp"
 import { CalendarApp } from "@/components/desktop-apps/CalendarApp"
@@ -454,34 +455,8 @@ function DesktopContent() {
   }, [selectedEventId])
 
   // Event helpers
-  const getEventTitle = useCallback((event: GameEventSaveData) => {
-    const data = event.data as any
-    const type = event.type as string
-    switch (type) {
-      case "CONTRACT": return "Contract Expiry"
-      case "MORALE": return "Internal Morale"
-      case "INJURY": return data.fatigue ? "Fatigue Warning" : "Medical Report"
-      case "FINANCE": return "Finance Dept"
-      case "win_streak": return "Performance"
-      case "loss_streak": return "Performance"
-      case "TRANSFER_OFFER": return "Transfer Offer"
-      case "TRANSFER_WINDOW": return "Transfer Market"
-      case "ROSTER_UPDATE": return "Roster News"
-      case "AI_SIGNING": return "New Signing"
-      case "AI_TRANSFER": return "Transfer Alert"
-      case "RETIREMENT": return "Retirement News"
-      case "JOB_OFFER": return "Job Offer"
-      case "CAREER_UPDATE": return "Career Update"
-      case "TOURNAMENT": return "Tournament"
-      case "MEDIA":
-        // Check for Pro awards
-        if ((data as any)?.proAwards) {
-          return `🏆 Pro Top 20 of ${(data as any).proAwards.year}`
-        }
-        return data.title || "Media Update"
-      default: return data.title || "Notification"
-    }
-  }, [])
+  // getEventTitle now lives in @/lib/event-format (shared with the dashboard
+  // Action Center) so the two surfaces can't drift.
 
   const getEventDescription = useCallback((event: GameEventSaveData) => {
     const data = event.data as any

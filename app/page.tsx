@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
+import { ActionCenter } from "@/components/dashboard/ActionCenter"
+import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -662,8 +664,10 @@ export default function Page() {
           </Card>
         </div>
 
-        {/* Sidebar Column: Objectives + News Feed */}
+        {/* Sidebar Column: Action Center + Weekly Focus + Objectives + News Feed */}
         <div className="space-y-6">
+          <ActionCenter />
+          <WeeklyFocusWidget />
           {playerTeam && (
             <SeasonObjectives
               worldRanking={playerTeam.worldRanking ?? 0}

@@ -6,7 +6,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Home, Trophy, Swords, Calendar, Clock } from "lucide-react"
+import { Home, Trophy, Swords, Calendar, Clock, ArrowRight } from "lucide-react"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
@@ -61,7 +61,7 @@ function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, d
 export default function MatchResultPage({ params }: { params: { id: string } }) {
     const { id } = params
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         players: state.players,
@@ -69,6 +69,8 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         clearActiveMatchState: state.clearActiveMatchState,
         playerTeamId: state.playerTeamId,
         tournaments: state.tournaments,
+        scheduledMatches: state.scheduledMatches,
+        currentWeek: state.currentWeek,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
@@ -314,11 +316,38 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         return (isPlayerHome || isPlayerAway) && !playerWon
     })()
 
+    // Next scheduled player match — surface a forward CTA so the loop self-propels
+    // instead of dead-ending on the result screen. The match just finished is already
+    // removed from scheduledMatches, so the soonest remaining one is genuinely "next".
+    const nextPlayerMatch = scheduledMatches
+        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+        .sort((a, b) => (a.week !== b.week ? a.week - b.week : (a.day ?? 6) - (b.day ?? 6)))[0]
+    const nextMatchPlayableNow = !!nextPlayerMatch && nextPlayerMatch.week <= currentWeek
+
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
             <DefeatOverlay active={playerLostThisMatch} />
             {/* Header / Nav */}
             <div className="max-w-7xl mx-auto flex items-center gap-4">
+                {nextPlayerMatch ? (
+                    nextMatchPlayableNow ? (
+                        <Button
+                            variant="play"
+                            onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)}
+                            className="h-11 px-6"
+                        >
+                            <Swords size={18} className="mr-2" /> Play Next Match
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="play"
+                            onClick={() => router.push("/")}
+                            className="h-11 px-6"
+                        >
+                            Continue <ArrowRight size={18} className="ml-2" />
+                        </Button>
+                    )
+                ) : null}
                 <Button
                     variant="ghost"
                     onClick={() => router.push("/")}
