@@ -417,6 +417,9 @@ export class AtomicWeekProcessor {
             // Reset daily/weekly counters
             save.teams.forEach(t => {
                 t.trainingSlotsUsed = 0
+                // VOD-review prep applies to the match it was bought for, then
+                // expires — otherwise tacticalPrep accrues to a permanent +25%.
+                t.tacticalPrep = 0
                 processWeeklyChemistryGrowth(t, save.currentWeek)
             })
 

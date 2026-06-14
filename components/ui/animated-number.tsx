@@ -11,6 +11,11 @@ interface AnimatedNumberProps {
      *  rounded `toLocaleString()`. */
     format?: (n: number) => string
     className?: string
+    /** Count up from `startValue` on first mount instead of snapping. Use for
+     *  one-shot reveals (e.g. a championship prize) where the climb is the point. */
+    animateOnMount?: boolean
+    /** Where the count-up starts when `animateOnMount` is set (default 0). */
+    startValue?: number
 }
 
 /**
@@ -22,19 +27,21 @@ interface AnimatedNumberProps {
  * - First mount snaps (no count-up from 0) so a freshly-loaded screen isn't
  *   noisy; only subsequent value changes animate.
  */
-export function AnimatedNumber({ value, duration = 650, format, className }: AnimatedNumberProps) {
-    const [display, setDisplay] = useState(value)
-    const fromRef = useRef(value)
+export function AnimatedNumber({ value, duration = 650, format, className, animateOnMount = false, startValue = 0 }: AnimatedNumberProps) {
+    const [display, setDisplay] = useState(animateOnMount ? startValue : value)
+    const fromRef = useRef(animateOnMount ? startValue : value)
     const rafRef = useRef<number | undefined>(undefined)
     const mountedOnce = useRef(false)
 
     useEffect(() => {
+        const isFirst = !mountedOnce.current
+        mountedOnce.current = true
         const from = fromRef.current
         const to = value
 
-        // First render or no change → snap.
-        if (!mountedOnce.current || from === to || !Number.isFinite(from) || !Number.isFinite(to)) {
-            mountedOnce.current = true
+        // Snap on first render (default) or when nothing changed. The one
+        // exception is an animateOnMount reveal, which counts from `startValue`.
+        if ((isFirst && !animateOnMount) || from === to || !Number.isFinite(from) || !Number.isFinite(to)) {
             fromRef.current = to
             setDisplay(to)
             return

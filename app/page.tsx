@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -17,6 +17,7 @@ import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUp
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
@@ -64,7 +65,12 @@ export default function Page() {
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
+  const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
   const boardState = useGameStore(s => s.boardState)
+
+  // The annual Pro/Player-of-the-Year ceremony — auto-open it once so the
+  // reveal isn't missed (it used to require noticing + clicking a banner).
+  const proShownRef = useRef<string | null>(null)
 
   const [isSimulating, setIsSimulating] = useState(false)
 
@@ -78,6 +84,17 @@ export default function Page() {
       e.type === "MEDIA" && (e.data as any)?.proAwards && !e.acknowledged
     )
   }, [eventsLog])
+
+  // Auto-open the ceremony the first time a new awards event surfaces.
+  useEffect(() => {
+    if (!latestProEvent || proShownRef.current === latestProEvent.id) return
+    const awards = (latestProEvent.data as any)?.proAwards
+    if (awards && Array.isArray(awards.top20) && awards.year) {
+      proShownRef.current = latestProEvent.id
+      setProAwards(awards as AnnualAwards)
+      setIsProModalOpen(true)
+    }
+  }, [latestProEvent])
 
   // Robust session check: isInitialized is the primary flag, 
   // but we also check if we have teams and a playerTeamId as a fallback.
@@ -260,7 +277,11 @@ export default function Page() {
       )}
       <ProAwardsModal
         isOpen={isProModalOpen}
-        onClose={() => setIsProModalOpen(false)}
+        onClose={() => {
+          setIsProModalOpen(false)
+          // Acknowledge so the banner clears and the ceremony won't reopen.
+          if (latestProEvent) acknowledgeEvent(latestProEvent.id)
+        }}
         awards={proAwards}
       />
 
@@ -320,12 +341,7 @@ export default function Page() {
                     Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` • Day ${currentDay + 1}` : ""}
                   </Badge>
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
-                    {playerTeam.budget >= 1000000
-                      ? `$${(playerTeam.budget / 1000000).toLocaleString(undefined, { maximumFractionDigits: 1 })}M`
-                      : playerTeam.budget >= 10000
-                        ? `$${Math.round(playerTeam.budget / 1000)}K`
-                        : `$${(playerTeam.budget / 1000).toFixed(1)}K`
-                    }
+                    {formatCurrency(playerTeam.budget)}
                   </Badge>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Ban, Check, ArrowLeft } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
 import { Player } from "@/types"
@@ -344,7 +345,24 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
         [awayTeam?.rosterIds, playersById],
     )
 
-    if (!match || !homeTeam || !awayTeam) return <div className="p-8 text-center text-muted-foreground">{status}</div>
+    if (!match || !homeTeam || !awayTeam) {
+        return (
+            <div className="min-h-[70vh] flex items-center justify-center p-8">
+                <div className="max-w-md w-full text-center space-y-6">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                        <Ban className="w-7 h-7 text-white/30" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-bold uppercase tracking-wide text-white mb-1">Veto Unavailable</h2>
+                        <p className="text-sm text-muted-foreground">{status || "This match can't be found or has already been played."}</p>
+                    </div>
+                    <Button variant="outline" onClick={() => router.push("/")} className="uppercase tracking-wider">
+                        <ArrowLeft size={16} className="mr-2" /> Back to Dashboard
+                    </Button>
+                </div>
+            </div>
+        )
+    }
 
     const turnIndex = Math.min(vetoHistory.length, vetoSequence.length - 1)
     const currentTurn = vetoSequence[turnIndex] || { team: "home", action: "WAIT" }
