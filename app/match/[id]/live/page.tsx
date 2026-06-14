@@ -287,6 +287,9 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
         roundTime,
         isBombPlanted,
         bombTime,
+        timeoutsRemaining,
+        timeoutActive,
+        callTimeout,
     } = useLiveMatch(params.id)
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -512,6 +515,24 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
                             onSimulateRound={simulateRoundInstant}
                             onSimulateMatch={simulateMatchInstant}
                         />
+
+                        {/* Tactical Timeout (B5) — the live-only lever that gives
+                            playing the match a real edge over quick-sim. */}
+                        <div className="flex items-center justify-center gap-3 -mt-1">
+                            <button
+                                onClick={callTimeout}
+                                disabled={timeoutsRemaining <= 0 || gameState.status !== "IN_PROGRESS"}
+                                title="Call a tactical timeout to regroup — boosts your next 2 rounds"
+                                className="px-4 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Tactical Timeout ({timeoutsRemaining})
+                            </button>
+                            {timeoutActive && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 animate-pulse">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> Regrouping — boost active
+                                </span>
+                            )}
+                        </div>
 
                         <MapRadarPanel
                             currentMapId={currentMapId}

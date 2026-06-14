@@ -113,6 +113,14 @@ export function useLiveMatch(id: string) {
     const [originalHomePlayers, setOriginalHomePlayers] = useState<Player[]>([])
     const [originalAwayPlayers, setOriginalAwayPlayers] = useState<Player[]>([])
 
+    // Tactical Timeout (B5): 2 per match; arms a small round-win boost (0.06) for
+    // the next 2 rounds. The ref mirrors state so the per-round sim call reads the
+    // latest value outside React's render cycle.
+    const [timeoutsRemaining, setTimeoutsRemaining] = useState(2)
+    const [timeoutBoostRounds, setTimeoutBoostRounds] = useState(0)
+    const timeoutBoostRoundsRef = useRef(0)
+    timeoutBoostRoundsRef.current = timeoutBoostRounds
+
     // Timer State
     const [roundTime, setRoundTime] = useState(ROUND_SECONDS) // 1:55 round time
     const [isBombPlanted, setIsBombPlanted] = useState(false)
@@ -474,6 +482,11 @@ export function useLiveMatch(id: string) {
 
         const isPlayerHome = homeTeam.id === playerTeam?.id
 
+        // Tactical Timeout boost for the player's side (B5), if armed. Signed so
+        // it favours the player whether they're home or away.
+        const activeBoost = timeoutBoostRoundsRef.current > 0 ? 0.06 : 0
+        const homeTacticalBoost = isPlayerHome ? activeBoost : -activeBoost
+
         let homeStrategy: RoundStrategy
         let awayStrategy: RoundStrategy
         if (currentSimState.currentRound === 1 || currentSimState.currentRound === 13) {
@@ -549,8 +562,19 @@ export function useLiveMatch(id: string) {
             currentSimState.awayMomentumScore,
             hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            currentMapId
+            currentMapId,
+            undefined, // matchStage
+            undefined, // cachedHomeStressRes
+            undefined, // cachedAwayStressRes
+            undefined, // cachedPlayerMap
+            homeTacticalBoost
         )
+
+        // Consume one round of the Tactical Timeout boost (B5).
+        if (timeoutBoostRoundsRef.current > 0) {
+            timeoutBoostRoundsRef.current -= 1
+            setTimeoutBoostRounds(b => Math.max(0, b - 1))
+        }
 
         const appliedEconomy = applyRoundEconomy({
             homeEconomy: hEcon,
@@ -1118,6 +1142,14 @@ export function useLiveMatch(id: string) {
         setIsPlaying(true)
     }, [])
 
+    // Tactical Timeout (B5): spend one to arm the boost for the next 2 rounds.
+    const callTimeout = useCallback(() => {
+        if (timeoutsRemaining <= 0) return
+        setTimeoutsRemaining(t => Math.max(0, t - 1))
+        setTimeoutBoostRounds(2)
+        soundManager.play("notification")
+    }, [timeoutsRemaining])
+
     const handleFinish = useCallback(() => {
         if (!matchData.current) return
         saveMatchResult(matchData.current.match.id, matchData.current.result)
@@ -1151,6 +1183,9 @@ export function useLiveMatch(id: string) {
         simulateRoundInstant,
         simulateMatchInstant,
         handleFinish,
+        timeoutsRemaining,
+        timeoutActive: timeoutBoostRounds > 0,
+        callTimeout,
         customTactics,
         teams, // Should be passed? no used by UI
         updateCustomTactic
