@@ -108,6 +108,15 @@ export default function Page() {
 
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
+  // Derived team rating (avg roster skill) — a visible power number so the
+  // team-building loop has felt momentum (AUDIT_UX_2026-06 C6).
+  const teamRating = useMemo(() => {
+    if (!playerTeam) return 0
+    const roster = players.filter(p => playerTeam.rosterIds.includes(p.id))
+    if (roster.length === 0) return 0
+    return Math.round(roster.reduce((s, p) => s + (p.skill || 0), 0) / roster.length)
+  }, [playerTeam, players])
+
   const nextMatch = useMemo(() => {
     return scheduledMatches
       .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
@@ -343,6 +352,11 @@ export default function Page() {
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
                     {formatCurrency(playerTeam.budget)}
                   </Badge>
+                  {teamRating > 0 && (
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-cyan-500/20 text-cyan-300 uppercase" title="Average roster skill">
+                      OVR {teamRating}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

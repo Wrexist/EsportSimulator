@@ -214,12 +214,11 @@ function SquadPageInner() {
   }, [])
 
   const handleSwapExecute = useCallback((targetIndex: number) => {
-    setSelectedSwapIndex(prev => {
-      if (prev === null) return null
-      swapRosterPositions(playerTeamId!, prev, targetIndex)
-      return null
-    })
-  }, [swapRosterPositions, playerTeamId])
+    if (selectedSwapIndex === null) return
+    swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
+    setSelectedSwapIndex(null)
+    addToast({ message: "Lineup updated", type: "info" })
+  }, [selectedSwapIndex, swapRosterPositions, playerTeamId, addToast])
 
   const handleCancelSwap = useCallback(() => {
     setSelectedSwapIndex(null)
