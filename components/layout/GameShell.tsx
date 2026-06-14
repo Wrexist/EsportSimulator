@@ -26,6 +26,9 @@ const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTo
 const WeekProcessingOverlay = dynamic(() => import("../ui/WeekProcessingOverlay").then(mod => mod.WeekProcessingOverlay), { ssr: false })
 const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModal").then(mod => mod.KeyboardShortcutsModal), { ssr: false })
 const HelpSystem = dynamic(() => import("../ui/help-system").then(mod => mod.HelpSystem), { ssr: false })
+// Mounted globally (was previously only on /desktop) so onboarding fires
+// regardless of which page the player lands on after a new game.
+const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod => mod.TutorialOverlay), { ssr: false })
 
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -423,6 +426,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             {showBugReportButton && !hideChrome && <BugReportButton />}
             {!hideChrome && <HelpSystem />}
+            {!hideChrome && <TutorialOverlay />}
             <DevTools />
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />

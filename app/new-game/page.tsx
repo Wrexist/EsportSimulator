@@ -284,7 +284,7 @@ export default function TeamSelectionPage() {
             // Pass manager name to initializeNewGame (using it as save name for now)
             await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id)
             // Use client-side navigation to preserve store state
-            router.push("/desktop")
+            router.push("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
             toast.error("Failed to start game", {

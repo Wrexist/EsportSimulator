@@ -59,7 +59,6 @@ import { FinanceApp } from "@/components/desktop-apps/FinanceApp"
 import { AcademyApp } from "@/components/desktop-apps/AcademyApp"
 import { ProAwardsModal } from "@/components/celebration/ProAwardsModal"
 import { SeasonRecapModal } from "@/components/celebration/SeasonRecapModal"
-import { TutorialOverlay } from "@/components/ui/TutorialOverlay"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 
 type AppId = "mail" | "social" | "market" | "calendar" | "news" | "shop" | "facilities" | "finance" | "academy"
@@ -965,7 +964,6 @@ function DesktopContent() {
         year={pendingSeasonRecap || 0}
         stats={seasonRecapStats!}
       />
-      <TutorialOverlay />
       <DesktopOverlay>
         <div className="relative w-full h-full overflow-hidden">
           {/* Animated Background */}
@@ -973,22 +971,25 @@ function DesktopContent() {
 
           {/* Desktop Icons */}
           <div className="absolute top-4 left-4 grid grid-rows-6 grid-flow-col gap-3 z-10">
-            {[
+            {/* mail/social/news open in-window (no standalone route); the rest
+                deep-link to their canonical sidebar pages so there's one
+                implementation per feature (AUDIT_UX_2026-06 A1). */}
+            {([
               { id: "mail" as AppId, icon: <Mail size={24} />, label: "Mail" },
               { id: "social" as AppId, icon: <Hash size={24} />, label: "Social" },
-              { id: "market" as AppId, icon: <TrendingUp size={24} />, label: "Market" },
-              { id: "calendar" as AppId, icon: <Calendar size={24} />, label: "Calendar" },
               { id: "news" as AppId, icon: <Newspaper size={24} />, label: "News" },
-              { id: "shop" as AppId, icon: <ShoppingBag size={24} />, label: "Shop" },
-              { id: "facilities" as AppId, icon: <Building2 size={24} />, label: "Facilities" },
-              { id: "finance" as AppId, icon: <DollarSign size={24} />, label: "Finance" },
-              { id: "academy" as AppId, icon: <GraduationCap size={24} />, label: "Academy" },
-            ].map(app => (
+              { id: "market" as AppId, icon: <TrendingUp size={24} />, label: "Market", route: "/transfers" },
+              { id: "calendar" as AppId, icon: <Calendar size={24} />, label: "Calendar", route: "/schedule" },
+              { id: "shop" as AppId, icon: <ShoppingBag size={24} />, label: "Shop", route: "/equipment" },
+              { id: "facilities" as AppId, icon: <Building2 size={24} />, label: "Facilities", route: "/basecamp" },
+              { id: "finance" as AppId, icon: <DollarSign size={24} />, label: "Finance", route: "/finances" },
+              { id: "academy" as AppId, icon: <GraduationCap size={24} />, label: "Academy", route: "/academy" },
+            ] as { id: AppId; icon: JSX.Element; label: string; route?: string }[]).map(app => (
               <motion.button
                 key={app.id}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => openWindow(app.id)}
+                onClick={() => app.route ? router.push(app.route) : openWindow(app.id)}
                 className="flex flex-col items-center gap-1 p-3 rounded-lg hover:bg-white/[0.07] transition-colors group"
               >
                 <div className={cn(

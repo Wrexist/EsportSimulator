@@ -487,7 +487,7 @@ export default function TacticalHQPage() {
                                         <p className="text-xs text-white/40 mb-4 max-w-[200px] leading-relaxed">
                                             Upgrade your Tactical Center to Level 1 to unlock VOD Reviews.
                                         </p>
-                                        <Link href="/desktop?app=facilities">
+                                        <Link href="/basecamp">
                                             <Button size="sm" variant="default" className="w-full font-bold">Upgrade Basecamp</Button>
                                         </Link>
                                     </div>

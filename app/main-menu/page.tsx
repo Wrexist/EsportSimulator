@@ -68,7 +68,7 @@ export default function MainMenuPage() {
 
         const success = await switchSave(slot.saveId!)
         if (success) {
-            router.push("/desktop")
+            router.push("/")
         }
     }
 

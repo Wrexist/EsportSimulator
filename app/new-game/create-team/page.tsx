@@ -273,7 +273,7 @@ export default function CreateTeamPage() {
     // Handle roster builder completion
     const handleRosterComplete = () => {
         setShowRosterBuilder(false)
-        router.push("/desktop")
+        router.push("/")
     }
 
     // Render step content
