@@ -25,6 +25,7 @@ import {
 import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -103,9 +104,15 @@ export default function TeamSelectionPage() {
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [isStarting, setIsStarting] = useState(false)
 
-    // Career Mode State
-    const managerLevel = 1
+    // Career Mode State — gated by the player's all-time peak manager level
+    // (cross-save profile), so levels earned in past careers unlock bigger orgs
+    // in new ones. Was hardcoded to 1, which left every above-Rookie team locked.
+    const [managerLevel, setManagerLevel] = useState(1)
     const [sandboxMode, setSandboxMode] = useState(false)
+
+    useEffect(() => {
+        loadCareerProfile().then(p => setManagerLevel(Math.max(1, p.peakLevel))).catch(() => { })
+    }, [])
 
     // Load snapshot data
     useEffect(() => {
@@ -283,6 +290,7 @@ export default function TeamSelectionPage() {
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
             await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id)
+            void recordNewCampaign()
             // Use client-side navigation to preserve store state
             router.push("/")
         } catch (err) {

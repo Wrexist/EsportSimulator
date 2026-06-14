@@ -44,6 +44,7 @@ import {
 import { soundManager } from "@/lib/sound-manager"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { StaffGenerator } from "@/engine/staff-generator"
 import { WeaponMasteryManager, WeaponType } from "@/engine/weapon-mastery-system"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
@@ -2343,6 +2344,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // error toast and the next autosave retries.
             try {
               await get().saveGame()
+              // Refresh the cross-save career profile (peak level/majors/rank)
+              // so progression survives new games. Fire-and-forget — off the
+              // save critical path; failures are swallowed inside the helper.
+              void recordCareerProgress(get() as unknown as GameSave)
             } catch (saveErr) {
               logger.error("[advanceWeek] post-tick authoritative save failed (week committed in memory)", saveErr)
             }
