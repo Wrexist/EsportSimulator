@@ -482,10 +482,14 @@ export function useLiveMatch(id: string) {
 
         const isPlayerHome = homeTeam.id === playerTeam?.id
 
-        // Tactical Timeout boost for the player's side (B5), if armed. Signed so
-        // it favours the player whether they're home or away.
-        const activeBoost = timeoutBoostRoundsRef.current > 0 ? 0.06 : 0
+        // Tactical Timeout (B5): while armed, boost the player's round-win chance
+        // AND neutralise the opponent's momentum (regroup stops their run). The
+        // momentum override is per-round only — persistent sim state is untouched.
+        const boostActive = timeoutBoostRoundsRef.current > 0
+        const activeBoost = boostActive ? 0.06 : 0
         const homeTacticalBoost = isPlayerHome ? activeBoost : -activeBoost
+        const homeMomentumArg = boostActive && !isPlayerHome ? 0 : currentSimState.homeMomentumScore
+        const awayMomentumArg = boostActive && isPlayerHome ? 0 : currentSimState.awayMomentumScore
 
         let homeStrategy: RoundStrategy
         let awayStrategy: RoundStrategy
@@ -558,8 +562,8 @@ export function useLiveMatch(id: string) {
             homeTeam.id,
             awayTeam.id,
             customTactics,
-            currentSimState.homeMomentumScore,
-            currentSimState.awayMomentumScore,
+            homeMomentumArg,
+            awayMomentumArg,
             hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             currentMapId,

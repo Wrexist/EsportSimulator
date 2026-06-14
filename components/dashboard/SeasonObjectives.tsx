@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useRef } from "react"
+import { useGameStore } from "@/store/game-store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Trophy, TrendingUp, Users, ShieldCheck, CheckCircle2, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -108,6 +110,26 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
     ]
 
     const completed = objectives.filter(o => o.met).length
+
+    // Celebrate an objective the moment it's newly met (D11). Tracks the met-set
+    // across renders; the first render only seeds it (no toast for pre-met goals).
+    const addToast = useGameStore(s => s.addToast)
+    const metObjectives = objectives.filter(o => o.met)
+    const metSignature = metObjectives.map(o => o.id).sort().join(",")
+    const prevMetRef = useRef<Set<string>>(new Set())
+    const seededRef = useRef(false)
+    useEffect(() => {
+        if (seededRef.current) {
+            for (const o of metObjectives) {
+                if (!prevMetRef.current.has(o.id)) {
+                    addToast({ message: `Objective complete — ${o.label}`, type: "achievement" })
+                }
+            }
+        }
+        prevMetRef.current = new Set(metObjectives.map(o => o.id))
+        seededRef.current = true
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- gated on the met-set signature; metObjectives is derived from the same render
+    }, [metSignature, addToast])
 
     return (
         <Card className="glass-panel border-white/10 rounded-lg overflow-hidden">
