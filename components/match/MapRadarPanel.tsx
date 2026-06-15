@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, memo } from "react"
 import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
-import { Map, ChevronUp } from "lucide-react"
+import { Map, ChevronUp, Box } from "lucide-react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
@@ -49,6 +49,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     const [isExpanded, setIsExpanded] = useState(true)
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
+    // 2.5D perspective tilt of the radar plane — a CS-style angled tactical view.
+    // Toggleable; the whole plane (map + SVG overlay) tips back as one ground plane.
+    const [tilt, setTilt] = useState(true)
 
     const radarImageData = MAP_RADAR_IMAGES[currentMapId]
     const isDualLevel = !!radarImageData?.secondary
@@ -297,6 +300,27 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                             </button>
                         </div>
                     )}
+                    {isExpanded && (
+                        // Span (not button) — it sits inside the header's collapse <button>,
+                        // and a nested <button> breaks the click via HTML parser auto-close.
+                        <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={e => { e.stopPropagation(); setTilt(t => !t) }}
+                            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setTilt(t => !t) } }}
+                            className={cn(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border transition-colors cursor-pointer select-none",
+                                tilt
+                                    ? "bg-cyan-400/15 text-cyan-200 border-cyan-300/30"
+                                    : "bg-transparent text-white/30 border-white/5 hover:text-white/50"
+                            )}
+                            aria-pressed={tilt}
+                            title="Toggle 2.5D perspective view"
+                        >
+                            <Box className="w-2.5 h-2.5" />
+                            2.5D
+                        </span>
+                    )}
                     <ChevronUp className={cn("w-3 h-3 text-white/30 transition-transform", !isExpanded && "rotate-180")} />
                 </div>
             </button>
@@ -312,7 +336,17 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                         className="overflow-hidden"
                     >
                         <div className="px-4 pb-3 flex justify-center">
-                            <div className="relative w-full max-h-48 aspect-square mx-auto">
+                            <div
+                                className="relative w-full max-h-48 aspect-square mx-auto"
+                                style={tilt ? { perspective: "1100px" } : undefined}
+                            >
+                                <div
+                                    className="relative w-full h-full transition-transform duration-500 ease-out"
+                                    style={{
+                                        transform: tilt ? "rotateX(49deg) scale(1.04)" : "none",
+                                        transformOrigin: "center 50%",
+                                    }}
+                                >
                                 {/* Radar background image */}
                                 <AnimatePresence mode="wait">
                                     <motion.div
@@ -659,6 +693,15 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                         )
                                     })}
                                 </svg>
+
+                                    {/* 2.5D depth fog — darkens the far (top) edge for a sense of distance. */}
+                                    {tilt && (
+                                        <div
+                                            className="pointer-events-none absolute inset-0"
+                                            style={{ background: "linear-gradient(to top, rgba(5,7,11,0) 52%, rgba(5,7,11,0.55) 100%)" }}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </motion.div>
