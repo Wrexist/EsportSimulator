@@ -3,12 +3,24 @@
 import { useState, useEffect, useMemo, memo } from "react"
 import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
-import { Map, ChevronUp, Box } from "lucide-react"
+import { Map, ChevronUp } from "lucide-react"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
 import type { Point } from "@/lib/map-radar-data"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
+
+// True-3D renderer is dynamically imported (ssr:false) so three.js / R3F only
+// load when the player actually switches to the 3D view — never in the main bundle.
+const MapRadar3D = dynamic(() => import("./MapRadar3D"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full grid place-items-center text-[10px] font-bold tracking-widest uppercase text-white/30">
+            Loading 3D…
+        </div>
+    ),
+})
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -49,10 +61,12 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     const [isExpanded, setIsExpanded] = useState(true)
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
-    // 2.5D perspective tilt of the radar plane — a CS-style angled tactical view.
-    // Toggleable; the ground plane (map + SVG overlay) tips back; alive players
-    // render as billboarded tokens that stand upright on the tilted plane.
-    const [tilt, setTilt] = useState(true)
+    // Radar view mode: flat top-down, CSS 2.5D tilt, or true 3D (WebGL).
+    // 2.5D tips the ground plane back with players as billboarded tokens; 3D
+    // swaps in an orbitable three.js scene (dynamically imported).
+    const [view, setView] = useState<"flat" | "tilt" | "3d">("tilt")
+    const tilt = view === "tilt"
+    const is3D = view === "3d"
     const TILT_DEG = 49
 
     const radarImageData = MAP_RADAR_IMAGES[currentMapId]
@@ -303,24 +317,32 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                         </div>
                     )}
                     {isExpanded && (
-                        // Span (not button) — it sits inside the header's collapse <button>,
-                        // and a nested <button> breaks the click via HTML parser auto-close.
+                        // Inline elements only — this sits inside the header's collapse
+                        // <button>, and a nested <button>/<div> trips the HTML parser's
+                        // auto-close. Spans with role=button keep the toggles clickable.
                         <span
-                            role="button"
-                            tabIndex={0}
-                            onClick={e => { e.stopPropagation(); setTilt(t => !t) }}
-                            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setTilt(t => !t) } }}
-                            className={cn(
-                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border transition-colors cursor-pointer select-none",
-                                tilt
-                                    ? "bg-cyan-400/15 text-cyan-200 border-cyan-300/30"
-                                    : "bg-transparent text-white/30 border-white/5 hover:text-white/50"
-                            )}
-                            aria-pressed={tilt}
-                            title="Toggle 2.5D perspective view"
+                            className="inline-flex items-center rounded-full border border-white/10 overflow-hidden"
+                            onClick={e => e.stopPropagation()}
                         >
-                            <Box className="w-2.5 h-2.5" />
-                            2.5D
+                            {([["flat", "2D"], ["tilt", "2.5D"], ["3d", "3D"]] as const).map(([mode, label]) => (
+                                <span
+                                    key={mode}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={e => { e.stopPropagation(); setView(mode) }}
+                                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setView(mode) } }}
+                                    className={cn(
+                                        "px-2 py-0.5 text-[9px] font-bold tracking-wider cursor-pointer select-none transition-colors",
+                                        view === mode
+                                            ? "bg-cyan-400/20 text-cyan-100"
+                                            : "text-white/35 hover:text-white/60"
+                                    )}
+                                    aria-pressed={view === mode}
+                                    title={`${label} radar view`}
+                                >
+                                    {label}
+                                </span>
+                            ))}
                         </span>
                     )}
                     <ChevronUp className={cn("w-3 h-3 text-white/30 transition-transform", !isExpanded && "rotate-180")} />
@@ -338,6 +360,21 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                         className="overflow-hidden"
                     >
                         <div className="px-4 pb-3 flex justify-center">
+                            {is3D ? (
+                                <div className="relative aspect-square h-48 w-full max-w-full mx-auto rounded-lg overflow-hidden ring-1 ring-white/10">
+                                    <MapRadar3D
+                                        radarSrc={radarSrc}
+                                        dots={visibleDots}
+                                        killLines={killLineRenderState}
+                                        smokes={smokeRenderState}
+                                        bombPosition={safeBombPosition}
+                                        bombVisible={bombVisibleOnCurrentLevel}
+                                        bombState={bombState}
+                                        currentTime={currentTime}
+                                        onError={() => setView("tilt")}
+                                    />
+                                </div>
+                            ) : (
                             <div
                                 className="relative aspect-square h-48 max-w-full mx-auto"
                                 style={tilt ? { perspective: "1100px" } : undefined}
@@ -760,6 +797,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                     )}
                                 </div>
                             </div>
+                            )}
                         </div>
                     </motion.div>
                 )}
