@@ -483,6 +483,58 @@ body[data-scroll-locked] {
   }
   .reduce-motion .liquid-cta-shine::before { display: none; }
 
+  /* Richer one-shot sweep on hover, layered over the constant ::before. */
+  .liquid-cta-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+    transform: translateX(-240%) skewX(-18deg);
+  }
+  .liquid-cta-shine:hover::after {
+    animation: cta-shine-hover 0.7s ease-out;
+  }
+  @keyframes cta-shine-hover {
+    0% { transform: translateX(-240%) skewX(-18deg); opacity: 1; }
+    100% { transform: translateX(340%) skewX(-18deg); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-cta-shine::after { display: none; }
+  }
+  .reduce-motion .liquid-cta-shine::after { display: none; }
+
+  /* Tactile lift for interactive (clickable) cards — scoped to the cursor-pointer
+     affordance so big static panels never bob. Lives in @layer components, so any
+     card's own transform-hover utility (e.g. hover:scale) still wins; this only
+     fills in cards that have no transform-hover of their own. */
+  .glass-panel.cursor-pointer,
+  .glass-panel-dark.cursor-pointer,
+  .liquid-panel.cursor-pointer {
+    transition:
+      transform var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease),
+      background-color var(--motion-base) var(--motion-ease);
+  }
+  .glass-panel.cursor-pointer:hover,
+  .glass-panel-dark.cursor-pointer:hover,
+  .liquid-panel.cursor-pointer:hover {
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glass-panel.cursor-pointer:hover,
+    .glass-panel-dark.cursor-pointer:hover,
+    .liquid-panel.cursor-pointer:hover { transform: none; }
+  }
+  .reduce-motion .glass-panel.cursor-pointer:hover,
+  .reduce-motion .glass-panel-dark.cursor-pointer:hover,
+  .reduce-motion .liquid-panel.cursor-pointer:hover { transform: none; }
+
   /* Ultrathin material — chips, hover layers, inline pills. The lightest
      glass tier; sits directly on top of a heavier surface. */
   .glass-ultrathin {
