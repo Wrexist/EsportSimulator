@@ -82,6 +82,21 @@ async function run() {
     // Started, team OVR badge, money formatter, objectives.
     await step("dashboard", async () => { await gotoShot(page, "/", "dashboard_hub") })
 
+    // Proof shot for the primary-CTA sheen: freeze the sweep mid-button (it's a
+    // 5.5s loop that won't reliably land in a random capture) and close up.
+    await step("cta-shine", async () => {
+        await page.goto(`${BASE}/`)
+        await page.waitForTimeout(1400)
+        await dismissTutorial(page)
+        await page.addStyleTag({ content: `.liquid-cta-shine::before { animation-delay: -4.6s !important; animation-play-state: paused !important; }` })
+        await page.waitForTimeout(300)
+        const btn = page.locator('button:has-text("NEXT DAY"), button:has-text("PLAY MATCH")').first()
+        if (await btn.isVisible().catch(() => false)) {
+            await btn.screenshot({ path: path.join(OUT, "cta_shine.png") })
+            console.log("  ✓ cta_shine.png")
+        }
+    })
+
     const routes: [string, string][] = [
         ["sponsorships_brand-tradeoffs", "/sponsorships"],
         ["career_legacy-track", "/career"],

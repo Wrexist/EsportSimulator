@@ -454,6 +454,35 @@ body[data-scroll-locked] {
   .reduce-motion .liquid-aurora::before,
   .reduce-motion .liquid-aurora::after { animation: none; }
 
+  /* Primary-CTA sheen — a slow, subtle diagonal light sweep on the core-loop
+     buttons (PLAY MATCH / NEXT DAY) so the key action quietly draws the eye.
+     ::before sits above the button fill but behind the label; it rests
+     off-screen ~68% of the loop, then sweeps across. Hidden for reduced-motion. */
+  .liquid-cta-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-cta-shine::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.30) 50%, transparent 100%);
+    transform: translateX(-240%) skewX(-18deg);
+    animation: cta-shine 5.5s ease-in-out infinite;
+  }
+  @keyframes cta-shine {
+    0%, 68% { transform: translateX(-240%) skewX(-18deg); }
+    100% { transform: translateX(340%) skewX(-18deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-cta-shine::before { display: none; }
+  }
+  .reduce-motion .liquid-cta-shine::before { display: none; }
+
   /* Ultrathin material — chips, hover layers, inline pills. The lightest
      glass tier; sits directly on top of a heavier surface. */
   .glass-ultrathin {
