@@ -425,15 +425,15 @@ body[data-scroll-locked] {
     will-change: transform;
   }
   .liquid-aurora::before {
-    top: -24%;
-    left: -14%;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 64%);
+    top: -16%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 64%);
     animation: aurora-drift-a 38s ease-in-out infinite alternate;
   }
   .liquid-aurora::after {
-    bottom: -30%;
-    right: -14%;
-    background: radial-gradient(circle, rgba(129, 140, 248, 0.14), transparent 64%);
+    bottom: -22%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.17), transparent 64%);
     animation: aurora-drift-b 46s ease-in-out infinite alternate;
   }
   .onyx .liquid-aurora::before { background: radial-gradient(circle, rgba(56, 189, 248, 0.06), transparent 62%); }

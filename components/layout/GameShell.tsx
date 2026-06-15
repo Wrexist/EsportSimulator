@@ -391,7 +391,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                         must NOT add their own entry fade (double-animation). */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out"}
+                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in slide-in-from-bottom-1 duration-300 ease-out"}
                     >
                         <ErrorBoundary>
                             {children}
