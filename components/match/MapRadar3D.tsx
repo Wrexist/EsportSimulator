@@ -179,34 +179,53 @@ function PlayerToken({ dot, onFocus }: { dot: RadarPlayerDot; onFocus: (x: numbe
     const wz = toWorldZ(dot.y)
     const color = dot.side === "ct" ? CT_COLOR : T_COLOR
     const eco = ecoColor(dot.money)
-    // Fade the name label out as the camera pulls back, so a zoomed-out board
-    // doesn't drown in nameplates. Written straight to the DOM node each frame
-    // (no React re-render).
+    const groupRef = useRef<THREE.Group>(null)
     const labelRef = useRef<HTMLDivElement>(null)
-    useFrame(({ camera }) => {
-        if (!labelRef.current) return
-        const d = camera.position.length() // distance to the orbit target (origin-ish)
-        labelRef.current.style.opacity = THREE.MathUtils.clamp((150 - d) / 50, 0, 1).toFixed(2)
+    // Snap to the real spot on first mount so tokens don't slide in from origin.
+    useLayoutEffect(() => {
+        if (groupRef.current) {
+            groupRef.current.position.set(wx, 0, wz)
+            groupRef.current.rotation.y = -dot.angle
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    // Glide toward the latest position/facing each frame (frame-rate independent)
+    // so movement between ticks reads as motion rather than teleporting. Also
+    // fades the label out as the camera pulls back.
+    useFrame(({ camera }, delta) => {
+        const g = groupRef.current
+        if (g) {
+            const a = 1 - Math.pow(0.0001, delta)
+            g.position.x += (wx - g.position.x) * a
+            g.position.z += (wz - g.position.z) * a
+            let diff = -dot.angle - g.rotation.y
+            diff = Math.atan2(Math.sin(diff), Math.cos(diff)) // shortest arc
+            g.rotation.y += diff * a
+        }
+        if (labelRef.current) {
+            const d = camera.position.length()
+            labelRef.current.style.opacity = THREE.MathUtils.clamp((150 - d) / 50, 0, 1).toFixed(2)
+        }
     })
     return (
-        <group>
+        <group ref={groupRef}>
             {/* economy / selection ring on the ground */}
-            <mesh position={[wx, 0.08, wz]} rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh position={[0, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                 <ringGeometry args={[2.0, 2.6, 32]} />
                 <meshBasicMaterial color={eco} toneMapped={false} transparent opacity={0.8} side={THREE.DoubleSide} depthWrite={false} />
             </mesh>
-            {/* facing vision cone (flat on the floor) */}
-            <mesh geometry={CONE_GEO} position={[wx, 0.12, wz]} rotation={[0, -dot.angle, 0]}>
+            {/* facing vision cone — points +X locally; the group's Y-rotation aims it */}
+            <mesh geometry={CONE_GEO} position={[0, 0.12, 0]}>
                 <meshBasicMaterial color={color} transparent opacity={0.18} side={THREE.DoubleSide} depthWrite={false} />
             </mesh>
             {/* peg */}
-            <mesh position={[wx, 1.7, wz]} castShadow>
+            <mesh position={[0, 1.7, 0]} castShadow>
                 <cylinderGeometry args={[0.22, 0.34, 3.4, 12]} />
                 <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.45} metalness={0.1} />
             </mesh>
             {/* bead head — click to focus the camera on this player */}
             <mesh
-                position={[wx, 4.6, wz]}
+                position={[0, 4.6, 0]}
                 castShadow
                 onClick={(e) => { e.stopPropagation(); onFocus(wx, wz) }}
                 onPointerOver={(e) => { e.stopPropagation(); setCursor("pointer") }}
@@ -216,13 +235,13 @@ function PlayerToken({ dot, onFocus }: { dot: RadarPlayerDot; onFocus: (x: numbe
                 <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.65} roughness={0.25} metalness={0.2} />
             </mesh>
             {/* additive glow halo (fakes bloom against the dark map) */}
-            <mesh position={[wx, 4.6, wz]}>
+            <mesh position={[0, 4.6, 0]}>
                 <sphereGeometry args={[2.9, 16, 16]} />
                 <meshBasicMaterial color={color} transparent opacity={0.16} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
             </mesh>
             {/* floating name label — DOM (app font), always faces the camera.
                 No distanceFactor: constant small screen-size, so it never bloats. */}
-            <Html position={[wx, 6.7, wz]} center zIndexRange={[20, 0]} pointerEvents="none" prepend>
+            <Html position={[0, 6.7, 0]} center zIndexRange={[20, 0]} pointerEvents="none" prepend>
                 <div
                     ref={labelRef}
                     style={{
@@ -264,31 +283,68 @@ function DeadMarker({ x, y, opacity }: { x: number; y: number; opacity: number }
     )
 }
 
-function BombMarker({ x, y }: { x: number; y: number }) {
-    const ref = useRef<THREE.Mesh>(null)
+function BombArea({ bombState, position, currentTime }: { bombState: RadarBombState; position: { x: number; y: number }; currentTime?: number }) {
+    const pulseRef = useRef<THREE.Mesh>(null)
     useFrame(({ clock }) => {
-        if (ref.current) {
-            const s = 1 + Math.sin(clock.elapsedTime * 4) * 0.16
-            ref.current.scale.setScalar(s)
-        }
+        if (pulseRef.current) pulseRef.current.scale.setScalar(1 + Math.sin(clock.elapsedTime * 4) * 0.16)
     })
-    const wx = toWorldX(x)
-    const wz = toWorldZ(y)
+    const wx = toWorldX(position.x)
+    const wz = toWorldZ(position.y)
+    const planted = bombState.planted && !bombState.defused && !bombState.exploded
+    const progress = bombState.defuseProgress ?? 0
+    const defusedFade = bombState.defused && bombState.defuseTime != null && currentTime != null
+        ? Math.max(0, 1 - (currentTime - bombState.defuseTime) / 3)
+        : 0
+
     return (
         <group position={[wx, 0, wz]}>
-            <mesh ref={ref} position={[0, 3, 0]} castShadow>
-                <octahedronGeometry args={[2.2, 0]} />
-                <meshBasicMaterial color="#ff4444" toneMapped={false} />
-            </mesh>
-            {/* glow halo */}
-            <mesh position={[0, 3, 0]}>
-                <sphereGeometry args={[3.6, 16, 16]} />
-                <meshBasicMaterial color="#ff3333" transparent opacity={0.18} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-            </mesh>
-            <mesh position={[0, 0.14, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[2.8, 3.6, 32]} />
-                <meshBasicMaterial color="#ff3333" toneMapped={false} transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} />
-            </mesh>
+            {planted && (
+                <>
+                    <mesh ref={pulseRef} position={[0, 3, 0]} castShadow>
+                        <octahedronGeometry args={[2.2, 0]} />
+                        <meshBasicMaterial color="#ff4444" toneMapped={false} />
+                    </mesh>
+                    <mesh position={[0, 3, 0]}>
+                        <sphereGeometry args={[3.6, 16, 16]} />
+                        <meshBasicMaterial color="#ff3333" transparent opacity={0.18} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+                    </mesh>
+                    <mesh position={[0, 0.14, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                        <ringGeometry args={[2.8, 3.6, 32]} />
+                        <meshBasicMaterial color="#ff3333" toneMapped={false} transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} />
+                    </mesh>
+                    {/* defuse progress arc (blue) — grows toward a full ring as defuse completes */}
+                    {progress > 0 && (
+                        <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                            <ringGeometry args={[4.0, 4.8, 48, 1, 0, Math.max(0.001, progress) * Math.PI * 2]} />
+                            <meshBasicMaterial color="#5b9bd5" toneMapped={false} transparent opacity={0.9} side={THREE.DoubleSide} depthWrite={false} />
+                        </mesh>
+                    )}
+                </>
+            )}
+            {bombState.exploded && (
+                <>
+                    <mesh position={[0, 1, 0]}>
+                        <sphereGeometry args={[5, 20, 20]} />
+                        <meshBasicMaterial color="#ff7a1a" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+                    </mesh>
+                    <mesh position={[0, 0.16, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                        <ringGeometry args={[3, 6, 40]} />
+                        <meshBasicMaterial color="#ff7a1a" toneMapped={false} transparent opacity={0.5} side={THREE.DoubleSide} depthWrite={false} />
+                    </mesh>
+                </>
+            )}
+            {defusedFade > 0 && (
+                <group>
+                    <mesh position={[0, 0.18, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                        <circleGeometry args={[3, 28]} />
+                        <meshBasicMaterial color="#4ade80" toneMapped={false} transparent opacity={defusedFade * 0.5} side={THREE.DoubleSide} depthWrite={false} />
+                    </mesh>
+                    <mesh position={[0, 2.6, 0]}>
+                        <octahedronGeometry args={[1.6, 0]} />
+                        <meshBasicMaterial color="#4ade80" toneMapped={false} transparent opacity={defusedFade} />
+                    </mesh>
+                </group>
+            )}
         </group>
     )
 }
@@ -296,7 +352,12 @@ function BombMarker({ x, y }: { x: number; y: number }) {
 function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, bombState, currentTime, reducedMotion }: MapRadar3DProps & { reducedMotion: boolean }) {
     const alive = dots.filter(d => d.isAlive)
     const deadRecent = dots.filter(d => !d.isAlive && d.deathTime != null && currentTime != null && currentTime - d.deathTime < 4)
-    const showBomb = !!(bombVisible && bombState?.planted && !bombState.defused && !bombState.exploded && bombPosition)
+    const bombLive = !!(bombVisible && bombState?.planted && !bombState.defused && !bombState.exploded && bombPosition)
+    const bombActive = !!(bombVisible && bombPosition && bombState && (bombState.planted || bombState.exploded || bombState.defused))
+    const ctAlive = alive.filter(d => d.side === "ct").length
+    const tAlive = alive.filter(d => d.side === "t").length
+    const clutch = ctAlive === 1 && tAlive >= 2 ? { txt: `1v${tAlive}`, color: CT_COLOR }
+        : tAlive === 1 && ctAlive >= 2 ? { txt: `1v${ctAlive}`, color: T_COLOR } : null
 
     const controlsRef = useRef<OrbitControlsImpl | null>(null)
     const focusRef = useRef(new THREE.Vector3(0, 0, 0))
@@ -331,7 +392,7 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
             <Suspense fallback={null}>
                 <Ground src={radarSrc} onReset={resetFocus} />
             </Suspense>
-            <FrameBorder danger={showBomb} />
+            <FrameBorder danger={bombLive} />
 
             {/* soft contact shadows ground the tokens onto the map */}
             <ContactShadows position={[0, 0.25, 0]} scale={120} blur={2.6} far={22} opacity={0.5} color="#000000" resolution={512} />
@@ -347,7 +408,30 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 />
             ))}
 
-            {showBomb && <BombMarker x={bombPosition!.x} y={bombPosition!.y} />}
+            {bombActive && <BombArea bombState={bombState!} position={bombPosition!} currentTime={currentTime} />}
+
+            {clutch && (
+                <Html position={[0, 26, 0]} center zIndexRange={[30, 0]} pointerEvents="none" prepend>
+                    <div
+                        style={{
+                            padding: "2px 10px",
+                            borderRadius: 6,
+                            background: "rgba(8,11,16,0.7)",
+                            border: `1px solid ${clutch.color}`,
+                            color: clutch.color,
+                            fontWeight: 800,
+                            fontSize: 11,
+                            letterSpacing: "0.08em",
+                            whiteSpace: "nowrap",
+                            textShadow: "0 1px 3px #000",
+                            userSelect: "none",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        {clutch.txt} CLUTCH
+                    </div>
+                </Html>
+            )}
 
             {killLines.map(({ line, fadeOpacity }, i) => (
                 <Line
