@@ -342,6 +342,20 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                 className="relative aspect-square h-48 max-w-full mx-auto"
                                 style={tilt ? { perspective: "1100px" } : undefined}
                             >
+                                {/* 2.5D ambient floor glow + soft cast shadow behind the tilted plane —
+                                    gives the board a holographic "floating table" feel. */}
+                                {tilt && (
+                                    <>
+                                        <div
+                                            className="pointer-events-none absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2"
+                                            style={{ width: "120%", height: "120%", background: "radial-gradient(ellipse at center, rgba(34,211,238,0.10), rgba(34,211,238,0) 62%)", filter: "blur(12px)" }}
+                                        />
+                                        <div
+                                            className="pointer-events-none absolute left-1/2 top-[63%] -translate-x-1/2 -translate-y-1/2"
+                                            style={{ width: "82%", height: "44%", background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)", filter: "blur(8px)" }}
+                                        />
+                                    </>
+                                )}
                                 <div
                                     className="relative w-full h-full transition-transform duration-500 ease-out"
                                     style={{
@@ -355,10 +369,11 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                     <motion.div
                                         key={`${currentMapId}-${resolvedRadarLevel}`}
                                         initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6 }}
+                                        animate={{ opacity: 0.68 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.3 }}
-                                        className="relative w-full h-full"
+                                        className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
+                                        style={{ filter: "brightness(1.06) contrast(1.16) saturate(1.18)" }}
                                     >
                                         <Image
                                             src={radarSrc}
@@ -367,6 +382,11 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                             className="object-contain"
                                             sizes="300px"
                                             unoptimized
+                                        />
+                                        {/* inner vignette — sinks the map edges for depth */}
+                                        <div
+                                            className="pointer-events-none absolute inset-0"
+                                            style={{ boxShadow: "inset 0 0 28px 4px rgba(0,0,0,0.45)" }}
                                         />
                                     </motion.div>
                                 </AnimatePresence>
@@ -724,11 +744,14 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                                         className="absolute"
                                                         style={{ left: `${dot.x}%`, top: `${dot.y}%`, transformStyle: "preserve-3d", transition: "left 0.5s ease-out, top 0.5s ease-out" }}
                                                     >
-                                                        {/* ground shadow — flat on the plane */}
-                                                        <div style={{ position: "absolute", width: 7, height: 4, borderRadius: "9999px", background: "rgba(0,0,0,0.55)", filter: "blur(1.5px)", transform: "translate(-50%,-50%)" }} />
-                                                        {/* standing dot — counter-rotated to face the camera, lifted off the ground */}
-                                                        <div style={{ position: "absolute", transformOrigin: "center bottom", transform: `translate(-50%,-100%) rotateX(-${TILT_DEG}deg) translateY(2px)` }}>
-                                                            <div style={{ width: 9, height: 9, borderRadius: "9999px", background: color, border: `1.5px solid ${ecoStroke}`, boxShadow: `0 0 5px ${color}, 0 2px 4px rgba(0,0,0,0.7)` }} />
+                                                        {/* ground shadow — flat on the plane, beneath the peg */}
+                                                        <div style={{ position: "absolute", width: 8, height: 4.5, borderRadius: "9999px", background: "rgba(0,0,0,0.5)", filter: "blur(2px)", transform: "translate(-50%,-40%)" }} />
+                                                        {/* standing peg — counter-rotated to face the camera, rising from the ground point */}
+                                                        <div style={{ position: "absolute", transformOrigin: "center bottom", transform: `translate(-50%,-100%) rotateX(-${TILT_DEG}deg)`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                            {/* head — a 3D bead with economy ring + colored glow */}
+                                                            <div style={{ width: 10, height: 10, borderRadius: "9999px", background: `radial-gradient(circle at 35% 30%, #ffffff, ${color} 62%)`, border: `1.5px solid ${ecoStroke}`, boxShadow: `0 0 6px ${color}, 0 1px 3px rgba(0,0,0,0.6)` }} />
+                                                            {/* stem fading into the ground */}
+                                                            <div style={{ width: 2, height: 8, marginTop: -0.5, borderRadius: "2px", background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0))` }} />
                                                         </div>
                                                     </div>
                                                 )
