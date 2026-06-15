@@ -50,6 +50,15 @@ async function run() {
             await panel.screenshot({ path: path.join(OUT, "panel_3d.png") })
             console.log("  ✓ 3D shots")
         }
+        // Zoom out (mouse wheel over the canvas) to verify labels fade / declutter.
+        const box = await panel.boundingBox()
+        if (box) {
+            await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+            await page.mouse.wheel(0, 1000)
+            await page.waitForTimeout(1800)
+            await panel.screenshot({ path: path.join(OUT, "panel_3d_zoom.png") })
+            console.log("  ✓ 3D zoom shot")
+        }
     }
     await browser.close()
     console.log("done →", OUT)

@@ -120,6 +120,15 @@ function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
     const wz = toWorldZ(dot.y)
     const color = dot.side === "ct" ? CT_COLOR : T_COLOR
     const eco = ecoColor(dot.money)
+    // Fade the name label out as the camera pulls back, so a zoomed-out board
+    // doesn't drown in nameplates. Written straight to the DOM node each frame
+    // (no React re-render).
+    const labelRef = useRef<HTMLDivElement>(null)
+    useFrame(({ camera }) => {
+        if (!labelRef.current) return
+        const d = camera.position.length() // distance to the orbit target (origin)
+        labelRef.current.style.opacity = THREE.MathUtils.clamp((150 - d) / 50, 0, 1).toFixed(2)
+    })
     return (
         <group>
             {/* economy / selection ring on the ground */}
@@ -138,18 +147,19 @@ function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
             </mesh>
             {/* bead head */}
             <mesh position={[wx, 4.6, wz]} castShadow>
-                <sphereGeometry args={[1.7, 32, 32]} />
+                <sphereGeometry args={[1.85, 32, 32]} />
                 <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.65} roughness={0.25} metalness={0.2} />
             </mesh>
             {/* additive glow halo (fakes bloom against the dark map) */}
             <mesh position={[wx, 4.6, wz]}>
-                <sphereGeometry args={[2.7, 16, 16]} />
+                <sphereGeometry args={[2.9, 16, 16]} />
                 <meshBasicMaterial color={color} transparent opacity={0.16} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
             </mesh>
             {/* floating name label — DOM (app font), always faces the camera.
                 No distanceFactor: constant small screen-size, so it never bloats. */}
             <Html position={[wx, 6.6, wz]} center zIndexRange={[20, 0]} pointerEvents="none" prepend>
                 <div
+                    ref={labelRef}
                     style={{
                         fontSize: 8.5,
                         fontWeight: 700,
@@ -235,13 +245,13 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 position={[0, -0.5, 0]}
                 args={[10, 10]}
                 cellSize={10}
-                cellThickness={0.6}
-                cellColor="#1c2740"
+                cellThickness={0.7}
+                cellColor="#1f2c45"
                 sectionSize={50}
-                sectionThickness={1}
-                sectionColor="#244b66"
+                sectionThickness={1.2}
+                sectionColor="#2b5f7d"
                 fadeDistance={260}
-                fadeStrength={3}
+                fadeStrength={2.6}
                 infiniteGrid
                 followCamera={false}
             />
@@ -298,7 +308,7 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 minPolarAngle={0.12}
                 maxPolarAngle={1.45}
                 autoRotate={autoRotate}
-                autoRotateSpeed={0.45}
+                autoRotateSpeed={0.35}
             />
         </>
     )
@@ -324,7 +334,7 @@ export default function MapRadar3D(props: MapRadar3DProps) {
             <Canvas
                 dpr={[1, 2]}
                 shadows
-                camera={{ position: [0, 64, 58], fov: 38 }}
+                camera={{ position: [22, 62, 56], fov: 38 }}
                 gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
                 style={{ width: "100%", height: "100%" }}
             >
