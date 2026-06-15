@@ -15,20 +15,30 @@
  * Offline note: labels use drei <Html> (the app's own CSS fonts), NOT drei
  * <Text> — troika would fetch a remote font, which fails in the packaged
  * Steam/Electron build.
+ *
+ * Interaction: a one-shot camera fly-in on mount (skipped under reduced motion),
+ * drag to orbit, gentle idle auto-rotate, and click a player to recentre the
+ * orbit on them (click the map to recentre on the bomb-site midpoint).
  */
 
-import { Suspense, useEffect, useState, useRef, Component, type ReactNode } from "react"
-import { Canvas, useFrame } from "@react-three/fiber"
+import { Suspense, useEffect, useLayoutEffect, useState, useRef, Component, type ReactNode } from "react"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { OrbitControls, useTexture, Line, ContactShadows, Grid, Html } from "@react-three/drei"
 import * as THREE from "three"
+import type { Line2, OrbitControls as OrbitControlsImpl } from "three-stdlib"
 import type { RadarPlayerDot, RadarBombState } from "@/lib/radar-position-engine"
 
 const CT_COLOR = "#5b9bd5"
 const T_COLOR = "#e8a838"
 const PLANE = 100
+const EDGE = PLANE / 2
 
 const toWorldX = (x: number) => x - 50
 const toWorldZ = (y: number) => y - 50
+
+const setCursor = (c: string) => {
+    if (typeof document !== "undefined") document.body.style.cursor = c
+}
 
 function ecoColor(money?: number): string {
     if (money == null) return "#ffffff"
@@ -82,40 +92,89 @@ function usePrefersReducedMotion(): boolean {
     return reduced
 }
 
-function Ground({ src }: { src: string }) {
+/**
+ * Drives the camera: a one-shot ease-out fly-in on mount (OrbitControls stays
+ * disabled until it finishes), then per-frame it lerps the orbit target toward
+ * focusRef so clicking a player smoothly recentres the view.
+ */
+function CameraRig({ controlsRef, focusRef, introDone, onIntroDone }: {
+    controlsRef: React.MutableRefObject<OrbitControlsImpl | null>
+    focusRef: React.MutableRefObject<THREE.Vector3>
+    introDone: boolean
+    onIntroDone: () => void
+}) {
+    const { camera } = useThree()
+    const t = useRef(0)
+    const start = useRef(new THREE.Vector3(10, 150, 30))
+    const target = useRef(new THREE.Vector3(22, 62, 56))
+
+    useLayoutEffect(() => {
+        if (!introDone) camera.position.copy(start.current)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useFrame((_, delta) => {
+        if (!introDone) {
+            t.current = Math.min(1, t.current + delta / 1.3)
+            const e = 1 - Math.pow(1 - t.current, 3) // easeOutCubic
+            camera.position.lerpVectors(start.current, target.current, e)
+            camera.lookAt(0, 0, 0)
+            if (t.current >= 1) onIntroDone()
+            return
+        }
+        const controls = controlsRef.current
+        if (controls) {
+            controls.target.lerp(focusRef.current, 0.12)
+            controls.update()
+        }
+    })
+    return null
+}
+
+function Ground({ src, onReset }: { src: string; onReset: () => void }) {
     const tex = useTexture(src)
     useEffect(() => {
         tex.colorSpace = THREE.SRGBColorSpace
         tex.anisotropy = 8
         tex.needsUpdate = true
     }, [tex])
-    const edge = PLANE / 2
     return (
-        <group>
-            {/* map surface — unlit + toneMapped off so the texture shows at full,
-                consistent brightness (R3F's default ACES tone mapping otherwise
-                darkens it); the 3D read comes from perspective + standing tokens. */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-                <planeGeometry args={[PLANE, PLANE]} />
-                <meshBasicMaterial map={tex} toneMapped={false} transparent opacity={0.98} />
-            </mesh>
-            {/* glowing tactical frame around the map edge */}
-            <Line
-                points={[
-                    [-edge, 0.12, -edge], [edge, 0.12, -edge],
-                    [edge, 0.12, edge], [-edge, 0.12, edge], [-edge, 0.12, -edge],
-                ]}
-                color="#38d6e6"
-                lineWidth={1.4}
-                transparent
-                opacity={0.45}
-                toneMapped={false}
-            />
-        </group>
+        // map surface — unlit + toneMapped off so the texture shows at full,
+        // consistent brightness (R3F's default ACES tone mapping otherwise
+        // darkens it); the 3D read comes from perspective + standing tokens.
+        // Clicking the map clears any player focus.
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} onClick={(e) => { e.stopPropagation(); onReset() }}>
+            <planeGeometry args={[PLANE, PLANE]} />
+            <meshBasicMaterial map={tex} toneMapped={false} transparent opacity={0.98} />
+        </mesh>
     )
 }
 
-function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
+/** Glowing tactical frame around the map edge; turns red and pulses while the bomb is live. */
+function FrameBorder({ danger }: { danger: boolean }) {
+    const ref = useRef<Line2>(null)
+    useFrame(({ clock }) => {
+        const mat = ref.current?.material as THREE.Material | undefined
+        if (!mat) return
+        mat.opacity = danger ? 0.5 + Math.sin(clock.elapsedTime * 4) * 0.3 : 0.45
+    })
+    return (
+        <Line
+            ref={ref}
+            points={[
+                [-EDGE, 0.12, -EDGE], [EDGE, 0.12, -EDGE],
+                [EDGE, 0.12, EDGE], [-EDGE, 0.12, EDGE], [-EDGE, 0.12, -EDGE],
+            ]}
+            color={danger ? "#ff3b3b" : "#38d6e6"}
+            lineWidth={1.5}
+            transparent
+            opacity={0.45}
+            toneMapped={false}
+        />
+    )
+}
+
+function PlayerToken({ dot, onFocus }: { dot: RadarPlayerDot; onFocus: (x: number, z: number) => void }) {
     const wx = toWorldX(dot.x)
     const wz = toWorldZ(dot.y)
     const color = dot.side === "ct" ? CT_COLOR : T_COLOR
@@ -126,7 +185,7 @@ function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
     const labelRef = useRef<HTMLDivElement>(null)
     useFrame(({ camera }) => {
         if (!labelRef.current) return
-        const d = camera.position.length() // distance to the orbit target (origin)
+        const d = camera.position.length() // distance to the orbit target (origin-ish)
         labelRef.current.style.opacity = THREE.MathUtils.clamp((150 - d) / 50, 0, 1).toFixed(2)
     })
     return (
@@ -145,8 +204,14 @@ function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
                 <cylinderGeometry args={[0.22, 0.34, 3.4, 12]} />
                 <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.45} metalness={0.1} />
             </mesh>
-            {/* bead head */}
-            <mesh position={[wx, 4.6, wz]} castShadow>
+            {/* bead head — click to focus the camera on this player */}
+            <mesh
+                position={[wx, 4.6, wz]}
+                castShadow
+                onClick={(e) => { e.stopPropagation(); onFocus(wx, wz) }}
+                onPointerOver={(e) => { e.stopPropagation(); setCursor("pointer") }}
+                onPointerOut={() => setCursor("")}
+            >
                 <sphereGeometry args={[1.85, 32, 32]} />
                 <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.65} roughness={0.25} metalness={0.2} />
             </mesh>
@@ -157,7 +222,7 @@ function PlayerToken({ dot }: { dot: RadarPlayerDot }) {
             </mesh>
             {/* floating name label — DOM (app font), always faces the camera.
                 No distanceFactor: constant small screen-size, so it never bloats. */}
-            <Html position={[wx, 6.6, wz]} center zIndexRange={[20, 0]} pointerEvents="none" prepend>
+            <Html position={[wx, 6.7, wz]} center zIndexRange={[20, 0]} pointerEvents="none" prepend>
                 <div
                     ref={labelRef}
                     style={{
@@ -228,10 +293,17 @@ function BombMarker({ x, y }: { x: number; y: number }) {
     )
 }
 
-function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, bombState, currentTime, autoRotate }: MapRadar3DProps & { autoRotate: boolean }) {
+function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, bombState, currentTime, reducedMotion }: MapRadar3DProps & { reducedMotion: boolean }) {
     const alive = dots.filter(d => d.isAlive)
     const deadRecent = dots.filter(d => !d.isAlive && d.deathTime != null && currentTime != null && currentTime - d.deathTime < 4)
     const showBomb = !!(bombVisible && bombState?.planted && !bombState.defused && !bombState.exploded && bombPosition)
+
+    const controlsRef = useRef<OrbitControlsImpl | null>(null)
+    const focusRef = useRef(new THREE.Vector3(0, 0, 0))
+    const [introDone, setIntroDone] = useState(reducedMotion) // reduced motion → no fly-in
+
+    const focusPlayer = (x: number, z: number) => focusRef.current.set(x, 3, z)
+    const resetFocus = () => focusRef.current.set(0, 0, 0)
 
     return (
         <>
@@ -257,13 +329,14 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
             />
 
             <Suspense fallback={null}>
-                <Ground src={radarSrc} />
+                <Ground src={radarSrc} onReset={resetFocus} />
             </Suspense>
+            <FrameBorder danger={showBomb} />
 
             {/* soft contact shadows ground the tokens onto the map */}
             <ContactShadows position={[0, 0.25, 0]} scale={120} blur={2.6} far={22} opacity={0.5} color="#000000" resolution={512} />
 
-            {alive.map(dot => <PlayerToken key={dot.playerId} dot={dot} />)}
+            {alive.map(dot => <PlayerToken key={dot.playerId} dot={dot} onFocus={focusPlayer} />)}
 
             {deadRecent.map(dot => (
                 <DeadMarker
@@ -298,7 +371,11 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 </mesh>
             ))}
 
+            <CameraRig controlsRef={controlsRef} focusRef={focusRef} introDone={introDone} onIntroDone={() => setIntroDone(true)} />
+
             <OrbitControls
+                ref={controlsRef}
+                enabled={introDone}
                 target={[0, 0, 0]}
                 enablePan={false}
                 enableDamping
@@ -307,7 +384,7 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 maxDistance={185}
                 minPolarAngle={0.12}
                 maxPolarAngle={1.45}
-                autoRotate={autoRotate}
+                autoRotate={introDone && !reducedMotion}
                 autoRotateSpeed={0.35}
             />
         </>
@@ -338,7 +415,7 @@ export default function MapRadar3D(props: MapRadar3DProps) {
                 gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
                 style={{ width: "100%", height: "100%" }}
             >
-                <Scene {...props} autoRotate={!reduced} />
+                <Scene {...props} reducedMotion={reduced} />
             </Canvas>
         </WebGLErrorBoundary>
     )
