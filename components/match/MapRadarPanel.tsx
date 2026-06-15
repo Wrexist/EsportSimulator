@@ -50,8 +50,10 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
     // 2.5D perspective tilt of the radar plane — a CS-style angled tactical view.
-    // Toggleable; the whole plane (map + SVG overlay) tips back as one ground plane.
+    // Toggleable; the ground plane (map + SVG overlay) tips back; alive players
+    // render as billboarded tokens that stand upright on the tilted plane.
     const [tilt, setTilt] = useState(true)
+    const TILT_DEG = 49
 
     const radarImageData = MAP_RADAR_IMAGES[currentMapId]
     const isDualLevel = !!radarImageData?.secondary
@@ -337,14 +339,15 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                     >
                         <div className="px-4 pb-3 flex justify-center">
                             <div
-                                className="relative w-full max-h-48 aspect-square mx-auto"
+                                className="relative aspect-square h-48 max-w-full mx-auto"
                                 style={tilt ? { perspective: "1100px" } : undefined}
                             >
                                 <div
                                     className="relative w-full h-full transition-transform duration-500 ease-out"
                                     style={{
-                                        transform: tilt ? "rotateX(49deg) scale(1.04)" : "none",
+                                        transform: tilt ? `rotateX(${TILT_DEG}deg) scale(1.04)` : "none",
                                         transformOrigin: "center 50%",
+                                        transformStyle: "preserve-3d",
                                     }}
                                 >
                                 {/* Radar background image */}
@@ -668,27 +671,31 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                                     fill={color} opacity={0.25}
                                                     style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
                                                 />
-                                                {/* Solid dot with economy border */}
-                                                <circle
-                                                    cx={dot.x} cy={dot.y} r={1.5}
-                                                    fill={color}
-                                                    stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                    style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
-                                                />
-                                                {/* Player nickname */}
-                                                <text
-                                                    x={labelX}
-                                                    y={labelY}
-                                                    fontSize="2"
-                                                    fill="white"
-                                                    opacity={0.65}
-                                                    fontFamily="sans-serif"
-                                                    fontWeight="600"
-                                                    textAnchor={labelAnchor}
-                                                    style={{ transition: 'x 0.5s ease-out, y 0.5s ease-out' }}
-                                                >
-                                                    {labelText}
-                                                </text>
+                                                {/* Solid dot + nickname — flat mode only; the 2.5D view
+                                                    renders these as billboarded standing tokens (below). */}
+                                                {!tilt && (
+                                                    <>
+                                                        <circle
+                                                            cx={dot.x} cy={dot.y} r={1.5}
+                                                            fill={color}
+                                                            stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
+                                                            style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
+                                                        />
+                                                        <text
+                                                            x={labelX}
+                                                            y={labelY}
+                                                            fontSize="2"
+                                                            fill="white"
+                                                            opacity={0.65}
+                                                            fontFamily="sans-serif"
+                                                            fontWeight="600"
+                                                            textAnchor={labelAnchor}
+                                                            style={{ transition: 'x 0.5s ease-out, y 0.5s ease-out' }}
+                                                        >
+                                                            {labelText}
+                                                        </text>
+                                                    </>
+                                                )}
                                             </g>
                                         )
                                     })}
@@ -700,6 +707,33 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                             className="pointer-events-none absolute inset-0"
                                             style={{ background: "linear-gradient(to top, rgba(5,7,11,0) 52%, rgba(5,7,11,0.55) 100%)" }}
                                         />
+                                    )}
+
+                                    {/* 2.5D standing player tokens — billboarded upright on the tilted
+                                        plane, each over a flat ground shadow. (Flat mode uses SVG dots.) */}
+                                    {tilt && (
+                                        <div className="absolute inset-0" style={{ transformStyle: "preserve-3d", pointerEvents: "none" }}>
+                                            {visibleDots.filter(d => d.isAlive).map(dot => {
+                                                const color = dot.side === "ct" ? "#5b9bd5" : "#e8a838"
+                                                const ecoStroke = dot.money != null
+                                                    ? dot.money >= 4500 ? "#ffffff" : dot.money >= 2000 ? "#f59e0b" : "#ef4444"
+                                                    : "#ffffff"
+                                                return (
+                                                    <div
+                                                        key={dot.playerId}
+                                                        className="absolute"
+                                                        style={{ left: `${dot.x}%`, top: `${dot.y}%`, transformStyle: "preserve-3d", transition: "left 0.5s ease-out, top 0.5s ease-out" }}
+                                                    >
+                                                        {/* ground shadow — flat on the plane */}
+                                                        <div style={{ position: "absolute", width: 7, height: 4, borderRadius: "9999px", background: "rgba(0,0,0,0.55)", filter: "blur(1.5px)", transform: "translate(-50%,-50%)" }} />
+                                                        {/* standing dot — counter-rotated to face the camera, lifted off the ground */}
+                                                        <div style={{ position: "absolute", transformOrigin: "center bottom", transform: `translate(-50%,-100%) rotateX(-${TILT_DEG}deg) translateY(2px)` }}>
+                                                            <div style={{ width: 9, height: 9, borderRadius: "9999px", background: color, border: `1.5px solid ${ecoStroke}`, boxShadow: `0 0 5px ${color}, 0 2px 4px rgba(0,0,0,0.7)` }} />
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
                                     )}
                                 </div>
                             </div>
