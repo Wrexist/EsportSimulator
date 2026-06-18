@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { HelpCircle, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -256,6 +256,20 @@ const helpTopics: HelpTopic[] = [
 export function HelpSystem() {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+    // One-time discoverability pulse on the help FAB until the player opens it
+    // once (the guide is the canonical reference but the "?" was easy to miss).
+    const [showPulse, setShowPulse] = useState(false)
+    useEffect(() => {
+        try {
+            if (typeof window !== "undefined" && !localStorage.getItem("esim_help_opened")) setShowPulse(true)
+        } catch { /* localStorage unavailable — just skip the pulse */ }
+    }, [])
+
+    const openHelp = () => {
+        setIsOpen(true)
+        setShowPulse(false)
+        try { localStorage.setItem("esim_help_opened", "1") } catch { /* ignore */ }
+    }
 
     const categories = {
         gameplay: 'Gameplay',
@@ -272,13 +286,16 @@ export function HelpSystem() {
             <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsOpen(true)}
+                onClick={openHelp}
                 aria-label="Open help"
                 title="Help & Game Guide"
                 // Stacked above the (conditional) bug-report button at bottom-6
                 // so the two never overlap.
                 className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur shadow-lg z-50"
             >
+                {showPulse && (
+                    <span className="absolute inset-0 rounded-full bg-amber-400/40 animate-ping pointer-events-none" aria-hidden="true" />
+                )}
                 <HelpCircle className="w-5 h-5" aria-hidden="true" />
             </Button>
 

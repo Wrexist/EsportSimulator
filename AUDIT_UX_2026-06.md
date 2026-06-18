@@ -24,7 +24,9 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds + neutralises the opponent's momentum for the window. Behind a determinism harness + boost test. → B5.
 - **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
-**Still open:** B4 · C8/C9–C11 · E5/E6/E8/E9 · F3/F9/F10 · G3.
+**Still open:** B4 · C8/C9–C11 · E6 · F3/F9/F10 · G3. *(E5/E8/E9 shipped 2026-06-18: tutorial
+copy reframed to the unified hub + role-name drift fixed (Lurker→Rifler); actionable empty
+state; one-time help-FAB discoverability pulse.)*
 
 **G1 RESOLVED 2026-06-18 (decided: wire it).** The passive pipeline was a regression, not
 intent — `processTraining` + the per-player Training Focus dropdown are built and tested to run.

@@ -44,7 +44,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
             <div className="text-center py-8 text-muted-foreground">
                 <Swords size={48} className="mx-auto mb-3 text-white/10" />
                 <p className="text-sm">No matches played yet</p>
-                <p className="text-xs">Play matches to build career history</p>
+                <p className="text-xs">Match history appears once this player competes — enter an event from the Tournaments page to get them on the server.</p>
             </div>
         )
     }

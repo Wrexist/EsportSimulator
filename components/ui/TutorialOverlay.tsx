@@ -51,14 +51,14 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     {
         id: "desktop",
         title: "Your Command Center",
-        subtitle: "The Desktop Environment",
-        content: "This is your desktop — the nerve center of operations. Click the app icons on the left or taskbar to open different tools. The Mail app shows events, offers, and news. The Calendar tracks your schedule. Everything you need is just a click away.",
+        subtitle: "The HQ Dashboard",
+        content: "This is your HQ — the hub for everything. Use the sidebar to jump to your Squad, Training, Transfers, Finances and more. Your Inbox surfaces events, offers and news, and the Action Center highlights the decisions that need you this week. Everything you need is one click away.",
         icon: <Mail size={32} />,
         color: "from-cyan-500 to-blue-500",
         tips: [
-            "Mail app opens automatically with important notifications",
-            "Windows can be moved, minimized, and resized",
-            "Keep an eye on the taskbar notification badges"
+            "Your Inbox flags important offers and events",
+            "The Action Center surfaces decisions that need you",
+            "Use the sidebar to move between management screens"
         ]
     },
     {
