@@ -24,7 +24,10 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds + neutralises the opponent's momentum for the window. Behind a determinism harness + boost test. → B5.
 - **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
-**Still open:** C9 · C10 · F9 (remaining hand-rolled spinners) · F10 · G3. *(C8 partial: a
+**Still open:** C9 · C10 · F9 (remaining hand-rolled spinners) · F10. *(G3 shipped: team drills
+now respect `player.potential` (capped at max(current, potential), matching processTraining) —
+closing the free grind-any-stat-to-100-past-potential path. The 10/week count stays (fatigue +
+slot cap are the intended brakes). Tested.)* *(C8 partial: a
 career-best **peak world ranking** now persists + shows on the rankings row ("▲#12") so the ladder
 reads as a climb, not just the volatile weekly Elo re-sort — the "add 1–2 lower tiers" half is a
 larger structural change, deferred. C11 shipped: legend mentorship/coach chances now scale with

@@ -118,8 +118,14 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const currentVal = (p as any)[statKey]
                     if (currentVal !== undefined && typeof currentVal === "number") {
+                        // Respect potential (G3): drills accelerate growth toward
+                        // the player's potential but can't grind a stat past it —
+                        // matching processTraining, which clamps to potential. The
+                        // max(currentVal, …) guard means a stat already above
+                        // potential is held, never reduced.
+                        const cap = Math.min(100, Math.max(currentVal, p.potential ?? 100))
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        ;(p as any)[statKey] = Math.max(0, Math.min(100, currentVal + gain.amount))
+                        ;(p as any)[statKey] = Math.max(0, Math.min(cap, currentVal + gain.amount))
                     }
                 })
             })
