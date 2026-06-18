@@ -218,3 +218,16 @@ export function completeScoutingMission(
         scoutLevel: scoutLevel as ScoutedPlayerEntry["scoutLevel"],
     }
 }
+
+/**
+ * Map a scout's accuracy stat (0-100) to the report tier it produces. A more
+ * accurate scout returns a higher tier → tighter stat bands / more exact stats
+ * (see getVisibleStats). Deterministic, bounded; the absent-scout default
+ * (accuracy 50 → ADVANCED) is what an unscouted mission falls back to.
+ */
+export function scoutTierFromAccuracy(accuracy: number): ScoutedPlayerEntry["scoutLevel"] {
+    if (accuracy >= 85) return "ELITE"
+    if (accuracy >= 65) return "EXPERT"
+    if (accuracy >= 45) return "ADVANCED"
+    return "BASIC"
+}

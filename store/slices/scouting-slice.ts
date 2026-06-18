@@ -10,6 +10,7 @@
  */
 
 import type { ScoutingActions, SliceCreator } from "@/store/types"
+import { getSpecializationMultiplier } from "@/engine/staff-specialization"
 
 const SCOUTING_COST_BASIC = 3000
 
@@ -39,10 +40,15 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
                 return
             }
 
-            // Scout level determines duration: higher level = faster scouting.
+            // Scout level sets the base duration (L1=4wk … L4+=1wk); a high
+            // scoutingSpeed stat (× specialist bonus) shaves up to 2 more weeks.
             // L1=4wk, L2=3wk, L3=2wk, L4+=1wk
             const scoutLevel = scoutStaff?.level ?? 1
-            const duration = Math.max(1, 5 - scoutLevel)
+            const scoutSpeed = scoutStaff
+                ? (scoutStaff.stats?.scoutingSpeed ?? 0) * getSpecializationMultiplier(scoutStaff)
+                : 0
+            const speedBonus = Math.floor(scoutSpeed / 50) // 0–2 weeks faster
+            const duration = Math.max(1, 5 - scoutLevel - speedBonus)
 
             state.activeScoutingMission = {
                 playerId,

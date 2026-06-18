@@ -134,7 +134,8 @@ export class TrainingProcessor {
                 let psychRecoveryBonus = 0
                 for (const s of teamStaff) {
                     if (s.role !== "psychologist") continue
-                    psychStatSum += s.stats?.mentalRecovery || 50
+                    // MENTAL-focused psychologist is a "true specialist" (+10%).
+                    psychStatSum += (s.stats?.mentalRecovery || 50) * getSpecializationMultiplier(s)
                     const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
                     psychRecoveryBonus += bonuses["recovery_amount"] || 0
                 }

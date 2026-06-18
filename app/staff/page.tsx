@@ -378,11 +378,16 @@ export default function StaffPage() {
                                         <Badge variant="secondary" className="text-[10px] h-5">
                                             {s.specialization}
                                         </Badge>
-                                        {(s.role === "coach" || s.role === "analyst") && isSpecialist(s) && (
+                                        {isSpecialist(s) && (
                                             <Badge
                                                 variant="outline"
                                                 className="text-[9px] h-5 border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-                                                title={`Specialist: +10% ${s.role === "coach" ? "training" : "tactical"} effectiveness`}
+                                                title={`Specialist: +10% ${
+                                                    s.role === "coach" ? "training"
+                                                        : s.role === "analyst" ? "tactical"
+                                                            : s.role === "psychologist" ? "recovery"
+                                                                : "scouting"
+                                                } effectiveness`}
                                             >
                                                 ★ Specialist
                                             </Badge>

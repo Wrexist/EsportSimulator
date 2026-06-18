@@ -59,10 +59,13 @@ activeMerchItems→fan income (`economy-engine.ts:150`), the three "dead" settin
 (`settings-store.applyWindowSettings`, game-speed→playback, notifications→toast gate), and
 sponsor re-sign cooldown (`team.sponsorCooldowns`). See AUDIT_WAVE3.md "Open items EXECUTED".
 Genuinely remaining are P2 design/balance calls only (match-rating denominator, sponsor-goal
-ledger consolidation, AI-churn event noise) — not quick fixes. (**staff.specialization** wiring
-SHIPPED 2026-06-18: the cosmetic field now grants a bounded +10% "true specialist" multiplier on
-the staffer's primary effect — coach→training, analyst→tactical — via `engine/staff-specialization`,
-surfaced as a Specialist badge on `/staff`. Tested.)
+ledger consolidation, AI-churn event noise) — not quick fixes. (**Staff system depth** SHIPPED
+2026-06-18: (1) `staff.specialization` now grants a bounded +10% "true specialist" multiplier on
+each role's primary effect — coach→training, analyst→tactical, psychologist→recovery,
+scout→scouting (`engine/staff-specialization`), with a Specialist badge on `/staff`; (2) the
+genuinely-dead scout stats are now wired — `accuracy`→scouting report tier
+(`scouting-mission-processor`, was a flat EXPERT) and `scoutingSpeed`→mission duration
+(`scouting-slice`). Tested.)
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.

@@ -91,6 +91,15 @@ describe("startScoutingMission", () => {
         expect(h.state().activeScoutingMission!.scoutId).toBe("scout_player")
     })
 
+    test("a high scoutingSpeed scout finishes faster (stat wired)", () => {
+        const fastScout = { ...makeScout("player", 1), stats: { scoutingSpeed: 100 } }
+        const h = makeHarness(makeBaseState({ staff: [fastScout as never] }))
+        const slice = createScoutingSlice(h.set, h.get)
+        slice.startScoutingMission("p_target")
+        // base L1 = 4wk; speed 100 → floor(100/50)=2 weeks faster → 2wk.
+        expect(h.state().activeScoutingMission!.completionWeek).toBe(5 + 2)
+    })
+
     test("L4 scout → 1-week duration (max(1, 5-level) floor at 1)", () => {
         const h = makeHarness(makeBaseState({
             staff: [makeScout("player", 4)],

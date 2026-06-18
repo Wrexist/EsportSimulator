@@ -12,6 +12,8 @@
 import type { GameSave } from "../save-types"
 import type { SaveIndexes } from "@/store/indexes"
 import { logger } from "@/lib/logger"
+import { scoutTierFromAccuracy } from "../scouting-system"
+import { getSpecializationMultiplier } from "../staff-specialization"
 
 export function processScoutingMissions(save: GameSave, idx?: SaveIndexes): void {
     if (!save.activeScoutingMission) return
@@ -19,11 +21,19 @@ export function processScoutingMissions(save: GameSave, idx?: SaveIndexes): void
     const mission = save.activeScoutingMission
     if (save.currentWeek < mission.completionWeek) return
 
+    // Report quality is driven by the assigned scout's accuracy (× specialist
+    // bonus), not a flat tier. A missing/fired scout falls back to ADVANCED.
+    const scout = save.staff?.find(s => s.id === mission.scoutId)
+    const accuracy = scout
+        ? (scout.stats?.accuracy ?? 50) * getSpecializationMultiplier(scout)
+        : 50
+    const scoutLevel = scoutTierFromAccuracy(accuracy)
+
     if (!save.scoutedPlayers) save.scoutedPlayers = []
     save.scoutedPlayers.push({
         playerId: mission.playerId,
         scoutedWeek: save.currentWeek,
-        scoutLevel: "EXPERT" as const,
+        scoutLevel,
     })
 
     // Surface a news event so the user actually sees the scouting result.

@@ -9,6 +9,7 @@
 
 import { TrainingProcessor } from "@/engine/processors/training-processor"
 import { TrainingFocus } from "@/types"
+import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
 
 function makePlayer(id: string, overrides: Partial<PlayerSaveData> = {}): PlayerSaveData {
@@ -190,6 +191,36 @@ describe("TrainingProcessor.processTraining", () => {
         TrainingProcessor.processTraining(saveB, new Map([["t2", config]]))
 
         expect(specialistPlayer.rifle - 50).toBeGreaterThan(offDomainPlayer.rifle - 50)
+    })
+
+    test("a MENTAL-specialist psychologist recovers more fatigue than an off-domain one", () => {
+        const specialistPlayer = makePlayer("p1", { fatigue: 80, age: 27 })
+        const offDomainPlayer = makePlayer("p2", { fatigue: 80, age: 27 })
+
+        const specialistPsych: StaffSaveData = {
+            id: "ps1", teamId: "t1", name: "Spec", role: "psychologist",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { mentalRecovery: 100 } as any, unlockedTalentIds: [],
+            specialization: "Mental Perf.", // MENTAL → +10% specialist bonus
+        } as any
+        const offDomainPsych: StaffSaveData = {
+            id: "ps2", teamId: "t2", name: "Off", role: "psychologist",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { mentalRecovery: 100 } as any, unlockedTalentIds: [],
+            specialization: "Tactical", // off-domain for a psychologist → ×1.0
+        } as any
+
+        const teamA = makeTeam({ id: "t1", rosterIds: ["p1"], staffIds: ["ps1"] })
+        const teamB = makeTeam({ id: "t2", rosterIds: ["p2"], staffIds: ["ps2"] })
+
+        const saveA = makeSave(teamA, [specialistPlayer], [specialistPsych])
+        const saveB = makeSave(teamB, [offDomainPlayer], [offDomainPsych])
+
+        TrainingProcessor.processFatigueRecovery(saveA, new SeededRNG(1))
+        TrainingProcessor.processFatigueRecovery(saveB, new SeededRNG(1))
+
+        // More recovery → lower remaining fatigue for the specialist's player.
+        expect(specialistPlayer.fatigue).toBeLessThan(offDomainPlayer.fatigue)
     })
 
     test("stat gain is capped by player.potential", () => {
