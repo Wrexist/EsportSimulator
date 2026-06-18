@@ -82,6 +82,8 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
         academyTrainingSchedule: {} as never,
         newsFeed: [],
         eventsLog: [],
+        financeLedger: [],
+        lastRngSeed: 1,
         currentWeek: 5,
         playerTeamId: "player",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,6 +105,12 @@ describe("buildAcademy", () => {
         expect(after.academyFacility).toBeDefined()
         expect(after.academyFacility!.level).toBe(1)
         expect(after.academyFacility!.builtWeek).toBe(5)
+        // Economy invariant #5: the build cost is recorded on the books.
+        const ledger = h.state().financeLedger
+        expect(ledger).toHaveLength(1)
+        expect(ledger[0].amount).toBe(cost)
+        expect(ledger[0].category).toBe("FACILITIES")
+        expect(ledger[0].type).toBe("EXPENSE")
     })
 
     test("refuses idempotently when the team already has an academy", () => {
