@@ -24,8 +24,11 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds + neutralises the opponent's momentum for the window. Behind a determinism harness + boost test. → B5.
 - **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
-**Still open:** F9 (remaining hand-rolled spinners) · F10 · C8's "add 1–2 lower league tiers"
-(deferred structural change). *(C10 shipped: the sponsorships page now shows an explicit
+**Still open:** F10 (decided — the authored hover SFX stays unwired: per-button hover sound is
+UX noise) · C8's "add 1–2 lower league tiers" (deferred structural change: tier thresholds +
+tournament gating). *(F9 done: every full-screen loader — dashboard, new-game, scouting, tactics,
+transfers, match result, live — now uses the shared reduced-motion-safe `LoadingState`; only a
+tiny inline menu spinner remains by design.)* *(C10 shipped: the sponsorships page now shows an explicit
 STANDARD→PREMIUM→ELITE tier ladder with income multipliers + the reputation gate (ELITE unlocks
 at rep 30, dominant at 70), turning the background tier economy into a visible climb.)* *(C9 shipped: manager-level
 training-slot reward now unlocks every 3 levels instead of 5 (→ 16 at L20 vs 14), a tighter,

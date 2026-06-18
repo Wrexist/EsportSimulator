@@ -6,6 +6,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
@@ -220,12 +221,7 @@ export default function Page() {
 
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
-      <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Game Session...</p>
-        </div>
-      </div>
+      <LoadingState message="Loading Game Session…" size="lg" fullScreen />
     )
   }
 

@@ -6,6 +6,7 @@ import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
@@ -305,12 +306,7 @@ export default function TeamSelectionPage() {
     // Loading state
     if (isDataLoading) {
         return (
-            <div className="min-h-screen liquid-app-bg flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Teams...</p>
-                </div>
-            </div>
+            <LoadingState message="Loading Teams…" size="lg" fullScreen />
         )
     }
 

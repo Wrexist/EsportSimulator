@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Play, Layout, Brain, Video, ChevronRight, Zap, Lock, Check } from "lucide-react"
 import { motion } from "framer-motion"
@@ -268,12 +269,7 @@ export default function TacticalHQPage() {
 
     if (!match || !myTeam || !opponent) {
         return (
-            <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Loading Headquarters...</p>
-                </div>
-            </div>
+            <LoadingState message="Loading Headquarters…" size="lg" fullScreen />
         )
     }
 

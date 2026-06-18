@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, memo } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { LoadingState } from "@/components/ui/loading"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -379,12 +380,7 @@ export default function ScoutingPage() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Scouting Database...</p>
-                </div>
-            </div>
+            <LoadingState message="Loading Scouting Database…" size="lg" className="min-h-[60vh]" />
         )
     }
 
