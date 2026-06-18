@@ -39,6 +39,7 @@ import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
 import { updateRivalries, getRivalryBetween, derbyMultiplier } from "./history-tracker"
+import { psychologistMoraleDampen } from "./staff-specialization"
 import { MatchAnalyzer } from "./match-analyzer"
 import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
@@ -853,7 +854,14 @@ export class AtomicWeekProcessor {
             // coming INTO the match. Rivalry is symmetric, so the home view suffices.
             const derbyStakes = derbyMultiplier(getRivalryBetween(homeTeam, awayTeam.id)?.intensity)
 
-            const updateStats = (players: typeof save.players, won: boolean) => {
+            // Psychologist stressResistance softens the morale hit of a defeat
+            // (per team — each side's own staff). 0 when no psychologist.
+            const homeStaff = idx?.staffByTeamId.get(homeTeam.id) ?? save.staff.filter(s => s.teamId === homeTeam.id)
+            const awayStaff = idx?.staffByTeamId.get(awayTeam.id) ?? save.staff.filter(s => s.teamId === awayTeam.id)
+            const homeMoraleDampen = psychologistMoraleDampen(homeStaff)
+            const awayMoraleDampen = psychologistMoraleDampen(awayStaff)
+
+            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number) => {
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
                     p.matchesPlayed++
@@ -869,7 +877,9 @@ export class AtomicWeekProcessor {
                     // Phase 55: Energy drain from matches (-15 per match)
                     p.energy = Math.max(0, (p.energy ?? 100) - 15)
 
-                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(getMoraleChange(won) * derbyStakes)))
+                    let moraleDelta = getMoraleChange(won) * derbyStakes
+                    if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
+                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(moraleDelta)))
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
@@ -881,8 +891,8 @@ export class AtomicWeekProcessor {
                 })
             }
 
-            updateStats(homePlayers, homeWon)
-            updateStats(awayPlayers, !homeWon)
+            updateStats(homePlayers, homeWon, homeMoraleDampen)
+            updateStats(awayPlayers, !homeWon, awayMoraleDampen)
 
             this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
             this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)

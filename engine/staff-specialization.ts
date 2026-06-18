@@ -61,3 +61,22 @@ export function isSpecialist(staff: { role: string; specialization?: string | nu
 export function getSpecializationMultiplier(staff: { role: string; specialization?: string | null }): number {
     return isSpecialist(staff) ? SPECIALIST_MULTIPLIER : 1
 }
+
+/**
+ * A team's psychologist(s) soften the morale hit of a defeat via their
+ * `stressResistance` stat (× specialist bonus). Returns a bounded 0..0.4 factor
+ * — the fraction by which a NEGATIVE post-match morale swing is reduced. Sums
+ * across psychologists (mirrors the recovery contribution) then caps. Returns 0
+ * when the team has no psychologist, so callers can apply it unconditionally.
+ */
+export function psychologistMoraleDampen(
+    teamStaff: { role: string; specialization?: string | null; stats?: Record<string, number> }[] | undefined,
+): number {
+    if (!teamStaff) return 0
+    let stressSum = 0
+    for (const s of teamStaff) {
+        if (s.role !== "psychologist") continue
+        stressSum += (s.stats?.stressResistance ?? 0) * getSpecializationMultiplier(s)
+    }
+    return Math.min(0.4, (stressSum / 100) * 0.4)
+}

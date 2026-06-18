@@ -12,6 +12,7 @@ import {
     normalizeSpecialization,
     isSpecialist,
     getSpecializationMultiplier,
+    psychologistMoraleDampen,
     SPECIALIST_MULTIPLIER,
     ROLE_PRIMARY_FOCUS,
 } from "@/engine/staff-specialization"
@@ -86,5 +87,28 @@ describe("getSpecializationMultiplier — bounded, multiply-unconditionally safe
 
     test("unknown role yields the neutral 1.0 (no crash, no bonus)", () => {
         expect(getSpecializationMultiplier({ role: "manager", specialization: "Player Dev" })).toBe(1)
+    })
+})
+
+describe("psychologistMoraleDampen — bounded defeat-morale softening", () => {
+    const psych = (stressResistance: number, specialization = "Mental Perf.") =>
+        ({ role: "psychologist", specialization, stats: { stressResistance } })
+
+    test("no staff / no psychologist → 0 (safe to apply unconditionally)", () => {
+        expect(psychologistMoraleDampen(undefined)).toBe(0)
+        expect(psychologistMoraleDampen([])).toBe(0)
+        expect(psychologistMoraleDampen([{ role: "coach", specialization: "Player Dev", stats: { stressResistance: 100 } }])).toBe(0)
+    })
+
+    test("scales with stressResistance and is capped at 0.4", () => {
+        // 50 stress × 1.1 specialist = 55 → (55/100)*0.4 = 0.22
+        expect(psychologistMoraleDampen([psych(50)])).toBeCloseTo(0.22, 5)
+        // High stress saturates at the 0.4 cap.
+        expect(psychologistMoraleDampen([psych(100)])).toBe(0.4)
+    })
+
+    test("an off-domain psychologist loses the specialist bump", () => {
+        // 50 stress × 1.0 (off-domain) = 50 → 0.20
+        expect(psychologistMoraleDampen([psych(50, "Tactical")])).toBeCloseTo(0.2, 5)
     })
 })
