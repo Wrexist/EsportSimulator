@@ -58,8 +58,11 @@ decision-gated "top open" items have since ALL shipped (re-verified in code 2026
 activeMerchItems→fan income (`economy-engine.ts:150`), the three "dead" settings wired
 (`settings-store.applyWindowSettings`, game-speed→playback, notifications→toast gate), and
 sponsor re-sign cooldown (`team.sponsorCooldowns`). See AUDIT_WAVE3.md "Open items EXECUTED".
-Genuinely remaining are P2 design/balance calls only (staff.specialization wiring, match-rating
-denominator, sponsor-goal ledger consolidation, AI-churn event noise) — not quick fixes.
+Genuinely remaining are P2 design/balance calls only (match-rating denominator, sponsor-goal
+ledger consolidation, AI-churn event noise) — not quick fixes. (**staff.specialization** wiring
+SHIPPED 2026-06-18: the cosmetic field now grants a bounded +10% "true specialist" multiplier on
+the staffer's primary effect — coach→training, analyst→tactical — via `engine/staff-specialization`,
+surfaced as a Specialist badge on `/staff`. Tested.)
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.

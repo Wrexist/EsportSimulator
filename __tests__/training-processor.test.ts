@@ -160,6 +160,38 @@ describe("TrainingProcessor.processTraining", () => {
         expect(talentPlayer.rifle - 50).toBeGreaterThanOrEqual(noTalentPlayer.rifle - 50)
     })
 
+    test("a DEVELOPMENT-specialist coach out-trains an off-domain coach (specialization wired)", () => {
+        const specialistPlayer = makePlayer("p1", { rifle: 50, potential: 99 })
+        const offDomainPlayer = makePlayer("p2", { rifle: 50, potential: 99 })
+
+        const specialistCoach: StaffSaveData = {
+            id: "s1", teamId: "t1", name: "Spec", role: "coach",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { development: 100 } as any, unlockedTalentIds: [],
+            specialization: "Player Dev", // DEVELOPMENT → +10% specialist bonus
+        } as any
+        const offDomainCoach: StaffSaveData = {
+            id: "s2", teamId: "t2", name: "Off", role: "coach",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { development: 100 } as any, unlockedTalentIds: [],
+            specialization: "Tactical", // off-domain for a coach → ×1.0
+        } as any
+
+        const teamA = makeTeam({ id: "t1", rosterIds: ["p1"], staffIds: ["s1"] })
+        const teamB = makeTeam({ id: "t2", rosterIds: ["p2"], staffIds: ["s2"] })
+
+        const saveA = makeSave(teamA, [specialistPlayer], [specialistCoach])
+        saveA.playerTeamId = "t1"
+        const saveB = makeSave(teamB, [offDomainPlayer], [offDomainCoach])
+        saveB.playerTeamId = "t2"
+
+        const config = { focus: TrainingFocus.AIM, intensity: 5 }
+        TrainingProcessor.processTraining(saveA, new Map([["t1", config]]))
+        TrainingProcessor.processTraining(saveB, new Map([["t2", config]]))
+
+        expect(specialistPlayer.rifle - 50).toBeGreaterThan(offDomainPlayer.rifle - 50)
+    })
+
     test("stat gain is capped by player.potential", () => {
         // Player is at potential cap — should NOT exceed it.
         const p = makePlayer("p1", { rifle: 89, potential: 90 })

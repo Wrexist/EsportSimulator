@@ -95,7 +95,7 @@ the placed shares to ≤100%, or (c) fix the table so 1-16 sums to 1.0. `standin
 
 | Priority | Item | Why deferred |
 |----------|------|--------------|
-| P2 | **`staff.specialization` is cosmetic** — written by generator/db, read by no logic | Wiring = new feature (per-specialization bonuses), not a bug fix. |
+| ✅ | ~~**`staff.specialization` is cosmetic**~~ — SHIPPED 2026-06-18: a bounded +10% "true specialist" multiplier (specialization aligned with role's core domain) now modulates the staffer's primary effect — coach→training (`training-processor`), analyst→tactical (`match-tactical-bonus`) — via `engine/staff-specialization` + Specialist badge on `/staff`. Tested. | (psychologist/scout primary stats are themselves under-wired — a separate dead-data layer, left for when those effects are built out) |
 | P2 | Match rating denominator uses series-total rounds, not per-player participation | Plausibly intentional; needs a balance pass, not a hotfix. |
 | P2 | Sponsor-goal payouts: two processors with different ledger-id schemes; normal play is safe (isCompleted ordering), replay relies on tick re-running from persisted save | Consolidate to one processor when next touching sponsor goals. |
 | P2 | Contract-expiry warnings only for the player team; AI roster churn is silent in the event log | Add neutral events if log noise is acceptable. |
