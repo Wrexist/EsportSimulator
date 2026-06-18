@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { toast } from "@/lib/toast"
 import { DollarSign, Handshake, TrendingUp } from "lucide-react"
 import type { SponsorSaveData } from "@/engine/save-types"
@@ -184,6 +185,40 @@ export default function SponsorshipsPage() {
           </AnimatePresence>
           {Array.from({ length: emptySlots }).map((_, i) => (
             <EmptySponsorSlot key={`empty-${i}`} index={activeSponsors.length + i} />
+          ))}
+        </div>
+      </div>
+
+      {/* Sponsor Tier Ladder (C10) — make the STANDARD→PREMIUM→ELITE
+          progression an explicit, felt unlock track rather than background
+          economy. ELITE is the real reputation gate (see generateVariedOffers). */}
+      <div>
+        <h2 className="text-lg font-medium tracking-tight mb-4 flex items-center gap-2">
+          <TrendingUp size={18} className="text-primary" />
+          Sponsor Tiers
+          <span className="text-xs text-muted-foreground ml-2">Reputation {Math.round(playerTeam.reputation)}</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { tier: "STANDARD", mult: "1×", unlocked: true, note: "Entry deals — always available." },
+            { tier: "PREMIUM", mult: "2.5×", unlocked: true, note: "Bigger brands — more offers as your reputation climbs." },
+            {
+              tier: "ELITE", mult: "6×", unlocked: playerTeam.reputation >= 30,
+              note: playerTeam.reputation >= 70
+                ? "Top global deals — now dominating your offers."
+                : "Top global deals — unlock at Reputation 30, dominant at 70+.",
+            },
+          ].map(({ tier, mult, unlocked, note }) => (
+            <div key={tier} className={cn("glass-panel rounded-xl p-4 border", unlocked ? "border-primary/30" : "border-white/5 opacity-60")}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold uppercase tracking-wide text-sm">{tier}</span>
+                <Badge variant="outline" className="text-[10px] border-green-500/30 text-green-400">{mult} income</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground min-h-[2.5em]">{note}</p>
+              <p className={cn("text-[10px] mt-2 font-bold uppercase tracking-wider", unlocked ? "text-emerald-400" : "text-amber-400/70")}>
+                {unlocked ? "✓ Available" : "Reach Reputation 30"}
+              </p>
+            </div>
           ))}
         </div>
       </div>
