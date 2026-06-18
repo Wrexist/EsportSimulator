@@ -59,6 +59,7 @@ import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
 import { SCOUTING_COSTS, ACADEMY_LEVELS, DEV_MATCH_CONFIG, isScoutingTierUnlocked, ENERGY_CONFIG, DEVELOPMENT_CONFIG, ACADEMY_DRILLS, SCOUTING_DURATIONS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyPlayer, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
+import { TrainingFocus } from "@/types"
 import { generateSeed } from "@/engine/rng"
 import { SponsorGenerator } from "@/engine/economy-manager"
 import { applyRosterChangePenalty, applyBootcampChemistryBonus } from "@/engine/chemistry-engine"
@@ -2117,9 +2118,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           const rng = new SeededRNG(preTickRng.getState())
 
+          // Passive weekly training for the player's roster. Each player trains
+          // their selected Training Focus (the per-player dropdown); players left
+          // on "Balanced" (the no-specific-focus sentinel) fall through to the
+          // team default regimen below. This Map was previously always empty
+          // (AUDIT_UX G1) — so processTraining iterated zero teams, the focus
+          // dropdown did nothing, and the squad never auto-trained. Scoped to the
+          // player team: the AI world's weekly progression is carried by
+          // processNaturalGrowth (player-lifecycle), so the player still pulls
+          // ahead via training — the documented intent — without rebalancing
+          // every AI roster. Bounded by potential, with fatigue as the brake.
+          const trainingFocus = new Map<string, { focus: TrainingFocus; intensity: number }>()
+          if (state.playerTeamId) {
+            trainingFocus.set(state.playerTeamId, { focus: TrainingFocus.AIM, intensity: 5 })
+          }
+
           const config = {
             playerTeamId: state.playerTeamId || "",
-            trainingFocus: new Map()
+            trainingFocus
           }
 
           // Apply the player's selected "weekly focus" activity (bootcamp,

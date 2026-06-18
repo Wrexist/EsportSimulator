@@ -70,6 +70,17 @@ describe("TrainingProcessor.processTraining", () => {
         expect(p.fatigue).toBeGreaterThan(0)
     })
 
+    test("G1: a player left on Balanced (no individual focus) trains the team default", () => {
+        // Mirrors the live config game-store now builds: the player team mapped
+        // to the AIM team default. A player with no individual trainingFocus must
+        // still train (previously the Map was empty so nobody trained at all).
+        const p = makePlayer("p1", { rifle: 50, potential: 99 }) // no trainingFocus → Balanced
+        const team = makeTeam({ id: "t1", rosterIds: ["p1"] })
+        const save = makeSave(team, [p])
+        TrainingProcessor.processTraining(save, new Map([["t1", { focus: TrainingFocus.AIM, intensity: 5 }]]))
+        expect(p.rifle).toBeGreaterThan(50)
+    })
+
     test("teams without a training config are not touched", () => {
         const p = makePlayer("p1")
         const team = makeTeam({ id: "t1", rosterIds: ["p1"] })
