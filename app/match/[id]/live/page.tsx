@@ -6,6 +6,7 @@ import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
+import { DerbyBanner } from "@/components/match/DerbyBanner"
 import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -394,6 +395,9 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
             />
             <HalfTimeOverlay active={showHalfTime} />
             <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
+
+                {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
+                <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
 
                 {/* TeamSaveData (engine save shape) → Team (engine runtime
                     shape). Structural overlap is total for the fields the

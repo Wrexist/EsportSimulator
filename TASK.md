@@ -58,7 +58,15 @@ recorded with recommendations — top three: activeMerchItems inert toggle, dead
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
 2. ~~**Mid-season board check-ins**~~ — SHIPPED: quarterly pulses (weeks 13/26/39) nudge confidence from recent form (+4/+1/-3/-6 by win rate, min 3 matches, never sacks — the sack stays season-end/telegraphed). Surfaced in news feed AND the week-reveal overlay. Tested.
-3. **Rivalries** — PARTIALLY EXISTS (the classic pattern): `engine/history-tracker.ts` already tracks per-team rivalry intensity every tick (atomic-week-processor:882) and the stats page lists them. What's missing is rivalries having EFFECTS — derby morale/fan/confidence swings in the match + fanbase processors, and pre-match derby framing in the UI. Surface-and-wire job, not a new system.
+3. ~~**Rivalries**~~ — SHIPPED (effects wired): tracked intensity now drives gameplay. A
+   HEATED/FIERCE derby applies a deterministic stakes multiplier (×1.3 / ×1.6) to the
+   post-match **morale** swing (`atomic-week-processor`, read pre-`updateRivalries`) and the
+   **fanbase** swing (`processors/fanbase-growth`, still under the 2M cap → non-farmable), plus
+   a pre-match **DerbyBanner** on the live page (HEATED/FIERCE only, with H2H record). Helpers
+   `getRivalryBetween`/`isDerby`/`derbyMultiplier` in `history-tracker`. Tested
+   (`rivalry-effects.test.ts` + derby cases in `fanbase-growth.test.ts`). *Confidence* swing
+   deliberately deferred — the board-confidence system is quarterly/season-end by design
+   (decisions log), so per-match nudges would fight it.
 4. **Transfer negotiation depth** — counter-offers, agent personalities, holdouts.
 
 ### P4 — Steam release (manual, external)

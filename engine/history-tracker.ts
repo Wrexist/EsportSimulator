@@ -171,6 +171,36 @@ export function getBiggestRival(team: TeamSaveData): RivalryData | null {
     )
 }
 
+export type RivalryIntensity = RivalryData["intensity"]
+
+/**
+ * Find the rivalry record a team holds against a specific opponent (if any).
+ */
+export function getRivalryBetween(team: TeamSaveData, opponentTeamId: string): RivalryData | undefined {
+    return team.rivalries?.find(r => r.opponentTeamId === opponentTeamId)
+}
+
+/**
+ * A "derby" is an established rivalry (HEATED or FIERCE) — the only tiers that
+ * carry gameplay effects (morale/fanbase stakes and pre-match framing).
+ */
+export function isDerby(intensity: RivalryIntensity | undefined): boolean {
+    return intensity === "HEATED" || intensity === "FIERCE"
+}
+
+/**
+ * Deterministic stakes multiplier for a derby result. Amplifies both the high of
+ * a derby win and the sting of a derby loss (morale + fanbase swings). Returns
+ * 1.0 for non-derby matches so callers can multiply unconditionally.
+ */
+export function derbyMultiplier(intensity: RivalryIntensity | undefined): number {
+    switch (intensity) {
+        case "FIERCE": return 1.6
+        case "HEATED": return 1.3
+        default: return 1
+    }
+}
+
 /**
  * Get all-time stats for a player
  */

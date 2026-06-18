@@ -15,6 +15,7 @@
 
 import type { GameSave } from "../save-types"
 import type { SeededRNG } from "../rng"
+import { getRivalryBetween, derbyMultiplier } from "../history-tracker"
 
 export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
     // _rng accepted for signature parity with the processor — current
@@ -24,7 +25,7 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
 
     save.teams.forEach(team => {
         // Organic growth scales with reputation (0 rep → 0 fans, 100 rep → 105 fans/week).
-        let dailyOrganic = (team.reputation / 100) * 15
+        const dailyOrganic = (team.reputation / 100) * 15
         let weeklyGrowth = dailyOrganic * 7
 
         // Fan-Zone facility multiplier (+15% per level on top of organic).
@@ -40,17 +41,22 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
 
         weekMatches.forEach(m => {
             const isHome = m.homeTeamId === team.id
+            const opponentId = isHome ? m.awayTeamId : m.homeTeamId
             const won = isHome
                 ? m.result.homeScore > m.result.awayScore
                 : m.result.awayScore > m.result.homeScore
 
+            // Derby stakes: a heated/fierce rivalry magnifies the fanbase reaction
+            // to the result. Still bounded by the 2M ceiling below, so non-farmable.
+            const derbyStakes = derbyMultiplier(getRivalryBetween(team, opponentId)?.intensity)
+
             if (won) {
                 // Elite teams gain more from wins (higher fanbase ceilings).
-                const gain = 500 + (team.reputation * 5)
+                const gain = (500 + (team.reputation * 5)) * derbyStakes
                 weeklyGrowth += gain
             } else {
                 // Losses cause slight stagnation rather than catastrophic decline.
-                weeklyGrowth -= 100
+                weeklyGrowth -= 100 * derbyStakes
             }
         })
 

@@ -221,3 +221,43 @@ describe("processFanbaseGrowth — ranking + marketing", () => {
         expect(team.followers).toBe(0)
     })
 })
+
+describe("processFanbaseGrowth — derby stakes", () => {
+    const fierce = [{ opponentTeamId: "opponent", intensity: "FIERCE", matchesPlayed: 8, wins: 4, losses: 4, lastPlayed: 1 }] as never
+    const heated = [{ opponentTeamId: "opponent", intensity: "HEATED", matchesPlayed: 5, wins: 3, losses: 2, lastPlayed: 1 }] as never
+
+    test("a FIERCE derby win multiplies the win bonus by 1.6", () => {
+        const team = makeTeam("t1", { reputation: 60, followers: 0, rivalries: fierce })
+        const save = makeSave([team], { completedMatches: [makeWin("t1", 10)], currentWeek: 10 })
+        processFanbaseGrowth(save, rng)
+        // organic 63 + win (500 + 60*5)=800 ×1.6 = 1280 → 1343
+        expect(team.followers).toBe(1343)
+    })
+
+    test("a HEATED derby win multiplies the win bonus by 1.3", () => {
+        const team = makeTeam("t1", { reputation: 60, followers: 0, rivalries: heated })
+        const save = makeSave([team], { completedMatches: [makeWin("t1", 10)], currentWeek: 10 })
+        processFanbaseGrowth(save, rng)
+        // organic 63 + 800 ×1.3 = 1040 → 1103
+        expect(team.followers).toBe(1103)
+    })
+
+    test("a FIERCE derby loss stings the fanbase more (penalty ×1.6)", () => {
+        const team = makeTeam("t1", { reputation: 0, followers: 500, rivalries: fierce })
+        const save = makeSave([team], { completedMatches: [makeLoss("t1", 10)], currentWeek: 10 })
+        processFanbaseGrowth(save, rng)
+        // 500 - 100×1.6=160 → 340
+        expect(team.followers).toBe(340)
+    })
+
+    test("a rivalry against a DIFFERENT opponent leaves this match unaffected", () => {
+        const team = makeTeam("t1", {
+            reputation: 60, followers: 0,
+            rivalries: [{ opponentTeamId: "someone_else", intensity: "FIERCE", matchesPlayed: 8, wins: 4, losses: 4, lastPlayed: 1 }] as never,
+        })
+        const save = makeSave([team], { completedMatches: [makeWin("t1", 10)], currentWeek: 10 })
+        processFanbaseGrowth(save, rng)
+        // no derby vs "opponent" → ×1 → 63 + 800 = 863
+        expect(team.followers).toBe(863)
+    })
+})

@@ -38,7 +38,7 @@ import { PlayerLifecycleManager } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
-import { updateRivalries } from "./history-tracker"
+import { updateRivalries, getRivalryBetween, derbyMultiplier } from "./history-tracker"
 import { MatchAnalyzer } from "./match-analyzer"
 import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
@@ -847,6 +847,12 @@ export class AtomicWeekProcessor {
                 }
             }
 
+            // Phase 11b: Derby stakes — an established rivalry amplifies the morale
+            // swing of the result, both ways. Read the intensity BEFORE
+            // updateRivalries() increments it below, so it reflects the heat
+            // coming INTO the match. Rivalry is symmetric, so the home view suffices.
+            const derbyStakes = derbyMultiplier(getRivalryBetween(homeTeam, awayTeam.id)?.intensity)
+
             const updateStats = (players: typeof save.players, won: boolean) => {
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
@@ -863,7 +869,7 @@ export class AtomicWeekProcessor {
                     // Phase 55: Energy drain from matches (-15 per match)
                     p.energy = Math.max(0, (p.energy ?? 100) - 15)
 
-                    p.morale = Math.max(0, Math.min(100, p.morale + getMoraleChange(won)))
+                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(getMoraleChange(won) * derbyStakes)))
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
