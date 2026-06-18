@@ -19,6 +19,7 @@
  */
 
 import type { GameSave } from "../save-types"
+import { paySponsorGoalBonus } from "./sponsor-goal-payout"
 
 // Weeks before an expired sponsor can be re-signed (mirrors job-change cooldown).
 const SPONSOR_RESIGN_COOLDOWN_WEEKS = 16
@@ -65,41 +66,18 @@ export function processWeeklySponsorGoals(
                         goal.current = goal.target
                         goal.isCompleted = true
 
-                        const payoutEntryId = `fin_sponsor_goal_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}`
-                        const alreadyPaid = ledgerIdSet?.has(payoutEntryId)
-                            ?? save.financeLedger.some(entry => entry.id === payoutEntryId)
-
-                        if (!alreadyPaid) {
-                            team.budget += goal.bonusPayout
-                            save.financeLedger.push({
-                                id: payoutEntryId,
-                                week: save.currentWeek,
-                                teamId: team.id,
-                                type: "INCOME",
-                                category: "SPONSOR",
-                                amount: goal.bonusPayout,
-                                description: `Goal Reached: ${goal.description}`,
-                                balance: team.budget,
-                            })
-                            ledgerIdSet?.add(payoutEntryId)
-
-                            if (team.id === save.playerTeamId) {
-                                const eventId = `evt_sponsor_goal_${save.currentWeek}_${sponsor.id}_${goal.id}`
-                                if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(event => event.id === eventId))) {
-                                    save.eventsLog.unshift({
-                                        id: eventId,
-                                        type: "SPONSOR_OFFER",
-                                        week: save.currentWeek,
-                                        data: {
-                                            title: "Sponsor Goal Met",
-                                            message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`,
-                                        },
-                                        acknowledged: false,
-                                    })
-                                    eventIdSet?.add(eventId)
-                                }
-                            }
-                        }
+                        // Weekly goals are week-scoped (no matchId).
+                        paySponsorGoalBonus({
+                            save,
+                            team,
+                            sponsorName: sponsor.name,
+                            goalDescription: goal.description,
+                            bonusPayout: goal.bonusPayout,
+                            ledgerId: `fin_sponsor_goal_${save.currentWeek}_${team.id}_${sponsor.id}_${goal.id}`,
+                            eventId: `evt_sponsor_goal_${save.currentWeek}_${sponsor.id}_${goal.id}`,
+                            eventIdSet,
+                            ledgerIdSet,
+                        })
                     }
                 })
             }

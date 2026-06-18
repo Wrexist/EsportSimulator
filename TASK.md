@@ -58,8 +58,10 @@ decision-gated "top open" items have since ALL shipped (re-verified in code 2026
 activeMerchItems→fan income (`economy-engine.ts:150`), the three "dead" settings wired
 (`settings-store.applyWindowSettings`, game-speed→playback, notifications→toast gate), and
 sponsor re-sign cooldown (`team.sponsorCooldowns`). See AUDIT_WAVE3.md "Open items EXECUTED".
-Genuinely remaining are P2 design/balance calls only (match-rating denominator, sponsor-goal
-ledger consolidation, AI-churn event noise) — not quick fixes. (**Staff system depth** SHIPPED
+Genuinely remaining: just the AI-churn event-log taste call. (Match-rating denominator
+RE-VERIFIED as a non-issue — no mid-series subs, so series-total rounds == per-player
+participation; sponsor-goal payout consolidated into one shared `paySponsorGoalBonus` helper.
+Both 2026-06-18.) (**Staff system depth** SHIPPED
 2026-06-18: (1) `staff.specialization` now grants a bounded +10% "true specialist" multiplier on
 each role's primary effect — coach→training, analyst→tactical, psychologist→recovery,
 scout→scouting (`engine/staff-specialization`), with a Specialist badge on `/staff`; (2) the
