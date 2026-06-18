@@ -287,6 +287,12 @@ export class LeagueEngine {
 
         sortedTeams.forEach((team, index) => {
             team.worldRanking = index + 1
+            // Track the career-best (lowest) rank ever held. Unlike the volatile
+            // weekly re-sort, this only improves — so the player can see a climb
+            // ("career-best #12") rather than just this week's churn (C8).
+            if (team.peakWorldRanking === undefined || team.worldRanking < team.peakWorldRanking) {
+                team.peakWorldRanking = team.worldRanking
+            }
         })
     }
 

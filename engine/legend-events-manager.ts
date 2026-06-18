@@ -25,13 +25,18 @@ export class LegendEventsManager {
         const playerTeam = save.teams.find(t => t.id === playerTeamId)
         if (!playerTeam) return
 
+        // Legends are drawn to successful orgs — scale the base chance by the
+        // team's reputation (1× at rep 0 → 2× at rep 100) so these feel earned
+        // by climbing rather than pure weekly RNG (C11). Deterministic.
+        const repMultiplier = 1 + (playerTeam.reputation || 0) / 100
+
         // Roll for Mentorship Event
-        if (rng.next() < this.MENTORSHIP_CHANCE) {
+        if (rng.next() < this.MENTORSHIP_CHANCE * repMultiplier) {
             this.triggerMentorshipEvent(save, playerTeamId, rng)
         }
 
         // Roll for Coach Opportunity (even rarer)
-        if (rng.next() < this.COACH_OPPORTUNITY_CHANCE) {
+        if (rng.next() < this.COACH_OPPORTUNITY_CHANCE * repMultiplier) {
             this.triggerCoachOpportunityEvent(save, playerTeamId, rng)
         }
     }

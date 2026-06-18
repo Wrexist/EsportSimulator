@@ -373,6 +373,7 @@ export interface TeamSaveData {
     // promotion/relegation. Optional because legacy saves predate it.
     startingLeagueTier?: string
     worldRanking?: number // Phase 19: Calculated 1-30 rank
+    peakWorldRanking?: number // Career-best (lowest) world ranking ever held — only improves (C8)
     // Phase 17: Tactical Mastery
     synergyMatrix?: Record<string, number> // key: "id1_id2", value: 0-100
 

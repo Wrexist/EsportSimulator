@@ -310,6 +310,11 @@ export class AIManager {
         })
         sortedTeams.forEach((team, index) => {
             team.worldRanking = index + 1
+            // Career-best (lowest) rank ever held — only improves, so the player
+            // sees a climb rather than the volatile weekly re-sort (C8).
+            if (team.peakWorldRanking === undefined || team.worldRanking < team.peakWorldRanking) {
+                team.peakWorldRanking = team.worldRanking
+            }
         })
     }
 

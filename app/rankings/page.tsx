@@ -96,6 +96,13 @@ const RankingsRow = React.memo(function RankingsRow({
                 >
                     #{team.worldRanking}
                 </span>
+                {/* Career-best rank — only for the player team and only once
+                    they've been higher than now, so the ladder reads as a climb. */}
+                {isPlayerTeam && team.peakWorldRanking && team.peakWorldRanking < team.worldRanking && (
+                    <span className="text-[9px] text-amber-400/70 font-bold not-italic" title="Career-best ranking">
+                        ▲#{team.peakWorldRanking}
+                    </span>
+                )}
             </div>
 
             {/* Team */}
