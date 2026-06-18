@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, memo, useRef, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { LoadingState } from "@/components/ui/loading"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
@@ -366,12 +367,7 @@ export default function LiveMatchPage({ params }: { params: { id: string } }) {
     }), [currentMapId])
 
     if (!matchData.current || !simState) return (
-        <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-            <div className="text-center">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Warming up servers…</p>
-            </div>
-        </div>
+        <LoadingState message="Warming up servers…" size="lg" fullScreen />
     )
 
     const { homeTeam, awayTeam } = matchData.current

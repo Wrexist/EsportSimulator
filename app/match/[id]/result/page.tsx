@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { LoadingState } from "@/components/ui/loading"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -258,10 +259,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                     </button>
                 </div>
             ) : (
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
-                </div>
+                <LoadingState message="Loading Match Data…" size="lg" />
             )}
         </div>
     )

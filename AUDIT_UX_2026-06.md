@@ -24,7 +24,11 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **B5 — Live-match agency:** Tactical Timeout (2/match) arms a bounded, determinism-neutral round-win boost for the player's next 2 rounds + neutralises the opponent's momentum for the window. Behind a determinism harness + boost test. → B5.
 - **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
-**Still open:** B4 · C8/C9–C11 · E6 · F3/F9/F10 · G3. *(E5/E8/E9 shipped 2026-06-18: tutorial
+**Still open:** B4 · C8/C9–C11 · E6 · F9 (remaining hand-rolled spinners) · F10 · G3. *(F3
+shipped: stripped the transfers duplicate header entrance — GameShell owns the single page
+entrance. F9: the 3 cited loaders (transfers/result/live) now use the shared reduced-motion-safe
+`LoadingState`; other full-screen spinners remain a follow-on. F10: the authored hover SFX is
+deliberately left unwired — per-button hover sound is UX noise, not juice.)* *(E5/E8/E9 shipped 2026-06-18: tutorial
 copy reframed to the unified hub + role-name drift fixed (Lurker→Rifler); actionable empty
 state; one-time help-FAB discoverability pulse.)*
 
