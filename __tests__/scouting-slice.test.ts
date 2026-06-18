@@ -70,6 +70,8 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
         watchlistedPlayerIds: [],
         currentWeek: 5,
         playerTeamId: "player",
+        financeLedger: [],
+        lastRngSeed: 1,
         toasts: [],
         addToast: () => {}, // no-op for harness
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,6 +91,17 @@ describe("startScoutingMission", () => {
         expect(h.state().activeScoutingMission!.playerId).toBe("p_target")
         expect(h.state().activeScoutingMission!.completionWeek).toBe(5 + 4)
         expect(h.state().activeScoutingMission!.scoutId).toBe("scout_player")
+    })
+
+    test("the $3000 scouting fee is recorded in the finance ledger (economy invariant #5)", () => {
+        const h = makeHarness(makeBaseState({ staff: [makeScout("player", 1)] }))
+        const slice = createScoutingSlice(h.set, h.get)
+        slice.startScoutingMission("p_target")
+        const ledger = h.state().financeLedger
+        expect(ledger).toHaveLength(1)
+        expect(ledger[0].amount).toBe(3000)
+        expect(ledger[0].type).toBe("EXPENSE")
+        expect(ledger[0].description).toBe("Scouting Mission")
     })
 
     test("a high scoutingSpeed scout finishes faster (stat wired)", () => {
