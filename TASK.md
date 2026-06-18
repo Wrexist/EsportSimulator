@@ -8,9 +8,11 @@
   Shipped Waves 1→5b (hub unification, feedback, cross-save progression, onboarding,
   verified fixes, milestones, sponsor depth, polish). Gates green throughout
   (tsc 0 · jest 1007 · lint 0); +24 regression tests.
-- Open from that audit: **B5 live-match agency** (deterministic-sim, needs planned
-  sign-off), plus minor polish (D11/D12, E5–E10, F3/F7–F10) and the **G1** passive-
-  training-pipeline decision. See `AUDIT_UX_2026-06.md` "Implementation status".
+- Open from that audit: minor polish (E5–E10, F3/F9–F10) and the **G1** passive-
+  training-pipeline decision. (Re-verified in code 2026-06-18: **B5** live-match agency
+  shipped — Tactical Timeout, 2/match, +6% bounded round boost + opponent-momentum
+  neutralise, `useLiveMatch.ts` + `match-tactical-timeout.test.ts`; D11/D12/E7/B12/F8/E10
+  also shipped.) See `AUDIT_UX_2026-06.md` "Implementation status".
 
 ## Status snapshot (2026-06-09)
 
@@ -51,9 +53,13 @@ Phase 0 is correctness, not polish — do it regardless. Awaiting go.
 
 ### P2.6 — Audit wave 3 (see AUDIT_WAVE3.md)
 12 verified findings FIXED (aging was entirely missing; facility upgrades never reached match
-strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). 10 OPEN items
-recorded with recommendations — top three: activeMerchItems inert toggle, dead settings
-(Notifications/Resolution/Game Speed), sponsor re-sign cycling.
+strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). The three
+decision-gated "top open" items have since ALL shipped (re-verified in code 2026-06-18):
+activeMerchItems→fan income (`economy-engine.ts:150`), the three "dead" settings wired
+(`settings-store.applyWindowSettings`, game-speed→playback, notifications→toast gate), and
+sponsor re-sign cooldown (`team.sponsorCooldowns`). See AUDIT_WAVE3.md "Open items EXECUTED".
+Genuinely remaining are P2 design/balance calls only (staff.specialization wiring, match-rating
+denominator, sponsor-goal ledger consolidation, AI-churn event noise) — not quick fixes.
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
