@@ -127,6 +127,20 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     Math.pow(facility.level, FACILITY_MONTHLY_COST_EXPONENT) * FACILITY_MONTHLY_COST_MULTIPLIER
                 )
 
+                // Economy invariant #5: ledger the one-time upgrade cost (only
+                // the merch upgrade was ledgered before; facility build/upgrade
+                // silently left the books).
+                state.financeLedger.push({
+                    id: nextDeterministicId(state, "fin_fac_upgrade", facilityType, facility.level),
+                    week: state.currentWeek,
+                    teamId: team.id,
+                    type: "EXPENSE",
+                    category: "FACILITIES",
+                    amount: cost,
+                    description: `${facility.type} Facility — Upgrade to Level ${facility.level}`,
+                    balance: team.budget,
+                })
+
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_fac", facilityType, facility.level),
                     title: `${team.name} upgrade ${facility.type} Facility`,
@@ -158,6 +172,17 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 description: getFacilityDescription(facilityType, 1),
                 monthlyCost: 2000,
             } as FacilitySaveData)
+
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_fac_build", facilityType),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "FACILITIES",
+                amount: FACILITY_BUILD_COST,
+                description: `${facilityType} Facility — Construction`,
+                balance: team.budget,
+            })
 
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_fac_new", facilityType),
