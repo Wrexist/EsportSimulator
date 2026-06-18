@@ -209,7 +209,8 @@ export default function Page() {
     setIsSimulating(true)
     soundManager.play('matchStart')
     try {
-      await simulateInstantMatch(nextMatch.id)
+      // Dashboard Quick-Sim skips the match-day prep flow → small differential (B4).
+      await simulateInstantMatch(nextMatch.id, { skippedPrep: true })
       router.push(`/match/${nextMatch.id}/result`)
     } finally {
       setIsSimulating(false)

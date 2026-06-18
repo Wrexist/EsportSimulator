@@ -118,6 +118,14 @@ export function calculateTeamStrength(
         tacticalMod += 0.03
     }
 
+    // Quick-Sim differential (B4): one-click simulating from the dashboard skips
+    // the match-day prep flow (veto / tactics / live calls), forgoing a small
+    // edge. Only ever set on a transient sim copy of the player's team, never
+    // persisted — so it's 0 for every AI match and every prepared player.
+    if (team.prepPenalty) {
+        tacticalMod -= team.prepPenalty
+    }
+
     // Playstyle specialization bonuses.
     if (team.playstyle === "aggressive" && avgMorale > 80) {
         tacticalMod += 0.05

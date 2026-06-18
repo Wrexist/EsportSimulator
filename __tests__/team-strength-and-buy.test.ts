@@ -127,6 +127,17 @@ describe("calculateTeamStrength", () => {
         expect(fullPrep).toBeGreaterThan(noPrep)
     })
 
+    test("prepPenalty (quick-sim differential, B4) reduces strength", () => {
+        const base = makeTeam()
+        const penalized = makeTeam({ prepPenalty: 0.04 } as any)
+        const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`))
+
+        const full = simulationEngineV2.calculateTeamStrength(base, players, {})
+        const skipped = simulationEngineV2.calculateTeamStrength(penalized, players, {})
+
+        expect(skipped).toBeLessThan(full)
+    })
+
     test("mentalPrep flag adds a small strength boost", () => {
         const team = makeTeam()
         const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`))

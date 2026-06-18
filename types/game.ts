@@ -180,6 +180,7 @@ export interface Team {
   // Phase 20: Tactical Perfection
   playstyle?: "balanced" | "aggressive" | "structured" | "default"
   tacticalPrep?: number // 0-100 bonus from VOD reviews
+  prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
   economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
   targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
 }

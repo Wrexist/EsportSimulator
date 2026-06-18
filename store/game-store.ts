@@ -664,7 +664,7 @@ interface GameStoreActions {
 
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
