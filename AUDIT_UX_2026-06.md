@@ -25,8 +25,13 @@ Shipped on `claude/nice-babbage-uusrux` (each commit green: tsc 0 · jest · lin
 - **Polish sweep:** objective-complete toast, marquee-signing celebration (+ fixed the silent free-agent signing), FPL intro card, economy-style selector (was a dead sim lever), manual-veto re-entrancy guard, locked-team label clarity. → D11, D12, E7, B12, F8, E10. (F7 re-verified already done.)
 
 **Still open:** F10 (decided — the authored hover SFX stays unwired: per-button hover sound is
-UX noise) · C8's "add 1–2 lower league tiers" (deferred structural change: tier thresholds +
-tournament gating). *(F9 done: every full-screen loader — dashboard, new-game, scouting, tactics,
+UX noise). *(C8 fully shipped: added the **C_TIER** entry division below B (Elo <950) — the
+ladder now has a real bottom rung new orgs climb FROM. This completed a half-migrated state
+(team-creator already seeded C_TIER, the sponsor multipliers + ZERO_TO_HERO achievement already
+referenced it) — `getTierFromElo`, `TIER_DISPLAY`, season-end promotion/relegation, the rankings
+tabs/rows, and the ai-manager init are all C-aware; the no-relegation-below-bottom guard moved to
+C. ZERO_TO_HERO (start C → reach S) is now reachable. A 4th tier (D) is a trivial extension —
+the multiplier key already exists.)* *(F9 done: every full-screen loader — dashboard, new-game, scouting, tactics,
 transfers, match result, live — now uses the shared reduced-motion-safe `LoadingState`; only a
 tiny inline menu spinner remains by design.)* *(C10 shipped: the sponsorships page now shows an explicit
 STANDARD→PREMIUM→ELITE tier ladder with income multipliers + the reputation gate (ELITE unlocks

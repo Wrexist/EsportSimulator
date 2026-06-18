@@ -25,14 +25,21 @@ export const LEAGUE_TIERS = {
     S_TIER: "S_TIER",
     A_TIER: "A_TIER",
     B_TIER: "B_TIER",
+    C_TIER: "C_TIER",
 } as const
 
 export type LeagueTier = typeof LEAGUE_TIERS[keyof typeof LEAGUE_TIERS]
 
-// Elo thresholds for tier assignment
+// Elo thresholds for tier assignment. C_TIER is the entry division (below
+// B_TIER) — new orgs start here (team-creator seeds elo 800 / C_TIER), giving
+// the ladder a real bottom rung to climb from instead of starting one good
+// season off the top. Adding it also makes the ZERO_TO_HERO achievement
+// (start C → reach S) reachable, and lights up the C/D sponsor multipliers
+// that already existed in constants.
 const ELO_THRESHOLDS = {
     S_TIER: 1400,
     A_TIER: 1100,
+    B_TIER: 950,
 }
 
 // Ranking-based modifiers for ELO calculations
@@ -87,6 +94,15 @@ export const TIER_DISPLAY = {
         bgColor: "bg-emerald-500/10",
         borderColor: "border-emerald-500/30",
         icon: "TrendingUp",
+    },
+    C_TIER: {
+        label: "C-Tier",
+        shortLabel: "C",
+        description: "Challenger Division",
+        color: "text-slate-300",
+        bgColor: "bg-slate-500/10",
+        borderColor: "border-slate-500/30",
+        icon: "Sprout",
     },
 } as const
 
@@ -302,7 +318,8 @@ export class LeagueEngine {
     static getTierFromElo(elo: number): LeagueTier {
         if (elo >= ELO_THRESHOLDS.S_TIER) return LEAGUE_TIERS.S_TIER
         if (elo >= ELO_THRESHOLDS.A_TIER) return LEAGUE_TIERS.A_TIER
-        return LEAGUE_TIERS.B_TIER
+        if (elo >= ELO_THRESHOLDS.B_TIER) return LEAGUE_TIERS.B_TIER
+        return LEAGUE_TIERS.C_TIER
     }
 
     /**
@@ -328,7 +345,7 @@ export class LeagueEngine {
      * Get teams in the relegation zone (bottom N in tier)
      */
     static getRelegationZone(save: GameSave, tier: LeagueTier): TeamSaveData[] {
-        if (tier === LEAGUE_TIERS.B_TIER) return [] // Can't relegate from B-Tier
+        if (tier === LEAGUE_TIERS.C_TIER) return [] // Can't relegate from the bottom (C-Tier)
 
         const teamsInTier = this.getTeamsInTier(save, tier)
         return teamsInTier.slice(-RELEGATION_SLOTS)
@@ -350,7 +367,7 @@ export class LeagueEngine {
      */
     static isInRelegationZone(save: GameSave, teamId: string): boolean {
         const team = save.teams.find(t => t.id === teamId)
-        if (!team || team.leagueTier === LEAGUE_TIERS.B_TIER) return false
+        if (!team || team.leagueTier === LEAGUE_TIERS.C_TIER) return false
 
         const relegationZone = this.getRelegationZone(save, team.leagueTier as LeagueTier)
         return relegationZone.some(t => t.id === teamId)
@@ -396,7 +413,7 @@ export class LeagueEngine {
                 team.leagueTier = eloBasedTier
 
                 // Track promotion or relegation
-                const tierOrder = [LEAGUE_TIERS.S_TIER, LEAGUE_TIERS.A_TIER, LEAGUE_TIERS.B_TIER]
+                const tierOrder = [LEAGUE_TIERS.S_TIER, LEAGUE_TIERS.A_TIER, LEAGUE_TIERS.B_TIER, LEAGUE_TIERS.C_TIER]
                 const oldIndex = tierOrder.indexOf(oldTier)
                 const newIndex = tierOrder.indexOf(eloBasedTier)
 
@@ -499,12 +516,14 @@ export class LeagueEngine {
         sTier: { count: number; topTeam: string | null }
         aTier: { count: number; topTeam: string | null }
         bTier: { count: number; topTeam: string | null }
+        cTier: { count: number; topTeam: string | null }
         season: number
         weeksRemaining: number
     } {
         const sTierTeams = this.getTeamsInTier(save, LEAGUE_TIERS.S_TIER)
         const aTierTeams = this.getTeamsInTier(save, LEAGUE_TIERS.A_TIER)
         const bTierTeams = this.getTeamsInTier(save, LEAGUE_TIERS.B_TIER)
+        const cTierTeams = this.getTeamsInTier(save, LEAGUE_TIERS.C_TIER)
 
         return {
             sTier: {
@@ -518,6 +537,10 @@ export class LeagueEngine {
             bTier: {
                 count: bTierTeams.length,
                 topTeam: bTierTeams[0]?.name || null
+            },
+            cTier: {
+                count: cTierTeams.length,
+                topTeam: cTierTeams[0]?.name || null
             },
             season: this.getCurrentSeason(save.currentWeek),
             weeksRemaining: this.getWeeksRemainingInSeason(save.currentWeek),

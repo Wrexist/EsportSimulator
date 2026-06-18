@@ -486,8 +486,13 @@ export class AIManager {
             if (team.elo === undefined) team.elo = 1000
 
             // Initialize Division based on world ranking (Ladder Divisions S/A/B)
-            // S_TIER: 1-10, A_TIER: 11-40, B_TIER: 41+
-            if (isInitialWeek || !team.leagueTier) {
+            // S_TIER: 1-10, A_TIER: 11-40, B_TIER: 41+. C_TIER is the entry
+            // division: it isn't rank-seeded here (the field is dominated by
+            // established orgs), it's where new player orgs start (team-creator
+            // seeds C_TIER) and where season-end relegates sub-950-Elo teams.
+            // Preserve an explicit C_TIER so this initial pass can't silently
+            // promote a fresh org out of the entry tier on week one.
+            if ((isInitialWeek || !team.leagueTier) && team.leagueTier !== "C_TIER") {
                 if ((team.worldRanking || 999) <= 10) {
                     team.leagueTier = "S_TIER"
                 } else if ((team.worldRanking || 999) <= 40) {
