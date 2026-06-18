@@ -441,13 +441,14 @@ export class AtomicWeekProcessor {
                 }
 
                 // Manager level scales the player team's max training slots —
-                // 10 baseline + 1 per 5 manager levels, capped at 14 at L20.
-                // This is the player's one tangible reward for levelling:
-                // each milestone unlocks another weekly training slot for
-                // the roster. Synced every week so existing saves heal
-                // naturally on first tick after this lands.
+                // 10 baseline + 1 per 3 manager levels (→ 16 at the L20 cap).
+                // This is the player's main tangible reward for levelling, so it
+                // unlocks on a tighter cadence (every 3 levels, not 5) to feel
+                // like a steady climb (C9). Bounded: extra slots only speed
+                // progress toward potential (drills are potential-capped, G3).
+                // Synced every week so existing saves heal on first tick.
                 const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
-                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 5)
+                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 3)
                 const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
                 const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
                 if (playerTeam && slotIncreased) {
