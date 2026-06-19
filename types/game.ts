@@ -553,4 +553,8 @@ export interface ActiveMatchState {
   originalHomePlayers: Player[]
   originalAwayPlayers: Player[]
   matchResult: MatchResult
+  // Tactical Timeout (B5) — checkpointed so reload/resume can't mint extra
+  // timeouts. Optional for backward compat with snapshots saved before this.
+  timeoutsRemaining?: number
+  timeoutBoostRounds?: number
 }

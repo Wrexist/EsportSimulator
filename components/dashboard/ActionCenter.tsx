@@ -43,8 +43,8 @@ function ChoiceEffects({ effects }: { effects: any }) {
     if (typeof effects.reputation === "number" && effects.reputation !== 0) {
         chips.push({ label: `${effects.reputation > 0 ? "+" : ""}${effects.reputation} Rep`, positive: effects.reputation > 0 })
     }
-    if (typeof effects.chemistry === "number" && effects.chemistry !== 0) {
-        chips.push({ label: `${effects.chemistry > 0 ? "+" : ""}${effects.chemistry} Chem`, positive: effects.chemistry > 0 })
+    if (typeof effects.loyalty === "number" && effects.loyalty !== 0) {
+        chips.push({ label: `${effects.loyalty > 0 ? "+" : ""}${effects.loyalty} Loyalty`, positive: effects.loyalty > 0 })
     }
     if (chips.length === 0) return null
     return (

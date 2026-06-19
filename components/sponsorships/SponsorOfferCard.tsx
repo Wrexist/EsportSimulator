@@ -13,7 +13,7 @@ function brandEffectChips(fx: NonNullable<SponsorSaveData["brandEffect"]>): { la
   const chips: { label: string; positive: boolean }[] = []
   if (fx.reputationPerWeek) chips.push({ label: `${fx.reputationPerWeek > 0 ? "+" : ""}${fx.reputationPerWeek} Rep/wk`, positive: fx.reputationPerWeek > 0 })
   if (fx.moralePerWeek) chips.push({ label: `${fx.moralePerWeek > 0 ? "+" : ""}${fx.moralePerWeek} Morale/wk`, positive: fx.moralePerWeek > 0 })
-  if (fx.followerGrowthPerWeek) chips.push({ label: `+${fx.followerGrowthPerWeek.toLocaleString()} Fans/wk`, positive: true })
+  if (fx.followerGrowthPerWeek) chips.push({ label: `${fx.followerGrowthPerWeek > 0 ? "+" : ""}${fx.followerGrowthPerWeek.toLocaleString()} Fans/wk`, positive: fx.followerGrowthPerWeek > 0 })
   return chips
 }
 

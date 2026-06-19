@@ -8,7 +8,7 @@
 
 import { processScoutingMissions } from "@/engine/processors/scouting-mission-processor"
 import { scoutTierFromAccuracy } from "@/engine/scouting-system"
-import type { GameSave } from "@/engine/save-types"
+import type { GameSave, ScoutingMissionData, StaffSaveData } from "@/engine/save-types"
 
 function makeSave(over: Partial<GameSave> = {}): GameSave {
     return {
@@ -23,13 +23,13 @@ function makeSave(over: Partial<GameSave> = {}): GameSave {
 }
 
 const mission = (scoutId: string, completionWeek = 10) =>
-    ({ playerId: "target", startWeek: 1, completionWeek, scoutId }) as never
+    ({ playerId: "target", startWeek: 1, completionWeek, scoutId }) as unknown as ScoutingMissionData
 
 const scout = (id: string, accuracy?: number, specialization = "General") =>
     ({
         id, role: "scout", name: id, teamId: "player", level: 3, salaryPerWeek: 1000,
         specialization, stats: accuracy !== undefined ? { accuracy } : undefined,
-    }) as never
+    }) as unknown as StaffSaveData
 
 describe("processScoutingMissions — accuracy drives report tier", () => {
     test("mission not yet complete → no entry, mission preserved", () => {

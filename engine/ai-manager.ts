@@ -303,7 +303,9 @@ export class AIManager {
         // Sort teams by Elo with stable tiebreaker (reputation, then numeric ID)
         const sortedTeams = [...save.teams].sort((a, b) => {
             if (b.elo !== a.elo) return b.elo - a.elo
-            if (b.reputation !== a.reputation) return b.reputation - a.reputation
+            // Null-safe reputation tiebreaker — mirrors LeagueEngine.refreshWorldRankings
+            // so the two ranking paths can't diverge on teams with undefined reputation.
+            if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
             const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
             const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
             return aNum - bNum

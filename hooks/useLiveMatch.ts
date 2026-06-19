@@ -348,6 +348,10 @@ export function useLiveMatch(id: string) {
             setIsBombPlanted(Boolean(activeMatchState.isBombPlanted))
             setBombTime(typeof activeMatchState.bombTime === "number" ? activeMatchState.bombTime : BOMB_SECONDS)
             setIsWaitingForStrategy(Boolean(activeMatchState.isWaitingForStrategy))
+            // Restore Tactical Timeout state so a reload mid-match can't mint
+            // extra timeouts (fresh defaults only when the snapshot predates this).
+            setTimeoutsRemaining(typeof activeMatchState.timeoutsRemaining === "number" ? activeMatchState.timeoutsRemaining : 2)
+            setTimeoutBoostRounds(typeof activeMatchState.timeoutBoostRounds === "number" ? activeMatchState.timeoutBoostRounds : 0)
             setOriginalHomePlayers(homePlayers)
             setOriginalAwayPlayers(awayPlayers)
             setIsPlaying(false)
@@ -430,6 +434,8 @@ export function useLiveMatch(id: string) {
             isBombPlanted,
             bombTime,
             isWaitingForStrategy,
+            timeoutsRemaining,
+            timeoutBoostRounds,
             // ActiveMatchState comes from types/game which carries its own
             // legacy Player[] and MatchResult shapes (see ARCHITECTURE.md
             // "Known Type-System Debt"). The runtime values are
@@ -449,7 +455,7 @@ export function useLiveMatch(id: string) {
         }, 500)
 
         return () => clearTimeout(timer)
-    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
+    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
 
     // Index staff by teamId once per `staff` array ref, so each live-match
     // round doesn't re-scan every staff member to build home/away coach/analyst/psych.
@@ -1149,6 +1155,9 @@ export function useLiveMatch(id: string) {
     // Tactical Timeout (B5): spend one to arm the boost for the next 2 rounds.
     const callTimeout = useCallback(() => {
         if (timeoutsRemaining <= 0) return
+        // Don't burn a charge while a boost is already running — it would just
+        // reset the window to 2 rounds with no added benefit.
+        if (timeoutBoostRoundsRef.current > 0) return
         setTimeoutsRemaining(t => Math.max(0, t - 1))
         setTimeoutBoostRounds(2)
         soundManager.play("notification")
