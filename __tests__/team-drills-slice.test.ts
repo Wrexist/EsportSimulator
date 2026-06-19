@@ -209,12 +209,34 @@ describe("runTeamDrill — stat gains + mapping", () => {
 
     test("stat gains clamp at 100", () => {
         const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { rifle: 99 })],
+            players: [makePlayer("p1", { rifle: 99, potential: 100 })],
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
         slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 50 }], 5)
         expect(h.state().players[0].rifle).toBe(100)
+    })
+
+    test("drill gains respect potential — can't grind a stat past it (G3)", () => {
+        const h = makeHarness(makeBaseState({
+            players: [makePlayer("p1", { rifle: 60, potential: 70 })],
+            teams: [makeTeam("player", ["p1"])],
+        }))
+        const slice = createTeamDrillsSlice(h.set, h.get)
+        slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 50 }], 5)
+        // 60 + 50 = 110, but capped at potential 70 (not 100).
+        expect(h.state().players[0].rifle).toBe(70)
+    })
+
+    test("a stat already above potential is held, never reduced (G3)", () => {
+        const h = makeHarness(makeBaseState({
+            players: [makePlayer("p1", { rifle: 90, potential: 80 })],
+            teams: [makeTeam("player", ["p1"])],
+        }))
+        const slice = createTeamDrillsSlice(h.set, h.get)
+        slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 5 }], 5)
+        // Already above potential — the drill can't push higher, but mustn't drop it.
+        expect(h.state().players[0].rifle).toBe(90)
     })
 
     test("unknown stat is silently skipped (no crash)", () => {

@@ -61,6 +61,20 @@ describe("calculateTeamStrength", () => {
         expect(strongStrength).toBeGreaterThan(weakStrength)
     })
 
+    // C7: the facilities bonus averages across the array, so investing in ALL
+    // facilities beats a single maxed one. Under the old max-of-one logic these
+    // were identical (both saw level 5).
+    test("investing across all facilities beats a single maxed facility (C7)", () => {
+        const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`, { skill: 60 }))
+        const allMaxed = makeTeam({ facilities: [{ level: 5 }, { level: 5 }, { level: 5 }, { level: 5 }] } as unknown as Partial<Team>)
+        const oneMaxed = makeTeam({ facilities: [{ level: 5 }, { level: 1 }, { level: 1 }, { level: 1 }] } as unknown as Partial<Team>)
+
+        const allStr = simulationEngineV2.calculateTeamStrength(allMaxed, players, {})
+        const oneStr = simulationEngineV2.calculateTeamStrength(oneMaxed, players, {})
+
+        expect(allStr).toBeGreaterThan(oneStr)
+    })
+
     test("exhausted team (avg energy < 20) gets an additional 15% penalty", () => {
         const team = makeTeam()
         const fresh = Array.from({ length: 5 }, (_, i) => makePlayer(`f${i}`, { energy: 30 }))
@@ -111,6 +125,17 @@ describe("calculateTeamStrength", () => {
         const fullPrep = simulationEngineV2.calculateTeamStrength(team100, players, {})
 
         expect(fullPrep).toBeGreaterThan(noPrep)
+    })
+
+    test("prepPenalty (quick-sim differential, B4) reduces strength", () => {
+        const base = makeTeam()
+        const penalized = makeTeam({ prepPenalty: 0.04 } as any)
+        const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`))
+
+        const full = simulationEngineV2.calculateTeamStrength(base, players, {})
+        const skipped = simulationEngineV2.calculateTeamStrength(penalized, players, {})
+
+        expect(skipped).toBeLessThan(full)
     })
 
     test("mentalPrep flag adds a small strength boost", () => {

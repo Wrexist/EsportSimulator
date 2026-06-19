@@ -129,6 +129,19 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             team.budget -= cost
             team.academyFacility = { level: 1, builtWeek: state.currentWeek }
 
+            // Economy invariant #5: academy spend must hit the finance ledger
+            // (it was silently leaving the books).
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_academy_build", team.id),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "FACILITIES",
+                amount: cost,
+                description: "Youth Academy — Construction",
+                balance: team.budget,
+            })
+
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_academy", team.id),
                 title: `${team.name} opens Youth Academy`,
@@ -172,6 +185,17 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             team.budget -= cost
             team.academyFacility!.level = currentLevel + 1
             team.academyFacility!.lastUpgradeWeek = state.currentWeek
+
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_academy_upgrade", team.id, currentLevel + 1),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "FACILITIES",
+                amount: cost,
+                description: `Youth Academy — Upgrade to Level ${currentLevel + 1}`,
+                balance: team.budget,
+            })
 
             const levelInfo = ACADEMY_LEVELS[(currentLevel + 1) as keyof typeof ACADEMY_LEVELS]
             state.newsFeed.unshift({
@@ -241,6 +265,16 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             team.budget -= cost
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_academy_scout", team.id, tier),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "OTHER",
+                amount: cost,
+                description: "Academy Scouting Mission",
+                balance: team.budget,
+            })
             const duration = SCOUTING_DURATIONS[tier]
 
             const mission: AcademyScoutingMission = {
@@ -353,7 +387,21 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const prospect = state.academyPlayers[prospectIndex]
             const player = state.players.find(p => p.id === prospect.playerId)
 
-            if (team) team.budget -= normalizedReleaseCost
+            if (team) {
+                team.budget -= normalizedReleaseCost
+                if (normalizedReleaseCost > 0) {
+                    state.financeLedger.push({
+                        id: nextDeterministicId(state, "fin_academy_release", prospect.playerId),
+                        week: state.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "OTHER",
+                        amount: normalizedReleaseCost,
+                        description: "Released Academy Prospect",
+                        balance: team.budget,
+                    })
+                }
+            }
 
             // Drop from academy AND from the global players pool (academy
             // prospects are unique to this save — releasing means they're
@@ -531,6 +579,16 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             state.academyMatchHistory.unshift(matchResult)
             team.budget -= DEV_MATCH_CONFIG.matchCost
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_academy_devmatch", team.id),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "OTHER",
+                amount: DEV_MATCH_CONFIG.matchCost,
+                description: "Academy Development Match",
+                balance: team.budget,
+            })
 
             const scoreText = `${matchResult.scoreHome}-${matchResult.scoreAway}`
             result = {
@@ -719,8 +777,22 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             state.academyScoutingMissions = state.academyScoutingMissions.filter(m => m.weeksRemaining > 0)
 
             // Deduct weekly upkeep (scales with prospect count + facility level).
+            // Charged only here (academy isn't in economy-manager's facilities
+            // upkeep, which reads team.facilities[]) — so it must be ledgered.
             const upkeep = AcademyEngine.getWeeklyUpkeep(academyLevel, state.academyPlayers.length)
             team.budget -= upkeep
+            if (upkeep > 0) {
+                state.financeLedger.push({
+                    id: nextDeterministicId(state, "fin_academy_upkeep", team.id),
+                    week: state.currentWeek,
+                    teamId: team.id,
+                    type: "EXPENSE",
+                    category: "FACILITIES",
+                    amount: upkeep,
+                    description: "Youth Academy — Weekly Upkeep",
+                    balance: team.budget,
+                })
+            }
         })
     },
 

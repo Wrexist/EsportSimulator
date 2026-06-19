@@ -4,9 +4,18 @@ import { memo } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { DollarSign, Clock, Target, Lock, Check, X } from "lucide-react"
+import { DollarSign, Clock, Target, Lock, Check, X, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { SponsorSaveData } from "@/engine/save-types"
+
+/** Map a brand's weekly side-effects to color-coded chips for the offer card. */
+function brandEffectChips(fx: NonNullable<SponsorSaveData["brandEffect"]>): { label: string; positive: boolean }[] {
+  const chips: { label: string; positive: boolean }[] = []
+  if (fx.reputationPerWeek) chips.push({ label: `${fx.reputationPerWeek > 0 ? "+" : ""}${fx.reputationPerWeek} Rep/wk`, positive: fx.reputationPerWeek > 0 })
+  if (fx.moralePerWeek) chips.push({ label: `${fx.moralePerWeek > 0 ? "+" : ""}${fx.moralePerWeek} Morale/wk`, positive: fx.moralePerWeek > 0 })
+  if (fx.followerGrowthPerWeek) chips.push({ label: `${fx.followerGrowthPerWeek > 0 ? "+" : ""}${fx.followerGrowthPerWeek.toLocaleString()} Fans/wk`, positive: fx.followerGrowthPerWeek > 0 })
+  return chips
+}
 
 const TIER_STYLES = {
   STANDARD: { border: "border-blue-500/20", bg: "bg-blue-500/5", badge: "bg-blue-500/20 text-blue-400", accent: "blue" },
@@ -72,6 +81,24 @@ function SponsorOfferCardImpl({ offer, index, isLocked, lockReason, sponsorSlots
             <span className="text-amber-400/80">{offer.requirements}</span>
           )}
         </div>
+
+        {offer.brandEffect && brandEffectChips(offer.brandEffect).length > 0 && (
+          <div className="space-y-1.5 pt-2 border-t border-white/5">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+              <Sparkles size={10} /> Brand Effects <span className="text-white/30 normal-case tracking-normal">— a weekly trade-off</span>
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {brandEffectChips(offer.brandEffect).map((chip, ci) => (
+                <span key={ci} className={cn(
+                  "text-[10px] px-1.5 py-0.5 rounded font-semibold",
+                  chip.positive ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                )}>
+                  {chip.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {offer.goals && offer.goals.length > 0 && (
           <div className="space-y-1.5 pt-2 border-t border-white/5">

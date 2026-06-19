@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Play, Layout, Brain, Video, ChevronRight, Zap, Lock, Check } from "lucide-react"
 import { motion } from "framer-motion"
@@ -268,12 +269,7 @@ export default function TacticalHQPage() {
 
     if (!match || !myTeam || !opponent) {
         return (
-            <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Loading Headquarters...</p>
-                </div>
-            </div>
+            <LoadingState message="Loading Headquarters…" size="lg" fullScreen />
         )
     }
 
@@ -487,7 +483,7 @@ export default function TacticalHQPage() {
                                         <p className="text-xs text-white/40 mb-4 max-w-[200px] leading-relaxed">
                                             Upgrade your Tactical Center to Level 1 to unlock VOD Reviews.
                                         </p>
-                                        <Link href="/desktop?app=facilities">
+                                        <Link href="/basecamp">
                                             <Button size="sm" variant="default" className="w-full font-bold">Upgrade Basecamp</Button>
                                         </Link>
                                     </div>
@@ -657,6 +653,38 @@ export default function TacticalHQPage() {
 
 
 
+                            {/* Economy Style (B12) — read by the sim (getTeamStrategy)
+                                but previously had no UI, so the lever was unreachable. */}
+                            <div className={cn("space-y-3", !isPlaystyleUnlocked && "opacity-40 pointer-events-none")}>
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                        Economy Style
+                                    </label>
+                                    {!isPlaystyleUnlocked && <span className="text-[9px] font-bold text-red-400 uppercase">Locked (Lvl 2 Tac)</span>}
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: "standard", label: "Standard", desc: "Balanced buys" },
+                                        { id: "force", label: "Force", desc: "Buy aggressively" },
+                                        { id: "eco", label: "Eco", desc: "Save more often" }
+                                    ].map((style) => (
+                                        <Button
+                                            key={style.id}
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setEconomyStyle(playerTeamId!, style.id as any)}
+                                            className={cn(
+                                                "h-12 rounded-xl text-[10px] font-normal uppercase border border-white/5 flex flex-col gap-0",
+                                                (myTeam.economyStyle || "standard") === style.id ? "bg-primary/20 border-primary/40 text-primary" : "text-muted-foreground hover:bg-white/5"
+                                            )}
+                                        >
+                                            <span>{style.label}</span>
+                                            <span className="text-[8px] opacity-60 font-medium normal-case">{style.desc}</span>
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Antistrat Section */}
                             <div className={cn("space-y-3", !isAntistratUnlocked && "opacity-40 pointer-events-none")}>
                                 <div className="flex justify-between items-center">
@@ -819,6 +847,7 @@ export default function TacticalHQPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <Button
                                         onClick={handleManualVeto}
+                                        disabled={isSimulatingVeto}
                     className="h-16 rounded-lg bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
                                     >
                                         Start Manual Veto

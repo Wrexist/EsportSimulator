@@ -373,6 +373,7 @@ export interface TeamSaveData {
     // promotion/relegation. Optional because legacy saves predate it.
     startingLeagueTier?: string
     worldRanking?: number // Phase 19: Calculated 1-30 rank
+    peakWorldRanking?: number // Career-best (lowest) world ranking ever held — only improves (C8)
     // Phase 17: Tactical Mastery
     synergyMatrix?: Record<string, number> // key: "id1_id2", value: 0-100
 
@@ -399,6 +400,7 @@ export interface TeamSaveData {
     // === PHASE 20: TACTICAL PERFECTION ===
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
     tacticalPrep?: number // 0-100 bonus from VOD reviews
+    prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
     targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
     lastStrategyChangeWeek?: number // Week of last AI strategy adaptation (cooldown enforcement)
@@ -514,6 +516,14 @@ export interface SponsorSaveData {
         bonusPayout: number
         isCompleted: boolean
     }[]
+    /** Per-week non-cash side-effects from the brand (AUDIT_UX_2026-06 B7) — the
+     *  trade-off that makes signing a choice, not just "pick the biggest payout".
+     *  Carried through signSponsor (spread) and applied weekly by the processor. */
+    brandEffect?: {
+        reputationPerWeek?: number
+        moralePerWeek?: number
+        followerGrowthPerWeek?: number
+    }
 }
 
 /**

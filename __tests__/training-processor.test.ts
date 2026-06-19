@@ -9,6 +9,7 @@
 
 import { TrainingProcessor } from "@/engine/processors/training-processor"
 import { TrainingFocus } from "@/types"
+import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
 
 function makePlayer(id: string, overrides: Partial<PlayerSaveData> = {}): PlayerSaveData {
@@ -67,6 +68,17 @@ describe("TrainingProcessor.processTraining", () => {
         expect(p.rifle).toBeGreaterThanOrEqual(beforeRifle)
         // Fatigue increases regardless.
         expect(p.fatigue).toBeGreaterThan(0)
+    })
+
+    test("G1: a player left on Balanced (no individual focus) trains the team default", () => {
+        // Mirrors the live config game-store now builds: the player team mapped
+        // to the AIM team default. A player with no individual trainingFocus must
+        // still train (previously the Map was empty so nobody trained at all).
+        const p = makePlayer("p1", { rifle: 50, potential: 99 }) // no trainingFocus → Balanced
+        const team = makeTeam({ id: "t1", rosterIds: ["p1"] })
+        const save = makeSave(team, [p])
+        TrainingProcessor.processTraining(save, new Map([["t1", { focus: TrainingFocus.AIM, intensity: 5 }]]))
+        expect(p.rifle).toBeGreaterThan(50)
     })
 
     test("teams without a training config are not touched", () => {
@@ -158,6 +170,68 @@ describe("TrainingProcessor.processTraining", () => {
         TrainingProcessor.processTraining(saveB, new Map([["t2", config]]))
 
         expect(talentPlayer.rifle - 50).toBeGreaterThanOrEqual(noTalentPlayer.rifle - 50)
+    })
+
+    test("a DEVELOPMENT-specialist coach out-trains an off-domain coach (specialization wired)", () => {
+        const specialistPlayer = makePlayer("p1", { rifle: 50, potential: 99 })
+        const offDomainPlayer = makePlayer("p2", { rifle: 50, potential: 99 })
+
+        const specialistCoach: StaffSaveData = {
+            id: "s1", teamId: "t1", name: "Spec", role: "coach",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { development: 100 } as any, unlockedTalentIds: [],
+            specialization: "Player Dev", // DEVELOPMENT → +10% specialist bonus
+        } as any
+        const offDomainCoach: StaffSaveData = {
+            id: "s2", teamId: "t2", name: "Off", role: "coach",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { development: 100 } as any, unlockedTalentIds: [],
+            specialization: "Tactical", // off-domain for a coach → ×1.0
+        } as any
+
+        const teamA = makeTeam({ id: "t1", rosterIds: ["p1"], staffIds: ["s1"] })
+        const teamB = makeTeam({ id: "t2", rosterIds: ["p2"], staffIds: ["s2"] })
+
+        const saveA = makeSave(teamA, [specialistPlayer], [specialistCoach])
+        saveA.playerTeamId = "t1"
+        const saveB = makeSave(teamB, [offDomainPlayer], [offDomainCoach])
+        saveB.playerTeamId = "t2"
+
+        const config = { focus: TrainingFocus.AIM, intensity: 5 }
+        TrainingProcessor.processTraining(saveA, new Map([["t1", config]]))
+        TrainingProcessor.processTraining(saveB, new Map([["t2", config]]))
+
+        expect(specialistPlayer.rifle - 50).toBeGreaterThan(offDomainPlayer.rifle - 50)
+    })
+
+    test("a MENTAL-specialist psychologist recovers more fatigue than an off-domain one", () => {
+        const specialistPlayer = makePlayer("p1", { fatigue: 80, age: 27 })
+        const offDomainPlayer = makePlayer("p2", { fatigue: 80, age: 27 })
+
+        const specialistPsych: StaffSaveData = {
+            id: "ps1", teamId: "t1", name: "Spec", role: "psychologist",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { mentalRecovery: 100 } as any, unlockedTalentIds: [],
+            specialization: "Mental Perf.", // MENTAL → +10% specialist bonus
+        } as any
+        const offDomainPsych: StaffSaveData = {
+            id: "ps2", teamId: "t2", name: "Off", role: "psychologist",
+            salaryPerWeek: 1000, level: 3, contractEndWeek: 52,
+            stats: { mentalRecovery: 100 } as any, unlockedTalentIds: [],
+            specialization: "Tactical", // off-domain for a psychologist → ×1.0
+        } as any
+
+        const teamA = makeTeam({ id: "t1", rosterIds: ["p1"], staffIds: ["ps1"] })
+        const teamB = makeTeam({ id: "t2", rosterIds: ["p2"], staffIds: ["ps2"] })
+
+        const saveA = makeSave(teamA, [specialistPlayer], [specialistPsych])
+        const saveB = makeSave(teamB, [offDomainPlayer], [offDomainPsych])
+
+        TrainingProcessor.processFatigueRecovery(saveA, new SeededRNG(1))
+        TrainingProcessor.processFatigueRecovery(saveB, new SeededRNG(1))
+
+        // More recovery → lower remaining fatigue for the specialist's player.
+        expect(specialistPlayer.fatigue).toBeLessThan(offDomainPlayer.fatigue)
     })
 
     test("stat gain is capped by player.potential", () => {

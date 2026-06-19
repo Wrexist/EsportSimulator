@@ -303,13 +303,20 @@ export class AIManager {
         // Sort teams by Elo with stable tiebreaker (reputation, then numeric ID)
         const sortedTeams = [...save.teams].sort((a, b) => {
             if (b.elo !== a.elo) return b.elo - a.elo
-            if (b.reputation !== a.reputation) return b.reputation - a.reputation
+            // Null-safe reputation tiebreaker — mirrors LeagueEngine.refreshWorldRankings
+            // so the two ranking paths can't diverge on teams with undefined reputation.
+            if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
             const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
             const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
             return aNum - bNum
         })
         sortedTeams.forEach((team, index) => {
             team.worldRanking = index + 1
+            // Career-best (lowest) rank ever held — only improves, so the player
+            // sees a climb rather than the volatile weekly re-sort (C8).
+            if (team.peakWorldRanking === undefined || team.worldRanking < team.peakWorldRanking) {
+                team.peakWorldRanking = team.worldRanking
+            }
         })
     }
 
@@ -481,8 +488,13 @@ export class AIManager {
             if (team.elo === undefined) team.elo = 1000
 
             // Initialize Division based on world ranking (Ladder Divisions S/A/B)
-            // S_TIER: 1-10, A_TIER: 11-40, B_TIER: 41+
-            if (isInitialWeek || !team.leagueTier) {
+            // S_TIER: 1-10, A_TIER: 11-40, B_TIER: 41+. C_TIER is the entry
+            // division: it isn't rank-seeded here (the field is dominated by
+            // established orgs), it's where new player orgs start (team-creator
+            // seeds C_TIER) and where season-end relegates sub-950-Elo teams.
+            // Preserve an explicit C_TIER so this initial pass can't silently
+            // promote a fresh org out of the entry tier on week one.
+            if ((isInitialWeek || !team.leagueTier) && team.leagueTier !== "C_TIER") {
                 if ((team.worldRanking || 999) <= 10) {
                     team.leagueTier = "S_TIER"
                 } else if ((team.worldRanking || 999) <= 40) {

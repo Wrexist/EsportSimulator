@@ -214,12 +214,11 @@ function SquadPageInner() {
   }, [])
 
   const handleSwapExecute = useCallback((targetIndex: number) => {
-    setSelectedSwapIndex(prev => {
-      if (prev === null) return null
-      swapRosterPositions(playerTeamId!, prev, targetIndex)
-      return null
-    })
-  }, [swapRosterPositions, playerTeamId])
+    if (selectedSwapIndex === null) return
+    swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
+    setSelectedSwapIndex(null)
+    addToast({ message: "Lineup updated", type: "info" })
+  }, [selectedSwapIndex, swapRosterPositions, playerTeamId, addToast])
 
   const handleCancelSwap = useCallback(() => {
     setSelectedSwapIndex(null)
@@ -419,7 +418,7 @@ function SquadPageInner() {
               icon={Users}
               title="Youth Academy"
               subtitle="Developing the next generation"
-              actions={<Link href="/desktop?app=academy">
+              actions={<Link href="/academy">
                 <Button variant="ghost" size="sm" className="h-8 text-[10px] font-normal uppercase text-primary hover:bg-primary/10 border border-primary/20">
                   <ArrowUpRight size={12} className="mr-1" /> Manage
                 </Button>
@@ -469,7 +468,7 @@ function SquadPageInner() {
               ) : (
                 <EmptyState
                   title="No prospects in training"
-                  action={{ label: "Start Scouting", href: "/desktop?app=academy" }}
+                  action={{ label: "Start Scouting", href: "/academy" }}
                 />
               )}
             </div>

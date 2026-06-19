@@ -68,6 +68,17 @@ describe("getTacticalBonus — analyst contribution", () => {
         ]
         expect(getTacticalBonus(staff, "balanced", "balanced")).toBe(5)
     })
+
+    test("a TACTICAL-specialist analyst contributes +10% (specialization wired)", () => {
+        const specialist = { ...makeStaff("analyst", 100), specialization: "Data Science" }
+        // 100 × 1.1 = 110 → (110/100)*5 = 5.5
+        expect(getTacticalBonus([specialist], "balanced", "balanced")).toBeCloseTo(5.5, 5)
+    })
+
+    test("an off-domain analyst contributes at face value (no specialist bonus)", () => {
+        const offDomain = { ...makeStaff("analyst", 100), specialization: "Narrative & History" }
+        expect(getTacticalBonus([offDomain], "balanced", "balanced")).toBe(5)
+    })
 })
 
 describe("getTacticalBonus — RPS counter triangle", () => {

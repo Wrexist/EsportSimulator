@@ -5,10 +5,22 @@ import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { Map, ChevronUp } from "lucide-react"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
 import type { Point } from "@/lib/map-radar-data"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
+
+// True-3D renderer is dynamically imported (ssr:false) so three.js / R3F only
+// load when the player actually switches to the 3D view — never in the main bundle.
+const MapRadar3D = dynamic(() => import("./MapRadar3D"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full grid place-items-center text-[10px] font-bold tracking-widest uppercase text-white/30">
+            Loading 3D…
+        </div>
+    ),
+})
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -49,6 +61,13 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     const [isExpanded, setIsExpanded] = useState(true)
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
+    // Radar view mode: flat top-down, CSS 2.5D tilt, or true 3D (WebGL).
+    // 2.5D tips the ground plane back with players as billboarded tokens; 3D
+    // swaps in an orbitable three.js scene (dynamically imported).
+    const [view, setView] = useState<"flat" | "tilt" | "3d">("tilt")
+    const tilt = view === "tilt"
+    const is3D = view === "3d"
+    const TILT_DEG = 49
 
     const radarImageData = MAP_RADAR_IMAGES[currentMapId]
     const isDualLevel = !!radarImageData?.secondary
@@ -297,6 +316,35 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                             </button>
                         </div>
                     )}
+                    {isExpanded && (
+                        // Inline elements only — this sits inside the header's collapse
+                        // <button>, and a nested <button>/<div> trips the HTML parser's
+                        // auto-close. Spans with role=button keep the toggles clickable.
+                        <span
+                            className="inline-flex items-center rounded-full border border-white/10 overflow-hidden"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {([["flat", "2D"], ["tilt", "2.5D"], ["3d", "3D"]] as const).map(([mode, label]) => (
+                                <span
+                                    key={mode}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={e => { e.stopPropagation(); setView(mode) }}
+                                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setView(mode) } }}
+                                    className={cn(
+                                        "px-2 py-0.5 text-[9px] font-bold tracking-wider cursor-pointer select-none transition-colors",
+                                        view === mode
+                                            ? "bg-cyan-400/20 text-cyan-100"
+                                            : "text-white/35 hover:text-white/60"
+                                    )}
+                                    aria-pressed={view === mode}
+                                    title={`${label} radar view`}
+                                >
+                                    {label}
+                                </span>
+                            ))}
+                        </span>
+                    )}
                     <ChevronUp className={cn("w-3 h-3 text-white/30 transition-transform", !isExpanded && "rotate-180")} />
                 </div>
             </button>
@@ -312,16 +360,57 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                         className="overflow-hidden"
                     >
                         <div className="px-4 pb-3 flex justify-center">
-                            <div className="relative w-full max-h-48 aspect-square mx-auto">
+                            {is3D ? (
+                                <div className="relative aspect-square h-48 w-full max-w-full mx-auto rounded-lg overflow-hidden ring-1 ring-white/10">
+                                    <MapRadar3D
+                                        radarSrc={radarSrc}
+                                        dots={visibleDots}
+                                        killLines={killLineRenderState}
+                                        smokes={smokeRenderState}
+                                        bombPosition={safeBombPosition}
+                                        bombVisible={bombVisibleOnCurrentLevel}
+                                        bombState={bombState}
+                                        currentTime={currentTime}
+                                        onError={() => setView("tilt")}
+                                    />
+                                </div>
+                            ) : (
+                            <div
+                                className="relative aspect-square h-48 max-w-full mx-auto"
+                                style={tilt ? { perspective: "1100px" } : undefined}
+                            >
+                                {/* 2.5D ambient floor glow + soft cast shadow behind the tilted plane —
+                                    gives the board a holographic "floating table" feel. */}
+                                {tilt && (
+                                    <>
+                                        <div
+                                            className="pointer-events-none absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2"
+                                            style={{ width: "120%", height: "120%", background: "radial-gradient(ellipse at center, rgba(34,211,238,0.10), rgba(34,211,238,0) 62%)", filter: "blur(12px)" }}
+                                        />
+                                        <div
+                                            className="pointer-events-none absolute left-1/2 top-[63%] -translate-x-1/2 -translate-y-1/2"
+                                            style={{ width: "82%", height: "44%", background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)", filter: "blur(8px)" }}
+                                        />
+                                    </>
+                                )}
+                                <div
+                                    className="relative w-full h-full transition-transform duration-500 ease-out"
+                                    style={{
+                                        transform: tilt ? `rotateX(${TILT_DEG}deg) scale(1.04)` : "none",
+                                        transformOrigin: "center 50%",
+                                        transformStyle: "preserve-3d",
+                                    }}
+                                >
                                 {/* Radar background image */}
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={`${currentMapId}-${resolvedRadarLevel}`}
                                         initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.6 }}
+                                        animate={{ opacity: 0.68 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.3 }}
-                                        className="relative w-full h-full"
+                                        className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
+                                        style={{ filter: "brightness(1.06) contrast(1.16) saturate(1.18)" }}
                                     >
                                         <Image
                                             src={radarSrc}
@@ -330,6 +419,11 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                             className="object-contain"
                                             sizes="300px"
                                             unoptimized
+                                        />
+                                        {/* inner vignette — sinks the map edges for depth */}
+                                        <div
+                                            className="pointer-events-none absolute inset-0"
+                                            style={{ boxShadow: "inset 0 0 28px 4px rgba(0,0,0,0.45)" }}
                                         />
                                     </motion.div>
                                 </AnimatePresence>
@@ -634,32 +728,76 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                                     fill={color} opacity={0.25}
                                                     style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
                                                 />
-                                                {/* Solid dot with economy border */}
-                                                <circle
-                                                    cx={dot.x} cy={dot.y} r={1.5}
-                                                    fill={color}
-                                                    stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                    style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
-                                                />
-                                                {/* Player nickname */}
-                                                <text
-                                                    x={labelX}
-                                                    y={labelY}
-                                                    fontSize="2"
-                                                    fill="white"
-                                                    opacity={0.65}
-                                                    fontFamily="sans-serif"
-                                                    fontWeight="600"
-                                                    textAnchor={labelAnchor}
-                                                    style={{ transition: 'x 0.5s ease-out, y 0.5s ease-out' }}
-                                                >
-                                                    {labelText}
-                                                </text>
+                                                {/* Solid dot + nickname — flat mode only; the 2.5D view
+                                                    renders these as billboarded standing tokens (below). */}
+                                                {!tilt && (
+                                                    <>
+                                                        <circle
+                                                            cx={dot.x} cy={dot.y} r={1.5}
+                                                            fill={color}
+                                                            stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
+                                                            style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
+                                                        />
+                                                        <text
+                                                            x={labelX}
+                                                            y={labelY}
+                                                            fontSize="2"
+                                                            fill="white"
+                                                            opacity={0.65}
+                                                            fontFamily="sans-serif"
+                                                            fontWeight="600"
+                                                            textAnchor={labelAnchor}
+                                                            style={{ transition: 'x 0.5s ease-out, y 0.5s ease-out' }}
+                                                        >
+                                                            {labelText}
+                                                        </text>
+                                                    </>
+                                                )}
                                             </g>
                                         )
                                     })}
                                 </svg>
+
+                                    {/* 2.5D depth fog — darkens the far (top) edge for a sense of distance. */}
+                                    {tilt && (
+                                        <div
+                                            className="pointer-events-none absolute inset-0"
+                                            style={{ background: "linear-gradient(to top, rgba(5,7,11,0) 52%, rgba(5,7,11,0.55) 100%)" }}
+                                        />
+                                    )}
+
+                                    {/* 2.5D standing player tokens — billboarded upright on the tilted
+                                        plane, each over a flat ground shadow. (Flat mode uses SVG dots.) */}
+                                    {tilt && (
+                                        <div className="absolute inset-0" style={{ transformStyle: "preserve-3d", pointerEvents: "none" }}>
+                                            {visibleDots.filter(d => d.isAlive).map(dot => {
+                                                const color = dot.side === "ct" ? "#5b9bd5" : "#e8a838"
+                                                const ecoStroke = dot.money != null
+                                                    ? dot.money >= 4500 ? "#ffffff" : dot.money >= 2000 ? "#f59e0b" : "#ef4444"
+                                                    : "#ffffff"
+                                                return (
+                                                    <div
+                                                        key={dot.playerId}
+                                                        className="absolute"
+                                                        style={{ left: `${dot.x}%`, top: `${dot.y}%`, transformStyle: "preserve-3d", transition: "left 0.5s ease-out, top 0.5s ease-out" }}
+                                                    >
+                                                        {/* ground shadow — flat on the plane, beneath the peg */}
+                                                        <div style={{ position: "absolute", width: 8, height: 4.5, borderRadius: "9999px", background: "rgba(0,0,0,0.5)", filter: "blur(2px)", transform: "translate(-50%,-40%)" }} />
+                                                        {/* standing peg — counter-rotated to face the camera, rising from the ground point */}
+                                                        <div style={{ position: "absolute", transformOrigin: "center bottom", transform: `translate(-50%,-100%) rotateX(-${TILT_DEG}deg)`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                            {/* head — a 3D bead with economy ring + colored glow */}
+                                                            <div style={{ width: 10, height: 10, borderRadius: "9999px", background: `radial-gradient(circle at 35% 30%, #ffffff, ${color} 62%)`, border: `1.5px solid ${ecoStroke}`, boxShadow: `0 0 6px ${color}, 0 1px 3px rgba(0,0,0,0.6)` }} />
+                                                            {/* stem fading into the ground */}
+                                                            <div style={{ width: 2, height: 8, marginTop: -0.5, borderRadius: "2px", background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0))` }} />
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+                            )}
                         </div>
                     </motion.div>
                 )}

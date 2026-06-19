@@ -404,6 +404,137 @@ body[data-scroll-locked] {
       linear-gradient(165deg, #010204 0%, #04070b 48%, #020305 100%);
   }
 
+  /* Living ambient backdrop — two oversized, heavily-blurred accent blobs that
+     drift very slowly behind all chrome. Adds depth and life without clutter:
+     low opacity + 80px blur keep it a whisper, not a light show. Animation is
+     paused under reduced-motion (system or the .reduce-motion class). */
+  .liquid-aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .liquid-aurora::before,
+  .liquid-aurora::after {
+    content: "";
+    position: absolute;
+    width: 66vw;
+    height: 66vw;
+    border-radius: 50%;
+    filter: blur(90px);
+    will-change: transform;
+  }
+  .liquid-aurora::before {
+    top: -16%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 64%);
+    animation: aurora-drift-a 38s ease-in-out infinite alternate;
+  }
+  .liquid-aurora::after {
+    bottom: -22%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.17), transparent 64%);
+    animation: aurora-drift-b 46s ease-in-out infinite alternate;
+  }
+  .onyx .liquid-aurora::before { background: radial-gradient(circle, rgba(56, 189, 248, 0.06), transparent 62%); }
+  .onyx .liquid-aurora::after  { background: radial-gradient(circle, rgba(129, 140, 248, 0.05), transparent 62%); }
+
+  @keyframes aurora-drift-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(7%, 5%, 0) scale(1.18); }
+  }
+  @keyframes aurora-drift-b {
+    from { transform: translate3d(0, 0, 0) scale(1.12); }
+    to   { transform: translate3d(-6%, -7%, 0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-aurora::before,
+    .liquid-aurora::after { animation: none; }
+  }
+  .reduce-motion .liquid-aurora::before,
+  .reduce-motion .liquid-aurora::after { animation: none; }
+
+  /* Primary-CTA sheen — a slow, subtle diagonal light sweep on the core-loop
+     buttons (PLAY MATCH / NEXT DAY) so the key action quietly draws the eye.
+     ::before sits above the button fill but behind the label; it rests
+     off-screen ~68% of the loop, then sweeps across. Hidden for reduced-motion. */
+  .liquid-cta-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-cta-shine::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.30) 50%, transparent 100%);
+    transform: translateX(-240%) skewX(-18deg);
+    animation: cta-shine 5.5s ease-in-out infinite;
+  }
+  @keyframes cta-shine {
+    0%, 68% { transform: translateX(-240%) skewX(-18deg); }
+    100% { transform: translateX(340%) skewX(-18deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-cta-shine::before { display: none; }
+  }
+  .reduce-motion .liquid-cta-shine::before { display: none; }
+
+  /* Richer one-shot sweep on hover, layered over the constant ::before. */
+  .liquid-cta-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+    transform: translateX(-240%) skewX(-18deg);
+  }
+  .liquid-cta-shine:hover::after {
+    animation: cta-shine-hover 0.7s ease-out;
+  }
+  @keyframes cta-shine-hover {
+    0% { transform: translateX(-240%) skewX(-18deg); opacity: 1; }
+    100% { transform: translateX(340%) skewX(-18deg); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-cta-shine::after { display: none; }
+  }
+  .reduce-motion .liquid-cta-shine::after { display: none; }
+
+  /* Tactile lift for interactive (clickable) cards — scoped to the cursor-pointer
+     affordance so big static panels never bob. Lives in @layer components, so any
+     card's own transform-hover utility (e.g. hover:scale) still wins; this only
+     fills in cards that have no transform-hover of their own. */
+  .glass-panel.cursor-pointer,
+  .glass-panel-dark.cursor-pointer,
+  .liquid-panel.cursor-pointer {
+    transition:
+      transform var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease),
+      background-color var(--motion-base) var(--motion-ease);
+  }
+  .glass-panel.cursor-pointer:hover,
+  .glass-panel-dark.cursor-pointer:hover,
+  .liquid-panel.cursor-pointer:hover {
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glass-panel.cursor-pointer:hover,
+    .glass-panel-dark.cursor-pointer:hover,
+    .liquid-panel.cursor-pointer:hover { transform: none; }
+  }
+  .reduce-motion .glass-panel.cursor-pointer:hover,
+  .reduce-motion .glass-panel-dark.cursor-pointer:hover,
+  .reduce-motion .liquid-panel.cursor-pointer:hover { transform: none; }
+
   /* Ultrathin material — chips, hover layers, inline pills. The lightest
      glass tier; sits directly on top of a heavier surface. */
   .glass-ultrathin {

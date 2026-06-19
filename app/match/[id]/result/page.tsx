@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { LoadingState } from "@/components/ui/loading"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Home, Trophy, Swords, Calendar, Clock } from "lucide-react"
+import { Home, Trophy, Swords, Calendar, Clock, ArrowRight } from "lucide-react"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
-import Image from "next/image"
 import { format } from "date-fns"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
@@ -24,44 +24,11 @@ import { TournamentMatchContext } from "@/components/tournament/TournamentMatchC
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { DefeatOverlay } from "@/components/match/DefeatOverlay"
 
-// Animated counter component for stats.
-// Earlier version had a bug: the inner `return () => clearInterval(timer)` was
-// returning from the setTimeout callback, not from useEffect. If the component
-// unmounted while the interval was still running it kept ticking. Track the
-// interval id via ref so the real useEffect cleanup can always cancel it.
-function AnimatedNumber({ value, duration = 1.5, delay = 0 }: { value: number, duration?: number, delay?: number }) {
-    const [displayValue, setDisplayValue] = useState(0)
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            let start = 0
-            const increment = value / (duration * 60)
-            intervalRef.current = setInterval(() => {
-                start += increment
-                if (start >= value) {
-                    setDisplayValue(value)
-                    if (intervalRef.current) clearInterval(intervalRef.current)
-                    intervalRef.current = null
-                } else {
-                    setDisplayValue(Math.floor(start))
-                }
-            }, 1000 / 60)
-        }, delay * 1000)
-        return () => {
-            clearTimeout(timeout)
-            if (intervalRef.current) clearInterval(intervalRef.current)
-            intervalRef.current = null
-        }
-    }, [value, duration, delay])
-
-    return <>{displayValue}</>
-}
 
 export default function MatchResultPage({ params }: { params: { id: string } }) {
     const { id } = params
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         players: state.players,
@@ -69,6 +36,8 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         clearActiveMatchState: state.clearActiveMatchState,
         playerTeamId: state.playerTeamId,
         tournaments: state.tournaments,
+        scheduledMatches: state.scheduledMatches,
+        currentWeek: state.currentWeek,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
@@ -290,10 +259,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                     </button>
                 </div>
             ) : (
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Match Data...</p>
-                </div>
+                <LoadingState message="Loading Match Data…" size="lg" />
             )}
         </div>
     )
@@ -314,11 +280,38 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         return (isPlayerHome || isPlayerAway) && !playerWon
     })()
 
+    // Next scheduled player match — surface a forward CTA so the loop self-propels
+    // instead of dead-ending on the result screen. The match just finished is already
+    // removed from scheduledMatches, so the soonest remaining one is genuinely "next".
+    const nextPlayerMatch = scheduledMatches
+        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+        .sort((a, b) => (a.week !== b.week ? a.week - b.week : (a.day ?? 6) - (b.day ?? 6)))[0]
+    const nextMatchPlayableNow = !!nextPlayerMatch && nextPlayerMatch.week <= currentWeek
+
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
             <DefeatOverlay active={playerLostThisMatch} />
             {/* Header / Nav */}
             <div className="max-w-7xl mx-auto flex items-center gap-4">
+                {nextPlayerMatch ? (
+                    nextMatchPlayableNow ? (
+                        <Button
+                            variant="play"
+                            onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)}
+                            className="h-11 px-6"
+                        >
+                            <Swords size={18} className="mr-2" /> Play Next Match
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="play"
+                            onClick={() => router.push("/")}
+                            className="h-11 px-6"
+                        >
+                            Continue <ArrowRight size={18} className="ml-2" />
+                        </Button>
+                    )
+                ) : null}
                 <Button
                     variant="ghost"
                     onClick={() => router.push("/")}

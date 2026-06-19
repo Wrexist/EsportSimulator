@@ -44,10 +44,13 @@ export function calculateTeamStrength(
     // `facilities` is the save-shaped array ({type, level}[]) - the local
     // Team type's object shape never exists at runtime.
     const facilityArr = (team as unknown as { facilities?: { level?: number }[] }).facilities
-    const facilitiesLevel = Math.max(
-        (team as unknown as { facilitiesLevel?: number }).facilitiesLevel || 1,
-        ...(Array.isArray(facilityArr) ? facilityArr.map(f => f.level || 1) : [1]),
-    )
+    // Average across the facility array so investing in ALL facilities matters
+    // (was max-of-one, so a single maxed facility handed out the full bonus).
+    // Falls back to the legacy scalar when the array is absent.
+    const facilityLevels = Array.isArray(facilityArr) && facilityArr.length > 0
+        ? facilityArr.map(f => f.level || 1)
+        : [(team as unknown as { facilitiesLevel?: number }).facilitiesLevel || 1]
+    const avgFacilityLevel = facilityLevels.reduce((s, l) => s + l, 0) / facilityLevels.length
 
     // Average skill: the headline number — 0-100, normalized output.
     const avgSkill = players.reduce((sum, p) => sum + p.skill, 0) / players.length
@@ -101,8 +104,10 @@ export function calculateTeamStrength(
         })
     }
 
-    // Facilities (level/100 — up to +10% at level 10).
-    const facilitiesMod = 1.0 + (facilitiesLevel / 100)
+    // +2% per average facility level, capped at +10% (reached when every
+    // facility hits the level-5 cap). The old /100 capped at +5% — half the
+    // documented bonus — because facilities cap at 5, not the assumed 10.
+    const facilitiesMod = 1.0 + Math.min(0.10, avgFacilityLevel / 50)
 
     // Tactical prep up to +25% at 100% prep; mental prep adds +3%.
     let tacticalMod = 1.0
@@ -111,6 +116,14 @@ export function calculateTeamStrength(
     }
     if (mentalPrep) {
         tacticalMod += 0.03
+    }
+
+    // Quick-Sim differential (B4): one-click simulating from the dashboard skips
+    // the match-day prep flow (veto / tactics / live calls), forgoing a small
+    // edge. Only ever set on a transient sim copy of the player's team, never
+    // persisted — so it's 0 for every AI match and every prepared player.
+    if (team.prepPenalty) {
+        tacticalMod -= team.prepPenalty
     }
 
     // Playstyle specialization bonuses.

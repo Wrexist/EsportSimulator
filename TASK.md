@@ -2,6 +2,18 @@
 
 > Update this file when state changes. Definition of done = closer to shipped on Steam.
 
+## Status snapshot (2026-06-14)
+
+- Branch: `claude/nice-babbage-uusrux` — UX/feel/progression program (`AUDIT_UX_2026-06.md`).
+  Shipped Waves 1→5b (hub unification, feedback, cross-save progression, onboarding,
+  verified fixes, milestones, sponsor depth, polish). Gates green throughout
+  (tsc 0 · jest 1007 · lint 0); +24 regression tests.
+- Open from that audit: minor polish (E5–E10, F3/F9–F10) and the **G1** passive-
+  training-pipeline decision. (Re-verified in code 2026-06-18: **B5** live-match agency
+  shipped — Tactical Timeout, 2/match, +6% bounded round boost + opponent-momentum
+  neutralise, `useLiveMatch.ts` + `match-tactical-timeout.test.ts`; D11/D12/E7/B12/F8/E10
+  also shipped.) See `AUDIT_UX_2026-06.md` "Implementation status".
+
 ## Status snapshot (2026-06-09)
 
 - Branch: `claude/great-knuth-0Wbbf` — **9 commits ahead of main, pushed; PR open.**
@@ -41,14 +53,35 @@ Phase 0 is correctness, not polish — do it regardless. Awaiting go.
 
 ### P2.6 — Audit wave 3 (see AUDIT_WAVE3.md)
 12 verified findings FIXED (aging was entirely missing; facility upgrades never reached match
-strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). 10 OPEN items
-recorded with recommendations — top three: activeMerchItems inert toggle, dead settings
-(Notifications/Resolution/Game Speed), sponsor re-sign cycling.
+strength; retired-player signing; unledgered budget path; clamp sweep; fanbase cap). The three
+decision-gated "top open" items have since ALL shipped (re-verified in code 2026-06-18):
+activeMerchItems→fan income (`economy-engine.ts:150`), the three "dead" settings wired
+(`settings-store.applyWindowSettings`, game-speed→playback, notifications→toast gate), and
+sponsor re-sign cooldown (`team.sponsorCooldowns`). See AUDIT_WAVE3.md "Open items EXECUTED".
+All wave-3 P2 items now resolved (2026-06-18): match-rating denominator RE-VERIFIED as a
+non-issue (no mid-series subs → series-total rounds == per-player participation); sponsor-goal
+payout consolidated into one shared `paySponsorGoalBonus` helper; AI roster churn surfaced
+(marquee FA signings → news feed; transfers/bids were already surfaced). (**Staff system depth**
+SHIPPED
+2026-06-18: (1) `staff.specialization` now grants a bounded +10% "true specialist" multiplier on
+each role's primary effect — coach→training, analyst→tactical, psychologist→recovery,
+scout→scouting (`engine/staff-specialization`), with a Specialist badge on `/staff`; (2) the
+genuinely-dead scout stats are now wired — `accuracy`→scouting report tier
+(`scouting-mission-processor`, was a flat EXPERT) and `scoutingSpeed`→mission duration
+(`scouting-slice`). Tested.)
 
 ### P3 — Depth roadmap (one feature per branch, smallest-first)
 1. ~~**Board war-chest**~~ — SHIPPED: confidence gates the single-fee sanction (100%/80%/60%/40% of budget by confidence tier; on-notice = 40%). Enforced in transferPlayer, surfaced in NegotiationModal + dashboard board panel. Tested.
 2. ~~**Mid-season board check-ins**~~ — SHIPPED: quarterly pulses (weeks 13/26/39) nudge confidence from recent form (+4/+1/-3/-6 by win rate, min 3 matches, never sacks — the sack stays season-end/telegraphed). Surfaced in news feed AND the week-reveal overlay. Tested.
-3. **Rivalries** — PARTIALLY EXISTS (the classic pattern): `engine/history-tracker.ts` already tracks per-team rivalry intensity every tick (atomic-week-processor:882) and the stats page lists them. What's missing is rivalries having EFFECTS — derby morale/fan/confidence swings in the match + fanbase processors, and pre-match derby framing in the UI. Surface-and-wire job, not a new system.
+3. ~~**Rivalries**~~ — SHIPPED (effects wired): tracked intensity now drives gameplay. A
+   HEATED/FIERCE derby applies a deterministic stakes multiplier (×1.3 / ×1.6) to the
+   post-match **morale** swing (`atomic-week-processor`, read pre-`updateRivalries`) and the
+   **fanbase** swing (`processors/fanbase-growth`, still under the 2M cap → non-farmable), plus
+   a pre-match **DerbyBanner** on the live page (HEATED/FIERCE only, with H2H record). Helpers
+   `getRivalryBetween`/`isDerby`/`derbyMultiplier` in `history-tracker`. Tested
+   (`rivalry-effects.test.ts` + derby cases in `fanbase-growth.test.ts`). *Confidence* swing
+   deliberately deferred — the board-confidence system is quarterly/season-end by design
+   (decisions log), so per-match nudges would fight it.
 4. **Transfer negotiation depth** — counter-offers, agent personalities, holdouts.
 
 ### P4 — Steam release (manual, external)

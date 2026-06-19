@@ -1,19 +1,24 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
+import { ActionCenter } from "@/components/dashboard/ActionCenter"
+import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
+import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
@@ -61,7 +66,12 @@ export default function Page() {
   // Actions are stable references — separate selector avoids re-renders from data changes
   const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
+  const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
   const boardState = useGameStore(s => s.boardState)
+
+  // The annual Pro/Player-of-the-Year ceremony — auto-open it once so the
+  // reveal isn't missed (it used to require noticing + clicking a banner).
+  const proShownRef = useRef<string | null>(null)
 
   const [isSimulating, setIsSimulating] = useState(false)
 
@@ -76,6 +86,17 @@ export default function Page() {
     )
   }, [eventsLog])
 
+  // Auto-open the ceremony the first time a new awards event surfaces.
+  useEffect(() => {
+    if (!latestProEvent || proShownRef.current === latestProEvent.id) return
+    const awards = (latestProEvent.data as any)?.proAwards
+    if (awards && Array.isArray(awards.top20) && awards.year) {
+      proShownRef.current = latestProEvent.id
+      setProAwards(awards as AnnualAwards)
+      setIsProModalOpen(true)
+    }
+  }, [latestProEvent])
+
   // Robust session check: isInitialized is the primary flag, 
   // but we also check if we have teams and a playerTeamId as a fallback.
   const isSessionActive = isInitialized || (teams.length > 0 && !!playerTeamId)
@@ -87,6 +108,15 @@ export default function Page() {
   }, [_hasHydrated, isSessionActive, storeLoading, router])
 
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+
+  // Derived team rating (avg roster skill) — a visible power number so the
+  // team-building loop has felt momentum (AUDIT_UX_2026-06 C6).
+  const teamRating = useMemo(() => {
+    if (!playerTeam) return 0
+    const roster = players.filter(p => playerTeam.rosterIds.includes(p.id))
+    if (roster.length === 0) return 0
+    return Math.round(roster.reduce((s, p) => s + (p.skill || 0), 0) / roster.length)
+  }, [playerTeam, players])
 
   const nextMatch = useMemo(() => {
     return scheduledMatches
@@ -180,7 +210,8 @@ export default function Page() {
     setIsSimulating(true)
     soundManager.play('matchStart')
     try {
-      await simulateInstantMatch(nextMatch.id)
+      // Dashboard Quick-Sim skips the match-day prep flow → small differential (B4).
+      await simulateInstantMatch(nextMatch.id, { skippedPrep: true })
       router.push(`/match/${nextMatch.id}/result`)
     } finally {
       setIsSimulating(false)
@@ -190,12 +221,7 @@ export default function Page() {
 
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
-      <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Game Session...</p>
-        </div>
-      </div>
+      <LoadingState message="Loading Game Session…" size="lg" fullScreen />
     )
   }
 
@@ -257,7 +283,11 @@ export default function Page() {
       )}
       <ProAwardsModal
         isOpen={isProModalOpen}
-        onClose={() => setIsProModalOpen(false)}
+        onClose={() => {
+          setIsProModalOpen(false)
+          // Acknowledge so the banner clears and the ceremony won't reopen.
+          if (latestProEvent) acknowledgeEvent(latestProEvent.id)
+        }}
         awards={proAwards}
       />
 
@@ -317,13 +347,13 @@ export default function Page() {
                     Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` • Day ${currentDay + 1}` : ""}
                   </Badge>
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
-                    {playerTeam.budget >= 1000000
-                      ? `$${(playerTeam.budget / 1000000).toLocaleString(undefined, { maximumFractionDigits: 1 })}M`
-                      : playerTeam.budget >= 10000
-                        ? `$${Math.round(playerTeam.budget / 1000)}K`
-                        : `$${(playerTeam.budget / 1000).toFixed(1)}K`
-                    }
+                    {formatCurrency(playerTeam.budget)}
                   </Badge>
+                  {teamRating > 0 && (
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-cyan-500/20 text-cyan-300 uppercase" title="Average roster skill">
+                      OVR {teamRating}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -662,8 +692,11 @@ export default function Page() {
           </Card>
         </div>
 
-        {/* Sidebar Column: Objectives + News Feed */}
+        {/* Sidebar Column: Action Center + Weekly Focus + Objectives + News Feed */}
         <div className="space-y-6">
+          <GettingStartedChecklist />
+          <ActionCenter />
+          <WeeklyFocusWidget />
           {playerTeam && (
             <SeasonObjectives
               worldRanking={playerTeam.worldRanking ?? 0}

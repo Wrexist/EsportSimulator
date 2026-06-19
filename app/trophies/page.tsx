@@ -19,6 +19,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ReactNode }> = {
     S: { label: "S-Tier", color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/30", icon: <Crown size={20} className="text-amber-400" /> },
@@ -47,12 +49,18 @@ export default function TrophyRoomPage() {
             const year = Math.floor(startYear + (t.week || 0) / WEEKS_PER_YEAR)
             // Normalize tier: engine stores "S_TIER" but TIER_CONFIG uses "S"
             const tier = (t.tier || "B_TIER").replace("_TIER", "")
+            // Distinct silverware: resolve the tournament's trophy/logo art so the
+            // cabinet shows named trophies, not one repeated glyph (C9/D9).
+            const baseId = (t.tournamentId || "").replace(/_s\d+$/, "")
+            const cal = FULL_TOURNAMENT_CALENDAR.find(c => c.id === t.tournamentId || c.id === baseId)
             return {
                 id: t.tournamentId || `tr_${i}`,
-                name: t.tournamentName || "Unknown Tournament",
+                key: `${t.tournamentId || "tr"}_${t.week || 0}_${i}`,
+                name: t.tournamentName || cal?.name || "Unknown Tournament",
                 week: t.week || 0,
                 year,
                 tier,
+                artPath: cal?.trophyPath || cal?.logoPath,
                 mvpName: t.mvpId ? players.find(p => p.id === t.mvpId)?.nickname : undefined,
                 mvpId: t.mvpId,
             }
@@ -251,7 +259,7 @@ export default function TrophyRoomPage() {
                                     const config = TIER_CONFIG[trophy.tier] || TIER_CONFIG.B
                                     return (
                                         <motion.div
-                                            key={trophy.id}
+                                            key={trophy.key}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: yearIdx * 0.1 + i * 0.06 }}
@@ -262,13 +270,16 @@ export default function TrophyRoomPage() {
                                         >
                                             <div className="flex items-start gap-5">
                                                 <div className={cn(
-                                                    "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform",
+                                                    "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform overflow-hidden",
                                                     config.bg
                                                 )}>
-                                                    {trophy.tier === "S" || trophy.tier === "A"
-                                                        ? <Crown size={28} className={config.color} />
-                                                        : <Trophy size={28} className={config.color} />
-                                                    }
+                                                    {trophy.artPath ? (
+                                                        <Image src={trophy.artPath} alt={trophy.name} width={40} height={40} className="object-contain brightness-110" />
+                                                    ) : trophy.tier === "S" || trophy.tier === "A" ? (
+                                                        <Crown size={28} className={config.color} />
+                                                    ) : (
+                                                        <Trophy size={28} className={config.color} />
+                                                    )}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <h4 className="font-normal text-white uppercase tracking-tight text-sm leading-tight truncate">

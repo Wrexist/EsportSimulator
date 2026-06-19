@@ -28,6 +28,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { SaveSlotMetadata } from "@/engine/save-types"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
 import Image from "next/image"
@@ -242,6 +243,10 @@ export default function CareerPage() {
                     </CardContent>
                 </Card>
             )}
+
+            {/* Cross-save legacy track — the long-horizon goal that persists
+                across campaigns (AUDIT_UX_2026-06 C3). */}
+            <CareerLegacyCard />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Stats Column */}

@@ -6,6 +6,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
 import {
     TrendingUp,
     Award,
@@ -18,7 +19,8 @@ import {
     Crown,
     ArrowUp,
     ArrowDown,
-    Users
+    Users,
+    Sprout
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -95,6 +97,13 @@ const RankingsRow = React.memo(function RankingsRow({
                 >
                     #{team.worldRanking}
                 </span>
+                {/* Career-best rank — only for the player team and only once
+                    they've been higher than now, so the ladder reads as a climb. */}
+                {isPlayerTeam && team.peakWorldRanking && team.peakWorldRanking < team.worldRanking && (
+                    <span className="text-[9px] text-amber-400/70 font-bold not-italic" title="Career-best ranking">
+                        ▲#{team.peakWorldRanking}
+                    </span>
+                )}
             </div>
 
             {/* Team */}
@@ -137,6 +146,7 @@ const RankingsRow = React.memo(function RankingsRow({
                     {team.leagueTier === "S_TIER" && <Crown size={10} className="mr-1" />}
                     {team.leagueTier === "A_TIER" && <Shield size={10} className="mr-1" />}
                     {team.leagueTier === "B_TIER" && <TrendingUp size={10} className="mr-1" />}
+                    {team.leagueTier === "C_TIER" && <Sprout size={10} className="mr-1" />}
                     {leagueTierInfo?.label || "?"}
                 </Badge>
             </div>
@@ -239,7 +249,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                 <div>Rank</div>
                 <div>Team</div>
                 <div className="text-center">League</div>
-                <div className="text-center">Elo</div>
+                <div className="text-center flex items-center justify-center gap-1">Elo <HelpTooltip content={StatExplanations.elo} size={11} /></div>
                 <div className="text-center">OVR</div>
                 <div className="text-center">Form</div>
                 <div className="text-right" />
@@ -322,7 +332,7 @@ function RankingsPageInner() {
     const [searchTerm, setSearchTerm] = useState("")
     const debouncedSearch = useDebounce(searchTerm, 300)
     const [selectedTier, setSelectedTier] = useState<TierLevel | "ALL">("ALL")
-    const [activeTab, setActiveTab] = useState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "TROPHIES" | "CIRCUIT">("WORLD")
+    const [activeTab, setActiveTab] = useState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">("WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
@@ -410,6 +420,7 @@ function RankingsPageInner() {
             S_TIER: [],
             A_TIER: [],
             B_TIER: [],
+            C_TIER: [],
         }
         for (const t of rankedTeams) {
             const tier = t.leagueTier as LeagueTier
@@ -432,6 +443,7 @@ function RankingsPageInner() {
                 S_TIER: teamsByLeagueTier.S_TIER.length,
                 A_TIER: teamsByLeagueTier.A_TIER.length,
                 B_TIER: teamsByLeagueTier.B_TIER.length,
+                C_TIER: teamsByLeagueTier.C_TIER.length,
             },
         }
     }, [rankedTeams, players])
@@ -554,7 +566,7 @@ function RankingsPageInner() {
                         <Globe size={12} />
                         World
                     </button>
-                    {(["S_TIER", "A_TIER", "B_TIER"] as const).map(tier => (
+                    {(["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const).map(tier => (
                         <button
                             key={tier}
                             onClick={() => setActiveTab(tier)}
@@ -568,6 +580,7 @@ function RankingsPageInner() {
                             {tier === "S_TIER" && <Crown size={12} />}
                             {tier === "A_TIER" && <Shield size={12} />}
                             {tier === "B_TIER" && <TrendingUp size={12} />}
+                            {tier === "C_TIER" && <Sprout size={12} />}
                             {TIER_DISPLAY[tier].shortLabel} ({leagueTierCounts[tier]})
                         </button>
                     ))}

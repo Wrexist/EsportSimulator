@@ -35,6 +35,9 @@ const SIGNING_RUNWAY_WEEKS = 26
 const CONTRACT_LENGTH_WEEKS = 52
 const TERMINATION_CAP_WEEKS = 26
 const REQUIRED_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "SUPPORT", "RIFLER"]
+// Only free-agent signings of players at/above this skill reach the live news
+// feed — keeps routine depth-filling out of the feed (AUDIT_WAVE3 AI-churn item).
+const STAR_FA_NEWS_SKILL = 78
 
 /**
  * Score a candidate free agent / transfer target.
@@ -175,6 +178,30 @@ export function signFreeAgent(team: TeamSaveData, save: GameSave, emergency = fa
             toTeamName: team.name,
             fee: 0,
         })
+    }
+
+    // Surface only MARQUEE free-agent signings (star skill) in the live news
+    // feed so the AI market feels alive without flooding it — routine
+    // depth-filling stays out of the feed (it's still recorded in
+    // transferHistory above). Deterministic id + dedup guard keep it replay-safe;
+    // capped at 50 like the AI-to-AI transfer news.
+    if (save.newsFeed && (target.skill ?? 0) >= STAR_FA_NEWS_SKILL) {
+        const newsId = `news_ai_signing_${save.currentWeek}_${target.id}`
+        if (!save.newsFeed.some(n => n.id === newsId)) {
+            const skill = target.skill ?? 50
+            save.newsFeed.unshift({
+                id: newsId,
+                title: `${target.nickname} signs with ${team.name}`,
+                content: `Free agent ${target.nickname} has joined ${team.name}.`,
+                category: "TRANSFER",
+                playerId: target.id,
+                teamId: team.id,
+                week: save.currentWeek,
+                // Engagement is cosmetic; derive deterministically (no rng here).
+                engagement: { likes: 100 + skill * 20, views: 1000 + skill * 100 },
+            })
+            if (save.newsFeed.length > 50) save.newsFeed.pop()
+        }
     }
 }
 

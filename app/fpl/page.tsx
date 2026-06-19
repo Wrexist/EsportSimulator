@@ -354,6 +354,17 @@ export default function FPLPage() {
                 </div>
             </div>
 
+            {/* What is FPL? (E7) — the mechanic is never explained otherwise. */}
+            <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-amber-500/10 shrink-0"><Users size={14} className="text-amber-400" /></div>
+                <div>
+                    <p className="text-xs font-bold text-white/80 uppercase tracking-wide mb-1">What is FPL?</p>
+                    <p className="text-[11px] text-white/50 leading-relaxed">
+                        The Fantasy Player League ranks every pro by individual performance across the season — it runs automatically alongside your matches, no management needed. Your players climb by playing well, building their reputation and value. The top performers in FPL-C earn promotion to the elite FPL.
+                    </p>
+                </div>
+            </div>
+
             {/* My Players Quick View */}
             {(myPlayersInFPL.length > 0 || myPlayersInFPLC.length > 0) && (
                 <div className="glass-panel p-6 border-cyan-500/20 bg-cyan-500/5">

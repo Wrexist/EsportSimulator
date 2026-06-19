@@ -113,6 +113,14 @@ export function useLiveMatch(id: string) {
     const [originalHomePlayers, setOriginalHomePlayers] = useState<Player[]>([])
     const [originalAwayPlayers, setOriginalAwayPlayers] = useState<Player[]>([])
 
+    // Tactical Timeout (B5): 2 per match; arms a small round-win boost (0.06) for
+    // the next 2 rounds. The ref mirrors state so the per-round sim call reads the
+    // latest value outside React's render cycle.
+    const [timeoutsRemaining, setTimeoutsRemaining] = useState(2)
+    const [timeoutBoostRounds, setTimeoutBoostRounds] = useState(0)
+    const timeoutBoostRoundsRef = useRef(0)
+    timeoutBoostRoundsRef.current = timeoutBoostRounds
+
     // Timer State
     const [roundTime, setRoundTime] = useState(ROUND_SECONDS) // 1:55 round time
     const [isBombPlanted, setIsBombPlanted] = useState(false)
@@ -340,6 +348,10 @@ export function useLiveMatch(id: string) {
             setIsBombPlanted(Boolean(activeMatchState.isBombPlanted))
             setBombTime(typeof activeMatchState.bombTime === "number" ? activeMatchState.bombTime : BOMB_SECONDS)
             setIsWaitingForStrategy(Boolean(activeMatchState.isWaitingForStrategy))
+            // Restore Tactical Timeout state so a reload mid-match can't mint
+            // extra timeouts (fresh defaults only when the snapshot predates this).
+            setTimeoutsRemaining(typeof activeMatchState.timeoutsRemaining === "number" ? activeMatchState.timeoutsRemaining : 2)
+            setTimeoutBoostRounds(typeof activeMatchState.timeoutBoostRounds === "number" ? activeMatchState.timeoutBoostRounds : 0)
             setOriginalHomePlayers(homePlayers)
             setOriginalAwayPlayers(awayPlayers)
             setIsPlaying(false)
@@ -422,6 +434,8 @@ export function useLiveMatch(id: string) {
             isBombPlanted,
             bombTime,
             isWaitingForStrategy,
+            timeoutsRemaining,
+            timeoutBoostRounds,
             // ActiveMatchState comes from types/game which carries its own
             // legacy Player[] and MatchResult shapes (see ARCHITECTURE.md
             // "Known Type-System Debt"). The runtime values are
@@ -441,7 +455,7 @@ export function useLiveMatch(id: string) {
         }, 500)
 
         return () => clearTimeout(timer)
-    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
+    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
 
     // Index staff by teamId once per `staff` array ref, so each live-match
     // round doesn't re-scan every staff member to build home/away coach/analyst/psych.
@@ -473,6 +487,15 @@ export function useLiveMatch(id: string) {
         if (hPlayers.length === 0 || aPlayers.length === 0) return
 
         const isPlayerHome = homeTeam.id === playerTeam?.id
+
+        // Tactical Timeout (B5): while armed, boost the player's round-win chance
+        // AND neutralise the opponent's momentum (regroup stops their run). The
+        // momentum override is per-round only — persistent sim state is untouched.
+        const boostActive = timeoutBoostRoundsRef.current > 0
+        const activeBoost = boostActive ? 0.06 : 0
+        const homeTacticalBoost = isPlayerHome ? activeBoost : -activeBoost
+        const homeMomentumArg = boostActive && !isPlayerHome ? 0 : currentSimState.homeMomentumScore
+        const awayMomentumArg = boostActive && isPlayerHome ? 0 : currentSimState.awayMomentumScore
 
         let homeStrategy: RoundStrategy
         let awayStrategy: RoundStrategy
@@ -545,12 +568,23 @@ export function useLiveMatch(id: string) {
             homeTeam.id,
             awayTeam.id,
             customTactics,
-            currentSimState.homeMomentumScore,
-            currentSimState.awayMomentumScore,
+            homeMomentumArg,
+            awayMomentumArg,
             hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            currentMapId
+            currentMapId,
+            undefined, // matchStage
+            undefined, // cachedHomeStressRes
+            undefined, // cachedAwayStressRes
+            undefined, // cachedPlayerMap
+            homeTacticalBoost
         )
+
+        // Consume one round of the Tactical Timeout boost (B5).
+        if (timeoutBoostRoundsRef.current > 0) {
+            timeoutBoostRoundsRef.current -= 1
+            setTimeoutBoostRounds(b => Math.max(0, b - 1))
+        }
 
         const appliedEconomy = applyRoundEconomy({
             homeEconomy: hEcon,
@@ -862,6 +896,18 @@ export function useLiveMatch(id: string) {
                 const roundEndMessage = commentaryManager.generate(winType, { team: winnerName })
                 setLogs(prev => [{ type: "ROUND_END", message: `${roundEndMessage} (Winner: ${winnerName})` }, ...prev])
 
+                // Per-round audio feedback for the player's team — the most
+                // repeated beat on the centerpiece screen was silent. Skip the
+                // map-clinching round (it gets the victory/defeat cue below, so
+                // the two don't stack). soundManager self-gates on the setting.
+                const mapClinched = roundState.homeRounds >= 13 || roundState.awayRounds >= 13
+                const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
+                const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide)) {
+                    const playerWonRound = playerIsHomeSide ? isHomeWinner : !isHomeWinner
+                    soundManager.play(playerWonRound ? "roundWin" : "roundLose")
+                }
+
                 if (roundState.homeRounds >= 13 || roundState.awayRounds >= 13) {
                     const homeWonMap = roundState.homeRounds > roundState.awayRounds
                     const newHomeSeries = roundState.homeSeriesScore + (homeWonMap ? 1 : 0)
@@ -1106,6 +1152,17 @@ export function useLiveMatch(id: string) {
         setIsPlaying(true)
     }, [])
 
+    // Tactical Timeout (B5): spend one to arm the boost for the next 2 rounds.
+    const callTimeout = useCallback(() => {
+        if (timeoutsRemaining <= 0) return
+        // Don't burn a charge while a boost is already running — it would just
+        // reset the window to 2 rounds with no added benefit.
+        if (timeoutBoostRoundsRef.current > 0) return
+        setTimeoutsRemaining(t => Math.max(0, t - 1))
+        setTimeoutBoostRounds(2)
+        soundManager.play("notification")
+    }, [timeoutsRemaining])
+
     const handleFinish = useCallback(() => {
         if (!matchData.current) return
         saveMatchResult(matchData.current.match.id, matchData.current.result)
@@ -1139,6 +1196,9 @@ export function useLiveMatch(id: string) {
         simulateRoundInstant,
         simulateMatchInstant,
         handleFinish,
+        timeoutsRemaining,
+        timeoutActive: timeoutBoostRounds > 0,
+        callTimeout,
         customTactics,
         teams, // Should be passed? no used by UI
         updateCustomTactic

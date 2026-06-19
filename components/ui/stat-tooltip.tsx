@@ -65,17 +65,19 @@ export function StatTooltip({
  */
 export function HelpTooltip({
     content,
-    side = 'top'
+    side = 'top',
+    size = 14
 }: {
     content: string
     side?: 'top' | 'right' | 'bottom' | 'left'
+    size?: number
 }) {
     return (
         <TooltipProvider>
             <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
-                    <button type="button" aria-label="Show stat explanation" className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                        <HelpCircle className="w-4 h-4" />
+                    <button type="button" aria-label="Show stat explanation" className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors align-middle">
+                        <HelpCircle size={size} aria-hidden="true" />
                     </button>
                 </TooltipTrigger>
                 <TooltipContent side={side} className="max-w-xs">
@@ -142,7 +144,22 @@ export const StatExplanations = {
     // Team stats
     chemistry: "How well the roster works together (compatibility × stability)",
     prestige: "Team reputation affecting transfers and sponsors",
-    facilities: "Training center quality affecting player development"
+    facilities: "Training center quality affecting player development",
+
+    // Condition & development
+    form: "Your recent results trend — the last few matches. Hot form gives a small momentum edge.",
+    morale: "Player happiness. Low morale hurts performance and can trigger grievances; wins and good treatment raise it.",
+    fatigue: "Tiredness built up from matches and drills. High fatigue raises injury risk and saps performance — rest it off.",
+    energy: "Readiness for the week. Drills and dev matches drain it; rest recovers it.",
+    potential: "The ceiling a young player can grow toward with training. Higher potential = more room to improve.",
+
+    // Competition & business
+    elo: "Hidden skill rating that sets match odds and tournament seeding. Beating stronger teams raises it faster.",
+    worldRanking: "Your global position, derived from Elo. It climbs as you win against ranked opponents.",
+    circuitPoints: "Season-long points earned by placing well at events. They decide Major qualification and seeding.",
+    runway: "How many weeks your cash lasts at the current weekly net. Low runway means act before you go insolvent.",
+    boardConfidence: "How happy the board is with you. It sets your transfer war-chest and, if it bottoms out while you're on notice, your job.",
+    reputation: "Your standing in the scene. Drives sponsor tiers, job offers, and which orgs will hire you."
 }
 
 /**

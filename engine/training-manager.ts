@@ -109,6 +109,20 @@ export class TrainingManager {
       const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
       if (refund > 0) {
         team.budget += refund
+        // Ledger the refund — every budget mutation gets an entry (invariant #5).
+        if (game.financeLedger) {
+          const refundPlayer = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
+          game.financeLedger.push({
+            id: `inc_train_refund_${game.currentWeek}_${team.id}_${playerId}`,
+            week: game.currentWeek,
+            teamId: team.id,
+            type: "INCOME",
+            category: "TRAINING",
+            amount: refund,
+            description: `Role training cancelled — refund: ${refundPlayer?.nickname || 'Player'}`,
+            balance: team.budget,
+          })
+        }
       }
     }
 

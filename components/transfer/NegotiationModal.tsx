@@ -11,6 +11,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
+import { fireConfetti } from "@/lib/confetti-lazy"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider" // Assuming we have or will treat as standard input
 import { Badge } from "@/components/ui/badge"
@@ -259,7 +260,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                 if (result.success) {
                     setNegotiationLog(prev => [...prev, `Player accepted contract!`])
                     setStage("SUCCESS")
-                    addToast({ message: `${playerSave.nickname} signed for ${formatMoney(sanitizedSalary)}/wk`, type: "achievement" })
+                    celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
                 } else {
                     const reason = result.message || "The deal could not be completed."
                     setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
@@ -270,6 +271,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             } else {
                 setNegotiationLog(prev => [...prev, `Player accepted contract!`])
                 setStage("SUCCESS")
+                celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
             }
         } else {
             setNegotiationLog(prev => [...prev, `Player rejected ${formatMoney(sanitizedSalary)}/wk. Minimum expected: ${formatMoney(minimumSalary)}/wk.`])
@@ -280,6 +282,18 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
     const formatMoney = (val: number) => {
         if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`
         return `$${val.toLocaleString()}`
+    }
+
+    // Scale the feedback to the signing: a marquee player (high skill) gets a
+    // blockbuster celebration; everyone else a normal toast (D12). Also fixes the
+    // free-agent path, which used to complete silently.
+    const celebrateSigning = (nickname: string, salary: number, skill: number) => {
+        if ((skill ?? 0) >= 85) {
+            fireConfetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } })
+            addToast({ message: `🌟 Blockbuster signing — ${nickname} joins for ${formatMoney(salary)}/wk!`, type: "achievement" })
+        } else {
+            addToast({ message: `${nickname} signed for ${formatMoney(salary)}/wk`, type: "achievement" })
+        }
     }
 
     return (

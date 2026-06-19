@@ -44,6 +44,7 @@ import {
 import { soundManager } from "@/lib/sound-manager"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { StaffGenerator } from "@/engine/staff-generator"
 import { WeaponMasteryManager, WeaponType } from "@/engine/weapon-mastery-system"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
@@ -58,6 +59,7 @@ import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
 import { SCOUTING_COSTS, ACADEMY_LEVELS, DEV_MATCH_CONFIG, isScoutingTierUnlocked, ENERGY_CONFIG, DEVELOPMENT_CONFIG, ACADEMY_DRILLS, SCOUTING_DURATIONS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyPlayer, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
+import { TrainingFocus } from "@/types"
 import { generateSeed } from "@/engine/rng"
 import { SponsorGenerator } from "@/engine/economy-manager"
 import { applyRosterChangePenalty, applyBootcampChemistryBonus } from "@/engine/chemistry-engine"
@@ -92,6 +94,7 @@ import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-process
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
+import { checkMilestones } from "@/engine/milestone-checker"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
@@ -661,7 +664,7 @@ interface GameStoreActions {
 
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
@@ -2115,9 +2118,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           const rng = new SeededRNG(preTickRng.getState())
 
+          // Passive weekly training for the player's roster. Each player trains
+          // their selected Training Focus (the per-player dropdown); players left
+          // on "Balanced" (the no-specific-focus sentinel) fall through to the
+          // team default regimen below. This Map was previously always empty
+          // (AUDIT_UX G1) — so processTraining iterated zero teams, the focus
+          // dropdown did nothing, and the squad never auto-trained. Scoped to the
+          // player team: the AI world's weekly progression is carried by
+          // processNaturalGrowth (player-lifecycle), so the player still pulls
+          // ahead via training — the documented intent — without rebalancing
+          // every AI roster. Bounded by potential, with fatigue as the brake.
+          const trainingFocus = new Map<string, { focus: TrainingFocus; intensity: number }>()
+          if (state.playerTeamId) {
+            trainingFocus.set(state.playerTeamId, { focus: TrainingFocus.AIM, intensity: 5 })
+          }
+
           const config = {
             playerTeamId: state.playerTeamId || "",
-            trainingFocus: new Map()
+            trainingFocus
           }
 
           // Apply the player's selected "weekly focus" activity (bootcamp,
@@ -2207,23 +2225,63 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // playerTeam — no-ops if the player isn't on a team yet.
             evaluatePostTickAchievements(get() as unknown as GameSave)
 
+            // Career milestones (firsts, round-number totals, streaks). Dedup
+            // against the durable acknowledgedEventIds set — each milestone has a
+            // stable id, so it fires exactly once ever. Toast + acknowledge so the
+            // id persists and it never re-fires.
+            try {
+              const msState = get()
+              const firedIds = new Set<string>([
+                ...msState.acknowledgedEventIds,
+                ...msState.eventsLog.map(e => e.id),
+              ])
+              const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
+              milestones.forEach(ms => {
+                get().addToast({ message: ms.message, type: "achievement" })
+                set((s) => {
+                  s.eventsLog.unshift({
+                    id: ms.id,
+                    week: s.currentWeek,
+                    type: "MILESTONE",
+                    data: { description: ms.message, importance: "MEDIUM" },
+                    acknowledged: true,
+                  })
+                  if (!s.acknowledgedEventIds.includes(ms.id)) s.acknowledgedEventIds.push(ms.id)
+                })
+              })
+            } catch (msErr) {
+              logger.error("[advanceWeek] milestone check failed", msErr)
+            }
+
             // Route transient (one-shot UI) events to in-game toasts and
             // auto-acknowledge so they don't pile up in the inbox.
             const freshState = get()
-            const toastEventTypes = ["TRAINING_COMPLETE", "SPONSOR_OFFER"]
+            const toastEventTypes = ["TRAINING_COMPLETE", "SPONSOR_OFFER", "MANAGER_LEVEL_UP", "PLAYER_LEVEL_UP"]
             const toastEvents = freshState.eventsLog.filter(
-              e => toastEventTypes.includes(e.type as string)
-                && e.week === freshState.currentWeek
+              e => e.week === freshState.currentWeek
                 && !e.acknowledged
+                && (
+                  toastEventTypes.includes(e.type as string)
+                  // Promotion/relegation ride on MEDIA events flagged in data —
+                  // surface the climb beat instead of leaving it silent in the feed.
+                  || (e.type === "MEDIA" && !!((e.data as { isPromotion?: boolean; isRelegation?: boolean })?.isPromotion || (e.data as { isPromotion?: boolean; isRelegation?: boolean })?.isRelegation))
+                )
             )
             toastEvents.forEach(event => {
-              const data = event.data as { title?: string; description?: string; message?: string }
+              const data = event.data as { title?: string; description?: string; message?: string; playerName?: string; newLevel?: number; isPromotion?: boolean; isRelegation?: boolean }
+              const etype = event.type as string
+              const message =
+                etype === "PLAYER_LEVEL_UP" && !data.message && data.playerName
+                  ? `${data.playerName} reached Level ${data.newLevel}!`
+                  : data.title
+                    ? `${data.title}${data.message ? ` — ${data.message}` : ""}`
+                    : data.description || data.message || "Event notification"
               get().addToast({
-                message: data.title
-                  ? `${data.title}${data.message ? ` — ${data.message}` : ""}`
-                  : data.description || data.message || "Event notification",
-                type: event.type === "TRAINING_COMPLETE" ? "level_up"
-                  : event.type === "SPONSOR_OFFER" ? "achievement"
+                message,
+                type: etype === "TRAINING_COMPLETE" || etype === "MANAGER_LEVEL_UP" || etype === "PLAYER_LEVEL_UP" ? "level_up"
+                  : etype === "SPONSOR_OFFER" ? "achievement"
+                  : data.isPromotion ? "achievement"
+                  : data.isRelegation ? "warning"
                   : "info",
               })
               get().acknowledgeEvent(event.id)
@@ -2331,6 +2389,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // error toast and the next autosave retries.
             try {
               await get().saveGame()
+              // Refresh the cross-save career profile (peak level/majors/rank)
+              // so progression survives new games. Fire-and-forget — off the
+              // save critical path; failures are swallowed inside the helper.
+              void recordCareerProgress(get() as unknown as GameSave)
             } catch (saveErr) {
               logger.error("[advanceWeek] post-tick authoritative save failed (week committed in memory)", saveErr)
             }

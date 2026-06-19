@@ -38,7 +38,8 @@ import { PlayerLifecycleManager } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
-import { updateRivalries } from "./history-tracker"
+import { updateRivalries, getRivalryBetween, derbyMultiplier } from "./history-tracker"
+import { psychologistMoraleDampen } from "./staff-specialization"
 import { MatchAnalyzer } from "./match-analyzer"
 import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
@@ -417,6 +418,9 @@ export class AtomicWeekProcessor {
             // Reset daily/weekly counters
             save.teams.forEach(t => {
                 t.trainingSlotsUsed = 0
+                // VOD-review prep applies to the match it was bought for, then
+                // expires — otherwise tacticalPrep accrues to a permanent +25%.
+                t.tacticalPrep = 0
                 processWeeklyChemistryGrowth(t, save.currentWeek)
             })
 
@@ -437,13 +441,14 @@ export class AtomicWeekProcessor {
                 }
 
                 // Manager level scales the player team's max training slots —
-                // 10 baseline + 1 per 5 manager levels, capped at 14 at L20.
-                // This is the player's one tangible reward for levelling:
-                // each milestone unlocks another weekly training slot for
-                // the roster. Synced every week so existing saves heal
-                // naturally on first tick after this lands.
+                // 10 baseline + 1 per 3 manager levels (→ 16 at the L20 cap).
+                // This is the player's main tangible reward for levelling, so it
+                // unlocks on a tighter cadence (every 3 levels, not 5) to feel
+                // like a steady climb (C9). Bounded: extra slots only speed
+                // progress toward potential (drills are potential-capped, G3).
+                // Synced every week so existing saves heal on first tick.
                 const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
-                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 5)
+                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 3)
                 const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
                 const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
                 if (playerTeam && slotIncreased) {
@@ -844,7 +849,20 @@ export class AtomicWeekProcessor {
                 }
             }
 
-            const updateStats = (players: typeof save.players, won: boolean) => {
+            // Phase 11b: Derby stakes — an established rivalry amplifies the morale
+            // swing of the result, both ways. Read the intensity BEFORE
+            // updateRivalries() increments it below, so it reflects the heat
+            // coming INTO the match. Rivalry is symmetric, so the home view suffices.
+            const derbyStakes = derbyMultiplier(getRivalryBetween(homeTeam, awayTeam.id)?.intensity)
+
+            // Psychologist stressResistance softens the morale hit of a defeat
+            // (per team — each side's own staff). 0 when no psychologist.
+            const homeStaff = idx?.staffByTeamId.get(homeTeam.id) ?? save.staff.filter(s => s.teamId === homeTeam.id)
+            const awayStaff = idx?.staffByTeamId.get(awayTeam.id) ?? save.staff.filter(s => s.teamId === awayTeam.id)
+            const homeMoraleDampen = psychologistMoraleDampen(homeStaff)
+            const awayMoraleDampen = psychologistMoraleDampen(awayStaff)
+
+            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number) => {
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
                     p.matchesPlayed++
@@ -860,7 +878,9 @@ export class AtomicWeekProcessor {
                     // Phase 55: Energy drain from matches (-15 per match)
                     p.energy = Math.max(0, (p.energy ?? 100) - 15)
 
-                    p.morale = Math.max(0, Math.min(100, p.morale + getMoraleChange(won)))
+                    let moraleDelta = getMoraleChange(won) * derbyStakes
+                    if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
+                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(moraleDelta)))
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
@@ -872,8 +892,8 @@ export class AtomicWeekProcessor {
                 })
             }
 
-            updateStats(homePlayers, homeWon)
-            updateStats(awayPlayers, !homeWon)
+            updateStats(homePlayers, homeWon, homeMoraleDampen)
+            updateStats(awayPlayers, !homeWon, awayMoraleDampen)
 
             this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
             this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)

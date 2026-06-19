@@ -19,6 +19,7 @@
  */
 
 import type { StaffSaveData } from "../save-types"
+import { getSpecializationMultiplier } from "../staff-specialization"
 
 export function getTacticalBonus(
     teamStaff: StaffSaveData[] | undefined,
@@ -27,11 +28,13 @@ export function getTacticalBonus(
 ): number {
     let bonus = 0
 
-    // 1. Analyst stats — each analyst contributes (stats.analysis ?? 50).
+    // 1. Analyst stats — each analyst contributes (stats.analysis ?? 50),
+    //    scaled by their specialization (a TACTICAL-focused analyst is a "true
+    //    specialist" → +10%; off-domain analysts contribute at face value).
     let statSum = 0
     if (teamStaff) {
         for (const s of teamStaff) {
-            if (s.role === "analyst") statSum += s.stats?.analysis || 50
+            if (s.role === "analyst") statSum += (s.stats?.analysis || 50) * getSpecializationMultiplier(s)
         }
     }
     bonus += (statSum / 100) * 5

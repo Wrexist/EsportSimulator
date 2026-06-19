@@ -443,6 +443,19 @@ export class SponsorGenerator {
       if (tier === "ELITE") baseWeekly *= 3.5
       baseWeekly = Math.floor(baseWeekly)
 
+      // B7: category brand profile — a non-cash weekly trade-off so the choice
+      // isn't just "biggest number". Cash already scales with tier; the brand
+      // decides the side-effects (and betting pays a premium for its baggage).
+      let brandEffect: SponsorSaveData["brandEffect"]
+      if (category === "BETTING") {
+        baseWeekly = Math.floor(baseWeekly * 1.3) // controversial money pays more
+        brandEffect = { reputationPerWeek: -0.3, moralePerWeek: -0.3 }
+      } else if (category === "ENERGY") {
+        brandEffect = { followerGrowthPerWeek: 300 }
+      } else if (category === "LIFESTYLE") {
+        brandEffect = { followerGrowthPerWeek: 500, reputationPerWeek: 0.2, moralePerWeek: 0.2 }
+      } // TECH stays neutral
+
       // Contract duration: 12-52 weeks
       let duration: number
       if (tier === "ELITE") duration = offerRng.int(36, 52)
@@ -467,7 +480,8 @@ export class SponsorGenerator {
         weeklyPayout: baseWeekly,
         remainingWeeks: duration,
         requirements: req,
-        goals
+        goals,
+        brandEffect
       }
     })
   }

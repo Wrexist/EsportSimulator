@@ -24,7 +24,7 @@ import {
     Crown,
     Package,
     Award,
-    Monitor,
+    Inbox,
     Swords,
     Handshake,
     GraduationCap,
@@ -51,7 +51,7 @@ const menuGroups: MenuGroup[] = [
         label: "Overview",
         items: [
             { icon: Home, label: "Home", href: "/" },
-            { icon: Monitor, label: "Desktop", href: "/desktop" },
+            { icon: Inbox, label: "Inbox", href: "/desktop?app=mail" },
             { icon: Calendar, label: "Schedule", href: "/schedule" },
         ]
     },
@@ -139,11 +139,13 @@ export function Sidebar() {
     }, [])
 
     const groupContainsActive = useCallback((group: MenuGroup) => {
-        return group.items.some(item => pathname === item.href)
+        return group.items.some(item => pathname === item.href.split("?")[0])
     }, [pathname])
 
     const renderLink = (item: MenuItem) => {
-        const isActive = pathname === item.href
+        // Compare against the path portion so query-string hrefs (e.g. the
+        // Inbox → /desktop?app=mail entry) still match the active route.
+        const isActive = pathname === item.href.split("?")[0]
         return (
             <Link
                 key={item.href}

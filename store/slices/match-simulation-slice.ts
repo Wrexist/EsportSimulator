@@ -60,7 +60,7 @@ const NEWS_FEED_CAP = 50
 export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
     saveMatchResult: (matchId: string, result: any) => void
-    simulateInstantMatch: (matchId: string) => Promise<void>
+    simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
 }
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
@@ -527,7 +527,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         })
     },
 
-    simulateInstantMatch: async (matchId: string) => {
+    simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {
         const state = get()
         const match = state.scheduledMatches.find(m => m.id === matchId)
         if (!match) return
@@ -609,10 +609,20 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             bestOf,
         }
 
+        // B4 differential: a one-click dashboard Quick-Sim skips the match-day
+        // prep flow, so the player's team forgoes a small edge. Applied to a
+        // transient copy only (never persisted); opponents and prepared players
+        // (tactics-page "simulate instead", which passes no flag) are untouched.
+        const QUICK_SIM_PREP_PENALTY = 0.04
+        const withPrepPenalty = (team: typeof hTeam) =>
+            opts.skippedPrep && team.id === state.playerTeamId
+                ? { ...team, prepPenalty: QUICK_SIM_PREP_PENALTY }
+                : team
+
         const result = simulationEngineV2.simulateMatch(
             runtimeMatch,
-            hTeam as unknown as Team,
-            aTeam as unknown as Team,
+            withPrepPenalty(hTeam) as unknown as Team,
+            withPrepPenalty(aTeam) as unknown as Team,
             hPlayers,
             aPlayers,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

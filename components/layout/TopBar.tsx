@@ -14,6 +14,7 @@ import { motion } from "framer-motion"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { getTeamColors } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 
 // Hoisted: this lookup was being rebuilt as a fresh object on every TopBar
 // render (which fires on every game tick).
@@ -128,9 +129,17 @@ export function TopBar() {
                     <div className="p-1 rounded-md bg-emerald-400/[0.14] text-emerald-300">
                         <DollarSign size={14} />
                     </div>
-                    <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
-                        ${budget.toLocaleString()}
-                    </span>
+                    {isMounted ? (
+                        <AnimatedNumber
+                            value={budget}
+                            format={(n) => `$${Math.round(n).toLocaleString()}`}
+                            className="text-sm font-medium text-emerald-400"
+                        />
+                    ) : (
+                        <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
+                            ${budget.toLocaleString()}
+                        </span>
+                    )}
                 </div>
 
                 {/* World Ranking */}

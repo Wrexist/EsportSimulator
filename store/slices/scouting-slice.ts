@@ -10,6 +10,8 @@
  */
 
 import type { ScoutingActions, SliceCreator } from "@/store/types"
+import { getSpecializationMultiplier } from "@/engine/staff-specialization"
+import { nextDeterministicId } from "@/store/utils/helpers"
 
 const SCOUTING_COST_BASIC = 3000
 
@@ -39,10 +41,15 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
                 return
             }
 
-            // Scout level determines duration: higher level = faster scouting.
+            // Scout level sets the base duration (L1=4wk … L4+=1wk); a high
+            // scoutingSpeed stat (× specialist bonus) shaves up to 2 more weeks.
             // L1=4wk, L2=3wk, L3=2wk, L4+=1wk
             const scoutLevel = scoutStaff?.level ?? 1
-            const duration = Math.max(1, 5 - scoutLevel)
+            const scoutSpeed = scoutStaff
+                ? (scoutStaff.stats?.scoutingSpeed ?? 0) * getSpecializationMultiplier(scoutStaff)
+                : 0
+            const speedBonus = Math.floor(scoutSpeed / 50) // 0–2 weeks faster
+            const duration = Math.max(1, 5 - scoutLevel - speedBonus)
 
             state.activeScoutingMission = {
                 playerId,
@@ -52,6 +59,19 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
             }
 
             team.budget -= SCOUTING_COST_BASIC
+            // Economy invariant #5: the $3000 scouting fee must hit the ledger
+            // (it silently vanished from the books before). One-time player
+            // action, so a deterministic id is enough — no replay dedup needed.
+            state.financeLedger.push({
+                id: nextDeterministicId(state, "fin_scouting", playerId),
+                week: state.currentWeek,
+                teamId: team.id,
+                type: "EXPENSE",
+                category: "OTHER",
+                amount: SCOUTING_COST_BASIC,
+                description: "Scouting Mission",
+                balance: team.budget,
+            })
         })
     },
 

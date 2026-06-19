@@ -8,6 +8,7 @@ import { PlayerSignatureMoments } from "@/components/player/PlayerSignatureMomen
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerPortrait } from "@/components/ui/asset-images"
+import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
 
 // Three.js bundle (~150KB gzipped) is lazy-loaded so non-detail routes never
 // pay for it. SSR is disabled because R3F creates a real WebGL context.
@@ -373,7 +374,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                 <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-colors">
                         <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase font-normal tracking-widest mb-1.5 opacity-60">
-                            <TrendingUp size={10} /> Potential
+                            <TrendingUp size={10} /> Potential <HelpTooltip content={StatExplanations.potential} size={11} />
                         </div>
                         <div className="text-xl font-normal text-white">{player.potential || evaluation.futureValue}</div>
                     </div>
@@ -387,7 +388,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                     </div>
                     <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-colors">
                         <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase font-normal tracking-widest mb-1.5 opacity-60">
-                            <Activity size={10} /> Form
+                            <Activity size={10} /> Form <HelpTooltip content={StatExplanations.form} size={11} />
                         </div>
                         <div className={cn(
                             "text-xl font-normal",
@@ -398,7 +399,7 @@ export function PlayerDetail({ player }: PlayerDetailProps) {
                     </div>
                     <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-colors relative">
                         <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase font-normal tracking-widest mb-1.5 opacity-60">
-                            <Zap size={10} /> Energy
+                            <Zap size={10} /> Energy <HelpTooltip content={StatExplanations.energy} size={11} />
                         </div>
                         <div className={cn(
                             "text-xl font-normal",

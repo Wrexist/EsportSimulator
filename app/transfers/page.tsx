@@ -22,6 +22,7 @@ import {
   GlassStatCell
 } from "@/components/ui/GlassTable"
 import { motion } from "framer-motion"
+import { LoadingState } from "@/components/ui/loading"
 import {
   Tooltip,
   TooltipContent,
@@ -118,14 +119,7 @@ function TransfersPageInner() {
         </div>
       )
     }
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Market Data...</p>
-        </div>
-      </div>
-    )
+    return <LoadingState message="Loading Market Data…" size="lg" className="min-h-[50vh]" />
   }
 
   const getTeamForPlayer = (playerId: string) => {
@@ -168,14 +162,12 @@ function TransfersPageInner() {
     <div className="space-y-8">
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-1"
-        >
+        {/* No entry animation here — GameShell applies a single uniform page
+            entrance; a second one double-animates (forbidden by the shell). */}
+        <div className="space-y-1">
           <h1 className="text-3xl font-normal liquid-text tracking-tighter uppercase">Scouting & Transfers</h1>
-          <p className="text-muted-foreground font-medium text-sm">Discover and negotiate with the world's best talent.</p>
-        </motion.div>
+          <p className="text-muted-foreground font-medium text-sm">Discover and negotiate with the world&apos;s best talent.</p>
+        </div>
 
         {/* Filters & Search */}
         <div className="flex items-center gap-3">

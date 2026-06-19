@@ -4,6 +4,7 @@ import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
 import { getStaffPassiveBonuses, getPlayerPassiveBonuses } from "../talent-trees"
+import { getSpecializationMultiplier } from "../staff-specialization"
 import type { SaveIndexes } from "@/store/indexes"
 
 export class TrainingProcessor {
@@ -31,7 +32,9 @@ export class TrainingProcessor {
             let staffTrainingEfficiency = 0
             let staffTacticMastery = 0
             for (const s of teamStaff) {
-                if (s.role === "coach") developmentStatSum += s.stats?.development || 50
+                // A DEVELOPMENT-focused coach is a "true specialist" (+10%);
+                // off-domain coaches contribute at face value.
+                if (s.role === "coach") developmentStatSum += (s.stats?.development || 50) * getSpecializationMultiplier(s)
                 const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
                 staffTrainingEfficiency += bonuses["training_efficiency"] || 0
                 staffTacticMastery += bonuses["tactic_mastery"] || 0
@@ -131,7 +134,8 @@ export class TrainingProcessor {
                 let psychRecoveryBonus = 0
                 for (const s of teamStaff) {
                     if (s.role !== "psychologist") continue
-                    psychStatSum += s.stats?.mentalRecovery || 50
+                    // MENTAL-focused psychologist is a "true specialist" (+10%).
+                    psychStatSum += (s.stats?.mentalRecovery || 50) * getSpecializationMultiplier(s)
                     const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
                     psychRecoveryBonus += bonuses["recovery_amount"] || 0
                 }

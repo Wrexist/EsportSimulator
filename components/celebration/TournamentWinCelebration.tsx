@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { panelTransition } from "@/lib/motion"
+import { soundManager } from "@/lib/sound-manager"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 
 interface TournamentWinCelebrationProps {
     data: {
@@ -28,6 +30,10 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
 
     useEffect(() => {
         setMounted(true)
+
+        // The peak moment of the game — give it fanfare. soundManager self-gates
+        // on the user's sound setting, and sound is independent of reduced-motion.
+        soundManager.play("victory")
 
         // Skip the 5s confetti barrage entirely for users who set
         // prefers-reduced-motion — the celebration card itself still
@@ -161,7 +167,9 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 </div>
                                 <div className="text-left">
                                     <p className="text-[10px] font-normal text-white/30 uppercase tracking-widest mb-1">PRIZE MONEY</p>
-                                    <p className="text-2xl font-normal text-white">${data.prize.toLocaleString()}</p>
+                                    <p className="text-2xl font-normal text-white">
+                                        <AnimatedNumber value={data.prize} animateOnMount duration={1400} format={(n) => `$${Math.round(n).toLocaleString()}`} />
+                                    </p>
                                 </div>
                             </motion.div>
 

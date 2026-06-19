@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
+import { isSpecialist } from "@/engine/staff-specialization"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -377,6 +378,20 @@ export default function StaffPage() {
                                         <Badge variant="secondary" className="text-[10px] h-5">
                                             {s.specialization}
                                         </Badge>
+                                        {isSpecialist(s) && (
+                                            <Badge
+                                                variant="outline"
+                                                className="text-[9px] h-5 border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                                                title={`Specialist: +10% ${
+                                                    s.role === "coach" ? "training"
+                                                        : s.role === "analyst" ? "tactical"
+                                                            : s.role === "psychologist" ? "recovery"
+                                                                : "scouting"
+                                                } effectiveness`}
+                                            >
+                                                ★ Specialist
+                                            </Badge>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -180,6 +180,7 @@ export interface Team {
   // Phase 20: Tactical Perfection
   playstyle?: "balanced" | "aggressive" | "structured" | "default"
   tacticalPrep?: number // 0-100 bonus from VOD reviews
+  prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
   economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
   targetPlayerId?: string // Phase 60: Antistratting - targeted enemy player
 }
@@ -552,4 +553,8 @@ export interface ActiveMatchState {
   originalHomePlayers: Player[]
   originalAwayPlayers: Player[]
   matchResult: MatchResult
+  // Tactical Timeout (B5) — checkpointed so reload/resume can't mint extra
+  // timeouts. Optional for backward compat with snapshots saved before this.
+  timeoutsRemaining?: number
+  timeoutBoostRounds?: number
 }

@@ -6,6 +6,7 @@ import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
+import { LoadingState } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
@@ -25,6 +26,7 @@ import {
 import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -103,9 +105,15 @@ export default function TeamSelectionPage() {
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [isStarting, setIsStarting] = useState(false)
 
-    // Career Mode State
-    const managerLevel = 1
+    // Career Mode State — gated by the player's all-time peak manager level
+    // (cross-save profile), so levels earned in past careers unlock bigger orgs
+    // in new ones. Was hardcoded to 1, which left every above-Rookie team locked.
+    const [managerLevel, setManagerLevel] = useState(1)
     const [sandboxMode, setSandboxMode] = useState(false)
+
+    useEffect(() => {
+        loadCareerProfile().then(p => setManagerLevel(Math.max(1, p.peakLevel))).catch(() => { })
+    }, [])
 
     // Load snapshot data
     useEffect(() => {
@@ -283,8 +291,9 @@ export default function TeamSelectionPage() {
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
             await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id)
+            void recordNewCampaign()
             // Use client-side navigation to preserve store state
-            router.push("/desktop")
+            router.push("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
             toast.error("Failed to start game", {
@@ -297,12 +306,7 @@ export default function TeamSelectionPage() {
     // Loading state
     if (isDataLoading) {
         return (
-            <div className="min-h-screen liquid-app-bg flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Loading Teams...</p>
-                </div>
-            </div>
+            <LoadingState message="Loading Teams…" size="lg" fullScreen />
         )
     }
 
@@ -643,7 +647,7 @@ export default function TeamSelectionPage() {
                                             <p className="text-[10px] font-normal text-white uppercase tracking-widest">Locked</p>
                                             <div className="flex items-center gap-1.5 mt-1 bg-white/10 px-2 py-1 rounded text-[9px] font-bold text-primary-foreground">
                                                 <Briefcase size={10} />
-                                                REQ. LEVEL {requiredLevel}
+                                                MANAGER LVL {requiredLevel}
                                             </div>
                                         </div>
                                     )}

@@ -48,6 +48,7 @@ import { Taskbar } from "@/components/ui/Taskbar"
 
 // Desktop Apps
 import { MailApp } from "@/components/desktop-apps/MailApp"
+import { getEventTitle } from "@/lib/event-format"
 import { SocialApp } from "@/components/desktop-apps/SocialApp"
 import { MarketApp } from "@/components/desktop-apps/MarketApp"
 import { CalendarApp } from "@/components/desktop-apps/CalendarApp"
@@ -58,7 +59,6 @@ import { FinanceApp } from "@/components/desktop-apps/FinanceApp"
 import { AcademyApp } from "@/components/desktop-apps/AcademyApp"
 import { ProAwardsModal } from "@/components/celebration/ProAwardsModal"
 import { SeasonRecapModal } from "@/components/celebration/SeasonRecapModal"
-import { TutorialOverlay } from "@/components/ui/TutorialOverlay"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 
 type AppId = "mail" | "social" | "market" | "calendar" | "news" | "shop" | "facilities" | "finance" | "academy"
@@ -454,34 +454,8 @@ function DesktopContent() {
   }, [selectedEventId])
 
   // Event helpers
-  const getEventTitle = useCallback((event: GameEventSaveData) => {
-    const data = event.data as any
-    const type = event.type as string
-    switch (type) {
-      case "CONTRACT": return "Contract Expiry"
-      case "MORALE": return "Internal Morale"
-      case "INJURY": return data.fatigue ? "Fatigue Warning" : "Medical Report"
-      case "FINANCE": return "Finance Dept"
-      case "win_streak": return "Performance"
-      case "loss_streak": return "Performance"
-      case "TRANSFER_OFFER": return "Transfer Offer"
-      case "TRANSFER_WINDOW": return "Transfer Market"
-      case "ROSTER_UPDATE": return "Roster News"
-      case "AI_SIGNING": return "New Signing"
-      case "AI_TRANSFER": return "Transfer Alert"
-      case "RETIREMENT": return "Retirement News"
-      case "JOB_OFFER": return "Job Offer"
-      case "CAREER_UPDATE": return "Career Update"
-      case "TOURNAMENT": return "Tournament"
-      case "MEDIA":
-        // Check for Pro awards
-        if ((data as any)?.proAwards) {
-          return `🏆 Pro Top 20 of ${(data as any).proAwards.year}`
-        }
-        return data.title || "Media Update"
-      default: return data.title || "Notification"
-    }
-  }, [])
+  // getEventTitle now lives in @/lib/event-format (shared with the dashboard
+  // Action Center) so the two surfaces can't drift.
 
   const getEventDescription = useCallback((event: GameEventSaveData) => {
     const data = event.data as any
@@ -990,7 +964,6 @@ function DesktopContent() {
         year={pendingSeasonRecap || 0}
         stats={seasonRecapStats!}
       />
-      <TutorialOverlay />
       <DesktopOverlay>
         <div className="relative w-full h-full overflow-hidden">
           {/* Animated Background */}
@@ -998,22 +971,25 @@ function DesktopContent() {
 
           {/* Desktop Icons */}
           <div className="absolute top-4 left-4 grid grid-rows-6 grid-flow-col gap-3 z-10">
-            {[
+            {/* mail/social/news open in-window (no standalone route); the rest
+                deep-link to their canonical sidebar pages so there's one
+                implementation per feature (AUDIT_UX_2026-06 A1). */}
+            {([
               { id: "mail" as AppId, icon: <Mail size={24} />, label: "Mail" },
               { id: "social" as AppId, icon: <Hash size={24} />, label: "Social" },
-              { id: "market" as AppId, icon: <TrendingUp size={24} />, label: "Market" },
-              { id: "calendar" as AppId, icon: <Calendar size={24} />, label: "Calendar" },
               { id: "news" as AppId, icon: <Newspaper size={24} />, label: "News" },
-              { id: "shop" as AppId, icon: <ShoppingBag size={24} />, label: "Shop" },
-              { id: "facilities" as AppId, icon: <Building2 size={24} />, label: "Facilities" },
-              { id: "finance" as AppId, icon: <DollarSign size={24} />, label: "Finance" },
-              { id: "academy" as AppId, icon: <GraduationCap size={24} />, label: "Academy" },
-            ].map(app => (
+              { id: "market" as AppId, icon: <TrendingUp size={24} />, label: "Market", route: "/transfers" },
+              { id: "calendar" as AppId, icon: <Calendar size={24} />, label: "Calendar", route: "/schedule" },
+              { id: "shop" as AppId, icon: <ShoppingBag size={24} />, label: "Shop", route: "/equipment" },
+              { id: "facilities" as AppId, icon: <Building2 size={24} />, label: "Facilities", route: "/basecamp" },
+              { id: "finance" as AppId, icon: <DollarSign size={24} />, label: "Finance", route: "/finances" },
+              { id: "academy" as AppId, icon: <GraduationCap size={24} />, label: "Academy", route: "/academy" },
+            ] as { id: AppId; icon: JSX.Element; label: string; route?: string }[]).map(app => (
               <motion.button
                 key={app.id}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => openWindow(app.id)}
+                onClick={() => app.route ? router.push(app.route) : openWindow(app.id)}
                 className="flex flex-col items-center gap-1 p-3 rounded-lg hover:bg-white/[0.07] transition-colors group"
               >
                 <div className={cn(

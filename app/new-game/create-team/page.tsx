@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { motion, AnimatePresence } from "framer-motion"
+import { HelpTooltip } from "@/components/ui/stat-tooltip"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -273,7 +274,7 @@ export default function CreateTeamPage() {
     // Handle roster builder completion
     const handleRosterComplete = () => {
         setShowRosterBuilder(false)
-        router.push("/desktop")
+        router.push("/")
     }
 
     // Render step content
@@ -524,6 +525,23 @@ export default function CreateTeamPage() {
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-normal text-white mb-2">Select Difficulty</h2>
                             <p className="text-muted-foreground">This affects your starting budget and progression</p>
+                            {/* Explain the three tile stats at the commitment moment (E6).
+                                Tooltips live here, outside the difficulty <button>s, so we
+                                don't nest interactive triggers inside a button. */}
+                            <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-muted-foreground">
+                                <span className="inline-flex items-center gap-1">
+                                    Budget
+                                    <HelpTooltip size={12} content="Your starting cash — it funds player salaries, transfer fees, and facility upgrades. Harder difficulties start you with less." />
+                                </span>
+                                <span className="inline-flex items-center gap-1">
+                                    Reputation
+                                    <HelpTooltip size={12} content="Your org's standing in the scene. Higher reputation attracts better players and stronger sponsor offers." />
+                                </span>
+                                <span className="inline-flex items-center gap-1">
+                                    Income
+                                    <HelpTooltip size={12} content="A multiplier on all income — prize money, sponsors, and merch. Below 1.0× on harder difficulties." />
+                                </span>
+                            </div>
                         </div>
 
                         <div className="space-y-3">

@@ -793,7 +793,12 @@ export class SimulationEngineV2 {
         matchStage?: string,
         cachedHomeStressRes?: number,
         cachedAwayStressRes?: number,
-        cachedPlayerMap?: Map<string, Player>
+        cachedPlayerMap?: Map<string, Player>,
+        /** Live-match Tactical Timeout (B5): a bounded additive to the home side's
+         *  round-win probability. Default 0 — quick-sim and the orchestrator's own
+         *  calls don't pass it, so they stay byte-identical. Applied before the
+         *  [0.1,0.9] clamp and consumes no RNG (rng.bool draws once regardless). */
+        homeTacticalBoost: number = 0
     ): RoundSimulationResult {
         // Pre-built lookup set for O(1) home-player checks
         const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
@@ -959,6 +964,10 @@ export class SimulationEngineV2 {
                 homeWinProb += T_SIDE_ADVANTAGE
             }
         }
+
+        // Live-match Tactical Timeout (B5) — player tactical input, bounded by
+        // the clamp below.
+        if (homeTacticalBoost) homeWinProb += homeTacticalBoost
 
         // Clamp probability
         homeWinProb = Math.max(0.1, Math.min(0.9, homeWinProb))

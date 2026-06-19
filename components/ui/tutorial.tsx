@@ -142,7 +142,7 @@ export const newGameTutorial: TutorialStep[] = [
                     <li><strong>Entry Fragger:</strong> First into bombsites</li>
                     <li><strong>IGL:</strong> Calls the strategies</li>
                     <li><strong>Support:</strong> Utilities expert</li>
-                    <li><strong>Lurker:</strong> Flanking specialist</li>
+                    <li><strong>Rifler:</strong> Versatile fragger</li>
                 </ul>
             </div>
         )

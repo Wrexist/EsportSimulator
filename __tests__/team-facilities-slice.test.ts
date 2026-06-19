@@ -85,6 +85,11 @@ describe("upgradeFacility", () => {
         expect(after.facilities![0].type).toBe("TRAINING")
         expect(after.facilities![0].level).toBe(1)
         expect(after.budget).toBe(100_000 - 10_000)
+        // Economy invariant #5: the build cost is on the books.
+        const row = h.state().financeLedger.find(e => e.description.includes("Construction"))
+        expect(row).toBeDefined()
+        expect(row!.amount).toBe(10_000)
+        expect(row!.category).toBe("FACILITIES")
     })
 
     test("upgrade path: existing level-N facility goes to N+1 for level * $25k", () => {
