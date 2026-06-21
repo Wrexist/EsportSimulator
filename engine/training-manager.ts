@@ -109,8 +109,9 @@ export class TrainingManager {
     // same week minted weeklyCost*totalWeeks*0.5 for $0 paid. Basing the refund on
     // weeksCompleted caps it at half of what was actually charged → always a net
     // loss, never farmable.
+    let refund = 0
     if (cancelled) {
-      const refund = Math.floor(cancelled.weeklyCost * cancelled.weeksCompleted * 0.5)
+      refund = Math.floor(cancelled.weeklyCost * cancelled.weeksCompleted * 0.5)
       if (refund > 0) {
         team.budget += refund
         // Ledger the refund — every budget mutation gets an entry (invariant #5).
@@ -133,8 +134,7 @@ export class TrainingManager {
     // Training CANCEL event (only for player's own team)
     if (cancelled && teamId === game.playerTeamId) {
       const player = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
-      const weeksRemaining = cancelled.totalWeeks - cancelled.weeksCompleted
-      const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
+      // Reuse the same refund credited above so the notification matches the books.
       game.eventsLog.unshift({
         id: `training_cancel_${game.currentWeek}_${playerId}`,
         week: game.currentWeek,

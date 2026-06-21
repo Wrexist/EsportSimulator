@@ -65,7 +65,18 @@ export class LocalStorageAdapter implements AsyncStorage {
     }
 
     async setItem(key: string, value: string): Promise<void> {
-        const storage = this.getStorage()
+        // Access storage directly rather than via getStorage(): getStorage()'s
+        // probe write can itself throw QuotaExceededError when storage is full,
+        // be swallowed, and return null — which would route this write into the
+        // volatile memory fallback while reporting success (silent data loss).
+        // Accessing window.localStorage can still throw (private mode / cookies
+        // off), so guard the access; the real write below surfaces quota errors.
+        let storage: Storage | null = null
+        try {
+            storage = typeof window !== "undefined" ? window.localStorage : null
+        } catch {
+            storage = null
+        }
         if (storage) {
             try {
                 storage.setItem(key, value)

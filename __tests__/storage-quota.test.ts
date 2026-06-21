@@ -67,5 +67,17 @@ describe("storage quota handling", () => {
 
             await expect(adapter.setItem("save", "x".repeat(100))).resolves.toBeUndefined()
         })
+
+        it("propagates quota even when the very first/small write fails (probe path)", async () => {
+            // Storage so full that even a tiny write throws. setItem must surface it
+            // rather than be masked by the availability probe and fall to memory.
+            const ls = mockLocalStorage(() => {})
+            ls.setItem = () => { throw quotaError() } // every write throws, probe-sized included
+            ;(global as { window?: unknown }).window = { localStorage: ls }
+            const adapter = new LocalStorageAdapter()
+
+            await expect(adapter.setItem("save", "x")).rejects.toThrow()
+            expect(await adapter.getItem("save")).toBeNull()
+        })
     })
 })

@@ -79,6 +79,12 @@ async function defringe(inFile, outFile) {
     }
   } else if (args[0] === '--apply') {
     const thr = parseFloat(args[1] || '0.18');
+    if (!Number.isFinite(thr) || thr < 0 || thr > 1) {
+      // A NaN threshold makes `lr.r <= thr` always false → every portrait gets
+      // rewritten. Refuse rather than silently mangle the whole asset set.
+      console.error('Invalid threshold. Use a number between 0 and 1.');
+      process.exit(1);
+    }
     const files = execSync("find public/assets/teams -path '*/players/*.png'").toString().trim().split('\n');
     let done = 0;
     for (const f of files) {

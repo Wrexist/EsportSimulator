@@ -32,6 +32,10 @@ const id = fs.readFileSync(file, "utf8").trim()
 if (!/^\d+$/.test(id)) {
     fail(`steam_appid.txt must contain a numeric App ID (got "${id}").`)
 }
+if (Number(id) <= 0) {
+    // electron/steam.js treats only > 0 as a real App ID; "0" would still ship broken.
+    fail(`steam_appid.txt must contain a positive App ID (got "${id}").`)
+}
 if (id === SPACEWAR_APP_ID) {
     fail(
         "steam_appid.txt still contains the Spacewar test App ID (480).\n" +
