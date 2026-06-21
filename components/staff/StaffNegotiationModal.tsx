@@ -290,7 +290,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     <div className="flex justify-between items-center px-2">
                                         <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                             Team Budget: <span className={cn(myTeam && myTeam.budget < signingBonus ? "text-rose-400" : "text-emerald-400")}>
-                                                ${myTeam?.budget.toLocaleString()}
+                                                ${myTeam?.budget?.toLocaleString() ?? "0"}
                                             </span>
                                         </div>
                                     </div>

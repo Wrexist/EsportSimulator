@@ -196,7 +196,11 @@ export function useLiveMatch(id: string) {
         playerMapRef.current = playerMap as Map<string, typeof players[0]>
         const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
-        if (homePlayers.length === 0 || awayPlayers.length === 0) return
+        // Need a full 5 a side: simulateMatch's pickWeighted throws on an empty
+        // pool, and a 3v5 isn't a real match. The week tick forfeits understrength
+        // rosters (match-forfeit.ts); here we just don't init (chrome stays, so the
+        // player can leave and advance the week to resolve it by forfeit).
+        if (homePlayers.length < 5 || awayPlayers.length < 5) return
 
         // All match data resolved — commit init exactly once. The flag is set
         // HERE, not before the guards above: on the first render the store may
