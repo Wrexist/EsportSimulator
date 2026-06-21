@@ -18,7 +18,25 @@ export interface AsyncStorage {
     getAllKeys(): Promise<string[]>
 }
 
-class LocalStorageAdapter implements AsyncStorage {
+/**
+ * True for "storage is full" errors across engines. These must NOT be swallowed
+ * into the volatile in-memory fallback: a write that only reaches memory would
+ * still pass SaveManager's read-back verification and report a successful save,
+ * then vanish on app close (silent progress loss). Propagating the error instead
+ * lets saveGame() return {success:false} so the UI can warn the player.
+ */
+export function isQuotaError(err: unknown): boolean {
+    if (!err || typeof err !== "object") return false
+    const e = err as { name?: string; code?: number }
+    return (
+        e.name === "QuotaExceededError" ||
+        e.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+        e.code === 22 ||
+        e.code === 1014
+    )
+}
+
+export class LocalStorageAdapter implements AsyncStorage {
     private memory = new Map<string, string>()
 
     private getStorage(): Storage | null {
@@ -47,13 +65,27 @@ class LocalStorageAdapter implements AsyncStorage {
     }
 
     async setItem(key: string, value: string): Promise<void> {
-        const storage = this.getStorage()
+        // Access storage directly rather than via getStorage(): getStorage()'s
+        // probe write can itself throw QuotaExceededError when storage is full,
+        // be swallowed, and return null — which would route this write into the
+        // volatile memory fallback while reporting success (silent data loss).
+        // Accessing window.localStorage can still throw (private mode / cookies
+        // off), so guard the access; the real write below surfaces quota errors.
+        let storage: Storage | null = null
+        try {
+            storage = typeof window !== "undefined" ? window.localStorage : null
+        } catch {
+            storage = null
+        }
         if (storage) {
             try {
                 storage.setItem(key, value)
                 this.memory.delete(key)
                 return
             } catch (err) {
+                // A full quota is a real, surfaceable failure — don't mask it as a
+                // successful write into volatile memory (silent data loss).
+                if (isQuotaError(err)) throw err
                 logger.warn("[Storage] localStorage setItem failed, using memory fallback:", err)
             }
         }
@@ -257,6 +289,12 @@ class IndexedDBAdapter implements AsyncStorage {
                 transaction.onerror = () => reject(transaction.error ?? new Error("[Storage] setItem transaction failed"))
             })
         } catch (err) {
+            // Out of disk/quota: the DB is fine for reads, it's just full. Propagate
+            // so the save is reported as failed instead of silently dropped into the
+            // volatile memory fallback (which read-back verification would still pass,
+            // hiding the loss). Do NOT latch dbFailed here — that would also route all
+            // subsequent reads to the empty memory map and hide existing on-disk saves.
+            if (isQuotaError(err)) throw err
             if (process.env.NODE_ENV !== 'production') {
                 logger.error("[Storage] IndexedDB setItem failed, falling back:", err)
             }

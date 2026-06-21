@@ -13,7 +13,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Denmark",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Zonix.svg",
     "rarity": "Legendary",
     "salaryTier": "Very High",
     "stats": {
@@ -34,7 +33,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Sweden",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Xyzt.svg",
     "rarity": "Epic",
     "salaryTier": "High",
     "stats": {
@@ -55,7 +53,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Finland",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Scythe.svg",
     "rarity": "Epic",
     "salaryTier": "High",
     "stats": {
@@ -76,7 +73,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Canada",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Vigil.svg",
     "rarity": "Rare",
     "salaryTier": "Medium",
     "stats": {
@@ -97,7 +93,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Denmark",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Garrick.svg",
     "rarity": "Rare",
     "salaryTier": "Medium",
     "stats": {
@@ -118,7 +113,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Serbia",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Emir.svg",
     "rarity": "Common",
     "salaryTier": "Low",
     "stats": {
@@ -139,7 +133,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Denmark",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Revin.svg",
     "rarity": "Common",
     "salaryTier": "Low",
     "stats": {
@@ -160,7 +153,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "France",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Kruzzz.svg",
     "rarity": "Epic",
     "salaryTier": "High",
     "stats": {
@@ -181,7 +173,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Ukraine",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Bl4dr.svg",
     "rarity": "Legendary",
     "salaryTier": "Very High",
     "stats": {
@@ -202,7 +193,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Sweden",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Ronnik.svg",
     "rarity": "Legendary",
     "salaryTier": "Very High",
     "stats": {
@@ -223,7 +213,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Denmark",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Myther.svg",
     "rarity": "Rare",
     "salaryTier": "Medium",
     "stats": {
@@ -244,7 +233,6 @@ export const LEGACY_STAFF_POOL: Partial<StaffSaveData>[] = [
     "yearsRemaining": 1,
     "nationality": "Serbia",
     "description": "Known for balanced play",
-    "portraitPath": "/assets/staff/coaches/Kasparr.svg",
     "rarity": "Rare",
     "salaryTier": "Medium",
     "stats": {

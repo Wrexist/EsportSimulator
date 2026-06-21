@@ -79,6 +79,24 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
         myTeam.reputation = Math.min(100, (myTeam.reputation || 0) + activity.effects.reputation)
     }
 
+    // Activity income (e.g. STREAMING). The UI advertises this amount but the
+    // processor previously never granted it — a broken promise. Bounded and
+    // non-farmable: the player picks exactly one weekly focus, so it's at most
+    // this once per week. Ledgered like every other budget mutation (invariant #5).
+    if (activity.effects.money && activity.effects.money > 0) {
+        myTeam.budget += activity.effects.money
+        save.financeLedger.push({
+            id: ctx.nextId(save, "fin_activity_inc", activity.type),
+            teamId: myTeam.id,
+            type: "INCOME",
+            amount: activity.effects.money,
+            category: "OTHER",
+            week: save.currentWeek,
+            description: `Activity income: ${activity.name}`,
+            balance: myTeam.budget,
+        })
+    }
+
     save.eventsLog.unshift({
         id: ctx.nextId(save, "evt_activity", activity.type),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

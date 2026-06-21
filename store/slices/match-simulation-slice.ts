@@ -565,6 +565,14 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
             return
         }
+        // Either roster understrength (e.g. the opponent got gutted by injuries /
+        // retirements): refuse rather than let simulateMatch crash pickWeighted
+        // ("No players to pick from"). Advancing the week forfeits it properly.
+        if (hPlayers.length < 5 || aPlayers.length < 5) {
+            const shorthanded = hPlayers.length < 5 ? hTeam : aTeam
+            get().addToast({ message: `${shorthanded.name} can't field 5 players - advance the week to resolve this match by forfeit.`, type: "warning" })
+            return
+        }
 
         const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id))
         const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id))

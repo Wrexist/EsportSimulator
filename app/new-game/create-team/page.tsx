@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import {
     ArrowLeft,
     ArrowRight,
     Check,
@@ -106,6 +116,11 @@ export default function CreateTeamPage() {
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({})
 
+    // Exit confirmation (in-app dialog, not window.confirm — sandboxed Electron
+    // suppresses window.confirm, which silently no-op'd the only Back/exit on this
+    // hideChrome page).
+    const [showExitConfirm, setShowExitConfirm] = useState(false)
+
     // Current step index
     const currentStepIndex = STEPS.findIndex(s => s.id === currentStep)
 
@@ -178,12 +193,12 @@ export default function CreateTeamPage() {
         if (prevIndex >= 0) {
             setCurrentStep(STEPS[prevIndex].id)
         } else {
-            // Going back to new-game page - confirm if there's unsaved data
+            // Going back to new-game page - confirm if there's unsaved data.
+            // Uses an in-app dialog: window.confirm is suppressed in sandboxed
+            // Electron and would make this (the only) exit appear dead.
             if (hasUnsavedChanges) {
-                const confirmed = window.confirm(
-                    "You have unsaved changes. Are you sure you want to go back? Your team data will be lost."
-                )
-                if (!confirmed) return
+                setShowExitConfirm(true)
+                return
             }
             router.push("/new-game")
         }
@@ -868,6 +883,23 @@ export default function CreateTeamPage() {
                     </div>
                 </div>
             </div>
+
+            <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Discard your team?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You have unsaved changes. Going back will lose the team you&apos;ve started building.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Keep editing</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => router.push("/new-game")}>
+                            Discard &amp; go back
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

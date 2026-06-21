@@ -103,10 +103,15 @@ export class TrainingManager {
     // Refund slot
     team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - 1)
 
-    // Partial refund: 50% of remaining weeks' cost
+    // Partial refund: 50% of what was actually PAID so far. Role training is
+    // pay-as-you-go (charged weekly in processWeeklyTraining), so refunding by
+    // *remaining* weeks paid out money that was never spent — start→cancel in the
+    // same week minted weeklyCost*totalWeeks*0.5 for $0 paid. Basing the refund on
+    // weeksCompleted caps it at half of what was actually charged → always a net
+    // loss, never farmable.
+    let refund = 0
     if (cancelled) {
-      const weeksRemaining = cancelled.totalWeeks - cancelled.weeksCompleted
-      const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
+      refund = Math.floor(cancelled.weeklyCost * cancelled.weeksCompleted * 0.5)
       if (refund > 0) {
         team.budget += refund
         // Ledger the refund — every budget mutation gets an entry (invariant #5).
@@ -129,8 +134,7 @@ export class TrainingManager {
     // Training CANCEL event (only for player's own team)
     if (cancelled && teamId === game.playerTeamId) {
       const player = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
-      const weeksRemaining = cancelled.totalWeeks - cancelled.weeksCompleted
-      const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
+      // Reuse the same refund credited above so the notification matches the books.
       game.eventsLog.unshift({
         id: `training_cancel_${game.currentWeek}_${playerId}`,
         week: game.currentWeek,

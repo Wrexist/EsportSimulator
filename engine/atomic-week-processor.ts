@@ -46,6 +46,7 @@ import { TrainingProcessor } from "./processors/training-processor"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
 import { compactPersistentState } from "./processors/save-compactor"
+import { garbageCollectRetiredPlayers } from "./processors/player-gc"
 import {
     isTerminalBracketStage as isTerminalBracketStageFn,
     hasTerminalTournamentCompletion as hasTerminalTournamentCompletionFn,
@@ -493,6 +494,16 @@ export class AtomicWeekProcessor {
 
                 save.careerStats = updateCareerStats(save)
                 debug.log(`[Week ${save.currentWeek}] Season ${getSeasonNumber(save.currentWeek)} career stats updated`)
+
+                // Reclaim retired AI players nothing references anymore. save.players
+                // otherwise only grows (retirement never splices + youth intake each
+                // season), creeping toward the 32 MiB unloadable ceiling and slowing
+                // every per-tick full-pool scan. Runs here so retirements, legend
+                // snapshots and careerStats MVPs are all already populated.
+                const gcRemoved = garbageCollectRetiredPlayers(save)
+                if (gcRemoved > 0) {
+                    debug.log(`[Week ${save.currentWeek}] GC reclaimed ${gcRemoved} unreferenced retired player(s)`)
+                }
 
                 // Board verdict on the season — moves confidence, can sack the
                 // manager (game-over), and posts a review to the news feed.

@@ -285,7 +285,24 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 result = { success: false, error: "Team not found" }
                 return
             }
+            // EquipmentManager debits team.budget internally. Capture the delta and
+            // ledger it here — every budget mutation needs a FinanceLedgerEntry
+            // (economy invariant #5); the one-time purchase was previously unledgered.
+            const budgetBefore = team.budget
             result = EquipmentManager.purchaseEquipment(team, catalogId, state.currentWeek)
+            const cost = budgetBefore - team.budget
+            if (result.success && cost > 0 && state.financeLedger) {
+                state.financeLedger.push({
+                    id: `exp_equip_${state.currentWeek}_${team.id}_${catalogId}_${state.financeLedger.length}`,
+                    week: state.currentWeek,
+                    teamId: team.id,
+                    type: "EXPENSE",
+                    category: "FACILITIES",
+                    amount: cost,
+                    description: `Equipment purchase: ${catalogId}`,
+                    balance: team.budget,
+                })
+            }
         })
         return result
     },

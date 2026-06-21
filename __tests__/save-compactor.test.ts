@@ -268,3 +268,31 @@ describe("compactPersistentState — scheduledActivities pruning (Phase 4.2)", (
         expect(save.scheduledActivities.every(a => a.week >= 99)).toBe(true)
     })
 })
+
+describe("compactPersistentState — tournament instances (pre-Steam growth audit)", () => {
+    // currentWeek 520 → season floor((520-1)/52)+1 = 10; keep completed from seasons >= 8.
+    test("keeps active + recent-completed tournaments, drops ancient completed ones", () => {
+        const save = makeSave({
+            currentWeek: 520,
+            tournaments: [
+                { id: "a_s10", isCompleted: false, seasonNumber: 10, endWeek: 540 } as never, // active → keep
+                { id: "b_s10", isCompleted: true, seasonNumber: 10, endWeek: 515 } as never,  // this season → keep
+                { id: "c_s9", isCompleted: true, seasonNumber: 9, endWeek: 460 } as never,    // 1 ago → keep
+                { id: "d_s8", isCompleted: true, seasonNumber: 8, endWeek: 410 } as never,    // 2 ago → keep
+                { id: "e_s7", isCompleted: true, seasonNumber: 7, endWeek: 360 } as never,    // 3 ago → DROP
+                { id: "f_s2", isCompleted: true, seasonNumber: 2, endWeek: 100 } as never,    // ancient → DROP
+            ],
+        })
+        compactPersistentState(save)
+        expect(save.tournaments.map(t => t.id)).toEqual(["a_s10", "b_s10", "c_s9", "d_s8"])
+    })
+
+    test("never drops an incomplete tournament regardless of age", () => {
+        const save = makeSave({
+            currentWeek: 520,
+            tournaments: [{ id: "old_active", isCompleted: false, seasonNumber: 2, endWeek: 100 } as never],
+        })
+        compactPersistentState(save)
+        expect(save.tournaments.map(t => t.id)).toEqual(["old_active"])
+    })
+})

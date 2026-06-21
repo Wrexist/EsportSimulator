@@ -299,9 +299,10 @@ export class FinanceProcessor {
                     team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - 1)
                 }
 
-                if (team.id === playerTeamId) {
+                const expiryId = `contract_expiry_${save.currentWeek}_${contract.teamId}_${contract.playerId}`
+                if (team.id === playerTeamId && !existingEventIds.has(expiryId)) {
                     save.eventsLog.push({
-                        id: `contract_expiry_${save.currentWeek}_${contract.teamId}_${contract.playerId}`,
+                        id: expiryId,
                         type: "CONTRACT" as EventType,
                         week: save.currentWeek,
                         data: {
