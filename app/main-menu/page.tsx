@@ -180,7 +180,7 @@ export default function MainMenuPage() {
                     >
                         <button
                             onClick={handleNewGame}
-                            className="group liquid-panel relative overflow-hidden rounded-xl border-white/[0.1] transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-glass-float"
+                            className="group liquid-panel relative overflow-hidden rounded-xl border-white/[0.1] transition-[transform,border-color,box-shadow] duration-300 ease-glass hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-glass-float"
                         >
                             {/* Content */}
                             <div className="relative p-10 flex items-center gap-8">

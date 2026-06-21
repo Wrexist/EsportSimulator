@@ -108,10 +108,18 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             root.classList.toggle("onyx", theme === "onyx")
 
             // Auto-save on close (Electron)
-            const runtimeWindow = window as typeof window & { __esimCloseHookRegistered?: boolean }
-            if (!runtimeWindow.__esimCloseHookRegistered && window.electron?.onAppClose) {
+            const runtimeWindow = window as typeof window & {
+                __esimCloseHookRegistered?: boolean
+                electron?: {
+                    onAppClose: (callback: () => void) => void
+                    confirmAppClose: () => Promise<boolean> | void
+                    cancelAppClose?: () => Promise<boolean> | void
+                }
+            }
+            const electronBridge = runtimeWindow.electron
+            if (!runtimeWindow.__esimCloseHookRegistered && electronBridge?.onAppClose) {
                 runtimeWindow.__esimCloseHookRegistered = true
-                window.electron.onAppClose(async () => {
+                electronBridge.onAppClose(async () => {
                     if (isExitInProgressRef.current) return
                     isExitInProgressRef.current = true
 
@@ -162,9 +170,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     }
 
                     if (allowClose) {
-                        window.electron.confirmAppClose()
+                        electronBridge.confirmAppClose()
                     } else {
-                        window.electron.cancelAppClose?.()
+                        electronBridge.cancelAppClose?.()
                     }
                 })
             }
@@ -172,7 +180,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             // Auto-save on close (browser / dev mode fallback only)
             const handleBeforeUnload = (e: BeforeUnloadEvent) => {
                 // In Electron, close is handled entirely via IPC (app-close-intent)
-                if (window.electron) return
+                if (runtimeWindow.electron) return
                 const s = useGameStore.getState()
                 if (s.autoSave && s.saveId && !s.isLoading) {
                     s.saveGame().catch(() => { })
