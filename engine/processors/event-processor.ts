@@ -403,16 +403,19 @@ export class EventProcessor {
                 player.legendaryAchievements = achievements
                 legends.push(player.id)
 
-                // Write-through to hallOfFame so legends appear in HoF display
+                // Write-through to hallOfFame so legends appear in HoF display.
+                // Dedup against BOTH the player.id scheme (HallOfFameManager,
+                // player-lifecycle path) and the legacy hof_ scheme so a legendary
+                // retiree processed by both paths isn't inducted twice.
                 if (!save.hallOfFame) save.hallOfFame = []
-                if (!save.hallOfFame.some(h => h.id === `hof_${player.id}`)) {
+                if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) {
                     const reasons: HallOfFameEntry['inductionReasons'] = []
                     if (player.majorWins && player.majorWins >= 1) reasons.push({ type: 'CHAMPION', label: `${player.majorWins}x Major Champion`, icon: 'Trophy' })
                     if (player.avgRating >= 1.15) reasons.push({ type: 'MVP', label: `${player.avgRating.toFixed(2)} Career Rating`, icon: 'Star' })
                     if (player.matchesPlayed >= 200) reasons.push({ type: 'LONGEVITY', label: `${player.matchesPlayed}+ Matches`, icon: 'Clock' })
                     if (player.totalKills && player.totalKills >= 1000) reasons.push({ type: 'IMPACT', label: `${player.totalKills}+ Career Kills`, icon: 'Crosshair' })
                     save.hallOfFame.push({
-                        id: `hof_${player.id}`,
+                        id: player.id,
                         name: player.nickname,
                         portraitPath: player.portraitPath || '',
                         eraStart: Math.max(1, Math.ceil(save.currentWeek / 52) - Math.floor(player.age / 3)),

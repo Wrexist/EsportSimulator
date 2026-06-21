@@ -75,6 +75,23 @@ export function compactPersistentState(save: GameSave): void {
         }
     }
 
+    // Seasonal tournament instances accumulate ~one-per-definition per season
+    // (~40/season) and are never removed once complete — the single largest
+    // per-season save-growth source, pushing long careers toward the 32 MiB
+    // unloadable ceiling. Keep every active/future tournament plus completed
+    // ones from the recent seasons (for the history UI and the 8-week job-offer
+    // lookback); older completed outcomes already live in careerStats, team
+    // trophies and circuitPoints, so the heavy instance objects are dead weight.
+    if (save.tournaments && save.tournaments.length > 0) {
+        const currentSeason = Math.floor((save.currentWeek - 1) / 52) + 1
+        const KEEP_COMPLETED_TOURNAMENT_SEASONS = 2
+        save.tournaments = save.tournaments.filter(t => {
+            if (!t.isCompleted) return true
+            const tSeason = t.seasonNumber ?? (Math.floor(((t.endWeek ?? save.currentWeek) - 1) / 52) + 1)
+            return tSeason >= currentSeason - KEEP_COMPLETED_TOURNAMENT_SEASONS
+        })
+    }
+
     // scheduledActivities accumulates ~7 auto-generated REST days per week
     // forever (training-processor.processRestDays) on top of any planned
     // activities. Every consumer only looks at the current week or a
