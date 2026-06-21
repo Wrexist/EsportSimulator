@@ -139,7 +139,7 @@ describe("applyWeeklyActivity — BOOTCAMP", () => {
 })
 
 describe("applyWeeklyActivity — STREAMING", () => {
-    test("zero cost path: no ledger debit but effects + event still fire", () => {
+    test("grants the advertised income (ledgered) plus effects + event", () => {
         const save = makeSave(5, 3, 100_000)
         applyWeeklyActivity(save, {
             playerTeamId: "player",
@@ -148,8 +148,15 @@ describe("applyWeeklyActivity — STREAMING", () => {
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const team = save.teams[0] as any
-        expect(team.budget).toBe(100_000)
-        expect(save.financeLedger.length).toBe(0)
+        // STREAMING earns $2,500 (the UI-advertised amount) — now actually granted.
+        expect(team.budget).toBe(102_500)
+        expect(save.financeLedger.length).toBe(1)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entry = save.financeLedger[0] as any
+        expect(entry.type).toBe("INCOME")
+        expect(entry.amount).toBe(2500)
+        expect(entry.category).toBe("OTHER")
+        expect(entry.balance).toBe(102_500)
         expect(save.eventsLog.length).toBe(1)
         // fatigue +15, morale -5, no xp bonus (xp multiplier not > 1).
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
