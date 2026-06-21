@@ -45,10 +45,12 @@ export function pruneGameState(state: {
   if (state.newsFeed.length > ARRAY_CAPS.newsFeed) {
     state.newsFeed = state.newsFeed.slice(-ARRAY_CAPS.newsFeed)
   }
+  // Academy arrays are newest-FIRST (populated via unshift), so keep the head,
+  // not the tail — slice(-cap) here would discard the most recent entries.
   if (state.academyMatchHistory && state.academyMatchHistory.length > ARRAY_CAPS.academyMatchHistory) {
-    state.academyMatchHistory = state.academyMatchHistory.slice(-ARRAY_CAPS.academyMatchHistory)
+    state.academyMatchHistory = state.academyMatchHistory.slice(0, ARRAY_CAPS.academyMatchHistory)
   }
   if (state.academyWeeklyReports && state.academyWeeklyReports.length > ARRAY_CAPS.academyWeeklyReports) {
-    state.academyWeeklyReports = state.academyWeeklyReports.slice(-ARRAY_CAPS.academyWeeklyReports)
+    state.academyWeeklyReports = state.academyWeeklyReports.slice(0, ARRAY_CAPS.academyWeeklyReports)
   }
 }
