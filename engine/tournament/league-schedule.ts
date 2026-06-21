@@ -63,11 +63,24 @@ export function setupLeagueSchedule(
         teams.splice(1, 0, teams.pop()!)
     }
 
-    // Linearly distribute rounds across the duration window so a short
-    // tournament packs multiple rounds per week and a long one spreads them.
+    // Each round-robin round has every team play exactly once, so placing ONE
+    // round per week means no team is ever double-booked in a week. We do that
+    // whenever all rounds fit inside the tournament's own season (so the league
+    // can't overrun into the next season's instance); otherwise we fall back to
+    // the even-compression layout (which packs multiple rounds per week — a team
+    // can get several BO1s in one week, but at least nothing overruns).
+    const seasonEnd = (Math.floor((startWeek - 1) / 52) + 1) * 52
+    const canSpread = startWeek + (numRounds - 1) <= seasonEnd
+    if (canSpread && numRounds > 0) {
+        // Extend the window so completion/standings span all the spread rounds.
+        tournament.endWeek = Math.max(tournament.endWeek, startWeek + (numRounds - 1))
+    }
+
     let currentMatchIndex = 0
     rounds.forEach((roundMatches, roundIndex) => {
-        const weekOffset = Math.floor((roundIndex / numRounds) * duration)
+        const weekOffset = canSpread
+            ? roundIndex
+            : Math.floor((roundIndex / numRounds) * duration)
         const matchWeek = startWeek + weekOffset
 
         roundMatches.forEach(m => {
