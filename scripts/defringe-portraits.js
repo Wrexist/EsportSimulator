@@ -1,7 +1,7 @@
 // Removes the white "halo" fringe from cut-out player portrait PNGs.
 // The matte sits in the outermost opaque ring of the silhouette, so we erode the
-// alpha past it (min filter) and feather inward only — alpha never grows, so we
-// never reveal the non-white RGB stored in originally-transparent pixels.
+// alpha past it (min filter). Erosion only ever LOWERS alpha and only along the
+// true silhouette edge, so interior pixels (the face) are untouched.
 //
 //   node scripts/defringe-portraits.js --test  fileA fileB ...   (writes to /tmp/df)
 //   node scripts/defringe-portraits.js --apply [threshold]       (in place, scans all)
@@ -11,7 +11,6 @@ const { execSync } = require('child_process');
 
 const SOLID = 200;     // alpha considered "interior"
 const ERODE = 4;       // px of opaque edge to trim (kills the bright ring)
-const FEATHER = 1.0;   // gaussian sigma for smooth (inward-only) edge
 
 async function lightRatio(file) {
   const m = await sharp(file).metadata();
@@ -53,20 +52,16 @@ async function defringe(inFile, outFile) {
     na = next;
   }
 
-  // Inward-only feather: blur the eroded alpha for a smooth edge, then clamp so
-  // it never exceeds the eroded value (softens toward transparent, never grows).
-  const blurred = await sharp(Buffer.from(na), { raw: { width: w, height: h, channels: 1 } }).blur(FEATHER).raw().toBuffer();
-  const fa = new Uint8Array(N);
-  for (let i = 0; i < N; i++) fa[i] = Math.min(na[i], blurred[i]);
-
+  // Write the eroded alpha directly. The 1024px render is downscaled in-app,
+  // which anti-aliases the trimmed edge cleanly — no feather needed.
   // Zero the colour of fully-transparent pixels so no stray matte can show.
   const final = Buffer.alloc(N * 4);
   for (let i = 0; i < N; i++) {
-    const vis = fa[i] > 0;
+    const vis = na[i] > 0;
     final[i * 4] = vis ? r[i] : 0;
     final[i * 4 + 1] = vis ? g[i] : 0;
     final[i * 4 + 2] = vis ? b[i] : 0;
-    final[i * 4 + 3] = fa[i];
+    final[i * 4 + 3] = na[i];
   }
   await sharp(final, { raw: { width: w, height: h, channels: 4 } }).png().toFile(outFile);
 }
