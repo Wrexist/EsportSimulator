@@ -103,10 +103,14 @@ export class TrainingManager {
     // Refund slot
     team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - 1)
 
-    // Partial refund: 50% of remaining weeks' cost
+    // Partial refund: 50% of what was actually PAID so far. Role training is
+    // pay-as-you-go (charged weekly in processWeeklyTraining), so refunding by
+    // *remaining* weeks paid out money that was never spent — start→cancel in the
+    // same week minted weeklyCost*totalWeeks*0.5 for $0 paid. Basing the refund on
+    // weeksCompleted caps it at half of what was actually charged → always a net
+    // loss, never farmable.
     if (cancelled) {
-      const weeksRemaining = cancelled.totalWeeks - cancelled.weeksCompleted
-      const refund = Math.floor(cancelled.weeklyCost * weeksRemaining * 0.5)
+      const refund = Math.floor(cancelled.weeklyCost * cancelled.weeksCompleted * 0.5)
       if (refund > 0) {
         team.budget += refund
         // Ledger the refund — every budget mutation gets an entry (invariant #5).
