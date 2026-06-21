@@ -32,36 +32,32 @@ design decisions that are yours to make.
 | 9 | LOW | Save | Academy history pruned from the wrong end (newest-first arrays sliced as tail) → lost recent entries | `.slice(0, cap)`. `array-pruning.ts` |
 | 10 | LOW | Engine | Hall of Fame **double-induction** (two paths used `player.id` vs `hof_${id}` keys) | Standardize on `player.id`, dedup against both. `event-processor.ts` |
 
-## Flagged — your call (not changed)
+## Round 2 — flagged items now fixed (with tests)
 
-These are either risky to change blind pre-ship, build-machine config, or
-design decisions:
+| Sev | Item | Fix |
+|-----|------|-----|
+| HIGH | `save.players[]` never GC'd (monotonic growth → 32 MiB wall + slows every tick) | Season-end GC removes retired, non-legendary players unreferenced by rosters/contracts/legends/HoF/scouting/transfers/career-MVPs/recent-match playerStats. Deterministic, replay-safe. `engine/processors/player-gc.ts` + `player-gc.test.ts` (5 cases) |
+| HIGH | `steam_appid.txt` could silently fall back to Spacewar 480 | `scripts/check-steam-appid.js` fails `dist`/`electron:build` if the file is missing, non-numeric, or 480 |
+| MED | League same-week double-booking (up to 4 BO1s/team/week) | One round per week **when all rounds fit the season** (extends the window safely); falls back to compression otherwise so nothing overruns into the next instance. `league-schedule.ts` + `league-schedule.test.ts` |
+| LOW | STREAMING advertised `+$2,500` the processor never granted | Grant `effects.money` as ledgered INCOME (bounded — one weekly activity → non-farmable). `weekly-activity-processor.ts` + test updated |
 
-- **`save.players[]` never GC'd** (HIGH growth): retired AI players are never
-  removed and youth intake adds players every season → monotonic growth toward
-  the 32 MiB wall on very long careers, and it slows every per-tick full-pool
-  scan. *Not fixed* because safe removal needs a complete reference sweep
-  (rosters, contracts, HoF, legendaryPlayers, careerStats, match history) or it
-  risks dangling references; wants a dedicated test + a multi-season playtest.
-  Highest-value long-career follow-up.
-- **`steam_appid.txt`** is `.gitignore`d; if absent at build time, Steam features
-  silently bind to Spacewar test AppID 480. Ensure the real AppID file exists on
-  the build machine (and assert it in the dist script).
-- **`output: 'export'`**: the packaged app boots a full Next.js *server* (multi-
-  second cold start; ships the `next` runtime). The sim is 100% client-side, so a
-  static export would remove the server + cold-start. Worth doing, but it's a
-  build-architecture change that needs a full packaged-build test.
-- **League same-week double-booking** (MED): round-robin schedule compression can
-  put up to 4 BO1s for one team in a single week (only the first is playable;
-  the rest auto-sim). Fixing it (one round/week) needs the league `duration`s in
-  `data/tournaments.json` widened, which changes season pacing — a balance pass.
-- **STREAMING weekly activity** advertises `+$2,500` in the UI that the processor
-  never grants. Decide: implement the (capped, one-per-week) income, or remove
-  the chip. Currently neither income nor a crash — just a broken promise.
-- `trophies[]` / player `achievements[]` grow slowly and uncapped; `ARRAY_CAPS.hallOfFame`
-  is defined but unenforced. Low risk; cap if you want belt-and-suspenders.
-- `release:verify` runs `next build` but never `electron-builder`, so packaging
-  failures (asar globs, native unpack) aren't caught by the named gate.
+## Deliberately NOT changed (would risk breakage / needs its own effort)
+
+- **`output: 'export'`** — every dynamic route (`/player/[id]`, `/match/[id]/*`,
+  `/tournaments/[id]`) is a `"use client"` page using runtime-generated ids with
+  no `generateStaticParams`. Static export must enumerate those ids at build time
+  (impossible), so forcing it breaks the build / 404s the core match flow. Needs
+  a query-param routing refactor + full packaged-build smoke test — out of scope
+  for a safe pre-ship pass. Current bundled-server boot works (cost: a few-second
+  cold start).
+- **`trophies[]` cap** — `manager-career-profile.ts:93` derives the career
+  major-trophy count from `trophies.filter(...).length`, so capping the array
+  would *corrupt that stat*. Left uncapped (it grows only ~2–5/season). Player
+  `achievements[]` and `hallOfFame` grow negligibly and dedup by id.
+- **`release:verify` packaging** — adding `electron-builder` to the gate would
+  slow it and depends on build-machine/native setup; full packaging stays in
+  `dist` (now guarded by the steam-appid check). Run `npm run dist` on the build
+  machine for the real packaging smoke test.
 
 See per-area detail in the session notes; every "Fixed" item is re-verified to a
 current `file:line` and covered by jest where the harness allows (UI/Electron
