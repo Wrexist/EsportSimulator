@@ -76,6 +76,10 @@ const config: Config = {
       fontWeight: tokens.fontWeight,
       fontFamily: tokens.fontFamily,
       boxShadow: tokens.boxShadow,
+      transitionTimingFunction: {
+        // Smooth "glass" easing (easeOutExpo-like) used by liquid-panel surfaces.
+        glass: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       zIndex: {
         dropdown: "50",
         "modal-backdrop": "100",

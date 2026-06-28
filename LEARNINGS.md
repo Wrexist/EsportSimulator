@@ -31,6 +31,9 @@
 - **jest is node-env, `__tests__/` only** — no DOM, no component tests. Anything visual goes on the manual-verification list in TASK.md, not assumed covered.
 - **Harness idiom:** local `makeSave`/`makeTeam`/`makePlayer` with partial overrides and `as unknown as GameSave`. Tests construct minimal saves; don't import fixture factories across test files.
 - **Targeted lint:** `npx next lint --file <path>` — full lint is slow and noisy with pre-existing warnings; the bar is *zero errors*, warnings are legacy.
+- **Incremental `tsc` masks errors the production build catches.** `tsconfig.json` has `incremental: true`; a stale `.tsbuildinfo` made `npx tsc --noEmit` pass locally while `next build` (fresh program) failed type-checking on `GameShell.tsx` (`window.electron` global augmentation not applied). Before trusting a green type-check ahead of a ship build, delete `*.tsbuildinfo` (or run `npm run build`). Fix the underlying typing locally (cast `window` per-use, as elsewhere in that file) rather than depending on a global `.d.ts` that the build may not pick up.
+- **ESLint walks up to parent dirs without `root: true`.** A stray `~/.eslintrc.json` above the project double-registered `@next/next` → `⨯ ESLint: Plugin "@next/next" was conflicted` in `next build`. `.eslintrc.json` now sets `"root": true` to stop the upward walk.
+- **Tailwind arbitrary values with commas warn as ambiguous.** `ease-[cubic-bezier(0.22,1,0.36,1)]` triggered a build-time ambiguity warning; register named tokens in `tailwind.config.ts` (`transitionTimingFunction.glass`) and use the semantic class (`ease-glass`) instead.
 - **Engine imports in client components are fine if type-only or pure** — `career-stats.ts` pulls only types, so `board-expectations` in a dashboard component doesn't bloat the bundle. Check the import chain (`grep "^import" <module>`) before assuming.
 
 ## Process
