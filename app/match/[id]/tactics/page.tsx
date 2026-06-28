@@ -42,7 +42,8 @@ export default function TacticalHQPage() {
         updateScheduledMatch,
         setPlaystyle,
         setEconomyStyle,
-        setTargetPlayer
+        setTargetPlayer,
+        addToast
     } = useGameStore(useShallow(state => ({
         getUpcomingMatches: state.getUpcomingMatches,
         teams: state.teams,
@@ -58,6 +59,7 @@ export default function TacticalHQPage() {
         setPlaystyle: state.setPlaystyle,
         setEconomyStyle: state.setEconomyStyle,
         setTargetPlayer: state.setTargetPlayer,
+        addToast: state.addToast,
     })))
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
@@ -261,7 +263,13 @@ export default function TacticalHQPage() {
 
     const handleMentalPrep = () => {
         if (!mentalBoosted) {
-            if (myTeam && myTeam.budget < 5000) return
+            if (myTeam && myTeam.budget < 5000) {
+                addToast({
+                    type: "warning",
+                    message: "Insufficient funds — Mental Reset costs $5,000.",
+                })
+                return
+            }
             performMentalReset(matchId)
             // setMentalBoosted(true) // Updates via store
         }

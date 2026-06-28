@@ -420,6 +420,7 @@ export function AcademyApp() {
                                     onScout={handleScout}
                                     missions={academyScoutingMissions}
                                     staff={staff}
+                                    playerTeamId={playerTeamId}
                                     pendingProspects={academyPendingProspects}
                                     onEnrollPending={enrollPendingProspect}
                                     onDiscardPending={discardPendingProspect}
@@ -1094,7 +1095,7 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
 // ===== SCOUTING TAB =====
 
 function ScoutingTab({
-    academyLevel, budget, currentProspects, maxProspects, lastResult, onScout, missions, staff,
+    academyLevel, budget, currentProspects, maxProspects, lastResult, onScout, missions, staff, playerTeamId,
     pendingProspects = [], onEnrollPending, onDiscardPending, players
 }: any) {
     const tiers = [
@@ -1103,7 +1104,7 @@ function ScoutingTab({
         { id: "INTERNATIONAL" as const, name: "Global", cost: 35000, minLevel: 4, duration: 4 }
     ]
     const isFull = currentProspects >= maxProspects
-    const hasScout = staff.some((s: any) => s.teamId && s.role === "scout")
+    const hasScout = staff.some((s: any) => s.teamId === playerTeamId && s.role === "scout")
 
     // Get actual player data for pending prospects. Indexed lookup so the
     // 5×N players.find scan becomes a single Map build (memoized) + 5
