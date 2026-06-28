@@ -6,6 +6,7 @@ import { ErrorBoundary } from "./ErrorBoundary"
 
 import { usePathname, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { useSettingsStore } from "@/lib/settings-store"
 import { useEffect, useRef, useState, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
 import type { ExitDialogVariant } from "./ExitConfirmDialog"
@@ -190,9 +191,17 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             window.addEventListener("beforeunload", handleBeforeUnload)
 
-            // Periodic Auto-save (every 2 minutes)
+            // Periodic Auto-save. Base tick is short (30s); we accumulate elapsed
+            // time and only write once the player's configured interval has passed,
+            // so changing Auto-Save Interval in Settings takes effect without a reload.
             let isSaving = false
+            let elapsedMs = 0
+            const AUTOSAVE_TICK_MS = 30 * 1000
             const autoSaveInterval = setInterval(async () => {
+                elapsedMs += AUTOSAVE_TICK_MS
+                const intervalMs = Math.max(1, useSettingsStore.getState().autoSaveInterval) * 60 * 1000
+                if (elapsedMs < intervalMs) return
+                elapsedMs = 0
                 if (isSaving) return
                 const state = useGameStore.getState()
                 if (state.autoSave && state.saveId && !state.isLoading) {
@@ -207,7 +216,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                         isSaving = false
                     }
                 }
-            }, 2 * 60 * 1000)
+            }, AUTOSAVE_TICK_MS)
 
             // Pause week advancement when window loses focus
             const handleVisibilityChange = () => {

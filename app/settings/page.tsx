@@ -69,11 +69,8 @@ export default function SettingsPage() {
   const devToolsEnabled = isDevToolsEnabled()
   const {
     saveGame, deleteAllSaves, soundEnabled, setSoundEnabled, showTutorialOnNewGame, setShowTutorialOnNewGame,
-    resolution, setResolution,
-    gameSpeed, setGameSpeed,
     difficulty, setDifficulty,
     autoSave, setAutoSave,
-    notifications, setNotifications,
     showBugReportButton, setShowBugReportButton
   } = useGameStore(useShallow(state => ({
     saveGame: state.saveGame,
@@ -82,16 +79,10 @@ export default function SettingsPage() {
     setSoundEnabled: state.setSoundEnabled,
     showTutorialOnNewGame: state.showTutorialOnNewGame,
     setShowTutorialOnNewGame: state.setShowTutorialOnNewGame,
-    resolution: state.resolution,
-    setResolution: state.setResolution,
-    gameSpeed: state.gameSpeed,
-    setGameSpeed: state.setGameSpeed,
     difficulty: state.difficulty,
     setDifficulty: state.setDifficulty,
     autoSave: state.autoSave,
     setAutoSave: state.setAutoSave,
-    notifications: state.notifications,
-    setNotifications: state.setNotifications,
     showBugReportButton: state.showBugReportButton,
     setShowBugReportButton: state.setShowBugReportButton,
   })))
@@ -109,6 +100,9 @@ export default function SettingsPage() {
     sfxVolumeS, setSfxVolumeS,
     autoSaveInterval, setAutoSaveInterval,
     applyWindowSettings,
+    resolution, setResolution,
+    gameSpeed, setGameSpeed,
+    notifications, setNotifications,
   } = useSettingsStore(useShallow(state => ({
     windowMode: state.windowMode,
     setWindowMode: state.setWindowMode,
@@ -125,6 +119,12 @@ export default function SettingsPage() {
     autoSaveInterval: state.autoSaveInterval,
     setAutoSaveInterval: state.setAutoSaveInterval,
     applyWindowSettings: state.applyWindowSettings,
+    resolution: state.resolution,
+    setResolution: state.setResolution,
+    gameSpeed: state.gameSpeed,
+    setGameSpeed: state.setGameSpeed,
+    notifications: state.notifications,
+    setNotifications: state.setNotifications,
   })))
 
   // Accessibility: colorblind mode — persisted to localStorage
@@ -459,7 +459,7 @@ export default function SettingsPage() {
                   </div>
                   <select
                     value={resolution}
-                    onChange={(e) => { setResolution(e.target.value); applyWindowSettings() }}
+                    onChange={(e) => { setResolution(e.target.value as any); applyWindowSettings() }}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="1920x1080" className="bg-[#1a1f2e]">1920 × 1080</option>

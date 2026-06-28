@@ -42,6 +42,21 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
     const [searchQuery, setSearchQuery] = useState("")
     const [draft, setDraft] = useState("")
 
+    // Local, session-only engagement so the feed feels alive. These are pure UI
+    // affordances (no save/store writes) — they don't influence simulation.
+    const [liked, setLiked] = useState<Set<string>>(new Set())
+    const [retweeted, setRetweeted] = useState<Set<string>>(new Set())
+    const [bookmarked, setBookmarked] = useState<Set<string>>(new Set())
+    const [following, setFollowing] = useState<Set<string>>(new Set())
+    const toggleInSet = (
+        setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+        id: string,
+    ) => setter(prev => {
+        const next = new Set(prev)
+        next.has(id) ? next.delete(id) : next.add(id)
+        return next
+    })
+
     const submitPost = () => {
         const text = draft.trim()
         if (!text || !onPublish) return
@@ -170,20 +185,47 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
 
                                             {/* Post Actions */}
                                             <div className="flex items-center gap-4">
-                                                <button className="flex items-center gap-1 text-[9px] text-white/40 hover:text-cyan-400 transition-colors">
+                                                <button type="button" aria-label="Reply" className="flex items-center gap-1 text-[9px] text-white/40 hover:text-cyan-400 active:scale-90 transition-all">
                                                     <MessageCircle size={12} />
                                                     {post.replies}
                                                 </button>
-                                                <button className="flex items-center gap-1 text-[9px] text-white/40 hover:text-emerald-400 transition-colors">
+                                                <button
+                                                    type="button"
+                                                    aria-label="Retweet post"
+                                                    aria-pressed={retweeted.has(post.id)}
+                                                    onClick={() => toggleInSet(setRetweeted, post.id)}
+                                                    className={cn(
+                                                        "flex items-center gap-1 text-[9px] active:scale-90 transition-all",
+                                                        retweeted.has(post.id) ? "text-emerald-400" : "text-white/40 hover:text-emerald-400",
+                                                    )}
+                                                >
                                                     <Repeat2 size={12} />
-                                                    {post.retweets}
+                                                    {post.retweets + (retweeted.has(post.id) ? 1 : 0)}
                                                 </button>
-                                                <button className="flex items-center gap-1 text-[9px] text-white/40 hover:text-rose-400 transition-colors">
-                                                    <Heart size={12} />
-                                                    {post.likes}
+                                                <button
+                                                    type="button"
+                                                    aria-label="Like post"
+                                                    aria-pressed={liked.has(post.id)}
+                                                    onClick={() => toggleInSet(setLiked, post.id)}
+                                                    className={cn(
+                                                        "flex items-center gap-1 text-[9px] active:scale-90 transition-all",
+                                                        liked.has(post.id) ? "text-rose-400" : "text-white/40 hover:text-rose-400",
+                                                    )}
+                                                >
+                                                    <Heart size={12} className={liked.has(post.id) ? "fill-current" : ""} />
+                                                    {post.likes + (liked.has(post.id) ? 1 : 0)}
                                                 </button>
-                                                <button type="button" aria-label="Bookmark post" className="text-white/40 hover:text-white active:text-white/90 active:scale-90 transition-all">
-                                                    <Bookmark size={12} />
+                                                <button
+                                                    type="button"
+                                                    aria-label="Bookmark post"
+                                                    aria-pressed={bookmarked.has(post.id)}
+                                                    onClick={() => toggleInSet(setBookmarked, post.id)}
+                                                    className={cn(
+                                                        "active:scale-90 transition-all",
+                                                        bookmarked.has(post.id) ? "text-cyan-400" : "text-white/40 hover:text-white active:text-white/90",
+                                                    )}
+                                                >
+                                                    <Bookmark size={12} className={bookmarked.has(post.id) ? "fill-current" : ""} />
                                                 </button>
                                             </div>
                                         </div>
@@ -251,8 +293,19 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                             </div>
                                             <p className="text-[9px] text-white/40">@{team.name.replace(/\s/g, "").toLowerCase()}</p>
                                         </div>
-                                        <Button size="sm" variant="outline" className="h-6 text-[9px] rounded-full border-white/20 px-3">
-                                            Follow
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={(e) => { e.stopPropagation(); toggleInSet(setFollowing, team.id) }}
+                                            aria-pressed={following.has(team.id)}
+                                            className={cn(
+                                                "h-6 text-[9px] rounded-full px-3",
+                                                following.has(team.id)
+                                                    ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-300"
+                                                    : "border-white/20",
+                                            )}
+                                        >
+                                            {following.has(team.id) ? "Following" : "Follow"}
                                         </Button>
                                     </div>
                                 ))}
@@ -344,9 +397,9 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                             playerTeam.name.substring(0, 2).toUpperCase()
                                         )}
                                     </div>
-                                    <Button variant="outline" className="rounded-full text-xs px-4 h-8 bg-white/5 border-white/10 hover:bg-white/10 text-white">
-                                        Edit Profile
-                                    </Button>
+                                    <span className="rounded-full text-[10px] px-3 py-1 bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 font-semibold">
+                                        Your Organization
+                                    </span>
                                 </div>
 
                                 <div className="mb-6">
@@ -436,8 +489,19 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                                 selectedTeam.name.substring(0, 2).toUpperCase()
                                             )}
                                         </div>
-                                        <Button variant="outline" size="sm" className="rounded-full text-[10px] border-white/20 h-7">
-                                            Follow
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => toggleInSet(setFollowing, selectedTeam.id)}
+                                            aria-pressed={following.has(selectedTeam.id)}
+                                            className={cn(
+                                                "rounded-full text-[10px] h-7",
+                                                following.has(selectedTeam.id)
+                                                    ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-300"
+                                                    : "border-white/20",
+                                            )}
+                                        >
+                                            {following.has(selectedTeam.id) ? "Following" : "Follow"}
                                         </Button>
                                     </div>
 
