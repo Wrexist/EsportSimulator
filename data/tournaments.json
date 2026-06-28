@@ -16,7 +16,7 @@
     "qualifierSlots": 16,
     "color": "#f59e0b",
     "icon": "trophy",
-    "logoPath": "/assets/tournaments/logo_northern_major_2025.svg",
+    "logoPath": "/assets/tournaments/logo_northern_major_2025.webp",
     "trophyPath": "/assets/tournaments/trophy_gold_new.png"
   },
   {
@@ -36,7 +36,7 @@
     "qualifierSlots": 16,
     "color": "#ef4444",
     "icon": "trophy",
-    "logoPath": "/assets/tournaments/logo_eastern_major_2025.svg",
+    "logoPath": "/assets/tournaments/logo_eastern_major_2025.png",
     "trophyPath": "/assets/tournaments/trophy_gold_new.png"
   },
   {
@@ -57,7 +57,7 @@
     "qualifierSlots": 4,
     "color": "#3b82f6",
     "icon": "crown",
-    "logoPath": "/assets/tournaments/logo_winter_open_katova_2025.svg",
+    "logoPath": "/assets/tournaments/logo_winter_open_katova_2025.webp",
     "trophyPath": "/assets/tournaments/trophy_silver_new.png"
   },
   {
@@ -78,7 +78,7 @@
     "qualifierSlots": 4,
     "color": "#22c55e",
     "icon": "crown",
-    "logoPath": "/assets/tournaments/logo_summer_open_colone_2025.svg",
+    "logoPath": "/assets/tournaments/logo_summer_open_colone_2025.webp",
     "trophyPath": "/assets/tournaments/trophy_silver_new.png"
   },
   {
@@ -97,7 +97,7 @@
     "requiredPoints": 1000,
     "color": "#f97316",
     "icon": "star",
-    "logoPath": "/assets/tournaments/logo_elite_world_final_2025.svg",
+    "logoPath": "/assets/tournaments/logo_elite_world_final_2025.webp",
     "trophyPath": "/assets/tournaments/s_tier_trophy_1.png"
   },
   {
@@ -116,7 +116,7 @@
     "requiredLeagueTier": "S_TIER",
     "color": "#8b5cf6",
     "icon": "shield",
-    "logoPath": "/assets/tournaments/logo_global_pro_league_season_21_finals.svg",
+    "logoPath": "/assets/tournaments/logo_global_pro_league_season_21_finals.webp",
     "trophyPath": "/assets/tournaments/s_tier_trophy_1.png"
   },
   {
@@ -137,7 +137,7 @@
     "qualifierSlots": 4,
     "color": "#3b82f6",
     "icon": "target",
-    "logoPath": "/assets/tournaments/logo_dallas_masters_2025.svg",
+    "logoPath": "/assets/tournaments/logo_dallas_masters_2025.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -158,7 +158,7 @@
     "qualifierSlots": 4,
     "color": "#ef4444",
     "icon": "target",
-    "logoPath": "/assets/tournaments/logo_chengdu_masters_2025.svg",
+    "logoPath": "/assets/tournaments/logo_chengdu_masters_2025.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -177,7 +177,7 @@
     "requiredRanking": 16,
     "color": "#f97316",
     "icon": "zap",
-    "logoPath": "/assets/tournaments/logo_elite_circuit_spring_finals.svg",
+    "logoPath": "/assets/tournaments/logo_elite_circuit_spring_finals.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -196,7 +196,7 @@
     "requiredRanking": 16,
     "color": "#f97316",
     "icon": "zap",
-    "logoPath": "/assets/tournaments/logo_elite_circuit_fall_finals.svg",
+    "logoPath": "/assets/tournaments/logo_elite_circuit_fall_finals.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -215,7 +215,7 @@
     "requiredLeagueTier": "A_TIER",
     "color": "#8b5cf6",
     "icon": "trending-up",
-    "logoPath": "/assets/tournaments/logo_global_challenger_league_season_48.svg",
+    "logoPath": "/assets/tournaments/logo_global_challenger_league_season_48.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -234,7 +234,7 @@
     "requiredRanking": 25,
     "color": "#84cc16",
     "icon": "home",
-    "logoPath": "/assets/tournaments/logo_boombyte_lineage_belgrade.svg",
+    "logoPath": "/assets/tournaments/logo_boombyte_lineage_belgrade.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -254,7 +254,7 @@
     "qualifierSlots": 8,
     "color": "#a855f7",
     "icon": "bolt",
-    "logoPath": "/assets/tournaments/logo_thunder_cup_world_championship.svg",
+    "logoPath": "/assets/tournaments/logo_thunder_cup_world_championship.png",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -274,7 +274,7 @@
     "qualifierSlots": 8,
     "color": "#06b6d4",
     "icon": "award",
-    "logoPath": "/assets/tournaments/logo_wagerway_masters_2025.svg",
+    "logoPath": "/assets/tournaments/logo_wagerway_masters_2025.webp",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -293,7 +293,7 @@
     "requiredRanking": 50,
     "color": "#eab308",
     "icon": "compass",
-    "logoPath": "/assets/tournaments/logo_compass_cup_2025.svg",
+    "logoPath": "/assets/tournaments/logo_compass_cup_2025.webp",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -312,7 +312,7 @@
     "requiredRanking": 40,
     "color": "#ec4899",
     "icon": "star",
-    "logoPath": "/assets/tournaments/logo_electra_masters_espoo_2025.svg",
+    "logoPath": "/assets/tournaments/logo_electra_masters_espoo_2025.webp",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -334,7 +334,7 @@
     },
     "color": "#14b8a6",
     "icon": "globe",
-    "logoPath": "/assets/tournaments/logo_perfect_realm_arena_premier_league.svg",
+    "logoPath": "/assets/tournaments/logo_perfect_realm_arena_premier_league.webp",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -352,7 +352,7 @@
     "description": "Development league for academy and young teams. 16 teams compete in a round-robin format over 8 weeks. Open to any team, making it ideal for rising talent. Features coaching support and broadcast exposure. The ultimate proving ground for tomorrow's stars.",
     "color": "#6366f1",
     "icon": "graduation-cap",
-    "logoPath": "/assets/tournaments/logo_playon_academy_league.svg"
+    "logoPath": "/assets/tournaments/logo_playon_academy_league.webp"
   },
   {
     "id": "cct_online_finals",
@@ -388,7 +388,7 @@
     "requiredLeagueTier": "B_TIER",
     "color": "#22d3d1",
     "icon": "layers",
-    "logoPath": "/assets/tournaments/logo_epic_arena_premier_season_48.svg"
+    "logoPath": "/assets/tournaments/logo_epic_arena_premier_season_48.webp"
   },
   {
     "id": "skyesports_championship",
@@ -406,7 +406,7 @@
     "qualifierSlots": 8,
     "color": "#f472b6",
     "icon": "flame",
-    "logoPath": "/assets/tournaments/logo_skyevents_championship_2025.svg"
+    "logoPath": "/assets/tournaments/logo_skyevents_championship_2025.webp"
   },
   {
     "id": "gamers8_riyadh",
@@ -424,7 +424,7 @@
     "requiredRanking": 60,
     "color": "#a3e635",
     "icon": "gamepad-2",
-    "logoPath": "/assets/tournaments/logo_gamers_infinity_riyadh_2025.svg"
+    "logoPath": "/assets/tournaments/logo_gamers_infinity_riyadh_2025.webp"
   },
   {
     "id": "roobet_cup",
@@ -442,7 +442,7 @@
     "requiredRanking": 30,
     "color": "#22c55e",
     "icon": "dice",
-    "logoPath": "/assets/tournaments/logo_rookbet_cup_2025.svg"
+    "logoPath": "/assets/tournaments/logo_rookbet_cup_2025.webp"
   },
   {
     "id": "copenhagen_rmr_eu",
@@ -461,7 +461,7 @@
     "qualifierSlots": 10,
     "color": "#f59e0b",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_northern_major_eu_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_northern_major_eu_rmr.webp"
   },
   {
     "id": "copenhagen_rmr_na",
@@ -480,7 +480,7 @@
     "qualifierSlots": 10,
     "color": "#f59e0b",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_northern_major_americas_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_northern_major_americas_rmr.webp"
   },
   {
     "id": "copenhagen_rmr_asia",
@@ -499,7 +499,7 @@
     "qualifierSlots": 4,
     "color": "#f59e0b",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_northern_major_asia_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_northern_major_asia_rmr.webp"
   },
   {
     "id": "iem_katowice_closed_eu",
@@ -518,7 +518,7 @@
     "qualifierSlots": 2,
     "color": "#3b82f6",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_winter_open_katova_eu_closed_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_winter_open_katova_eu_closed_qualifier.webp"
   },
   {
     "id": "iem_katowice_open",
@@ -537,7 +537,7 @@
     "qualifierSlots": 2,
     "color": "#3b82f6",
     "icon": "users",
-    "logoPath": "/assets/tournaments/logo_winter_open_katova_open_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_winter_open_katova_open_qualifier.webp"
   },
   {
     "id": "thunderpick_open_qual",
@@ -556,7 +556,7 @@
     "qualifierSlots": 8,
     "color": "#a855f7",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_thunder_cup_open_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_thunder_cup_open_qualifier.webp"
   },
   {
     "id": "thunderpick_closed_qual",
@@ -575,7 +575,7 @@
     "qualifierSlots": 8,
     "color": "#a855f7",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_thunder_cup_closed_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_thunder_cup_closed_qualifier.webp"
   },
   {
     "id": "iem_cologne_open",
@@ -594,7 +594,7 @@
     "qualifierSlots": 8,
     "color": "#22c55e",
     "icon": "users",
-    "logoPath": "/assets/tournaments/logo_summer_open_colone_open_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_summer_open_colone_open_qualifier.webp"
   },
   {
     "id": "iem_cologne_closed",
@@ -613,7 +613,7 @@
     "qualifierSlots": 2,
     "color": "#22c55e",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_summer_open_colone_closed_qualifier.svg"
+    "logoPath": "/assets/tournaments/logo_summer_open_colone_closed_qualifier.webp"
   },
   {
     "id": "shanghai_rmr_eu",
@@ -632,7 +632,7 @@
     "qualifierSlots": 8,
     "color": "#ef4444",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_eastern_major_eu_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_eastern_major_eu_rmr.webp"
   },
   {
     "id": "shanghai_rmr_na",
@@ -651,7 +651,7 @@
     "qualifierSlots": 6,
     "color": "#ef4444",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_eastern_major_americas_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_eastern_major_americas_rmr.webp"
   },
   {
     "id": "shanghai_rmr_asia",
@@ -670,7 +670,7 @@
     "qualifierSlots": 2,
     "color": "#ef4444",
     "icon": "door-open",
-    "logoPath": "/assets/tournaments/logo_eastern_major_asia_rmr.svg"
+    "logoPath": "/assets/tournaments/logo_eastern_major_asia_rmr.webp"
   },
   {
     "id": "blast_spring_showdown",
@@ -689,7 +689,7 @@
     "qualifierSlots": 8,
     "color": "#f97316",
     "icon": "zap",
-    "logoPath": "/assets/tournaments/logo_elite_circuit_spring_showdown.svg",
+    "logoPath": "/assets/tournaments/logo_elite_circuit_spring_showdown.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -709,7 +709,7 @@
     "qualifierSlots": 8,
     "color": "#f97316",
     "icon": "zap",
-    "logoPath": "/assets/tournaments/logo_elite_circuit_fall_showdown.svg",
+    "logoPath": "/assets/tournaments/logo_elite_circuit_fall_showdown.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -728,7 +728,7 @@
     "requiredLeagueTier": "A_TIER",
     "color": "#8b5cf6",
     "icon": "shield",
-    "logoPath": "/assets/tournaments/logo_global_pro_league_conferance.svg",
+    "logoPath": "/assets/tournaments/logo_global_pro_league_conferance.webp",
     "trophyPath": "/assets/tournaments/b_tier_trophy_1.png"
   },
   {
@@ -749,7 +749,7 @@
     "qualifierSlots": 4,
     "color": "#22c55e",
     "icon": "target",
-    "logoPath": "/assets/tournaments/logo_rio_masters_2025.svg",
+    "logoPath": "/assets/tournaments/logo_rio_masters_2025.webp",
     "trophyPath": "/assets/tournaments/a_tier_trophy_1.png"
   },
   {
@@ -767,6 +767,6 @@
     "description": "Classic grassroots LAN tournament. Open to all teams.",
     "color": "#f59e0b",
     "icon": "flame",
-    "logoPath": "/assets/tournaments/logo_dream_circuit_open_summer.svg"
+    "logoPath": "/assets/tournaments/logo_dream_circuit_open_summer.webp"
   }
 ]
