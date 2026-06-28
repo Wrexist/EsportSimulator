@@ -1,13 +1,17 @@
 import type { Metadata, Viewport } from 'next'
-import { Archivo_Black } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ConsoleToTerminal } from '@/components/console-to-terminal'
 import './globals.css'
 
-const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
+// Self-hosted Archivo Black (was next/font/google). Bundling the woff2 keeps the
+// production build fully offline — no build-time fetch to fonts.gstatic.com, which
+// is blocked on restricted/corporate networks and breaks `next build`.
+const archivoBlack = localFont({
+  src: './fonts/archivo-black-latin-400-normal.woff2',
+  weight: '400',
+  style: 'normal',
   display: 'swap',
   variable: '--font-archivo',
-  weight: '400'
 });
 
 export const viewport: Viewport = {
