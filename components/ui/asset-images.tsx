@@ -6,16 +6,17 @@ import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS } from "@/lib/asset-utils";
 import { cn } from "@/lib/utils";
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
 import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";
-import { renderPortraitSVG } from "@/lib/safe-branding/portrait-generator";
+import { pickPooledPortrait } from "@/lib/safe-branding/portrait-pool";
 
 /**
- * Build an inline data-URI for the procedural portrait of `seed`. Same hash →
- * same person as the live 3D portrait (both consume derivePortraitFeatures),
- * but this is a pure SVG string — no WebGL context, no network — so it's safe
- * to render hundreds at once in tables and grids.
+ * A "photo-less" source is one that should be replaced by a baked portrait:
+ * the static placeholder, or a flat procedural SVG (legends ship
+ * `/assets/legends/*.svg`). Real player photos are always `.png`.
  */
-function proceduralPortraitDataUri(seed: string, label: string): string {
-    return `data:image/svg+xml,${encodeURIComponent(renderPortraitSVG(seed, label))}`;
+function isPhotoless(src?: string | null): boolean {
+    if (!src) return true;
+    if (src === PLACEHOLDERS.player) return true;
+    return src.endsWith(".svg") || src.includes("/legends/");
 }
 
 interface PlayerImageProps {
@@ -117,6 +118,12 @@ interface TeamLogoImageProps {
         name: string;
         shortName?: string;
         logoPath?: string;
+        branding?: {
+            primaryColor: string;
+            secondaryColor: string;
+            accentColor: string;
+            logoStyle: "monogram" | "mascot" | "emblem" | "wordmark";
+        };
         customTeamData?: {
             logoData?: string;
             primaryColor: string;
@@ -140,8 +147,9 @@ export function TeamLogoImage({
 }: TeamLogoImageProps) {
     const [imgError, setImgError] = useState(false);
 
-    // If team object provided and it's a custom team, use TeamLogoDisplay
-    if (team?.customTeamData) {
+    // If we have enough to render the live 3D emblem (branding or custom colors),
+    // delegate to TeamLogoDisplay so generated teams stop showing the flat .svg.
+    if (team && (team.customTeamData || team.branding)) {
         return <TeamLogoDisplay team={team} size={size} className={className} />;
     }
 
@@ -216,8 +224,11 @@ interface PlayerPortraitProps {
 
 /**
  * Simple player portrait component that takes a direct src path.
- * Resolution order: real photo (.png) → baked .svg sibling → procedural
- * portrait from `seed` (if provided) → static placeholder.
+ * Resolution order: real baked photo (.png) → on load failure, a pooled baked
+ * portrait picked from `seed` → static placeholder. Players without a real
+ * photo (placeholder src, or a flat legend `.svg`) also resolve to a pooled
+ * baked portrait so the whole game uses the same 3D/baked portrait style — no
+ * flat 2D procedural avatars.
  */
 export function PlayerPortrait({
     src,
@@ -230,40 +241,27 @@ export function PlayerPortrait({
     imageClassName,
     seed,
 }: PlayerPortraitProps) {
-    // If the snapshot points to a baked .png and it fails to load (404, network),
-    // fall back to the procedural .svg at the same path. Only THEN fall back to
-    // the placeholder / generated portrait.
-    const [stage, setStage] = useState<"primary" | "svg" | "placeholder">("primary");
+    // A real baked .png can still fail to load (404/network); on error, drop to
+    // the pooled baked portrait (if we have a seed) rather than a bare silhouette.
+    const [stage, setStage] = useState<"primary" | "placeholder">("primary");
 
-    const svgFallbackSrc =
-        typeof src === "string" && src.endsWith(".png")
-            ? src.replace(/\.png$/, ".svg")
-            : null;
+    // Treat placeholder/legend-svg sources as photo-less up front so they never
+    // render the old flat 2D avatar.
+    const photoless = isPhotoless(src) || stage === "placeholder";
 
-    const resolvedSrc =
-        stage === "primary"
-            ? src
-            : stage === "svg" && svgFallbackSrc
-                ? svgFallbackSrc
-                : PLACEHOLDERS.player;
+    const onError = () => setStage("placeholder");
 
-    const onError = () => {
-        if (stage === "primary" && svgFallbackSrc) setStage("svg");
-        else setStage("placeholder");
-    };
-
-    // When there's no real photo (missing src, the static placeholder, or a
-    // failed load), render a generated procedural portrait from `seed` instead
-    // of the generic silhouette. Memoized so the SVG string is built once.
-    const wouldShowPlaceholder =
-        !src || src === PLACEHOLDERS.player || stage === "placeholder";
-    const proceduralSrc = useMemo(
-        () => (wouldShowPlaceholder && seed ? proceduralPortraitDataUri(seed, alt) : null),
-        [wouldShowPlaceholder, seed, alt],
+    // Pooled baked portrait (same family real players use), chosen deterministically
+    // from the seed. Replaces the retired 2D procedural SVG.
+    const pooledSrc = useMemo(
+        () => (photoless && seed ? pickPooledPortrait(seed) : null),
+        [photoless, seed],
     );
 
+    const resolvedSrc = photoless ? (pooledSrc ?? PLACEHOLDERS.player) : (src as string);
+
     if (fill) {
-        const fillSrc = proceduralSrc || resolvedSrc || PLACEHOLDERS.player;
+        const fillSrc = resolvedSrc || PLACEHOLDERS.player;
         return (
             <Image
                 key={fillSrc}
@@ -271,14 +269,13 @@ export function PlayerPortrait({
                 alt={alt}
                 fill
                 className={cn("object-cover", className)}
-                onError={proceduralSrc ? undefined : onError}
+                onError={photoless ? undefined : onError}
                 unoptimized
             />
         );
     }
 
-    const framedSrc =
-        proceduralSrc ?? (!src || stage === "placeholder" ? null : resolvedSrc);
+    const framedSrc = photoless ? pooledSrc : (src as string);
 
     return (
         <PlayerPortraitFrame
@@ -290,7 +287,7 @@ export function PlayerPortrait({
             teamColor={teamColor}
             className={className}
             imageClassName={imageClassName}
-            onImageError={proceduralSrc ? undefined : onError}
+            onImageError={photoless ? undefined : onError}
         />
     );
 }

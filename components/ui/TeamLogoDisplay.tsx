@@ -4,8 +4,14 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useState } from "react"
 import { PLACEHOLDERS } from "@/lib/asset-utils"
-import { textOnBrand } from "@/lib/branding/fallback"
 import type { TeamBranding } from "@/data/snapshot-types"
+import { TeamEmblem } from "@/components/ui/TeamEmblem"
+
+/** Real hand-made / AI raster logos (.webp/.png/.jpg) win; the flat generated
+ *  .svg shields are replaced by the live 3D <TeamEmblem>. */
+function isRasterLogo(p?: string): boolean {
+    return !!p && /\.(webp|png|jpe?g|gif)$/i.test(p)
+}
 
 interface TeamLogoDisplayProps {
     team: {
@@ -27,7 +33,9 @@ interface TeamLogoDisplayProps {
 
 /**
  * Universal team logo component.
- * Handles custom teams (uploaded image OR generated shield), standard teams, and fallbacks.
+ * Resolution: uploaded image → real raster logo → live 3D procedural emblem
+ * (from branding or custom colors) → placeholder. The procedural <TeamEmblem>
+ * replaces the old flat 2D .svg shields for every generated team.
  */
 export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayProps) {
     const [imgError, setImgError] = useState(false)
@@ -43,7 +51,7 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // Case 1: Custom team with uploaded image
+    // 1. Custom team with an uploaded image.
     if (team.customTeamData?.logoData) {
         return (
             <img
@@ -55,60 +63,16 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // Case 2: Custom team with color preset (no uploaded image) — render SVG shield
-    if (team.customTeamData) {
-        const { primaryColor, secondaryColor } = team.customTeamData
-        const initials = team.shortName?.slice(0, 2).toUpperCase() || team.name.charAt(0).toUpperCase()
-        const gradId = `tld-${team.id || team.name.replace(/\s/g, "")}-${size}`
-
-        return (
-            <svg
-                viewBox="0 0 100 120"
-                width={size}
-                height={size}
-                className={className}
-            >
-                <defs>
-                    <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor={primaryColor} />
-                        <stop offset="100%" stopColor={secondaryColor} />
-                    </linearGradient>
-                </defs>
-                <path
-                    d="M50 2 L96 24 L96 68 Q96 100 50 118 Q4 100 4 68 L4 24 Z"
-                    fill={`url(#${gradId})`}
-                    stroke="rgba(255,255,255,0.25)"
-                    strokeWidth="2"
-                />
-                <text
-                    x="50"
-                    y="72"
-                    textAnchor="middle"
-                    fill="white"
-                    fontSize={initials.length > 2 ? "26" : "32"}
-                    fontWeight="bold"
-                    fontFamily="system-ui, sans-serif"
-                    style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
-                >
-                    {initials}
-                </text>
-            </svg>
-        )
-    }
-
-    // Case 3: Standard team with logo file. Render with a soft drop-shadow +
-    // subtle inner halo so logos read as premium "lifted" emblems instead of
-    // flat PNGs pasted onto the panel.
-    if (team.logoPath && !imgError) {
+    // 2. A real raster logo (hand-made or AI-generated .webp/.png) — these win.
+    if (isRasterLogo(team.logoPath) && !imgError) {
         return (
             <Image
-                src={team.logoPath}
+                src={team.logoPath as string}
                 alt={team.name}
                 width={size}
                 height={size}
                 className={cn(
                     "object-contain transition-transform duration-300 ease-out",
-                    "drop-shadow-[0_4px_14px_rgba(0,0,0,0.45)]",
                     "[filter:drop-shadow(0_2px_4px_rgba(0,0,0,0.35))_drop-shadow(0_0_18px_rgba(255,255,255,0.06))]",
                     className,
                 )}
@@ -118,40 +82,63 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // Case 4: Branded initials fallback — predefined teams that fail to
-    // load their SVG still render a recognizable colored chip.
-    if ((imgError || !team.logoPath) && team.branding?.primaryColor) {
-        const initials = team.shortName?.slice(0, 2).toUpperCase() || team.name.charAt(0).toUpperCase()
+    // 3. Live 3D procedural emblem from the team's branding (replaces flat .svg).
+    if (team.branding?.primaryColor) {
         return (
-            <div
-                className={cn("flex items-center justify-center font-bold rounded", className)}
-                style={{
-                    width: size,
-                    height: size,
-                    backgroundColor: team.branding.primaryColor,
-                    color: textOnBrand(team.branding.primaryColor),
-                    fontSize: size * (initials.length > 2 ? 0.32 : 0.42),
-                }}
-                aria-label={`${team.name} logo`}
-            >
-                {initials}
-            </div>
+            <TeamEmblem
+                name={team.name}
+                shortName={team.shortName}
+                branding={team.branding}
+                seed={team.id || team.name}
+                size={size}
+                className={className}
+            />
         )
     }
 
-    // Case 5: Generic placeholder for un-branded teams
-    if (imgError || !team.logoPath) {
+    // 4. Custom color-preset team (no branding object) — emblem from its colors.
+    if (team.customTeamData) {
+        return (
+            <TeamEmblem
+                name={team.name}
+                shortName={team.shortName}
+                branding={{
+                    primaryColor: team.customTeamData.primaryColor,
+                    secondaryColor: team.customTeamData.secondaryColor,
+                    accentColor: "#ffffff",
+                    logoStyle: "monogram",
+                }}
+                seed={team.id || team.name}
+                size={size}
+                className={className}
+            />
+        )
+    }
+
+    // 5. No branding/colors but has a logo file (incl. legacy .svg) — load it.
+    if (team.logoPath && !imgError) {
         return (
             <Image
-                src={PLACEHOLDERS.logo}
+                src={team.logoPath}
                 alt={team.name}
                 width={size}
                 height={size}
                 className={cn("object-contain", className)}
+                onError={() => setImgError(true)}
                 unoptimized
             />
         )
     }
 
-    return null
+    // 6. Generic placeholder.
+    return (
+        <Image
+            src={PLACEHOLDERS.logo}
+            alt={team.name}
+            width={size}
+            height={size}
+            className={cn("object-contain", className)}
+            unoptimized
+        />
+    )
 }

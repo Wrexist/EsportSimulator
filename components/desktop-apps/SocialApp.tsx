@@ -185,10 +185,12 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
 
                                             {/* Post Actions */}
                                             <div className="flex items-center gap-4">
-                                                <button type="button" aria-label="Reply" className="flex items-center gap-1 text-[9px] text-white/40 hover:text-cyan-400 active:scale-90 transition-all">
+                                                {/* Replies are display-only (no composer yet) — render as a
+                                                    stat, not a button, so it doesn't read as a dead action. */}
+                                                <span aria-label={`${post.replies} replies`} className="flex items-center gap-1 text-[9px] text-white/40">
                                                     <MessageCircle size={12} />
                                                     {post.replies}
-                                                </button>
+                                                </span>
                                                 <button
                                                     type="button"
                                                     aria-label="Retweet post"
