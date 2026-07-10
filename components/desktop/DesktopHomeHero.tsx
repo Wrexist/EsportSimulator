@@ -31,11 +31,12 @@ function formatMoney(n: number): string {
 
 export function DesktopHomeHero() {
     const router = useRouter()
-    const { teams, playerTeamId, scheduledMatches, currentWeek, currentDay, timeMode } = useGameStore(
+    const { teams, playerTeamId, scheduledMatches, completedMatches, currentWeek, currentDay, timeMode } = useGameStore(
         useShallow(state => ({
             teams: state.teams,
             playerTeamId: state.playerTeamId,
             scheduledMatches: state.scheduledMatches,
+            completedMatches: state.completedMatches,
             currentWeek: state.currentWeek,
             currentDay: state.currentDay,
             timeMode: state.timeMode,
@@ -45,10 +46,16 @@ export function DesktopHomeHero() {
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
     const nextMatch = useMemo(() => {
+        // Exclude anything already played or left behind in a past week so the
+        // hero never points at a finished scrim (which would route to a stale
+        // /match/{id}/tactics). scheduledMatches is normally pruned on result,
+        // but this keeps the "next match" honest regardless of prune timing.
+        const completedIds = new Set(completedMatches.map(m => m.id))
         return scheduledMatches
             .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+            .filter(m => !completedIds.has(m.id) && m.week >= currentWeek)
             .sort((a, b) => (a.week !== b.week ? a.week - b.week : (a.day ?? 6) - (b.day ?? 6)))[0]
-    }, [scheduledMatches, playerTeamId])
+    }, [scheduledMatches, completedMatches, currentWeek, playerTeamId])
 
     const opponent = useMemo(() => {
         if (!nextMatch) return undefined

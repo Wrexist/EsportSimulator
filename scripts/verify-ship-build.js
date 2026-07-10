@@ -46,16 +46,20 @@ const red = s => `\x1b[31m${s}\x1b[0m`
 const green = s => `\x1b[32m${s}\x1b[0m`
 const yellow = s => `\x1b[33m${s}\x1b[0m`
 
-function walkExes(dir, acc = []) {
+// Collect every .exe under `dir`. `unreadable` accumulates directories that
+// couldn't be read — the caller MUST fail the verification if it is non-empty,
+// otherwise an incomplete scan could authorize an upload it never inspected.
+function walkExes(dir, acc = [], unreadable = []) {
     let entries
     try {
         entries = fs.readdirSync(dir, { withFileTypes: true })
-    } catch {
+    } catch (err) {
+        unreadable.push(`${dir} (${err.code || err.message})`)
         return acc
     }
     for (const e of entries) {
         const full = path.join(dir, e.name)
-        if (e.isDirectory()) walkExes(full, acc)
+        if (e.isDirectory()) walkExes(full, acc, unreadable)
         else if (e.name.toLowerCase().endsWith(".exe")) acc.push(full)
     }
     return acc
@@ -77,45 +81,84 @@ function main() {
         return
     }
 
-    // 1. Launch executable must be at the content root.
+    // 1. Launch executable must be at the content root AND be a real file
+    //    (existsSync alone also passes for a directory named EsportsManager.exe).
     const launchPath = path.join(CONTENT_ROOT, LAUNCH_EXE)
-    if (fs.existsSync(launchPath)) {
+    let launchIsFile = false
+    try {
+        launchIsFile = fs.statSync(launchPath).isFile()
+    } catch {
+        launchIsFile = false
+    }
+    if (launchIsFile) {
         console.log(green(`  ok  ${LAUNCH_EXE} present at depot root`))
     } else {
         errors.push(
-            `${LAUNCH_EXE} not found at the content root.\n` +
+            `${LAUNCH_EXE} not found as a regular file at the content root.\n` +
             `      The Steam launch option is configured to run "${LAUNCH_EXE}", so it MUST\n` +
             `      exist here. You are probably about to upload the wrong folder\n` +
             `      (portable SteamBuild/ instead of dist/win-unpacked/).`
         )
     }
 
-    // 2. No forbidden executables anywhere in the depot.
-    const allExes = walkExes(CONTENT_ROOT)
-    const stray = allExes.filter(p => FORBIDDEN_EXES.has(path.basename(p).toLowerCase()))
-    if (stray.length > 0) {
+    // 2. Inspect every executable in the depot. Fail on the known-bad ones
+    //    (these got BuildID 23989573 rejected); warn loudly on anything that
+    //    isn't the validated root launcher so a new helper/updater exe can't
+    //    slip through unnoticed and be auto-selected by Steam.
+    const unreadable = []
+    const allExes = walkExes(CONTENT_ROOT, [], unreadable)
+    if (unreadable.length > 0) {
         errors.push(
-            `Found ${stray.length} stray executable(s) Steam could launch by mistake:\n` +
-            stray.map(p => `        - ${path.relative(CONTENT_ROOT, p)}`).join("\n") +
+            `Could not read ${unreadable.length} director(y/ies) — the scan is incomplete,\n` +
+            `      so the depot cannot be certified safe to upload:\n` +
+            unreadable.map(d => `        - ${d}`).join("\n")
+        )
+    }
+    const allowedExe = path.resolve(launchPath).toLowerCase()
+    const forbidden = []
+    const unexpected = []
+    for (const p of allExes) {
+        if (path.resolve(p).toLowerCase() === allowedExe) continue
+        if (FORBIDDEN_EXES.has(path.basename(p).toLowerCase())) forbidden.push(p)
+        else unexpected.push(p)
+    }
+    if (forbidden.length > 0) {
+        errors.push(
+            `Found ${forbidden.length} stray executable(s) Steam could launch by mistake:\n` +
+            forbidden.map(p => `        - ${path.relative(CONTENT_ROOT, p)}`).join("\n") +
             `\n      This is exactly what got BuildID 23989573 rejected (7za.exe). The depot\n` +
             `      should be the packaged app, not a raw node_modules tree.`
         )
-    } else {
+    }
+    if (unexpected.length > 0) {
+        warnings.push(
+            `${unexpected.length} executable(s) other than ${LAUNCH_EXE} are in the depot.\n` +
+            `      Verify none of these can be auto-selected as the launcher by Steam:\n` +
+            unexpected.map(p => `        - ${path.relative(CONTENT_ROOT, p)}`).join("\n")
+        )
+    }
+    if (forbidden.length === 0 && unexpected.length === 0) {
         console.log(green(`  ok  no stray executables (${allExes.length} .exe total, all expected)`))
     }
 
     // 3. The deprecated portable build must not be what's being shipped.
+    //    Use path.relative for containment so a sibling like SteamBuild-backup
+    //    isn't mistaken for being inside SteamBuild/.
     const steamBuild = path.join(ROOT, "SteamBuild")
-    if (fs.existsSync(steamBuild) && path.resolve(CONTENT_ROOT).startsWith(path.resolve(steamBuild))) {
-        errors.push(
-            `Content root is inside the deprecated portable SteamBuild/ tree.\n` +
-            `      Ship dist/win-unpacked/ (electron-builder) instead — see HOW_TO_BUILD_AND_SHIP.md.`
-        )
-    } else if (fs.existsSync(steamBuild)) {
-        warnings.push(
-            `A stale portable SteamBuild/ folder exists but is not being shipped (good).\n` +
-            `      Consider deleting it so it can never be uploaded by accident.`
-        )
+    if (fs.existsSync(steamBuild)) {
+        const rel = path.relative(path.resolve(steamBuild), path.resolve(CONTENT_ROOT))
+        const insideSteamBuild = rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel))
+        if (insideSteamBuild) {
+            errors.push(
+                `Content root is inside the deprecated portable SteamBuild/ tree.\n` +
+                `      Ship dist/win-unpacked/ (electron-builder) instead — see HOW_TO_BUILD_AND_SHIP.md.`
+            )
+        } else {
+            warnings.push(
+                `A stale portable SteamBuild/ folder exists but is not being shipped (good).\n` +
+                `      Consider deleting it so it can never be uploaded by accident.`
+            )
+        }
     }
 
     report(errors, warnings)

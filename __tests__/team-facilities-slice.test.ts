@@ -159,6 +159,33 @@ describe("signSponsor", () => {
         expect(h.state().teams[0].sponsors ?? []).toEqual([])
     })
 
+    test("ignores caller-spoofed tier/name/payout — persists the pool offer's values", () => {
+        // A crafted payload reuses a real ELITE offer's id but lies about tier,
+        // name and payout. signSponsor resolves by id and spreads the trusted
+        // pool offer, so the saved sponsor must reflect the pool, not the lie.
+        const elite = makeSponsor("MegaCorp", "ELITE", { id: "off_elite_real", weeklyPayout: 20_000 })
+        const h = makeHarness(makeBaseState({ sponsorOffers: [elite] }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        const spoofed = makeSponsor("Downgraded", "BASIC", { id: "off_elite_real", weeklyPayout: 1 })
+        const res = slice.signSponsor("player", spoofed)
+        expect(res.success).toBe(true)
+        const signed = h.state().teams[0].sponsors![0]
+        expect(signed.tier).toBe("ELITE")
+        expect(signed.name).toBe("MegaCorp")
+        expect(signed.weeklyPayout).toBe(20_000)
+    })
+
+    test("refuses an offer whose remainingWeeks exceeds the contract cap", () => {
+        // Out-of-range duration must be rejected (not silently floored) so it
+        // can't land uncapped in the saved sponsor.
+        const offer = makeSponsor("LongDeal", "BASIC", { id: "off_long", remainingWeeks: 52 * 10 + 5 })
+        const h = makeHarness(makeBaseState({ sponsorOffers: [offer] }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        const res = slice.signSponsor("player", offer)
+        expect(res.success).toBe(false)
+        expect(h.state().teams[0].sponsors ?? []).toEqual([])
+    })
+
     test("refuses past MAX_SPONSORS_PER_TEAM (3)", () => {
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", {

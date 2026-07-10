@@ -945,7 +945,11 @@ export function useLiveMatch(id: string) {
                 const mapClinched = roundState.homeRounds >= mapWinThreshold || roundState.awayRounds >= mapWinThreshold
                 const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
                 const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
-                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide)) {
+                // Only cue on normal playback (manual speed caps at 5x). Instant
+                // simulate sets speed to 100 and fast-forwards every remaining
+                // round through this handler — cueing there would machine-gun the
+                // audio, so skip it (keeps per-round feedback sparse).
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= 5) {
                     const playerWonRound = playerIsHomeSide ? isHomeWinner : !isHomeWinner
                     soundManager.play(playerWonRound ? "roundWin" : "roundLose")
                 }

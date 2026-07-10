@@ -290,12 +290,18 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 return
             }
             const weeksCheck = parseBoundedInt(offer.remainingWeeks, "Sponsor duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
+            if (!weeksCheck.ok) {
+                // Reject like payoutCheck — the old floor-only fallback let an
+                // out-of-range remainingWeeks land uncapped in the saved sponsor.
+                result = { success: false, message: weeksCheck.message }
+                return
+            }
 
             const normalizedSponsor: SponsorSaveData = {
                 ...offer,
                 id: offer.id || nextDeterministicId(state, "spon", offer.tier, offer.name),
                 weeklyPayout: payoutCheck.value,
-                remainingWeeks: weeksCheck.ok ? weeksCheck.value : Math.max(1, Math.floor(offer.remainingWeeks || 0)),
+                remainingWeeks: weeksCheck.value,
                 signedWeek: state.currentWeek,
                 followerCheckpoint: team.followers || 0,
                 lastProcessedWeek: undefined,
