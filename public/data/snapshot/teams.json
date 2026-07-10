@@ -1,8 +1,8 @@
 [
   {
     "id": "team_1_vitalis",
-    "name": "Vitals",
-    "shortName": "VITL",
+    "name": "Team Oblivion",
+    "shortName": "OBL",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/vitalis/logo.svg",
@@ -21,13 +21,13 @@
       "primaryColor": "#FFEE00",
       "secondaryColor": "#1A1A1A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "mascot"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_2_foria",
-    "name": "FORIA",
-    "shortName": "FORIA",
+    "name": "Umbra Esports",
+    "shortName": "UE",
     "tier": "ELITE",
     "region": "BR",
     "logoPath": "/assets/teams/foria/logo.svg",
@@ -46,13 +46,13 @@
       "primaryColor": "#000000",
       "secondaryColor": "#1A1A1A",
       "accentColor": "#00C896",
-      "logoStyle": "mascot"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_3_falconry",
-    "name": "Falconry",
-    "shortName": "FALC",
+    "name": "Ironspire",
+    "shortName": "IRO",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/falconry/logo.svg",
@@ -76,8 +76,8 @@
   },
   {
     "id": "team_4_muxeen",
-    "name": "Mouzen",
-    "shortName": "MZN",
+    "name": "Warblade",
+    "shortName": "WAR",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/muxeen/logo.svg",
@@ -96,13 +96,13 @@
       "primaryColor": "#E2061B",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_5_phantom",
-    "name": "Specter",
-    "shortName": "SPCR",
+    "name": "Ember Rift",
+    "shortName": "ER",
     "tier": "ELITE",
     "region": "CIS",
     "logoPath": "/assets/teams/phantom/logo.svg",
@@ -121,13 +121,13 @@
       "primaryColor": "#8B5CF6",
       "secondaryColor": "#1F0A2E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_6_perivesion",
-    "name": "PERIVESION",
-    "shortName": "PERI",
+    "name": "Skypulse",
+    "shortName": "SKY",
     "tier": "ELITE",
     "region": "CIS",
     "logoPath": "/assets/teams/perivesion/logo.svg",
@@ -147,13 +147,13 @@
       "primaryColor": "#EC4899",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_7_phaze",
-    "name": "Phaze",
-    "shortName": "PHAZE",
+    "name": "Violet Lumen",
+    "shortName": "VL",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/phaze/logo.svg",
@@ -172,13 +172,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_8_natusvincera",
-    "name": "Natus Vincera",
-    "shortName": "NATU",
+    "name": "Aegis Esports",
+    "shortName": "AE",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/natus_vincera/logo.svg",
@@ -197,13 +197,13 @@
       "primaryColor": "#FFD700",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_9_gtwo",
-    "name": "G-Two",
-    "shortName": "G-TWO",
+    "name": "Moonstorm Republic",
+    "shortName": "MR",
     "tier": "ELITE",
     "region": "EU",
     "logoPath": "/assets/teams/g_two/logo.svg",
@@ -227,8 +227,8 @@
   },
   {
     "id": "team_10_thenomads",
-    "name": "Nomads",
-    "shortName": "NMDS",
+    "name": "Meridian Initiative",
+    "shortName": "MI",
     "tier": "ELITE",
     "region": "ASIA",
     "logoPath": "/assets/teams/the_nomads/logo.svg",
@@ -247,13 +247,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_11_eurora",
-    "name": "Eurora",
-    "shortName": "EURO",
+    "name": "Zenith",
+    "shortName": "ZEN",
     "tier": "PRO",
     "region": "MENA",
     "logoPath": "/assets/teams/eurora/logo.svg",
@@ -277,8 +277,8 @@
   },
   {
     "id": "team_12_astraflux",
-    "name": "Astralians",
-    "shortName": "ASTR",
+    "name": "Odyssey Initiative",
+    "shortName": "OI",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/astraflux/logo.svg",
@@ -297,13 +297,13 @@
       "primaryColor": "#1E40AF",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_13_3dmax",
-    "name": "3DMaximus",
-    "shortName": "3DMaximus",
+    "name": "Raven Esports",
+    "shortName": "RE",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/3dmax/logo.svg",
@@ -322,13 +322,13 @@
       "primaryColor": "#F97316",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_14_fut",
-    "name": "FUTR",
-    "shortName": "FUTR",
+    "name": "Ivory Monolith",
+    "shortName": "IM",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/fut/logo.svg",
@@ -352,8 +352,8 @@
   },
   {
     "id": "team_15_centuryrogues",
-    "name": "Century Rogues",
-    "shortName": "CENT",
+    "name": "Warhowl",
+    "shortName": "WHL",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/century_rogues/logo.svg",
@@ -377,8 +377,8 @@
   },
   {
     "id": "team_15_tide",
-    "name": "Tide",
-    "shortName": "TIDE",
+    "name": "Team Halcyon",
+    "shortName": "HAL",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/tide/logo.svg",
@@ -397,13 +397,13 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "mascot"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_16_b8",
-    "name": "Beta8",
-    "shortName": "Beta8",
+    "name": "Riptide Athletic",
+    "shortName": "RA",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/b8/logo.svg",
@@ -428,8 +428,8 @@
   },
   {
     "id": "team_17_pazsyonoa",
-    "name": "Pazsyon OA",
-    "shortName": "PAZS",
+    "name": "Cortex Gaming",
+    "shortName": "CG",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/pazsyon_oa/logo.svg",
@@ -448,13 +448,13 @@
       "primaryColor": "#FCD34D",
       "secondaryColor": "#1F2937",
       "accentColor": "#1E3A8A",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_18_sting",
-    "name": "Sting",
-    "shortName": "STING",
+    "name": "Scarlet Summit",
+    "shortName": "SS",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/sting/logo.svg",
@@ -473,13 +473,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "mascot"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_19_nrg",
-    "name": "NRGen",
-    "shortName": "NRGen",
+    "name": "Bloodspire Gaming",
+    "shortName": "BG",
     "tier": "PRO",
     "region": "NA",
     "logoPath": "/assets/teams/nrg/logo.svg",
@@ -503,8 +503,8 @@
   },
   {
     "id": "team_20_gamerleague",
-    "name": "Gamer League",
-    "shortName": "GAME",
+    "name": "Bastion Corps",
+    "shortName": "BC",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/gamer_league/logo.svg",
@@ -523,13 +523,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_21_novainvaders",
-    "name": "Nova Invaders",
-    "shortName": "NOVA",
+    "name": "Eclipse Collective",
+    "shortName": "EC",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/nova_invaders/logo.svg",
@@ -548,13 +548,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_22_valiant",
-    "name": "Valiant",
-    "shortName": "VALI",
+    "name": "Pulsar Coalition",
+    "shortName": "PC",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/valiant/logo.svg",
@@ -574,13 +574,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_22_virtusnova",
-    "name": "Virtus Nova",
-    "shortName": "VIRT",
+    "name": "Ironwing",
+    "shortName": "IWG",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/virtus_nova/logo.svg",
@@ -599,13 +599,13 @@
       "primaryColor": "#F97316",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "emblem"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_23_imperius",
-    "name": "Imperius",
-    "shortName": "IMPE",
+    "name": "Citadel",
+    "shortName": "CIT",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/imperius/logo.svg",
@@ -629,8 +629,8 @@
   },
   {
     "id": "team_24_a81",
-    "name": "A81",
-    "shortName": "A81",
+    "name": "Team Meridian",
+    "shortName": "MER",
     "tier": "PRO",
     "region": "NA",
     "logoPath": "/assets/teams/a81/logo.svg",
@@ -654,8 +654,8 @@
   },
   {
     "id": "team_25_lineage",
-    "name": "Lineage",
-    "shortName": "LINE",
+    "name": "Maelstrom",
+    "shortName": "MAE",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/lineage/logo.svg",
@@ -675,13 +675,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#1F2937",
       "accentColor": "#FCD34D",
-      "logoStyle": "emblem"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_26_bkkame",
-    "name": "BK.Kame",
-    "shortName": "BKKA",
+    "name": "Void Vortex",
+    "shortName": "VV",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/bk_kame/logo.svg",
@@ -700,13 +700,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_27_gantlemotex",
-    "name": "Gantle Motex",
-    "shortName": "GANT",
+    "name": "Vanguard Esports",
+    "shortName": "VE",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/gantle_motex/logo.svg",
@@ -725,13 +725,13 @@
       "primaryColor": "#F97316",
       "secondaryColor": "#1F2937",
       "accentColor": "#FACC15",
-      "logoStyle": "emblem"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_28_mbesports",
-    "name": "MB Esports",
-    "shortName": "MBES",
+    "name": "Drake",
+    "shortName": "DRA",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/mb_esports/logo.svg",
@@ -757,8 +757,8 @@
   },
   {
     "id": "team_29_flycrest",
-    "name": "FlyCrest",
-    "shortName": "FLYC",
+    "name": "Nimbus",
+    "shortName": "NIM",
     "tier": "PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/flycrest/logo.svg",
@@ -783,8 +783,8 @@
   },
   {
     "id": "team_30_taroo",
-    "name": "TAROO",
-    "shortName": "TAROO",
+    "name": "Team Cortex",
+    "shortName": "COR",
     "tier": "PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/taroo/logo.svg",
@@ -804,13 +804,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#1F2937",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_31_argongra",
-    "name": "Montegra",
-    "shortName": "MONT",
+    "name": "Shadowhowl",
+    "shortName": "SHA",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/argongra/logo.svg",
@@ -829,13 +829,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_32_boombyte",
-    "name": "BoomByte",
-    "shortName": "BOOM",
+    "name": "Void Oblivion",
+    "shortName": "VO",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/boombyte/logo.svg",
@@ -859,8 +859,8 @@
   },
   {
     "id": "team_33_phanatic",
-    "name": "Phanatic",
-    "shortName": "PHAN",
+    "name": "Kraken",
+    "shortName": "KRA",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/phanatic/logo.svg",
@@ -880,13 +880,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_34_iyeballars",
-    "name": "IYEBALLARS",
-    "shortName": "IYEB",
+    "name": "Ivory Cascade",
+    "shortName": "IC",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/iyeballars/logo.svg",
@@ -905,13 +905,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#1F2937",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_35_hatual",
-    "name": "HATUal",
-    "shortName": "HATU",
+    "name": "Ronin",
+    "shortName": "RON",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/hatual/logo.svg",
@@ -930,13 +930,13 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#0C4A6E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_36_lynxvision",
-    "name": "Lynx Vision",
-    "shortName": "LYNX",
+    "name": "Griffin Dynasty",
+    "shortName": "GD",
     "tier": "PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/lynx_vision/logo.svg",
@@ -960,8 +960,8 @@
   },
   {
     "id": "team_37_besteayx",
-    "name": "BESTEAyx",
-    "shortName": "BEST",
+    "name": "Wolfclaw",
+    "shortName": "WOL",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/besteayx/logo.svg",
@@ -980,13 +980,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_38_redwolves",
-    "name": "RED Wolves",
-    "shortName": "REDW",
+    "name": "Raven",
+    "shortName": "RAV",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/red_wolves/logo.svg",
@@ -1006,13 +1006,13 @@
       "primaryColor": "#10B981",
       "secondaryColor": "#064E3B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_39_hammerheads",
-    "name": "Hammerheads",
-    "shortName": "HAMM",
+    "name": "Titan Summit",
+    "shortName": "TS",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/hammerheads/logo.svg",
@@ -1036,8 +1036,8 @@
   },
   {
     "id": "team_40_x27",
-    "name": "X27",
-    "shortName": "X27",
+    "name": "Iron Astra",
+    "shortName": "IA",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/x27/logo.svg",
@@ -1061,8 +1061,8 @@
   },
   {
     "id": "team_41_9ink",
-    "name": "9INK",
-    "shortName": "9INK",
+    "name": "Arctic Cobra",
+    "shortName": "AC",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/9ink/logo.svg",
@@ -1082,13 +1082,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_42_9zed",
-    "name": "9ZED",
-    "shortName": "9ZED",
+    "name": "Quasar",
+    "shortName": "QUA",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/9zed/logo.svg",
@@ -1108,13 +1108,13 @@
       "primaryColor": "#10B981",
       "secondaryColor": "#064E3B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_43_nocliartijeres",
-    "name": "Nocliar TijeRES",
-    "shortName": "NOCL",
+    "name": "Team Astra",
+    "shortName": "AST",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/nocliar_tijeres/logo.svg",
@@ -1139,8 +1139,8 @@
   },
   {
     "id": "team_44_ennarcercla",
-    "name": "Ennar Cercla",
-    "shortName": "ENNA",
+    "name": "Ash Crux",
+    "shortName": "ASH",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/ennar_cercla/logo.svg",
@@ -1165,8 +1165,8 @@
   },
   {
     "id": "team_45_nimeses",
-    "name": "Nimeses",
-    "shortName": "NIME",
+    "name": "Team Vanta",
+    "shortName": "VAN",
     "tier": "PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/nimeses/logo.svg",
@@ -1190,13 +1190,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_46_illwill",
-    "name": "illwill",
-    "shortName": "ILLW",
+    "name": "Shadow Obsidian",
+    "shortName": "SO",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/illwill/logo.svg",
@@ -1221,8 +1221,8 @@
   },
   {
     "id": "team_47_oddyx",
-    "name": "ODDYX",
-    "shortName": "ODDYX",
+    "name": "Viper Reserve",
+    "shortName": "VR",
     "tier": "PRO",
     "region": "BR",
     "logoPath": "/assets/teams/oddyx/logo.svg",
@@ -1241,13 +1241,13 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#0C4A6E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_49_vuqa",
-    "name": "Vuqa",
-    "shortName": "VUQA",
+    "name": "Basilisk",
+    "shortName": "BAS",
     "tier": "PRO",
     "region": "NA",
     "logoPath": "/assets/teams/vuqa/logo.svg",
@@ -1266,13 +1266,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_50_iqstatical",
-    "name": "IQSTATICal",
-    "shortName": "IQST",
+    "name": "Sentry",
+    "shortName": "SEN",
     "tier": "PRO",
     "region": "EU",
     "logoPath": "/assets/teams/iqstatical/logo.svg",
@@ -1293,13 +1293,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_51_aramund",
-    "name": "Aramund",
-    "shortName": "ARAM",
+    "name": "Everpulse Reserve",
+    "shortName": "EVE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/aramund/logo.svg",
@@ -1323,8 +1323,8 @@
   },
   {
     "id": "team_52_overgrowth",
-    "name": "OverGrowth",
-    "shortName": "OVER",
+    "name": "Darkspire",
+    "shortName": "DAR",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/overgrowth/logo.svg",
@@ -1343,13 +1343,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_53_morsborni",
-    "name": "Morsborni",
-    "shortName": "MORS",
+    "name": "Cinder Solstice",
+    "shortName": "CS",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/morsborni/logo.svg",
@@ -1374,8 +1374,8 @@
   },
   {
     "id": "team_55_namega",
-    "name": "Namega",
-    "shortName": "NAME",
+    "name": "Wyvern",
+    "shortName": "WYV",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/namega/logo.svg",
@@ -1397,13 +1397,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#1F2937",
       "accentColor": "#0B0B0B",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_56_kinone",
-    "name": "KinOne",
-    "shortName": "KINO",
+    "name": "Starclaw Union",
+    "shortName": "SU",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/kinone/logo.svg",
@@ -1427,8 +1427,8 @@
   },
   {
     "id": "team_57_ixrubyel",
-    "name": "ix-RUBYel",
-    "shortName": "IXRU",
+    "name": "Obsidian",
+    "shortName": "OBS",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/ix_rubyel/logo.svg",
@@ -1447,13 +1447,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_58_cybershoci",
-    "name": "CYBERSHOCI",
-    "shortName": "CYBE",
+    "name": "Vermillion Requiem",
+    "shortName": "VER",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/cybershoci/logo.svg",
@@ -1478,8 +1478,8 @@
   },
   {
     "id": "team_59_trycked",
-    "name": "Trycked",
-    "shortName": "TRYC",
+    "name": "Comet",
+    "shortName": "COM",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/trycked/logo.svg",
@@ -1498,13 +1498,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_60_arcredra",
-    "name": "ARCREDra",
-    "shortName": "ARCR",
+    "name": "Overborn Union",
+    "shortName": "OU",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/arcredra/logo.svg",
@@ -1528,8 +1528,8 @@
   },
   {
     "id": "team_62_vriendlycampirs",
-    "name": "Vriendly Campirs",
-    "shortName": "VRIE",
+    "name": "Sunstrike",
+    "shortName": "SUN",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/vriendly_campirs/logo.svg",
@@ -1548,13 +1548,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_63_bigkings",
-    "name": "BIG Kings",
-    "shortName": "BIGK",
+    "name": "Drake Esports",
+    "shortName": "DE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/big_kings/logo.svg",
@@ -1580,8 +1580,8 @@
   },
   {
     "id": "team_64_goimingladiaturs",
-    "name": "Goimin Gladiaturs",
-    "shortName": "GOIM",
+    "name": "Lynx Gaming",
+    "shortName": "LG",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/goimin_gladiaturs/logo.svg",
@@ -1607,8 +1607,8 @@
   },
   {
     "id": "team_65_xennersia",
-    "name": "XENNERSia",
-    "shortName": "XENN",
+    "name": "Viper",
+    "shortName": "VIP",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/xennersia/logo.svg",
@@ -1627,13 +1627,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_66_fluxion",
-    "name": "Fluxion",
-    "shortName": "FLUX",
+    "name": "Warden",
+    "shortName": "WDN",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/fluxion/logo.svg",
@@ -1653,13 +1653,13 @@
       "primaryColor": "#EC4899",
       "secondaryColor": "#831843",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_67_thahonz",
-    "name": "Tha Honz",
-    "shortName": "THAH",
+    "name": "Team Eclipse",
+    "shortName": "ECL",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/tha_honz/logo.svg",
@@ -1684,8 +1684,8 @@
   },
   {
     "id": "team_68_vavbator",
-    "name": "VAVBATor",
-    "shortName": "VAVB",
+    "name": "Stormbane",
+    "shortName": "STO",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/vavbator/logo.svg",
@@ -1704,13 +1704,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_69_muxenxd",
-    "name": "MZN NXD",
-    "shortName": "MZN",
+    "name": "Vanta Order",
+    "shortName": "VNA",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/muxe_nxd/logo.svg",
@@ -1734,8 +1734,8 @@
   },
   {
     "id": "team_70_500ro",
-    "name": "500ro",
-    "shortName": "500RO",
+    "name": "Titan Cobra",
+    "shortName": "TC",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/500ro/logo.svg",
@@ -1759,8 +1759,8 @@
   },
   {
     "id": "team_70_ance",
-    "name": "ANCE",
-    "shortName": "ANCE",
+    "name": "Team Apex",
+    "shortName": "APE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/ance/logo.svg",
@@ -1786,8 +1786,8 @@
   },
   {
     "id": "team_72_33or",
-    "name": "33or",
-    "shortName": "33OR",
+    "name": "Frosthunt",
+    "shortName": "FRO",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/33or/logo.svg",
@@ -1806,13 +1806,13 @@
       "primaryColor": "#10B981",
       "secondaryColor": "#064E3B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_72_rareelement",
-    "name": "Rare Element",
-    "shortName": "RARE",
+    "name": "Riptide",
+    "shortName": "RIP",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/rare_element/logo.svg",
@@ -1831,13 +1831,13 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#0C4A6E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_73_jahnnyspieds",
-    "name": "Jahnny Spieds",
-    "shortName": "JAHN",
+    "name": "Ignis",
+    "shortName": "IGN",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/jahnny_spieds/logo.svg",
@@ -1856,13 +1856,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_74_naxvaid",
-    "name": "NAXVAID",
-    "shortName": "NAXV",
+    "name": "Mirage Gaming",
+    "shortName": "MG",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/naxvaid/logo.svg",
@@ -1881,13 +1881,13 @@
       "primaryColor": "#10B981",
       "secondaryColor": "#064E3B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_75_wildace",
-    "name": "Wild Ace",
-    "shortName": "WILD",
+    "name": "Team Rift",
+    "shortName": "RIF",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/wild_ace/logo.svg",
@@ -1906,13 +1906,13 @@
       "primaryColor": "#EC4899",
       "secondaryColor": "#831843",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_76_alliankaia",
-    "name": "Alliankaia",
-    "shortName": "ALLI",
+    "name": "Riptide Syndicate",
+    "shortName": "RS",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/alliankaia/logo.svg",
@@ -1932,13 +1932,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_77_1win",
-    "name": "OneWind",
-    "shortName": "ONEWIND",
+    "name": "Team Requiem",
+    "shortName": "REQ",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/1win/logo.svg",
@@ -1962,8 +1962,8 @@
   },
   {
     "id": "team_78_xashy",
-    "name": "Xashy",
-    "shortName": "XASHY",
+    "name": "Team Talon",
+    "shortName": "TAL",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/xashy/logo.svg",
@@ -1987,8 +1987,8 @@
   },
   {
     "id": "team_79_jijyahao",
-    "name": "JiJyaHao",
-    "shortName": "JIJY",
+    "name": "Ivory Cobra",
+    "shortName": "IVO",
     "tier": "SEMI_PRO",
     "region": "MENA",
     "logoPath": "/assets/teams/jijyahao/logo.svg",
@@ -2007,13 +2007,13 @@
       "primaryColor": "#F97316",
       "secondaryColor": "#7C2D12",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_80_batm",
-    "name": "BAT-M",
-    "shortName": "BAT-M",
+    "name": "Golden Jackal",
+    "shortName": "GJ",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/bat_m/logo.svg",
@@ -2037,8 +2037,8 @@
   },
   {
     "id": "team_81_begiaacademy",
-    "name": "BEGia Academy",
-    "shortName": "BEGI",
+    "name": "Ironrift",
+    "shortName": "IRT",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/begia_academy/logo.svg",
@@ -2057,13 +2057,13 @@
       "primaryColor": "#14B8A6",
       "secondaryColor": "#134E4A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_82_marnengstar",
-    "name": "Marnengstar",
-    "shortName": "MARN",
+    "name": "Arctic Riptide",
+    "shortName": "AR",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/marnengstar/logo.svg",
@@ -2087,8 +2087,8 @@
   },
   {
     "id": "team_83_chinjkiswarryars",
-    "name": "Chinjkis Warryars",
-    "shortName": "CHIN",
+    "name": "Titan Ignis",
+    "shortName": "TI",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/chinjkis_warryars/logo.svg",
@@ -2107,13 +2107,13 @@
       "primaryColor": "#F59E0B",
       "secondaryColor": "#78350F",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_84_k2erex",
-    "name": "K2 Erex",
-    "shortName": "K2ER",
+    "name": "Scarlet Pulsar",
+    "shortName": "SP",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/k2_erex/logo.svg",
@@ -2137,8 +2137,8 @@
   },
   {
     "id": "team_85_urso",
-    "name": "Urso",
-    "shortName": "URSO",
+    "name": "Steelwraith Gaming",
+    "shortName": "SG",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/urso/logo.svg",
@@ -2157,13 +2157,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_86_whitebird",
-    "name": "WHITEBIRD",
-    "shortName": "WHIT",
+    "name": "Wolfwraith",
+    "shortName": "WRH",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/whitebird/logo.svg",
@@ -2182,13 +2182,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_87_aztralor",
-    "name": "AZTRALor",
-    "shortName": "AZTR",
+    "name": "Onyx",
+    "shortName": "ONY",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/aztralor/logo.svg",
@@ -2207,13 +2207,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_88_coinhunters",
-    "name": "Coin Hunters",
-    "shortName": "COIN",
+    "name": "Nightfall Syndicate",
+    "shortName": "NS",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/coin_hunters/logo.svg",
@@ -2238,8 +2238,8 @@
   },
   {
     "id": "team_89_loxxojutos",
-    "name": "lox xojutos",
-    "shortName": "LOXX",
+    "name": "Zephyr Corps",
+    "shortName": "ZC",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/lox_xojutos/logo.svg",
@@ -2263,8 +2263,8 @@
   },
   {
     "id": "team_91_ruby",
-    "name": "RUBY",
-    "shortName": "RUBY",
+    "name": "Everfall Reserve",
+    "shortName": "EFL",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/ruby/logo.svg",
@@ -2288,8 +2288,8 @@
   },
   {
     "id": "team_91_unidyor",
-    "name": "UNiDYor",
-    "shortName": "UNID",
+    "name": "Lynx",
+    "shortName": "LYN",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/unidyor/logo.svg",
@@ -2308,13 +2308,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_92_lazerrocadz",
-    "name": "Lazerro Cadz",
-    "shortName": "LAZE",
+    "name": "Cinder Astra",
+    "shortName": "CA",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/lazerro_cadz/logo.svg",
@@ -2338,8 +2338,8 @@
   },
   {
     "id": "team_93_bitclic",
-    "name": "Bitclic",
-    "shortName": "BITC",
+    "name": "Kraken Dynasty",
+    "shortName": "KD",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/bitclic/logo.svg",
@@ -2358,13 +2358,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_94_bozz",
-    "name": "BOZZ",
-    "shortName": "BOZZ",
+    "name": "Shadowclaw Order",
+    "shortName": "SWW",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/bozz/logo.svg",
@@ -2384,13 +2384,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_95_iroptionra",
-    "name": "Iroptionra",
-    "shortName": "IROP",
+    "name": "Overspire",
+    "shortName": "OVE",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/iroptionra/logo.svg",
@@ -2410,13 +2410,13 @@
       "primaryColor": "#F97316",
       "secondaryColor": "#7C2D12",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_96_hiroeciumacedemy",
-    "name": "HIROECium Acedemy",
-    "shortName": "HIRO",
+    "name": "Violet Nocturne",
+    "shortName": "VN",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/hiroecium_acedemy/logo.svg",
@@ -2440,8 +2440,8 @@
   },
   {
     "id": "team_97_xengal",
-    "name": "Xengal",
-    "shortName": "XENG",
+    "name": "Verdict",
+    "shortName": "VDT",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/xengal/logo.svg",
@@ -2462,13 +2462,13 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#0C4A6E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_98_ryxtecrix",
-    "name": "RYXTECrix",
-    "shortName": "RYXT",
+    "name": "Shadow Pulsar",
+    "shortName": "SDW",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/ryxtecrix/logo.svg",
@@ -2492,8 +2492,8 @@
   },
   {
     "id": "team_99_cphwolvez",
-    "name": "CPH Wolvez",
-    "shortName": "CPHW",
+    "name": "Bloodspire Union",
+    "shortName": "BU",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/cph_wolvez/logo.svg",
@@ -2517,8 +2517,8 @@
   },
   {
     "id": "team_99_thundereldawnynder",
-    "name": "THUNDERel dAWNYNDER",
-    "shortName": "THUN",
+    "name": "Team Chimera",
+    "shortName": "CHI",
     "tier": "SEMI_PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/thunderel_dawnynder/logo.svg",
@@ -2542,8 +2542,8 @@
   },
   {
     "id": "team_100_vekedoberu",
-    "name": "Veke do Beru",
-    "shortName": "VEKE",
+    "name": "Jade Tempo",
+    "shortName": "JT",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/veke_do_beru/logo.svg",
@@ -2569,8 +2569,8 @@
   },
   {
     "id": "team_101_nexoz",
-    "name": "Nexoz",
-    "shortName": "NEXOZ",
+    "name": "Requiem",
+    "shortName": "RUM",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/nexoz/logo.svg",
@@ -2590,13 +2590,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_102_chongedhegame",
-    "name": "Chonge Dhe Game",
-    "shortName": "CHON",
+    "name": "Riptide Gaming",
+    "shortName": "RG",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/chonge_dhe_game/logo.svg",
@@ -2620,8 +2620,8 @@
   },
   {
     "id": "team_102_mevrik",
-    "name": "Mevrik",
-    "shortName": "MEVR",
+    "name": "Reverie Republic",
+    "shortName": "RR",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/mevrik/logo.svg",
@@ -2645,8 +2645,8 @@
   },
   {
     "id": "team_103_akend",
-    "name": "Akend",
-    "shortName": "AKEND",
+    "name": "Shadowfall Legion",
+    "shortName": "SL",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/akend/logo.svg",
@@ -2670,8 +2670,8 @@
   },
   {
     "id": "team_103_famaliku",
-    "name": "Famalikãu",
-    "shortName": "FAMA",
+    "name": "Everspire Syndicate",
+    "shortName": "ES",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/famalik_u/logo.svg",
@@ -2690,13 +2690,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_104_em",
-    "name": "EM",
-    "shortName": "EM",
+    "name": "Titan Odyssey",
+    "shortName": "TO",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/em/logo.svg",
@@ -2720,8 +2720,8 @@
   },
   {
     "id": "team_106_sporteyx",
-    "name": "SPORTEyx",
-    "shortName": "SPOR",
+    "name": "Crux Union",
+    "shortName": "CU",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/sporteyx/logo.svg",
@@ -2747,8 +2747,8 @@
   },
   {
     "id": "team_108_finjerskrozsed",
-    "name": "Finjers Krozsed",
-    "shortName": "FINJ",
+    "name": "Team Riptide",
+    "shortName": "RTE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/finjers_krozsed/logo.svg",
@@ -2776,8 +2776,8 @@
   },
   {
     "id": "team_108_skynrava",
-    "name": "SkynRava",
-    "shortName": "SKYN",
+    "name": "Team Sentry",
+    "shortName": "STY",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/skynrava/logo.svg",
@@ -2796,13 +2796,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_109_eeb",
-    "name": "EeB",
-    "shortName": "EEB",
+    "name": "Frostbane",
+    "shortName": "FTE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/eeb/logo.svg",
@@ -2823,13 +2823,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_110_spirytoracodemy",
-    "name": "Spirytor Acodemy",
-    "shortName": "SPIR",
+    "name": "Summit",
+    "shortName": "SUM",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/spirytor_acodemy/logo.svg",
@@ -2848,13 +2848,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_110_sdeteal",
-    "name": "SDETEal",
-    "shortName": "SDET",
+    "name": "Talon Athletic",
+    "shortName": "TA",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/sdeteal/logo.svg",
@@ -2873,13 +2873,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_111_ravero",
-    "name": "Ravero",
-    "shortName": "RAVE",
+    "name": "Lynx Reserve",
+    "shortName": "LR",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/ravero/logo.svg",
@@ -2898,13 +2898,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_112_impulzigw",
-    "name": "Impulzi GW",
-    "shortName": "IMPU",
+    "name": "Night Maelstrom",
+    "shortName": "NM",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/impulzi_gw/logo.svg",
@@ -2923,13 +2923,13 @@
       "primaryColor": "#8B5CF6",
       "secondaryColor": "#3B0764",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_112_mone",
-    "name": "MONE",
-    "shortName": "MONE",
+    "name": "Shadowwing Order",
+    "shortName": "SWG",
     "tier": "SEMI_PRO",
     "region": "MENA",
     "logoPath": "/assets/teams/mone/logo.svg",
@@ -2954,8 +2954,8 @@
   },
   {
     "id": "team_113_ww",
-    "name": "WW",
-    "shortName": "WW",
+    "name": "Oblivion Union",
+    "shortName": "OVN",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/ww/logo.svg",
@@ -2979,8 +2979,8 @@
   },
   {
     "id": "team_114_diepcrass",
-    "name": "Diep Crass",
-    "shortName": "DIEP",
+    "name": "Silver Pulsar",
+    "shortName": "SIL",
     "tier": "SEMI_PRO",
     "region": "ASIA",
     "logoPath": "/assets/teams/diep_crass/logo.svg",
@@ -2999,13 +2999,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_115_mekushort",
-    "name": "mekushort",
-    "shortName": "MEKU",
+    "name": "Wild Rift",
+    "shortName": "WR",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/mekushort/logo.svg",
@@ -3029,8 +3029,8 @@
   },
   {
     "id": "team_116_menlete",
-    "name": "MENLETE",
-    "shortName": "MENL",
+    "name": "Helix",
+    "shortName": "HEL",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/menlete/logo.svg",
@@ -3049,13 +3049,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_117_wopa",
-    "name": "WOPA",
-    "shortName": "WOPA",
+    "name": "Quasar Guild",
+    "shortName": "QG",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/wopa/logo.svg",
@@ -3079,8 +3079,8 @@
   },
   {
     "id": "team_117_yowera",
-    "name": "Yowera",
-    "shortName": "YOWE",
+    "name": "Lunar Halcyon",
+    "shortName": "LH",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/yowera/logo.svg",
@@ -3104,8 +3104,8 @@
   },
   {
     "id": "team_118_riiknraabove",
-    "name": "Riiknra Above",
-    "shortName": "RIIK",
+    "name": "Eclipse Gaming",
+    "shortName": "EG",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/riiknra_above/logo.svg",
@@ -3129,8 +3129,8 @@
   },
   {
     "id": "team_119_rebels",
-    "name": "Rebels",
-    "shortName": "REBE",
+    "name": "Scarlet Ronin",
+    "shortName": "SR",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/rebels/logo.svg",
@@ -3154,8 +3154,8 @@
   },
   {
     "id": "team_120_hevy",
-    "name": "HEVY",
-    "shortName": "HEVY",
+    "name": "Viper Coalition",
+    "shortName": "VC",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/hevy/logo.svg",
@@ -3179,8 +3179,8 @@
   },
   {
     "id": "team_121_omeja",
-    "name": "Omeja",
-    "shortName": "OMEJA",
+    "name": "Violet Comet",
+    "shortName": "VIO",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/omeja/logo.svg",
@@ -3200,13 +3200,13 @@
       "primaryColor": "#8B5CF6",
       "secondaryColor": "#3B0764",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_122_calaoskurnos",
-    "name": "CALAOSKURNOS",
-    "shortName": "CALA",
+    "name": "Meridian Collective",
+    "shortName": "MC",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/calaoskurnos/logo.svg",
@@ -3225,13 +3225,13 @@
       "primaryColor": "#DC2626",
       "secondaryColor": "#0B0B0B",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_123_olybet",
-    "name": "OlyBet",
-    "shortName": "OLYB",
+    "name": "Eclipse Esports",
+    "shortName": "EE",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/olybet/logo.svg",
@@ -3250,13 +3250,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_124_gomehynters",
-    "name": "GomeHynters",
-    "shortName": "GOME",
+    "name": "Rampart Legion",
+    "shortName": "RL",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/gomehynters/logo.svg",
@@ -3280,8 +3280,8 @@
   },
   {
     "id": "team_125_jumboex",
-    "name": "JUMBOex",
-    "shortName": "JUMB",
+    "name": "Cortex",
+    "shortName": "CTX",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/jumboex/logo.svg",
@@ -3300,13 +3300,13 @@
       "primaryColor": "#8B5CF6",
       "secondaryColor": "#3B0764",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_126_phantum",
-    "name": "Phantum",
-    "shortName": "PHAN",
+    "name": "Cobalt Helix",
+    "shortName": "CH",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/phantum/logo.svg",
@@ -3325,13 +3325,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_127_hyperspiryd",
-    "name": "HyperSpiryd",
-    "shortName": "HYPE",
+    "name": "Lunar Tempest",
+    "shortName": "LT",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/hyperspiryd/logo.svg",
@@ -3355,8 +3355,8 @@
   },
   {
     "id": "team_128_aljayx",
-    "name": "ALJAyx",
-    "shortName": "ALJA",
+    "name": "Team Lynx",
+    "shortName": "LNX",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/aljayx/logo.svg",
@@ -3380,8 +3380,8 @@
   },
   {
     "id": "team_129_sow",
-    "name": "SOW",
-    "shortName": "SOW",
+    "name": "Scarlet Halcyon",
+    "shortName": "SH",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/sow/logo.svg",
@@ -3405,13 +3405,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_130_lia",
-    "name": "Lia",
-    "shortName": "LIA",
+    "name": "Everrift Order",
+    "shortName": "EO",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/lia/logo.svg",
@@ -3435,8 +3435,8 @@
   },
   {
     "id": "team_131_aedhar",
-    "name": "Aedhar",
-    "shortName": "AEDH",
+    "name": "Anvil",
+    "shortName": "ANV",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/aedhar/logo.svg",
@@ -3455,13 +3455,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_132_enfuryty",
-    "name": "ENFURYTY",
-    "shortName": "ENFU",
+    "name": "Halcyon Athletic",
+    "shortName": "HA",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/enfuryty/logo.svg",
@@ -3486,8 +3486,8 @@
   },
   {
     "id": "team_133_mindfraak",
-    "name": "Mindfraak",
-    "shortName": "MIND",
+    "name": "Ivory Comet",
+    "shortName": "IOY",
     "tier": "SEMI_PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/mindfraak/logo.svg",
@@ -3511,8 +3511,8 @@
   },
   {
     "id": "team_134_xpurtsbetexpert",
-    "name": "XpurtsBetExpert",
-    "shortName": "XPUR",
+    "name": "Ivory Viper",
+    "shortName": "IV",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/xpurtsbetexpert/logo.svg",
@@ -3538,8 +3538,8 @@
   },
   {
     "id": "team_135_aymclub",
-    "name": "aymclub",
-    "shortName": "AYMC",
+    "name": "Havoc Corps",
+    "shortName": "HC",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/aymclub/logo.svg",
@@ -3564,8 +3564,8 @@
   },
   {
     "id": "team_136_minxkhauze",
-    "name": "Minxk Hauze",
-    "shortName": "MINX",
+    "name": "Cobra",
+    "shortName": "COB",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/minxk_hauze/logo.svg",
@@ -3584,13 +3584,13 @@
       "primaryColor": "#A855F7",
       "secondaryColor": "#581C87",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_137_sampervi",
-    "name": "SamperVi",
-    "shortName": "SAMP",
+    "name": "Void Raven",
+    "shortName": "VOI",
     "tier": "SEMI_PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/sampervi/logo.svg",
@@ -3614,8 +3614,8 @@
   },
   {
     "id": "team_138_buringplayers",
-    "name": "BURING PLAYERS",
-    "shortName": "BURI",
+    "name": "Shadowcore",
+    "shortName": "SWE",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/buring_players/logo.svg",
@@ -3634,13 +3634,13 @@
       "primaryColor": "#F59E0B",
       "secondaryColor": "#78350F",
       "accentColor": "#0B0B0B",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_138_masonicia",
-    "name": "MASONICia",
-    "shortName": "MASO",
+    "name": "Reverie",
+    "shortName": "REV",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/masonicia/logo.svg",
@@ -3659,13 +3659,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_139_vuejo",
-    "name": "Vuejo",
-    "shortName": "VUEJO",
+    "name": "Tundra",
+    "shortName": "TUN",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/vuejo/logo.svg",
@@ -3684,13 +3684,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_139_groondzaro",
-    "name": "Groond Zaro",
-    "shortName": "GROO",
+    "name": "Onyx Esports",
+    "shortName": "OE",
     "tier": "SEMI_PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/groond_zaro/logo.svg",
@@ -3714,8 +3714,8 @@
   },
   {
     "id": "team_140_lpex",
-    "name": "LPex",
-    "shortName": "LPEX",
+    "name": "Nightwing",
+    "shortName": "NIG",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/lpex/logo.svg",
@@ -3734,13 +3734,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_141_izyrus",
-    "name": "Izyrus",
-    "shortName": "IZYR",
+    "name": "Odyssey Esports",
+    "shortName": "ODY",
     "tier": "SEMI_PRO",
     "region": "BR",
     "logoPath": "/assets/teams/izyrus/logo.svg",
@@ -3764,8 +3764,8 @@
   },
   {
     "id": "team_142_folqonspharce",
-    "name": "Folqons Pharce",
-    "shortName": "FOLQ",
+    "name": "Violet Maelstrom",
+    "shortName": "VM",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/folqons_pharce/logo.svg",
@@ -3789,8 +3789,8 @@
   },
   {
     "id": "team_142_vishercallege",
-    "name": "Visher Callege",
-    "shortName": "VISH",
+    "name": "Team Zodiac",
+    "shortName": "ZOD",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/visher_callege/logo.svg",
@@ -3809,13 +3809,13 @@
       "primaryColor": "#14B8A6",
       "secondaryColor": "#134E4A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_143_nuveq",
-    "name": "NUVEQ",
-    "shortName": "NUVEQ",
+    "name": "Firefang Republic",
+    "shortName": "FR",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/nuveq/logo.svg",
@@ -3834,13 +3834,13 @@
       "primaryColor": "#EF4444",
       "secondaryColor": "#7F1D1D",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_144_legor",
-    "name": "LEGor",
-    "shortName": "LEGOR",
+    "name": "Drake Order",
+    "shortName": "DO",
     "tier": "SEMI_PRO",
     "region": "NA",
     "logoPath": "/assets/teams/legor/logo.svg",
@@ -3864,8 +3864,8 @@
   },
   {
     "id": "team_145_prime",
-    "name": "PRIME",
-    "shortName": "PRIME",
+    "name": "Ruby Bulwark",
+    "shortName": "RB",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/prime/logo.svg",
@@ -3889,8 +3889,8 @@
   },
   {
     "id": "team_147_besimentbays",
-    "name": "BESIMENT BAYS",
-    "shortName": "BESI",
+    "name": "Neon Synapse",
+    "shortName": "NEO",
     "tier": "SEMI_PRO",
     "region": "CIS",
     "logoPath": "/assets/teams/besiment_bays/logo.svg",
@@ -3915,8 +3915,8 @@
   },
   {
     "id": "team_148_raoxter",
-    "name": "Raoxter",
-    "shortName": "RAOX",
+    "name": "Everspire Guild",
+    "shortName": "ESE",
     "tier": "SEMI_PRO",
     "region": "OCE",
     "logoPath": "/assets/teams/raoxter/logo.svg",
@@ -3940,8 +3940,8 @@
   },
   {
     "id": "team_149_prezdigeel",
-    "name": "Prezdigeel",
-    "shortName": "PREZ",
+    "name": "Arctic Viper",
+    "shortName": "AV",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/prezdigeel/logo.svg",
@@ -3965,8 +3965,8 @@
   },
   {
     "id": "team_151_ecbongo",
-    "name": "EC BONGO",
-    "shortName": "ECBO",
+    "name": "Team Viper",
+    "shortName": "VPR",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/ec_bongo/logo.svg",
@@ -3990,8 +3990,8 @@
   },
   {
     "id": "team_152_wetermelon",
-    "name": "WETERMELON",
-    "shortName": "WETE",
+    "name": "Pulsar",
+    "shortName": "PUL",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/wetermelon/logo.svg",
@@ -4010,13 +4010,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_154_oxojy",
-    "name": "Oxojy",
-    "shortName": "OXOJY",
+    "name": "Iron Warden",
+    "shortName": "IW",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/oxojy/logo.svg",
@@ -4040,8 +4040,8 @@
   },
   {
     "id": "team_156_fengdoal",
-    "name": "FengDoal",
-    "shortName": "FENG",
+    "name": "Lynx Initiative",
+    "shortName": "LI",
     "tier": "ACADEMY",
     "region": "ASIA",
     "logoPath": "/assets/teams/fengdoal/logo.svg",
@@ -4065,8 +4065,8 @@
   },
   {
     "id": "team_157_procyon",
-    "name": "Procyon",
-    "shortName": "PROC",
+    "name": "Everhunt",
+    "shortName": "EHT",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/procyon/logo.svg",
@@ -4085,13 +4085,13 @@
       "primaryColor": "#14B8A6",
       "secondaryColor": "#134E4A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_158_qwintry",
-    "name": "QWINTRY",
-    "shortName": "QWIN",
+    "name": "Eclipse Union",
+    "shortName": "EU",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/qwintry/logo.svg",
@@ -4115,8 +4115,8 @@
   },
   {
     "id": "team_159_bushydowildcods",
-    "name": "Bushydo Wildcods",
-    "shortName": "BUSH",
+    "name": "Ivory Valor",
+    "shortName": "IVY",
     "tier": "ACADEMY",
     "region": "MENA",
     "logoPath": "/assets/teams/bushydo_wildcods/logo.svg",
@@ -4140,8 +4140,8 @@
   },
   {
     "id": "team_160_zomblirs",
-    "name": "Zomblirs",
-    "shortName": "ZOMB",
+    "name": "Helix Republic",
+    "shortName": "HR",
     "tier": "ACADEMY",
     "region": "NA",
     "logoPath": "/assets/teams/zomblirs/logo.svg",
@@ -4165,8 +4165,8 @@
   },
   {
     "id": "team_161_everblaze",
-    "name": "Everblaze",
-    "shortName": "EVER",
+    "name": "Rift Gaming",
+    "shortName": "RFT",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/everblaze/logo.svg",
@@ -4194,8 +4194,8 @@
   },
   {
     "id": "team_162_enphinite",
-    "name": "ENPhINITE",
-    "shortName": "ENPH",
+    "name": "Halcyon Gaming",
+    "shortName": "HG",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/enphinite/logo.svg",
@@ -4219,8 +4219,8 @@
   },
   {
     "id": "team_163_metezpurt",
-    "name": "Metezpurt",
-    "shortName": "METE",
+    "name": "Sentry Gaming",
+    "shortName": "SEY",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/metezpurt/logo.svg",
@@ -4240,13 +4240,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_164_tryckdrivirx",
-    "name": "Tryck Drivirx",
-    "shortName": "TRYC",
+    "name": "Warstorm Dynasty",
+    "shortName": "WD",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/tryck_drivirx/logo.svg",
@@ -4270,8 +4270,8 @@
   },
   {
     "id": "team_166_ikoisto",
-    "name": "IKOISTO",
-    "shortName": "IKOI",
+    "name": "Sable",
+    "shortName": "SAB",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/ikoisto/logo.svg",
@@ -4290,13 +4290,13 @@
       "primaryColor": "#FACC15",
       "secondaryColor": "#1F2937",
       "accentColor": "#0B0B0B",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_167_f5",
-    "name": "F5",
-    "shortName": "F5",
+    "name": "Synapse",
+    "shortName": "SYN",
     "tier": "ACADEMY",
     "region": "NA",
     "logoPath": "/assets/teams/f5/logo.svg",
@@ -4315,13 +4315,13 @@
       "primaryColor": "#DB2777",
       "secondaryColor": "#500724",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_168_exzod",
-    "name": "EXZOD",
-    "shortName": "EXZOD",
+    "name": "Quasar Republic",
+    "shortName": "QR",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/exzod/logo.svg",
@@ -4349,8 +4349,8 @@
   },
   {
     "id": "team_169_xeydstars",
-    "name": "Xeyd Stars",
-    "shortName": "XEYD",
+    "name": "Violet Apex",
+    "shortName": "VA",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/xeyd_stars/logo.svg",
@@ -4374,8 +4374,8 @@
   },
   {
     "id": "team_170_ilidenergy",
-    "name": "iLIDenergy",
-    "shortName": "ILID",
+    "name": "Reverie Reserve",
+    "shortName": "REE",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/ilidenergy/logo.svg",
@@ -4399,8 +4399,8 @@
   },
   {
     "id": "team_171_justexswing",
-    "name": "Justex Swing",
-    "shortName": "JUST",
+    "name": "Sovereign",
+    "shortName": "SOV",
     "tier": "ACADEMY",
     "region": "ASIA",
     "logoPath": "/assets/teams/justex_swing/logo.svg",
@@ -4419,13 +4419,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_172_xenquro",
-    "name": "XENQUro",
-    "shortName": "XENQ",
+    "name": "Void Warden",
+    "shortName": "VW",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/xenquro/logo.svg",
@@ -4449,8 +4449,8 @@
   },
   {
     "id": "team_174_ellinnars",
-    "name": "ELLINNARS",
-    "shortName": "ELLI",
+    "name": "Moonbane",
+    "shortName": "MOO",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/ellinnars/logo.svg",
@@ -4469,13 +4469,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_175_fulhaomarila",
-    "name": "FULHA OMARILA",
-    "shortName": "FULH",
+    "name": "Ash Halcyon",
+    "shortName": "AH",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/fulha_omarila/logo.svg",
@@ -4499,8 +4499,8 @@
   },
   {
     "id": "team_176_aururayuunjblod",
-    "name": "Aurura Yuunj Blod",
-    "shortName": "AURU",
+    "name": "Steelclaw Guild",
+    "shortName": "STE",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/aurura_yuunj_blod/logo.svg",
@@ -4524,8 +4524,8 @@
   },
   {
     "id": "team_179_csdiylyt",
-    "name": "CSDIYLYT",
-    "shortName": "CSDI",
+    "name": "Ironfall",
+    "shortName": "IFL",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/csdiylyt/logo.svg",
@@ -4544,13 +4544,13 @@
       "primaryColor": "#3B82F6",
       "secondaryColor": "#1E3A8A",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_180_undergroond",
-    "name": "Undergroond",
-    "shortName": "UNDE",
+    "name": "Griffin Esports",
+    "shortName": "GE",
     "tier": "ACADEMY",
     "region": "OCE",
     "logoPath": "/assets/teams/undergroond/logo.svg",
@@ -4574,8 +4574,8 @@
   },
   {
     "id": "team_181_kono",
-    "name": "kONO",
-    "shortName": "KONO",
+    "name": "Night Vector",
+    "shortName": "NV",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/kono/logo.svg",
@@ -4599,8 +4599,8 @@
   },
   {
     "id": "team_182_lestbyllet",
-    "name": "Lest Byllet",
-    "shortName": "LEST",
+    "name": "Helix Gaming",
+    "shortName": "HLX",
     "tier": "ACADEMY",
     "region": "ASIA",
     "logoPath": "/assets/teams/lest_byllet/logo.svg",
@@ -4624,8 +4624,8 @@
   },
   {
     "id": "team_183_bistiaaqedemy",
-    "name": "BISTIA Aqedemy",
-    "shortName": "BIST",
+    "name": "Ironwatch Dynasty",
+    "shortName": "ID",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/bistia_aqedemy/logo.svg",
@@ -4644,13 +4644,13 @@
       "primaryColor": "#06B6D4",
       "secondaryColor": "#164E63",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_184_lilmix",
-    "name": "Lilmix",
-    "shortName": "LILM",
+    "name": "Shadow Umbra",
+    "shortName": "SHW",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/lilmix/logo.svg",
@@ -4669,13 +4669,13 @@
       "primaryColor": "#8B5CF6",
       "secondaryColor": "#3B0764",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_185_golarysel",
-    "name": "Golarysel",
-    "shortName": "GOLA",
+    "name": "Bulwark Gaming",
+    "shortName": "BUL",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/golarysel/logo.svg",
@@ -4700,8 +4700,8 @@
   },
   {
     "id": "team_186_mesa",
-    "name": "Mesa",
-    "shortName": "MESA",
+    "name": "Ironbane",
+    "shortName": "IBE",
     "tier": "ACADEMY",
     "region": "MENA",
     "logoPath": "/assets/teams/mesa/logo.svg",
@@ -4720,13 +4720,13 @@
       "primaryColor": "#EC4899",
       "secondaryColor": "#831843",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_187_wewillwen",
-    "name": "WeWillWen",
-    "shortName": "WEWI",
+    "name": "Firepulse",
+    "shortName": "FIR",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/wewillwen/logo.svg",
@@ -4745,13 +4745,13 @@
       "primaryColor": "#84CC16",
       "secondaryColor": "#365314",
       "accentColor": "#0B0B0B",
-      "logoStyle": "monogram"
+      "logoStyle": "mascot"
     }
   },
   {
     "id": "team_188_exjonk",
-    "name": "ex-JONK",
-    "shortName": "EXJO",
+    "name": "Citadel Union",
+    "shortName": "CAL",
     "tier": "ACADEMY",
     "region": "MENA",
     "logoPath": "/assets/teams/ex_jonk/logo.svg",
@@ -4770,13 +4770,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   },
   {
     "id": "team_190_fuuryxmogiq",
-    "name": "Fuuryx Mogiq",
-    "shortName": "FUUR",
+    "name": "Ghostwraith Order",
+    "shortName": "GO",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/fuuryx_mogiq/logo.svg",
@@ -4800,8 +4800,8 @@
   },
   {
     "id": "team_191_myertaex",
-    "name": "MYERTAex",
-    "shortName": "MYER",
+    "name": "Basilisk Order",
+    "shortName": "BO",
     "tier": "ACADEMY",
     "region": "CIS",
     "logoPath": "/assets/teams/myertaex/logo.svg",
@@ -4825,8 +4825,8 @@
   },
   {
     "id": "team_192_badlykk",
-    "name": "Bad Lykk",
-    "shortName": "BADL",
+    "name": "Darkspire Republic",
+    "shortName": "DR",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/bad_lykk/logo.svg",
@@ -4850,8 +4850,8 @@
   },
   {
     "id": "team_193_mazroea",
-    "name": "MAZROEA",
-    "shortName": "MAZR",
+    "name": "Darkhunt Gaming",
+    "shortName": "DG",
     "tier": "ACADEMY",
     "region": "NA",
     "logoPath": "/assets/teams/mazroea/logo.svg",
@@ -4875,8 +4875,8 @@
   },
   {
     "id": "team_194_bijaqoipa",
-    "name": "BIJ AQOIPA",
-    "shortName": "BIJA",
+    "name": "Team Vanguard",
+    "shortName": "VUD",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/bij_aqoipa/logo.svg",
@@ -4900,8 +4900,8 @@
   },
   {
     "id": "team_195_enceacodamy",
-    "name": "ENCE Acodamy",
-    "shortName": "ENCE",
+    "name": "Eclipse",
+    "shortName": "EIE",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/ence_acodamy/logo.svg",
@@ -4920,13 +4920,13 @@
       "primaryColor": "#22D3EE",
       "secondaryColor": "#0E7490",
       "accentColor": "#FFFFFF",
-      "logoStyle": "monogram"
+      "logoStyle": "emblem"
     }
   },
   {
     "id": "team_196_players",
-    "name": "Players",
-    "shortName": "PLAY",
+    "name": "Arctic Paragon",
+    "shortName": "AP",
     "tier": "ACADEMY",
     "region": "BR",
     "logoPath": "/assets/teams/players/logo.svg",
@@ -4950,8 +4950,8 @@
   },
   {
     "id": "team_197_qhikkencaup",
-    "name": "Qhikken Caup",
-    "shortName": "QHIK",
+    "name": "Wyvern Esports",
+    "shortName": "WE",
     "tier": "ACADEMY",
     "region": "NA",
     "logoPath": "/assets/teams/qhikken_caup/logo.svg",
@@ -4975,8 +4975,8 @@
   },
   {
     "id": "team_198_wildrix",
-    "name": "WiLDrix",
-    "shortName": "WILD",
+    "name": "Neon Riptide",
+    "shortName": "NR",
     "tier": "ACADEMY",
     "region": "EU",
     "logoPath": "/assets/teams/wildrix/logo.svg",
@@ -5000,8 +5000,8 @@
   },
   {
     "id": "team_200_ligianal",
-    "name": "Ligianal",
-    "shortName": "LIGI",
+    "name": "Cobra Esports",
+    "shortName": "CE",
     "tier": "ACADEMY",
     "region": "ASIA",
     "logoPath": "/assets/teams/ligianal/logo.svg",
@@ -5020,7 +5020,7 @@
       "primaryColor": "#0EA5E9",
       "secondaryColor": "#0C4A6E",
       "accentColor": "#FFFFFF",
-      "logoStyle": "wordmark"
+      "logoStyle": "monogram"
     }
   }
 ]

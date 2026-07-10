@@ -351,19 +351,136 @@ export function transformNickname(nick: string): string {
 }
 
 // ============================================================
+// PREMIUM ORIGINAL BRAND GENERATOR
+// ============================================================
+//
+// The old approach rewrote real teams into near-copies ("FURIA" -> "FORIA",
+// "NAVI" -> "Natus Vincera"). That reads as a bootleg AND stays legally close
+// to the trademark it apes. Instead we mint fully original, premium-sounding
+// esports brands from curated word banks. Deterministic by seed, so a given
+// team id always resolves to the same brand across regenerations and saves.
+
+const CORES: readonly string[] = [
+    "Obsidian", "Onyx", "Vanguard", "Tempest", "Zenith", "Eclipse", "Verdict",
+    "Sable", "Cobalt", "Halcyon", "Meridian", "Requiem", "Paragon", "Odyssey",
+    "Nimbus", "Solstice", "Warden", "Reverie", "Talon", "Quasar", "Pulsar",
+    "Helix", "Anvil", "Bastion", "Citadel", "Vector", "Zephyr", "Kraken",
+    "Griffin", "Viper", "Cobra", "Jackal", "Panther", "Lynx", "Raven", "Drake",
+    "Basilisk", "Chimera", "Mirage", "Oblivion", "Vanta", "Cortex", "Synapse",
+    "Crux", "Lumen", "Umbra", "Astra", "Ignis", "Valor", "Rampart", "Tundra",
+    "Vortex", "Riptide", "Havoc", "Sentry", "Wyvern", "Serpent", "Monolith",
+    "Summit", "Bulwark", "Aegis", "Maelstrom", "Cascade", "Zodiac", "Comet",
+    "Nocturne", "Rift", "Ronin", "Sovereign", "Tempo", "Apex",
+]
+
+const PREFIXES: readonly string[] = [
+    "Crimson", "Azure", "Golden", "Iron", "Frost", "Ember", "Shadow", "Solar",
+    "Lunar", "Storm", "Night", "Void", "Ash", "Jade", "Scarlet", "Cobalt",
+    "Violet", "Silver", "Neon", "Arctic", "Ivory", "Ruby", "Vermillion",
+    "Cinder", "Onyx", "Titan", "Wild", "Ivory",
+]
+
+const ORG_SUFFIXES: readonly string[] = [
+    "Esports", "Gaming", "Collective", "Union", "Syndicate", "Dynasty",
+    "Athletic", "Guild", "Order", "Faction", "Legion", "Coalition",
+    "Initiative", "Republic", "Corps", "Reserve",
+]
+
+const COMPOUND_HEADS: readonly string[] = [
+    "Night", "Iron", "Storm", "Fire", "Frost", "Shadow", "Star", "Sun", "Moon",
+    "War", "Grim", "Dark", "Steel", "Ghost", "Thunder", "Ever", "Over", "Blood",
+    "Wolf", "Sky", "Void",
+]
+
+const COMPOUND_TAILS: readonly string[] = [
+    "fall", "breaker", "forge", "claw", "fang", "watch", "bane", "storm",
+    "veil", "wraith", "guard", "strike", "born", "hunt", "wing", "spire",
+    "blade", "pulse", "core", "rift", "hawk", "howl",
+]
+
+/** Mulberry32 — small, fast, well-distributed PRNG for a 32-bit seed. */
+function mulberry32(seed: number): () => number {
+    let a = seed >>> 0
+    return () => {
+        a = (a + 0x6D2B79F5) >>> 0
+        let t = a
+        t = Math.imul(t ^ (t >>> 15), t | 1)
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+}
+
+function pickFrom<T>(rng: () => number, arr: readonly T[]): T {
+    return arr[Math.floor(rng() * arr.length)]
+}
+
+function tagFor(name: string): string {
+    const words = name
+        .replace(/[^A-Za-z0-9\s]/g, "")
+        .split(/\s+/)
+        .filter(w => w && w.toLowerCase() !== "team")
+    if (words.length >= 2) {
+        return words.slice(0, 3).map(w => w[0]).join("").toUpperCase()
+    }
+    const w = words[0] || name
+    return w.slice(0, 3).toUpperCase()
+}
+
+export interface PremiumBrand {
+    name: string
+    tag: string
+    logoStyle: "monogram" | "mascot" | "emblem" | "wordmark"
+}
+
+/**
+ * Deterministic premium esports brand for a seed (team id or real name).
+ * Same seed -> same brand. `salt` lets the caller re-roll on collisions
+ * without losing determinism.
+ */
+export function premiumTeamName(seed: string, salt = 0): PremiumBrand {
+    const rng = mulberry32(fnv1aHash(`${seed}#${salt}`))
+    const core = pickFrom(rng, CORES)
+    const roll = rng()
+
+    let name: string
+    if (roll < 0.26) {
+        name = core                                            // "Obsidian"
+    } else if (roll < 0.44) {
+        name = `${pickFrom(rng, PREFIXES)} ${core}`            // "Crimson Talon"
+    } else if (roll < 0.58) {
+        name = pickFrom(rng, COMPOUND_HEADS) + pickFrom(rng, COMPOUND_TAILS) // "Nightfall"
+    } else if (roll < 0.70) {
+        name = `${core} ${pickFrom(rng, ORG_SUFFIXES)}`        // "Vanguard Syndicate"
+    } else if (roll < 0.80) {
+        name = `Team ${core}`                                  // "Team Onyx"
+    } else if (roll < 0.90) {
+        name = `${core} ${rng() < 0.5 ? "Esports" : "Gaming"}` // "Talon Gaming"
+    } else {
+        const compound = pickFrom(rng, COMPOUND_HEADS) + pickFrom(rng, COMPOUND_TAILS)
+        name = `${compound} ${pickFrom(rng, ORG_SUFFIXES)}`    // "Ironclaw Legion"
+    }
+
+    // logoStyle steers the emblem renderer: single evocative words read best as
+    // a mascot mark, compounds/short brands as emblems, multi-word orgs as a
+    // wordmark, and the rest as a clean monogram.
+    const words = name.split(/\s+/).length
+    const logoStyle: PremiumBrand["logoStyle"] =
+        words === 1 ? (name.length <= 7 ? "emblem" : "mascot")
+            : words >= 3 ? "wordmark"
+                : "monogram"
+
+    return { name, tag: tagFor(name), logoStyle }
+}
+
+// ============================================================
 // PUBLIC API
 // ============================================================
 
 export function safeTeamName(name: string): string {
     if (!name) return name
-    const trimmed = name.trim()
-    if (TEAM_NAME_MAP[trimmed]) return TEAM_NAME_MAP[trimmed]
-    // Also try lowercase key lookup for case variance
-    const lower = trimmed.toLowerCase()
-    for (const [k, v] of Object.entries(TEAM_NAME_MAP)) {
-        if (k.toLowerCase() === lower) return v
-    }
-    return generateVariant(trimmed)
+    // Fully original premium brand, seeded on the source name for determinism.
+    // (We no longer emit near-copies of the real trademark.)
+    return premiumTeamName(name.trim()).name
 }
 
 export function safeTournamentName(name: string): string {

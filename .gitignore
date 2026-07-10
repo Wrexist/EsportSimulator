@@ -114,3 +114,6 @@ ordbok
 
 # local trailer / steam-asset workspace (videos, captures, node_modules)
 trailer/
+
+# emblem/logo QA preview output
+scripts/_*.html
