@@ -170,3 +170,49 @@ describe("determineMVP", () => {
         expect(determineMVP({}, [])).toBe("")
     })
 })
+
+describe("live-match stat recompute contract", () => {
+    // The live (watched) match recomputes playerStats + MVP from the rounds it
+    // actually played (handleFinish in useLiveMatch), reusing these helpers over
+    // the live maps instead of shipping the quick-sim seed's stats. These pins
+    // guard the invariants that recompute path depends on: the MVP always lands
+    // on the winning side, and only played (non-empty) maps feed the aggregate.
+    test("recomputed MVP always sits on the winning side, never the loser", () => {
+        const home = [makePlayer("h1"), makePlayer("h2")]
+        const away = [makePlayer("a1"), makePlayer("a2")]
+
+        // Away player a1 tops the raw kill count, but HOME won the series.
+        const playedMap = makeMap([
+            makeRound({ a1: 5 }, { h1: 1 }),
+            makeRound({ h1: 1, h2: 1 }, { a1: 1, a2: 1 }),
+        ])
+
+        const homeWon = true
+        const stats = generateMatchStats(new SeededRNG(3), home, away, [playedMap], homeWon)
+        const mvp = determineMVP(stats, homeWon ? home : away)
+
+        // Must be a home (winning) player even though a1 fragged the most.
+        expect(["h1", "h2"]).toContain(mvp)
+        expect(["a1", "a2"]).not.toContain(mvp)
+    })
+
+    test("only played maps (non-empty rounds) contribute to the aggregate", () => {
+        const home = [makePlayer("h1")]
+        const away = [makePlayer("a1")]
+
+        const played = makeMap([makeRound({ h1: 3 }, { a1: 1 })])
+        const unplayed = makeMap([]) // canonical-but-unplayed map in a live BO3
+
+        // Mirror handleFinish: filter to maps that actually have rounds.
+        const allMaps = [played, unplayed]
+        const playedOnly = allMaps.filter(m => Array.isArray(m.rounds) && m.rounds.length > 0)
+
+        const statsAll = generateMatchStats(new SeededRNG(9), home, away, playedOnly, true)
+        const statsPlayedExplicit = generateMatchStats(new SeededRNG(9), home, away, [played], true)
+
+        expect(playedOnly).toHaveLength(1)
+        expect(statsAll["h1"].kills).toBe(3)
+        // Filtering the empty map is equivalent to never passing it.
+        expect(statsAll["h1"].adr).toBe(statsPlayedExplicit["h1"].adr)
+    })
+})

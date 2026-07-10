@@ -177,6 +177,37 @@ export function createRoundStartEconomy(playerIds: string[], isCT: boolean): Rec
   return economy
 }
 
+/** Overtime players start each MR3 set / half with a fixed $10k buy budget,
+ *  mirroring the canonical quick-sim (match-simulation.ts resets to 10000 at
+ *  OT start + OT half). */
+export const OVERTIME_START_CASH = 10000
+
+export function createOvertimeEconomy(playerIds: string[], isCT: boolean): Record<string, LiveEconomyState> {
+  const economy: Record<string, LiveEconomyState> = {}
+  const defaultWeapon = getDefaultWeaponForSide(isCT)
+  for (const playerId of playerIds) {
+    economy[playerId] = {
+      cash: OVERTIME_START_CASH,
+      weapon: defaultWeapon,
+      hasArmor: false,
+      hasHelmet: false,
+      hasKit: false,
+      utility: []
+    }
+  }
+  return economy
+}
+
+/**
+ * MR3 overtime map-win threshold for a given OT set (1-indexed).
+ * Set 1 → first to 16, set 2 → 19, set 3 → 22 … mirroring
+ * match-simulation.ts (`12 + 3 * (set - 1) + 4`).
+ */
+export function getOvertimeMapWinThreshold(otSet: number): number {
+  const set = Math.max(1, Math.floor(otSet))
+  return 12 + 3 * (set - 1) + 4
+}
+
 export function resetEconomyForMapStart(
   economy: Record<string, LiveEconomyState>,
   isCT: boolean

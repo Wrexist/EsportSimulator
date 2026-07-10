@@ -67,7 +67,9 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
 
 function makeSponsor(name: string, tier: "BASIC" | "PREMIUM" | "ELITE", overrides: Partial<SponsorSaveData> = {}): SponsorSaveData {
     return {
-        name, tier, contractLength: 52, weeklyPayment: 5000,
+        id: `off_${name}_${tier}`,
+        name, tier, contractLength: 52,
+        weeklyPayout: 5000, remainingWeeks: 52, requirements: "None",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...(overrides as any),
     } as SponsorSaveData
@@ -134,11 +136,27 @@ describe("upgradeFacility", () => {
 
 describe("signSponsor", () => {
     test("happy path: BASIC sponsor signs cleanly", () => {
-        const h = makeHarness(makeBaseState())
+        const offer = makeSponsor("PixelBrand", "BASIC")
+        const h = makeHarness(makeBaseState({ sponsorOffers: [offer] }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
-        const res = slice.signSponsor("player", makeSponsor("PixelBrand", "BASIC"))
+        const res = slice.signSponsor("player", offer)
         expect(res.success).toBe(true)
         expect(h.state().teams[0].sponsors!.length).toBe(1)
+        // Offer is consumed out of the pool on success.
+        expect(h.state().sponsorOffers).toEqual([])
+    })
+
+    test("refuses a sponsor that is not in the offered pool (crafted payload)", () => {
+        // The store must not trust a caller-supplied sponsor that never came
+        // from state.sponsorOffers — otherwise a crafted offer with an
+        // enormous weeklyPayout would pay out every week.
+        const h = makeHarness(makeBaseState({ sponsorOffers: [] }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        const crafted = makeSponsor("Fake Money", "BASIC", { id: "not_in_pool", weeklyPayout: 999_999_999 })
+        const res = slice.signSponsor("player", crafted)
+        expect(res.success).toBe(false)
+        expect(res.message).toContain("no longer available")
+        expect(h.state().teams[0].sponsors ?? []).toEqual([])
     })
 
     test("refuses past MAX_SPONSORS_PER_TEAM (3)", () => {
@@ -167,11 +185,13 @@ describe("signSponsor", () => {
         expect(res.success).toBe(false)
         expect(res.message).toContain("won't return")
         // Same brand is fine once the cooldown has elapsed.
+        const offer2 = makeSponsor("PixelBrand", "BASIC")
         const h2 = makeHarness(makeBaseState({
             currentWeek: 30,
             teams: [makeTeam("player", { sponsorCooldowns: { PixelBrand: 28 } } as never)],
+            sponsorOffers: [offer2],
         }))
-        const res2 = createTeamFacilitiesSlice(h2.set, h2.get).signSponsor("player", makeSponsor("PixelBrand", "BASIC"))
+        const res2 = createTeamFacilitiesSlice(h2.set, h2.get).signSponsor("player", offer2)
         expect(res2.success).toBe(true)
     })
 
@@ -196,11 +216,13 @@ describe("signSponsor", () => {
     })
 
     test("allows PREMIUM sponsor when ranked Top 30", () => {
+        const offer = makeSponsor("EliteBrand", "PREMIUM")
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", { worldRanking: 12 })],
+            sponsorOffers: [offer],
         }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
-        const res = slice.signSponsor("player", makeSponsor("EliteBrand", "PREMIUM"))
+        const res = slice.signSponsor("player", offer)
         expect(res.success).toBe(true)
     })
 })
@@ -209,13 +231,35 @@ describe("toggleMerchItem", () => {
     test("add branch reports success and pushes the item (Phase R bug regression)", () => {
         // Before the fix, both branches said "Team not found" on success
         // because `result` was never updated on the add path. Now both
-        // branches update result correctly.
-        const h = makeHarness(makeBaseState())
+        // branches update result correctly. HOODIE unlocks at store level 2,
+        // so the team is provisioned at that level.
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { merchStoreLevel: 2 } as never)],
+        }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
         const res = slice.toggleMerchItem("player", "HOODIE")
         expect(res.success).toBe(true)
         expect(res.message).toContain("added")
         expect(h.state().teams[0].activeMerchItems).toEqual(["HOODIE"])
+    })
+
+    test("add branch is gated on merch-store level — locked items are rejected", () => {
+        // Regression for the fan-income farm: a direct store call must not be
+        // able to activate a line unlocked above the current store level.
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { merchStoreLevel: 1 } as never)],
+        }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        // KEYBOARD unlocks at level 5; store is level 1.
+        const locked = slice.toggleMerchItem("player", "KEYBOARD")
+        expect(locked.success).toBe(false)
+        expect(locked.message).toContain("unlocks at store level 5")
+        expect(h.state().teams[0].activeMerchItems ?? []).toEqual([])
+
+        // JERSEY unlocks at level 1 and is allowed.
+        const ok = slice.toggleMerchItem("player", "JERSEY")
+        expect(ok.success).toBe(true)
+        expect(h.state().teams[0].activeMerchItems).toEqual(["JERSEY"])
     })
 
     test("remove branch reports success and pops the item", () => {
@@ -262,6 +306,21 @@ describe("upgradeMerchStore", () => {
         const res = slice.upgradeMerchStore("player")
         expect(res.success).toBe(false)
         expect(res.message).toContain("maximum")
+    })
+
+    test("two upgrades in the same week produce distinct ledger ids", () => {
+        // A week-only id (`exp_merch_up_<week>_<team>`) collided when a player
+        // upgraded multiple levels in one week; the id now carries the level.
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { budget: 1_000_000, merchStoreLevel: 1 } as never)],
+        }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        slice.upgradeMerchStore("player") // 1 -> 2
+        slice.upgradeMerchStore("player") // 2 -> 3
+        const merchRows = h.state().financeLedger.filter(e => e.id.includes("exp_merch_up"))
+        expect(merchRows.length).toBe(2)
+        const ids = merchRows.map(e => e.id)
+        expect(new Set(ids).size).toBe(2)
     })
 
     test("refuses upgrade when budget is below cost", () => {

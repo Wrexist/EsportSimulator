@@ -119,6 +119,25 @@ describe("processWeeklyFinances — sponsor income", () => {
         expect(r.income.sponsors).toBe(8000)
     })
 
+    test("signing a low-payout first sponsor never reduces income below the rep floor", () => {
+        // Regression: the fallback used to be replaced by the raw sponsor sum
+        // the moment a team had any sponsor, so a cheap first sponsor (worth
+        // less than the reputation floor) made weekly sponsor income go DOWN.
+        // As a floor it can only ever stay equal or rise.
+        const noSponsors = makeTeam({ reputation: 50, sponsors: [] })
+        const cheapSponsor = makeTeam({
+            reputation: 50,
+            // rep 50 → repFactor 1.0, so payout 3000 → sponsorSum 3000,
+            // well below the rep floor of 50*150+2000 = 9500.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            sponsors: [{ name: "S", tier: "STANDARD", weeklyPayout: 3000 } as any],
+        })
+        const rNo = EconomyEngine.processWeeklyFinances(noSponsors, [], [], [])
+        const rCheap = EconomyEngine.processWeeklyFinances(cheapSponsor, [], [], [])
+        expect(rNo.income.sponsors).toBe(9500)
+        expect(rCheap.income.sponsors).toBeGreaterThanOrEqual(rNo.income.sponsors)
+    })
+
     test("custom-team incomeMultiplier scales sponsor income", () => {
         const team = makeTeam({
             reputation: 40,

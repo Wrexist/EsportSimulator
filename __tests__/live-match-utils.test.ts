@@ -3,11 +3,14 @@ import { MapId } from "@/types"
 import {
   applyRoundEconomy,
   createRoundStartEconomy,
+  createOvertimeEconomy,
+  getOvertimeMapWinThreshold,
   getRequiredMapsForFormat,
   resolveCanonicalSeriesMaps,
   resolveHomeStartsCT,
   resetEconomyForMapStart,
-  selectActiveRosterIds
+  selectActiveRosterIds,
+  OVERTIME_START_CASH
 } from "@/lib/live-match-utils"
 
 describe("live-match-utils", () => {
@@ -174,5 +177,38 @@ describe("getLossBonus — index clamping", () => {
 
   it("caps oversized streaks at the maximum tier", () => {
     expect(EconomyManager.getLossBonus(99)).toBe(EconomyManager.getLossBonus(4))
+  })
+})
+
+describe("overtime helpers (MR3)", () => {
+  it("threshold climbs first-to-16, 19, 22 across successive tied sets", () => {
+    expect(getOvertimeMapWinThreshold(1)).toBe(16)
+    expect(getOvertimeMapWinThreshold(2)).toBe(19)
+    expect(getOvertimeMapWinThreshold(3)).toBe(22)
+  })
+
+  it("floors set index at 1 for defensive/legacy zero values", () => {
+    expect(getOvertimeMapWinThreshold(0)).toBe(16)
+    expect(getOvertimeMapWinThreshold(-4)).toBe(16)
+  })
+
+  it("mirrors match-simulation.ts targetScore = 12 + 3*(set-1) + 4", () => {
+    for (let set = 1; set <= 5; set++) {
+      expect(getOvertimeMapWinThreshold(set)).toBe(12 + 3 * (set - 1) + 4)
+    }
+  })
+
+  it("seeds every OT player with a $10k buy budget and the correct default weapon", () => {
+    const ct = createOvertimeEconomy(["p1", "p2"], true)
+    expect(ct.p1.cash).toBe(OVERTIME_START_CASH)
+    expect(ct.p1.cash).toBe(10000)
+    expect(ct.p1.weapon).toBe("usp")
+    expect(ct.p2.weapon).toBe("usp")
+
+    const t = createOvertimeEconomy(["p3"], false)
+    expect(t.p3.cash).toBe(10000)
+    expect(t.p3.weapon).toBe("glock")
+    expect(t.p3.hasArmor).toBe(false)
+    expect(t.p3.utility).toEqual([])
   })
 })
