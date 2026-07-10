@@ -62,12 +62,18 @@ export class LegendEventsManager {
         player.morale = Math.min(100, (player.morale || 50) + 15)
 
         // Create event
+        const mentorshipBody = `${legend.name} visited ${team.name} for a mentorship session! ${player.nickname} gained valuable experience.`
         save.eventsLog.push({
             id: `legend_mentorship_${save.currentWeek}_${legend.id}`,
             type: "NEWS",
             week: save.currentWeek,
             data: {
-                text: `${legend.name} visited ${team.name} for a mentorship session! ${player.nickname} gained valuable experience.`,
+                // {title, message} is the shape every news UI reads (NewsApp
+                // falls back to data.title / data.message). `text` is kept for
+                // save-compatibility with older events that only carried it.
+                title: `${legend.name} Mentors ${team.name}`,
+                message: mentorshipBody,
+                text: mentorshipBody,
                 legendId: legend.id,
                 legendName: legend.name,
                 playerId: player.id,
@@ -88,12 +94,17 @@ export class LegendEventsManager {
         const legend = FOUNDING_LEGENDS[Math.floor(rng.next() * FOUNDING_LEGENDS.length)]
 
         // Create event with choice
+        const coachBody = `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization.`
         save.eventsLog.push({
             id: `legend_coach_opportunity_${save.currentWeek}_${legend.id}`,
             type: "CONTRACT_OFFER",
             week: save.currentWeek,
             data: {
-                text: `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization.`,
+                // {title, message} is the shape every news UI reads; `text` is
+                // retained for save-compatibility with pre-existing events.
+                title: `Coaching Offer: ${legend.name}`,
+                message: coachBody,
+                text: coachBody,
                 legendId: legend.id,
                 legendName: legend.name,
                 legendPortrait: legend.portraitPath,

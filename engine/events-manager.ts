@@ -32,15 +32,37 @@ export class EventsManager {
         ]
         const topic = topics[Math.floor(rng.next() * topics.length)]
 
+        // Name the outlet + journalist and vary the framing so the media layer
+        // reads as reporting rather than a placeholder "Pro has requested...".
+        const outlets: Array<{ outlet: string; journalist: string }> = [
+          { outlet: "Pro Power Rankings", journalist: "Jamie Vega" },
+          { outlet: "The Frag Report", journalist: "Sasha Lindqvist" },
+          { outlet: "Clutch Weekly", journalist: "Marcus Odden" },
+          { outlet: "Overtime Digest", journalist: "Priya Nair" },
+          { outlet: "The Scoreline", journalist: "Diego Ferraro" },
+          { outlet: "Headshot HQ", journalist: "Nina Alvarez" },
+        ]
+        const { outlet, journalist } = outlets[Math.floor(rng.next() * outlets.length)]
+        const framings = [
+          `${journalist} from ${outlet} wants to sit down with you about ${topic}.`,
+          `${outlet} has lined up an interview about ${topic}, with ${journalist} hosting.`,
+          `${journalist} of ${outlet} is putting together a feature on ${topic} and wants your take.`,
+          `${outlet}'s ${journalist} reached out for a segment on ${topic}.`,
+        ]
+        const framing = framings[Math.floor(rng.next() * framings.length)]
+
         save.eventsLog.push({
           id: eventId,
           type: EventType.MEDIA,
           week,
           acknowledged: false,
           data: {
-            title: "Media Interview Request",
-            message: `Pro has requested an interview about ${topic}. Accepting will boost your reputation but takes preparation time.`,
+            title: `Interview Request: ${outlet}`,
+            message: `${framing} Accepting will boost your reputation but takes preparation time.`,
             severity: "info",
+            outlet,
+            journalist,
+            topic,
           },
           choices: [
             { id: "accept", text: "Accept Interview (+Rep, +Morale)", effects: { reputation: 3, morale: 5 } },
