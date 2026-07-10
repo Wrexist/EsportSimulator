@@ -3,7 +3,7 @@
   "mapId": "Sandstone",
   "displayName": "Dust II",
   "radarImage": {
-    "upper": "de_dust2_radar_psd"
+    "upper": "de_sandstone_radar_psd"
   },
   "tSpawn": [
     {

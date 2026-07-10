@@ -116,13 +116,13 @@ export function simulateMapVeto(
     const homeMapStrengths = cachedHomeMapStrengths || calculateMapStrengths(homePlayers)
     const awayMapStrengths = cachedAwayMapStrengths || calculateMapStrengths(awayPlayers)
 
-    // Home bans away's strongest map.
-    const homeBan = selectMapForVeto(rng, availableMaps, awayMapStrengths, "BAN", awayVetoSkill)
+    // Home bans away's strongest map — precision driven by HOME's own analyst.
+    const homeBan = selectMapForVeto(rng, availableMaps, awayMapStrengths, "BAN", homeVetoSkill)
     veto.push({ teamId: homeTeamId, action: "BAN", map: homeBan, order: 1 })
     availableMaps = availableMaps.filter(m => m !== homeBan)
 
-    // Away bans home's strongest map.
-    const awayBan = selectMapForVeto(rng, availableMaps, homeMapStrengths, "BAN", homeVetoSkill)
+    // Away bans home's strongest map — precision driven by AWAY's own analyst.
+    const awayBan = selectMapForVeto(rng, availableMaps, homeMapStrengths, "BAN", awayVetoSkill)
     veto.push({ teamId: awayTeamId, action: "BAN", map: awayBan, order: 2 })
     availableMaps = availableMaps.filter(m => m !== awayBan)
 

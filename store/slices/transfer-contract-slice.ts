@@ -90,6 +90,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                         }
                     }
                     recalculateTeamSynergy(sourceTeam, state.players)
+                    // A release is a roster change: apply the standard chemistry
+                    // penalty + lastRosterChangeWeek bump, consistent with the
+                    // trade path and academy promotions. Without this a release
+                    // was "free" chemistry-wise and never reset the roster
+                    // stability clock (weekly chemistry growth + LOYAL_TEAM).
+                    applyRosterChangePenalty(sourceTeam, state.currentWeek, 1)
                 }
                 state.contracts = state.contracts.filter(c => c.playerId !== playerId)
                 const releasedPlayer = state.players.find(p => p.id === playerId)
@@ -555,6 +561,13 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                         endWeek: state.currentWeek + PROMOTION_CONTRACT_WEEKS_REMAINING,
                         buyout: Math.floor(potential * PROMOTION_BUYOUT_RATIO),
                     })
+
+                    // Roster changed: recompute synergy + apply the standard
+                    // chemistry penalty, mirroring academy-slice promoteProspect.
+                    // Without this the legacy promotion path was "free"
+                    // chemistry-wise and never reset lastRosterChangeWeek.
+                    recalculateTeamSynergy(team, state.players)
+                    applyRosterChangePenalty(team, state.currentWeek, 1)
                 }
                 return
             }
@@ -564,6 +577,8 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 team.youthAcademyIds = team.youthAcademyIds.filter(id => id !== playerId)
                 if (team.rosterIds.length < MAX_ROSTER_SIZE) {
                     team.rosterIds.push(playerId)
+                    recalculateTeamSynergy(team, state.players)
+                    applyRosterChangePenalty(team, state.currentWeek, 1)
                 }
             }
         })

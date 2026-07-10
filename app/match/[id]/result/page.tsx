@@ -28,7 +28,7 @@ import { DefeatOverlay } from "@/components/match/DefeatOverlay"
 export default function MatchResultPage({ params }: { params: { id: string } }) {
     const { id } = params
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         players: state.players,
@@ -38,6 +38,8 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
         tournaments: state.tournaments,
         scheduledMatches: state.scheduledMatches,
         currentWeek: state.currentWeek,
+        currentDay: state.currentDay,
+        timeMode: state.timeMode,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
@@ -286,7 +288,14 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     const nextPlayerMatch = scheduledMatches
         .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
         .sort((a, b) => (a.week !== b.week ? a.week - b.week : (a.day ?? 6) - (b.day ?? 6)))[0]
-    const nextMatchPlayableNow = !!nextPlayerMatch && nextPlayerMatch.week <= currentWeek
+    // A match is playable now only when its week has arrived AND — in HYBRID_DAILY
+    // mode — its scheduled day has too. Without the day clause this CTA routed the
+    // player into a future-day match, bypassing the pacing the dashboard enforces.
+    const nextMatchPlayableNow = !!nextPlayerMatch
+        && nextPlayerMatch.week <= currentWeek
+        && (timeMode === "WEEKLY"
+            || nextPlayerMatch.week < currentWeek
+            || (nextPlayerMatch.day ?? 6) <= currentDay)
 
     return (
         <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">

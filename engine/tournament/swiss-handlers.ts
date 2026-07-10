@@ -96,6 +96,25 @@ export function generateSwissRound(
         buckets[key].push(s.teamId)
     })
 
+    // Prior-opponent map for rematch avoidance. Real CS-style Swiss (which the
+    // Copenhagen/Shanghai Majors explicitly model) does not re-pair teams that
+    // already met — derive each team's opponent history from the completed Swiss
+    // matches of THIS tournament.
+    const priorOpponents = new Map<string, Set<string>>()
+    const noteOpponents = (a?: string, b?: string) => {
+        if (!a || !b) return
+        if (!priorOpponents.has(a)) priorOpponents.set(a, new Set())
+        if (!priorOpponents.has(b)) priorOpponents.set(b, new Set())
+        priorOpponents.get(a)!.add(b)
+        priorOpponents.get(b)!.add(a)
+    }
+    save.completedMatches?.forEach(cm => {
+        if (cm.tournamentId === tournament.id && cm.id.includes("_swiss_r")) {
+            noteOpponents(cm.homeTeamId, cm.awayTeamId)
+        }
+    })
+    const hasPlayed = (a: string, b: string) => priorOpponents.get(a)?.has(b) ?? false
+
     const matchedTeams = new Set<string>()
     const week = tournament.startWeek + roundNum - 1
     const recordOf = (tid: string) => tournament.standings?.find(s => s.teamId === tid)
@@ -139,7 +158,13 @@ export function generateSwissRound(
 
         while (bucketTeams.length >= 2) {
             const home = bucketTeams.pop()!
-            const away = bucketTeams.pop()!
+            // Prefer an opponent this team has NOT already played; only fall back
+            // to a rematch when no rematch-free partner remains in the bucket.
+            let awayIdx = bucketTeams.length - 1
+            for (let i = bucketTeams.length - 1; i >= 0; i--) {
+                if (!hasPlayed(home, bucketTeams[i])) { awayIdx = i; break }
+            }
+            const away = bucketTeams.splice(awayIdx, 1)[0]
             scheduleSwissMatch(home, away)
         }
 
@@ -158,7 +183,13 @@ export function generateSwissRound(
     })
     while (leftovers.length >= 2) {
         const home = leftovers.shift()!
-        const away = leftovers.shift()!
+        // Same rematch avoidance across floated buckets: pick the strongest
+        // not-yet-faced leftover, else the strongest remaining (rematch).
+        let awayIdx = 0
+        for (let i = 0; i < leftovers.length; i++) {
+            if (!hasPlayed(home, leftovers[i])) { awayIdx = i; break }
+        }
+        const away = leftovers.splice(awayIdx, 1)[0]
         scheduleSwissMatch(home, away)
     }
 

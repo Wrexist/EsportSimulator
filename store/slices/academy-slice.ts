@@ -474,6 +474,18 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             // Drop from academy, add to roster, issue contract.
             state.academyPlayers.splice(prospectIndex, 1)
+            // Clear any dev-match roster slot pointing at the promoted prospect,
+            // mirroring releaseProspect. Without this the stale academy id lingers
+            // in a role slot; scheduleDevMatch resolves starters by matching
+            // academyPlayers ids, so the promoted prospect silently drops the
+            // starter count below 5 and blocks dev matches until re-assigned.
+            if (state.academyRoster) {
+                for (const role of Object.keys(state.academyRoster)) {
+                    if (state.academyRoster[role] === prospect.id || state.academyRoster[role] === prospect.playerId) {
+                        state.academyRoster[role] = null
+                    }
+                }
+            }
             team.rosterIds.push(player.id)
             state.contracts = state.contracts.filter(c => c.playerId !== player.id)
             state.contracts.push({

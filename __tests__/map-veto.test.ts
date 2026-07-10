@@ -159,4 +159,36 @@ describe("simulateMapVeto", () => {
         expect(a.veto.map(v => `${v.teamId}:${v.action}:${v.map}`))
             .toEqual(b.veto.map(v => `${v.teamId}:${v.action}:${v.map}`))
     })
+
+    // Regression: each team's BAN precision must be driven by ITS OWN analyst,
+    // not the opponent's (the two levels were swapped). A team with a top
+    // analyst should ban the enemy's strongest map cleanly; the opponent's
+    // (weak) analyst must NOT govern that ban.
+    test("home's BAN precision tracks HOME's analyst level, not away's", () => {
+        // 8-map strength tables. AWAY is strongest on SANDSTONE by a gap of 6 —
+        // larger than a level-5 analyst's ±2 noise (so L5 always bans it) but
+        // well within a level-1 analyst's ±10 noise (so L1 flips across seeds).
+        const awayStrengths = new Map<MapId, number>(
+            [MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
+             MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS]
+                .map(m => [m, m === MapId.SANDSTONE ? 66 : 60]),
+        )
+        const homeStrengths = new Map<MapId, number>(
+            [MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
+             MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS]
+                .map(m => [m, 60]),
+        )
+
+        // Home has the elite analyst (L5); away has the rookie (L1). With the
+        // args wired correctly, EVERY seed's home ban is away's true strongest.
+        for (let seed = 1; seed <= 40; seed++) {
+            const result = simulateMapVeto(
+                new SeededRNG(seed), "home", "away", home, away,
+                makeAnalyst(5), makeAnalyst(1),
+                homeStrengths, awayStrengths,
+            )
+            const homeBan = result.veto.find(v => v.action === "BAN" && v.teamId === "home")
+            expect(homeBan?.map).toBe(MapId.SANDSTONE)
+        }
+    })
 })

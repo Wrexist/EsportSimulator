@@ -89,7 +89,22 @@ export function signFreeAgent(team: TeamSaveData, save: GameSave, emergency = fa
     if (team.rosterIds.length >= MAX_ROSTER_SIZE) return
 
     const allRosteredIds = new Set(save.teams.flatMap(t => t.rosterIds))
-    const freeAgents = save.players.filter(p => !allRosteredIds.has(p.id) && !p.isRetired)
+
+    // Academy-held players are NOT free agents. They live in save.players but
+    // are owned by an academy: the player's enrolled prospects (academyPlayers),
+    // pending-review prospects (academyPendingProspects), and every club's
+    // season-end youth intake (team.youthAcademyIds). Signing one handed the AI
+    // a player it never developed and left the prospect double-owned (still in
+    // the player's academy, being trained + charged for). Exclude them all.
+    const academyHeldIds = new Set<string>()
+    for (const ap of save.academyPlayers || []) academyHeldIds.add(ap.playerId)
+    for (const id of save.academyPendingProspects || []) academyHeldIds.add(id)
+    for (const t of save.teams) {
+        for (const id of t.youthAcademyIds || []) academyHeldIds.add(id)
+    }
+
+    const freeAgents = save.players.filter(p =>
+        !allRosteredIds.has(p.id) && !p.isRetired && !academyHeldIds.has(p.id))
 
     if (freeAgents.length === 0) return
 

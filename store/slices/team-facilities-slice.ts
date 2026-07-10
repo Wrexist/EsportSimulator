@@ -31,7 +31,7 @@
 import type { SliceCreator } from "@/store/types"
 import type { SponsorSaveData, FacilitySaveData } from "@/engine/save-types"
 import { EquipmentManager } from "@/engine/equipment-manager"
-import { nextDeterministicId, nextRandomInt } from "@/store/utils/helpers"
+import { nextDeterministicId, nextRandomInt, parseBoundedInt, MAX_CONTRACT_LENGTH_WEEKS } from "@/store/utils/helpers"
 
 const MAX_FACILITY_LEVEL = 5
 const FACILITY_BUILD_COST = 10_000
@@ -45,6 +45,22 @@ const ELITE_TIER_RANK_THRESHOLD = 10
 
 const MAX_MERCH_STORE_LEVEL = 5
 const MERCH_BASE_UPGRADE_COST = 50_000
+
+// Upper bound for a signed sponsor's weekly payout. Legit generated offers
+// top out well under this (ELITE betting at max reputation ≈ $910k); the
+// ceiling exists only to reject crafted/corrupt payloads.
+const MAX_SPONSOR_WEEKLY_PAYOUT = 5_000_000
+
+// Store-level required to activate each merch line. Mirrors the UI unlock
+// table (app/finances/page.tsx) so the fan-income conversion bonus can't be
+// farmed by activating locked lines through a direct store call.
+const MERCH_ITEM_REQUIRED_LEVEL: Record<string, number> = {
+    JERSEY: 1,
+    HOODIE: 2,
+    CAP: 3,
+    CHAIR: 4,
+    KEYBOARD: 5,
+}
 
 const NEWS_FEED_CAP = 50
 
@@ -255,10 +271,37 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 }
             }
 
+            // Hardening: resolve the sponsor from the live offer pool instead of
+            // trusting the caller-supplied object. Every real signing goes
+            // through state.sponsorOffers; an offer absent from the pool is a
+            // crafted/stale payload. Like every peer economy action, clamp the
+            // numeric fields through parseBoundedInt so a bogus weeklyPayout
+            // can't be spread through unchecked and pay out forever.
+            const offer = (state.sponsorOffers || []).find(o =>
+                sponsor.id ? o.id === sponsor.id : (o.name === sponsor.name && o.tier === sponsor.tier)
+            )
+            if (!offer) {
+                result = { success: false, message: "That sponsor offer is no longer available." }
+                return
+            }
+            const payoutCheck = parseBoundedInt(offer.weeklyPayout, "Sponsor payout", 0, MAX_SPONSOR_WEEKLY_PAYOUT)
+            if (!payoutCheck.ok) {
+                result = { success: false, message: payoutCheck.message }
+                return
+            }
+            const weeksCheck = parseBoundedInt(offer.remainingWeeks, "Sponsor duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
+            if (!weeksCheck.ok) {
+                // Reject like payoutCheck — the old floor-only fallback let an
+                // out-of-range remainingWeeks land uncapped in the saved sponsor.
+                result = { success: false, message: weeksCheck.message }
+                return
+            }
+
             const normalizedSponsor: SponsorSaveData = {
-                ...sponsor,
-                id: sponsor.id || nextDeterministicId(state, "spon", sponsor.tier, sponsor.name),
-                remainingWeeks: Math.max(1, Math.floor(sponsor.remainingWeeks || 0)),
+                ...offer,
+                id: offer.id || nextDeterministicId(state, "spon", offer.tier, offer.name),
+                weeklyPayout: payoutCheck.value,
+                remainingWeeks: weeksCheck.value,
                 signedWeek: state.currentWeek,
                 followerCheckpoint: team.followers || 0,
                 lastProcessedWeek: undefined,
@@ -333,7 +376,10 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             team.merchStoreLevel = currentLevel + 1
 
             state.financeLedger.push({
-                id: `exp_merch_up_${state.currentWeek}_${teamId}`,
+                // Include the new level: a player can upgrade several levels in
+                // one week (each a separate click), and a week-only id would
+                // collide, violating the ledger's unique-id invariant.
+                id: `exp_merch_up_${state.currentWeek}_${teamId}_${team.merchStoreLevel}`,
                 week: state.currentWeek,
                 teamId: teamId,
                 type: "EXPENSE",
@@ -361,9 +407,26 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             if (!team.activeMerchItems) team.activeMerchItems = []
 
             if (team.activeMerchItems.includes(itemType)) {
+                // Deactivation is always allowed (also lets a player clear an
+                // item unlocked at a level they've since... not applicable, but
+                // harmless and avoids trapping stale items).
                 team.activeMerchItems = team.activeMerchItems.filter(i => i !== itemType)
                 result = { success: true, message: `${itemType} removed from active merch.` }
             } else {
+                // Gate activation on merch-store level at the action layer — the
+                // UI disables locked buttons, but a direct store call could
+                // otherwise activate all five lines at level 1 to farm the full
+                // +20% fan-income conversion bonus without paying for the levels.
+                const requiredLevel = MERCH_ITEM_REQUIRED_LEVEL[itemType]
+                if (requiredLevel === undefined) {
+                    result = { success: false, message: `Unknown merch item.` }
+                    return
+                }
+                const level = team.merchStoreLevel || 1
+                if (level < requiredLevel) {
+                    result = { success: false, message: `${itemType} unlocks at store level ${requiredLevel}.` }
+                    return
+                }
                 team.activeMerchItems.push(itemType)
                 result = { success: true, message: `${itemType} added to active merch.` }
             }

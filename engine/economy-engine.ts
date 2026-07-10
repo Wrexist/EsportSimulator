@@ -115,11 +115,16 @@ export class EconomyEngine {
             team.sponsors.forEach(sponsor => {
                 total += sponsor.weeklyPayout * repFactor
             })
-        } else {
-            // Fallback for AI teams or empty sponsors -> Estimate based on reputation
-            // This fixes "bad for bad teams" by giving them at least something implicit
-            total = (team.reputation * 150) + 2000
         }
+
+        // Reputation-based safety net, applied as an income FLOOR rather than an
+        // either/or fallback. Previously the code *replaced* the floor with the
+        // raw sponsor sum the moment a team had any sponsor, so signing a first,
+        // low-payout sponsor (worth less than the rep floor) made weekly income
+        // go DOWN. As a floor, income for an unsponsored team is unchanged and
+        // signing a real sponsor can only ever raise it, never lower it.
+        const reputationFloor = (team.reputation * 150) + 2000
+        total = Math.max(total, reputationFloor)
 
         // Apply difficulty multiplier for custom teams
         const incomeMultiplier = team.difficultySettings?.incomeMultiplier ?? 1.0

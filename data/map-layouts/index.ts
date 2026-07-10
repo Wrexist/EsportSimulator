@@ -11,7 +11,7 @@ import type { MapLayoutJson } from "./types"
 // JSON imports get inferred with `unknown` nested types under strict mode;
 // the cast lifts every entry to the authored shape in one place so consumers
 // don't have to repeat it.
-import dust2Raw from "./dust_ii.json"
+import sandstoneRaw from "./sandstone.json"
 import mirageRaw from "./mirage.json"
 import infernoRaw from "./inferno.json"
 import anubisRaw from "./anubis.json"
@@ -20,7 +20,7 @@ import overpassRaw from "./overpass.json"
 import nukeRaw from "./nuke.json"
 import vertigoRaw from "./vertigo.json"
 
-const dust2 = dust2Raw as unknown as MapLayoutJson
+const sandstone = sandstoneRaw as unknown as MapLayoutJson
 const mirage = mirageRaw as unknown as MapLayoutJson
 const inferno = infernoRaw as unknown as MapLayoutJson
 const anubis = anubisRaw as unknown as MapLayoutJson
@@ -30,7 +30,7 @@ const nuke = nukeRaw as unknown as MapLayoutJson
 const vertigo = vertigoRaw as unknown as MapLayoutJson
 
 export const MAP_LAYOUT_JSONS: Record<string, MapLayoutJson> = {
-    [dust2.mapId]: dust2,
+    [sandstone.mapId]: sandstone,
     [mirage.mapId]: mirage,
     [inferno.mapId]: inferno,
     [anubis.mapId]: anubis,
@@ -42,7 +42,7 @@ export const MAP_LAYOUT_JSONS: Record<string, MapLayoutJson> = {
 
 /** Ordered list — used by the builder UI to render the map picker. */
 export const MAP_LAYOUTS_ORDERED: MapLayoutJson[] = [
-    dust2, mirage, inferno, anubis, ancient, overpass, nuke, vertigo,
+    sandstone, mirage, inferno, anubis, ancient, overpass, nuke, vertigo,
 ]
 
 export function getMapLayoutJson(mapId: string): MapLayoutJson | undefined {

@@ -130,7 +130,7 @@ export class TournamentManager {
                                 match.loserId = resolvedWinner === match.homeTeamId ? match.awayTeamId : match.homeTeamId
                             }
                             save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
-                            this.handlePlayoffProgression(save, tournament, match, resolvedWinner, match.loserId)
+                            this.routeRepairedProgression(save, tournament, match, resolvedWinner, match.loserId)
                             changed = true
                         }
                         continue
@@ -925,16 +925,58 @@ export class TournamentManager {
             }
         })
 
-        // 4. Swiss Failures (if Swiss)
-        if (tournament.standings) {
-            const eliminatedInSwiss = tournament.standings
-                .filter(s => s.losses >= 3)
-                .sort((a, b) => b.wins - a.wins) // More wins = higher placement
+        // 3b. Earlier-round losers for pure single-elim brackets.
+        // getStageName labels first rounds "Round of N Match X" (16-/32-team
+        // majors); their losers had no placement, so a 16-team single-elim left
+        // its eight Round-of-16 losers with zero circuit points/prize even though
+        // the tier tables (e.g. S_TIER 9-16) and the 16-place prize split define
+        // their share. Slot each Round-of-N loser block into the bottom half of
+        // that round's field: Round of 16 → 9-16, Round of 32 → 17-32, etc.
+        // Within a block, rank by team ELO desc (stronger teams place higher —
+        // points differ inside a block, e.g. S_TIER 9-12=200 vs 13-16=100).
+        const roundOfLosers = new Map<number, string[]>()
+        tournament.playoffBracket.forEach(m => {
+            const ro = m.stage.match(/Round of (\d+)/i)
+            if (ro && m.isCompleted && m.loserId && !placements.some(p => p.teamId === m.loserId)) {
+                const size = parseInt(ro[1], 10)
+                const list = roundOfLosers.get(size) ?? []
+                list.push(m.loserId)
+                roundOfLosers.set(size, list)
+            }
+        })
+        if (roundOfLosers.size > 0) {
+            const eloOf = (teamId: string) => {
+                const team = save.teams.find(t => t.id === teamId)
+                return team?.elo ?? (team?.worldRanking ? 2000 - team.worldRanking : 1000)
+            }
+            for (const size of [...roundOfLosers.keys()].sort((a, b) => b - a)) {
+                const losers = roundOfLosers.get(size)!.sort((a, b) => {
+                    const d = eloOf(b) - eloOf(a)
+                    return d !== 0 ? d : stableTeamIdNumber(a) - stableTeamIdNumber(b)
+                })
+                let pos = size / 2 + 1
+                losers.forEach(teamId => placements.push({ teamId, position: pos++ }))
+            }
+        }
 
-            eliminatedInSwiss.forEach((s, idx) => {
-                // Start placing after the bracket teams (usually top 8 make playoffs)
-                placements.push({ teamId: s.teamId, position: 9 + idx })
-            })
+        // 4. Swiss field — place EVERY remaining participant, not just 3-loss
+        // teams. Teams still mid-table when playoffs triggered (wins<3 AND
+        // losses<3), and surplus 3-win teams that missed the top-8 cut, used to
+        // finish with no placement → no prize, no circuit points. Rank all
+        // not-yet-placed standings by record and slot them into the next open
+        // positions so the whole Swiss field is rewarded.
+        if (tournament.format === "swiss" && tournament.standings) {
+            const placed = new Set(placements.map(p => p.teamId))
+            const remaining = tournament.standings
+                .filter(s => !placed.has(s.teamId))
+                .sort((a, b) =>
+                    b.wins - a.wins
+                    || (b.wins - b.losses) - (a.wins - a.losses)
+                    || b.roundDiff - a.roundDiff
+                    || b.mapDiff - a.mapDiff
+                    || a.teamId.localeCompare(b.teamId))
+            let nextPos = placements.length > 0 ? Math.max(...placements.map(p => p.position)) + 1 : 1
+            remaining.forEach(s => placements.push({ teamId: s.teamId, position: nextPos++ }))
         }
 
         return placements.sort((a, b) => a.position - b.position)
@@ -1029,6 +1071,38 @@ export class TournamentManager {
             )
             this.notifyPlayerElimination(save, tournament, loserId)
         }
+    }
+
+    /**
+     * Route a backfilled/repaired bracket match to its FORMAT-SPECIFIC
+     * progression handler, mirroring processMatchResult's dispatch.
+     *
+     * repairTournamentProgression completes matches that never flowed through
+     * processMatchResult — most importantly forfeited tournament matches, which
+     * the week processor records as completed but does NOT route (it forfeits
+     * and `continue`s). Previously repair sent EVERY such match through the
+     * generic single-elim handlePlayoffProgression, which for Swiss never
+     * updates standings/advances rounds (soft-locking the stage) and for
+     * double-elim wrongly ELIMINATES the loser instead of dropping them to the
+     * lower bracket. Dispatching by match-id prefix here keeps forfeits (and any
+     * other repair-completed match) on the same path as played matches.
+     */
+    private static routeRepairedProgression(
+        save: GameSave,
+        tournament: TournamentSaveData,
+        match: BracketMatchSaveData,
+        winnerId: string,
+        loserId?: string,
+    ): void {
+        const id = match.id
+        if (loserId !== undefined) {
+            if (id.includes("opening")) { this.handleOpeningResult(save, tournament, match, winnerId, loserId); return }
+            if (id.includes("upper_semi")) { this.handleUpperSemiResult(save, tournament, match, winnerId, loserId); return }
+            if (id.includes("upper_final")) { this.handleUpperFinalResult(save, tournament, match, winnerId, loserId); return }
+            if (id.includes("lower")) { this.handleLowerResult(save, tournament, match, winnerId, loserId); return }
+            if (id.includes("swiss")) { this.handleSwissResult(save, tournament, match, winnerId, loserId); return }
+        }
+        this.handlePlayoffProgression(save, tournament, match, winnerId, loserId)
     }
 
     private static checkAndStartPlayoffs(save: GameSave, tournamentId: string): void {

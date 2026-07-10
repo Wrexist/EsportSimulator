@@ -274,6 +274,38 @@ describe("Steam Cloud save round-trip", () => {
         expect(loaded.save!.teams[0].budget).toBe(555_555)
     }, 15000)
 
+    test("higher-progress local save is NOT demoted by a stale cloud copy with a newer wall-clock timestamp", async () => {
+        // Reproduces clock-skew across two machines: a cloud copy that is
+        // OLDER in gameplay terms (fewer weeks played) carries a LARGER
+        // updatedAt than the local save. Wall-clock-only conflict resolution
+        // would promote the stale cloud copy and lose the newer local session;
+        // the monotonic currentWeek comparison must keep the local save.
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave(sm)
+
+        // Save at a high week (10). Capture the properly-signed serialized copy.
+        save.currentWeek = 10
+        await sm.saveGame(save)
+        const primaryKey = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+        const week10Local = (await storage.getItem(primaryKey))!
+
+        // Wait past the 1s tie-break window, then save an EARLIER week (5).
+        // This rewrites both local + cloud with a strictly newer timestamp.
+        await new Promise(r => setTimeout(r, 1200))
+        save.currentWeek = 5
+        await sm.saveGame(save)
+
+        // Restore the older-but-further-progressed week-10 copy as the local
+        // primary, leaving the newer-timestamp week-5 copy in the cloud.
+        await storage.setItem(primaryKey, week10Local)
+
+        const loaded = await sm.loadGame(save.saveId)
+        expect(loaded.error).toBeUndefined()
+        // Progress wins over wall clock: the week-10 local save is kept.
+        expect(loaded.save!.currentWeek).toBe(10)
+    }, 15000)
+
     test("checkpoint writes stay local-only — cloud upload is reserved for final saveGame", async () => {
         const storage = new MemoryStorage()
         const sm = new SaveManager(storage)

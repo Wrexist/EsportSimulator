@@ -22,6 +22,8 @@ import type { GameSave } from "../save-types"
 import { StaffGenerator } from "../staff-generator"
 import type { SeededRNG } from "../rng"
 import { getStaffPassiveBonuses, isFeatureUnlocked } from "../talent-trees"
+import { scoutTierFromAccuracy } from "../scouting-system"
+import { getSpecializationMultiplier } from "../staff-specialization"
 
 const DEFAULT_XP_TO_NEXT = 1000
 const XP_GROWTH_MULTIPLIER = 1.5
@@ -75,10 +77,23 @@ function applyScoutingCompletion(draft: PreTickDraft, ctx: PreTickContext): void
     // dedicated scouting-mission-processor (rollback/resume paths).
     const alreadyScouted = draft.scoutedPlayers.some(sp => sp.playerId === mission.playerId)
     if (!alreadyScouted) {
+        // Report fidelity is driven by the assigned scout's accuracy (×
+        // specialist bonus), NOT a flat EXPERT. This pre-tick path is the one
+        // that actually runs each week — it clears activeScoutingMission before
+        // the atomic processScoutingMissions ever sees it — so hard-coding
+        // EXPERT here made scout accuracy/specialisation dead: no scout could
+        // earn an ELITE report and no weak scout a lesser one. Every real
+        // mission carries a scoutId; when the scout is resolvable, accuracy
+        // decides the tier. A legacy/missing scout keeps the prior EXPERT
+        // default so old flows are unchanged.
+        const scout = mission.scoutId ? draft.staff?.find(s => s.id === mission.scoutId) : undefined
+        const scoutLevel = scout
+            ? scoutTierFromAccuracy((scout.stats?.accuracy ?? 50) * getSpecializationMultiplier(scout))
+            : "EXPERT"
         draft.scoutedPlayers.push({
             playerId: mission.playerId,
             scoutedWeek: draft.currentWeek,
-            scoutLevel: "EXPERT",
+            scoutLevel,
         })
     }
     draft.eventsLog.unshift({

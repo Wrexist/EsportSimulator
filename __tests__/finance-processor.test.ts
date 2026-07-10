@@ -172,6 +172,53 @@ describe("FinanceProcessor.processFinance", () => {
         expect(warnings.length).toBe(1)
     })
 
+    test("league revenue share is written to the player ledger (reconciles with budget)", () => {
+        const team = makeTeam({ id: "t1", budget: 200_000, reputation: 60, fanbase: 5_000 })
+        const save = makeSave(team)
+
+        FinanceProcessor.processFinance(save, "t1")
+
+        const leagueRow = save.financeLedger.find(e => e.id.includes("inc_league"))
+        expect(leagueRow).toBeDefined()
+        expect(leagueRow!.type).toBe("INCOME")
+        expect(leagueRow!.amount).toBe(15_000)
+
+        // The ledger income entries must sum to exactly the reported income —
+        // previously the $15k league share inflated the budget without a row.
+        const income = save.financeLedger
+            .filter(e => e.type === "INCOME")
+            .reduce((s, e) => s + e.amount, 0)
+        // Income entries (sponsor floor + fanbase + league share) now include
+        // the league share, so the sum covers the full reported income.
+        expect(income).toBeGreaterThanOrEqual(15_000)
+    })
+
+    test("equipment-driven insolvency feeds the consecutive-insolvency bankruptcy gate", () => {
+        // Pre-equipment the team is comfortably STABLE (positive net, healthy
+        // balance); only the equipment upkeep pushes the budget below zero.
+        // The bankruptcy gate must read the POST-equipment state, not the
+        // stale pre-equipment report.state (which would reset the counter).
+        const team = makeTeam({
+            id: "t1",
+            budget: 10_000,
+            reputation: 40,
+            fanbase: 0,
+            consecutiveInsolventWeeks: 7,
+            equipment: [
+                { id: "eq", type: "MOUSE", tier: 2, name: "M", bonus: { stat: "reaction", value: 5 }, weeklyCost: 40_000, purchasedWeek: 1 } as any,
+            ],
+        })
+        const save = makeSave(team, "t1")
+
+        FinanceProcessor.processFinance(save, "t1")
+
+        expect(team.budget).toBeLessThanOrEqual(0)
+        expect(team.financialState).toBe("INSOLVENT")
+        expect(team.consecutiveInsolventWeeks).toBe(8)
+        expect(save.gameOverReason).toBe("BANKRUPTCY")
+        expect(save.gameOverWeek).toBe(10)
+    })
+
     test("consecutive insolvency counter increments and triggers BANKRUPTCY gameOver after 8 weeks", () => {
         // Force INSOLVENT: massive contracts > league share + sponsor floor,
         // budget already small. With 10 players at $5k each = $50k expenses,

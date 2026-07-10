@@ -27,6 +27,7 @@ import type {
     MatchSaveData,
     CompletedMatchSaveData,
 } from "../save-types"
+import { createMatchRNG } from "../rng"
 
 const RECENT_FORM_MAX = 5
 
@@ -48,7 +49,12 @@ export function processForfeitMatch(args: {
 }): { matchesPlayed: number } {
     const { save, match, homeTeam, awayTeam, homePlayers, awayPlayers, playerTeamId, removedMatchIds } = args
 
-    const homeForfeits = homePlayers.length < 5
+    // When BOTH rosters are depleted, decide the default win with a
+    // seeded coin flip instead of always penalizing the home side.
+    const bothDepleted = homePlayers.length < 5 && awayPlayers.length < 5
+    const homeForfeits = bothDepleted
+        ? createMatchRNG(match.seed).bool()
+        : homePlayers.length < 5
     const forfeitingTeam = homeForfeits ? homeTeam : awayTeam
     const winningTeam = homeForfeits ? awayTeam : homeTeam
     const availableCount = homeForfeits ? homePlayers.length : awayPlayers.length

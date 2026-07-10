@@ -3,6 +3,26 @@ setlocal EnableDelayedExpansion
 title Esports Manager - Professional Build
 cd /d "%~dp0.."
 
+:: ============================================================================
+:: DEPRECATED - DO NOT SHIP THE OUTPUT OF THIS SCRIPT TO STEAM.
+::
+:: This produces the portable SteamBuild\ tree (raw source + node_modules +
+:: a .bat/.vbs launcher). It contains NO EsportsManager.exe, so Steam's
+:: launch-option autodetect picks node_modules\7zip-bin\...\7za.exe and the
+:: build gets rejected (this is what happened to BuildID 23989573).
+::
+:: Ship with electron-builder instead:  SHIP_GAME.bat  ->  npm run dist
+:: which produces dist\win-unpacked\EsportsManager.exe (the real launcher).
+:: This script is kept only for local/manual portable testing.
+:: ============================================================================
+echo.
+echo [DEPRECATED] This builds the portable SteamBuild\ folder, which must NOT
+echo             be uploaded to Steam. Use SHIP_GAME.bat (electron-builder) to
+echo             ship. Continue only for local testing.
+echo.
+set /p _BR_OK=Type YES to continue building the portable folder:
+if /I "%_BR_OK%" neq "YES" exit /b 1
+
 :: Define Paths (Professional structure)
 set "ROOT=%CD%"
 set "DEPLOY_DIR=%ROOT%\deployment"

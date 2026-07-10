@@ -119,21 +119,33 @@ describe("processForfeitMatch — score direction", () => {
         expect(r.winnerId).toBe("home")
     })
 
-    test("both teams under 5 → home is treated as the forfeiter (deterministic tiebreak)", () => {
-        const home = makeTeam("home")
-        const away = makeTeam("away")
-        const save = makeSave(home, away)
+    test("both teams under 5 → seeded coin flip decides the forfeiter deterministically", () => {
+        const run = (seed: number) => {
+            const home = makeTeam("home")
+            const away = makeTeam("away")
+            const save = makeSave(home, away)
 
-        processForfeitMatch({
-            save, match: makeMatch(), homeTeam: home, awayTeam: away,
-            homePlayers: makeRoster(3, "h"),
-            awayPlayers: makeRoster(3, "a"),
-            playerTeamId: "home", removedMatchIds: new Set(),
-        })
+            processForfeitMatch({
+                save, match: { ...makeMatch(), seed }, homeTeam: home, awayTeam: away,
+                homePlayers: makeRoster(3, "h"),
+                awayPlayers: makeRoster(3, "a"),
+                playerTeamId: "home", removedMatchIds: new Set(),
+            })
 
-        const r = save.completedMatches[0].result
-        // homeForfeits === true wins the tiebreak per implementation.
-        expect(r.winnerId).toBe("away")
+            return save.completedMatches[0].result
+        }
+
+        const winners = new Set<string>()
+        for (let seed = 1; seed <= 40; seed++) {
+            const r = run(seed)
+            expect(r.winnerId === "home" || r.winnerId === "away").toBe(true)
+            // Same seed must always produce the same outcome.
+            expect(run(seed).winnerId).toBe(r.winnerId)
+            winners.add(r.winnerId as string)
+        }
+        // Across many seeds both sides win sometimes — home is no longer
+        // unconditionally penalized.
+        expect(winners).toEqual(new Set(["home", "away"]))
     })
 })
 
