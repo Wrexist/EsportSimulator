@@ -109,6 +109,9 @@ const startNextJSServer = async () => {
 
         const server = http.createServer((req, res) => {
             const parsedUrl = parse(req.url, true);
+            // Serve the active mod's images (real logos/portraits) from outside
+            // the shipped web root before handing off to Next.
+            if (serveModAsset(req, res, parsedUrl.pathname)) return;
             handle(req, res, parsedUrl);
         });
 
@@ -507,6 +510,59 @@ const MOD_DIRNAME = 'mods/community';
 function modDir() {
     return path.join(app.getPath('userData'), MOD_DIRNAME);
 }
+
+// The active overlay dir (community import OR a subscribed Workshop item) is
+// resolved by the steam module, which owns the Workshop client.
+function activeModReadDir() {
+    try {
+        if (typeof steam.getActiveModDir === 'function') return steam.getActiveModDir();
+    } catch (_) { /* fall through */ }
+    return modDir();
+}
+
+// Content types the /mod-assets route is allowed to serve. Anything else 404s,
+// so a hostile mod folder can't get the app to stream arbitrary file types.
+const MOD_ASSET_TYPES = {
+    '.png': 'image/png',
+    '.webp': 'image/webp',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.avif': 'image/avif',
+};
+
+/**
+ * Serve GET /mod-assets/<relpath> from the active mod folder. Returns true if
+ * the request was handled (so the caller skips Next). Path-traversal guarded:
+ * the resolved target must stay inside the active mod dir.
+ */
+function serveModAsset(req, res, pathname) {
+    if (!pathname || !pathname.startsWith('/mod-assets/')) return false;
+    try {
+        const baseDir = activeModReadDir();
+        const rel = decodeURIComponent(pathname.slice('/mod-assets/'.length));
+        const target = path.normalize(path.join(baseDir, rel));
+        const baseWithSep = path.normalize(baseDir) + path.sep;
+        if (target !== path.normalize(baseDir) && !target.startsWith(baseWithSep)) {
+            res.statusCode = 403; res.end('Forbidden'); return true;
+        }
+        const ext = path.extname(target).toLowerCase();
+        const type = MOD_ASSET_TYPES[ext];
+        if (!type) { res.statusCode = 404; res.end('Not found'); return true; }
+        if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+            res.statusCode = 404; res.end('Not found'); return true;
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', type);
+        res.setHeader('Cache-Control', 'no-cache');
+        fs.createReadStream(target).on('error', () => { try { res.destroy(); } catch (_) { /* noop */ } }).pipe(res);
+        return true;
+    } catch (e) {
+        try { res.statusCode = 500; res.end('Error'); } catch (_) { /* noop */ }
+        return true;
+    }
+}
 function ensureModDir() {
     const d = modDir();
     if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
@@ -521,7 +577,7 @@ function safeModFilename(name) {
 
 ipcMain.handle('mod-exists', () => {
     try {
-        const d = modDir();
+        const d = activeModReadDir();
         if (!fs.existsSync(d)) return false;
         // Any of the three overlays is enough — tournaments-only imports
         // are a valid use case (e.g. a patch that only rebrands events).
@@ -538,7 +594,7 @@ ipcMain.handle('mod-exists', () => {
 ipcMain.handle('mod-read', (_event, filename) => {
     try {
         const f = safeModFilename(filename);
-        const p = path.join(modDir(), f);
+        const p = path.join(activeModReadDir(), f);
         if (!fs.existsSync(p)) return null;
         return fs.readFileSync(p, 'utf8');
     } catch (e) {

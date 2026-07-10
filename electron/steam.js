@@ -131,6 +131,117 @@ function coerceSteamId(id) {
     return null;
 }
 
+// ============================================================
+// Community mods + Steam Workshop
+// The shipped game is fully fictional; a player who wants real names/logos/
+// portraits installs a community overlay — either a hand-imported JSON db
+// (userData/mods/community) or a subscribed Steam Workshop item. `active.json`
+// selects which one is live. getActiveModDir() is consumed by the main
+// process (mod-read IPC + the /mod-assets HTTP route) to read the overlay's
+// JSON and serve its images.
+// ============================================================
+const EITEM_STATE_INSTALLED = 4;
+const EITEM_STATE_NEEDS_UPDATE = 8;
+
+function modsRoot() {
+    return path.join(app.getPath('userData'), 'mods');
+}
+function communityModDir() {
+    return path.join(modsRoot(), 'community');
+}
+function activePointerPath() {
+    return path.join(modsRoot(), 'active.json');
+}
+
+function readActiveMod() {
+    try {
+        const p = activePointerPath();
+        if (fs.existsSync(p)) {
+            const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+            if (j && (j.source === 'community' || j.source === 'workshop')) return j;
+        }
+    } catch (_) { /* fall through to default */ }
+    return { source: 'community' };
+}
+function writeActiveMod(obj) {
+    try {
+        fs.mkdirSync(modsRoot(), { recursive: true });
+        fs.writeFileSync(activePointerPath(), JSON.stringify(obj, null, 2), 'utf8');
+        return true;
+    } catch (e) {
+        logFn(`[Mod] Failed to write active pointer: ${e.message}`);
+        return false;
+    }
+}
+
+function workshopInstallFolder(idStr) {
+    if (!steamClient || !steamClient.workshop) return null;
+    try {
+        const info = steamClient.workshop.installInfo(BigInt(idStr));
+        return info && info.folder ? info.folder : null;
+    } catch (_) { return null; }
+}
+
+/**
+ * Resolve the directory the active overlay is read/served from. A subscribed
+ * Workshop item wins when selected AND installed on disk; otherwise we fall
+ * back to the hand-imported community dir. Never throws.
+ */
+function getActiveModDir() {
+    try {
+        const active = readActiveMod();
+        if (active.source === 'workshop' && active.workshopId) {
+            const folder = workshopInstallFolder(active.workshopId);
+            if (folder && fs.existsSync(folder)) return folder;
+        }
+    } catch (_) { /* fall through */ }
+    return communityModDir();
+}
+
+function readModManifest(dir) {
+    try {
+        const p = path.join(dir, 'manifest.json');
+        if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch (_) { /* ignore */ }
+    return null;
+}
+
+/** Enumerate subscribed Workshop items, annotated with our manifest metadata. */
+function listWorkshopMods() {
+    if (!steamClient || !steamClient.workshop || typeof steamClient.workshop.getSubscribedItems !== 'function') {
+        return [];
+    }
+    let ids = [];
+    try { ids = steamClient.workshop.getSubscribedItems() || []; } catch (_) { return []; }
+    const out = [];
+    for (const id of ids) {
+        try {
+            const idStr = id.toString();
+            let state = 0;
+            try { state = Number(steamClient.workshop.state(id)) || 0; } catch (_) { /* leave 0 */ }
+            const installed = (state & EITEM_STATE_INSTALLED) === EITEM_STATE_INSTALLED;
+            const needsUpdate = (state & EITEM_STATE_NEEDS_UPDATE) === EITEM_STATE_NEEDS_UPDATE;
+            const info = installed ? (() => { try { return steamClient.workshop.installInfo(id); } catch (_) { return null; } })() : null;
+            const folder = info && info.folder ? info.folder : null;
+            const manifest = folder ? readModManifest(folder) : null;
+            out.push({
+                id: idStr,
+                installed,
+                needsUpdate,
+                folder,
+                sizeOnDisk: info ? Number(info.sizeOnDisk) : 0,
+                title: (manifest && (manifest.title || manifest.name)) || `Workshop item ${idStr}`,
+                author: (manifest && manifest.author) || '',
+                teams: manifest ? manifest.teams : undefined,
+                players: manifest ? manifest.players : undefined,
+                // Distinguishes our real-data overlays from unrelated subscriptions.
+                isEmMod: !!(manifest && (manifest.game === 'Esports Manager' || typeof manifest.schema === 'number')),
+            });
+        } catch (_) { /* skip malformed item */ }
+    }
+    return out;
+}
+
 function registerHandlers() {
     // ---- identity -------------------------------------------------------
     ipcMain.handle('steam-get-id', (event) => {
@@ -362,6 +473,60 @@ function registerHandlers() {
             return false;
         }
     });
+
+    // ---- Steam Workshop / community mods ----
+    ipcMain.handle('workshop-available', () => {
+        return !!(steamClient && steamClient.workshop && typeof steamClient.workshop.getSubscribedItems === 'function');
+    });
+
+    ipcMain.handle('workshop-list', () => {
+        try { return listWorkshopMods(); } catch (e) { logFn(`[Mod] list failed: ${e.message}`); return []; }
+    });
+
+    ipcMain.handle('workshop-get-active', () => {
+        try { return readActiveMod(); } catch (_) { return { source: 'community' }; }
+    });
+
+    ipcMain.handle('workshop-set-active', (event, payload) => {
+        if (!isTrustedSender(event)) return false;
+        if (!payload || (payload.source !== 'community' && payload.source !== 'workshop')) return false;
+        if (payload.source === 'workshop' && typeof payload.workshopId !== 'string') return false;
+        return writeActiveMod(
+            payload.source === 'community'
+                ? { source: 'community' }
+                : { source: 'workshop', workshopId: payload.workshopId }
+        );
+    });
+
+    ipcMain.handle('workshop-subscribe', async (event, idStr) => {
+        if (!isTrustedSender(event) || !steamClient || !steamClient.workshop) return false;
+        try {
+            await steamClient.workshop.subscribe(BigInt(idStr));
+            if (typeof steamClient.workshop.download === 'function') {
+                try { steamClient.workshop.download(BigInt(idStr), true); } catch (_) { /* download is best-effort */ }
+            }
+            return true;
+        } catch (e) { logFn(`[Mod] subscribe failed: ${e.message}`); return false; }
+    });
+
+    ipcMain.handle('workshop-unsubscribe', async (event, idStr) => {
+        if (!isTrustedSender(event) || !steamClient || !steamClient.workshop) return false;
+        try { await steamClient.workshop.unsubscribe(BigInt(idStr)); return true; }
+        catch (e) { logFn(`[Mod] unsubscribe failed: ${e.message}`); return false; }
+    });
+
+    ipcMain.handle('workshop-open', (event, idStr) => {
+        if (!isTrustedSender(event)) return false;
+        try {
+            const { shell } = require('electron');
+            const safeId = String(idStr).replace(/[^0-9]/g, '');
+            const url = safeId
+                ? `https://steamcommunity.com/sharedfiles/filedetails/?id=${safeId}`
+                : `https://steamcommunity.com/app/${steamAppId}/workshop/`;
+            shell.openExternal(url);
+            return true;
+        } catch (e) { logFn(`[Mod] open failed: ${e.message}`); return false; }
+    });
 }
 
 function initializeSteam({ getTrustedWebContentsId, log } = {}) {
@@ -407,4 +572,7 @@ module.exports = {
     initializeSteam,
     isAvailable,
     getAppId,
+    // Consumed by electron/main.js for the mod-read IPC and /mod-assets route.
+    getActiveModDir,
+    communityModDir,
 };

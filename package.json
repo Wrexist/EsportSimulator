@@ -32,6 +32,8 @@
     "preflight": "npm run type-check && npm test",
     "preflight:full": "npm run type-check && npm test && npm run build",
     "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
+    "build:mod": "tsx scripts/build-mod.ts",
+    "rebrand:teams": "tsx scripts/rebrand-teams.ts",
     "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
     "bake:portraits": "tsx scripts/bake-portraits.ts",
     "bake:portraits:test": "cross-env PORTRAIT_LIMIT=1 tsx scripts/bake-portraits.ts",

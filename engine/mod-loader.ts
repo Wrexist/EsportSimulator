@@ -15,6 +15,7 @@
 
 import { validateSnapshot } from "@/data/snapshot-types"
 import type { SnapshotPlayer, SnapshotTeam, SnapshotTournament } from "@/data/snapshot-types"
+import type { WorkshopModItem, ActiveModPointer } from "@/types/electron-window"
 import { safeParseUntrusted } from "@/lib/json-safe"
 import { logger } from "@/lib/logger"
 import { defaultBrandingFor } from "@/lib/branding/fallback"
@@ -87,7 +88,48 @@ export async function loadModSnapshot(): Promise<ModSnapshot | null> {
         logger.warn(`[mod-loader] Overlay rejected: ${result.error}. Falling back to bundled snapshot.`)
         return null
     }
+
+    // A mod's logos/portraits live as files INSIDE the active mod folder
+    // (userData/mods/community or a subscribed Steam Workshop item), which is
+    // outside the shipped web root. Rewrite the mod's relative asset paths to
+    // the `/mod-assets/` route that the Electron main process serves from the
+    // active mod dir, so <img>/next-image can load them same-origin.
+    rewriteModAssetPaths(result.value)
     return result.value
+}
+
+/** Route the Electron main process serves the active mod folder under. */
+export const MOD_ASSET_ROUTE = "/mod-assets/"
+
+/**
+ * Turn a mod-relative asset path ("assets/teams/x/logo.png") into a servable
+ * URL ("/mod-assets/assets/teams/x/logo.png"). Leaves empty strings, absolute
+ * paths ("/assets/...", already served from public/) and any schemed value
+ * untouched — validateModPayload already rejected schemes/traversal, so this
+ * only ever prefixes a safe relative path.
+ */
+export function toModAssetUrl(p: unknown): string {
+    if (typeof p !== "string" || p === "") return ""
+    if (/^[a-z][a-z0-9+.-]*:/i.test(p)) return p // has a scheme — leave as-is
+    if (p.startsWith("/")) return p               // already root-relative
+    return MOD_ASSET_ROUTE + p.split("/").map(encodeURIComponent).join("/")
+}
+
+function rewriteModAssetPaths(mod: ModSnapshot): void {
+    if (mod.teams) {
+        for (const t of mod.teams) {
+            if (t && typeof (t as { logoPath?: unknown }).logoPath === "string") {
+                (t as { logoPath?: string }).logoPath = toModAssetUrl((t as { logoPath?: unknown }).logoPath)
+            }
+        }
+    }
+    if (mod.players) {
+        for (const p of mod.players) {
+            if (p && typeof (p as { portraitPath?: unknown }).portraitPath === "string") {
+                (p as { portraitPath?: string }).portraitPath = toModAssetUrl((p as { portraitPath?: unknown }).portraitPath)
+            }
+        }
+    }
 }
 
 /**
@@ -115,6 +157,39 @@ export async function clearMod(): Promise<boolean> {
 export async function getModPath(): Promise<string | null> {
     if (!hasElectronMods()) return null
     return window.electron.mods!.getPath()
+}
+
+// ============================================================
+// Steam Workshop wrappers (desktop-only; no-op in browser)
+// ============================================================
+
+function hasWorkshop(): boolean {
+    return typeof window !== "undefined" && !!window.electron && !!window.electron.workshop
+}
+
+export async function workshopAvailable(): Promise<boolean> {
+    if (!hasWorkshop()) return false
+    try { return (await window.electron.workshop!.available()) === true } catch { return false }
+}
+
+export async function listWorkshopMods(): Promise<WorkshopModItem[]> {
+    if (!hasWorkshop()) return []
+    try { return (await window.electron.workshop!.list()) || [] } catch { return [] }
+}
+
+export async function getActiveMod(): Promise<ActiveModPointer> {
+    if (!hasWorkshop()) return { source: "community" }
+    try { return (await window.electron.workshop!.getActive()) || { source: "community" } } catch { return { source: "community" } }
+}
+
+export async function setActiveMod(pointer: ActiveModPointer): Promise<boolean> {
+    if (!hasWorkshop()) return false
+    try { return await window.electron.workshop!.setActive(pointer) } catch { return false }
+}
+
+export async function openWorkshop(id?: string): Promise<boolean> {
+    if (!hasWorkshop()) return false
+    try { return await window.electron.workshop!.open(id) } catch { return false }
 }
 
 /**

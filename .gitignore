@@ -117,3 +117,6 @@ trailer/
 
 # emblem/logo QA preview output
 scripts/_*.html
+
+# Built real-data mods contain real IP — build locally, upload to Workshop, never commit
+/dist-mod/

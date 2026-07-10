@@ -1,8 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Database, FileUp, Trash2, CheckCircle2, AlertCircle } from "lucide-react"
+import {
+    ArrowLeft, Database, FileUp, Trash2, CheckCircle2, AlertCircle,
+    Store, RefreshCw, ExternalLink, Download, Users,
+} from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,7 +17,13 @@ import {
     clearMod,
     getModPath,
     validateModPayload,
+    workshopAvailable,
+    listWorkshopMods,
+    getActiveMod,
+    setActiveMod,
+    openWorkshop,
 } from "@/engine/mod-loader"
+import type { WorkshopModItem, ActiveModPointer } from "@/types/electron-window"
 
 type Status = { kind: "ok"; msg: string } | { kind: "err"; msg: string } | null
 
@@ -26,6 +35,24 @@ export default function CommunityImportPage() {
     const [status, setStatus] = useState<Status>(null)
     const [busy, setBusy] = useState<boolean>(false)
     const [electronAvailable, setElectronAvailable] = useState<boolean>(true)
+
+    // Steam Workshop
+    const [wsAvailable, setWsAvailable] = useState<boolean>(false)
+    const [wsMods, setWsMods] = useState<WorkshopModItem[]>([])
+    const [active, setActive] = useState<ActiveModPointer>({ source: "community" })
+    const [wsBusy, setWsBusy] = useState<boolean>(false)
+
+    const loadWorkshop = useCallback(async () => {
+        const [avail, mods, act] = await Promise.all([
+            workshopAvailable(),
+            listWorkshopMods(),
+            getActiveMod(),
+        ])
+        setWsAvailable(avail)
+        // Surface our real-data overlays first; keep other subscriptions visible too.
+        setWsMods([...mods].sort((a, b) => Number(b.isEmMod) - Number(a.isEmMod)))
+        setActive(act)
+    }, [])
 
     useEffect(() => {
         let cancelled = false
@@ -39,12 +66,42 @@ export default function CommunityImportPage() {
                     setInstalled(exists)
                     setModPath(p)
                 }
+                await loadWorkshop()
             }
         })()
         return () => {
             cancelled = true
         }
-    }, [])
+    }, [loadWorkshop])
+
+    const activateWorkshop = async (id: string) => {
+        setWsBusy(true)
+        try {
+            const ok = await setActiveMod({ source: "workshop", workshopId: id })
+            if (ok) {
+                setStatus({ kind: "ok", msg: "Workshop mod activated. Start a new career to apply real teams." })
+                toast({ title: "Workshop mod activated" })
+                await loadWorkshop()
+            } else {
+                setStatus({ kind: "err", msg: "Could not activate that Workshop item." })
+            }
+        } finally {
+            setWsBusy(false)
+        }
+    }
+
+    const useCommunitySource = async () => {
+        setWsBusy(true)
+        try {
+            const ok = await setActiveMod({ source: "community" })
+            if (ok) {
+                setStatus({ kind: "ok", msg: "Switched to your imported database. Start a new career to apply." })
+                await loadWorkshop()
+            }
+        } finally {
+            setWsBusy(false)
+        }
+    }
 
     const applyPayload = async (raw: string) => {
         setStatus(null)
@@ -83,6 +140,10 @@ export default function CommunityImportPage() {
             const results = await Promise.all(writes)
             if (results.every(Boolean)) {
                 setInstalled(true)
+                // Make the imported db the live source (a previously-activated
+                // Workshop mod would otherwise shadow it).
+                await setActiveMod({ source: "community" })
+                await loadWorkshop()
                 setStatus({
                     kind: "ok",
                     msg: "Community database installed. Start a new career to apply.",
@@ -160,6 +221,101 @@ export default function CommunityImportPage() {
                             game via the Electron app to use this feature.
                         </CardDescription>
                     </CardHeader>
+                </Card>
+            )}
+
+            {electronAvailable && (
+                <Card className="mb-6">
+                    <CardHeader>
+                        <div className="flex items-center justify-between gap-2">
+                            <CardTitle className="flex items-center gap-2">
+                                <Store className="h-5 w-5" /> Steam Workshop
+                                {active.source === "workshop" && (
+                                    <Badge variant="secondary" className="ml-1">
+                                        <CheckCircle2 className="h-3 w-3 mr-1" /> Active
+                                    </Badge>
+                                )}
+                            </CardTitle>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" disabled={wsBusy}
+                                    onClick={() => void loadWorkshop()}>
+                                    <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+                                </Button>
+                                <Button variant="outline" size="sm"
+                                    onClick={() => void openWorkshop()}>
+                                    <ExternalLink className="h-4 w-4 mr-1" /> Browse
+                                </Button>
+                            </div>
+                        </div>
+                        <CardDescription>
+                            Subscribe to a real-data mod on the Workshop to play with real team
+                            names, logos and player portraits. Your subscribed mods appear here —
+                            activate one, then start a new career.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {!wsAvailable && (
+                            <p className="text-sm text-muted-foreground">
+                                Steam isn&apos;t connected right now, so subscribed mods can&apos;t be
+                                listed. Launch through Steam to manage Workshop mods.
+                            </p>
+                        )}
+
+                        {wsAvailable && wsMods.length === 0 && (
+                            <p className="text-sm text-muted-foreground">
+                                No subscribed mods found. Click <strong>Browse</strong> to find real-data
+                                mods on the Workshop, subscribe, then hit <strong>Refresh</strong>.
+                            </p>
+                        )}
+
+                        {wsMods.map((m) => {
+                            const isActive = active.source === "workshop" && active.workshopId === m.id
+                            return (
+                                <div key={m.id}
+                                    className="flex items-center justify-between gap-3 rounded-lg border border-white/10 p-3">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-medium truncate">{m.title}</span>
+                                            {m.isEmMod && <Badge variant="outline">Real data</Badge>}
+                                            {isActive && (
+                                                <Badge variant="secondary">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Active
+                                                </Badge>
+                                            )}
+                                            {!m.installed && <Badge variant="outline">Downloading…</Badge>}
+                                            {m.needsUpdate && <Badge variant="outline">Update pending</Badge>}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                                            {typeof m.teams === "number" && (
+                                                <span className="flex items-center gap-1">
+                                                    <Database className="h-3 w-3" /> {m.teams} teams
+                                                </span>
+                                            )}
+                                            {typeof m.players === "number" && (
+                                                <span className="flex items-center gap-1">
+                                                    <Users className="h-3 w-3" /> {m.players} players
+                                                </span>
+                                            )}
+                                            {m.author && <span>by {m.author}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="shrink-0">
+                                        {isActive ? (
+                                            <Button variant="ghost" size="sm" disabled={wsBusy}
+                                                onClick={() => void useCommunitySource()}>
+                                                Deactivate
+                                            </Button>
+                                        ) : (
+                                            <Button size="sm" disabled={wsBusy || !m.installed}
+                                                onClick={() => void activateWorkshop(m.id)}>
+                                                <Download className="h-4 w-4 mr-1" /> Activate
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </CardContent>
                 </Card>
             )}
 
