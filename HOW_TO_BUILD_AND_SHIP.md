@@ -88,9 +88,29 @@ Om den saknas:
 
 ---
 
+## Steg 2.5: Verifiera bygget INNAN du laddar upp (VIKTIGT)
+
+Detta steg fangar felet som fick BuildID 23989573 underkant av Steam
+(depon saknade `EsportsManager.exe` sa Steam startade `7za.exe` istallet).
+
+Kor:
+
+```
+npm run ship:verify
+```
+
+- Star det **PASS** = bygget ar ratt, ladda upp.
+- Star det **FAIL** = ladda INTE upp. Las felmeddelandet. Vanligaste orsaken
+  ar att du kort den gamla `build_release.bat` (portabel `SteamBuild\`) istallet
+  for `npm run dist`. Kor `npm run dist` igen.
+
+> `SHIP_GAME.bat` kor detta steg automatiskt at dig.
+
+---
+
 ## Steg 3: Ladda upp till Steam
 
-Nar du testat och ar nojd:
+Nar du testat och `npm run ship:verify` sager PASS:
 
 1. Oppna en terminal i projektmappen
 2. Kor:
@@ -122,11 +142,30 @@ C:\steamcmd\steamcmd.exe +login DITT_ANVÄNDARNAMN +run_app_build "FULL_SÖKVÄG
 
 ---
 
+## Steg 5: Kontrollera Launch Option (bara forsta gangen / om den ar fel)
+
+Steam maste veta vilken fil som startar spelet. Den ska peka pa `EsportsManager.exe`.
+
+1. Ga till https://partner.steamgames.com > din app (4326170)
+2. **Installation** > **Installation configuration** (App Data Admin)
+3. Under **Launch Options**, satt:
+   - **Executable:** `EsportsManager.exe`
+   - **Operating System:** Windows
+   - **(lamna Arguments och Working Directory tomma)**
+4. Spara och publicera andringen (den maste publiceras separat fran bygget).
+
+> Om launch option pekar pa nagot annat (t.ex. den gamla `.bat`-filen eller
+> `7za.exe`) kommer Steam att underkanna bygget. `EsportsManager.exe` ligger
+> i roten av depon nar du bygger med `npm run dist`.
+
+---
+
 ## Snabb-referens
 
 | Vad du vill gora              | Kommando                     |
 |-------------------------------|------------------------------|
 | Bygga spelet                  | `npm run dist`               |
+| Verifiera bygget fore upload  | `npm run ship:verify`        |
 | Ladda upp till Steam          | `deployment\upload_steam.bat`|
 | Testa i dev-lage (snabbare)   | `npm run electron:dev`       |
 | Kolla efter kodfel            | `npm run type-check`         |
@@ -139,6 +178,9 @@ C:\steamcmd\steamcmd.exe +login DITT_ANVÄNDARNAMN +run_app_build "FULL_SÖKVÄG
 
 - **Rora INTE** filer i `electron/`-mappen om du inte vet vad du gor - det ar spelets motor
 - **`dist/`-mappen** skapas automatiskt av `npm run dist`. Du behover inte skapa den manuellt
-- **`SteamBuild/`-mappen** ar en gammal build-pipeline som inte langre anvands
+- **`SteamBuild/`-mappen** ar en GAMMAL, UTFASAD pipeline (portabel Node-kopia).
+  Ladda ALDRIG upp den till Steam - den saknar `EsportsManager.exe` och far bygget
+  underkant. Ta garna bort mappen helt. Ship alltid via `npm run dist` /
+  `SHIP_GAME.bat` (electron-builder -> `dist\win-unpacked\EsportsManager.exe`)
 - **`steam_appid.txt`** maste finnas och innehalla exakt `4326170` (inget mellanslag eller ny rad efter)
 - Alla anderingar i koden maste byggas om (`npm run dist`) innan de syns i spelet

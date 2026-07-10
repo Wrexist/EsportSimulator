@@ -1,7 +1,14 @@
+// ============================================================================
+// DEPRECATED — DO NOT USE FOR STEAM UPLOADS.
+// contentroot points at the portable SteamBuild\ tree, which has no
+// EsportsManager.exe and gets the build rejected (Steam picks up
+// node_modules\7zip-bin\...\7za.exe). Ship the electron-builder output via
+// app_build_4326170.vdf (contentroot dist\win-unpacked) instead.
+// ============================================================================
 "appbuild"
 {
 	"appid" "4326170"
-	"desc" "Esports Manager standalone Node.js build"
+	"desc" "DEPRECATED standalone Node.js build - do not ship"
 	"buildoutput" "..\build_output"
 	// For standalone builds (build_release.bat) — output goes to SteamBuild/
 	"contentroot" "..\..\SteamBuild"
