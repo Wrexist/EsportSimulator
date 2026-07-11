@@ -33,6 +33,7 @@
     "preflight:full": "npm run type-check && npm test && npm run build",
     "sanitize:snapshot": "tsx scripts/sanitize-snapshot.ts",
     "build:mod": "tsx scripts/build-mod.ts",
+    "build:example-mod": "tsx scripts/build-example-mod.ts",
     "workshop:upload": "tsx scripts/upload-workshop-mod.ts",
     "rebrand:teams": "tsx scripts/rebrand-teams.ts",
     "sanitize:snapshot:dry": "tsx scripts/sanitize-snapshot.ts --dry-run",
