@@ -8,6 +8,15 @@
 		"recursive" "1"
 	}
 	
+	// Safety net: a correct dist\win-unpacked never contains these, but if the
+	// contentroot is ever mispointed at a source tree, keep dev junk (and the
+	// 7zip-bin\7za.exe that Steam mis-detects as the launch exe) out of the depot.
+	"FileExclusion" "node_modules"
+	"FileExclusion" "node_modules\*"
+	"FileExclusion" ".next\cache"
+	"FileExclusion" ".next\cache\*"
+	"FileExclusion" ".git\*"
+
 	// Development files
 	"FileExclusion" "*.pdb"
 	"FileExclusion" "*.lib"

@@ -1,10 +1,12 @@
 "appbuild"
 {
 	"appid" "4326170"
-	"desc" "Esports Manager playable packaged build"
+	"desc" "Esports Manager: FPS packaged build (electron-builder)"
 	"buildoutput" "..\build_output"
-	// For Electron builds (npm run dist): use dist\win-unpacked
-	// For standalone builds (build_release.bat): use SteamBuild
+	// THE canonical build. contentroot MUST be the electron-builder output
+	// dist\win-unpacked (it contains EsportsManager.exe). Never point this at
+	// the source tree or a "portable" copy — that ships node_modules and Steam
+	// mis-detects 7za.exe as the launch executable (review rejection).
 	"contentroot" "..\..\dist\win-unpacked"
 	"preview" "0"
 	"depots"
