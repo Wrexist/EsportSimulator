@@ -171,49 +171,52 @@ async function run(): Promise<void> {
         await hideChrome(page)
     })
 
-    // Navigate by CLICKING the sidebar (client-side) — a full page.goto reloads
-    // and resets the desktop shell's active app to Home, leaving sub-routes
-    // blank. Clicking the persistent sidebar keeps the in-memory career and
-    // renders the app.
-    async function nav(label: string): Promise<void> {
-        const link = page.locator("aside a, nav a, a").filter({ hasText: new RegExp(`^\\s*${label}\\s*$`, "i") }).first()
-        if (await link.isVisible().catch(() => false)) {
-            await link.click({ timeout: 6_000 }).catch(() => { })
-        }
-        await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => { })
-        await page.waitForTimeout(1500)
+    // Navigate by full page load and give hydration time to win before we
+    // screenshot; log the resolved URL so we can see any redirect.
+    async function nav(route: string): Promise<void> {
+        await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" })
+        await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => { })
+        await page.waitForTimeout(3500) // let the store hydrate + the app render
+        await dismissTutorial(page)
+        console.log(`     ${route} -> ${new URL(page.url()).pathname}`)
     }
 
-    // --- Gameplay screens via sidebar clicks (no menus, no fast-forward) ---
-    const navShots: Array<[string, string]> = [
-        ["squad", "Squad"],
-        ["transfers", "Transfers"],
-        ["scouting", "Scouting"],
-        ["training", "Training"],
-        ["tournaments", "Tournaments"],
-        ["rankings", "Rankings"],
-        ["statistics", "Statistics"],
-        ["finances", "Finances"],
+    // Home dashboard first — after the fast-forward it's full of content
+    // (recent form, standings, finances) and always renders reliably.
+    await step("Shot: dashboard", async () => {
+        await nav("/")
+        await shoot(page, "01_dashboard")
+    })
+
+    const routeShots: Array<[string, string]> = [
+        ["02_squad", "/squad"],
+        ["03_transfers", "/transfers"],
+        ["04_scouting", "/scouting"],
+        ["05_tournaments", "/tournaments"],
+        ["06_rankings", "/rankings"],
+        ["07_training", "/training"],
+        ["08_finances", "/finances"],
+        ["09_statistics", "/statistics"],
     ]
-    for (const [slug, label] of navShots) {
+    for (const [slug, route] of routeShots) {
         await step(`Shot: ${slug}`, async () => {
-            await nav(label)
+            await nav(route)
             await shoot(page, slug)
         })
     }
 
     await step("Shot: tournament_bracket", async () => {
-        await nav("Tournaments")
+        await nav("/tournaments")
         if (await clickFirst(page, 'a[href^="/tournaments/"]', '[data-tournament-card]', 'div[role="button"]:has-text("View")', 'button:has-text("View Bracket")'))
-            await page.waitForTimeout(1800)
-        await shoot(page, "tournament_bracket")
+            await page.waitForTimeout(2000)
+        await shoot(page, "10_tournament_bracket")
     })
 
     await step("Shot: player_detail", async () => {
-        await nav("Squad")
+        await nav("/squad")
         if (await clickFirst(page, 'a[href^="/player/"]', 'div[data-player-card] a', 'main a:has(img)'))
-            await page.waitForTimeout(1600)
-        await shoot(page, "player_detail")
+            await page.waitForTimeout(1800)
+        await shoot(page, "11_player_detail")
     })
 
     // --- Live match (hero shot) via dev launcher, captured LAST ---
@@ -228,9 +231,9 @@ async function run(): Promise<void> {
             await hideChrome(page)
             // Catch the match mid-action (a few rounds in).
             await page.waitForTimeout(3500)
-            await shoot(page, "match_live")
+            await shoot(page, "12_match_live")
             await page.waitForTimeout(5000)
-            await shoot(page, "match_live_2")
+            await shoot(page, "13_match_live_2")
         }
     })
 
