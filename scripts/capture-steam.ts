@@ -149,42 +149,70 @@ async function run(): Promise<void> {
     })
     if (!inGame) { console.error("Could not reach the in-game shell — aborting."); await browser.close(); process.exit(1) }
 
-    // Navigate by full page load (proven reliable once the career is persisted).
-    async function nav(route: string): Promise<void> {
-        await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" })
-        await page.waitForTimeout(1400)
+    // --- Enrich: fast-forward the season + add cash so every page is full of
+    // content (played matches, standings, progressed brackets, developed
+    // rosters, finance history). Done via /dev now that the tutorial (which
+    // previously blocked these clicks) is dismissed. ---
+    await step("Fast-forward season for rich content", async () => {
+        await page.goto(`${BASE}/dev`, { waitUntil: "domcontentloaded" })
+        await page.waitForTimeout(1600)
+        await dismissTutorial(page)
+        for (let i = 0; i < 3; i++) { await clickFirst(page, 'button:has-text("+$1M")'); await page.waitForTimeout(300) }
+        const plus20 = page.locator('button:has-text("+20")').first()
+        if (await plus20.isVisible().catch(() => false)) {
+            await plus20.click().catch(() => { })
+            for (let i = 0; i < 60; i++) { await page.waitForTimeout(2000); if (await plus20.isEnabled().catch(() => false)) break }
+        }
+        await page.waitForTimeout(3500) // let the debounced save flush
+        // Re-enter the shell with the now-advanced career.
+        await page.goto(`${BASE}/desktop`, { waitUntil: "domcontentloaded" })
+        await page.waitForTimeout(2500)
+        await dismissTutorial(page)
+        await hideChrome(page)
+    })
+
+    // Navigate by CLICKING the sidebar (client-side) — a full page.goto reloads
+    // and resets the desktop shell's active app to Home, leaving sub-routes
+    // blank. Clicking the persistent sidebar keeps the in-memory career and
+    // renders the app.
+    async function nav(label: string): Promise<void> {
+        const link = page.locator("aside a, nav a, a").filter({ hasText: new RegExp(`^\\s*${label}\\s*$`, "i") }).first()
+        if (await link.isVisible().catch(() => false)) {
+            await link.click({ timeout: 6_000 }).catch(() => { })
+        }
+        await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => { })
+        await page.waitForTimeout(1500)
     }
 
-    // --- Gameplay screens (no menus, no fast-forward) ---
-    const routeShots: Array<[string, string]> = [
-        ["squad", "/squad"],
-        ["transfers", "/transfers"],
-        ["scouting", "/scouting"],
-        ["training", "/training"],
-        ["tournaments", "/tournaments"],
-        ["rankings", "/rankings"],
-        ["statistics", "/statistics"],
-        ["finances", "/finances"],
+    // --- Gameplay screens via sidebar clicks (no menus, no fast-forward) ---
+    const navShots: Array<[string, string]> = [
+        ["squad", "Squad"],
+        ["transfers", "Transfers"],
+        ["scouting", "Scouting"],
+        ["training", "Training"],
+        ["tournaments", "Tournaments"],
+        ["rankings", "Rankings"],
+        ["statistics", "Statistics"],
+        ["finances", "Finances"],
     ]
-    for (const [slug, route] of routeShots) {
+    for (const [slug, label] of navShots) {
         await step(`Shot: ${slug}`, async () => {
-            await nav(route)
+            await nav(label)
             await shoot(page, slug)
         })
     }
 
     await step("Shot: tournament_bracket", async () => {
-        await nav("/tournaments")
-        if (await clickFirst(page, 'a[href^="/tournaments/"]', '[data-tournament-card]', 'div[role="button"]:has-text("View")'))
-            await page.waitForTimeout(1600)
+        await nav("Tournaments")
+        if (await clickFirst(page, 'a[href^="/tournaments/"]', '[data-tournament-card]', 'div[role="button"]:has-text("View")', 'button:has-text("View Bracket")'))
+            await page.waitForTimeout(1800)
         await shoot(page, "tournament_bracket")
     })
 
     await step("Shot: player_detail", async () => {
-        await nav("/squad")
+        await nav("Squad")
         if (await clickFirst(page, 'a[href^="/player/"]', 'div[data-player-card] a', 'main a:has(img)'))
-            await page.waitForURL(/\/player\//, { timeout: 10_000 }).catch(() => { })
-        await page.waitForTimeout(1400)
+            await page.waitForTimeout(1600)
         await shoot(page, "player_detail")
     })
 
