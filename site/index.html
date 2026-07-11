@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esports Manager: FPS — Workshop &amp; Mods Guide</title>
+<meta name="description" content="How to install and create community mods for Esports Manager: FPS — real teams, logos, player names and portraits via the Steam Workshop.">
+<style>
+  :root{
+    --bg:#0b0f16; --panel:#121826; --panel2:#0f1420; --line:#1e2636;
+    --text:#e6ecf5; --muted:#93a1b8; --accent:#38bdf8; --accent2:#a855f7;
+    --good:#22c55e; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:radial-gradient(1200px 700px at 70% -10%,#16203a 0,var(--bg) 55%) fixed;
+    color:var(--text); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:940px; margin:0 auto; padding:0 20px}
+  header.hero{padding:64px 0 40px; text-align:center}
+  .badge{display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--line); background:var(--panel2);
+    padding:6px 12px; border-radius:999px; margin-bottom:18px}
+  h1{font-size:clamp(28px,5vw,44px); line-height:1.1; margin:.2em 0 .3em; letter-spacing:-.02em}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text;
+    background-clip:text; color:transparent}
+  .sub{color:var(--muted); font-size:18px; max-width:640px; margin:0 auto}
+  nav.pills{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:28px 0 8px}
+  nav.pills a{border:1px solid var(--line); background:var(--panel); color:var(--text);
+    padding:9px 16px; border-radius:999px; font-size:14px}
+  nav.pills a:hover{border-color:var(--accent); text-decoration:none}
+  section{margin:40px 0}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line);
+    border-radius:var(--radius); padding:26px 26px 6px}
+  h2{font-size:24px; margin:0 0 6px; letter-spacing:-.01em}
+  h2 .n{display:inline-grid; place-items:center; width:30px; height:30px; margin-right:10px;
+    border-radius:8px; background:var(--accent); color:#04121c; font-size:15px; font-weight:800; vertical-align:middle}
+  .lead{color:var(--muted); margin:.2em 0 1.2em}
+  ol.steps{counter-reset:s; list-style:none; padding:0; margin:0 0 22px}
+  ol.steps li{position:relative; padding:14px 0 14px 52px; border-top:1px solid var(--line)}
+  ol.steps li:first-child{border-top:0}
+  ol.steps li::before{counter-increment:s; content:counter(s); position:absolute; left:0; top:12px;
+    width:32px; height:32px; display:grid; place-items:center; border-radius:9px;
+    background:var(--panel2); border:1px solid var(--line); color:var(--accent); font-weight:800; font-size:14px}
+  ol.steps b{color:var(--text)}
+  code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92em}
+  kbd{background:var(--panel2); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:2px 7px}
+  pre{background:#0a0e17; border:1px solid var(--line); border-radius:10px; padding:16px; overflow:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; line-height:1.6; color:#cfe6f5}
+  pre .c{color:#5f7089}
+  .grid{display:grid; gap:14px; grid-template-columns:1fr 1fr; margin:6px 0 22px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .tile{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:16px}
+  .tile h3{margin:0 0 4px; font-size:15px}
+  .tile p{margin:0; color:var(--muted); font-size:14px}
+  .note{border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--panel2);
+    border-radius:10px; padding:14px 16px; color:var(--muted); font-size:14.5px; margin:10px 0 22px}
+  .note.legal{border-left-color:var(--accent2)}
+  footer{border-top:1px solid var(--line); margin-top:56px; padding:26px 0 60px; color:var(--muted); font-size:14px; text-align:center}
+  .tree{color:#cfe6f5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge">Esports Manager: FPS</span>
+    <h1>Steam Workshop &amp; <span class="grad">Community Mods</span></h1>
+    <p class="sub">Play with real teams, logos, player names and portraits — or build and publish your own roster mod for everyone to use.</p>
+    <nav class="pills">
+      <a href="#play">Play with a mod</a>
+      <a href="#make">Make a mod</a>
+      <a href="#publish">Publish to Workshop</a>
+      <a href="#rules">Rules</a>
+    </nav>
+  </header>
+
+  <section id="play">
+    <div class="card">
+      <h2><span class="n">1</span>Play with a Workshop mod</h2>
+      <p class="lead">The base game ships with original, fictional teams. Community mods swap in real names, logos and faces — installed only on your own copy.</p>
+      <ol class="steps">
+        <li>On the game's <b>Steam Workshop</b> page, find a mod (e.g. a real-teams roster pack) and click <b>Subscribe</b>. Steam downloads it automatically.</li>
+        <li>Launch the game and open <b>Settings → Community &amp; Workshop</b>.</li>
+        <li>Under <b>Steam Workshop</b>, press <b>Refresh</b> — your subscribed mods appear in the list.</li>
+        <li>Click <b>Activate</b> on the mod you want.</li>
+        <li>Start a <b>New Career</b>. The mod's teams, logos and portraits are now live. (Existing careers keep the data they started with.)</li>
+      </ol>
+      <div class="note">To switch back to the default fictional world, open the same screen and press <b>Deactivate</b>, then start a new career.</div>
+    </div>
+  </section>
+
+  <section id="make">
+    <div class="card">
+      <h2><span class="n">2</span>Make your own mod</h2>
+      <p class="lead">A mod is a small folder that <b>overlays</b> the game's data by id — it keeps every team's stats, roster and tier, and only replaces the display <b>name</b>, <b>logo</b>, player <b>nickname</b> and <b>portrait</b>.</p>
+
+      <div class="grid">
+        <div class="tile"><h3>manifest.json</h3><p>Name, author, version, and counts. Marks the folder as a game mod.</p></div>
+        <div class="tile"><h3>teams.json / players.json</h3><p>Overlay entries. Ids must match the game's built-in ids; only names &amp; art paths change.</p></div>
+        <div class="tile"><h3>assets/…</h3><p>Your logos and portraits, referenced by relative paths from the JSON.</p></div>
+        <div class="tile"><h3>preview.png</h3><p>A ~512×512 thumbnail shown on the Workshop.</p></div>
+      </div>
+
+      <p class="lead">Folder layout:</p>
+      <pre class="tree">my-mod/
+  manifest.json
+  teams.json                                  <span class="c"># display name + logoPath per team id</span>
+  players.json                                <span class="c"># nickname + portraitPath per player id</span>
+  assets/teams/&lt;slug&gt;/logo.png               <span class="c"># your team logos</span>
+  assets/teams/&lt;slug&gt;/players/&lt;nick&gt;.png      <span class="c"># your player portraits</span>
+  preview.png</pre>
+
+      <div class="note">The game includes a packager that turns a data source into a ready-to-upload mod folder (<code>npm run build:mod</code>) and an editor-friendly JSON format. Asset paths must be <b>relative</b> — remote URLs and paths that escape the folder are rejected for safety.</div>
+    </div>
+  </section>
+
+  <section id="publish">
+    <div class="card">
+      <h2><span class="n">3</span>Publish to the Steam Workshop</h2>
+      <p class="lead">Once your mod folder is ready, upload it as a Workshop item.</p>
+      <ol class="steps">
+        <li>Make sure <b>Steam is running</b> and you own <b>Esports Manager: FPS</b>.</li>
+        <li>Add a <b>preview.png</b> (~512×512, ≤ 1&nbsp;MB) to your mod folder.</li>
+        <li>Create &amp; upload the item with the included tool:
+          <pre>npm run build:mod
+npm run workshop:upload -- --title="My Roster Mod" --preview=preview.png</pre>
+          It prints a <b>Workshop item id</b> — save it.</li>
+        <li>To update the same item later, reuse that id:
+          <pre>npm run workshop:upload -- --item=&lt;id&gt; --changenote="Roster update"</pre></li>
+        <li>The first time, accept the <a href="https://steamcommunity.com/sharedfiles/workshoplegalagreement" target="_blank" rel="noopener">Steam Workshop Legal Agreement</a>. Your item appears on the game's Workshop within a minute.</li>
+      </ol>
+      <div class="note">Prefer a manual upload? The mod folder is standard Workshop <em>content</em> — you can also publish it with Steam's own Workshop tools. Either way, players subscribe and activate it exactly as in step&nbsp;1.</div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="card">
+      <h2><span class="n">★</span>Rules &amp; guidelines</h2>
+      <ul>
+        <li>Mods are <b>user-created and user-installed</b>. The base game contains no real-world names, logos or likenesses.</li>
+        <li>Only upload content you have the right to distribute. Real team names, logos and player likenesses belong to their owners.</li>
+        <li>No offensive, misleading, or malicious content. Keep asset files to images and the mod's JSON.</li>
+        <li>Credit sources where you can, and keep your mod updated as rosters change.</li>
+      </ul>
+      <div class="note legal">This guide and the Workshop are for community roster overlays. Esports Manager: FPS is not affiliated with, endorsed by, or sponsored by any real esports organization, player, tournament, or platform.</div>
+    </div>
+  </section>
+
+  <footer>
+    Esports Manager: FPS — Workshop &amp; Mods Guide · Set this page's URL in Steamworks under
+    <em>Workshop → Additional configuration → Link to instructions</em>.
+  </footer>
+
+</div>
+</body>
+</html>
