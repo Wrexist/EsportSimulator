@@ -96,67 +96,92 @@ async function run(): Promise<void> {
     const page = await context.newPage()
     page.setDefaultTimeout(20_000)
 
+    // Wipe any bloated save from prior runs so the app boots clean.
     await page.goto(`${BASE}/main-menu`)
-    await page.evaluate(() => { try { localStorage.clear(); sessionStorage.clear() } catch { } })
-
-    // --- Start a career with a top team ---
-    await step("Start career", async () => {
-        await page.goto(`${BASE}/new-game`)
-        await page.waitForSelector('input[placeholder*="name"]', { timeout: 25_000 })
-        await page.locator('input[placeholder*="name"]').first().fill(MANAGER_NAME)
-        await clickFirst(page, 'button:has-text("Choose Existing Team")', 'button:has-text("Continue")')
-        await page.waitForTimeout(1800)
-        // Pick the first (top-ranked) team card.
-        await clickFirst(page,
-            'button[data-team-id]', '[data-team-card]',
-            'div[role="button"]:has(img)', 'div.cursor-pointer:has(img)', "main img")
-        await page.waitForTimeout(600)
-        await clickFirst(page, 'button:has-text("START CAREER")', 'button:has-text("Start Career")', 'button:has-text("Start")')
-        await page.waitForURL(/\/desktop/, { timeout: 30_000 }).catch(() => { })
-        await page.waitForTimeout(2000)
-        await dismissTutorial(page)   // clear the onboarding modal so nav/dev works
-        await page.waitForTimeout(500)
+    await page.evaluate(async () => {
+        try { localStorage.clear(); sessionStorage.clear() } catch { }
+        try {
+            const dbs = (await (indexedDB as any).databases?.()) || []
+            for (const d of dbs) if (d.name) indexedDB.deleteDatabase(d.name)
+        } catch { }
     })
 
-    // Navigate like a real player — click the sidebar. Hard page.goto() to a
-    // sub-route falls back to the desktop home in this shell, so use the nav.
-    async function nav(label: string): Promise<void> {
-        const link = page.locator(`nav a, aside a, a`).filter({ hasText: new RegExp(`^\\s*${label}\\s*$`, "i") }).first()
-        if (await link.isVisible().catch(() => false)) {
-            await link.click({ timeout: 6_000 }).catch(() => { })
-        } else {
-            await page.getByText(label, { exact: true }).first().click({ timeout: 6_000 }).catch(() => { })
-        }
+    // --- Start a career; verify we actually reach the in-game shell ---
+    async function startCareer(): Promise<boolean> {
+        await page.goto(`${BASE}/new-game`, { waitUntil: "domcontentloaded" })
+        await page.waitForSelector('input[placeholder*="name"]', { state: "visible", timeout: 30_000 })
+        await page.waitForTimeout(600)
+        const nameInput = page.locator('input[placeholder*="name"]').first()
+        await nameInput.fill(MANAGER_NAME)
+        await page.waitForTimeout(300)
+        await clickFirst(page, 'button:has-text("Choose Existing Team")')
+        // Team-select renders a search box + team cards.
+        await page.waitForSelector('input[placeholder*="Search teams"]', { timeout: 15_000 }).catch(() => { })
         await page.waitForTimeout(1200)
+        // Click team cards until the START CAREER panel appears (skips locked teams).
+        const cards = page.locator('main [role="button"], main button, main .cursor-pointer').filter({ has: page.locator("img") })
+        const startBtn = page.locator('button:has-text("START CAREER")').first()
+        const n = await cards.count().catch(() => 0)
+        for (let i = 0; i < Math.min(n, 12); i++) {
+            await cards.nth(i).click({ timeout: 4000 }).catch(() => { })
+            await page.waitForTimeout(500)
+            if (await startBtn.isVisible().catch(() => false)) break
+        }
+        if (!(await startBtn.isVisible().catch(() => false))) return false
+        await startBtn.click({ timeout: 6000 }).catch(() => { })
+        await page.waitForURL(/\/desktop/, { timeout: 40_000 }).catch(() => { })
+        await page.waitForTimeout(2500)
+        await dismissTutorial(page)
+        // Let the DEBOUNCED store persist the new career to localStorage before
+        // any full-page navigation — otherwise a reload rehydrates to no-career
+        // and bounces back to the new-game welcome screen.
+        await page.waitForTimeout(4000)
+        // Confirm the in-game sidebar exists (proves the career loaded).
+        return await page.locator('text=/^\\s*Squad\\s*$/i').first().isVisible().catch(() => false)
     }
 
-    // --- Gameplay screens via sidebar (no menus, no fast-forward) ---
-    const navShots: Array<[string, string]> = [
-        ["squad", "Squad"],
-        ["transfers", "Transfers"],
-        ["scouting", "Scouting"],
-        ["training", "Training"],
-        ["tournaments", "Tournaments"],
-        ["rankings", "Rankings"],
-        ["statistics", "Statistics"],
-        ["finances", "Finances"],
+    let inGame = false
+    await step("Start career", async () => {
+        for (let attempt = 1; attempt <= 2 && !inGame; attempt++) {
+            inGame = await startCareer()
+            console.log(`  career start attempt ${attempt}: ${inGame ? "in-game ✓" : "retry"}`)
+        }
+    })
+    if (!inGame) { console.error("Could not reach the in-game shell — aborting."); await browser.close(); process.exit(1) }
+
+    // Navigate by full page load (proven reliable once the career is persisted).
+    async function nav(route: string): Promise<void> {
+        await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" })
+        await page.waitForTimeout(1400)
+    }
+
+    // --- Gameplay screens (no menus, no fast-forward) ---
+    const routeShots: Array<[string, string]> = [
+        ["squad", "/squad"],
+        ["transfers", "/transfers"],
+        ["scouting", "/scouting"],
+        ["training", "/training"],
+        ["tournaments", "/tournaments"],
+        ["rankings", "/rankings"],
+        ["statistics", "/statistics"],
+        ["finances", "/finances"],
     ]
-    for (const [slug, label] of navShots) {
+    for (const [slug, route] of routeShots) {
         await step(`Shot: ${slug}`, async () => {
-            await nav(label)
+            await nav(route)
             await shoot(page, slug)
         })
     }
 
     await step("Shot: tournament_bracket", async () => {
-        await nav("Tournaments")
+        await nav("/tournaments")
         if (await clickFirst(page, 'a[href^="/tournaments/"]', '[data-tournament-card]', 'div[role="button"]:has-text("View")'))
             await page.waitForTimeout(1600)
         await shoot(page, "tournament_bracket")
     })
 
     await step("Shot: player_detail", async () => {
-        await nav("Squad")
+        await nav("/squad")
         if (await clickFirst(page, 'a[href^="/player/"]', 'div[data-player-card] a', 'main a:has(img)'))
             await page.waitForURL(/\/player\//, { timeout: 10_000 }).catch(() => { })
         await page.waitForTimeout(1400)
