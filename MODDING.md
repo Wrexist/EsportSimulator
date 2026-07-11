@@ -92,33 +92,52 @@ with images, copy the whole folder including `assets/` as above.)
 
 ---
 
-## Publishing to the Steam Workshop
+## Enabling the Workshop for your app (one-time, Steamworks partner site)
 
-The subscribe → activate → play loop is fully wired in-game. To publish the item:
+The in-game code is done; enabling Workshop is a partner-site + App ID setup:
 
-1. Build the mod folder (above). That folder is your Workshop **content**.
-2. Add a `preview.png` (thumbnail) alongside it.
-3. Create + upload the item via the Steamworks UGC API — `steamworks.js` exposes
-   it (`workshop.createItem`, `workshop.updateItem`), or use Steam's Workshop
-   uploader / SteamPipe. Suggested `UgcUpdate`:
-
-   ```js
-   const { itemId } = await client.workshop.createItem()
-   await client.workshop.updateItem(itemId, {
-     title: "Real Teams & Players 2026",
-     description: "Real names, logos and portraits. Community overlay — not affiliated with any org or player.",
-     contentPath: "<abs path to dist-mod/real-teams-2026>",
-     previewPath: "<abs path to preview.png>",
-     tags: ["real-data", "roster"],
-     visibility: 0, // Public
-   })
+1. **Get your App ID.** In the [Steamworks partner site](https://partner.steamgames.com)
+   your app has a numeric App ID. Put it in `steam_appid.txt` at the repo root:
    ```
+   echo 2749950 > steam_appid.txt      # ← your real App ID, not 480
+   ```
+   `steam_appid.txt` is git-ignored and the `dist` / `electron:build` scripts
+   refuse to package without it (see `scripts/check-steam-appid.js`).
+2. **Turn on Workshop.** App Admin → **Workshop** → enable it (choose
+   "Ready-To-Use Items" for data mods). Publish the change (it goes through the
+   normal Steamworks publish step).
+3. **Accept the Workshop Legal Agreement** once (the uploader prints the link the
+   first time if you haven't).
 
-   > Uploading requires Steam running and the game's real App ID in
-   > `steam_appid.txt`. It can't be done from CI/headless.
+## Publishing a Workshop item
 
-4. Players then click **Browse** in the in-game Workshop panel, subscribe, hit
-   **Refresh**, **Activate**, and start a new career.
+The subscribe → activate → play loop is wired in-game. To publish/update the
+item itself, use the included uploader (runs on YOUR Steam machine — Steam must
+be running and you must own the app; it can't run in CI/headless):
+
+```bash
+npm run build:mod                     # produce dist-mod/real-teams-2026/
+
+# FIRST time — creates a new item and prints its id (SAVE the id):
+npm run workshop:upload -- \
+  --title="Real Teams & Players 2026" \
+  --description="Real names, logos and portraits. Community overlay." \
+  --preview=preview.png
+
+# LATER — update the SAME item (reuse the id):
+npm run workshop:upload -- --item=123456789 --changenote="Roster update"
+```
+
+Flags: `--content=<dir>` (default `dist-mod/real-teams-2026`), `--item=<id>`,
+`--title`, `--description`, `--changenote`, `--preview=<png>`, `--tags=a,b`,
+`--visibility=public|friends|private`, `--appid=<n>`. Under the hood it calls
+`steamworks.js` `workshop.createItem` / `updateItem` (`scripts/upload-workshop-mod.ts`).
+
+> Steam requires a preview thumbnail (~512×512, ≤1 MB). Pass `--preview`, or add
+> one on the item's page afterward.
+
+Players then click **Browse** in the in-game Workshop panel, **Subscribe**, hit
+**Refresh**, **Activate**, and start a new career.
 
 ---
 
