@@ -68,6 +68,14 @@ const rule = (w: number) => `<div class="rule" style="--rule:${w}px"></div>`
 
 const assets: Array<{ name: string; w: number; h: number; html: string }> = [
     {
+        // Small capsule — appears in search results, tags, and recommendations.
+        // Tiny + wide; stack the wordmark (inline "ESPORTS MANAGER" overflows
+        // 231px) and keep it to the logo only (no tagline) so it stays legible.
+        name: "small_capsule_231x87", w: 231, h: 87,
+        html: page(`<div class="content" style="--gap:0;--pad:10px">
+        ${logo(20, 13)}</div>`),
+    },
+    {
         name: "header_capsule_460x215", w: 460, h: 215,
         html: page(`<div class="content" style="--gap:14px;--pad:22px;--tag:12px">
         ${logo(38, 26)}${rule(150)}<div class="tag">Scout · Draft · Dominate</div></div>`),
@@ -94,6 +102,26 @@ const assets: Array<{ name: string; w: number; h: number; html: string }> = [
     },
 ]
 
-for (const a of assets) fs.writeFileSync(path.join(OUT, `${a.name}.html`), a.html)
-fs.writeFileSync(path.join(OUT, "_manifest.json"), JSON.stringify(assets.map(({ name, w, h }) => ({ name, w, h })), null, 2))
-console.log(`Done — ${assets.length} capsule templates (blurred gameplay bg) in ${path.relative(ROOT, OUT)}`)
+import { chromium } from "playwright"
+
+async function main() {
+    for (const a of assets) fs.writeFileSync(path.join(OUT, `${a.name}.html`), a.html)
+    fs.writeFileSync(path.join(OUT, "_manifest.json"), JSON.stringify(assets.map(({ name, w, h }) => ({ name, w, h })), null, 2))
+
+    const chromePath = fs.readdirSync("/opt/pw-browsers")
+        .map(d => `/opt/pw-browsers/${d}/chrome-linux/chrome`).find(p => fs.existsSync(p))
+    const browser = await chromium.launch({ executablePath: chromePath, args: ["--no-sandbox"] })
+    for (const a of assets) {
+        // Exact-size viewport → exact-size PNG (Steam requires precise capsule dims).
+        const ctx = await browser.newContext({ viewport: { width: a.w, height: a.h }, deviceScaleFactor: 1 })
+        const page = await ctx.newPage()
+        await page.goto(`file://${path.join(OUT, `${a.name}.html`)}`, { waitUntil: "networkidle" })
+        await page.waitForTimeout(350)
+        await page.screenshot({ path: path.join(OUT, `${a.name}.png`) })
+        await ctx.close()
+        console.log("  ✓", a.name)
+    }
+    await browser.close()
+    console.log(`Done — ${assets.length} capsules (blurred gameplay bg) in ${path.relative(ROOT, OUT)}`)
+}
+main()
