@@ -473,6 +473,73 @@ export function premiumTeamName(seed: string, salt = 0): PremiumBrand {
 }
 
 // ============================================================
+// PREMIUM ORIGINAL PLAYER HANDLE GENERATOR
+// ============================================================
+//
+// transformNickname() only leet-swaps a char or two, so "apEX" -> "axpEX" and
+// "ZywOo" -> "SyvOo" stay instantly recognisable. For the shipped build we mint
+// fully original, authentic-sounding esports handles from curated syllable banks
+// instead. Deterministic by seed (player id), so a player keeps the same handle
+// across regenerations and saves.
+
+const HANDLE_WHOLES: readonly string[] = [
+    "Vortex", "Cinder", "Ravyn", "Quill", "Slate", "Kobalt", "Ember", "Onyx",
+    "Talon", "Wraith", "Havik", "Drift", "Surge", "Rune", "Crypt", "Vandal",
+    "Specter", "Blaze", "Cypher", "Echo", "Gambit", "Jinx", "Karma", "Mirage",
+    "Nomad", "Omen", "Prowl", "Quake", "Reaper", "Sable", "Volt", "Zenith",
+    "Fable", "Glitch", "Riot", "Nova", "Hex", "Lunar", "Vesper", "Kismet",
+    "Cobalt", "Dusk", "Flint", "Gale", "Halo", "Ion", "Jolt", "Kite",
+]
+
+const HANDLE_HEADS: readonly string[] = [
+    "ax", "zy", "vex", "kro", "nyx", "rai", "zen", "dro", "kel", "syn", "vor",
+    "qua", "lex", "bly", "fry", "gry", "kry", "try", "vyn", "zar", "phi", "sky",
+    "xan", "neo", "omn", "uly", "iri", "azu", "orb", "ryo",
+]
+
+const HANDLE_TAILS: readonly string[] = [
+    "phr", "ken", "dax", "vil", "ron", "zik", "mox", "lox", "nar", "tez", "wyn",
+    "dris", "kos", "pyx", "rax", "sen", "tov", "vek", "zor", "lith", "mir",
+    "nox", "qel", "ruz", "syl", "vane", "wisp",
+]
+
+const LEET_MAP: Record<string, string> = { a: "4", e: "3", i: "1", o: "0", s: "5", t: "7", l: "1", z: "2" }
+
+/**
+ * Deterministic premium esports player handle for a seed (e.g. player id).
+ * Same seed -> same handle. `salt` lets the caller re-roll on collisions.
+ */
+export function premiumPlayerHandle(seed: string, salt = 0): string {
+    const rng = mulberry32(fnv1aHash(`handle:${seed}#${salt}`))
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+    // Base: a coined whole word, or a head+tail syllable blend.
+    let h = rng() < 0.5
+        ? pickFrom(rng, HANDLE_WHOLES)
+        : cap(pickFrom(rng, HANDLE_HEADS) + pickFrom(rng, HANDLE_TAILS))
+
+    // ~35%: leet-ify exactly one eligible character (the esports staple).
+    if (rng() < 0.35) {
+        const idxs: number[] = []
+        for (let i = 0; i < h.length; i++) if (LEET_MAP[h[i].toLowerCase()]) idxs.push(i)
+        if (idxs.length) {
+            const i = idxs[Math.floor(rng() * idxs.length)]
+            h = h.slice(0, i) + LEET_MAP[h[i].toLowerCase()] + h.slice(i + 1)
+        }
+    }
+
+    // ~22%: trailing number, as many pros use.
+    if (rng() < 0.22) h = h + (1 + Math.floor(rng() * 9))
+
+    // Casing: lowercase and mixed are both common; ALL-CAPS occasionally.
+    const c = rng()
+    if (c < 0.45) h = h.toLowerCase()
+    else if (c < 0.6) h = h.toUpperCase()
+
+    return h
+}
+
+// ============================================================
 // PUBLIC API
 // ============================================================
 
