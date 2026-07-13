@@ -19,8 +19,11 @@ const ROOT = process.cwd()
 const OUT = path.join(ROOT, "tmp", "steam-heroes")
 fs.mkdirSync(OUT, { recursive: true })
 
-const MATCH = `file://${ROOT}/public/Live%20match.jpg`
-const SQUAD = `file://${ROOT}/marketing/squad.png`
+// Launch-safe clean captures (fictional teams/handles, no branded portraits),
+// grabbed from the stable new-game team-select screen via
+// scripts/capture-teamselect.ts.
+const ROSTER = `file://${ROOT}/marketing/clean/roster.png`
+const GRID = `file://${ROOT}/marketing/clean/team_grid.png`
 
 const css = `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -76,38 +79,38 @@ function stage(inner: string, washImg: string): string {
 }
 
 const heroes: Array<{ name: string; html: string }> = [
-    // 1. Live match — panel tilted right, copy on the left
+    // 1. Roster — panel tilted right, copy on the left
     {
-        name: "hero_match_1920x1080",
+        name: "hero_roster_1920x1080",
         html: stage(`
       <div class="rim" style="left:905px;top:210px;width:930px;height:523px"></div>
       <div class="panel" style="left:905px;top:210px;width:930px;height:523px;
         transform:perspective(2000px) rotateY(-17deg) rotateX(3deg)">
-        <img src="${MATCH}">
+        <img src="${ROSTER}">
       </div>
       <div style="position:absolute;left:110px;top:300px;width:720px">
-        <div class="kicker">Counter-Strike · Esports Manager</div>
+        <div class="kicker">Tactical FPS · Esports Manager</div>
         ${wordmark(96, 62)}
         <div class="rule" style="width:300px"></div>
-        <div class="tag">Draft the map, call every round,<br>and lead your team to the <b>Major</b>.</div>
+        <div class="tag">Scout raw talent, sign the stars,<br>and build an <b>unbeatable roster</b>.</div>
         <div class="pill">Early Access</div>
-      </div>`, MATCH),
+      </div>`, ROSTER),
     },
-    // 2. Squad — panel tilted left, copy on the right
+    // 2. Teams — panel tilted left, copy on the right
     {
-        name: "hero_squad_1920x1080",
+        name: "hero_teams_1920x1080",
         html: stage(`
       <div class="rim" style="left:85px;top:220px;width:940px;height:513px"></div>
       <div class="panel" style="left:85px;top:220px;width:940px;height:513px;
         transform:perspective(2000px) rotateY(16deg) rotateX(3deg)">
-        <img src="${SQUAD}">
+        <img src="${GRID}">
       </div>
-      <div style="position:absolute;right:110px;top:310px;width:660px;text-align:right">
-        <div class="kicker" style="letter-spacing:.3em">Build your dynasty</div>
+      <div style="position:absolute;right:110px;top:300px;width:680px;text-align:right">
+        <div class="kicker" style="letter-spacing:.3em">198 orgs · one dynasty</div>
         <div style="display:flex;align-items:flex-end;flex-direction:column">${wordmark(92, 58)}</div>
         <div class="rule" style="width:280px;margin-left:auto;background:linear-gradient(270deg,#ffd15a,transparent)"></div>
-        <div class="tag">Scout raw talent, sign stars,<br>and forge an <b>unbeatable roster</b>.</div>
-      </div>`, SQUAD),
+        <div class="tag">From Semi-Pro underdog to<br><b>Major champion</b> — your way.</div>
+      </div>`, GRID),
     },
     // 3. Duo — two panels layered, centered copy up top
     {
@@ -115,19 +118,19 @@ const heroes: Array<{ name: string; html: string }> = [
         html: stage(`
       <div class="panel" style="left:120px;top:430px;width:820px;height:461px;
         transform:perspective(2200px) rotateY(19deg) rotateX(5deg);opacity:.96">
-        <img src="${SQUAD}">
+        <img src="${GRID}">
       </div>
       <div class="rim" style="right:120px;top:300px;width:880px;height:495px"></div>
       <div class="panel" style="right:120px;top:300px;width:880px;height:495px;
         transform:perspective(2200px) rotateY(-15deg) rotateX(3deg)">
-        <img src="${MATCH}">
+        <img src="${ROSTER}">
       </div>
       <div style="position:absolute;left:0;right:0;top:70px;text-align:center;display:flex;flex-direction:column;align-items:center">
-        <div class="kicker">The ultimate CS manager sim</div>
+        <div class="kicker">The ultimate esports manager sim</div>
         <div style="display:flex;flex-direction:column;align-items:center">${wordmark(88, 56, true)}</div>
         <div class="rule" style="width:420px;background:linear-gradient(90deg,transparent,#ffd15a,transparent)"></div>
         <div class="tag" style="text-align:center">Your team · your meta · <b>your legacy</b></div>
-      </div>`, MATCH),
+      </div>`, ROSTER),
     },
 ]
 
