@@ -1,0 +1,77 @@
+[
+  {
+    "id": "team_1_vitalis",
+    "name": "Aurora Collective",
+    "shortName": "AUR",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "",
+    "rosterIds": [
+      "player_1_vitalis_axpex",
+      "player_1_vitalis_flames",
+      "player_1_vitalis_mesii",
+      "player_1_vitalis_rops",
+      "player_1_vitalis_syvoo"
+    ],
+    "reputation": 100,
+    "fanbase": 9900,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FFEE00",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_2_foria",
+    "name": "Nova Example FC",
+    "shortName": "NOV",
+    "tier": "ELITE",
+    "region": "BR",
+    "logoPath": "",
+    "rosterIds": [
+      "player_2_foria_fxallen",
+      "player_2_foria_czcerato",
+      "player_2_foria_mzolodoy",
+      "player_2_foria_yecindar",
+      "player_2_foria_yxuurih"
+    ],
+    "reputation": 99,
+    "fanbase": 9800,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#000000",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#00C896",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_3_falconry",
+    "name": "Vertex Sample",
+    "shortName": "VTX",
+    "tier": "ELITE",
+    "region": "EU",
+    "logoPath": "",
+    "rosterIds": [
+      "player_3_falconry_cyousuce",
+      "player_3_falconry_kyxzan",
+      "player_3_falconry_m8nesy",
+      "player_3_falconry_nico",
+      "player_3_falconry_tesez"
+    ],
+    "reputation": 99,
+    "fanbase": 9700,
+    "facilitiesLevel": 1,
+    "startingBudget": 500000,
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  }
+]

@@ -1,5 +1,25 @@
 export { };
 
+/** A subscribed Steam Workshop item, annotated with our manifest metadata. */
+export interface WorkshopModItem {
+    id: string;
+    installed: boolean;
+    needsUpdate: boolean;
+    folder: string | null;
+    sizeOnDisk: number;
+    title: string;
+    author: string;
+    teams?: number;
+    players?: number;
+    /** True when the item carries an Esports Manager mod manifest. */
+    isEmMod: boolean;
+}
+
+/** Which overlay source is currently live. */
+export type ActiveModPointer =
+    | { source: "community" }
+    | { source: "workshop"; workshopId: string };
+
 declare global {
     interface Window {
         electron: {
@@ -45,6 +65,15 @@ declare global {
                 write: (filename: string, contents: string) => Promise<boolean>;
                 clear: () => Promise<boolean>;
                 getPath: () => Promise<string | null>;
+            };
+            workshop?: {
+                available: () => Promise<boolean>;
+                list: () => Promise<WorkshopModItem[]>;
+                getActive: () => Promise<ActiveModPointer>;
+                setActive: (payload: ActiveModPointer) => Promise<boolean>;
+                subscribe: (id: string) => Promise<boolean>;
+                unsubscribe: (id: string) => Promise<boolean>;
+                open: (id?: string) => Promise<boolean>;
             };
             onAppClose: (callback: () => void) => void;
             confirmAppClose: () => Promise<boolean>;

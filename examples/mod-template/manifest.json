@@ -1,0 +1,11 @@
+{
+  "name": "example-mod-template",
+  "title": "Example / Mod Template",
+  "author": "",
+  "version": "1.0.0",
+  "game": "Esports Manager: FPS",
+  "schema": 1,
+  "note": "A minimal, fully fictional example overlay. Copy this folder as a starting point for your own mod. Add assets/teams/<slug>/logo.png and set logoPath to use custom logos. Contains no real-world names, logos or likenesses.",
+  "teams": 3,
+  "players": 0
+}

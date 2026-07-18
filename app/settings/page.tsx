@@ -51,7 +51,8 @@ import {
     Handshake,
     HeartCrack,
     RefreshCcw,
-    Landmark
+    Landmark,
+    Store
 } from "lucide-react"
 import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import Link from "next/link"
@@ -379,6 +380,11 @@ export default function SettingsPage() {
           <Link href="/">
             <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
               <RefreshCw className="mr-2 h-4 w-4" /> Dashboard
+            </Button>
+          </Link>
+          <Link href="/settings/community-import">
+            <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
+              <Store className="mr-2 h-4 w-4" /> Community &amp; Workshop
             </Button>
           </Link>
           <Link href="/credits">
