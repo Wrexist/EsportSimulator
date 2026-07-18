@@ -106,6 +106,14 @@ export interface GameSave {
     // === RNG STATE ===
     lastRngSeed: number
 
+    // Highest week number whose tick fully committed via the final
+    // end-of-tick saveGame(). Written atomically inside that save, so an
+    // incomplete WeekTickState with weekNumber <= this value proves the
+    // crash happened AFTER commit (between saveGame and completeWeekTick)
+    // and the tick must NOT be re-run. Optional: absent on older saves,
+    // which resume with the pre-commit re-run path as before.
+    lastCommittedWeekTick?: number
+
     // === PHASE 23: HALL OF FAME ===
     legendaryPlayers: PlayerSaveData[]
 

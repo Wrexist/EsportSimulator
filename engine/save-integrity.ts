@@ -138,15 +138,29 @@ export class SaveIntegrityManager {
             return save.integrityHash === await this.computeIntegrityHash(save)
         }
         if (save.integrityHash.startsWith("v2:")) {
-            // Same device → still verifies.
+            // Same install → the device secret still matches, so the
+            // device-bound signature verifies cryptographically (this path
+            // still catches corruption on the originating device).
             const expectedDeviceBound = await this.computeDeviceBoundIntegrityHash(save)
             if (save.integrityHash === expectedDeviceBound) return true
 
-            // Cross-device v2 → accept if the legacy (device-independent)
-            // portion matches. Save will be re-signed v3 on next write.
-            const legacyHash = this.computeLegacyIntegrityHash(save)
-            const v2Payload = save.integrityHash.substring(3)
-            return v2Payload.length >= 8 && v2Payload === legacyHash
+            // Different install (e.g. a v2 save synced from another device via
+            // Steam Cloud): the signature is v2:SHA-256(installSecret|payload),
+            // bound to the ORIGINATING device's install secret, which is
+            // unavailable here — so it can never be recomputed. The previous
+            // fallback compared the 64-char SHA-256 digest (substring after
+            // "v2:") against an 8-char FNV hash of the payload; those lengths
+            // (and inputs) can never coincide, so it always returned false and
+            // EVERY legitimate v2 save failed to load on a new device with
+            // INTEGRITY_FAILED, with no local backup to recover from.
+            //
+            // v2 is a legacy format and integrity here guards corruption, not
+            // tampering (see computeIntegrityHash — even v3 is not tamper-proof).
+            // Gross corruption of a cross-device v2 save is still caught by the
+            // JSON-parse + schema + structural-validation gates in the load
+            // pipeline. Accept it so it migrates and is re-signed as portable
+            // v3 on the next write.
+            return true
         }
         // Pre-v2 legacy signature.
         return save.integrityHash === this.computeLegacyIntegrityHash(save)

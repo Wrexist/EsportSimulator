@@ -167,16 +167,42 @@ export class AtomicWeekProcessor {
         // is also cleared so resumed ticks re-simulate any matches that
         // weren't yet committed to save.completedMatches.
         let transaction = await this.saveManager.getIncompleteTransaction(save.saveId)
-        if (
+        const tickCommitted =
+            transaction != null &&
+            (save.lastCommittedWeekTick ?? 0) >= transaction.weekNumber
+        if (transaction && tickCommitted) {
+            // Post-commit crash: save.lastCommittedWeekTick is written into the
+            // same atomic saveGame() that commits the tick, so its presence
+            // proves the final save landed on disk but completeWeekTick()
+            // didn't run before the process died. The week is DONE —
+            // re-running it would double-charge salaries/contract expiry,
+            // re-apply training/fatigue/morale, re-simulate matches, and
+            // re-age every player at a season boundary. Clear the committed
+            // transaction and begin a FRESH tick for the next week.
+            // (weekNumber comparisons can't distinguish this case: the
+            // in-memory increment guard makes weekNumber === currentWeek
+            // during a mid-tick crash too.)
+            debugLog(`Week tick ${transaction.weekNumber} already committed on disk; clearing stale transaction and starting a fresh tick`)
+            await this.saveManager.completeWeekTick(save.saveId)
+            transaction = await this.saveManager.beginWeekTick(save)
+        } else if (
             transaction &&
             (
                 transaction.weekNumber === save.currentWeek ||
                 transaction.weekNumber === save.currentWeek + 1
             )
         ) {
-            // Stale transaction from a crashed tick — discard its
-            // bookkeeping; we re-run from step 1 below.
-            debugLog(`Discarding stale transaction at week ${save.currentWeek}; re-running tick`)
+            // Pre-commit crash: the tick died before its final saveGame()
+            // committed (no lastCommittedWeekTick marker for this week).
+            // weekNumber === currentWeek + 1 is the on-disk resume (save
+            // still holds the pre-tick week); weekNumber === currentWeek is
+            // the in-memory resume (the increment guard already advanced the
+            // live save object before the crash). Either way, discard the
+            // step-complete bookkeeping and re-run the whole tick from step 1;
+            // the increment guard below advances currentWeek exactly once.
+            // completedMatchIds is also cleared so resumed ticks re-simulate
+            // any matches not yet committed to save.completedMatches.
+            debugLog(`Resuming pre-commit tick at week ${save.currentWeek}; re-running from step 1`)
             transaction.trainingComplete = false
             transaction.fatigueRecoveryComplete = false
             transaction.injuryChecksComplete = false
@@ -418,7 +444,16 @@ export class AtomicWeekProcessor {
 
             // Reset daily/weekly counters
             save.teams.forEach(t => {
-                t.trainingSlotsUsed = 0
+                // Role-training sessions reserve a slot for their whole 8-week
+                // duration, so re-reserve one slot per still-active session
+                // instead of zeroing. Flat-zeroing let a team stack far more
+                // concurrent role trainings than maxTrainingSlots by starting
+                // one per week (each start bumped the counter, the weekly reset
+                // wiped it, the reservation was never re-charged). Single-week
+                // team drills hold no persistent session, so they correctly
+                // free their slot here. (STEP 1 already completed/removed any
+                // finished sessions before this reset runs.)
+                t.trainingSlotsUsed = t.activeRoleTraining?.length || 0
                 // VOD-review prep applies to the match it was bought for, then
                 // expires — otherwise tacticalPrep accrues to a permanent +25%.
                 t.tacticalPrep = 0
@@ -557,9 +592,24 @@ export class AtomicWeekProcessor {
             // removed because their JSON.stringify cost dominated wall
             // time at high tick counts.
             const __sFinalSave = perfTrace.stepsEnabled ? perfTrace.now() : 0
-            const saveResult = await this.saveManager.saveGame(save)
+            // Stamp the commit marker INSIDE the bytes this saveGame()
+            // persists: if the write lands, resume can prove the tick
+            // committed even when completeWeekTick() below never ran.
+            const prevCommittedWeekTick = save.lastCommittedWeekTick
+            save.lastCommittedWeekTick = transaction.weekNumber
+            let saveResult: { success: boolean; error?: string }
+            try {
+                saveResult = await this.saveManager.saveGame(save)
+            } catch (saveError) {
+                save.lastCommittedWeekTick = prevCommittedWeekTick
+                throw saveError
+            }
             perfTrace.step("step.13_finalSave", __sFinalSave)
             if (!saveResult.success) {
+                // The atomic write never committed — un-stamp the in-memory
+                // marker so a same-process resume re-runs this tick instead
+                // of skipping it as already committed.
+                save.lastCommittedWeekTick = prevCommittedWeekTick
                 throw new Error(saveResult.error || "Failed to save")
             }
 

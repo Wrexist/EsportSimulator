@@ -34,6 +34,8 @@ export default function TacticalHQPage() {
         players,
         playerTeamId,
         currentWeek,
+        currentDay,
+        timeMode,
         tournaments,
         scheduledMatches,
         completedMatches,
@@ -50,6 +52,8 @@ export default function TacticalHQPage() {
         players: state.players,
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
+        currentDay: state.currentDay,
+        timeMode: state.timeMode,
         tournaments: state.tournaments,
         scheduledMatches: state.scheduledMatches,
         completedMatches: state.completedMatches,
@@ -245,7 +249,33 @@ export default function TacticalHQPage() {
     }
 
     const handleStartMatch = () => {
-        if (!match || !match.maps) return
+        if (!match || !match.maps || !myTeam || !opponent) return
+        // HYBRID_DAILY day pacing: a current-week match whose scheduled day hasn't
+        // arrived can't be played out of order (mirrors the dashboard's isMatchLive
+        // gate and the store-level guards). Refuse with a clear reason.
+        if (timeMode === "HYBRID_DAILY" && match.week === currentWeek && (match.day ?? 6) > currentDay) {
+            addToast({
+                type: "warning",
+                message: "This match unlocks later this week — advance the day to play it.",
+            })
+            return
+        }
+        // Both teams must field 5 players — otherwise the live screen can't
+        // initialize (mirrors the quick-sim guard). Advancing the week forfeits
+        // an understrength match properly, so refuse here with a clear reason
+        // instead of routing to a live screen that would just bounce back.
+        const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
+        const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
+        const homeActive = (homeTeam?.rosterIds || []).map(pid => playersById.get(pid)).filter(Boolean).length
+        const awayActive = (awayTeam?.rosterIds || []).map(pid => playersById.get(pid)).filter(Boolean).length
+        if (homeActive < 5 || awayActive < 5) {
+            const shorthanded = homeActive < 5 ? homeTeam : awayTeam
+            addToast({
+                type: "warning",
+                message: `${shorthanded?.name || "A team"} can't field 5 players — advance the week to resolve this match by forfeit.`,
+            })
+            return
+        }
         const mapString = match.maps.join(",")
         router.push(`/match/${matchId}/live?maps=${mapString}`)
     }

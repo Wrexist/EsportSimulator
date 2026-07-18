@@ -536,7 +536,7 @@ export class SaveManager {
                     if (!selected) {
                         selected = cloudCandidate
                         selectedSource = "cloud"
-                    } else if (cloudCandidate.updatedAtMs > selected.updatedAtMs + 1000) {
+                    } else if (this.cloudCandidateSupersedes(cloudCandidate, selected)) {
                         selected = cloudCandidate
                         selectedSource = "cloud"
                     }
@@ -588,6 +588,31 @@ export class SaveManager {
                 errorCode: "UNKNOWN",
             }
         }
+    }
+
+    /**
+     * Decide whether a valid cloud save should replace a valid local save
+     * during load-time conflict resolution.
+     *
+     * currentWeek is a monotonic gameplay-progress signal — the week processor
+     * only ever advances it (it is never decremented anywhere in the engine).
+     * Comparing it FIRST means a stale cloud copy can no longer demote newer
+     * local progress purely because it carries a larger wall-clock updatedAt:
+     * clock skew between two machines (or a second PC whose clock runs ahead)
+     * previously let a save that is older in gameplay terms win and get
+     * promoted to primary, silently losing the newer session. Only when both
+     * copies sit on the SAME week — the common case of repeated mid-week saves
+     * on one machine, where currentWeek and updatedAt move together — do we
+     * fall back to the original >1s wall-clock tiebreak.
+     */
+    private cloudCandidateSupersedes(
+        cloud: { migrated: GameSave; updatedAtMs: number },
+        local: { migrated: GameSave; updatedAtMs: number }
+    ): boolean {
+        const cloudWeek = cloud.migrated.currentWeek ?? 0
+        const localWeek = local.migrated.currentWeek ?? 0
+        if (cloudWeek !== localWeek) return cloudWeek > localWeek
+        return cloud.updatedAtMs > local.updatedAtMs + 1000
     }
 
     /**

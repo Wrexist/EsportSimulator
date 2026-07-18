@@ -73,7 +73,7 @@ export const FACILITIES = {
 export const MAPS = {
     ancient: '/maps/ancient.png',
     anubis: '/maps/anubis.png',
-    sandstone: '/maps/dust2.png',
+    sandstone: '/maps/sandstone.png',
     inferno: '/maps/inferno.png',
     mirage: '/maps/mirage.png',
     nuke: '/maps/nuke.png',

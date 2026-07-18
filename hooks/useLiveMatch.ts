@@ -10,11 +10,14 @@ import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
 import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
 import { buildFreshLiveResult, buildInitialSimState, sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
+import { generateMatchStats, determineMVP } from "@/engine/match/match-stats"
 import { soundManager } from "@/lib/sound-manager"
 import {
     applyRoundEconomy,
     createRoundStartEconomy,
+    createOvertimeEconomy,
     getMapsToWinForFormat,
+    getOvertimeMapWinThreshold,
     resolveCanonicalSeriesMaps,
     resolveHomeStartsCT,
 } from "@/lib/live-match-utils"
@@ -55,7 +58,7 @@ interface LiveMatchRuntimeData {
 export function useLiveMatch(id: string) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
@@ -68,6 +71,9 @@ export function useLiveMatch(id: string) {
         saveMatchResult: state.saveMatchResult,
         clearActiveMatchState: state.clearActiveMatchState,
         updateCustomTactic: state.updateCustomTactic,
+        currentWeek: state.currentWeek,
+        currentDay: state.currentDay,
+        timeMode: state.timeMode,
     })))
     const playerTeam = getPlayerTeam()
 
@@ -182,7 +188,11 @@ export function useLiveMatch(id: string) {
         if (hasInitialized.current) return
         if (!isMountedRef.current) return
 
-        setActiveMatch(id)
+        // NOTE: setActiveMatch(id) is deliberately NOT called up here. Arming the
+        // navigation lock before the init guards below would trap the player on a
+        // permanently "Warming up servers…" live screen whenever the match can't
+        // actually start (missing team, understrength roster). The lock is armed
+        // only on the committed-init path (next to hasInitialized.current = true).
 
         const foundMatch = scheduledMatches.find(m => m.id === id)
         if (!foundMatch) return
@@ -191,6 +201,16 @@ export function useLiveMatch(id: string) {
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)
         if (!hTeam || !aTeam) return
 
+        // HYBRID_DAILY day pacing: refuse to start (and never arm the lock) a
+        // current-week match whose scheduled day hasn't arrived yet. This is the
+        // authoritative gate for the live path — matching the store-level guard
+        // in simulateInstantMatch — so a UI bypass (e.g. the result-screen "Play
+        // Next Match" CTA) can't jump the day order. Route the player out cleanly.
+        if (timeMode === "HYBRID_DAILY" && foundMatch.week === currentWeek && (foundMatch.day ?? 6) > currentDay) {
+            if (isMountedRef.current) router.replace(`/match/${id}/tactics`)
+            return
+        }
+
         // Build player lookup map for O(1) roster resolution
         const playerMap = new Map(players.map(p => [p.id, p]))
         playerMapRef.current = playerMap as Map<string, typeof players[0]>
@@ -198,9 +218,16 @@ export function useLiveMatch(id: string) {
         const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         // Need a full 5 a side: simulateMatch's pickWeighted throws on an empty
         // pool, and a 3v5 isn't a real match. The week tick forfeits understrength
-        // rosters (match-forfeit.ts); here we just don't init (chrome stays, so the
-        // player can leave and advance the week to resolve it by forfeit).
-        if (homePlayers.length < 5 || awayPlayers.length < 5) return
+        // rosters (match-forfeit.ts). Since setActiveMatch is NOT armed yet, the
+        // player isn't trapped — route them back to the tactics screen (a clean
+        // exit) so they can advance the week to resolve it by forfeit. Guard on a
+        // populated player list so a mid-hydration render doesn't false-trip this.
+        if (homePlayers.length < 5 || awayPlayers.length < 5) {
+            if (players.length > 0 && isMountedRef.current) {
+                router.replace(`/match/${id}/tactics`)
+            }
+            return
+        }
 
         // All match data resolved — commit init exactly once. The flag is set
         // HERE, not before the guards above: on the first render the store may
@@ -208,6 +235,9 @@ export function useLiveMatch(id: string) {
         // early would permanently block this effect when it re-runs with
         // populated data, stranding the user on a blank live-match screen.
         hasInitialized.current = true
+
+        // Arm the navigation lock only now that init is guaranteed to succeed.
+        setActiveMatch(id)
 
         const seed = getNormalizedSeed(foundMatch.seed, foundMatch.id)
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1
@@ -412,7 +442,7 @@ export function useLiveMatch(id: string) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, searchParams, setActiveMatch, activeMatchState, staff])
+    }, [scheduledMatches, teams, players, id, searchParams, setActiveMatch, activeMatchState, staff, router, currentWeek, currentDay, timeMode])
 
     // Persistence
     useEffect(() => {
@@ -509,8 +539,8 @@ export function useLiveMatch(id: string) {
         } else {
             const homeAvgCash = Object.values(currentSimState.homeEconomy).reduce((sum: number, econ: any) => sum + (econ?.cash || 0), 0) / Math.max(1, hPlayers.length)
             const awayAvgCash = Object.values(currentSimState.awayEconomy).reduce((sum: number, econ: any) => sum + (econ?.cash || 0), 0) / Math.max(1, aPlayers.length)
-            homeStrategy = isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(homeAvgCash) as RoundStrategy
-            awayStrategy = !isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(awayAvgCash) as RoundStrategy
+            homeStrategy = isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(homeAvgCash, homeTeam.economyStyle) as RoundStrategy
+            awayStrategy = !isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(awayAvgCash, awayTeam.economyStyle) as RoundStrategy
         }
 
         const mapIndex = currentSimState.currentMapIndex
@@ -900,19 +930,31 @@ export function useLiveMatch(id: string) {
                 const roundEndMessage = commentaryManager.generate(winType, { team: winnerName })
                 setLogs(prev => [{ type: "ROUND_END", message: `${roundEndMessage} (Winner: ${winnerName})` }, ...prev])
 
+                // Map-win threshold: MR12 regulation is first-to-13; once a map is
+                // in MR3 overtime it climbs (first-to-16, then 19, 22 …). A 12-12
+                // regulation is NOT a clinch — it triggers overtime below.
+                const inOvertime = roundState.isOvertime
+                const mapWinThreshold = inOvertime
+                    ? getOvertimeMapWinThreshold(roundState.currentOTSet)
+                    : 13
+
                 // Per-round audio feedback for the player's team — the most
                 // repeated beat on the centerpiece screen was silent. Skip the
                 // map-clinching round (it gets the victory/defeat cue below, so
                 // the two don't stack). soundManager self-gates on the setting.
-                const mapClinched = roundState.homeRounds >= 13 || roundState.awayRounds >= 13
+                const mapClinched = roundState.homeRounds >= mapWinThreshold || roundState.awayRounds >= mapWinThreshold
                 const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
                 const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
-                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide)) {
+                // Only cue on normal playback (manual speed caps at 5x). Instant
+                // simulate sets speed to 100 and fast-forwards every remaining
+                // round through this handler — cueing there would machine-gun the
+                // audio, so skip it (keeps per-round feedback sparse).
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= 5) {
                     const playerWonRound = playerIsHomeSide ? isHomeWinner : !isHomeWinner
                     soundManager.play(playerWonRound ? "roundWin" : "roundLose")
                 }
 
-                if (roundState.homeRounds >= 13 || roundState.awayRounds >= 13) {
+                if (mapClinched) {
                     const homeWonMap = roundState.homeRounds > roundState.awayRounds
                     const newHomeSeries = roundState.homeSeriesScore + (homeWonMap ? 1 : 0)
                     const newAwaySeries = roundState.awaySeriesScore + (homeWonMap ? 0 : 1)
@@ -982,7 +1024,11 @@ export function useLiveMatch(id: string) {
                             awayLossStreak: 0,
                             homeStartsCT: nextHomeStartsCT,
                             homeMomentumScore: 0,
-                            awayMomentumScore: 0
+                            awayMomentumScore: 0,
+                            // A fresh map starts in regulation regardless of whether
+                            // the previous map went to overtime.
+                            isOvertime: false,
+                            currentOTSet: 0
                         }) : null)
                         setGameState(prev => ({
                             ...prev,
@@ -1021,7 +1067,56 @@ export function useLiveMatch(id: string) {
                         setLogs(prev => [{ type: "SYSTEM", message: `--- NEXT MAP: ${nextMapName.toUpperCase()} ---` }, ...prev])
                         queueRoundStart("PISTOL")
                     }
-                } else if (roundState.currentRound === 13) {
+                } else if (!inOvertime && roundState.homeRounds === 12 && roundState.awayRounds === 12) {
+                    // Regulation finished 12-12 → enter MR3 overtime. Reset both
+                    // economies to $10k, swap sides, and clear streaks/momentum,
+                    // mirroring match-simulation.ts. The clinch threshold climbs to
+                    // 16 (then 19, 22 … per additional tied set) via mapWinThreshold.
+                    const otHomeStartsCT = !roundState.homeStartsCT
+                    const otHomeEconomy = createOvertimeEconomy(runtime.homePlayerIds, otHomeStartsCT)
+                    const otAwayEconomy = createOvertimeEconomy(runtime.awayPlayerIds, !otHomeStartsCT)
+                    const otHomeDefault = otHomeStartsCT ? "usp" : "glock"
+                    const otAwayDefault = otHomeStartsCT ? "glock" : "usp"
+
+                    setLogs(prev => [{ type: "SYSTEM", message: "--- OVERTIME: 12-12 · MR3 · FIRST TO 16 ---" }, ...prev])
+                    setSimState(prev => prev ? ({
+                        ...prev,
+                        isOvertime: true,
+                        currentOTSet: 1,
+                        homeStartsCT: otHomeStartsCT,
+                        homeEconomy: otHomeEconomy,
+                        awayEconomy: otAwayEconomy,
+                        homeWinStreak: 0,
+                        awayWinStreak: 0,
+                        homeLossStreak: 0,
+                        awayLossStreak: 0,
+                        homeMomentumScore: 0,
+                        awayMomentumScore: 0
+                    }) : null)
+                    setHomeRoster(prev => prev.map(player => ({
+                        ...player,
+                        money: otHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
+                        weapon: otHomeEconomy[player.id]?.weapon ?? otHomeDefault,
+                        hasArmor: false,
+                        hasHelmet: false,
+                        hasKit: false,
+                        isDead: false
+                    })))
+                    setAwayRoster(prev => prev.map(player => ({
+                        ...player,
+                        money: otAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
+                        weapon: otAwayEconomy[player.id]?.weapon ?? otAwayDefault,
+                        hasArmor: false,
+                        hasHelmet: false,
+                        hasKit: false,
+                        isDead: false
+                    })))
+                    setRoundTime(ROUND_SECONDS)
+                    setIsBombPlanted(false)
+                    setBombTime(BOMB_SECONDS)
+                    setIsPlaying(false)
+                    setIsWaitingForStrategy(true)
+                } else if (!inOvertime && roundState.currentRound === 13) {
                     const switchedHomeStartsCT = !roundState.homeStartsCT
                     const halftimeHomeEconomy = createRoundStartEconomy(runtime.homePlayerIds, switchedHomeStartsCT)
                     const halftimeAwayEconomy = createRoundStartEconomy(runtime.awayPlayerIds, !switchedHomeStartsCT)
@@ -1065,6 +1160,55 @@ export function useLiveMatch(id: string) {
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     queueRoundStart("PISTOL")
+                } else if (inOvertime && roundState.currentRound > 25 && (roundState.currentRound - 25) % 3 === 0) {
+                    // Overtime half / set boundary (every 3 OT rounds): swap sides
+                    // and reset economy to $10k. A whole set (6 rounds) elapsed
+                    // without a clinch means it's tied → advance to the next MR3 set
+                    // (threshold climbs), mirroring match-simulation.ts.
+                    const isNewSet = (roundState.currentRound - 25) % 6 === 0
+                    const otHomeStartsCT = !roundState.homeStartsCT
+                    const otHomeEconomy = createOvertimeEconomy(runtime.homePlayerIds, otHomeStartsCT)
+                    const otAwayEconomy = createOvertimeEconomy(runtime.awayPlayerIds, !otHomeStartsCT)
+                    const otHomeDefault = otHomeStartsCT ? "usp" : "glock"
+                    const otAwayDefault = otHomeStartsCT ? "glock" : "usp"
+
+                    setLogs(prev => [{ type: "SYSTEM", message: isNewSet ? "--- OVERTIME: TIED SET · NEW MR3 SET ---" : "--- OVERTIME: SWITCHING SIDES ---" }, ...prev])
+                    setSimState(prev => prev ? ({
+                        ...prev,
+                        currentOTSet: isNewSet ? (prev.currentOTSet || 1) + 1 : prev.currentOTSet,
+                        homeStartsCT: otHomeStartsCT,
+                        homeEconomy: otHomeEconomy,
+                        awayEconomy: otAwayEconomy,
+                        homeWinStreak: 0,
+                        awayWinStreak: 0,
+                        homeLossStreak: 0,
+                        awayLossStreak: 0,
+                        homeMomentumScore: 0,
+                        awayMomentumScore: 0
+                    }) : null)
+                    setHomeRoster(prev => prev.map(player => ({
+                        ...player,
+                        money: otHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
+                        weapon: otHomeEconomy[player.id]?.weapon ?? otHomeDefault,
+                        hasArmor: false,
+                        hasHelmet: false,
+                        hasKit: false,
+                        isDead: false
+                    })))
+                    setAwayRoster(prev => prev.map(player => ({
+                        ...player,
+                        money: otAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
+                        weapon: otAwayEconomy[player.id]?.weapon ?? otAwayDefault,
+                        hasArmor: false,
+                        hasHelmet: false,
+                        hasKit: false,
+                        isDead: false
+                    })))
+                    setRoundTime(ROUND_SECONDS)
+                    setIsBombPlanted(false)
+                    setBombTime(BOMB_SECONDS)
+                    setIsPlaying(false)
+                    setIsWaitingForStrategy(true)
                 } else {
                     setIsWaitingForStrategy(true)
                     setIsPlaying(false)
@@ -1168,8 +1312,29 @@ export function useLiveMatch(id: string) {
     }, [timeoutsRemaining])
 
     const handleFinish = useCallback(() => {
-        if (!matchData.current) return
-        saveMatchResult(matchData.current.match.id, matchData.current.result)
+        const runtime = matchData.current
+        if (!runtime) return
+
+        // Recompute player stats + MVP from the rounds ACTUALLY played live,
+        // rather than shipping baseResult's quick-sim stats (which were produced
+        // with a different starting-side decision + overtime path, so they can
+        // contradict the scoreboard the player just watched — even crowning an
+        // MVP on the losing team). Reuse the canonical helpers over the live maps.
+        const pMap = playerMapRef.current
+        const hPlayers = runtime.homePlayerIds.map(pid => pMap.get(pid)).filter(Boolean) as Player[]
+        const aPlayers = runtime.awayPlayerIds.map(pid => pMap.get(pid)).filter(Boolean) as Player[]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const playedMaps = (runtime.result.maps as any[]).filter(m => Array.isArray(m.rounds) && m.rounds.length > 0)
+        if (hPlayers.length > 0 && aPlayers.length > 0 && playedMaps.length > 0) {
+            const homeWon = runtime.result.homeScore > runtime.result.awayScore
+            const statsRng = createMatchRNG(runtime.match.seed as number)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const liveStats = generateMatchStats(statsRng, hPlayers, aPlayers, playedMaps as any, homeWon)
+            runtime.result.playerStats = liveStats
+            runtime.result.mvpPlayerId = determineMVP(liveStats, homeWon ? hPlayers : aPlayers)
+        }
+
+        saveMatchResult(runtime.match.id, runtime.result)
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])

@@ -60,6 +60,7 @@ import { AcademyApp } from "@/components/desktop-apps/AcademyApp"
 import { ProAwardsModal } from "@/components/celebration/ProAwardsModal"
 import { SeasonRecapModal } from "@/components/celebration/SeasonRecapModal"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
+import { DesktopHomeHero } from "@/components/desktop/DesktopHomeHero"
 
 type AppId = "mail" | "social" | "market" | "calendar" | "news" | "shop" | "facilities" | "finance" | "academy"
 
@@ -1006,6 +1007,11 @@ function DesktopContent() {
           </div>
 
 
+
+          {/* Home hero — fills the otherwise-empty desktop canvas with an
+              at-a-glance org panel (team, next match, quick launch). Sits
+              behind app windows so it only shows while the desktop is idle. */}
+          <DesktopHomeHero />
 
           {/* Weekly Focus Widget (Desktop Widget) */}
           <div className="absolute top-4 right-4 z-0 w-72 h-[320px]">

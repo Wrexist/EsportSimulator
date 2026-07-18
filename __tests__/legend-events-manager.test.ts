@@ -152,6 +152,56 @@ describe("processWeeklyLegendEvents — Mentorship", () => {
     })
 })
 
+describe("processWeeklyLegendEvents — news body reaches the UI", () => {
+    // Regression: legend events used to set only data.text, so NewsApp's
+    // getNewsHeadline/getNewsContent fell through to "News Update" /
+    // "No additional details available." They must now carry {title, message}
+    // (the shape NewsApp's default branches read) while keeping `text` for
+    // save-compatibility.
+    test("mentorship event carries a title + message (not just text)", () => {
+        const seed = findSeedForFirstRoll(v => v < 0.02)
+        const save = makeSave()
+        LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(seed))
+        const evt = save.eventsLog.find(e => e.id.startsWith("legend_mentorship_"))
+        expect(evt).toBeDefined()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = (evt as any).data
+        expect(typeof data.title).toBe("string")
+        expect(data.title.length).toBeGreaterThan(0)
+        expect(typeof data.message).toBe("string")
+        expect(data.message).toContain("mentorship session")
+        // NewsApp default branches would otherwise show the generic fallbacks.
+        expect(data.title).not.toBe("News Update")
+        expect(data.message).not.toBe("No additional details available.")
+        // Legacy field preserved for old-save compatibility.
+        expect(data.text).toBe(data.message)
+    })
+
+    test("coach opportunity event carries a title + message", () => {
+        let found = false
+        for (let seed = 1; seed < 50_000 && !found; seed++) {
+            const rng = new SeededRNG(seed)
+            const v1 = rng.next()
+            const v2 = rng.next()
+            if (v1 >= 0.02 && v2 < 0.005) {
+                const save = makeSave()
+                LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(seed))
+                const evt = save.eventsLog.find(e => e.id.startsWith("legend_coach_opportunity_"))
+                if (!evt) continue
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const data = (evt as any).data
+                expect(typeof data.title).toBe("string")
+                expect(data.title.length).toBeGreaterThan(0)
+                expect(typeof data.message).toBe("string")
+                expect(data.message).toContain("coach")
+                expect(data.text).toBe(data.message)
+                found = true
+            }
+        }
+        expect(found).toBe(true)
+    })
+})
+
 describe("processWeeklyLegendEvents — Coach Opportunity", () => {
     test("when the coach-opportunity roll fires, surfaces a CONTRACT_OFFER event with two choices", () => {
         // Need a seed where rng.next()[0] >= 0.02 (skip mentorship) AND

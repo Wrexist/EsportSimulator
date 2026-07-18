@@ -43,6 +43,7 @@ import {
 } from "@/engine"
 import { soundManager } from "@/lib/sound-manager"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
+import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
 import { ManagerProgression } from "@/engine/manager-progression"
 import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { StaffGenerator } from "@/engine/staff-generator"
@@ -1273,6 +1274,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (newSave.fplData) {
             newSave.fplData.nonProPlayers = nonProMetadata
           }
+
+          // Seed preseason friendlies so Week 1 isn't an empty calendar — gives
+          // the player scrims to play immediately and a real "next match" on the
+          // dashboard while the first tournaments are still weeks away.
+          seedPreseasonFriendlies(newSave, playerTeamId)
 
           // Initial Save
           await saveManager.saveGame(newSave)

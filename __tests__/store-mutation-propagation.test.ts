@@ -101,19 +101,6 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
 
 describe("store mutation propagation through entity indexes", () => {
     test("signSponsor — sponsor lands in state.teams[i].sponsors (not only in _teamIndex)", () => {
-        const h = makeHarness(makeBaseState({
-            teams: [makeTeam("player", {
-                worldRanking: 5, budget: 1_000_000, sponsors: [],
-                trophies: [{ tier: "S_TIER" } as never],
-            })],
-        }))
-        // Rebuild indexes after team override.
-        const s0 = h.state()
-        Object.assign(s0, buildEntityIndexes(
-            s0.teams, s0.players, s0.contracts, s0.staff, s0.completedMatches
-        ))
-
-        const facilities = createTeamFacilitiesSlice(h.set, h.get)
         const sponsor: SponsorSaveData = {
             id: "spon_test_1",
             name: "TestSponsor",
@@ -122,6 +109,20 @@ describe("store mutation propagation through entity indexes", () => {
             remainingWeeks: 20,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", {
+                worldRanking: 5, budget: 1_000_000, sponsors: [],
+                trophies: [{ tier: "S_TIER" } as never],
+            })],
+            sponsorOffers: [sponsor],
+        }))
+        // Rebuild indexes after team override.
+        const s0 = h.state()
+        Object.assign(s0, buildEntityIndexes(
+            s0.teams, s0.players, s0.contracts, s0.staff, s0.completedMatches
+        ))
+
+        const facilities = createTeamFacilitiesSlice(h.set, h.get)
 
         const result = facilities.signSponsor("player", sponsor)
         expect(result.success).toBe(true)
@@ -132,11 +133,19 @@ describe("store mutation propagation through entity indexes", () => {
     })
 
     test("signSponsor — slot count visible in state.teams after 3 different-tier signings", () => {
+        const mk = (id: string, tier: SponsorSaveData["tier"]) => ({
+            id, name: `S_${id}`, tier, weeklyPayout: 5000, remainingWeeks: 10,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        }) as any
+        const s1 = mk("s1", "STANDARD")
+        const s2 = mk("s2", "PREMIUM")
+        const s3 = mk("s3", "ELITE")
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", {
                 worldRanking: 5, budget: 5_000_000, sponsors: [],
                 trophies: [{ tier: "S_TIER" } as never],
             })],
+            sponsorOffers: [s1, s2, s3],
         }))
         const s0 = h.state()
         Object.assign(s0, buildEntityIndexes(
@@ -144,14 +153,10 @@ describe("store mutation propagation through entity indexes", () => {
         ))
 
         const facilities = createTeamFacilitiesSlice(h.set, h.get)
-        const mk = (id: string, tier: SponsorSaveData["tier"]) => ({
-            id, name: `S_${id}`, tier, weeklyPayout: 5000, remainingWeeks: 10,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        }) as any
 
-        expect(facilities.signSponsor("player", mk("s1", "STANDARD")).success).toBe(true)
-        expect(facilities.signSponsor("player", mk("s2", "PREMIUM")).success).toBe(true)
-        expect(facilities.signSponsor("player", mk("s3", "ELITE")).success).toBe(true)
+        expect(facilities.signSponsor("player", s1).success).toBe(true)
+        expect(facilities.signSponsor("player", s2).success).toBe(true)
+        expect(facilities.signSponsor("player", s3).success).toBe(true)
 
         const team = h.state().teams.find(t => t.id === "player")
         expect(team?.sponsors?.length).toBe(3)

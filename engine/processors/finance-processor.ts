@@ -105,9 +105,14 @@ export class FinanceProcessor {
                 })
             }
 
-            // Track consecutive insolvency for game-over (player team only)
+            // Track consecutive insolvency for game-over (player team only).
+            // Use the POST-equipment team.financialState (set above), not the
+            // stale pre-equipment report.state — equipment upkeep can push a
+            // team from healthy into INSOLVENT, and reading report.state here
+            // would reset the counter every week so the bankruptcy game-over
+            // could never fire for an equipment-driven insolvency.
             if (team.id === playerTeamId) {
-                if (report.state === "INSOLVENT") {
+                if (team.financialState === "INSOLVENT") {
                     team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
                     // 8 consecutive weeks of insolvency = team dissolved
                     if (team.consecutiveInsolventWeeks >= 8) {
@@ -175,6 +180,22 @@ export class FinanceProcessor {
                         category: "OTHER", // Mapping Fanbase to OTHER or create MERCH? Let's use OTHER for now or fix types
                         amount: report.income.fanbase,
                         description: "Fanbase revenue",
+                        balance: team.budget
+                    })
+                }
+                // League revenue share is folded into totalIncome/newBalance for
+                // every team, but was never written to the player ledger — so the
+                // ledger sum undershot the actual budget change by $15k/week and
+                // every recorded running balance was internally inconsistent.
+                if (report.income.leagueShare > 0) {
+                    pushLedger({
+                        id: `inc_league_${save.currentWeek}_${team.id}`,
+                        week: save.currentWeek,
+                        teamId: team.id,
+                        type: "INCOME",
+                        category: "OTHER",
+                        amount: report.income.leagueShare,
+                        description: "League revenue share",
                         balance: team.budget
                     })
                 }
