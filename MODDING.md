@@ -6,9 +6,9 @@ IP**. Players who want the real scene (real team names, real logos, real player
 names & faces) install a **community overlay**: either a hand-imported JSON
 database or a **Steam Workshop** mod.
 
-This is the same legally-clean model Football Manager's "real-name fix" and the
-competitor's EMDB / Workshop "REAL NAMES MOD" use: the base game ships clean, the
-player supplies the real data on their own machine.
+This is a legally-clean community-overlay model: the base game ships with 100%
+original fictional content, and any player who wants real-world data supplies it
+themselves on their own machine — via a local database or a Workshop mod.
 
 Because overlays are keyed on the shipped **ids**, every team/player keeps its
 simulation stats, roster links, tier and colours — only the display **name**,

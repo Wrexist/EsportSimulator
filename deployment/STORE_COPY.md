@@ -24,7 +24,7 @@ Alt (punchier):
 
 ## About This Game (long description — Steam BBCode)
 
-```
+```bbcode
 [h1]LEAD YOUR TEAM FROM QUALIFIERS TO THE MAJOR STAGE[/h1]
 You're the manager. Every roster call, every veto, every clutch round is on you.
 Esports Manager: FPS is a deep competitive-FPS management sim: discover talent,
@@ -85,4 +85,3 @@ now's your chance to prove it. Build the team. Call the shots. Win it all.
 ## Suggested store tags
 Management, Simulation, Esports, Sports, Strategy, Team Management, Sports Sim,
 Character Customization, Singleplayer, Moddable, Tactical, Competitive
-```

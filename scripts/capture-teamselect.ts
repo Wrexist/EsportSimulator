@@ -57,7 +57,7 @@ async function run() {
     await page.goto(`${BASE}/new-game`, { waitUntil: "domcontentloaded" })
     await page.waitForSelector('input[placeholder*="name"]', { state: "visible", timeout: 30000 })
     await page.waitForTimeout(700)
-    await page.locator('input[placeholder*="name"]').first().fill("Alex Morgan")
+    await page.locator('input[placeholder*="name"]').first().fill("Jordan Vale")
     await page.waitForTimeout(400)
     await clickFirst(page, 'button:has-text("Choose Existing Team")')
 

@@ -1759,8 +1759,8 @@
   },
   {
     "id": "team_70_ance",
-    "name": "Team Apex",
-    "shortName": "APE",
+    "name": "Team Apogee",
+    "shortName": "APO",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/ance/logo.svg",
@@ -1962,8 +1962,8 @@
   },
   {
     "id": "team_78_xashy",
-    "name": "Team Talon",
-    "shortName": "TAL",
+    "name": "Team Torrent",
+    "shortName": "TOR",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/xashy/logo.svg",
@@ -2853,7 +2853,7 @@
   },
   {
     "id": "team_110_sdeteal",
-    "name": "Talon Athletic",
+    "name": "Torrent Athletic",
     "shortName": "TA",
     "tier": "SEMI_PRO",
     "region": "EU",
@@ -3664,8 +3664,8 @@
   },
   {
     "id": "team_139_vuejo",
-    "name": "Tundra",
-    "shortName": "TUN",
+    "name": "Taiga",
+    "shortName": "TAI",
     "tier": "SEMI_PRO",
     "region": "EU",
     "logoPath": "/assets/teams/vuejo/logo.svg",
@@ -4349,7 +4349,7 @@
   },
   {
     "id": "team_169_xeydstars",
-    "name": "Violet Apex",
+    "name": "Violet Apogee",
     "shortName": "VA",
     "tier": "ACADEMY",
     "region": "BR",

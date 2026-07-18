@@ -112,6 +112,9 @@ const MARKS: Array<(f: string) => string> = [
     f => `<path d="M50 25 L72 54 L60 54 L60 67 L40 67 L40 54 L28 54 Z" fill="${f}"/>`,
     f => `<path d="M29 57 L33 35 L42 47 L50 31 L58 47 L67 35 L71 57 Z" fill="${f}"/>`,
     f => `<polygon points="50,25 70,37 70,55 50,67 30,55 30,37" fill="none" stroke="${f}" stroke-width="4.5"/><polygon points="50,36 61,42 61,50 50,56 39,50 39,42" fill="${f}"/>`,
+    // talon slashes — must stay last to match TeamEmblem's catalog so the same
+    // hash selects the same mark for baked and live logos.
+    f => `<g fill="${f}"><path d="M34 28 Q44 40 40 64 L46 62 Q48 40 40 28 Z"/><path d="M46 26 Q54 40 50 66 L56 64 Q58 40 52 26 Z"/><path d="M58 28 Q66 40 62 62 L68 60 Q70 40 64 28 Z"/></g>`,
 ]
 
 function renderMark(h: number, face: string): string {

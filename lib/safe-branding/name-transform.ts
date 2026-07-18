@@ -363,14 +363,14 @@ export function transformNickname(nick: string): string {
 const CORES: readonly string[] = [
     "Obsidian", "Onyx", "Vanguard", "Tempest", "Zenith", "Eclipse", "Verdict",
     "Sable", "Cobalt", "Halcyon", "Meridian", "Requiem", "Paragon", "Odyssey",
-    "Nimbus", "Solstice", "Warden", "Reverie", "Talon", "Quasar", "Pulsar",
+    "Nimbus", "Solstice", "Warden", "Reverie", "Torrent", "Quasar", "Pulsar",
     "Helix", "Anvil", "Bastion", "Citadel", "Vector", "Zephyr", "Kraken",
     "Griffin", "Viper", "Cobra", "Jackal", "Panther", "Lynx", "Raven", "Drake",
     "Basilisk", "Chimera", "Mirage", "Oblivion", "Vanta", "Cortex", "Synapse",
-    "Crux", "Lumen", "Umbra", "Astra", "Ignis", "Valor", "Rampart", "Tundra",
+    "Crux", "Lumen", "Umbra", "Astra", "Ignis", "Valor", "Rampart", "Taiga",
     "Vortex", "Riptide", "Havoc", "Sentry", "Wyvern", "Serpent", "Monolith",
     "Summit", "Bulwark", "Aegis", "Maelstrom", "Cascade", "Zodiac", "Comet",
-    "Nocturne", "Rift", "Ronin", "Sovereign", "Tempo", "Apex",
+    "Nocturne", "Rift", "Ronin", "Sovereign", "Tempo", "Apogee",
 ]
 
 const PREFIXES: readonly string[] = [
@@ -426,6 +426,11 @@ function tagFor(name: string): string {
     return w.slice(0, 3).toUpperCase()
 }
 
+// Real esports-org / game-IP terms that must never surface even if a word bank
+// or a compound slips one through. premiumTeamName / premiumPlayerHandle re-roll
+// (via salt) until the output is clean.
+const BRAND_DENYLIST = /\b(apex|talon|tundra|riot|gambit|jinx|omen|cypher|reaper|vandal|halo|faze|navi|vitality|astralis|fnatic|liquid|mouz|nrg|monte|spirit|heroic|complexity|cloud9|sentinels|optic)\b/i
+
 export interface PremiumBrand {
     name: string
     tag: string
@@ -460,6 +465,8 @@ export function premiumTeamName(seed: string, salt = 0): PremiumBrand {
         name = `${compound} ${pickFrom(rng, ORG_SUFFIXES)}`    // "Ironclaw Legion"
     }
 
+    if (BRAND_DENYLIST.test(name) && salt < 24) return premiumTeamName(seed, salt + 1)
+
     // logoStyle steers the emblem renderer: single evocative words read best as
     // a mascot mark, compounds/short brands as emblems, multi-word orgs as a
     // wordmark, and the rest as a clean monogram.
@@ -484,11 +491,11 @@ export function premiumTeamName(seed: string, salt = 0): PremiumBrand {
 
 const HANDLE_WHOLES: readonly string[] = [
     "Vortex", "Cinder", "Ravyn", "Quill", "Slate", "Kobalt", "Ember", "Onyx",
-    "Talon", "Wraith", "Havik", "Drift", "Surge", "Rune", "Crypt", "Vandal",
-    "Specter", "Blaze", "Cypher", "Echo", "Gambit", "Jinx", "Karma", "Mirage",
-    "Nomad", "Omen", "Prowl", "Quake", "Reaper", "Sable", "Volt", "Zenith",
-    "Fable", "Glitch", "Riot", "Nova", "Hex", "Lunar", "Vesper", "Kismet",
-    "Cobalt", "Dusk", "Flint", "Gale", "Halo", "Ion", "Jolt", "Kite",
+    "Torvex", "Wraith", "Havik", "Drift", "Surge", "Rune", "Crypt", "Vanta",
+    "Specter", "Blaze", "Crag", "Echo", "Gamut", "Jinn", "Karma", "Mirage",
+    "Nomad", "Omni", "Prowl", "Quake", "Render", "Sable", "Volt", "Zenith",
+    "Fable", "Glitch", "Rove", "Nova", "Hex", "Lunar", "Vesper", "Kismet",
+    "Cobalt", "Dusk", "Flint", "Gale", "Haze", "Ion", "Jolt", "Kite",
 ]
 
 const HANDLE_HEADS: readonly string[] = [
@@ -536,6 +543,7 @@ export function premiumPlayerHandle(seed: string, salt = 0): string {
     if (c < 0.45) h = h.toLowerCase()
     else if (c < 0.6) h = h.toUpperCase()
 
+    if (BRAND_DENYLIST.test(h) && salt < 24) return premiumPlayerHandle(seed, salt + 1)
     return h
 }
 

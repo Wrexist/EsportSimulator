@@ -44,7 +44,7 @@ npm run dist
 
 ### B2. Confirm the upload config (no edits needed)
 Open `deployment\config\app_build_4326170.vdf` and check:
-```
+```text
 "contentroot" "..\..\dist\win-unpacked"
 "depots" { "4326171" "depot_build_4326171.vdf" }
 ```

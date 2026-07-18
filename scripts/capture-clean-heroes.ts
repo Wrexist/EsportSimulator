@@ -80,7 +80,7 @@ async function run() {
         await page.waitForSelector('input[placeholder*="name"]', { state: "visible", timeout: 30000 }).catch(() => { })
         if (!(await page.locator('input[placeholder*="name"]').first().isVisible().catch(() => false))) return false
         await page.waitForTimeout(700)
-        await page.locator('input[placeholder*="name"]').first().fill("Alex Morgan")
+        await page.locator('input[placeholder*="name"]').first().fill("Jordan Vale")
         await page.waitForTimeout(400)
         await clickFirst(page, 'button:has-text("Choose Existing Team")')
         await page.waitForSelector('input[placeholder*="Search teams"]', { timeout: 15000 }).catch(() => { })

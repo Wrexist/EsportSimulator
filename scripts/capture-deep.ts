@@ -47,7 +47,7 @@ async function run() {
     await step("New career", async () => {
         await clickText(page, 'button:has-text("New Career")', 'a:has-text("New Career")') || await page.goto(`${BASE}/new-game`)
         await page.waitForSelector('input[placeholder*="name"]', { timeout: 20_000 })
-        await page.locator('input[placeholder*="name"]').first().fill("Alex Morgan")
+        await page.locator('input[placeholder*="name"]').first().fill("Jordan Vale")
         await clickText(page, 'button:has-text("Choose Existing Team")', 'button:has-text("Continue")')
         await page.waitForTimeout(1600)
         const cands = ['div.cursor-pointer:has(img)', 'div[role="button"]:has(img)', "main img"]

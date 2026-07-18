@@ -23,7 +23,7 @@ import { chromium, Page, Browser } from "playwright"
 const BASE = "http://127.0.0.1:3001"
 const OUT_DIR = path.join(process.cwd(), "tmp", "steam-screenshots")
 const VIEWPORT = { width: 1920, height: 1080 }
-const MANAGER_NAME = "Alex Morgan"
+const MANAGER_NAME = "Jordan Vale"
 
 interface Shot {
     idx: number
