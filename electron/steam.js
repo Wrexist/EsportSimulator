@@ -224,16 +224,22 @@ function listWorkshopMods() {
             const info = installed ? (() => { try { return steamClient.workshop.installInfo(id); } catch (_) { return null; } })() : null;
             const folder = info && info.folder ? info.folder : null;
             const manifest = folder ? readModManifest(folder) : null;
+            // manifest is untrusted (any subscribed item can supply object-valued
+            // fields). Normalize to IPC-safe primitives so a crafted manifest
+            // can't crash the React settings page with an invalid child.
+            const str = (v) => (typeof v === 'string' ? v : null);
+            const manifestTitle = str(manifest && manifest.title) || str(manifest && manifest.name);
+            const count = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : undefined);
             out.push({
                 id: idStr,
                 installed,
                 needsUpdate,
                 folder,
                 sizeOnDisk: info ? Number(info.sizeOnDisk) : 0,
-                title: (manifest && (manifest.title || manifest.name)) || `Workshop item ${idStr}`,
-                author: (manifest && manifest.author) || '',
-                teams: manifest ? manifest.teams : undefined,
-                players: manifest ? manifest.players : undefined,
+                title: (manifestTitle || `Workshop item ${idStr}`).slice(0, 200),
+                author: (str(manifest && manifest.author) || '').slice(0, 120),
+                teams: count(manifest && manifest.teams),
+                players: count(manifest && manifest.players),
                 // Distinguishes our real-data overlays from unrelated subscriptions.
                 isEmMod: !!(manifest && (manifest.game === 'Esports Manager' || typeof manifest.schema === 'number')),
             });

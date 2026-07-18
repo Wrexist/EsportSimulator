@@ -32,10 +32,22 @@ import path from "node:path"
 const ROOT = process.cwd()
 const arg = (k: string) => process.argv.find(a => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=")
 const MOD_NAME = arg("name") || "real-teams-2026"
+// MOD_NAME becomes a directory that gets recursively deleted (fs.rm below), so a
+// value like "../public" must never escape dist-mod. Require a plain slug.
+if (!/^[a-z0-9][a-z0-9_-]*$/i.test(MOD_NAME)) {
+    console.error(`[build-mod] --name must be a slug (letters, numbers, "_" or "-"); got "${MOD_NAME}"`)
+    process.exit(1)
+}
 const AUTHOR = arg("author") || ""
 const STAMP = arg("date") || "" // pass an ISO date for reproducible manifests; else omitted
 const DRY = process.argv.includes("--dry-run")
-const OUT = path.join(ROOT, "dist-mod", MOD_NAME)
+const MOD_ROOT = path.join(ROOT, "dist-mod")
+const OUT = path.join(MOD_ROOT, MOD_NAME)
+// Defence in depth: even a slug-shaped name must resolve inside dist-mod.
+if (OUT !== MOD_ROOT && !OUT.startsWith(MOD_ROOT + path.sep)) {
+    console.error(`[build-mod] refusing to write outside dist-mod: "${OUT}"`)
+    process.exit(1)
+}
 
 const IMAGE_EXTS = [".png", ".webp", ".jpg", ".jpeg"]
 

@@ -113,6 +113,19 @@ function renderMark(h: number, face: string, scale: number, dy: number): string 
     return `<g transform="${t}" style="filter:drop-shadow(0 1.5px 1px rgba(0,0,0,0.5))">${mark}</g>`
 }
 
+// Branding colors can come from untrusted community/Workshop mods and are
+// interpolated into raw SVG strings (renderMark -> dangerouslySetInnerHTML), so
+// a crafted value could break out of a fill/stroke attribute and inject active
+// SVG. Accept only strict hex / rgb(a) literals; anything else falls back.
+function sanitizeColor(c: string | undefined, fallback: string): string {
+    if (typeof c !== "string") return fallback
+    const s = c.trim()
+    if (/^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s)) return s
+    if (/^rgb\(\s*\d{1,3}\s*(?:,\s*\d{1,3}\s*){2}\)$/.test(s)) return s
+    if (/^rgba\(\s*\d{1,3}\s*(?:,\s*\d{1,3}\s*){2},\s*(?:0|1|0?\.\d+)\s*\)$/.test(s)) return s
+    return fallback
+}
+
 interface TeamEmblemProps {
     name: string
     shortName?: string
@@ -127,10 +140,12 @@ export function TeamEmblem({ name, shortName, branding, seed, size = 32, classNa
     const style = branding.logoStyle
     const shape = pickShape(style, h)
     const initials = deriveInitials(name, shortName)
-    const primary = branding.primaryColor || "#38bdf8"
-    const secondary = branding.secondaryColor || "#0e1217"
-    const accent = branding.accentColor || "#ffffff"
-    const uid = `te-${(seed || name).replace(/[^a-zA-Z0-9]/g, "")}-${size}`
+    const primary = sanitizeColor(branding.primaryColor, "#38bdf8")
+    const secondary = sanitizeColor(branding.secondaryColor, "#0e1217")
+    const accent = sanitizeColor(branding.accentColor, "#ffffff")
+    // Hash-based uid: punctuation-stripping alone collided (e.g. "alpha-beta" vs
+    // "alphabeta" shared gradient IDs, cross-wiring emblem colors).
+    const uid = `te-${h.toString(36)}-${size}`
     const d = shapePath(shape)
     const isPill = shape === "pill"
 

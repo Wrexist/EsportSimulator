@@ -58,17 +58,19 @@ function fail(msg: string): never {
     process.exit(1)
 }
 
+// parseInt("123abc") === 123, so a malformed value could upload against the
+// wrong app. Require the WHOLE trimmed value to be a positive integer.
+function parseAppId(value: string, source: string): number {
+    if (!/^[1-9]\d*$/.test(value.trim())) fail(`${source} is not a valid App ID (got "${value}")`)
+    return Number(value.trim())
+}
+
 function resolveAppId(): number {
     const override = arg("appid")
-    if (override) {
-        const n = parseInt(override, 10)
-        if (!Number.isFinite(n) || n <= 0) fail(`--appid must be a positive number (got "${override}")`)
-        return n
-    }
+    if (override) return parseAppId(override, "--appid")
     const p = path.join(ROOT, "steam_appid.txt")
     if (!fs.existsSync(p)) fail("steam_appid.txt missing and no --appid=NNN given. Provision your real Steam App ID first.")
-    const id = parseInt(fs.readFileSync(p, "utf8").trim(), 10)
-    if (!Number.isFinite(id) || id <= 0) fail("steam_appid.txt does not contain a valid App ID.")
+    const id = parseAppId(fs.readFileSync(p, "utf8").trim(), "steam_appid.txt")
     if (id === 480) fail("steam_appid.txt is the Spacewar test id (480). Set your real App ID.")
     return id
 }

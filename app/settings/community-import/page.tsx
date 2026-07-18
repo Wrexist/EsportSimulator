@@ -90,7 +90,7 @@ export default function CommunityImportPage() {
         }
     }
 
-    const useCommunitySource = async () => {
+    const switchToCommunitySource = async () => {
         setWsBusy(true)
         try {
             const ok = await setActiveMod({ source: "community" })
@@ -141,9 +141,15 @@ export default function CommunityImportPage() {
             if (results.every(Boolean)) {
                 setInstalled(true)
                 // Make the imported db the live source (a previously-activated
-                // Workshop mod would otherwise shadow it).
-                await setActiveMod({ source: "community" })
+                // Workshop mod would otherwise shadow it). Don't report success if
+                // activation failed, or a stale Workshop mod stays live under a
+                // "community database applied" message.
+                const activated = await setActiveMod({ source: "community" })
                 await loadWorkshop()
+                if (!activated) {
+                    setStatus({ kind: "err", msg: "Database was written, but could not be activated. Try again from the list below." })
+                    return
+                }
                 setStatus({
                     kind: "ok",
                     msg: "Community database installed. Start a new career to apply.",
@@ -302,11 +308,11 @@ export default function CommunityImportPage() {
                                     <div className="shrink-0">
                                         {isActive ? (
                                             <Button variant="ghost" size="sm" disabled={wsBusy}
-                                                onClick={() => void useCommunitySource()}>
+                                                onClick={() => void switchToCommunitySource()}>
                                                 Deactivate
                                             </Button>
                                         ) : (
-                                            <Button size="sm" disabled={wsBusy || !m.installed}
+                                            <Button size="sm" disabled={wsBusy || !m.installed || !m.isEmMod}
                                                 onClick={() => void activateWorkshop(m.id)}>
                                                 <Download className="h-4 w-4 mr-1" /> Activate
                                             </Button>

@@ -553,10 +553,19 @@ function serveModAsset(req, res, pathname) {
         if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
             res.statusCode = 404; res.end('Not found'); return true;
         }
+        // The lexical check above doesn't catch a symlink/junction inside the mod
+        // dir that points outside it (statSync follows links). Re-check on the
+        // real resolved paths before streaming.
+        let realTarget, realBase;
+        try { realTarget = fs.realpathSync(target); realBase = fs.realpathSync(baseDir); }
+        catch (_) { res.statusCode = 404; res.end('Not found'); return true; }
+        if (realTarget !== realBase && !realTarget.startsWith(realBase + path.sep)) {
+            res.statusCode = 403; res.end('Forbidden'); return true;
+        }
         res.statusCode = 200;
         res.setHeader('Content-Type', type);
         res.setHeader('Cache-Control', 'no-cache');
-        fs.createReadStream(target).on('error', () => { try { res.destroy(); } catch (_) { /* noop */ } }).pipe(res);
+        fs.createReadStream(realTarget).on('error', () => { try { res.destroy(); } catch (_) { /* noop */ } }).pipe(res);
         return true;
     } catch (e) {
         try { res.statusCode = 500; res.end('Error'); } catch (_) { /* noop */ }
