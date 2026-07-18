@@ -13,8 +13,10 @@ const ROOT = process.cwd()
 const OUT = path.join(ROOT, "tmp", "steam-marketing")
 fs.mkdirSync(OUT, { recursive: true })
 
-// Blurred gameplay background (absolute file URL; space encoded).
-const BG = `file://${ROOT}/public/Live%20match.jpg`
+// Blurred gameplay background — the launch-safe clean team-select capture
+// (fictional teams/handles, clean portraits), heavily blurred so it reads as a
+// premium dark wash behind the wordmark.
+const BG = `file://${ROOT}/marketing/clean/roster.png`
 
 function css(): string {
     return `
