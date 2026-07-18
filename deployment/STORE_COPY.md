@@ -4,11 +4,17 @@ Paste into Steamworks → Store Page → Basic Info. Steam BBCode is used in the
 long description. Trim/tweak to taste, but keep it gameplay-focused (no
 overlays/awards in screenshots — Steam flagged that separately).
 
+Trademark-clean: this copy deliberately avoids "Counter-Strike"/"CS"/"CS2"
+(Valve trademarks) — same as the in-game sanitizer, which renders the genre as
+"Tactical FPS". It's positioned generically as a competitive/tactical-FPS
+manager. ("Major" is kept as a generic top-tier-tournament term, matching the
+in-game text; soften it to "World Final" if you want maximum distance.)
+
 ---
 
 ## Short description (≤ 300 chars — the elevator pitch under the trailer)
 
-> Build a Counter-Strike esports dynasty. Scout raw talent, sign stars, master the map pool, and out-draft rivals round-by-round — from open qualifiers to the Major stage. The deepest CS manager sim: tactics, transfers, sponsors, and glory.
+> Build a tactical-FPS esports dynasty. Scout raw talent, sign stars, master the map pool, and out-draft rivals round-by-round — from open qualifiers to the Major stage. The deepest competitive-FPS manager sim: tactics, transfers, sponsors, and glory.
 
 Alt (punchier):
 

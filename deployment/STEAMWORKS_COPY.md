@@ -32,7 +32,7 @@ Esports Manager: FPS offers a deep, immersive simulation of the professional esp
 
 Key Features:
 
-• Deep Tactical Simulation — Watch matches unfold in real-time with a detailed 2D match engine. Adjust strategies on the fly: call for a "Rush B", set up a "Double AWP" defense, or manage your economy to break the opponent's bank.
+• Deep Tactical Simulation — Watch matches unfold in real-time with a detailed 2D match engine. Adjust strategies on the fly: call a fast site rush, set up a double-sniper crossfire, or manage your economy to break the opponent's bank.
 
 • Global Scouting Network — Access a massive database of players across hundreds of teams. Filter by role (AWPer, IGL, Entry Fragger, Support, Rifler), age, and market value to find the perfect fit.
 
