@@ -144,20 +144,14 @@ export class TournamentManager {
                             .map(id => byId.get(id))
                             .filter((m): m is BracketMatchSaveData => !!m)
 
-                        const sourceWinners = sourceMatches
-                            .map(m => m.winnerId)
-                            .filter((id): id is string => typeof id === "string" && id.length > 0)
-
-                        if (!match.homeTeamId && sourceWinners[0]) {
-                            match.homeTeamId = sourceWinners[0]
-                            changed = true
-                        }
-                        if (!match.awayTeamId) {
-                            // Note: if this produces a self-match (awayCandidate === homeTeamId),
-                            // the guard at line ~154 will detect and auto-advance
-                            const awayCandidate = sourceWinners.find(id => id !== match.homeTeamId) || sourceWinners[1]
-                            if (awayCandidate) {
-                                match.awayTeamId = awayCandidate
+                        for (let slot = 0; slot < 2; slot++) {
+                            const source = sourceMatches[slot]
+                            const participant = source?.isCompleted
+                                ? (match.stage === "3rd Place Decider" ? source.loserId : source.winnerId)
+                                : undefined
+                            const key = slot === 0 ? 'homeTeamId' : 'awayTeamId'
+                            if (!match[key] && participant) {
+                                match[key] = participant
                                 changed = true
                             }
                         }
@@ -463,7 +457,7 @@ export class TournamentManager {
 
             for (const bracketMatch of tournament.playoffBracket) {
                 // Skip if already completed
-                if (bracketMatch.isCompleted) continue
+                if (bracketMatch.isCompleted || bracketMatch.week > save.currentWeek) continue
 
                 // Skip if missing teams
                 if (!bracketMatch.homeTeamId || !bracketMatch.awayTeamId) continue
@@ -497,7 +491,8 @@ export class TournamentManager {
                     stage: bracketMatch.stage,
                     week: bracketMatch.week,
                     format: bracketMatch.format,
-                    seed: bracketMatch.seed
+                    seed: bracketMatch.seed,
+                    day: save.scheduledMatches.find(m => m.id === bracketMatch.id)?.day ?? 5
                 }
 
                 const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
@@ -526,7 +521,7 @@ export class TournamentManager {
                 LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined)
 
                 // Process progression (assigns winner to next round)
-                this.handlePlayoffProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
+                this.routeRepairedProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
 
                 simulatedCount++
                 madeProgress = true
@@ -562,7 +557,7 @@ export class TournamentManager {
         const playerRound = playerRoundMatch ? playerRoundMatch[1] : null
 
         const concurrentMatches = save.scheduledMatches.filter(m => {
-            if (m.tournamentId !== tournamentId) return false
+            if (m.tournamentId !== tournamentId || m.week > save.currentWeek) return false
             if (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId) return false
 
             // Match by stage name
@@ -814,10 +809,12 @@ export class TournamentManager {
         // placement would run a second time and double-write tournament
         // state. Re-applying winnerId is fine — re-running progression
         // handlers (handleOpeningResult etc) is not.
-        if (bracketMatch.isCompleted && bracketMatch.winnerId === winnerId) {
+        if (bracketMatch.isCompleted) {
             return
         }
 
+        if (winnerId === loserId || ![bracketMatch.homeTeamId, bracketMatch.awayTeamId].includes(winnerId)
+            || ![bracketMatch.homeTeamId, bracketMatch.awayTeamId].includes(loserId)) return
         bracketMatch.isCompleted = true
         bracketMatch.winnerId = winnerId
         bracketMatch.loserId = loserId
@@ -850,21 +847,7 @@ export class TournamentManager {
                     tournament.mvpRating = mvp.avgRating
                 }
 
-                // Calculate Placements
-                const placements = this.calculatePlacements(save, tournament)
 
-                // Process Qualifications (Open -> Closed -> Main)
-                const baseTournamentId = tournament.id.replace(/_s\d+$/, "")
-                const baseDefinition =
-                    require("@/data/tournament-calendar").getTournamentById(baseTournamentId)
-                const qualifierContext = baseDefinition
-                    ? { ...baseDefinition, id: tournament.id }
-                    : { id: tournament.id }
-                save.tournamentQualifications = QualificationEngine.processQualifierResults(
-                    save.tournamentQualifications,
-                    qualifierContext,
-                    placements
-                )
             }
         }
     }
@@ -979,6 +962,18 @@ export class TournamentManager {
             remaining.forEach(s => placements.push({ teamId: s.teamId, position: nextPos++ }))
         }
 
+        if (tournament.format === "double_elim") {
+            const placed = new Set(placements.map(p => p.teamId))
+            const eliminationDepth = (teamId: string) => {
+                const loss = tournament.playoffBracket?.find(m => m.isCompleted && m.loserId === teamId && m.id.includes('_lower_'))
+                return loss?.id.includes('_lower_r2') ? 3 : loss?.id.includes('_lower_semi') ? 2 : 1
+            }
+            const remaining = tournament.teamIds.filter(id => !placed.has(id)).sort((a, b) =>
+                eliminationDepth(b) - eliminationDepth(a) || a.localeCompare(b))
+            let position = Math.max(0, ...placements.map(p => p.position)) + 1
+            remaining.forEach(teamId => placements.push({ teamId, position: position++ }))
+        }
+
         return placements.sort((a, b) => a.position - b.position)
     }
 
@@ -1035,9 +1030,9 @@ export class TournamentManager {
     }
 
     private static handlePlayoffProgression(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId?: string): void {
-        const nextMatch = tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.sourceMatchIds?.includes(match.id))
+        const nextMatch = tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.stage !== "3rd Place Decider" && m.sourceMatchIds?.includes(match.id))
         if (nextMatch) {
-            if (!nextMatch.homeTeamId) nextMatch.homeTeamId = winnerId
+            if (nextMatch.sourceMatchIds?.[0] === match.id) nextMatch.homeTeamId = winnerId
             else nextMatch.awayTeamId = winnerId
 
             // NOTE: Do NOT auto-simulate sibling matches here!
@@ -1054,7 +1049,7 @@ export class TournamentManager {
         if (match.stage.includes("Semi-final") && loserId) {
             const decider = tournament.playoffBracket?.find((m: BracketMatchSaveData) => m.stage === "3rd Place Decider")
             if (decider) {
-                if (!decider.homeTeamId) decider.homeTeamId = loserId
+                if (decider.sourceMatchIds?.[0] === match.id) decider.homeTeamId = loserId
                 else decider.awayTeamId = loserId
                 if (decider.homeTeamId && decider.awayTeamId) this.scheduleOrAutoAdvanceBracketMatch(save, tournament, decider)
             }
@@ -1186,31 +1181,12 @@ export class TournamentManager {
         for (let b = 0; b < byeCount; b++) sorted.push("BYE")
         // Apply standard tournament seeding (1v16, 8v9, 4v13, 5v12, ...)
         const applySeeding = (teams: string[]): string[] => {
-            const n = teams.length
-            if (n <= 2) return teams
-            const seeded: string[] = new Array(n)
-            for (let i = 0; i < n; i++) {
-                // Standard seeding positions
-                let pos: number
-                if (i === 0) pos = 0
-                else if (i === 1) pos = n - 1
-                else {
-                    // For remaining seeds, distribute evenly
-                    const half = Math.floor(n / 2)
-                    if (i % 2 === 0) pos = Math.floor(i / 2)
-                    else pos = n - 1 - Math.floor(i / 2)
-                }
-                seeded[pos] = teams[i]
+            let seeds = [1, 2]
+            while (seeds.length < teams.length) {
+                const complement = seeds.length * 2 + 1
+                seeds = seeds.flatMap(seed => [seed, complement - seed])
             }
-            // Fill any gaps with remaining teams (add slight randomness within tiers)
-            const remaining = teams.filter(t => !seeded.includes(t))
-            let rIdx = 0
-            for (let i = 0; i < n; i++) {
-                if (!seeded[i] && rIdx < remaining.length) {
-                    seeded[i] = remaining[rIdx++]
-                }
-            }
-            return seeded.filter(Boolean)
+            return seeds.slice(0, teams.length).map(seed => teams[seed - 1])
         }
         const shuffled = applySeeding(sorted)
         const totalRounds = Math.log2(numTeams)
@@ -1296,8 +1272,8 @@ export class TournamentManager {
         }
 
         // Add all matches to save
+        matches.forEach(m => this.addBracketMatch(tournament, m))
         matches.forEach(m => {
-            this.addBracketMatch(tournament, m)
             // Schedule only if ready and not already completed (BYE matches)
             if (m.homeTeamId && m.awayTeamId && !m.isCompleted) {
                 this.scheduleBracketMatch(save, m)

@@ -206,7 +206,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                             </div>
 
                             <div className="flex-1 bg-[#030303] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent border border-white/10 rounded-2xl overflow-hidden shadow-inner relative">
-                                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+                                <div className="absolute inset-0 premium-grid-texture opacity-20" />
                                 <TalentTree
                                     nodes={treeNodes}
                                     unlockedIds={staff.unlockedTalentIds || []}

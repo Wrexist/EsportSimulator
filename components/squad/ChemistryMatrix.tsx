@@ -146,7 +146,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
                             >
                                 <div className="w-full h-full rounded-full overflow-hidden relative">
                                     <PlayerPortrait
-                                        src={node.portraitPath}
+                                        src={node.portraitPath} seed={node.id}
                                         alt={node.nickname}
                                         size={48}
                                         className="w-full h-full"

@@ -1,6 +1,8 @@
 "use client"
 
+import { newFirstSession, restoreFirstSession, reviewFirstSession } from '@/lib/first-session'
 import type { SettingsState, SettingsActions, SliceCreator } from "@/store/types"
+import { useSettingsStore } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
 
 export const settingsInitialState: SettingsState = {
@@ -20,22 +22,32 @@ export const settingsInitialState: SettingsState = {
 }
 
 export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => ({
+  reviewGuideStep: (step) => { set(state => {
+    if (!state.playerTeamId) return
+    if (step === 'plan' && !state.selectedWeeklyActivity) return
+    if (step === 'match' && !state.completedMatches.some(m => m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId)) return
+    state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), step)
+    if (state.firstSession.status === 'complete') { state.onboardingCompleted = true; state.tutorialCompleted = true }
+  }); if (get().isInitialized) void get().saveGame?.() },
   completeOnboarding: () => {
     set({ onboardingCompleted: true })
   },
 
-  completeTutorial: () =>
+  completeTutorial: () => {
     set((state) => {
+      state.firstSession = { ...restoreFirstSession(state.firstSession), status: "dismissed" }
+      state.manualTutorialTrigger = 0
       state.tutorialCompleted = true
-    }),
+    }); if (get().isInitialized) void get().saveGame?.() },
 
-  triggerTutorial: () =>
+  triggerTutorial: () => {
     set((state) => {
-      state.manualTutorialTrigger = Date.now()
+      if (!state.isInitialized || !state.playerTeamId) return
+      state.firstSession = newFirstSession()
+      state.manualTutorialTrigger = 0
       state.tutorialCompleted = false
       state.onboardingCompleted = false
-      state.showTutorialOnNewGame = true
-    }),
+    }); if (get().isInitialized) void get().saveGame?.() },
 
   setShowTutorialOnNewGame: (enabled) =>
     set((state) => {
@@ -77,7 +89,11 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
 
   setDifficulty: (difficulty) => set({ difficulty }),
 
-  setAutoSave: (enabled) => set({ autoSave: enabled }),
+  // Compatibility entry point; all runtime consumers use settings-store.
+  setAutoSave: (enabled) => {
+    useSettingsStore.getState().setAutoSave(enabled)
+    set({ autoSave: enabled })
+  },
 
   setNotifications: (enabled) => set({ notifications: enabled }),
 

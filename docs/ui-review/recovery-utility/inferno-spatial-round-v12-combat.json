@@ -1,0 +1,40 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Inferno",
+  "scope": "One seeded 10-second 5v5 recovery with gunfire enabled; requires actual shots and successful screened pickup. Not full-match or real-game lineup certification.",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "fixtureSha256": "7adc054998ce80df9e3f5fd2b842934726e2e9cfa2c018cc8be2f7ff3c8ca046",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 131,
+  "shots": 5,
+  "damage": 122,
+  "minSeparation": 32.00087117645798,
+  "checks": [
+    {
+      "id": "inferno-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "231d14911b2283eba73a467ed3312dea6c1ee313cc415661400dc1382fbdfad4"
+}

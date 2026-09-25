@@ -1,0 +1,7 @@
+Only upload files from the matching numbered folder.
+01 STORE: Store graphical assets.
+02 LIBRARY: Library graphical assets; explicitly select Library Header for the 920x430 file.
+03 ABOUT: Description extra images, NEVER screenshots/capsules.
+04 APP ICONS: Steamworks application settings.
+05 EVENTS: Optional future event artwork.
+No source masters or gameplay screenshots are in this package.

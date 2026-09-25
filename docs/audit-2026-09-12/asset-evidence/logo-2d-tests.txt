@@ -1,0 +1,15 @@
+node.exe : PASS __tests__/team-logo-redesigns.test.ts
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/...designs.test.ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS __tests__/radar-controls-rendering.test.ts
+PASS __tests__/team-emblem-rendering.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        1.268 s, estimated 8 s
+Ran all test suites matching /radar-controls-rendering|team-logo-redesigns|team-emblem-rendering/i.

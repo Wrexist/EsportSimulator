@@ -1,0 +1,370 @@
+
+> esports-manager-sim@1.0.0 build
+> npm run clean && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build && npm run verify:worker-build
+
+
+> esports-manager-sim@1.0.0 clean
+> node scripts/clean-build.js
+
+Cleaning build directory: C:\Users\IsacC\EsportSimulator\.next
+Build directory cleaned successfully.
+   ▲ Next.js 15.5.25
+   - Experiments (use with caution):
+     · cpus: 1
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 55s
+   Linting and checking validity of types ...
+
+./app/api/console-log/route.ts
+35:9  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+35:9  Warning: Unexpected console statement.  no-console
+36:9  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+36:9  Warning: Unexpected console statement.  no-console
+37:9  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+37:9  Warning: Unexpected console statement.  no-console
+
+./app/career/page.tsx
+34:8  Warning: 'Image' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+45:9  Warning: 'hallOfFame' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+73:11  Warning: 'playerTeam' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+79:13  Warning: 'managedMatches' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+79:29  Warning: 'totalMatches' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+152:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+176:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/dev/map-builder/page.tsx
+5:37  Warning: 'Trash2' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/dev/page.tsx
+68:12  Warning: 'status' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+74:12  Warning: 'showHealthDetails' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/finances/page.tsx
+64:11  Warning: 'playerTeamId' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+213:25  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./app/load-game/page.tsx
+54:12  Warning: 'isLoading' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+345:108  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./app/main-menu/page.tsx
+25:8  Warning: 'Link' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+88:11  Warning: 'timeAgo' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+375:86  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/match/[id]/live/page.tsx
+288:9  Warning: 'playerTeam' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/match/[id]/tactics/page.tsx
+400:31  Warning: 'currentMatch' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/match/[id]/veto/page.tsx
+63:44  Warning: 'initialParams' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+67:31  Warning: 'getUpcomingMatches' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/new-game/create-team/page.tsx
+462:82  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+510:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+624:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+680:40  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+714:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/page.tsx
+38:29  Warning: 'saveId' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/rankings/page.tsx
+334:12  Warning: 'selectedTier' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+334:26  Warning: 'setSelectedTier' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/schedule/page.tsx
+56:5  Warning: 'eventsLog' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+57:5  Warning: 'isLoading' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+608:63  Warning: 'p' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+635:31  Warning: 'isBusyDay' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/schedule/staff-meeting/page.tsx
+143:9  Warning: 'scheduledActivities' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+360:52  Warning: 'i' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/scouting/page.tsx
+120:9  Warning: 'scoutedPlayers' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+127:9  Warning: 'watchlistedPlayerIds' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+196:11  Warning: 'getPlayerTeam' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/settings/page.tsx
+343:11  Warning: 'visibleAchievements' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/sponsorships/page.tsx
+33:5  Warning: 'isInitialized' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/staff/page.tsx
+47:9  Warning: 'players' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+49:9  Warning: 'hireStaff' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+67:11  Warning: 'playerTeam' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+107:11  Warning: 'handleFire' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/stats/page.tsx
+68:72  Warning: 'currentWeek' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/tournaments/page.tsx
+94:32  Warning: 'setSelectedTournament' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+154:15  Warning: 'masterList' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+191:11  Warning: 'tournamentsByWeek' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+851:43  Warning: 'isOnSchedule' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./app/tournaments/[id]/page.tsx
+244:11  Warning: 'completedMatchesById' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+716:61  Warning: 'podium' is never reassigned. Use 'const' instead.  prefer-const
+861:53  Warning: 'standings' is never reassigned. Use 'const' instead.  prefer-const
+
+./app/training/page.tsx
+577:72  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./app/transfers/page.tsx
+44:42  Warning: 'transferPlayer' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+44:58  Warning: 'currentWeek' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/celebration/SeasonRecapModal.tsx
+72:104  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/dashboard/NewsFeed.tsx
+85:23  Warning: 'player' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/dashboard/WeeklyFocusWidget.tsx
+13:11  Warning: 'isPlaying' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+15:11  Warning: 'currentSelection' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/debug/AnimationShowcase.tsx
+58:73  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+58:79  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+137:89  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+137:102  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./components/desktop-apps/AcademyApp.tsx
+57:7  Warning: 'TRAINING_FOCUS_CONFIG' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+520:165  Warning: 'onSetTraining' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+786:130  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+894:31  Warning: 'Icon' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+933:37  Warning: 'canPlayMatch' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+933:114  Warning: 'onGoToRoster' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+1034:32  Warning: 'players' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+1040:155  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/desktop-apps/CalendarApp.tsx
+190:61  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+338:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/desktop-apps/FacilitiesApp.tsx
+133:102  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/desktop-apps/MailApp.tsx
+41:11  Warning: 'toggleFilter' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+165:11  Warning: 'selectedEvent' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/desktop-apps/MarketApp.tsx
+58:31  Warning: 'events' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+58:39  Warning: 'onEventClick' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+60:43  Warning: 'contracts' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+60:83  Warning: 'startScoutingMission' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+60:105  Warning: 'activeScoutingMission' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/desktop-apps/ShopApp.tsx
+165:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/layout/GameShell.tsx
+39:130  Warning: 'timeMode' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+39:140  Warning: 'advanceDay' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+39:152  Warning: 'advanceWeek' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/layout/TopBar.tsx
+73:11  Warning: 'teamColors' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/match/LiveMatchScoreboard.tsx
+36:5  Warning: 'currentMapId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/match/TacticalLoadoutEditor.tsx
+26:7  Warning: 'ROLE_OPTIONS' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/onboarding/RosterBuilderModal.tsx
+217:12  Warning: 'isSkipping' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/player/player-detail.tsx
+33:5  Warning: 'Award' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+88:12  Warning: 'selectedWeaponForModal' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+689:51  Warning: 'levelNum' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+745:146  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/player/PlayerMatchHistory.tsx
+12:8  Warning: 'Image' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+20:54  Warning: 'players' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/player/RenewContractModal.tsx
+91:112  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/player/TransferListingModal.tsx
+9:8  Warning: 'Image' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/schedule/BookScrimModal.tsx
+134:105  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+134:118  Warning: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./components/schedule/TeamMatchPopup.tsx
+49:5  Warning: 'currentWeek' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/schedule/TournamentDetailsModal.tsx
+402:127  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/squad/ChemistryMatrix.tsx
+8:8  Warning: 'Image' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/tournament/TournamentBracket.tsx
+327:11  Warning: 'hasMultipleRounds' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/transfer/NegotiationModal.tsx
+4:8  Warning: 'Image' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+92:12  Warning: 'aiMood' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+223:13  Warning: 'baseSalary' is never reassigned. Use 'const' instead.  prefer-const
+
+./components/ui/animated-number.tsx
+78:8  Warning: React Hook useEffect has a missing dependency: 'animateOnMount'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/ui/BugReportButton.tsx
+239:14  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+376:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/ui/bulk-actions.tsx
+65:5  Warning: 'onSelectItem' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+66:5  Warning: 'onSelectAll' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+68:5  Warning: 'getItemId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+75:11  Warning: 'allSelected' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/ui/GlassTable.tsx
+77:5  Warning: 'max' is assigned a value but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/ui/ImageUploader.tsx
+200:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/ui/player-spider-chart.tsx
+30:7  Warning: 'CHART_COLORS' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./components/ui/TeamLogoDisplay.tsx
+59:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/ui/tutorial.tsx
+129:23  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+162:29  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+186:24  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./lib/debug-logger.ts
+11:9  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+11:9  Warning: Unexpected console statement.  no-console
+36:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+36:13  Warning: Unexpected console statement.  no-console
+43:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+43:13  Warning: Unexpected console statement.  no-console
+49:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+49:13  Warning: Unexpected console statement.  no-console
+56:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+56:13  Warning: Unexpected console statement.  no-console
+
+./lib/live-match-utils.ts
+253:9  Warning: 'nextHomeLossStreak' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+254:9  Warning: 'nextAwayLossStreak' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./lib/logger.ts
+21:64  Warning: 'args' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+46:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+46:13  Warning: Unexpected console statement.  no-console
+56:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+56:13  Warning: Unexpected console statement.  no-console
+87:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+87:13  Warning: Unexpected console statement.  no-console
+111:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+111:13  Warning: Unexpected console statement.  no-console
+117:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+117:13  Warning: Unexpected console statement.  no-console
+126:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+126:13  Warning: Unexpected console statement.  no-console
+132:13  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+132:13  Warning: Unexpected console statement.  no-console
+
+./lib/sound-manager.ts
+49:26  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/40) ...
+node.exe : [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailab
+le.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([zustand persis...ly unavailable.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   Generating static pages (10/40) 
+   Generating static pages (20/40) 
+   Generating static pages (30/40) 
+ ✓ Generating static pages (40/40)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    20.3 kB         445 kB
+├ ○ /_not-found                            167 B         103 kB
+├ ○ /academy                             6.94 kB         408 kB
+├ ○ /animations                          9.89 kB         161 kB
+├ ƒ /api/console-log                       167 B         103 kB
+├ ○ /basecamp                            7.56 kB         396 kB
+├ ○ /career                              17.4 kB         415 kB
+├ ○ /credits                             2.78 kB         146 kB
+├ ○ /desktop                             46.5 kB         597 kB
+├ ○ /dev                                 11.8 kB         359 kB
+├ ○ /dev/map-builder                     12.8 kB         127 kB
+├ ○ /dev/radar-preview                   19.2 kB         255 kB
+├ ○ /equipment                           10.7 kB         400 kB
+├ ○ /finances                            17.3 kB         412 kB
+├ ○ /fpl                                   14 kB         381 kB
+├ ○ /hall-of-fame                        11.9 kB         416 kB
+├ ○ /load-game                           6.07 kB         411 kB
+├ ○ /main-menu                           14.6 kB         437 kB
+├ ○ /manifest.webmanifest                  167 B         103 kB
+├ ○ /map-editor                          70.1 kB         184 kB
+├ ○ /map-editor/lab                      9.87 kB         124 kB
+├ ƒ /match/[id]/live                       31 kB         511 kB
+├ ƒ /match/[id]/result                   18.4 kB         433 kB
+├ ƒ /match/[id]/tactics                  10.2 kB         416 kB
+├ ƒ /match/[id]/veto                     13.3 kB         407 kB
+├ ○ /new-game                            15.3 kB         416 kB
+├ ○ /new-game/create-team                21.8 kB         456 kB
+├ ƒ /player/[id]                         31.1 kB         593 kB
+├ ○ /rankings                            20.9 kB         446 kB
+├ ○ /schedule                            31.9 kB         448 kB
+├ ○ /schedule/staff-meeting              8.56 kB         392 kB
+├ ○ /scouting                            18.8 kB         548 kB
+├ ○ /settings                            18.8 kB         423 kB
+├ ○ /settings/community-import           8.14 kB         355 kB
+├ ○ /sponsorships                        12.6 kB         396 kB
+├ ○ /squad                               9.82 kB         452 kB
+├ ○ /staff                               14.2 kB         453 kB
+├ ○ /stats                               16.6 kB         547 kB
+├ ○ /tournaments                         15.3 kB         409 kB
+├ ƒ /tournaments/[id]                    19.1 kB         431 kB
+├ ○ /training                            15.1 kB         452 kB
+├ ○ /transfers                           7.92 kB         450 kB
+└ ○ /trophies                            7.39 kB         396 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/1255-fa9db38f68b5f0e0.js      45.9 kB
+  ├ chunks/4bd1b696-182b6b13bdad92e3.js  54.2 kB
+  └ other shared chunks (total)          2.88 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> esports-manager-sim@1.0.0 verify:worker-build
+> node scripts/verify-worker-build.cjs
+
+PASS: production worker starts without browser globals (3444.f17e0ef51f12b656.js)

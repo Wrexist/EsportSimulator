@@ -59,7 +59,7 @@ export interface StaffManagementActions {
 export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = (set, get) => ({
     refreshStaffMarket: () => {
         set((state) => {
-            const rng = new SeededRNG(state.lastRngSeed || generateSeed())
+            const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
             state.marketStaff = StaffGenerator.generateWeeklyMarket(
                 state.currentWeek,
                 MARKET_SLOT_COUNT,
@@ -81,6 +81,9 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const staffMember = state.marketStaff[staffIndex]
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
+            if (state.staff.some(s => s.id === staffId) || state.teams.some(t => t.staffIds.includes(staffId))) {
+                result = { success: false, message: "This staff member is already employed." }; return
+            }
 
             // Negotiated terms or sensible defaults (full salary, 1 year,
             // 2 weeks' salary as sign-on bonus).
@@ -108,7 +111,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const duration = durationValidation.value
             const signingFee = signingFeeValidation.value
 
-            if (team.budget < signingFee) {
+            if (!Number.isFinite(team.budget) || team.budget < signingFee) {
                 result = { success: false, message: `Insufficient funds. Need $${signingFee}` }
                 return
             }
@@ -193,6 +196,17 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const normalizedSalary = salaryValidation.value
             const normalizedDuration = durationValidation.value
 
+            const team = state.teams.find(t => t.id === state.playerTeamId)
+            if (!team?.staffIds.includes(staffId) || (staff.contractEndWeek !== undefined && staff.contractEndWeek <= state.currentWeek)) {
+                result = { success: false, message: "This staff contract is no longer active. Hire them from the market instead." }
+                return
+            }
+            const reserve = Math.max(0, normalizedSalary - staff.salaryPerWeek) * 26
+            if (!Number.isFinite(team.budget) || team.budget < reserve) {
+                result = { success: false, message: "Insufficient cash reserve for the increased weekly staff salary." }
+                return
+            }
+
             staff.salaryPerWeek = normalizedSalary
             staff.contractEndWeek = state.currentWeek + normalizedDuration
             staff.yearsRemaining = Math.max(1, Math.ceil(normalizedDuration / 52))
@@ -210,6 +224,9 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
         const exists = current.staff.some(s => s.id === staffId)
         if (!exists) {
             throw new Error(`Cannot fire staff member: not found (id=${staffId})`)
+        }
+        if (!current.staff.some(s => s.id === staffId && s.teamId === current.playerTeamId)) {
+            throw new Error("You can only release your own staff.")
         }
 
         set((state) => {

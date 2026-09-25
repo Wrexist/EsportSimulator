@@ -1,0 +1,43 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "524690eaef843d145fd697623b170334e543f1f06e0efa4e08eac3d6b8a4c154",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": false,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 64.59375,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 300925,
+      "metrics": {
+        "shots": 60,
+        "damage": 800,
+        "reports": 49,
+        "waits": 487,
+        "replans": 74,
+        "minSeparation": 32.074096083356565
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "6f8827bc5b7d6be9942a28c8cb7e1f75c4fdf58e319130f974d8835e7b4b10dd"
+    }
+  ]
+}

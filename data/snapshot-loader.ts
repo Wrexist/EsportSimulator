@@ -26,6 +26,7 @@ import {
 } from "@/engine/save-types"
 import { FOUNDING_LEGENDS } from "@/engine/hall-of-fame-data"
 import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
+import { validateModReferences } from "@/electron/mod-content"
 import { loadModSnapshot, mergeSnapshot } from "@/engine/mod-loader"
 import { SeededRNG, generateSeed } from "@/engine/rng"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
@@ -145,7 +146,7 @@ export class SnapshotLoader {
             const mergedTeams = mergeSnapshot(teams, mod?.teams)
             const mergedTournaments = mergeSnapshot(tournaments, mod?.tournaments)
 
-            const snapshot: Snapshot = {
+            let snapshot: Snapshot = {
                 version: "1.0.0",
                 createdAt: new Date().toISOString(),
                 description: mod ? "Snapshot + Community Import" : "Snapshot",
@@ -155,6 +156,9 @@ export class SnapshotLoader {
                 sources,
             }
 
+            if (mod && (!validateSnapshot(snapshot) || validateModReferences(snapshot.players, snapshot.teams, snapshot.tournaments))) {
+                snapshot = { ...snapshot, description: "Snapshot (incompatible import skipped)", players, teams, tournaments }
+            }
             // Validate structure
             if (!validateSnapshot(snapshot)) {
                 return { success: false, error: "Invalid snapshot structure" }

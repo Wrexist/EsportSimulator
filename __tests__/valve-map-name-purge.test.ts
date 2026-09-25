@@ -14,7 +14,7 @@ import fs from "fs"
 import path from "path"
 
 import { MapId } from "@/types/enums"
-import { MAP_ASSET_FILENAMES, getMapAssetName } from "@/data/map-pool"
+import { MAP_ASSET_FILENAMES, getMapAssetName, getMapName } from "@/data/map-pool"
 import { MAPS } from "@/lib/asset-constants"
 import { MAP_LAYOUT_JSONS, getMapLayoutJson } from "@/data/map-layouts"
 
@@ -25,6 +25,9 @@ const REPO_ROOT = process.cwd()
 const DUST2_WHOLE_WORD = /(^|[^A-Za-z0-9_])dust2([^A-Za-z0-9_]|$)/i
 
 describe("Valve map-name purge (A15 VALVE_MAP_NAME)", () => {
+    it("uses the same Sandstone name as the saved map and veto", () => {
+        expect(getMapName(MapId.SANDSTONE)).toBe("Sandstone")
+    })
     it("resolves the Sandstone asset filename without 'dust2'", () => {
         expect(MAP_ASSET_FILENAMES[MapId.SANDSTONE]).toBe("sandstone")
         expect(getMapAssetName(MapId.SANDSTONE)).toBe("sandstone")

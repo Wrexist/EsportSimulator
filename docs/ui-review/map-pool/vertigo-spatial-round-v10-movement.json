@@ -1,0 +1,86 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Vertigo",
+  "fixtureSha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc",
+  "simulatorSourceSha256": "c6353468bce904100d5201260b243590e7b6e1c5e78eb6af2331cbde26996d6e",
+  "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 84.640625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 53225,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1481,
+        "waits": 4162,
+        "replans": 107,
+        "minSeparation": 32.00195972404301
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 13,
+      "routeFailures": [
+        {
+          "tick": 4144,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT5",
+          "side": "CT"
+        },
+        {
+          "tick": 4352,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 4784,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT3",
+          "point": [
+            -2302.75,
+            562.2074733753996,
+            11748
+          ],
+          "goal": [
+            -1189.339722,
+            862.16864,
+            11780
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T1",
+          "point": [
+            -2332.772054486474,
+            573.3122007361974,
+            11748
+          ],
+          "goal": [
+            -2320.8969578953797,
+            568.3747625624007,
+            11748
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "0b4da17089a3364ca3c2cd666b8d553fc07901a0048e0acfaead8a91a62c260c"
+    }
+  ]
+}

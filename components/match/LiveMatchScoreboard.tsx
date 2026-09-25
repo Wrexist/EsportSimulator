@@ -62,15 +62,15 @@ function LiveMatchScoreboardImpl({
     const awayBorderClass = "border-r-4 border-r-amber-400/45"
 
     return (
-        <div className="flex items-start justify-between mb-6 relative z-10" role="region" aria-label="Match scoreboard" aria-live="polite">
+        <div className="match-scoreboard flex justify-between relative z-10" role="region" aria-label="Match scoreboard" aria-live="polite">
             {/* HOME TEAM */}
-            <div className={cn("flex items-center gap-6 w-1/3 pl-3", homeBorderClass)}>
+            <div className={cn("score-team flex items-center pl-3", homeBorderClass)}>
                 <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden relative group">
                     <TeamLogoDisplay team={homeTeam} size={40} />
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div>
-                    <div className="text-xl font-normal uppercase">{homeTeam.name}</div>
+                    <div className="score-team-name uppercase">{homeTeam.name}</div>
                     <div
                         className="flex gap-1 mt-1"
                         role="img"
@@ -85,7 +85,7 @@ function LiveMatchScoreboardImpl({
 
             {/* SCORE */}
             <div className="flex flex-col items-center">
-                <div className="liquid-panel flex items-center gap-8 px-12 py-3 rounded-xl relative overflow-hidden">
+                <div className="score-core flex items-center rounded-xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
                     {/* Animated Home Score */}
@@ -149,9 +149,9 @@ function LiveMatchScoreboardImpl({
             </div>
 
             {/* AWAY TEAM */}
-            <div className={cn("flex items-center gap-6 w-1/3 justify-end text-right pr-3", awayBorderClass)}>
+            <div className={cn("score-team flex items-center justify-end text-right pr-3", awayBorderClass)}>
                 <div>
-                    <div className="text-xl font-normal uppercase">{awayTeam.name}</div>
+                    <div className="score-team-name uppercase">{awayTeam.name}</div>
                     <div
                         className="flex gap-1 mt-1 justify-end"
                         role="img"

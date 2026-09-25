@@ -1,0 +1,74 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Vertigo",
+  "fixtureSha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc",
+  "simulatorSourceSha256": "35c1736aa3730ccc7f25df86ac8dfa424324eaece096918a0f1277912494bb08",
+  "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 44.046875,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 22590,
+      "metrics": {
+        "shots": 63,
+        "damage": 774,
+        "reports": 66,
+        "waits": 545,
+        "replans": 58,
+        "minSeparation": 32.01420459280727
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "96bcffef5abe573222a93a9a02e2bded869cc151970634fa967415935e1435ba"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 68.96875,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 82922,
+      "metrics": {
+        "shots": 87,
+        "damage": 973,
+        "reports": 75,
+        "waits": 830,
+        "replans": 76,
+        "minSeparation": 32.01420459280727
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 704,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 2800,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "5eff79bbda3c332c180fe6e27c52f4a464d1196aac7cdd5eb8b0057cddf424ec"
+    }
+  ]
+}

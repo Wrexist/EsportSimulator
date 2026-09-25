@@ -1,0 +1,76 @@
+Browser tab: 1182233818, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/finances".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/finances
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/finances#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			41 button NEXT DAY
+			42 button SKIP WEEK
+		43 container main-content
+			145 container
+				146 container
+					147 image
+					148 container
+						149 text 63 HEALTH
+					150 text FINANCIAL COMMAND
+					151 heading EMPIRE'S LEDGER, Value: 1
+						152 text EMPIRE'S  LEDGER
+					153 text CASH BALANCE $0.50M $ 20,600 /wk RUNWAY ∞ Profitable WEEKLY P/L + $20.6k This Period CREDIT RATING Excellent AA
+			154 container
+				155 tab group
+					156 tab (selected, settable, boolean) Overview, Value: 1, ID: radix-:ri:-trigger-overview
+					157 tab (selectable, settable, boolean) Analytics, Value: 0, ID: radix-:ri:-trigger-analytics
+					158 tab (selectable, settable, boolean) Payroll, Value: 0, ID: radix-:ri:-trigger-payroll
+					159 tab (selectable, settable, boolean) Sponsors, Value: 0, ID: radix-:ri:-trigger-sponsors
+					160 tab (selectable, settable, boolean) Merch, Value: 0, ID: radix-:ri:-trigger-merch
+				161 container Description: Overview, ID: radix-:ri:-content-overview
+					162 container
+						163 text Income Streams Sponsorship Payouts $ 7,850
+						164 text Merchandise (Fanbase) $ 0
+						165 text League Revenue Share $ 15,000
+						166 text Projected Weekly Revenue $ 22,850
+					167 container
+						168 text Operational Costs Player & staff salaries $ 1,250
+						169 text Facilities & equipment $ 1,000
+						170 text Projected weekly expenses $ 2,250
+		142 button Report a Bug
+			143 text Report a Bug
+		144 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 27 link Description: Finances, URL: 127.0.0.1:3210/finances

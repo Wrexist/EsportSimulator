@@ -1,0 +1,1416 @@
+{
+  "scope": "Static literal image references. Comments excluded. Dynamic/mod/save paths need runtime checks. No legal clearance inferred.",
+  "references": 124,
+  "missing": 0,
+  "files": [
+    {
+      "asset": "/assets/badges/fire.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 478271,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/badges/ice.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 869081,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/badges/injury.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 826270,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/badges/legend.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 748938,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/equipment/equipment_armor_kevlar.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1733126,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/equipment/equipment_armor.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1700660,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/equipment/equipment_defuse.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1697561,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/events/ace.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1041440,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/events/clutch.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1138838,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/events/defuse.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 784705,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/events/headshot.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 315850,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/grenades/grenade_flash.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1510265,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/grenades/grenade_he.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 374229,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/grenades/grenade_molotov.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1531334,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/grenades/grenade_smoke.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1549046,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Bastion.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2173,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Cipherx.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2517,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Dupren.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2876,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Frosthaven.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2758,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Ironbark.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2939,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Kalvera.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2117,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Krolon.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2142,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Mirage.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 1756,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Niklaus.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2212,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Nocturn.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2629,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Pyren.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 3083,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Sentryx.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2191,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Shoen.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2517,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Sovran.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2004,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/V4ltz.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 1915,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/legends/Varden.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 2519,
+      "usedBy": [
+        "engine/hall-of-fame-data.ts",
+        "engine/legendary-players-data.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/eurora/logo.redesign.svg",
+      "exists": true,
+      "width": 100,
+      "height": 100,
+      "alpha": true,
+      "bytes": 277,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/eurora/logo.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 582,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/falconry/logo.redesign.svg",
+      "exists": true,
+      "width": 100,
+      "height": 100,
+      "alpha": true,
+      "bytes": 352,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/falconry/logo.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 495,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/perivesion/logo.redesign.svg",
+      "exists": true,
+      "width": 100,
+      "height": 100,
+      "alpha": true,
+      "bytes": 291,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/teams/perivesion/logo.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 375,
+      "usedBy": [
+        "lib/team-logo-redesigns.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/a_tier_trophy_1.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 533015,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/a_tier_trophy.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 685033,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/b_tier_trophy_1.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1997445,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/b_tier_trophy.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 831089,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/logo_eastern_major_2025.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 673,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/logo_northern_major_2025.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 661,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/logo_summer_open_colone_2025.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 678,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/logo_winter_open_katova_2025.svg",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 687,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/s_tier_trophy_1.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 605215,
+      "usedBy": [
+        "app/tournaments/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/s_tier_trophy.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 701027,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/trophy_gold_new.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 605215,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/tournaments/trophy_silver_new.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 549986,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/trophies/medal_bronze.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 733534,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/trophies/medal_gold.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 826121,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/trophies/medal_silver.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 770450,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/trophies/mvp_star.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 692385,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/ui/CT_Loadout.jpg",
+      "exists": true,
+      "width": 946,
+      "height": 544,
+      "alpha": false,
+      "bytes": 93847,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/ui/phone-wallpaper.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1536,
+      "alpha": false,
+      "bytes": 2105020,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/ui/T_Loadout.jpg",
+      "exists": true,
+      "width": 953,
+      "height": 550,
+      "alpha": false,
+      "bytes": 94075,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/headshot.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1681763,
+      "usedBy": [
+        "app/match/[id]/live/page.tsx"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_ak47.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1483565,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_aug.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 273115,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_awp.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1428828,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_deagle.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 230936,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_famas.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 235859,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_fiveseven.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 337752,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_galil.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 234882,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_glock.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 445967,
+      "usedBy": [
+        "app/match/[id]/live/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_m4a1s.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 185988,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_m4a4.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 1473265,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_mac10.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 307371,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_mag7.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 284520,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_mp7.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 240253,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_mp9.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 249298,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_p250.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 297192,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_p90.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 229267,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_usp.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 407879,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/assets/weapons/weapon_xm1014.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 185773,
+      "usedBy": [
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/branding/icon.png",
+      "exists": true,
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 59670,
+      "usedBy": [
+        "app/manifest.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/backgrounds/club-campus-dusk.webp",
+      "exists": true,
+      "width": 1672,
+      "height": 941,
+      "alpha": false,
+      "bytes": 238212,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/backgrounds/club-overview-hq.webp",
+      "exists": true,
+      "width": 1672,
+      "height": 941,
+      "alpha": false,
+      "bytes": 159600,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/backgrounds/match-command-arena.webp",
+      "exists": true,
+      "width": 1672,
+      "height": 941,
+      "alpha": false,
+      "bytes": 113374,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/backgrounds/scouting-war-room.webp",
+      "exists": true,
+      "width": 1672,
+      "height": 941,
+      "alpha": false,
+      "bytes": 108120,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/chair-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 30818,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/chair-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 30042,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/chair-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 24550,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/headset-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 54830,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/headset-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 38594,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/headset-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 30784,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/keyboard-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 39592,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/keyboard-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 38012,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/keyboard-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 33614,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/monitor-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 23650,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/monitor-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 18298,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/monitor-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 21620,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/mouse-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 44510,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/mouse-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 33094,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/mouse-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 28336,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/pc-elite.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 47824,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/pc-pro.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 30772,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/equipment/tiers/pc-standard.webp",
+      "exists": true,
+      "width": 640,
+      "height": 480,
+      "alpha": true,
+      "bytes": 24324,
+      "usedBy": [
+        "engine/equipment-manager.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/facilities/facility-a-00.webp",
+      "exists": true,
+      "width": 992,
+      "height": 397,
+      "alpha": false,
+      "bytes": 75332,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/facilities/facility-a-01.webp",
+      "exists": true,
+      "width": 991,
+      "height": 397,
+      "alpha": false,
+      "bytes": 82638,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/facilities/facility-a-02.webp",
+      "exists": true,
+      "width": 992,
+      "height": 396,
+      "alpha": false,
+      "bytes": 86414,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/esport-ui-assets/facilities/facility-a-03.webp",
+      "exists": true,
+      "width": 991,
+      "height": 396,
+      "alpha": false,
+      "bytes": 71246,
+      "usedBy": [
+        "lib/ui-assets.ts"
+      ]
+    },
+    {
+      "asset": "/logo.png",
+      "exists": true,
+      "width": 512,
+      "height": 512,
+      "alpha": true,
+      "bytes": 212631,
+      "usedBy": [
+        "app/layout.tsx",
+        "app/main-menu/page.tsx",
+        "app/manifest.ts",
+        "app/new-game/page.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/ancient.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 1031773,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/anubis.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 910398,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/de_ancient_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 25068,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_anubis_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 40594,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_inferno_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 27748,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_mirage_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 32590,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_nuke_lower_radar_psd_2.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 19310,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_nuke_radar_psd_1.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 24062,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_overpass_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 60462,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_sandstone_radar_psd.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 29662,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_vertigo_lower_radar_psd_2.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 32572,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/de_vertigo_radar_psd_1.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 25138,
+      "usedBy": [
+        "components/match/MapRadarPanel.tsx"
+      ]
+    },
+    {
+      "asset": "/maps/inferno.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 1011889,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/mirage.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 839631,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/nuke.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 764168,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/overpass.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 1135908,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/sandstone.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 885916,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/maps/vertigo.png",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": false,
+      "bytes": 886803,
+      "usedBy": [
+        "app/match/[id]/veto/page.tsx",
+        "lib/asset-constants.ts"
+      ]
+    },
+    {
+      "asset": "/player_placeholder.webp",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 59776,
+      "usedBy": [
+        "components/ui/unified-portrait.tsx",
+        "engine/fpl-player-generator.ts",
+        "engine/legendary-players-data.ts",
+        "engine/prospect-generator.ts",
+        "engine/save-manager.ts",
+        "lib/asset-constants.ts",
+        "lib/asset-utils.ts"
+      ]
+    },
+    {
+      "asset": "/staff_placeholder.webp",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 64834,
+      "usedBy": [
+        "components/staff/StaffDetailsModal.tsx",
+        "components/staff/StaffNegotiationModal.tsx",
+        "components/ui/unified-portrait.tsx",
+        "lib/asset-constants.ts",
+        "lib/asset-utils.ts"
+      ]
+    },
+    {
+      "asset": "/team_placeholder.webp",
+      "exists": true,
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 59582,
+      "usedBy": [
+        "app/main-menu/page.tsx",
+        "app/new-game/page.tsx",
+        "components/desktop-apps/ShopApp.tsx",
+        "components/desktop-apps/SocialApp.tsx",
+        "components/ui/unified-portrait.tsx",
+        "lib/asset-constants.ts",
+        "lib/asset-utils.ts"
+      ]
+    }
+  ]
+}

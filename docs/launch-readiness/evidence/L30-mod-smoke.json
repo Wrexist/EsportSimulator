@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "directory": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l30-mod-smoke\\run-cuS1gX",
+  "teams": 198,
+  "players": 1368,
+  "portraits": 1323,
+  "cases": [
+    "Actual desktop import handler",
+    "Snapshot overlay and asset URL mapping",
+    "In-memory career creation",
+    "Hydration identity preservation",
+    "Explicit unmodded base fallback"
+  ],
+  "limitations": [
+    "No owner career/storage opened",
+    "No Steam client calls",
+    "No renderer visual acceptance or packaged testing",
+    "Real Workshop subscription/update lifecycle remains untested"
+  ]
+}

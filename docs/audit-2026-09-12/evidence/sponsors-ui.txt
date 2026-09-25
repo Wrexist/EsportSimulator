@@ -1,0 +1,100 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/sponsorships".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/sponsorships
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/sponsorships#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading SPONSORSHIP MANAGER, Value: 1
+				144 text SPONSORSHIP MANAGER
+			145 text Manage partnerships and maximize your sponsorship revenue.
+			146 container
+				147 text WEEKLY INCOME $ 0
+			148 text 0 / 3  Slots
+			149 heading Active Partnerships, Value: 2
+				150 text Active Partnerships
+			151 text Empty Slot
+			152 text Browse offers below to sign a sponsor
+			153 text Empty Slot
+			154 text Browse offers below to sign a sponsor
+			155 text Empty Slot
+			156 text Browse offers below to sign a sponsor
+			157 heading Sponsor Tiers World Rank #154, Value: 2
+				158 text Sponsor Tiers World Rank # 154
+			159 container
+				160 text STANDARD 1×  income Entry deals — always available. ✓ AVAILABLE
+			161 container
+				162 text PREMIUM 2.5×  income Bigger brands — requires a Top 30 world ranking. REACH TOP 30
+			163 container
+				164 text ELITE 6×  income Top global deals — requires Top 10 (or a Major). REACH TOP 10
+			165 heading Available Offers Refreshed weekly, Value: 2
+				166 text Available Offers Refreshed weekly
+			167 container
+				168 heading Raven Esports, Value: 3
+					169 text Raven Esports
+				170 text STANDARD 4,199 PER WEEK 22  weeks PERFORMANCE BONUSES Gain Followers  ( 1000 ) +$ 2,000
+				171 button Accept
+				172 button Decline offer
+			173 container
+				174 heading Visto Esports, Value: 3
+					175 text Visto Esports
+				176 text STANDARD 9,507 PER WEEK 22  weeks BRAND EFFECTS — a weekly trade-off +0.2 Rep/wk +0.2 Morale/wk +500 Fans/wk PERFORMANCE BONUSES Win Matches  ( 5 ) +$ 5,000
+				177 button Accept
+				178 button Decline offer
+			179 container
+				180 text Requires Top 30 World Ranking
+				181 heading HyperZ Esports, Value: 3
+					182 text HyperZ Esports
+				183 text PREMIUM 7,914 PER WEEK 26  weeks Top 30 Ranking PERFORMANCE BONUSES Win Matches  ( 10 ) +$ 10,000 Win Tournament maps  ( 20 ) +$ 16,000
+				184 button (disabled) Accept
+				185 button (disabled) Decline offer
+			186 container
+				187 text Requires Top 10 Ranking or Major Participation
+				188 heading Hondrive Global, Value: 3
+					189 text Hondrive Global
+				190 text ELITE 12,255 PER WEEK 46  weeks Top 10 Ranking or Major Participant BRAND EFFECTS — a weekly trade-off +0.2 Rep/wk +0.2 Morale/wk +500 Fans/wk PERFORMANCE BONUSES Maintain Morale > 80  ( 20 ) +$ 15,000 Win Tournament maps  ( 50 ) +$ 40,000 Win Matches  ( 25 ) +$ 25,000
+				191 button (disabled) Accept
+				192 button (disabled) Decline offer
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 28 link Description: Sponsors, URL: 127.0.0.1:3210/sponsorships

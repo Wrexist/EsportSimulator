@@ -1,0 +1,9 @@
+{
+  "source": "https://flagcdn.com/uz.svg",
+  "path": "public/assets/flags/uz.svg",
+  "sha256": "7ce6e8b7f4dd2a5bc050f9e538d22fde2fd371df15b751e48a29c1c3cb3df00b",
+  "priorSha256": "f57c945faf4df0178b8484aa3533fdc5d7d730790f0369f8869d48104c999603",
+  "backup": "tmp/artwork-source-check/uz-original-mislabeled.webp",
+  "permissionSource": "https://flagpedia.net/download",
+  "reason": "Replace WebP bytes incorrectly named .svg with original vendor SVG; no raster editing."
+}

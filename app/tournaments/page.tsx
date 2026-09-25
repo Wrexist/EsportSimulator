@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo, useState } from "react"
+import { useRouteViewState } from "@/hooks/use-route-view-state"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import Image from "next/image"
@@ -90,10 +91,11 @@ export default function TournamentsPage() {
 
     const router = useRouter()
 
-    const [activeTab, setActiveTab] = useState<ViewTab>("ALL")
+    const viewCareerId = useGameStore(state => state.saveId)
+    const [activeTab, setActiveTab] = useRouteViewState<ViewTab>(viewCareerId, "tournaments:tab", "ALL")
     const [selectedTournament, setSelectedTournament] = useState<TournamentDefinition | null>(null)
-    const [searchTerm, setSearchTerm] = useState("")
-    const [view, setView] = useState<"cards" | "bracket" | "standings">("cards")
+    const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "tournaments:search", "")
+    const [view, setView] = useRouteViewState<"cards" | "bracket" | "standings">(viewCareerId, "tournaments:view", "cards")
 
     const toSeriesId = (id: string) => id.replace(/_s\d+$/, "")
     const isQualificationForSeries = (q: QualificationStatus, tournamentId: string) => {
@@ -201,7 +203,7 @@ export default function TournamentsPage() {
     const getEligibility = (tournament: TournamentDefinition) => {
         if (!playerTeam) return null
         return QualificationEngine.checkEligibility(
-            tournament,
+            { ...tournament, id: buildInstanceId(tournament.id, getSeasonFromWeek(currentWeek)) },
             playerTeam,
             playerRanking,
             circuitPoints,
@@ -536,7 +538,7 @@ export default function TournamentsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2 flex items-center gap-4">
+                    <h1 className="page-title mb-2 flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2 shadow-2xl backdrop-blur-sm">
                             <Image
                                 src="/assets/tournaments/s_tier_trophy_1.png"

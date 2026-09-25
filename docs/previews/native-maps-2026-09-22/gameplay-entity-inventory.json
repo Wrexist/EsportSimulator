@@ -1,0 +1,75 @@
+{
+  "Ancient": {
+    "env_player_visibility": 1,
+    "func_bomb_target": 2,
+    "func_clip_vphysics": 3,
+    "func_nav_markup": 1,
+    "func_water": 3,
+    "info_player_counterterrorist": 12,
+    "info_player_terrorist": 12,
+    "prop_physics_multiplayer": 10
+  },
+  "Anubis": {
+    "env_player_visibility": 1,
+    "func_bomb_target": 2,
+    "func_nav_markup": 1,
+    "func_water": 4,
+    "info_player_counterterrorist": 16,
+    "info_player_terrorist": 16
+  },
+  "Inferno": {
+    "env_player_visibility": 1,
+    "func_bomb_target": 2,
+    "func_clip_vphysics": 6,
+    "func_nav_blocker": 5,
+    "func_nav_markup": 1,
+    "func_water": 1,
+    "info_player_counterterrorist": 20,
+    "info_player_terrorist": 20,
+    "prop_door_rotating": 1,
+    "prop_physics_multiplayer": 395
+  },
+  "Nuke": {
+    "func_bomb_target": 2,
+    "func_breakable": 2,
+    "func_clip_vphysics": 6,
+    "func_nav_blocker": 4,
+    "func_nav_markup": 1,
+    "func_water": 1,
+    "info_player_counterterrorist": 20,
+    "info_player_terrorist": 20,
+    "prop_door_rotating": 4,
+    "prop_physics_multiplayer": 25
+  },
+  "Overpass": {
+    "env_player_visibility": 1,
+    "func_bomb_target": 2,
+    "func_clip_vphysics": 14,
+    "func_nav_blocker": 4,
+    "func_nav_markup": 1,
+    "info_player_counterterrorist": 20,
+    "info_player_terrorist": 24,
+    "prop_door_rotating": 1,
+    "prop_physics_multiplayer": 70
+  },
+  "Sandstone": {
+    "cs2_bomb_damage": 1,
+    "func_bomb_target": 2,
+    "func_clip_vphysics": 1,
+    "func_nav_markup": 1,
+    "info_player_counterterrorist": 15,
+    "info_player_terrorist": 15,
+    "prop_physics_multiplayer": 1
+  },
+  "Vertigo": {
+    "func_bomb_target": 2,
+    "func_clip_vphysics": 16,
+    "func_door_rotating": 2,
+    "func_nav_blocker": 6,
+    "func_nav_markup": 1,
+    "info_player_counterterrorist": 15,
+    "info_player_terrorist": 15,
+    "prop_physics_multiplayer": 80,
+    "trigger_bomb_reset": 6
+  }
+}

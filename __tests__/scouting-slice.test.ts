@@ -42,7 +42,7 @@ function makeHarness(initial: Partial<StoreState>) {
 function makeTeam(id: string, overrides: Partial<TeamSaveData> = {}): TeamSaveData {
     return {
         id, name: id, shortName: id.slice(0, 4).toUpperCase(),
-        budget: 100_000, rosterIds: [], staffIds: [],
+        budget: 100_000, rosterIds: [], staffIds: ["scout_player"],
         trophies: [], facilities: [], sponsors: [],
         fanbase: 1000, playstyle: "default", reputation: 50,
         region: "EU", facilitiesLevel: 1, leagueTier: "B_TIER",
@@ -63,7 +63,7 @@ function makeScout(teamId: string | undefined, level: number, id = `scout_${team
 function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState> {
     return {
         teams: [makeTeam("player", { budget: 100_000, rosterIds: ["own_p1"] })],
-        players: [],
+        players: [{ id: "p_target", nickname: "Target" }, { id: "p1", nickname: "Shortlist" }] as never[],
         contracts: [],
         staff: [],
         scoutedPlayers: [],
@@ -131,22 +131,23 @@ describe("startScoutingMission", () => {
         expect(h.state().activeScoutingMission!.completionWeek).toBe(5 + 1)
     })
 
-    test("no scout on staff falls back to default_scout id", () => {
+    test("no scout rejects without charging", () => {
         const h = makeHarness(makeBaseState({ staff: [] }))
         const slice = createScoutingSlice(h.set, h.get)
         slice.startScoutingMission("p_target")
-        expect(h.state().activeScoutingMission!.scoutId).toBe("default_scout")
+        expect(h.state().activeScoutingMission).toBeUndefined()
+        expect(h.state().teams[0].budget).toBe(100_000)
     })
 
-    test("scout on a different team is used as fallback when player team has none", () => {
+    test("rival scout cannot be borrowed", () => {
         const h = makeHarness(makeBaseState({
             staff: [makeScout("rival", 3)],
         }))
         const slice = createScoutingSlice(h.set, h.get)
         slice.startScoutingMission("p_target")
         // 5 - 3 = 2-week duration
-        expect(h.state().activeScoutingMission!.completionWeek).toBe(5 + 2)
-        expect(h.state().activeScoutingMission!.scoutId).toBe("scout_rival")
+        expect(h.state().activeScoutingMission).toBeUndefined()
+        expect(h.state().teams[0].budget).toBe(100_000)
     })
 
     test("active mission already exists → silent no-op", () => {

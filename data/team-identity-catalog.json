@@ -1,0 +1,2378 @@
+[
+  {
+    "id": "team_1_vitalis",
+    "name": "Vitalis",
+    "shortName": "VIT",
+    "logoPath": "/assets/teams/vitalis/logo.svg",
+    "branding": {
+      "primaryColor": "#FFEE00",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_2_foria",
+    "name": "Furiax",
+    "shortName": "FUR",
+    "logoPath": "/assets/teams/foria/logo.svg",
+    "branding": {
+      "primaryColor": "#000000",
+      "secondaryColor": "#1A1A1A",
+      "accentColor": "#00C896",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_3_falconry",
+    "name": "Falcone",
+    "shortName": "FAL",
+    "logoPath": "/assets/teams/falconry/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_4_muxeen",
+    "name": "Mouze",
+    "shortName": "MOU",
+    "logoPath": "/assets/teams/muxeen/logo.svg",
+    "branding": {
+      "primaryColor": "#E2061B",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_5_phantom",
+    "name": "Spiryt",
+    "shortName": "SPI",
+    "logoPath": "/assets/teams/phantom/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#1F0A2E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_6_perivesion",
+    "name": "Paravision",
+    "shortName": "PAR",
+    "logoPath": "/assets/teams/perivesion/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_7_phaze",
+    "name": "Phaze",
+    "shortName": "PHA",
+    "logoPath": "/assets/teams/phaze/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_8_natusvincera",
+    "name": "Natus Vincera",
+    "shortName": "NAT",
+    "logoPath": "/assets/teams/natus_vincera/logo.svg",
+    "branding": {
+      "primaryColor": "#FFD700",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_9_gtwo",
+    "name": "G3",
+    "shortName": "G3",
+    "logoPath": "/assets/teams/g_two/logo.svg",
+    "branding": {
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#DC2626",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_10_thenomads",
+    "name": "The Mongalz",
+    "shortName": "MON",
+    "logoPath": "/assets/teams/the_nomads/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_11_eurora",
+    "name": "Auroria",
+    "shortName": "AUR",
+    "logoPath": "/assets/teams/eurora/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#A855F7",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_12_astraflux",
+    "name": "Astralys",
+    "shortName": "AST",
+    "logoPath": "/assets/teams/astraflux/logo.svg",
+    "branding": {
+      "primaryColor": "#1E40AF",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_13_3dmax",
+    "name": "3DMaxx",
+    "shortName": "3DM",
+    "logoPath": "/assets/teams/3dmax/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_14_fut",
+    "name": "Futura",
+    "shortName": "FUT",
+    "logoPath": "/assets/teams/fut/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_15_centuryrogues",
+    "name": "100 Rogues",
+    "shortName": "100",
+    "logoPath": "/assets/teams/century_rogues/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_15_tide",
+    "name": "Liquis",
+    "shortName": "LIQ",
+    "logoPath": "/assets/teams/tide/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_16_b8",
+    "name": "B9",
+    "shortName": "B9",
+    "logoPath": "/assets/teams/b8/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_17_pazsyonoa",
+    "name": "Pession UA",
+    "shortName": "PES",
+    "logoPath": "/assets/teams/pazsyon_oa/logo.svg",
+    "branding": {
+      "primaryColor": "#FCD34D",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#1E3A8A",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_18_sting",
+    "name": "payN",
+    "shortName": "PAY",
+    "logoPath": "/assets/teams/sting/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_19_nrg",
+    "name": "NRGX",
+    "shortName": "NRG",
+    "logoPath": "/assets/teams/nrg/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_20_gamerleague",
+    "name": "Gamer Legionnaires",
+    "shortName": "GAM",
+    "logoPath": "/assets/teams/gamer_league/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_21_novainvaders",
+    "name": "Ninjas in Nightwear",
+    "shortName": "NIN",
+    "logoPath": "/assets/teams/nova_invaders/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_22_valiant",
+    "name": "Heroiq",
+    "shortName": "HER",
+    "logoPath": "/assets/teams/valiant/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_22_virtusnova",
+    "name": "Virtus Nova",
+    "shortName": "VIR",
+    "logoPath": "/assets/teams/virtus_nova/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_23_imperius",
+    "name": "Imperia",
+    "shortName": "IMP",
+    "logoPath": "/assets/teams/imperius/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_24_a81",
+    "name": "M81",
+    "shortName": "M81",
+    "logoPath": "/assets/teams/a81/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_25_lineage",
+    "name": "Legacia",
+    "shortName": "LEG",
+    "logoPath": "/assets/teams/lineage/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FCD34D",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_26_bkkame",
+    "name": "BC.Geme",
+    "shortName": "BCG",
+    "logoPath": "/assets/teams/bk_kame/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_27_gantlemotex",
+    "name": "Gintle Mates",
+    "shortName": "GIN",
+    "logoPath": "/assets/teams/gantle_motex/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FACC15",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_28_mbesports",
+    "name": "MIBRX",
+    "shortName": "MIB",
+    "logoPath": "/assets/teams/mb_esports/logo.svg",
+    "branding": {
+      "primaryColor": "#4ADE80",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FACC15",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_29_flycrest",
+    "name": "FlyCrest",
+    "shortName": "FLY",
+    "logoPath": "/assets/teams/flycrest/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_30_taroo",
+    "name": "TYLOU",
+    "shortName": "TYL",
+    "logoPath": "/assets/teams/taroo/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_31_argongra",
+    "name": "Montra",
+    "shortName": "MO2",
+    "logoPath": "/assets/teams/argongra/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_32_boombyte",
+    "name": "BetBloom",
+    "shortName": "BET",
+    "logoPath": "/assets/teams/boombyte/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_33_phanatic",
+    "name": "Fnatix",
+    "shortName": "FNA",
+    "logoPath": "/assets/teams/phanatic/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_34_iyeballars",
+    "name": "IYEBALLERS",
+    "shortName": "IYE",
+    "logoPath": "/assets/teams/iyeballars/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_35_hatual",
+    "name": "HUTU",
+    "shortName": "HUT",
+    "logoPath": "/assets/teams/hatual/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_36_lynxvision",
+    "name": "Lynne Vision",
+    "shortName": "LYN",
+    "logoPath": "/assets/teams/lynx_vision/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_37_besteayx",
+    "name": "BISTIA",
+    "shortName": "BIS",
+    "logoPath": "/assets/teams/besteayx/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_38_redwolves",
+    "name": "RID Canids",
+    "shortName": "RID",
+    "logoPath": "/assets/teams/red_wolves/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_39_hammerheads",
+    "name": "Sherks",
+    "shortName": "SHE",
+    "logoPath": "/assets/teams/hammerheads/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_40_x27",
+    "name": "K27x",
+    "shortName": "K27",
+    "logoPath": "/assets/teams/x27/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_41_9ink",
+    "name": "9Nine",
+    "shortName": "9NI",
+    "logoPath": "/assets/teams/9ink/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_42_9zed",
+    "name": "9Zed",
+    "shortName": "9ZE",
+    "logoPath": "/assets/teams/9zed/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_43_nocliartijeres",
+    "name": "Noclear TigeRES",
+    "shortName": "NOC",
+    "logoPath": "/assets/teams/nocliar_tijeres/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_44_ennarcercla",
+    "name": "Ynner Circle",
+    "shortName": "YNN",
+    "logoPath": "/assets/teams/ennar_cercla/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_45_nimeses",
+    "name": "Nimesis",
+    "shortName": "NIM",
+    "logoPath": "/assets/teams/nimeses/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_46_illwill",
+    "name": "yllwill",
+    "shortName": "YLL",
+    "logoPath": "/assets/teams/illwill/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_47_oddyx",
+    "name": "UDDIK",
+    "shortName": "UDD",
+    "logoPath": "/assets/teams/oddyx/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_49_vuqa",
+    "name": "Vuca",
+    "shortName": "VUC",
+    "logoPath": "/assets/teams/vuqa/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_50_iqstatical",
+    "name": "ICSTATIC",
+    "shortName": "ICS",
+    "logoPath": "/assets/teams/iqstatical/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_51_aramund",
+    "name": "Uramond",
+    "shortName": "URA",
+    "logoPath": "/assets/teams/aramund/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_52_overgrowth",
+    "name": "UG",
+    "shortName": "UG",
+    "logoPath": "/assets/teams/overgrowth/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_53_morsborni",
+    "name": "Mersborne",
+    "shortName": "MER",
+    "logoPath": "/assets/teams/morsborni/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_55_namega",
+    "name": "Nimiga",
+    "shortName": "NI2",
+    "logoPath": "/assets/teams/namega/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_56_kinone",
+    "name": "GinOne",
+    "shortName": "GI2",
+    "logoPath": "/assets/teams/kinone/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_57_ixrubyel",
+    "name": "ix-RUBY",
+    "shortName": "IXR",
+    "logoPath": "/assets/teams/ix_rubyel/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_58_cybershoci",
+    "name": "CYBIRSHOKE",
+    "shortName": "CYB",
+    "logoPath": "/assets/teams/cybershoci/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_59_trycked",
+    "name": "Trycked",
+    "shortName": "TRY",
+    "logoPath": "/assets/teams/trycked/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_60_arcredra",
+    "name": "ERCRED",
+    "shortName": "ERC",
+    "logoPath": "/assets/teams/arcredra/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_62_vriendlycampirs",
+    "name": "Fryendly Campers",
+    "shortName": "FRY",
+    "logoPath": "/assets/teams/vriendly_campirs/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_63_bigkings",
+    "name": "BIGG",
+    "shortName": "BIG",
+    "logoPath": "/assets/teams/big_kings/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_64_goimingladiaturs",
+    "name": "Geimin Gladiators",
+    "shortName": "GEI",
+    "logoPath": "/assets/teams/goimin_gladiaturs/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_65_xennersia",
+    "name": "SYNNERS",
+    "shortName": "SYN",
+    "logoPath": "/assets/teams/xennersia/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_66_fluxion",
+    "name": "Floxo",
+    "shortName": "FLO",
+    "logoPath": "/assets/teams/fluxion/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_67_thahonz",
+    "name": "Thi Huns",
+    "shortName": "THI",
+    "logoPath": "/assets/teams/tha_honz/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_68_vavbator",
+    "name": "FEVBET",
+    "shortName": "FEV",
+    "logoPath": "/assets/teams/vavbator/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_69_muxenxd",
+    "name": "MUUZ NXT",
+    "shortName": "MUU",
+    "logoPath": "/assets/teams/muxe_nxd/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_70_500ro",
+    "name": "500x",
+    "shortName": "500",
+    "logoPath": "/assets/teams/500ro/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_70_ance",
+    "name": "ENZE",
+    "shortName": "ENZ",
+    "logoPath": "/assets/teams/ance/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_72_33or",
+    "name": "33x",
+    "shortName": "33X",
+    "logoPath": "/assets/teams/33or/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_72_rareelement",
+    "name": "Rere Atom",
+    "shortName": "RER",
+    "logoPath": "/assets/teams/rare_element/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_73_jahnnyspieds",
+    "name": "Juhnny Speeds",
+    "shortName": "JUH",
+    "logoPath": "/assets/teams/jahnny_spieds/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_74_naxvaid",
+    "name": "NIXVOID",
+    "shortName": "NIX",
+    "logoPath": "/assets/teams/naxvaid/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_75_wildace",
+    "name": "Wyldcard",
+    "shortName": "WYL",
+    "logoPath": "/assets/teams/wild_ace/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_76_alliankaia",
+    "name": "Elliance",
+    "shortName": "ELL",
+    "logoPath": "/assets/teams/alliankaia/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_77_1win",
+    "name": "1wyn",
+    "shortName": "1WY",
+    "logoPath": "/assets/teams/1win/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_78_xashy",
+    "name": "Seshi",
+    "shortName": "SES",
+    "logoPath": "/assets/teams/xashy/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_79_jijyahao",
+    "name": "JyJieHao",
+    "shortName": "JYJ",
+    "logoPath": "/assets/teams/jijyahao/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_80_batm",
+    "name": "BIT-M",
+    "shortName": "BIT",
+    "logoPath": "/assets/teams/bat_m/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_81_begiaacademy",
+    "name": "BIGG Academy",
+    "shortName": "BI2",
+    "logoPath": "/assets/teams/begia_academy/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_82_marnengstar",
+    "name": "Murningstar",
+    "shortName": "MUR",
+    "logoPath": "/assets/teams/marnengstar/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_83_chinjkiswarryars",
+    "name": "Chynggis Warriors",
+    "shortName": "CHY",
+    "logoPath": "/assets/teams/chinjkis_warryars/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_84_k2erex",
+    "name": "G3 Ares",
+    "shortName": "G3A",
+    "logoPath": "/assets/teams/k2_erex/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_85_urso",
+    "name": "Orsa",
+    "shortName": "ORS",
+    "logoPath": "/assets/teams/urso/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_86_whitebird",
+    "name": "WHYTEBIRD",
+    "shortName": "WHY",
+    "logoPath": "/assets/teams/whitebird/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_87_aztralor",
+    "name": "ESTRAL",
+    "shortName": "EST",
+    "logoPath": "/assets/teams/aztralor/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_88_coinhunters",
+    "name": "Buunty Hunters",
+    "shortName": "BUU",
+    "logoPath": "/assets/teams/coin_hunters/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_89_loxxojutos",
+    "name": "lus kogutos",
+    "shortName": "LUS",
+    "logoPath": "/assets/teams/lox_xojutos/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_91_ruby",
+    "name": "ROBY",
+    "shortName": "ROB",
+    "logoPath": "/assets/teams/ruby/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_91_unidyor",
+    "name": "ONiTY",
+    "shortName": "ONI",
+    "logoPath": "/assets/teams/unidyor/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_92_lazerrocadz",
+    "name": "Lezer Cats",
+    "shortName": "LEZ",
+    "logoPath": "/assets/teams/lazerro_cadz/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_93_bitclic",
+    "name": "Bitclic",
+    "shortName": "BI3",
+    "logoPath": "/assets/teams/bitclic/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_94_bozz",
+    "name": "BUSS",
+    "shortName": "BUS",
+    "logoPath": "/assets/teams/bozz/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_95_iroptionra",
+    "name": "Iruption",
+    "shortName": "IRU",
+    "logoPath": "/assets/teams/iroptionra/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_96_hiroeciumacedemy",
+    "name": "Heroiq Academy",
+    "shortName": "HE2",
+    "logoPath": "/assets/teams/hiroecium_acedemy/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_97_xengal",
+    "name": "Sengal",
+    "shortName": "SEN",
+    "logoPath": "/assets/teams/xengal/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_98_ryxtecrix",
+    "name": "ROSTEC",
+    "shortName": "ROS",
+    "logoPath": "/assets/teams/ryxtecrix/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_99_cphwolvez",
+    "name": "CPH Wulves",
+    "shortName": "CPH",
+    "logoPath": "/assets/teams/cph_wolvez/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_99_thundereldawnynder",
+    "name": "THONDER dOWNUNDER",
+    "shortName": "THO",
+    "logoPath": "/assets/teams/thunderel_dawnynder/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_100_vekedoberu",
+    "name": "Feke do Biru",
+    "shortName": "FEK",
+    "logoPath": "/assets/teams/veke_do_beru/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_101_nexoz",
+    "name": "Nixus",
+    "shortName": "NI3",
+    "logoPath": "/assets/teams/nexoz/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_102_chongedhegame",
+    "name": "Chenge The Game",
+    "shortName": "CHE",
+    "logoPath": "/assets/teams/chonge_dhe_game/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_102_mevrik",
+    "name": "Mevrek",
+    "shortName": "MEV",
+    "logoPath": "/assets/teams/mevrik/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_103_akend",
+    "name": "Ecend",
+    "shortName": "ECE",
+    "logoPath": "/assets/teams/akend/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_103_famaliku",
+    "name": "Femalicão",
+    "shortName": "FEM",
+    "logoPath": "/assets/teams/famalik_u/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_104_em",
+    "name": "EM",
+    "shortName": "EM",
+    "logoPath": "/assets/teams/em/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_106_sporteyx",
+    "name": "SPERTA",
+    "shortName": "SPE",
+    "logoPath": "/assets/teams/sporteyx/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_108_finjerskrozsed",
+    "name": "Fyngers Crossed",
+    "shortName": "FYN",
+    "logoPath": "/assets/teams/finjers_krozsed/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_108_skynrava",
+    "name": "SkynRave",
+    "shortName": "SKY",
+    "logoPath": "/assets/teams/skynrava/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_109_eeb",
+    "name": "EaB",
+    "shortName": "EAB",
+    "logoPath": "/assets/teams/eeb/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_110_spirytoracodemy",
+    "name": "Spiryt Academy",
+    "shortName": "SP2",
+    "logoPath": "/assets/teams/spirytor_acodemy/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_110_sdeteal",
+    "name": "STETE",
+    "shortName": "STE",
+    "logoPath": "/assets/teams/sdeteal/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_111_ravero",
+    "name": "Reve",
+    "shortName": "REV",
+    "logoPath": "/assets/teams/ravero/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_112_impulzigw",
+    "name": "Ympulse GW",
+    "shortName": "YMP",
+    "logoPath": "/assets/teams/impulzi_gw/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_112_mone",
+    "name": "MENA",
+    "shortName": "MEN",
+    "logoPath": "/assets/teams/mone/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_113_ww",
+    "name": "WWx",
+    "shortName": "WWX",
+    "logoPath": "/assets/teams/ww/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_114_diepcrass",
+    "name": "Diep Cross",
+    "shortName": "DIE",
+    "logoPath": "/assets/teams/diep_crass/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_115_mekushort",
+    "name": "migoshort",
+    "shortName": "MIG",
+    "logoPath": "/assets/teams/mekushort/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_116_menlete",
+    "name": "MYNLATE",
+    "shortName": "MYN",
+    "logoPath": "/assets/teams/menlete/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_117_wopa",
+    "name": "WUPA",
+    "shortName": "WUP",
+    "logoPath": "/assets/teams/wopa/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_117_yowera",
+    "name": "Yewara",
+    "shortName": "YEW",
+    "logoPath": "/assets/teams/yowera/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_118_riiknraabove",
+    "name": "Riign Above",
+    "shortName": "RII",
+    "logoPath": "/assets/teams/riiknra_above/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_119_rebels",
+    "name": "Ribels",
+    "shortName": "RIB",
+    "logoPath": "/assets/teams/rebels/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_120_hevy",
+    "name": "HEVU",
+    "shortName": "HEV",
+    "logoPath": "/assets/teams/hevy/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_121_omeja",
+    "name": "Umega",
+    "shortName": "UME",
+    "logoPath": "/assets/teams/omeja/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_122_calaoskurnos",
+    "name": "CELAOSCORNOS",
+    "shortName": "CEL",
+    "logoPath": "/assets/teams/calaoskurnos/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_123_olybet",
+    "name": "UlyBet",
+    "shortName": "ULY",
+    "logoPath": "/assets/teams/olybet/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_124_gomehynters",
+    "name": "GemeHunters",
+    "shortName": "GEM",
+    "logoPath": "/assets/teams/gomehynters/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_125_jumboex",
+    "name": "JOMBO",
+    "shortName": "JOM",
+    "logoPath": "/assets/teams/jumboex/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_126_phantum",
+    "name": "Phentom",
+    "shortName": "PHE",
+    "logoPath": "/assets/teams/phantum/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_127_hyperspiryd",
+    "name": "HypirSpirit",
+    "shortName": "HYP",
+    "logoPath": "/assets/teams/hyperspiryd/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_128_aljayx",
+    "name": "ELGO",
+    "shortName": "ELG",
+    "logoPath": "/assets/teams/aljayx/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_129_sow",
+    "name": "SEW",
+    "shortName": "SEW",
+    "logoPath": "/assets/teams/sow/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_130_lia",
+    "name": "Lio",
+    "shortName": "LIO",
+    "logoPath": "/assets/teams/lia/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_131_aedhar",
+    "name": "Eether",
+    "shortName": "EET",
+    "logoPath": "/assets/teams/aedhar/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_132_enfuryty",
+    "name": "YNFURITY",
+    "shortName": "YNF",
+    "logoPath": "/assets/teams/enfuryty/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_133_mindfraak",
+    "name": "Myndfreak",
+    "shortName": "MY2",
+    "logoPath": "/assets/teams/mindfraak/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_134_xpurtsbetexpert",
+    "name": "SpurtsBetExpert",
+    "shortName": "SPU",
+    "logoPath": "/assets/teams/xpurtsbetexpert/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_135_aymclub",
+    "name": "eimclub",
+    "shortName": "EIM",
+    "logoPath": "/assets/teams/aymclub/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_136_minxkhauze",
+    "name": "Mynsk House",
+    "shortName": "MY3",
+    "logoPath": "/assets/teams/minxk_hauze/logo.svg",
+    "branding": {
+      "primaryColor": "#A855F7",
+      "secondaryColor": "#581C87",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_137_sampervi",
+    "name": "SimperFi",
+    "shortName": "SIM",
+    "logoPath": "/assets/teams/sampervi/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_138_buringplayers",
+    "name": "BURING PLAYERS",
+    "shortName": "BUR",
+    "logoPath": "/assets/teams/buring_players/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_138_masonicia",
+    "name": "MESONIC",
+    "shortName": "MES",
+    "logoPath": "/assets/teams/masonicia/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_139_vuejo",
+    "name": "Foego",
+    "shortName": "FOE",
+    "logoPath": "/assets/teams/vuejo/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_139_groondzaro",
+    "name": "Gruund Zero",
+    "shortName": "GRU",
+    "logoPath": "/assets/teams/groond_zaro/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_140_lpex",
+    "name": "LPx",
+    "shortName": "LPX",
+    "logoPath": "/assets/teams/lpex/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_141_izyrus",
+    "name": "Ysurus",
+    "shortName": "YSU",
+    "logoPath": "/assets/teams/izyrus/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_142_folqonspharce",
+    "name": "Falcone Force",
+    "shortName": "FA2",
+    "logoPath": "/assets/teams/folqons_pharce/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_142_vishercallege",
+    "name": "Fysher College",
+    "shortName": "FYS",
+    "logoPath": "/assets/teams/visher_callege/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_143_nuveq",
+    "name": "NUVAQ",
+    "shortName": "NUV",
+    "logoPath": "/assets/teams/nuveq/logo.svg",
+    "branding": {
+      "primaryColor": "#EF4444",
+      "secondaryColor": "#7F1D1D",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_144_legor",
+    "name": "LEG",
+    "shortName": "LE2",
+    "logoPath": "/assets/teams/legor/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_145_prime",
+    "name": "PRYME",
+    "shortName": "PRY",
+    "logoPath": "/assets/teams/prime/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_147_besimentbays",
+    "name": "BESEMENT BOYS",
+    "shortName": "BES",
+    "logoPath": "/assets/teams/besiment_bays/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_148_raoxter",
+    "name": "Ruoster",
+    "shortName": "RUO",
+    "logoPath": "/assets/teams/raoxter/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_149_prezdigeel",
+    "name": "Pristige",
+    "shortName": "PRI",
+    "logoPath": "/assets/teams/prezdigeel/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_151_ecbongo",
+    "name": "IC BANGA",
+    "shortName": "ICB",
+    "logoPath": "/assets/teams/ec_bongo/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_152_wetermelon",
+    "name": "WETERMELON",
+    "shortName": "WET",
+    "logoPath": "/assets/teams/wetermelon/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_154_oxojy",
+    "name": "Uxuji",
+    "shortName": "UXU",
+    "logoPath": "/assets/teams/oxojy/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_156_fengdoal",
+    "name": "FingDa",
+    "shortName": "FIN",
+    "logoPath": "/assets/teams/fengdoal/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_157_procyon",
+    "name": "Prucyon",
+    "shortName": "PRU",
+    "logoPath": "/assets/teams/procyon/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_158_qwintry",
+    "name": "QWINTRY",
+    "shortName": "QWI",
+    "logoPath": "/assets/teams/qwintry/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_159_bushydowildcods",
+    "name": "Boshido Wildcats",
+    "shortName": "BOS",
+    "logoPath": "/assets/teams/bushydo_wildcods/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_160_zomblirs",
+    "name": "Zumblers",
+    "shortName": "ZUM",
+    "logoPath": "/assets/teams/zomblirs/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_161_everblaze",
+    "name": "Eternal Flame",
+    "shortName": "ETE",
+    "logoPath": "/assets/teams/everblaze/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_162_enphinite",
+    "name": "YNFINITE",
+    "shortName": "YN2",
+    "logoPath": "/assets/teams/enphinite/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_163_metezpurt",
+    "name": "Mitizport",
+    "shortName": "MIT",
+    "logoPath": "/assets/teams/metezpurt/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_164_tryckdrivirx",
+    "name": "Trock Drivers",
+    "shortName": "TRO",
+    "logoPath": "/assets/teams/tryck_drivirx/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_166_ikoisto",
+    "name": "IGOISTO",
+    "shortName": "IGO",
+    "logoPath": "/assets/teams/ikoisto/logo.svg",
+    "branding": {
+      "primaryColor": "#FACC15",
+      "secondaryColor": "#1F2937",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_167_f5",
+    "name": "F5x",
+    "shortName": "F5X",
+    "logoPath": "/assets/teams/f5/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_168_exzod",
+    "name": "IXSAD",
+    "shortName": "IXS",
+    "logoPath": "/assets/teams/exzod/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_169_xeydstars",
+    "name": "Kiyd Stars",
+    "shortName": "KIY",
+    "logoPath": "/assets/teams/xeyd_stars/logo.svg",
+    "branding": {
+      "primaryColor": "#DB2777",
+      "secondaryColor": "#500724",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_170_ilidenergy",
+    "name": "iLITenergy",
+    "shortName": "ILI",
+    "logoPath": "/assets/teams/ilidenergy/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_171_justexswing",
+    "name": "Jost Swing",
+    "shortName": "JOS",
+    "logoPath": "/assets/teams/justex_swing/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_172_xenquro",
+    "name": "SYNQU",
+    "shortName": "SY2",
+    "logoPath": "/assets/teams/xenquro/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_174_ellinnars",
+    "name": "ELLINNERS",
+    "shortName": "EL2",
+    "logoPath": "/assets/teams/ellinnars/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_175_fulhaomarila",
+    "name": "FULHA AMARELA",
+    "shortName": "FUL",
+    "logoPath": "/assets/teams/fulha_omarila/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_176_aururayuunjblod",
+    "name": "Auroria Young Blud",
+    "shortName": "AU2",
+    "logoPath": "/assets/teams/aurura_yuunj_blod/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_179_csdiylyt",
+    "name": "CSDYILIT",
+    "shortName": "CSD",
+    "logoPath": "/assets/teams/csdiylyt/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_180_undergroond",
+    "name": "Onderground",
+    "shortName": "OND",
+    "logoPath": "/assets/teams/undergroond/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_181_kono",
+    "name": "kUNO",
+    "shortName": "KUN",
+    "logoPath": "/assets/teams/kono/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_182_lestbyllet",
+    "name": "Lest Bullet",
+    "shortName": "LES",
+    "logoPath": "/assets/teams/lest_byllet/logo.svg",
+    "branding": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#78350F",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_183_bistiaaqedemy",
+    "name": "BISTIA Academy",
+    "shortName": "BI4",
+    "logoPath": "/assets/teams/bistia_aqedemy/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_184_lilmix",
+    "name": "Lylmix",
+    "shortName": "LYL",
+    "logoPath": "/assets/teams/lilmix/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_185_golarysel",
+    "name": "Gelorys",
+    "shortName": "GEL",
+    "logoPath": "/assets/teams/golarysel/logo.svg",
+    "branding": {
+      "primaryColor": "#8B5CF6",
+      "secondaryColor": "#3B0764",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_186_mesa",
+    "name": "Mysa",
+    "shortName": "MYS",
+    "logoPath": "/assets/teams/mesa/logo.svg",
+    "branding": {
+      "primaryColor": "#EC4899",
+      "secondaryColor": "#831843",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_187_wewillwen",
+    "name": "WiWillWin",
+    "shortName": "WIW",
+    "logoPath": "/assets/teams/wewillwen/logo.svg",
+    "branding": {
+      "primaryColor": "#84CC16",
+      "secondaryColor": "#365314",
+      "accentColor": "#0B0B0B",
+      "logoStyle": "mascot"
+    }
+  },
+  {
+    "id": "team_188_exjonk",
+    "name": "ix-GANK",
+    "shortName": "IXG",
+    "logoPath": "/assets/teams/ex_jonk/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_190_fuuryxmogiq",
+    "name": "Fuur Magic",
+    "shortName": "FUU",
+    "logoPath": "/assets/teams/fuuryx_mogiq/logo.svg",
+    "branding": {
+      "primaryColor": "#3B82F6",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_191_myertaex",
+    "name": "MOERTA",
+    "shortName": "MOE",
+    "logoPath": "/assets/teams/myertaex/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_192_badlykk",
+    "name": "Bed Luck",
+    "shortName": "BED",
+    "logoPath": "/assets/teams/bad_lykk/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_193_mazroea",
+    "name": "MEZRAEA",
+    "shortName": "MEZ",
+    "logoPath": "/assets/teams/mazroea/logo.svg",
+    "branding": {
+      "primaryColor": "#DC2626",
+      "secondaryColor": "#0B0B0B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_194_bijaqoipa",
+    "name": "BYG EQUIPA",
+    "shortName": "BYG",
+    "logoPath": "/assets/teams/bij_aqoipa/logo.svg",
+    "branding": {
+      "primaryColor": "#06B6D4",
+      "secondaryColor": "#164E63",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_195_enceacodamy",
+    "name": "ENZE Academy",
+    "shortName": "EN2",
+    "logoPath": "/assets/teams/ence_acodamy/logo.svg",
+    "branding": {
+      "primaryColor": "#22D3EE",
+      "secondaryColor": "#0E7490",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "emblem"
+    }
+  },
+  {
+    "id": "team_196_players",
+    "name": "Pleyers",
+    "shortName": "PLE",
+    "logoPath": "/assets/teams/players/logo.svg",
+    "branding": {
+      "primaryColor": "#10B981",
+      "secondaryColor": "#064E3B",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_197_qhikkencaup",
+    "name": "Chycken Coop",
+    "shortName": "CH2",
+    "logoPath": "/assets/teams/qhikken_caup/logo.svg",
+    "branding": {
+      "primaryColor": "#F97316",
+      "secondaryColor": "#7C2D12",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_198_wildrix",
+    "name": "WyLD",
+    "shortName": "WY2",
+    "logoPath": "/assets/teams/wildrix/logo.svg",
+    "branding": {
+      "primaryColor": "#14B8A6",
+      "secondaryColor": "#134E4A",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  },
+  {
+    "id": "team_200_ligianal",
+    "name": "Ligion",
+    "shortName": "LIG",
+    "logoPath": "/assets/teams/ligianal/logo.svg",
+    "branding": {
+      "primaryColor": "#0EA5E9",
+      "secondaryColor": "#0C4A6E",
+      "accentColor": "#FFFFFF",
+      "logoStyle": "monogram"
+    }
+  }
+]

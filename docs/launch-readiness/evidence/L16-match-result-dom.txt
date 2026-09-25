@@ -1,0 +1,389 @@
+- link "Skip to main content":
+  - /url: "#main-content"
+- generic: Esports Manager
+- button "Toggle sidebar" [expanded]:
+- button "Search game navigation":
+  - generic: Go to...
+  - generic: Ctrl K
+- navigation "Main navigation":
+  - button "Overview" [expanded]:
+    - generic: Overview
+  - link "Home":
+    - /url: /
+    - generic: Home
+  - link "Inbox":
+    - /url: /desktop?app=mail
+    - generic: Inbox
+  - link "Schedule":
+    - /url: /schedule
+    - generic: Schedule
+  - button "Team" [expanded]:
+    - generic: Team
+  - link "Squad":
+    - /url: /squad
+    - generic: Squad
+  - link "Training":
+    - /url: /training
+    - generic: Training
+  - link "Staff":
+    - /url: /staff
+    - generic: Staff
+  - link "Equipment":
+    - /url: /equipment
+    - generic: Equipment
+  - button "Recruitment" [expanded]:
+    - generic: Recruitment
+  - link "Transfers":
+    - /url: /transfers
+    - generic: Transfers
+  - link "Scouting":
+    - /url: /scouting
+    - generic: Scouting
+  - link "Facilities":
+    - /url: /basecamp
+    - generic: Facilities
+  - link "Academy":
+    - /url: /academy
+    - generic: Academy
+  - button "Competition" [expanded]:
+    - generic: Competition
+  - link "Tournaments":
+    - /url: /tournaments
+    - generic: Tournaments
+  - link "Rankings":
+    - /url: /rankings
+    - generic: Rankings
+  - link "FPL":
+    - /url: /fpl
+    - generic: FPL
+  - link "Statistics":
+    - /url: /stats
+    - generic: Statistics
+  - button "Business" [expanded]:
+    - generic: Business
+  - link "Finances":
+    - /url: /finances
+    - generic: Finances
+  - link "Sponsors":
+    - /url: /sponsorships
+    - generic: Sponsors
+  - button "Legacy" [expanded]:
+    - generic: Legacy
+  - link "Trophies":
+    - /url: /trophies
+    - generic: Trophies
+  - link "Hall of Fame":
+    - /url: /hall-of-fame
+    - generic: Hall of Fame
+  - link "Settings & Tools":
+    - /url: /settings
+    - generic: Settings & Tools
+- link "Manager profile":
+  - /url: /career
+  - generic: LR
+  - generic: L16 Recruitment QA Career
+  - generic: Manager Profile
+- banner:
+  - img "L16 Aurora logo"
+  - generic: Your club
+  - generic "eu":
+    - generic "EU"
+  - generic "L16 Aurora"
+  - generic: $213,980
+  - generic: Wed, 15 Jan 2025
+  - generic: WEEK 3
+  - button "Switch to Onyx theme":
+  - button "WEEKLY"
+  - button "CONTINUE":
+    - generic: CONTINUE
+- main:
+  - button "Back to Dashboard":
+    - text: Back to Dashboard
+  - button "Schedule":
+    - text: Schedule
+  - img "L16 Aurora logo"
+  - generic: WINNER
+  - heading "L16 Aurora" [level=2]
+  - generic: "#1 World"
+  - generic: +17 ELO
+  - paragraph: HOME
+  - generic: BO1 SERIES • Friendly
+  - generic: "13"
+  - generic: "7"
+  - generic: Jan 15, 2025
+  - img "AI Team 1 logo"
+  - heading "AI Team 1" [level=2]
+  - generic: "#3 World"
+  - generic: ▼1
+  - generic: "-16 ELO"
+  - paragraph: AWAY
+  - generic: Nuke
+  - generic: "13"
+  - generic: ":"
+  - generic: "7"
+  - tablist:
+    - tab "Overview" [selected]
+    - tab "Analysis"
+  - generic: MATCH MVP
+  - img "PlayerA5"
+  - heading "PlayerA5" [level=3]
+  - generic "Sweden":
+    - img "Sweden"
+    - generic: Sweden
+  - paragraph: Rating
+  - paragraph: "1.67"
+  - paragraph: K/D Diff
+  - paragraph: "+9"
+  - paragraph: ADR
+  - paragraph: "73"
+  - paragraph: Kills
+  - paragraph: "14"
+  - heading "Nuke Map 1" [level=3]:
+    - text: Nuke
+    - generic: Map 1
+  - generic: "13"
+  - generic: ":"
+  - generic: "7"
+  - 'generic "Round 1: AI Team 1 wins (BOMB_EXPLODED) | Score: 0-1"': "1"
+  - generic: 0-1
+  - 'generic "Round 2: AI Team 1 wins (BOMB_EXPLODED) | Score: 0-2"': "2"
+  - generic: 0-2
+  - 'generic "Round 3: L16 Aurora wins (ELIMINATION) | Score: 1-2"': "3"
+  - generic: 1-2
+  - 'generic "Round 4: L16 Aurora wins (BOMB_DEFUSE) | Score: 2-2"': "4"
+  - generic: 2-2
+  - 'generic "Round 5: L16 Aurora wins (BOMB_DEFUSE) | Score: 3-2"': "5"
+  - generic: 3-2
+  - 'generic "Round 6: L16 Aurora wins (ELIMINATION) | Score: 4-2"': "6"
+  - generic: 4-2
+  - 'generic "Round 7: L16 Aurora wins (ELIMINATION) | Score: 5-2"': "7"
+  - generic: 5-2
+  - 'generic "Round 8: L16 Aurora wins (BOMB_DEFUSE) | Score: 6-2"': "8"
+  - generic: 6-2
+  - 'generic "Round 9: L16 Aurora wins (BOMB_DEFUSE) | Score: 7-2"': "9"
+  - generic: 7-2
+  - 'generic "Round 10: L16 Aurora wins (BOMB_DEFUSE) | Score: 8-2"': "10"
+  - generic: 8-2
+  - 'generic "Round 11: L16 Aurora wins (ELIMINATION) | Score: 9-2"': "11"
+  - generic: 9-2
+  - 'generic "Round 12: L16 Aurora wins (ELIMINATION) | Score: 10-2"': "12"
+  - generic: 10-2
+  - generic: HALF
+  - 'generic "Round 13: AI Team 1 wins (ELIMINATION) | Score: 10-3"': "13"
+  - generic: 10-3
+  - 'generic "Round 14: AI Team 1 wins (ELIMINATION) | Score: 10-4"': "14"
+  - generic: 10-4
+  - 'generic "Round 15: AI Team 1 wins (ELIMINATION) | Score: 10-5"': "15"
+  - generic: 10-5
+  - 'generic "Round 16: AI Team 1 wins (BOMB_DEFUSE) | Score: 10-6"': "16"
+  - generic: 10-6
+  - 'generic "Round 17: L16 Aurora wins (BOMB_EXPLODED) | Score: 11-6"': "17"
+  - generic: 11-6
+  - 'generic "Round 18: L16 Aurora wins (BOMB_EXPLODED) | Score: 12-6"': "18"
+  - generic: 12-6
+  - 'generic "Round 19: AI Team 1 wins (ELIMINATION) | Score: 12-7"': "19"
+  - generic: 12-7
+  - text: L16 Aurora
+  - generic: (13 rounds)
+  - generic: (7 rounds)
+  - text: AI Team 1
+  - heading "COMBAT STATISTICS" [level=3]:
+    - text: COMBAT STATISTICS
+  - heading "L16 Aurora" [level=4]: L16 Aurora
+  - generic: "1"
+  - table:
+    - rowgroup:
+      - row "Player K / D / A Diff ADR XP Gain Rating":
+        - columnheader "Player"
+        - columnheader "K / D / A"
+        - columnheader "Diff"
+        - columnheader "ADR"
+        - columnheader "XP Gain"
+        - columnheader "Rating"
+    - rowgroup:
+      - row "PlayerA5 PlayerA5 Lvl 1 Sweden Rifler 14 / 5 / 6 +9 73 +334 XP 417 / 1000 1.67":
+        - cell "PlayerA5 PlayerA5 Lvl 1 Sweden Rifler":
+          - img "PlayerA5"
+          - text: PlayerA5
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "14 / 5 / 6"
+        - cell "+9":
+          - generic: "+9"
+        - cell "73"
+        - cell "+334 XP 417 / 1000":
+          - generic: +334 XP
+          - generic: 417 / 1000
+        - cell "1.67"
+      - row "PlayerA2 PlayerA2 Lvl 1 Sweden Rifler 12 / 8 / 5 +4 64 +180 XP 314 / 1000 1.15":
+        - cell "PlayerA2 PlayerA2 Lvl 1 Sweden Rifler":
+          - img "PlayerA2"
+          - text: PlayerA2
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "12 / 8 / 5"
+        - cell "+4":
+          - generic: "+4"
+        - cell "64"
+        - cell "+180 XP 314 / 1000":
+          - generic: +180 XP
+          - generic: 314 / 1000
+        - cell "1.15"
+      - row "QA Free Agent QA Free Agent Lvl 1 Sweden Rifler 10 / 8 / 5 +2 51 +150 XP 216 / 1000 0.97":
+        - cell "QA Free Agent QA Free Agent Lvl 1 Sweden Rifler":
+          - img "QA Free Agent"
+          - text: QA Free Agent
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "10 / 8 / 5"
+        - cell "+2":
+          - generic: "+2"
+        - cell "51"
+        - cell "+150 XP 216 / 1000":
+          - generic: +150 XP
+          - generic: 216 / 1000
+        - cell "0.97"
+      - row "PlayerA3 PlayerA3 Lvl 1 Sweden Rifler 11 / 9 / 4 +2 56 +150 XP 285 / 1000 0.93":
+        - cell "PlayerA3 PlayerA3 Lvl 1 Sweden Rifler":
+          - img "PlayerA3"
+          - text: PlayerA3
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "11 / 9 / 4"
+        - cell "+2":
+          - generic: "+2"
+        - cell "56"
+        - cell "+150 XP 285 / 1000":
+          - generic: +150 XP
+          - generic: 285 / 1000
+        - cell "0.93"
+      - row "PlayerA4 PlayerA4 Lvl 1 Sweden Rifler 10 / 10 / 3 0 50 +150 XP 289 / 1000 0.85":
+        - cell "PlayerA4 PlayerA4 Lvl 1 Sweden Rifler":
+          - img "PlayerA4"
+          - text: PlayerA4
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "10 / 10 / 3"
+        - cell "0"
+        - cell "50"
+        - cell "+150 XP 289 / 1000":
+          - generic: +150 XP
+          - generic: 289 / 1000
+        - cell "0.85"
+      - row "PlayerA1 PlayerA1 Lvl 1 Sweden Rifler 0 / 0 / 0 0 0 +150 XP 288 / 1000 0.00":
+        - cell "PlayerA1 PlayerA1 Lvl 1 Sweden Rifler":
+          - img "PlayerA1"
+          - text: PlayerA1
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "0 / 0 / 0"
+        - cell "0"
+        - cell "0"
+        - cell "+150 XP 288 / 1000":
+          - generic: +150 XP
+          - generic: 288 / 1000
+        - cell "0.00"
+  - heading "AI Team 1" [level=4]: AI Team 1
+  - generic: "0"
+  - table:
+    - rowgroup:
+      - row "Player K / D / A Diff ADR XP Gain Rating":
+        - columnheader "Player"
+        - columnheader "K / D / A"
+        - columnheader "Diff"
+        - columnheader "ADR"
+        - columnheader "XP Gain"
+        - columnheader "Rating"
+    - rowgroup:
+      - row "PlayerB2 PlayerB2 Lvl 1 Sweden Rifler 9 / 11 / 5 -2 42 +80 XP 80 / 1000 0.69":
+        - cell "PlayerB2 PlayerB2 Lvl 1 Sweden Rifler":
+          - img "PlayerB2"
+          - text: PlayerB2
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "9 / 11 / 5"
+        - cell "-2"
+        - cell "42"
+        - cell "+80 XP 80 / 1000":
+          - generic: +80 XP
+          - generic: 80 / 1000
+        - cell "0.69"
+      - row "PlayerB5 PlayerB5 Lvl 1 Sweden Rifler 8 / 11 / 2 -3 35 +80 XP 80 / 1000 0.63":
+        - cell "PlayerB5 PlayerB5 Lvl 1 Sweden Rifler":
+          - img "PlayerB5"
+          - text: PlayerB5
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "8 / 11 / 2"
+        - cell "-3"
+        - cell "35"
+        - cell "+80 XP 80 / 1000":
+          - generic: +80 XP
+          - generic: 80 / 1000
+        - cell "0.63"
+      - row "PlayerB4 PlayerB4 Lvl 1 Sweden Rifler 9 / 13 / 2 -4 39 +80 XP 80 / 1000 0.62":
+        - cell "PlayerB4 PlayerB4 Lvl 1 Sweden Rifler":
+          - img "PlayerB4"
+          - text: PlayerB4
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "9 / 13 / 2"
+        - cell "-4"
+        - cell "39"
+        - cell "+80 XP 80 / 1000":
+          - generic: +80 XP
+          - generic: 80 / 1000
+        - cell "0.62"
+      - row "PlayerB3 PlayerB3 Lvl 1 Sweden Rifler 7 / 11 / 3 -4 33 +80 XP 80 / 1000 0.59":
+        - cell "PlayerB3 PlayerB3 Lvl 1 Sweden Rifler":
+          - img "PlayerB3"
+          - text: PlayerB3
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "7 / 11 / 3"
+        - cell "-4"
+        - cell "33"
+        - cell "+80 XP 80 / 1000":
+          - generic: +80 XP
+          - generic: 80 / 1000
+        - cell "0.59"
+      - row "PlayerB1 PlayerB1 Lvl 1 Sweden Rifler 7 / 11 / 2 -4 30 +80 XP 80 / 1000 0.56":
+        - cell "PlayerB1 PlayerB1 Lvl 1 Sweden Rifler":
+          - img "PlayerB1"
+          - text: PlayerB1
+          - generic: Lvl 1
+          - generic "Sweden":
+            - img "Sweden"
+          - text: Rifler
+        - cell "7 / 11 / 2"
+        - cell "-4"
+        - cell "30"
+        - cell "+80 XP 80 / 1000":
+          - generic: +80 XP
+          - generic: 80 / 1000
+        - cell "0.56"
+- status
+- button "Report a Bug":
+  - generic: Report a Bug
+- button "Open help":
+- alert

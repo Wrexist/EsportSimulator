@@ -1,0 +1,178 @@
+[
+  {
+    "id": "player_91_ruby_caide",
+    "source": "raw-data/teams/ex-ruby/players/kaide.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/kaide.json",
+      "candidate": "raw-data/teams/ex-ruby/players/kaide.json",
+      "name": "Kaide",
+      "country": "ru",
+      "age": 25
+    }
+  },
+  {
+    "id": "player_91_ruby_fosil",
+    "source": "raw-data/teams/ex-ruby/players/fozil.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/fozil.json",
+      "candidate": "raw-data/teams/ex-ruby/players/fozil.json",
+      "name": "fozil",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  {
+    "id": "player_91_ruby_h4san6tor",
+    "source": "raw-data/teams/ex-ruby/players/h4san4tor.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/h4san4tor.json",
+      "candidate": "raw-data/teams/ex-ruby/players/h4san4tor.json",
+      "name": "H4SAN4TOR",
+      "country": "ru",
+      "age": 20
+    }
+  },
+  {
+    "id": "player_91_ruby_sh7nejezzz",
+    "source": "raw-data/teams/ex-ruby/players/sh1nejezzz.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/sh1nejezzz.json",
+      "candidate": "raw-data/teams/ex-ruby/players/sh1nejezzz.json",
+      "name": "sh1nejezzz",
+      "country": "ru",
+      "age": 20
+    }
+  },
+  {
+    "id": "player_99_cph_b7elany",
+    "source": "raw-data/teams/kolesie/players/b1elany.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/cph_wolves/players/b1elany.json",
+      "candidate": "raw-data/teams/kolesie/players/b1elany.json",
+      "name": "b1elany",
+      "country": "pl",
+      "age": 23
+    }
+  },
+  {
+    "id": "player_99_cph_n7xen",
+    "source": "raw-data/teams/aab/players/n1xen.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/cph_wolves/players/n1xen.json",
+      "candidate": "raw-data/teams/aab/players/n1xen.json",
+      "name": "n1Xen",
+      "country": "dk",
+      "age": 22
+    }
+  },
+  {
+    "id": "player_129_9buomprara_ax7le",
+    "source": "raw-data/teams/tdk/players/ax1le.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/ax1le.json",
+      "candidate": "raw-data/teams/tdk/players/ax1le.json",
+      "name": "Ax1Le",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  {
+    "id": "player_129_9buomprara_sorte",
+    "source": "raw-data/teams/tdk/players/zorte.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/zorte.json",
+      "candidate": "raw-data/teams/tdk/players/zorte.json",
+      "name": "zorte",
+      "country": "ru",
+      "age": 27
+    }
+  },
+  {
+    "id": "player_129_9buomprara_zhalfey",
+    "source": "raw-data/teams/nemiga/players/shalfey.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/shalfey.json",
+      "candidate": "raw-data/teams/nemiga/players/shalfey.json",
+      "name": "shalfey",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  {
+    "id": "player_134_xpurtsbetexpert_rekk",
+    "source": "raw-data/teams/wildcard/players/reck.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/sportsbetexpert/players/reck.json",
+      "candidate": "raw-data/teams/wildcard/players/reck.json",
+      "name": "reck",
+      "country": "us",
+      "age": 22
+    }
+  },
+  {
+    "id": "player_139_vuejo_alennnkar",
+    "source": "raw-data/teams/bad_luck/players/alennncar.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/fuego/players/alennncar.json",
+      "candidate": "raw-data/teams/bad_luck/players/alennncar.json",
+      "name": "ALENNNCAR",
+      "country": "br",
+      "age": 24
+    }
+  },
+  {
+    "id": "player_139_vuejo_zakamoto",
+    "source": "raw-data/teams/bad_luck/players/sakamoto.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/fuego/players/sakamoto.json",
+      "candidate": "raw-data/teams/bad_luck/players/sakamoto.json",
+      "name": "sakamoto",
+      "country": "br",
+      "age": 25
+    }
+  },
+  {
+    "id": "player_168_exzod_blase",
+    "source": "raw-data/teams/saw/players/blaze.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/blaze.json",
+      "candidate": "raw-data/teams/saw/players/blaze.json",
+      "name": "blaze",
+      "country": "pt",
+      "age": 20
+    }
+  },
+  {
+    "id": "player_168_exzod_jerk8z",
+    "source": "raw-data/teams/saw/players/jerk0z.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/jerk0z.json",
+      "candidate": "raw-data/teams/saw/players/jerk0z.json",
+      "name": "jERK0z",
+      "country": "pt",
+      "age": 17
+    }
+  },
+  {
+    "id": "player_168_exzod_morets",
+    "source": "raw-data/teams/saw/players/moretz.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/moretz.json",
+      "candidate": "raw-data/teams/saw/players/moretz.json",
+      "name": "Moretz",
+      "country": "pt",
+      "age": 20
+    }
+  },
+  {
+    "id": "player_168_exzod_txuxa",
+    "source": "raw-data/teams/saw/players/tuxa.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/tuxa.json",
+      "candidate": "raw-data/teams/saw/players/tuxa.json",
+      "name": "tuxa",
+      "country": "pt",
+      "age": 22
+    }
+  }
+]

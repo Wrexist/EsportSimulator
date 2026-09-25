@@ -1,0 +1,3697 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Inferno",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "outline:Inferno:upper:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 48.73,
+          "y": 6.445
+        },
+        {
+          "x": 48.633,
+          "y": 13.867
+        },
+        {
+          "x": 44.043,
+          "y": 13.867
+        },
+        {
+          "x": 43.945,
+          "y": 14.062
+        },
+        {
+          "x": 43.359,
+          "y": 14.062
+        },
+        {
+          "x": 43.457,
+          "y": 12.207
+        },
+        {
+          "x": 41.406,
+          "y": 12.109
+        },
+        {
+          "x": 41.406,
+          "y": 28.809
+        },
+        {
+          "x": 43.262,
+          "y": 28.809
+        },
+        {
+          "x": 43.457,
+          "y": 28.418
+        },
+        {
+          "x": 43.945,
+          "y": 28.418
+        },
+        {
+          "x": 44.043,
+          "y": 28.809
+        },
+        {
+          "x": 54.785,
+          "y": 28.809
+        },
+        {
+          "x": 54.883,
+          "y": 34.375
+        },
+        {
+          "x": 54.688,
+          "y": 34.57
+        },
+        {
+          "x": 49.316,
+          "y": 34.473
+        },
+        {
+          "x": 42.09,
+          "y": 48.34
+        },
+        {
+          "x": 39.648,
+          "y": 48.438
+        },
+        {
+          "x": 39.648,
+          "y": 50.781
+        },
+        {
+          "x": 42.676,
+          "y": 50.879
+        },
+        {
+          "x": 42.676,
+          "y": 58.105
+        },
+        {
+          "x": 41.992,
+          "y": 58.691
+        },
+        {
+          "x": 30.078,
+          "y": 58.594
+        },
+        {
+          "x": 29.98,
+          "y": 60.84
+        },
+        {
+          "x": 29.785,
+          "y": 61.035
+        },
+        {
+          "x": 24.219,
+          "y": 61.035
+        },
+        {
+          "x": 24.121,
+          "y": 65.332
+        },
+        {
+          "x": 23.828,
+          "y": 65.137
+        },
+        {
+          "x": 18.848,
+          "y": 65.234
+        },
+        {
+          "x": 18.75,
+          "y": 64.844
+        },
+        {
+          "x": 15.723,
+          "y": 64.844
+        },
+        {
+          "x": 15.43,
+          "y": 65.527
+        },
+        {
+          "x": 15.039,
+          "y": 65.625
+        },
+        {
+          "x": 15.039,
+          "y": 67.48
+        },
+        {
+          "x": 15.234,
+          "y": 67.383
+        },
+        {
+          "x": 15.723,
+          "y": 67.871
+        },
+        {
+          "x": 15.723,
+          "y": 68.359
+        },
+        {
+          "x": 15.039,
+          "y": 68.457
+        },
+        {
+          "x": 14.941,
+          "y": 68.75
+        },
+        {
+          "x": 14.453,
+          "y": 68.652
+        },
+        {
+          "x": 14.453,
+          "y": 71.094
+        },
+        {
+          "x": 15.039,
+          "y": 71.191
+        },
+        {
+          "x": 14.941,
+          "y": 72.07
+        },
+        {
+          "x": 13.672,
+          "y": 72.07
+        },
+        {
+          "x": 13.574,
+          "y": 70.508
+        },
+        {
+          "x": 12.695,
+          "y": 70.41
+        },
+        {
+          "x": 12.695,
+          "y": 69.238
+        },
+        {
+          "x": 13.672,
+          "y": 69.141
+        },
+        {
+          "x": 13.672,
+          "y": 63.574
+        },
+        {
+          "x": 12.695,
+          "y": 63.379
+        },
+        {
+          "x": 12.695,
+          "y": 62.305
+        },
+        {
+          "x": 12.891,
+          "y": 62.109
+        },
+        {
+          "x": 13.672,
+          "y": 62.109
+        },
+        {
+          "x": 13.672,
+          "y": 61.621
+        },
+        {
+          "x": 10.742,
+          "y": 60.645
+        },
+        {
+          "x": 10.156,
+          "y": 60.645
+        },
+        {
+          "x": 9.082,
+          "y": 61.23
+        },
+        {
+          "x": 8.008,
+          "y": 62.5
+        },
+        {
+          "x": 8.008,
+          "y": 63.574
+        },
+        {
+          "x": 6.934,
+          "y": 63.672
+        },
+        {
+          "x": 6.934,
+          "y": 68.945
+        },
+        {
+          "x": 7.227,
+          "y": 69.043
+        },
+        {
+          "x": 7.227,
+          "y": 70.508
+        },
+        {
+          "x": 6.934,
+          "y": 70.605
+        },
+        {
+          "x": 6.934,
+          "y": 76.074
+        },
+        {
+          "x": 7.227,
+          "y": 76.172
+        },
+        {
+          "x": 7.227,
+          "y": 79.395
+        },
+        {
+          "x": 9.18,
+          "y": 79.395
+        },
+        {
+          "x": 9.18,
+          "y": 76.953
+        },
+        {
+          "x": 9.863,
+          "y": 76.855
+        },
+        {
+          "x": 9.961,
+          "y": 77.734
+        },
+        {
+          "x": 9.668,
+          "y": 77.832
+        },
+        {
+          "x": 9.668,
+          "y": 81.348
+        },
+        {
+          "x": 12.793,
+          "y": 81.348
+        },
+        {
+          "x": 12.891,
+          "y": 81.055
+        },
+        {
+          "x": 15.723,
+          "y": 81.055
+        },
+        {
+          "x": 15.918,
+          "y": 81.543
+        },
+        {
+          "x": 15.82,
+          "y": 82.812
+        },
+        {
+          "x": 15.43,
+          "y": 82.91
+        },
+        {
+          "x": 15.43,
+          "y": 85.547
+        },
+        {
+          "x": 18.848,
+          "y": 85.645
+        },
+        {
+          "x": 19.043,
+          "y": 86.914
+        },
+        {
+          "x": 20.801,
+          "y": 86.816
+        },
+        {
+          "x": 20.898,
+          "y": 87.109
+        },
+        {
+          "x": 23.242,
+          "y": 87.109
+        },
+        {
+          "x": 23.438,
+          "y": 86.523
+        },
+        {
+          "x": 24.219,
+          "y": 86.523
+        },
+        {
+          "x": 25.781,
+          "y": 85.742
+        },
+        {
+          "x": 26.758,
+          "y": 86.23
+        },
+        {
+          "x": 27.441,
+          "y": 85.449
+        },
+        {
+          "x": 28.711,
+          "y": 85.156
+        },
+        {
+          "x": 28.711,
+          "y": 82.617
+        },
+        {
+          "x": 28.906,
+          "y": 82.422
+        },
+        {
+          "x": 32.129,
+          "y": 82.422
+        },
+        {
+          "x": 32.324,
+          "y": 82.812
+        },
+        {
+          "x": 32.812,
+          "y": 82.715
+        },
+        {
+          "x": 33.008,
+          "y": 82.91
+        },
+        {
+          "x": 32.52,
+          "y": 83.105
+        },
+        {
+          "x": 32.52,
+          "y": 89.746
+        },
+        {
+          "x": 34.863,
+          "y": 89.844
+        },
+        {
+          "x": 35.059,
+          "y": 87.598
+        },
+        {
+          "x": 37.695,
+          "y": 87.598
+        },
+        {
+          "x": 37.793,
+          "y": 87.109
+        },
+        {
+          "x": 46.68,
+          "y": 87.109
+        },
+        {
+          "x": 46.777,
+          "y": 91.504
+        },
+        {
+          "x": 49.023,
+          "y": 91.504
+        },
+        {
+          "x": 49.121,
+          "y": 91.211
+        },
+        {
+          "x": 49.707,
+          "y": 91.211
+        },
+        {
+          "x": 49.805,
+          "y": 91.797
+        },
+        {
+          "x": 57.227,
+          "y": 91.797
+        },
+        {
+          "x": 57.324,
+          "y": 92.578
+        },
+        {
+          "x": 60.938,
+          "y": 92.578
+        },
+        {
+          "x": 60.938,
+          "y": 90.723
+        },
+        {
+          "x": 61.133,
+          "y": 90.527
+        },
+        {
+          "x": 61.23,
+          "y": 91.016
+        },
+        {
+          "x": 67.09,
+          "y": 91.016
+        },
+        {
+          "x": 67.188,
+          "y": 84.18
+        },
+        {
+          "x": 67.578,
+          "y": 84.18
+        },
+        {
+          "x": 67.578,
+          "y": 84.57
+        },
+        {
+          "x": 77.441,
+          "y": 84.57
+        },
+        {
+          "x": 77.539,
+          "y": 84.375
+        },
+        {
+          "x": 77.734,
+          "y": 84.57
+        },
+        {
+          "x": 79.98,
+          "y": 84.57
+        },
+        {
+          "x": 79.98,
+          "y": 81.445
+        },
+        {
+          "x": 80.176,
+          "y": 81.543
+        },
+        {
+          "x": 80.176,
+          "y": 82.129
+        },
+        {
+          "x": 82.324,
+          "y": 82.129
+        },
+        {
+          "x": 82.52,
+          "y": 82.324
+        },
+        {
+          "x": 82.422,
+          "y": 87.793
+        },
+        {
+          "x": 90.723,
+          "y": 87.695
+        },
+        {
+          "x": 91.406,
+          "y": 87.012
+        },
+        {
+          "x": 91.699,
+          "y": 87.109
+        },
+        {
+          "x": 94.238,
+          "y": 83.594
+        },
+        {
+          "x": 94.141,
+          "y": 69.238
+        },
+        {
+          "x": 93.652,
+          "y": 69.141
+        },
+        {
+          "x": 93.652,
+          "y": 65.625
+        },
+        {
+          "x": 89.746,
+          "y": 65.527
+        },
+        {
+          "x": 89.746,
+          "y": 59.277
+        },
+        {
+          "x": 91.602,
+          "y": 59.18
+        },
+        {
+          "x": 91.602,
+          "y": 57.422
+        },
+        {
+          "x": 89.746,
+          "y": 57.324
+        },
+        {
+          "x": 89.746,
+          "y": 55.469
+        },
+        {
+          "x": 90.234,
+          "y": 55.469
+        },
+        {
+          "x": 90.137,
+          "y": 55.859
+        },
+        {
+          "x": 90.43,
+          "y": 56.055
+        },
+        {
+          "x": 90.43,
+          "y": 56.543
+        },
+        {
+          "x": 94.238,
+          "y": 56.543
+        },
+        {
+          "x": 94.336,
+          "y": 56.152
+        },
+        {
+          "x": 94.922,
+          "y": 56.152
+        },
+        {
+          "x": 94.922,
+          "y": 50.879
+        },
+        {
+          "x": 93.652,
+          "y": 50.879
+        },
+        {
+          "x": 93.457,
+          "y": 50.684
+        },
+        {
+          "x": 93.457,
+          "y": 45.898
+        },
+        {
+          "x": 88.77,
+          "y": 45.801
+        },
+        {
+          "x": 88.867,
+          "y": 45.508
+        },
+        {
+          "x": 90.527,
+          "y": 45.508
+        },
+        {
+          "x": 90.039,
+          "y": 45.312
+        },
+        {
+          "x": 90.234,
+          "y": 44.824
+        },
+        {
+          "x": 90.039,
+          "y": 44.434
+        },
+        {
+          "x": 90.527,
+          "y": 44.238
+        },
+        {
+          "x": 90.625,
+          "y": 42.48
+        },
+        {
+          "x": 92.09,
+          "y": 38.672
+        },
+        {
+          "x": 92.578,
+          "y": 34.668
+        },
+        {
+          "x": 92.48,
+          "y": 27.93
+        },
+        {
+          "x": 89.844,
+          "y": 27.344
+        },
+        {
+          "x": 89.648,
+          "y": 27.148
+        },
+        {
+          "x": 89.746,
+          "y": 25
+        },
+        {
+          "x": 87.598,
+          "y": 24.023
+        },
+        {
+          "x": 87.598,
+          "y": 21.484
+        },
+        {
+          "x": 86.914,
+          "y": 18.75
+        },
+        {
+          "x": 86.328,
+          "y": 18.262
+        },
+        {
+          "x": 84.473,
+          "y": 20.02
+        },
+        {
+          "x": 82.031,
+          "y": 17.578
+        },
+        {
+          "x": 76.562,
+          "y": 17.578
+        },
+        {
+          "x": 76.367,
+          "y": 17.969
+        },
+        {
+          "x": 75.488,
+          "y": 17.969
+        },
+        {
+          "x": 75.391,
+          "y": 18.164
+        },
+        {
+          "x": 74.121,
+          "y": 18.164
+        },
+        {
+          "x": 74.023,
+          "y": 17.578
+        },
+        {
+          "x": 71.582,
+          "y": 17.578
+        },
+        {
+          "x": 71.484,
+          "y": 19.141
+        },
+        {
+          "x": 70.703,
+          "y": 19.238
+        },
+        {
+          "x": 70.508,
+          "y": 16.992
+        },
+        {
+          "x": 68.457,
+          "y": 16.992
+        },
+        {
+          "x": 68.262,
+          "y": 17.285
+        },
+        {
+          "x": 66.992,
+          "y": 17.285
+        },
+        {
+          "x": 66.797,
+          "y": 16.895
+        },
+        {
+          "x": 66.406,
+          "y": 16.797
+        },
+        {
+          "x": 66.992,
+          "y": 16.406
+        },
+        {
+          "x": 68.066,
+          "y": 16.406
+        },
+        {
+          "x": 68.066,
+          "y": 11.523
+        },
+        {
+          "x": 66.992,
+          "y": 11.523
+        },
+        {
+          "x": 66.895,
+          "y": 11.328
+        },
+        {
+          "x": 64.941,
+          "y": 11.328
+        },
+        {
+          "x": 64.844,
+          "y": 11.523
+        },
+        {
+          "x": 62.5,
+          "y": 11.426
+        },
+        {
+          "x": 62.5,
+          "y": 10.84
+        },
+        {
+          "x": 62.988,
+          "y": 10.742
+        },
+        {
+          "x": 62.891,
+          "y": 7.324
+        },
+        {
+          "x": 58.691,
+          "y": 7.324
+        },
+        {
+          "x": 58.594,
+          "y": 8.008
+        },
+        {
+          "x": 58.301,
+          "y": 8.203
+        },
+        {
+          "x": 58.105,
+          "y": 8.008
+        },
+        {
+          "x": 58.105,
+          "y": 6.445
+        },
+        {
+          "x": 48.73,
+          "y": 6.445
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Inferno:upper:0"
+      }
+    },
+    {
+      "id": "cs2nades:246:138",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 48.792,
+          "y": 37.125
+        },
+        {
+          "x": 71.277,
+          "y": 20.958
+        }
+      ],
+      "label": "Car to Deep CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/car-to-deep-ct\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 340.332611 2021.449585 201.101990;setang -12.460217 46.776993 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "246:138",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/car-to-deep-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:239:136",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 49.572,
+          "y": 41.815
+        },
+        {
+          "x": 50.677,
+          "y": 13.254
+        }
+      ],
+      "label": "Banana to Coffins",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 423.931122 1761.745117 198.031235;setang -18.792429 87.284302 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "239:136",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:238:136",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 49.572,
+          "y": 41.815
+        },
+        {
+          "x": 50.677,
+          "y": 13.254
+        }
+      ],
+      "label": "Banana to Coffins",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins-4\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 424.037872 1761.620850 198.022552;setang -55.875969 88.721931 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "238:136",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:237:136",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.539,
+          "y": 44.159
+        },
+        {
+          "x": 50.677,
+          "y": 13.254
+        }
+      ],
+      "label": "Banana to Coffins",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins-3\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 368.971619 1663.042358 197.871277;setang -19.641277 85.796349 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "237:136",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-coffins-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:256:140",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.865,
+          "y": 64.628
+        },
+        {
+          "x": 70.152,
+          "y": 60.965
+        }
+      ],
+      "label": "T Spawn to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-long-3\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -859.968384 612.104187 40.313484;setang -28.173410 4.345131 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "256:140",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-long-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:252:141",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 55.034,
+          "y": 63.389
+        },
+        {
+          "x": 81.406,
+          "y": 54.745
+        }
+      ],
+      "label": "Mid to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-long-2\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 736.012756 711.968750 161.744232;setang -62.086803 21.302549 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "252:141",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-long-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:295:141",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 78.635,
+          "y": 71.058
+        },
+        {
+          "x": 81.406,
+          "y": 54.745
+        }
+      ],
+      "label": "A Site to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/a-site-to-long\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1819.031250 273.686279 223.961548;setang -20.880238 69.005371 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "295:141",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/a-site-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:583:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 33.39,
+          "y": 58.894
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "T Ramp to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-ramp-to-long\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -437.97 913.26 43.39;setang -37.84 0.75 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "583:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-ramp-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:251:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 58.63,
+          "y": 63.39
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "Mid to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-long\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 844.308533 711.968750 160.031250;setang -7.477009 -44.133900 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "251:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:255:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.251,
+          "y": 74.958
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "Stairs to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/stairs-to-long\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 857.370911 102.350105 237.031250;setang -62.690495 60.306877 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "255:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/stairs-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:254:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.05,
+          "y": 81.988
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "Second Mid to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-long\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 263.031433 -217.964478 160.802658;setang -23.528467 41.542236 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "254:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:253:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.807,
+          "y": 81.989
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "Second Mid to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-long-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 356.968750 -293.968750 161.282120;setang -20.122360 42.904331 -0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "253:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-long-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:675:142",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 67.467,
+          "y": 52.921
+        },
+        {
+          "x": 70.126,
+          "y": 56.435
+        }
+      ],
+      "label": "Cubby to Long",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/cubby-to-long\nTechnique: LeftClickRightClick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1293.030000 1227.970000 245.030000;setang -43.730000 -40.390000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "675:142",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/cubby-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:676:148",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 74.957,
+          "y": 82.785
+        },
+        {
+          "x": 82.256,
+          "y": 78.254
+        }
+      ],
+      "label": "Apps to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/apps-to-truck-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1607.580000 -274.560000 320.030000;setang -9.950000 -46.670000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "676:148",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/apps-to-truck-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:268:148",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 70.815,
+          "y": 82.935
+        },
+        {
+          "x": 82.256,
+          "y": 78.254
+        }
+      ],
+      "label": "Apps to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/apps-to-truck\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1475.559814 -274.531250 320.031250;setang -3.222113 -16.668318 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "268:148",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/apps-to-truck",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:700:148",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 94.013,
+          "y": 80.378
+        },
+        {
+          "x": 82.256,
+          "y": 78.254
+        }
+      ],
+      "label": "Pit to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/pit-to-truck\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2632.97 -169.05 163.35;setang -5.98 173.61 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "700:148",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/pit-to-truck",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:281:155",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 51.84,
+          "y": 36.814
+        },
+        {
+          "x": 42.243,
+          "y": 24.95
+        }
+      ],
+      "label": "Car to 3rd",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/car-to-3rd\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 479.274414 2017.968750 200.031311;setang -10.588449 123.033058 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "281:155",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/car-to-3rd",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:290:155",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 67.712,
+          "y": 23.846
+        },
+        {
+          "x": 42.243,
+          "y": 24.95
+        }
+      ],
+      "label": "CT to 3rd",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/ct-to-3rd\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1313.968750 2645.041260 198.234177;setang -17.534555 -179.065979 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "290:155",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/ct-to-3rd",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:282:156",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 49.245,
+          "y": 77.143
+        },
+        {
+          "x": 66.077,
+          "y": 78.555
+        }
+      ],
+      "label": "Second Mid to Apps",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/second-mid-to-apps\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 353.031250 25.968750 131.027985;setang -26.946545 -0.453282 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "282:156",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/second-mid-to-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:283:157",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 44.876,
+          "y": 57.758
+        },
+        {
+          "x": 50.626,
+          "y": 35.462
+        }
+      ],
+      "label": "Banana to Car",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/banana-to-car\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 153.885391 942.915710 144.966843;setang -15.711576 87.573540 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "283:157",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/banana-to-car",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:292:157",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.33,
+          "y": 25.403
+        },
+        {
+          "x": 50.626,
+          "y": 35.462
+        }
+      ],
+      "label": "1st to Car",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/1st-to-car\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 518.096069 2567.280029 343.038574;setang -15.172149 -136.262894 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "292:157",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/1st-to-car",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:285:159",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.979,
+          "y": 41.034
+        },
+        {
+          "x": 42.42,
+          "y": 13.715
+        }
+      ],
+      "label": "Banana to Dark",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/banana-to-dark\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 368.971558 1663.042358 198.031311;setang 2.629221 99.023987 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "285:159",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/banana-to-dark",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:286:159",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.793,
+          "y": 39.316
+        },
+        {
+          "x": 42.42,
+          "y": 13.715
+        }
+      ],
+      "label": "Sandbags to Dark",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/sandbags-to-dark\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 662.971741 1880.031738 233.871246;setang 4.225121 115.140633 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "286:159",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/sandbags-to-dark",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:234:134",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.185,
+          "y": 67.606
+        },
+        {
+          "x": 77.921,
+          "y": 50.825
+        }
+      ],
+      "label": "Mid to Arch",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-arch\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 205.968750 434.031250 146.031250;setang -59.160416 20.501640 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "234:134",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-arch",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:235:134",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 58.153,
+          "y": 82.617
+        },
+        {
+          "x": 77.921,
+          "y": 50.825
+        }
+      ],
+      "label": "Second Mid to Arch",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-arch\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 807.031250 -290.968750 153.034042;setang -55.324913 56.475582 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "235:134",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-arch",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:236:135",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.099,
+          "y": 45.408
+        },
+        {
+          "x": 53.05,
+          "y": 23.369
+        }
+      ],
+      "label": "Banana to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-b-site\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 120.610825 1593.879150 169.626129;setang -1.983937 44.550083 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "236:135",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:245:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.863,
+          "y": 68.379
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "T Spawn to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-ct-2\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -858.968750 450.638672 35.413197;setang -41.441616 52.161160 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "245:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-ct-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:242:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.539,
+          "y": 44.159
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "Banana to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 371.229828 1661.554932 198.031311;setang 2.260821 67.623833 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "242:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:244:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 51.293,
+          "y": 36.813
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "Car to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/car-to-ct\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 479.275940 2017.968750 200.031235;setang -6.086743 62.538555 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "244:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/car-to-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:241:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.539,
+          "y": 44.159
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "Banana to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 371.229248 1661.555420 198.031311;setang -32.234665 64.704498 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "241:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:243:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.099,
+          "y": 45.408
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "Banana to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 120.611656 1593.880737 169.626251;setang -32.122128 55.047455 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "243:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:240:137",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.099,
+          "y": 45.408
+        },
+        {
+          "x": 60.658,
+          "y": 22.832
+        }
+      ],
+      "label": "Banana to CT",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-4\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 120.585335 1593.893433 169.637329;setang -33.206631 59.099628 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "240:137",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/banana-to-ct-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:248:139",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.185,
+          "y": 67.606
+        },
+        {
+          "x": 90.44,
+          "y": 54.633
+        }
+      ],
+      "label": "Mid to Library",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-library\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 205.968750 434.031250 146.031250;setang -32.961338 18.015720 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "248:139",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-library",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:250:139",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.863,
+          "y": 68.379
+        },
+        {
+          "x": 90.44,
+          "y": 54.633
+        }
+      ],
+      "label": "T Spawn to Library",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-library\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -858.968750 450.685059 35.409134;setang -35.099102 9.934280 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "250:139",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-library",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:249:139",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 58.153,
+          "y": 82.617
+        },
+        {
+          "x": 90.44,
+          "y": 54.633
+        }
+      ],
+      "label": "Second Mid to Library",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-library\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 807.031250 -290.968750 153.031250;setang -48.684139 40.793961 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "249:139",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-library",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:264:145",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.05,
+          "y": 81.988
+        },
+        {
+          "x": 88.809,
+          "y": 78.088
+        }
+      ],
+      "label": "Second Mid to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit-2\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 263.029388 -217.799377 160.802643;setang -17.217247 2.845441 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "264:145",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:263:145",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.437,
+          "y": 74.019
+        },
+        {
+          "x": 88.809,
+          "y": 78.088
+        }
+      ],
+      "label": "Second Mid to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 729.031372 183.533020 154.522919;setang -60.744862 -5.921753 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "263:145",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:262:145",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 53.571,
+          "y": 63.388
+        },
+        {
+          "x": 88.809,
+          "y": 78.088
+        }
+      ],
+      "label": "Mid to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-pit\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 546.031250 705.968689 160.669128;setang -9.196762 -19.497906 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "262:145",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:247:147",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.675,
+          "y": 53.082
+        },
+        {
+          "x": 87.607,
+          "y": 71.322
+        }
+      ],
+      "label": "Long to Graveyard",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/long-to-graveyard\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1964.952759 1235.968994 236.908630;setang -3.774652 -54.132935 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "247:147",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/long-to-graveyard",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:552:147",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.675,
+          "y": 53.082
+        },
+        {
+          "x": 87.607,
+          "y": 71.322
+        }
+      ],
+      "label": "Long to Graveyard",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/long-to-graveyard-2\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1964.952759 1235.968994 236.908630;setang -3.774652 -54.132935 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "552:147",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/long-to-graveyard-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:580:150",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.334,
+          "y": 78.248
+        },
+        {
+          "x": 57.207,
+          "y": 29.534
+        }
+      ],
+      "label": "Short to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/short-to-b-entrance\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1863.97 -89.96 216.03;setang -45.49 114.90 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "580:150",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/short-to-b-entrance",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:272:150",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 89.269,
+          "y": 60.745
+        },
+        {
+          "x": 57.207,
+          "y": 29.534
+        }
+      ],
+      "label": "Moto to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/moto-to-b-entrance\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2417.968750 797.016296 227.291382;setang -24.734261 139.478378 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "272:150",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/moto-to-b-entrance",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:271:150",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 73.639,
+          "y": 56.518
+        },
+        {
+          "x": 57.207,
+          "y": 29.534
+        }
+      ],
+      "label": "Long to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/long-to-b-entrance\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1574.021118 1019.028809 223.322418;setang -59.681351 129.284546 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "271:150",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/long-to-b-entrance",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:270:150",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 70.215,
+          "y": 17.75
+        },
+        {
+          "x": 57.207,
+          "y": 29.534
+        }
+      ],
+      "label": "CT to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-to-b-entrance-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1441.968628 2983.968750 192.032013;setang -16.613552 -148.700287 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "270:150",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-to-b-entrance-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:269:150",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.776,
+          "y": 5.552
+        },
+        {
+          "x": 57.207,
+          "y": 29.534
+        }
+      ],
+      "label": "Coffins to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/coffins-to-b-entrance\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 795.971619 3593.968750 196.031250;setang -71.149345 -93.379646 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "269:150",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/coffins-to-b-entrance",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:275:151",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 89.126,
+          "y": 25.261
+        },
+        {
+          "x": 48.061,
+          "y": 40.078
+        }
+      ],
+      "label": "CT Spawn to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-banana\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2537.322998 2468.384521 188.236343;setang -25.922775 -165.315002 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "275:151",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:301:151",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 53.793,
+          "y": 39.316
+        },
+        {
+          "x": 48.061,
+          "y": 40.078
+        }
+      ],
+      "label": "Sandbags to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/sandbags-to-banana\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 610.968750 1880.031250 200.031189;setang -7.877531 13.832213 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "301:151",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/sandbags-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:273:151",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 63.027,
+          "y": 11.964
+        },
+        {
+          "x": 48.061,
+          "y": 40.078
+        }
+      ],
+      "label": "Church to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/church-to-banana\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1074.685547 3270.375488 212.422806;setang -42.843040 -120.274521 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "273:151",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/church-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:274:151",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 52.24,
+          "y": 12.741
+        },
+        {
+          "x": 48.061,
+          "y": 40.078
+        }
+      ],
+      "label": "Coffins to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/coffins-to-banana\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 511.502686 3195.028320 231.114990;setang -57.175674 -95.963287 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "274:151",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/coffins-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:280:154",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 51.84,
+          "y": 36.814
+        },
+        {
+          "x": 44.917,
+          "y": 27.634
+        }
+      ],
+      "label": "Car to 2nd",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/car-to-2nd\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 479.276154 2017.968750 200.031204;setang -39.312515 115.422028 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "280:154",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/car-to-2nd",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:553:160",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 76.132,
+          "y": 78.247
+        },
+        {
+          "x": 83.547,
+          "y": 81.052
+        }
+      ],
+      "label": "Short to Mini Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/short-to-mini-pit-2\nTechnique: standing. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1744.540405 -89.968750 206.031250;setang 7.865791 55.336044 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "553:160",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/short-to-mini-pit-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:287:160",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 76.132,
+          "y": 78.247
+        },
+        {
+          "x": 83.547,
+          "y": 81.052
+        }
+      ],
+      "label": "Short to Mini Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/short-to-mini-pit\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1744.540405 -89.968750 206.031250;setang 7.865791 55.336044 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "287:160",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/short-to-mini-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:291:163",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 56.609,
+          "y": 33.377
+        },
+        {
+          "x": 44.268,
+          "y": 51.468
+        }
+      ],
+      "label": "Banana to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/banana-to-banana\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 772.065491 2129.185547 200.031311;setang -5.238741 -144.064240 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "291:163",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/banana-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:258:144",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 67.068,
+          "y": 70.584
+        },
+        {
+          "x": 87.427,
+          "y": 59.387
+        }
+      ],
+      "label": "Boiler to Moto",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/boiler-to-moto\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1290.793457 307.031342 193.371246;setang -16.204338 25.962173 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "258:144",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/boiler-to-moto",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:260:144",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.05,
+          "y": 81.988
+        },
+        {
+          "x": 87.427,
+          "y": 59.387
+        }
+      ],
+      "label": "Second Mid to Moto",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-moto-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 263.027893 -216.739624 160.802658;setang -28.725504 24.651939 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "260:144",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-moto-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:551:144",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 93.012,
+          "y": 83.256
+        },
+        {
+          "x": 87.427,
+          "y": 59.387
+        }
+      ],
+      "label": "Pit to Moto",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/pit-to-moto\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2628.968750 -305.993652 171.985352;setang -9.553870 99.839310 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "551:144",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/pit-to-moto",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:261:144",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.437,
+          "y": 74.019
+        },
+        {
+          "x": 87.427,
+          "y": 59.387
+        }
+      ],
+      "label": "Second Mid to Moto",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-moto\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 729.032532 183.914368 154.538345;setang -56.059471 23.410418 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "261:144",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-moto",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:259:144",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 93.012,
+          "y": 83.256
+        },
+        {
+          "x": 87.427,
+          "y": 59.387
+        }
+      ],
+      "label": "Pit to Moto",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/pit-to-moto-2\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 2628.968750 -305.993652 171.985352;setang -9.553870 99.839310 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "259:144",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/pit-to-moto-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:617:146",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 80.675,
+          "y": 53.082
+        },
+        {
+          "x": 92.422,
+          "y": 78.126
+        }
+      ],
+      "label": "Long to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/long-to-pit-3\nTechnique: LeftClickCtrlSpaceW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1915.030000 1235.960000 283.090000;setang 9.960000 -67.770000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "617:146",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/long-to-pit-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:289:146",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 69.88,
+          "y": 74.181
+        },
+        {
+          "x": 92.422,
+          "y": 78.126
+        }
+      ],
+      "label": "Short to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/short-to-pit\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1322.028442 213.208298 201.955109;setang 12.511370 -23.254187 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "289:146",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/short-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:293:146",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 80.675,
+          "y": 53.082
+        },
+        {
+          "x": 92.422,
+          "y": 78.126
+        }
+      ],
+      "label": "Long to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/long-to-pit\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2062.184814 1235.971924 240.354538;setang -13.462662 -63.488380 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "293:146",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/long-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:265:146",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.05,
+          "y": 81.988
+        },
+        {
+          "x": 92.422,
+          "y": 78.126
+        }
+      ],
+      "label": "Second Mid to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 187.968750 -197.968750 131.306793;setang -22.096590 3.939515 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "265:146",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-pit-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:266:149",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.438,
+          "y": 71.362
+        },
+        {
+          "x": 69.663,
+          "y": 69.314
+        }
+      ],
+      "label": "Second Mid to Short",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-short\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 729.031494 243.912567 155.573914;setang -19.713053 41.695580 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "266:149",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/second-mid-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:267:149",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.865,
+          "y": 64.628
+        },
+        {
+          "x": 69.663,
+          "y": 69.314
+        }
+      ],
+      "label": "T Spawn to Short",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-short\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -850.980286 787.968750 40.111549;setang -22.802721 -9.430901 -0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "267:149",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:284:158",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.979,
+          "y": 41.034
+        },
+        {
+          "x": 52.155,
+          "y": 14.738
+        }
+      ],
+      "label": "Banana to Coffins",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/banana-to-coffins-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 457.270874 1833.310913 200.031250;setang 0.787578 84.974136 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "284:158",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/banana-to-coffins-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:276:143",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 92.093,
+          "y": 34.328
+        },
+        {
+          "x": 61.275,
+          "y": 66.667
+        }
+      ],
+      "label": "CT Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2552.343018 2193.372559 200.897049;setang -25.738585 -125.363625 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "276:143",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:257:143",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.085,
+          "y": 65.88
+        },
+        {
+          "x": 61.275,
+          "y": 66.667
+        }
+      ],
+      "label": "T Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-mid-4\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -610.028625 579.423340 38.562355;setang -43.230850 -1.628497 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "257:143",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/t-spawn-to-mid-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:277:152",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 82.087,
+          "y": 39.014
+        },
+        {
+          "x": 41.695,
+          "y": 60.464
+        }
+      ],
+      "label": "CT Spawn to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-ramp\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2035.968750 1914.967651 200.335892;setang -43.457016 -154.994537 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "277:152",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:278:153",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.424,
+          "y": 37.125
+        },
+        {
+          "x": 48.256,
+          "y": 27.904
+        }
+      ],
+      "label": "Car to 1st",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/car-to-1st-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 409.325531 2009.150757 200.031235;setang -41.114544 89.999573 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "278:153",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/car-to-1st-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:279:153",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 51.84,
+          "y": 36.814
+        },
+        {
+          "x": 48.256,
+          "y": 27.904
+        }
+      ],
+      "label": "Car to 1st",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/car-to-1st\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 479.274414 2017.968750 200.031281;setang -37.574696 136.296204 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "279:153",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/car-to-1st",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:288:161",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 65.194,
+          "y": 65.738
+        },
+        {
+          "x": 70.117,
+          "y": 77.65
+        }
+      ],
+      "label": "Mid to Patio",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/mid-to-patio\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1136.347900 587.968750 179.430145;setang -19.877815 -44.787476 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "288:161",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/mid-to-patio",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:294:164",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 28.615,
+          "y": 68.068
+        },
+        {
+          "x": 43.845,
+          "y": 57.626
+        }
+      ],
+      "label": "T Spawn to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/t-spawn-to-banana\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -669.545898 512.407532 34.815399;setang -12.982107 43.010071 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "294:164",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/t-spawn-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:296:166",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 47.062,
+          "y": 63.542
+        },
+        {
+          "x": 68.406,
+          "y": 66.828
+        }
+      ],
+      "label": "Underpass to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/underpass-to-mid\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 292.988708 648.044922 75.770920;setang -18.219749 -8.623450 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "296:166",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/underpass-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:297:167",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 74.254,
+          "y": 83.874
+        },
+        {
+          "x": 83.454,
+          "y": 86.802
+        }
+      ],
+      "label": "Apps to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/apps-to-pit\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1579.335571 -377.968750 320.031250;setang -24.480705 -30.092890 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "297:167",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/apps-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:298:168",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 66.598,
+          "y": 74.179
+        },
+        {
+          "x": 69.672,
+          "y": 71.583
+        }
+      ],
+      "label": "Apps to Short",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/apps-to-short\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1276.968750 -99.968750 302.031250;setang 4.644274 117.442802 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "298:168",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/apps-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:299:169",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 67.712,
+          "y": 23.846
+        },
+        {
+          "x": 57.963,
+          "y": 24.985
+        }
+      ],
+      "label": "CT to B Entrance",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/ct-to-b-entrance\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1313.968750 2645.031250 198.235046;setang -27.273563 -172.709259 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "299:169",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/ct-to-b-entrance",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:300:170",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 64.899,
+          "y": 21.031
+        },
+        {
+          "x": 50.669,
+          "y": 35.125
+        }
+      ],
+      "label": "CT to Banana",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/ct-to-banana\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1148.031250 2798.269043 189.269714;setang -29.862030 -146.876907 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "300:170",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/ct-to-banana",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:302:172",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 90.355,
+          "y": 82.161
+        },
+        {
+          "x": 71.731,
+          "y": 74.278
+        }
+      ],
+      "label": "Pit to Short",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/flash/pit-to-short\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2445.031250 -226.031250 162.775665;setang -10.608932 158.623093 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "302:172",
+        "url": "https://cs2nades.gg/en/map/inferno/flash/pit-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:576:290",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 67.068,
+          "y": 70.584
+        },
+        {
+          "x": 81.292,
+          "y": 80.943
+        }
+      ],
+      "label": "Boiler to Balcony",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/boiler-to-balcony\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1290.30 307.08 193.53;setang -30.42 -37.96 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "576:290",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/boiler-to-balcony",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:616:290",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 65.194,
+          "y": 65.738
+        },
+        {
+          "x": 81.292,
+          "y": 80.943
+        }
+      ],
+      "label": "Mid to Balcony",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/mid-to-balcony\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1134.130000 587.970000 175.660000;setang -2.250000 -41.920000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "616:290",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/mid-to-balcony",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:578:291",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 54.882,
+          "y": 13.702
+        },
+        {
+          "x": 53.414,
+          "y": 18.565
+        }
+      ],
+      "label": "Church to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/church-to-b-site-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 668.44 3167.76 224.03;setang -24.31 -31.23 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "578:291",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/church-to-b-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:577:291",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 56.534,
+          "y": 12.351
+        },
+        {
+          "x": 53.414,
+          "y": 18.565
+        }
+      ],
+      "label": "Church to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/church-to-b-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 735.71 3250.33 224.03;setang -53.96 -117.02 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "577:291",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/church-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:579:292",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 80.675,
+          "y": 53.082
+        },
+        {
+          "x": 78.459,
+          "y": 63.618
+        }
+      ],
+      "label": "Long to Cubby",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/molotov/long-to-cubby\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1915.04 1235.94 283.09;setang -10.83 -54.32 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "579:292",
+        "url": "https://cs2nades.gg/en/map/inferno/molotov/long-to-cubby",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:581:293",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 85.506,
+          "y": 38.642
+        },
+        {
+          "x": 48.766,
+          "y": 65.67
+        }
+      ],
+      "label": "CT Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2213.03 1926.96 200.87;setang -29.32 -136.34 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "581:293",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:582:294",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 85.506,
+          "y": 38.642
+        },
+        {
+          "x": 43.779,
+          "y": 62.624
+        }
+      ],
+      "label": "CT Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-4\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2214.04 1926.97 200.88;setang -37.79 -156.80 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "582:294",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:699:294",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 85.506,
+          "y": 38.642
+        },
+        {
+          "x": 43.779,
+          "y": 62.624
+        }
+      ],
+      "label": "CT Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-8\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 2035.97 1914.96 200.50;setang -48.41 -150.22 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "699:294",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/ct-spawn-to-mid-8",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:677:335",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 52.894,
+          "y": 63.013
+        },
+        {
+          "x": 82.339,
+          "y": 72.224
+        }
+      ],
+      "label": "Mid to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/inferno/smoke/mid-to-a-site-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 546.030000 705.970000 160.830000;setang -5.280000 -14.180000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "677:335",
+        "url": "https://cs2nades.gg/en/map/inferno/smoke/mid-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "native-site:Inferno:A:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 80.20715354010963,
+          "y": 73.52583897730284
+        },
+        {
+          "x": 84.67197220794824,
+          "y": 73.52658411943348
+        },
+        {
+          "x": 84.67383506327485,
+          "y": 62.364537449836945
+        },
+        {
+          "x": 80.20901639543624,
+          "y": 62.36379230770631
+        }
+      ],
+      "label": "A native plant zone (1/2)",
+      "note": "Installed func_bomb_target 129, convex piece 1. Native volume Z 160 to 200. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Inferno:A:1",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 77.33694623320136,
+          "y": 73.32603769540464
+        },
+        {
+          "x": 80.20718680538332,
+          "y": 73.32651671534576
+        },
+        {
+          "x": 80.20890329350568,
+          "y": 63.04148799836038
+        },
+        {
+          "x": 77.33866272132373,
+          "y": 63.04100897841926
+        }
+      ],
+      "label": "A native plant zone (2/2)",
+      "note": "Installed func_bomb_target 129, convex piece 2. Native volume Z 160 to 200. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Inferno:B:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 44.33722925137477,
+          "y": 25.08454157236834
+        },
+        {
+          "x": 52.94795096792066,
+          "y": 25.085978632191715
+        },
+        {
+          "x": 52.94898884445976,
+          "y": 18.86712405913079
+        },
+        {
+          "x": 44.33826712791387,
+          "y": 18.86568699930742
+        }
+      ],
+      "label": "B native plant zone (1/3)",
+      "note": "Installed func_bomb_target 13099, convex piece 1. Native volume Z 160 to 185.999996. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Inferno:B:1",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 44.33722925137477,
+          "y": 25.08454157236834
+        },
+        {
+          "x": 45.53296323147512,
+          "y": 26.280674735752967
+        },
+        {
+          "x": 51.75181780453604,
+          "y": 26.28171261229207
+        },
+        {
+          "x": 52.94795096792066,
+          "y": 25.085978632191715
+        }
+      ],
+      "label": "B native plant zone (2/3)",
+      "note": "Installed func_bomb_target 13099, convex piece 2. Native volume Z 160 to 185.999996. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Inferno:B:2",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 44.33826712791387,
+          "y": 18.86568699930742
+        },
+        {
+          "x": 52.94898884445976,
+          "y": 18.86712405913079
+        },
+        {
+          "x": 51.753254864359405,
+          "y": 17.67099089574618
+        },
+        {
+          "x": 45.53440088926528,
+          "y": 17.669953019306874
+        }
+      ],
+      "label": "B native plant zone (3/3)",
+      "note": "Installed func_bomb_target 13099, convex piece 3. Native volume Z 160 to 185.999996. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:18",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 9.996348594607218,
+          "y": 68.35586022147142
+        }
+      ],
+      "label": "T spawn 18",
+      "note": "Installed enabled spawn; priority 0. World origin -1586.52002, 440.790009, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:19",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 11.321010640862854,
+          "y": 68.55339076824201
+        }
+      ],
+      "label": "T spawn 19",
+      "note": "Installed enabled spawn; priority 0. World origin -1520.060059, 430.890991, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:20",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.586871111929423,
+          "y": 68.77844757626272
+        }
+      ],
+      "label": "T spawn 20",
+      "note": "Installed enabled spawn; priority 0. World origin -1657.22998, 419.576996, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:21",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.220091361912694,
+          "y": 70.13142556073709
+        }
+      ],
+      "label": "T spawn 21",
+      "note": "Installed enabled spawn; priority 0. World origin -1675.619995, 351.695007, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:22",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.487769957588187,
+          "y": 71.3858653392943
+        }
+      ],
+      "label": "T spawn 22",
+      "note": "Installed enabled spawn; priority 0. World origin -1662.180054, 288.761993, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:23",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 11.10332952249726,
+          "y": 66.29884002406848
+        }
+      ],
+      "label": "T spawn 23",
+      "note": "Installed enabled spawn; priority 1. World origin -1531, 544, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:24",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 11.900438937847662,
+          "y": 67.37531329973146
+        }
+      ],
+      "label": "T spawn 24",
+      "note": "Installed enabled spawn; priority 1. World origin -1491, 490, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:25",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 9.807851248234146,
+          "y": 65.6009958829397
+        }
+      ],
+      "label": "T spawn 25",
+      "note": "Installed enabled spawn; priority 1. World origin -1596, 579, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:26",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.591869021838043,
+          "y": 66.29842088162
+        }
+      ],
+      "label": "T spawn 26",
+      "note": "Installed enabled spawn; priority 1. World origin -1657, 544, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:27",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.372431574679963,
+          "y": 67.39465673058287
+        }
+      ],
+      "label": "T spawn 27",
+      "note": "Installed enabled spawn; priority 1. World origin -1668, 489, -46. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:28",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 11.064133702106997,
+          "y": 62.2924559056764
+        }
+      ],
+      "label": "T spawn 28",
+      "note": "Installed enabled spawn; priority 1. World origin -1533, 745, -24. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:29",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 11.362714585230977,
+          "y": 64.70430517326761
+        }
+      ],
+      "label": "T spawn 29",
+      "note": "Installed enabled spawn; priority 1. World origin -1518, 624, -24. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:30",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 9.668954378536917,
+          "y": 61.83378184625929
+        }
+      ],
+      "label": "T spawn 30",
+      "note": "Installed enabled spawn; priority 1. World origin -1603, 768, -24. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:31",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.731973420970192,
+          "y": 62.83023680925835
+        }
+      ],
+      "label": "T spawn 31",
+      "note": "Installed enabled spawn; priority 1. World origin -1650, 718, -24. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:32",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 8.751649504558491,
+          "y": 64.36502155285525
+        }
+      ],
+      "label": "T spawn 32",
+      "note": "Installed enabled spawn; priority 1. World origin -1649, 641, -24. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:33",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 91.12828974463318,
+          "y": 31.313195680830056
+        }
+      ],
+      "label": "CT spawn 33",
+      "note": "Installed enabled spawn; priority 1. World origin 2483.560059, 2299.900146, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:34",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 90.18049518193632,
+          "y": 30.214774717713635
+        }
+      ],
+      "label": "CT spawn 34",
+      "note": "Installed enabled spawn; priority 1. World origin 2436, 2355, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:35",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 91.04348977342246,
+          "y": 33.03592251115539
+        }
+      ],
+      "label": "CT spawn 35",
+      "note": "Installed enabled spawn; priority 1. World origin 2479.320068, 2213.470215, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:36",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 88.95345547291825,
+          "y": 33.86515531077392
+        }
+      ],
+      "label": "CT spawn 36",
+      "note": "Installed enabled spawn; priority 1. World origin 2374.469971, 2171.850098, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:37",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 87.40301893114386,
+          "y": 33.312974372722344
+        }
+      ],
+      "label": "CT spawn 37",
+      "note": "Installed enabled spawn; priority 1. World origin 2296.679932, 2199.540039, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:38",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 91.31575054533894,
+          "y": 35.49700427163629
+        }
+      ],
+      "label": "CT spawn 38",
+      "note": "Installed enabled spawn; priority 0. World origin 2493, 2090, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:39",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 90.5950135817297,
+          "y": 34.23796629891581
+        }
+      ],
+      "label": "CT spawn 39",
+      "note": "Installed enabled spawn; priority 0. World origin 2456.830078, 2153.159912, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:40",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 90.90386763610125,
+          "y": 37.17184112362037
+        }
+      ],
+      "label": "CT spawn 40",
+      "note": "Installed enabled spawn; priority 0. World origin 2472.349854, 2005.969971, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:41",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 88.52486298034712,
+          "y": 37.74888011791967
+        }
+      ],
+      "label": "CT spawn 41",
+      "note": "Installed enabled spawn; priority 0. World origin 2353, 1977, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:42",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 87.31036291345805,
+          "y": 36.73831402967897
+        }
+      ],
+      "label": "CT spawn 42",
+      "note": "Installed enabled spawn; priority 0. World origin 2292.060059, 2027.689941, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:43",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 90.21884606437492,
+          "y": 39.28394428981555
+        }
+      ],
+      "label": "CT spawn 43",
+      "note": "Installed enabled spawn; priority 1. World origin 2438, 1900, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:44",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 89.88001748323522,
+          "y": 37.97294479001548
+        }
+      ],
+      "label": "CT spawn 44",
+      "note": "Installed enabled spawn; priority 1. World origin 2420.98999, 1965.77002, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:45",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 89.80001649818499,
+          "y": 40.798723623614606
+        }
+      ],
+      "label": "CT spawn 45",
+      "note": "Installed enabled spawn; priority 1. World origin 2417, 1824, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:46",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 88.32153875295526,
+          "y": 41.43411588770365
+        }
+      ],
+      "label": "CT spawn 46",
+      "note": "Installed enabled spawn; priority 1. World origin 2342.830078, 1792.109985, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:47",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 86.8700025331075,
+          "y": 40.658709040721426
+        }
+      ],
+      "label": "CT spawn 47",
+      "note": "Installed enabled spawn; priority 1. World origin 2270, 1831, 140.843002. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:194",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 10.147011787133863,
+          "y": 63.72742317150842
+        }
+      ],
+      "label": "T spawn 194",
+      "note": "Installed enabled spawn; priority 1. World origin -1579, 673, -40. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Inferno:195",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 89.4022202387499,
+          "y": 35.715939413161664
+        }
+      ],
+      "label": "CT spawn 195",
+      "note": "Installed enabled spawn; priority 0. World origin 2397, 2079, 155. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_inferno_radar_psd.png",
+    "sourceSha256": "74b3722dc370cd86bb7a059ca9cced19ced57a88290ddfdce7372f0ad85c7821",
+    "targetSha256": "53e1d660d5e61a9b876cc56725c2e891c56efcb788657520fa9c10fec321dce3",
+    "sourceVersion": "2000908",
+    "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+    "matrix": [
+      0.9998806048048301,
+      0.00016687198734728726,
+      -0.032072359536340286,
+      -0.00016687198734728726,
+      0.9998806048048301,
+      -0.0024005080933270375
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "139 SIFT/RANSAC inliers; median 0.406px, p95 1.740px. Image alignment only; floors and walls need review."
+  }
+}

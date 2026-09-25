@@ -1,0 +1,115 @@
+{
+  "teamCount": 198,
+  "teamsWithBranding": 198,
+  "missingReferencedLogos": [],
+  "mapImages": [
+    {
+      "path": "public/maps/ancient.png",
+      "bytes": 1031773,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/anubis.png",
+      "bytes": 910398,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/de_ancient_radar_psd.png",
+      "bytes": 25068,
+      "width": 3613458432,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/de_anubis_radar_psd.png",
+      "bytes": 40594,
+      "width": 2107506688,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/de_inferno_radar_psd.png",
+      "bytes": 27748,
+      "width": 167772160,
+      "height": 268435456
+    },
+    {
+      "path": "public/maps/de_mirage_radar_psd.png",
+      "bytes": 32590,
+      "width": 981401600,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/de_nuke_lower_radar_psd_2.png",
+      "bytes": 19310,
+      "width": 1498087424,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/de_nuke_radar_psd_1.png",
+      "bytes": 24062,
+      "width": 3915186176,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/de_overpass_radar_psd.png",
+      "bytes": 60462,
+      "width": 167772160,
+      "height": 268435456
+    },
+    {
+      "path": "public/maps/de_sandstone_radar_psd.png",
+      "bytes": 29662,
+      "width": 167772160,
+      "height": 268435456
+    },
+    {
+      "path": "public/maps/de_vertigo_lower_radar_psd_2.png",
+      "bytes": 32572,
+      "width": 167772160,
+      "height": 268435456
+    },
+    {
+      "path": "public/maps/de_vertigo_radar_psd_1.png",
+      "bytes": 25138,
+      "width": 492961792,
+      "height": 805291007
+    },
+    {
+      "path": "public/maps/inferno.png",
+      "bytes": 1011889,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/mirage.png",
+      "bytes": 839631,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/nuke.png",
+      "bytes": 764168,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/overpass.png",
+      "bytes": 1135908,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/sandstone.png",
+      "bytes": 885916,
+      "width": 19660800,
+      "height": 4293597033
+    },
+    {
+      "path": "public/maps/vertigo.png",
+      "bytes": 886803,
+      "width": 19660800,
+      "height": 4293597033
+    }
+  ]
+}

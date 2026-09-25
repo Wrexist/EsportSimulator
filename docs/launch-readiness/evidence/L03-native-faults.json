@@ -1,0 +1,37 @@
+{
+  "phase": "faults",
+  "electron": "44.3.0",
+  "checks": [
+    {
+      "mode": "local",
+      "passed": true,
+      "checks": [
+        "real adapter fault rejects; last-good bytes unchanged",
+        "corrupted primary restored from validated backup",
+        "interrupted staging discarded; primary intact",
+        "duplicate saves serialize; successful retry remains durable"
+      ]
+    },
+    {
+      "mode": "idb",
+      "passed": true,
+      "checks": [
+        "real adapter fault rejects; last-good bytes unchanged",
+        "corrupted primary restored from validated backup",
+        "interrupted staging discarded; primary intact",
+        "duplicate saves serialize; successful retry remains durable"
+      ]
+    },
+    {
+      "mode": "disk",
+      "passed": true,
+      "checks": [
+        "real adapter fault rejects; last-good bytes unchanged",
+        "corrupted primary restored from validated backup",
+        "interrupted staging discarded; primary intact",
+        "duplicate saves serialize; successful retry remains durable"
+      ]
+    }
+  ],
+  "passed": true
+}

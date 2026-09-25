@@ -1,0 +1,415 @@
+{
+  "snapshot": "public/data/snapshot/players.json",
+  "checked": 1368,
+  "passed": 0,
+  "pathResolved": 1368,
+  "broken": 0,
+  "failed": 1368,
+  "minSourceSize": 512,
+  "minFileBytes": 4096,
+  "issueCounts": {
+    "non-webp-path": 1368
+  },
+  "failures": [
+    {
+      "id": "player_15_100_ag7l",
+      "nickname": "Eg1l",
+      "portraitPath": "/assets/teams/phantum/players/maqixx.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_15_100_devike",
+      "nickname": "devise",
+      "portraitPath": "/assets/teams/e81ium/players/s7n.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_15_100_pxoiii",
+      "nickname": "puiii",
+      "portraitPath": "/assets/teams/phantum/players/zont7x.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_15_100_rxain",
+      "nickname": "rayn",
+      "portraitPath": "/assets/teams/gamar_laogue/players/res.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_15_100_zirah",
+      "nickname": "syrah",
+      "portraitPath": "/assets/teams/valcunry/players/tesez.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_77_1win_cronusz",
+      "nickname": "crunuss",
+      "portraitPath": "/assets/teams/mbrix_espurts/players/cl7m.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_77_1win_hxobbit",
+      "nickname": "HUbbit",
+      "portraitPath": "/assets/teams/muntegra/players/bymaz.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_77_1win_inters",
+      "nickname": "ynterz",
+      "portraitPath": "/assets/teams/thaia_nomads/players/blits.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_77_1win_lattykc",
+      "nickname": "lettykk",
+      "portraitPath": "/assets/teams/toroaia/players/mozeyuh.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_77_1win_oz1c",
+      "nickname": "uz1k",
+      "portraitPath": "/assets/teams/k_dwo/players/malbzmd.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_72_33or_bluewh7te",
+      "nickname": "bloewh1te",
+      "portraitPath": "/assets/teams/cantury_rugues/players/pxoiii.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_72_33or_exekutor",
+      "nickname": "ixecutor",
+      "portraitPath": "/assets/teams/lyniage/players/zaadzin.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_72_33or_cingie",
+      "nickname": "kynqie",
+      "portraitPath": "/assets/teams/nados_vyncero/players/v8nderful.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_72_33or_ciro",
+      "nickname": "KYRO",
+      "portraitPath": "/assets/teams/furea/players/czcerato.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_72_33or_s7nny",
+      "nickname": "z1Nnyx",
+      "portraitPath": "/assets/teams/virtosium_nova/players/fl7t.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_13_3dmax_bzodyy",
+      "nickname": "budyy",
+      "portraitPath": "/assets/teams/3dmax/players/bzodyy.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_13_3dmax_ex3rcike",
+      "nickname": "Ix3rcice",
+      "portraitPath": "/assets/teams/3dmax/players/ex3rcike.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_13_3dmax_grawiti",
+      "nickname": "Greviti",
+      "portraitPath": "/assets/teams/3dmax/players/grawiti.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_13_3dmax_lukcy",
+      "nickname": "Locky",
+      "portraitPath": "/assets/teams/3dmax/players/lukcy.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_13_3dmax_maca",
+      "nickname": "Meka",
+      "portraitPath": "/assets/teams/3dmax/players/maca.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_70_500ro_kerg",
+      "nickname": "CiRq",
+      "portraitPath": "/assets/teams/moyzenor/players/bxrollan.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_70_500ro_kypher",
+      "nickname": "CYPHIR",
+      "portraitPath": "/assets/teams/fut/players/crabeni.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_70_500ro_hampuz",
+      "nickname": "hempus",
+      "portraitPath": "/assets/teams/b8/players/ezenthial.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_70_500ro_rainvaker",
+      "nickname": "Reinwaker",
+      "portraitPath": "/assets/teams/tide/players/eliqe.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_70_500ro_wolt",
+      "nickname": "vult",
+      "portraitPath": "/assets/teams/lyniage/players/lzux.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_225_777_brawe",
+      "nickname": "Breve",
+      "portraitPath": "/assets/teams/mbrix_espurts/players/gicert.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_225_777_haqmeizter",
+      "nickname": "Hegmeister",
+      "portraitPath": "/assets/teams/phenatic/players/fxear.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_225_777_thomazs1",
+      "nickname": "thumass1",
+      "portraitPath": "/assets/teams/eyebollars/players/dzex.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_225_777_same",
+      "nickname": "zeme",
+      "portraitPath": "/assets/teams/furea/players/mzolodoy.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_225_777_sapr",
+      "nickname": "ZepR",
+      "portraitPath": "/assets/teams/thaia_nomads/players/msinho.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_226_8sins_dxobbo",
+      "nickname": "dubbo",
+      "portraitPath": "/assets/teams/bezteayx/players/kass1n.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_226_8sins_frasehh",
+      "nickname": "Frezehh",
+      "portraitPath": "/assets/teams/kantla_motix/players/mopos.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_226_8sins_pzrime",
+      "nickname": "Pryme",
+      "portraitPath": "/assets/teams/piriveseon/players/nxota.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_226_8sins_tzadpole",
+      "nickname": "Tedpole",
+      "portraitPath": "/assets/teams/valyand/players/yxnqstxr.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_226_8sins_txornex",
+      "nickname": "TurNEX",
+      "portraitPath": "/assets/teams/fut/players/kmtry.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_129_9buomprara_ax7le",
+      "nickname": "Ex1Le",
+      "portraitPath": "/assets/teams/cantury_rugues/players/pxoiii.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_129_9buomprara_zhalfey",
+      "nickname": "shelfey",
+      "portraitPath": "/assets/teams/hatuol/players/frontalez.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_129_9buomprara_sorte",
+      "nickname": "zurte",
+      "portraitPath": "/assets/teams/3dmax/players/maca.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_bznox",
+      "nickname": "bnux",
+      "portraitPath": "/assets/teams/piriveseon/players/belkhonock.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_kej8t",
+      "nickname": "cij0t",
+      "portraitPath": "/assets/teams/e81ium/players/jzba.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_kraqhen",
+      "nickname": "kreghen",
+      "portraitPath": "/assets/teams/vlycresd/players/wexite.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_phsy",
+      "nickname": "phzyx",
+      "portraitPath": "/assets/teams/furea/players/mzolodoy.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_raals",
+      "nickname": "realz",
+      "portraitPath": "/assets/teams/nave_enveders/players/r7ncle.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_41_9ink_zhield",
+      "nickname": "shyeld",
+      "portraitPath": "/assets/teams/boombyteor/players/artfr0zt.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_dqt",
+      "nickname": "dgtx",
+      "portraitPath": "/assets/teams/3dmax/players/lukcy.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_huazopeec",
+      "nickname": "HOASOPEEK",
+      "portraitPath": "/assets/teams/kantla_motix/players/daw7g.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_lukhow",
+      "nickname": "lochov",
+      "portraitPath": "/assets/teams/mbrix_espurts/players/brnz6n.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_lucen",
+      "nickname": "Loken",
+      "portraitPath": "/assets/teams/iurura/players/voxik.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_mxax",
+      "nickname": "mex",
+      "portraitPath": "/assets/teams/redex_wolvez/players/dzrop.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    },
+    {
+      "id": "player_42_9zed_mxeyern",
+      "nickname": "miyern",
+      "portraitPath": "/assets/teams/vlycresd/players/wexite.png",
+      "issues": [
+        "non-webp-path"
+      ]
+    }
+  ]
+}

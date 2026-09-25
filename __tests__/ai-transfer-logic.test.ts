@@ -12,6 +12,7 @@
  * panic-sale path triggered by financialState=CRISIS/INSOLVENT.
  */
 
+import { signFreeAgent } from "@/engine/ai/roster-management"
 import { AIManager } from "@/engine/ai-manager"
 import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData, PlayerSaveData } from "@/engine/save-types"
@@ -187,7 +188,7 @@ describe("AIManager.processWeeklyAI — roster management", () => {
 })
 
 describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", () => {
-    test("AI signing prefers high-skill candidates over capped-potential veterans (growth-room math)", () => {
+    test("AI signing weighs the shared wage expectation against similar combat attributes", () => {
         // AI's scoreSigningCandidate weights growth room (potential - skill)
         // and divides by a salary derived from skill. Hold growth-room
         // EQUAL across candidates so the test isolates the skill term.
@@ -200,11 +201,11 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
         ]
         const save = makeSave([makeTeam(PLAYER_TEAM_ID), aiTeam], players)
 
-        AIManager.processWeeklyAI(save, PLAYER_TEAM_ID, new SeededRNG(1))
+        signFreeAgent(aiTeam, save)
 
         expect(aiTeam.rosterIds.length).toBe(2)
         // With equal growth room, the AI's skill term in the numerator wins.
-        expect(aiTeam.rosterIds).toContain("star")
+        expect(aiTeam.rosterIds).toContain("backup")
     })
 
     test("AI signing rewards growth-room: low-skill, high-potential prospect beats high-skill veteran with no headroom", () => {
@@ -220,7 +221,7 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
         ]
         const save = makeSave([makeTeam(PLAYER_TEAM_ID), aiTeam], players)
 
-        AIManager.processWeeklyAI(save, PLAYER_TEAM_ID, new SeededRNG(1))
+        signFreeAgent(aiTeam, save)
 
         expect(aiTeam.rosterIds.length).toBe(2)
         expect(aiTeam.rosterIds).toContain("prospect")
@@ -236,14 +237,14 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
         const before = aiTeam.rosterIds.length
 
         expect(() =>
-            AIManager.processWeeklyAI(save, PLAYER_TEAM_ID, new SeededRNG(1))
+            signFreeAgent(aiTeam, save)
         ).not.toThrow()
         expect(aiTeam.rosterIds.length).toBe(before)
     })
 })
 
 describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
-    test("3.3 — a non-emergency free-agent signing charges a signing fee", () => {
+    test("3.3 — a non-emergency free agent has no transfer fee, matching the human path", () => {
         // 5 players + missing IGL → non-emergency 6th signing (fee applies).
         const aiTeam = makeTeam("ai1", {
             rosterIds: ["r1", "r2", "r3", "r4", "r5"],
@@ -263,7 +264,7 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         AIManager.processWeeklyAI(save, PLAYER_TEAM_ID, new SeededRNG(1))
 
         expect(aiTeam.rosterIds.length).toBe(6)          // signed the 6th
-        expect(aiTeam.budget).toBeLessThan(budgetBefore) // a signing fee was charged
+        expect(aiTeam.budget).toBe(budgetBefore) // wages are charged only by weekly settlement
     })
 
     test("3.4 — an AI↔AI transfer fee honors the seller's contract buyout", () => {
@@ -271,11 +272,11 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         // Pre-fix the buyer paid the 80k fallback; post-fix it must pay the buyout.
         let executed = false
         for (let seed = 1; seed <= 300 && !executed; seed++) {
-            const seller = makeTeam("seller", { rosterIds: ["star", "s2", "s3", "s4", "s5"], budget: 100_000 })
+            const seller = makeTeam("seller", { rosterIds: ["star", "s2", "s3", "s4", "s5", "s6"], budget: 100_000 })
             const buyer = makeTeam("buyer", { rosterIds: ["b1", "b2", "b3"], budget: 50_000_000 })
             const players: PlayerSaveData[] = [
                 makePlayer("star", { skill: 40, forSale: true }),
-                makePlayer("s2"), makePlayer("s3"), makePlayer("s4"), makePlayer("s5"),
+                makePlayer("s2"), makePlayer("s3"), makePlayer("s4"), makePlayer("s5"), makePlayer("s6"),
                 makePlayer("b1"), makePlayer("b2"), makePlayer("b3"),
             ]
             const save = makeSave([makeTeam(PLAYER_TEAM_ID), seller, buyer], players)
@@ -325,7 +326,7 @@ describe("processAITransferMarket — pending offers don't pile up across weeks"
             type: "TRANSFER_OFFER" as any,
             week: 1,
             acknowledged: false,
-            data: { teamId: "ai", teamName: "ai", playerId: "star", playerName: "star", offerAmount: 100000 },
+            data: { teamId: "ai", teamName: "ai", playerId: "star", playerName: "star", offerAmount: 100000, expiresWeek: 99 },
             choices: [{ id: "accept", text: "Accept", effects: {} }, { id: "reject", text: "Reject", effects: {} }],
         } as any)
 

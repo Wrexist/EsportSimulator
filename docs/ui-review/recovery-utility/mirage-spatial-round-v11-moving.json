@@ -1,0 +1,38 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Mirage",
+  "scope": "5v5 moving-squad recovery regression with gunfire disabled; not a combat or real-game lineup certificate.",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "fixtureSha256": "762efb66cd28e2c5b4c80b9c65fcc075edea1383f93c068471efd4aa4cfa737b",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 143,
+  "minSeparation": 43.023979588665895,
+  "checks": [
+    {
+      "id": "mirage-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "2741bcf4c3d0c3b1f0ca0b54a961315970dba71e65d267e8605b98964ad516f8"
+}

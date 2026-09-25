@@ -1,0 +1,55 @@
+{
+  "recordedAt": "2026-09-13T12:48:13.685Z",
+  "status": "partial",
+  "buildId": "19OP8siEFUQKAXfnUSrn4",
+  "spatialWorker": "2063.be6e889d5e877b24.js",
+  "spatialWorkerSha256": "fc3f47086db7a3e3f5c93379f60918d582c691b6cdddd53ae6323ec211eb44d4",
+  "electron": "44.3.0",
+  "regression": {
+    "suites": 143,
+    "tests": 1362,
+    "result": "pass"
+  },
+  "types": "pass",
+  "productionBuild": "pass with existing lint warnings",
+  "compiledWeekWorker": "pass",
+  "nativeSpatial": "pass",
+  "ownerDraftSha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+  "compiledChunkSha256": {
+    "2063.be6e889d5e877b24.js": "fc3f47086db7a3e3f5c93379f60918d582c691b6cdddd53ae6323ec211eb44d4",
+    "3957.6d3e77cfd7658130.js": "5c084729d46fd218467a06aa357272f52b07fb42179fc45f2f5602f5369470da",
+    "4444.00705d458b512e14.js": "10eb6012898c7e6c5bc2caf8a027a26c300faf05ce35f81dc6dbdc05c662d2ba",
+    "8178-ef9b36b4ea6f75b1.js": "47859445a47611611eb820061a1a03210fc3a7fe875472d463f756001bc03c05"
+  },
+  "sourceSha256": {
+    "engine/spatial/registration.ts": "c9a03076399020a17d798c97f9af7cc593b8d4c4ee895893e789f5ae6fe79a85",
+    "engine/spatial/annotations.ts": "cba02a120595ad81b0daafb42d7b680eb4819077342dbbe4af0a874560ff6122",
+    "engine/spatial/airborne.ts": "d6d336bc34f1cc44670a0874d29b8b91f1a76294af2767263dfccce18a96c210",
+    "engine/spatial/navigation.ts": "062131885d43f6de1a0cb1e27098479d10724c78fa03416e900eecf5a32ac181",
+    "engine/spatial/geometry.ts": "72a190e5ff9f2878bd36346f1d8b8600d9f509176d3f6fe0ddddab7a85e637df",
+    "engine/spatial/movement.ts": "eeab0c8e25e350074cdf5885b5f1b1d77e3c6b412ced76cd93cfa363659eaaf9",
+    "engine/spatial/spatial-lab.worker.ts": "5fe67d4bf007ef4d906134a108bf318df9eae52ea9e51982fd50860ff1c9c3f6",
+    "lib/map-annotations.ts": "8201b8292fbcdf7f2f0806cbf14c458394b943bbd771655e86fba5a3d6926b80",
+    "lib/spatial-lab-project.ts": "2a51b992bdcce7672a050f69be45979c3ef958ee229b25a56d95111bf8714678",
+    "components/maps/MapValidationPanel.tsx": "0c1519cb9f004c40202d79827b834e601850e71a5e95c689a66655bea3999043",
+    "components/maps/MapAnnotationEditor.tsx": "1941ef23e2802fd8e84eddabd5fcdc791702df3f1b6a34413bbe88581a7ff165",
+    "components/maps/SpatialLab.tsx": "b4f48ca5aa5c86d812cc20b3572516f0a1e16ef9523a0743be6de2394fa1ffda",
+    "components/maps/map-editor.module.css": "103cda02a944ba784a656a63fffa4349115216c84c9ea9687951fdfd1ced66e7",
+    "scripts/register-annotation-radars.py": "3cc44fba2b335ddc9ba0b91749647bf0f090b56b93457a71afd2c08b7fdc366e",
+    "scripts/launch/audit-mirage-annotations.ts": "7934e4e1129addcb69544c3319455dbca6c007c58fc05193ff65f36caa9cbafe",
+    "scripts/launch/spatial-review-browser.ts": "7b660dbfc3baf4efd70351bbfa3c9679fcdd231ab705741a2926d2e8f7986c43",
+    "scripts/launch/spatial-review-native.cjs": "8ac08527907705a2e6fc1c4e5cc111155d8d1a5749e14e5d6d80d8465238c5e0",
+    "scripts/launch/build-spatial-review-probe.cjs": "a07349fe680ce3e2d3f6b5ad4358412ff562bb1dc44e300ec02ed2b28d0eb424",
+    "__tests__/annotation-registration.test.ts": "c1f9621a28bec9907e84b32c185d9e5895246cb07e880ea25e13ae4d0a16f564",
+    "__tests__/airborne-movement.test.ts": "9600bf93618f45a054168d23a052f07cff0d0770c6e4c8c1af6fccafe5327d32",
+    "public/map-studio/registration.json": "a4fe35070975d6158bf15ae52e6834464b8a071e19acf8962eae5062a60799bd",
+    "public/map-studio/drafts/mirage-user-areas-2026-09-13.json": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+    "public/map-studio/drafts/mirage-registered-review.json": "acf4b4207e94f9f18a95f41122e1ed17f8176a07085acb7359ccbde4f8e3d9a9"
+  },
+  "limitations": [
+    "Not a packaged Windows artifact",
+    "Manual geometry review remains open",
+    "No live career spatial outcome integration",
+    "No real Steam App ID or content clearance"
+  ]
+}

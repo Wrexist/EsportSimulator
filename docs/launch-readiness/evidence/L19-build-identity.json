@@ -1,0 +1,117 @@
+{
+  "buildId": "bxlHNghfTicUnk6xOcJ0h",
+  "steamAppId": 4326170,
+  "previewPort": 3210,
+  "previewPid": 368352,
+  "nativeProfile": "tmp/l04-native/run-187VMV",
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "509387d6db9abd6738020b2ec8b49756a34c7bda8acee6c7899eb20f69f4e7ba"
+    },
+    {
+      "path": ".next/static/chunks/5894.5050000c43c02515.js",
+      "sha256": "8f02d6b9b3160fc4ec9360ba80de547227cf6c2a6d8ec3348371b695adb95296"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    },
+    {
+      "path": "steam_appid.txt",
+      "sha256": "2d41b39e9cf25ff993af921cbf15a13a68fb8dbf32c816fa1e926163117242e3"
+    },
+    {
+      "path": "lib/game-calendar.ts",
+      "sha256": "cca11e24d2d6d9e4c05d87113fce2aa2e6a87d990fa18efd6eda446df038b3ac"
+    },
+    {
+      "path": "engine/tournament-manager.ts",
+      "sha256": "d3fca4540fd5f29721570a2d3942b9539ac389158e98515a7bd73c6f7cb92feb"
+    },
+    {
+      "path": "engine/tournament-qualification.ts",
+      "sha256": "83ee748aa8fc10b98fc87fdaedbf2dd148ee1f7f1de4da98ee409526d947974f"
+    },
+    {
+      "path": "engine/tournament/seeding-helpers.ts",
+      "sha256": "8d4b8a83a261b37e5605a61d6bb06e21b9735a3745e4b83d5e604116cacac988"
+    },
+    {
+      "path": "engine/tournament/bracket-scheduling.ts",
+      "sha256": "f5265dfed20bb3f7259f29af6d3c5a590390c64c8caaadf67fa2a7fe4ea59040"
+    },
+    {
+      "path": "engine/processors/tournament-completion.ts",
+      "sha256": "e08938352772667a1a031343919c995d9ebdeafd9ba5ffb530339867e54e2dec"
+    },
+    {
+      "path": "engine/processors/standings-processor.ts",
+      "sha256": "1504bc49c87d0d761dc8798edfe198610eca408d312499aaeba7ccc62f33dd3c"
+    },
+    {
+      "path": "engine/match/map-veto.ts",
+      "sha256": "35b7db5cd0456062833ef4a23f1041acc8edca13e4f3a6ca1b92b29f415dedca"
+    },
+    {
+      "path": "engine/match-simulation.ts",
+      "sha256": "1b135bae69c311d377dd5219e44fe6000d729e8de51f10200defb58d9963b92f"
+    },
+    {
+      "path": "store/slices/tournament-slice.ts",
+      "sha256": "2c2b4e9eb3f32e538e2c1a2cdd197f252bb8d62bb19a74060d473735c0a0af0a"
+    },
+    {
+      "path": "store/slices/ui-slice.ts",
+      "sha256": "b46eac4f5ece8116bfada651dac75aef75d533aaa793b3f86efb70b40822c882"
+    },
+    {
+      "path": "components/layout/TopBar.tsx",
+      "sha256": "9ce33c3720e0432651a52a157868439189ff061a723664a4502de80c640cd56d"
+    },
+    {
+      "path": "app/schedule/page.tsx",
+      "sha256": "1a1c7ad869610c4052d7e2a0318310ca588f3962165dd35fd13e06956b06d79c"
+    },
+    {
+      "path": "app/tournaments/page.tsx",
+      "sha256": "0885ead567610016884360c3c2bf8a0ccf05b79ecd48b22b5ac9fe992becd98e"
+    },
+    {
+      "path": "app/tournaments/[id]/page.tsx",
+      "sha256": "43a56575bc42751e03f63da86f64c58aa5a93209b0222cb3ea2241cac9fed261"
+    },
+    {
+      "path": "app/match/[id]/result/page.tsx",
+      "sha256": "7e2d5b2c3d5f498c258e1f6970fdf072c73f57d01d84a2a774dd4b0c8692e4ff"
+    },
+    {
+      "path": "scripts/launch/l19-tournament-audit.ts",
+      "sha256": "99cbb48bf87ea95c6cceb257ce6762a7815b68a9047c1cafa9af2fa77c7d1431"
+    },
+    {
+      "path": "__tests__/l19-calendar-tournaments.test.ts",
+      "sha256": "5f1b5313780d857abe9710888143f7a069bc1cc7723100d884bf86b0f02fb121"
+    },
+    {
+      "path": "__tests__/tournament-completion.test.ts",
+      "sha256": "608ccbea6211a37f916515356f33757e037fc14b0b36e8b5d3de7809207f199d"
+    },
+    {
+      "path": "__tests__/tournament-slice.test.ts",
+      "sha256": "08333046ae51ded243826942dd855f0dc686a53b984ecffdff0b73c675bd5b4d"
+    },
+    {
+      "path": "__tests__/league-schedule.test.ts",
+      "sha256": "2f9af6017920b3bd0bd9e47d1bbaa2717a9da9f3b0cedd55dd7b25b0a0aafe0e"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    }
+  ]
+}

@@ -89,13 +89,25 @@ async function writeProfile(profile: ManagerCareerProfile): Promise<void> {
 export function mergeCareerProgress(profile: ManagerCareerProfile, save: GameSave): ManagerCareerProfile {
     const md = save.managerDetails
     const playerTeam = save.teams.find(t => t.id === save.playerTeamId)
-    const trophies = playerTeam?.trophies ?? []
+    const managedTrophies = new Map<string, { tier?: string }>()
+    for (const stint of save.careerStats?.seasons || []) {
+        for (const trophy of stint.trophiesWon) managedTrophies.set(`${stint.teamId}:${stint.seasonNumber}:${trophy.tournamentId}`, trophy)
+    }
+    for (const trophy of playerTeam?.trophies || []) {
+        if ((trophy.week ?? 1) < (md?.tenureStartWeek ?? md?.lastJobChangeWeek ?? 1)) continue
+        managedTrophies.set(`${playerTeam!.id}:${Math.ceil((trophy.week || 1) / 52)}:${trophy.tournamentId}`, trophy)
+    }
+    const trophies = [...managedTrophies.values()]
     const majors = trophies.filter(t => t.tier === "S_TIER").length
     const rank = playerTeam?.worldRanking ?? 0
     const seasons = save.careerStats?.totalSeasons ?? 0
 
     const teams = new Set(profile.teamsManaged)
     if (playerTeam?.name) teams.add(playerTeam.name)
+    for (const id of save.careerStats?.teamsManaged || []) {
+        const team = save.teams.find(t => t.id === id)
+        if (team) teams.add(team.name)
+    }
 
     return {
         ...profile,

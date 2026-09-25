@@ -1,0 +1,209 @@
+{
+  "viewport": [
+    1920,
+    1080
+  ],
+  "route": "/new-game",
+  "rows": [
+    {
+      "alt": "apexx",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-81dc6a9ee4c29766.png",
+      "loaded": true
+    },
+    {
+      "alt": "flaymez",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-4ec6c12a595f4d4e.png",
+      "loaded": true
+    },
+    {
+      "alt": "mezzi",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-c7a0bae784902495.png",
+      "loaded": true
+    },
+    {
+      "alt": "ropx",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-6e50ab87a33bbea3.png",
+      "loaded": true
+    },
+    {
+      "alt": "Zywou",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-97e82ab7c55fa79a.png",
+      "loaded": true
+    },
+    {
+      "alt": "Fallenx",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-4d71e1b9b4195475.png",
+      "loaded": true
+    },
+    {
+      "alt": "KSCeratu",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-c8fa7743bf66c8e1.png",
+      "loaded": true
+    },
+    {
+      "alt": "molodoi",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-85376c6e89a7d980.png",
+      "loaded": true
+    },
+    {
+      "alt": "Yekinder",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-a76818a6a29851c7.png",
+      "loaded": true
+    },
+    {
+      "alt": "yurih",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-a3f977a51acf6656.png",
+      "loaded": true
+    },
+    {
+      "alt": "kyuusuke",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-267a3feab1390453.png",
+      "loaded": true
+    },
+    {
+      "alt": "kyxsen",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-d4d2ef655d002009.png",
+      "loaded": true
+    },
+    {
+      "alt": "m0nesi",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-4f59ed9845d132e4.png",
+      "loaded": true
+    },
+    {
+      "alt": "Niku",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-8bdbb6d9ee2a1b7c.png",
+      "loaded": true
+    },
+    {
+      "alt": "TiSeS",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-60dc9d31ea3d39f7.png",
+      "loaded": true
+    },
+    {
+      "alt": "Brollen",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-f21bb3383a521685.png",
+      "loaded": true
+    },
+    {
+      "alt": "Jimphat",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-315df55a2e54e45e.png",
+      "loaded": true
+    },
+    {
+      "alt": "Spynx",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-8a396240c191a06b.png",
+      "loaded": true
+    },
+    {
+      "alt": "torzi",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-33657c67afbfb763.png",
+      "loaded": true
+    },
+    {
+      "alt": "xertian",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-43873c31d45a12f3.png",
+      "loaded": true
+    },
+    {
+      "alt": "dunk",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-6cecba57cecdf35d.png",
+      "loaded": true
+    },
+    {
+      "alt": "magix",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-5d897b95b8899a47.png",
+      "loaded": true
+    },
+    {
+      "alt": "sh1ru",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-9dd6c79786228312.png",
+      "loaded": true
+    },
+    {
+      "alt": "tN1Rx",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-9ee8f55a355f96b4.png",
+      "loaded": true
+    },
+    {
+      "alt": "zontix",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-efe73c3dcac250ea.png",
+      "loaded": true
+    },
+    {
+      "alt": "EW",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-133a0045b6c178d8.png",
+      "loaded": true
+    },
+    {
+      "alt": "BILCHONOKK",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-6be3da279c73845c.png",
+      "loaded": true
+    },
+    {
+      "alt": "Jeme",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-a252183986aee131.png",
+      "loaded": true
+    },
+    {
+      "alt": "nuta",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-5feab6f52bf1d3fd.png",
+      "loaded": true
+    },
+    {
+      "alt": "xyELO",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-076ea2c2697d227a.png",
+      "loaded": true
+    },
+    {
+      "alt": "broki",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-d359b53a130fcd8e.png",
+      "loaded": true
+    },
+    {
+      "alt": "frozin",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-038caa73d626578e.png",
+      "loaded": true
+    },
+    {
+      "alt": "jcubbb",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-f0d646ea1809537b.png",
+      "loaded": true
+    },
+    {
+      "alt": "karrigen",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-69df1ab3b3db1f27.png",
+      "loaded": true
+    },
+    {
+      "alt": "twistz",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-99c286ac1add927d.png",
+      "loaded": true
+    },
+    {
+      "alt": "AleksiV",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-bd26c056b0706180.png",
+      "loaded": true
+    },
+    {
+      "alt": "b1tt",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-38149f43d9e7435f.png",
+      "loaded": true
+    },
+    {
+      "alt": "iMM",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-33f0462c3d046fa7.png",
+      "loaded": true
+    },
+    {
+      "alt": "mekazze",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-7cefc80bddc78d79.png",
+      "loaded": true
+    },
+    {
+      "alt": "w0nder",
+      "src": "http://127.0.0.1:3372/branding/portraits/polished-37b605c8e46595c4.png",
+      "loaded": true
+    }
+  ]
+}

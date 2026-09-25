@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 
-const SKIP_DIRS = new Set([".git", "node_modules", ".next", "dist", "build", "out", "tmp", "SteamBuild"])
+const SKIP_DIRS = new Set([".git", "node_modules", ".next", "dist", "dist-qa", "dist-mod", "build", "out", "tmp", "SteamBuild"])
 const MARKERS = ["<<<<<<<", "=======", ">>>>>>>"]
 
 function walk(root: string): string[] {

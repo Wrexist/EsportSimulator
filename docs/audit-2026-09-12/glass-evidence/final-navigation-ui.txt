@@ -1,0 +1,259 @@
+Browser tab: 1182233834, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/training".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/training
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/training#main-content
+		3 container
+			4 text Esports Manager
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+			6 pop up button (collapsed) Description: Search game navigation, Help: Search navigation (Ctrl / Command + K), Secondary Actions: Expand
+			7 container Main navigation
+				8 button (expanded) OVERVIEW, Secondary Actions: Collapse
+				9 link Description: Home, Value: 127.0.0.1:3210/
+				10 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+				11 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+				12 button (expanded) TEAM, Secondary Actions: Collapse
+				13 link Description: Squad, Value: 127.0.0.1:3210/squad
+				14 link Description: Training, Value: 127.0.0.1:3210/training
+				15 link Description: Staff, Value: 127.0.0.1:3210/staff
+				16 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+				17 button (expanded) RECRUITMENT, Secondary Actions: Collapse
+				18 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+				19 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+				20 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+				21 link Description: Academy, Value: 127.0.0.1:3210/academy
+				22 button (expanded) COMPETITION, Secondary Actions: Collapse
+				23 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+				24 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+				25 link Description: FPL, Value: 127.0.0.1:3210/fpl
+				26 link Description: Statistics, Value: 127.0.0.1:3210/stats
+				27 button (expanded) BUSINESS, Secondary Actions: Collapse
+				28 link Description: Finances, Value: 127.0.0.1:3210/finances
+				29 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+				30 button (expanded) LEGACY, Secondary Actions: Collapse
+				31 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+				32 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+				33 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+			34 link Description: Manager profile, Value: 127.0.0.1:3210/career
+		35 container
+			36 container Pulsar logo
+			37 text YOUR CLUB
+			38 image ru
+			39 text Pulsar
+			40 text $541,200 Sat, 26 Sep 2026 WEEK  3 • DAY 1
+			41 button Switch to Onyx theme
+			42 button DAILY
+			43 button Next day
+			44 button SKIP WEEK
+			45 container main-content
+				46 heading PERFORMANCE CENTER, Value: 1
+					47 text PERFORMANCE CENTER
+				48 text FORGING ELITES THROUGH ALGORITHMIC DISCIPLINE
+				49 container Max training slots scale with Manager Level: +1 every 5 levels (10 baseline, 14 at L20)
+					50 text TRAINING SLOTS
+					51 container
+						52 text 0  /  10
+				53 container
+					54 text STAFF BONUS + 0 % Efficiency
+				55 container
+					56 heading ACTIVE DRILL MODULE, Value: 3
+						57 text ACTIVE DRILL MODULE
+					58 text AUTHENTIC PRO FPS
+					59 heading RECOIL MASTER, Value: 4
+						60 text RECOIL MASTER
+					61 text MECHANICAL CONTROL
+					62 text Master the spray patterns of AK-47 and M4A4. Controlled bursts and transfers.
+					63 text + 15  FATIGUE + 3 Rifle + 1 Skill AUTHENTIC PRO FPS
+					64 heading SURF UTOPIA, Value: 4
+						65 text SURF UTOPIA
+					66 text MOVEMENT & FLOW
+					67 text Smooth movement practice on the legendary tier 1 surf map.
+					68 text + 10  FATIGUE + 2 Agility + 2 Focus AUTHENTIC PRO FPS
+					69 heading YPRAC PRE-FIRE, Value: 4
+						70 text YPRAC PRE-FIRE
+					71 text CROSSHAIR PLACEMENT
+					72 text Practice clearing common angles on Mirage and Inferno.
+					73 text + 20  FATIGUE + 3 Entry + 1 Tactic AUTHENTIC PRO FPS
+					74 heading AWP FLICK CAMP, Value: 4
+						75 text AWP FLICK CAMP
+					76 text AWP MECHANICS
+					77 text Hour-long deathmatch session focused on no-scope flicks and quick-scope tracking.
+					78 text + 18  FATIGUE + 4 AWP + 1 Reaction AUTHENTIC PRO FPS
+					79 heading PISTOL PRECISION, Value: 4
+						80 text PISTOL PRECISION
+					81 text PISTOL AIM
+					82 text Tap-fire drills for USP, Glock, P250 and Deagle headshot consistency.
+					83 text + 10  FATIGUE + 3 Pistol + 1 Skill AUTHENTIC PRO FPS
+					84 heading SMOKE LINEUP LAB, Value: 4
+						85 text SMOKE LINEUP LAB
+					86 text UTILITY MASTERY
+					87 text Map-by-map smoke and molotov setups for executes and retakes.
+					88 text + 12  FATIGUE + 4 Grenades + 1 Tactic AUTHENTIC PRO FPS
+					89 heading FLASH ASSIST DRILL, Value: 4
+						90 text FLASH ASSIST DRILL
+					91 text TEAMWORK & UTILITY
+					92 text Pop-flash timing with a teammate for entry-frag setups.
+					93 text + 12  FATIGUE + 2 Grenades + 3 Teamwork AUTHENTIC PRO FPS
+					94 heading VOD REVIEW SESSION, Value: 4
+						95 text VOD REVIEW SESSION
+					96 text GAME IQ
+					97 text Pro-match film study with the coach. Pause, rewind, dissect.
+					98 text + 5  FATIGUE + 3 Tactic + 1 Leadership AUTHENTIC PRO FPS
+					99 heading SCRIM BLOCK, Value: 4
+						100 text SCRIM BLOCK
+					101 text TEAM COHESION
+					102 text Three-game scrim against a similarly-ranked team. Pure repetition.
+					103 text + 25  FATIGUE + 3 Teamwork + 2 Tactic AUTHENTIC PRO FPS
+					104 heading 1VX CLUTCH LAB, Value: 4
+						105 text 1VX CLUTCH LAB
+					106 text CLUTCH COMPOSURE
+					107 text Trainer-set 1v2, 1v3, 1v4 retake scenarios with limited time.
+					108 text + 18  FATIGUE + 4 Clutch + 1 Focus AUTHENTIC PRO FPS
+					109 heading MENTAL RESET, Value: 4
+						110 text MENTAL RESET
+					111 text MENTAL STAMINA
+					112 text Sports-psych session: breathing, visualization, tilt recovery.
+					113 text + 0  FATIGUE + 5 Morale + 3 StressResistance AUTHENTIC PRO FPS
+					114 heading COMMS DISCIPLINE, Value: 4
+						115 text COMMS DISCIPLINE
+					116 text COMMUNICATION
+					117 text Voice-overlay analysis. Cut the chatter, sharpen the callouts.
+					118 text + 8  FATIGUE + 3 Leadership + 2 Teamwork AUTHENTIC PRO FPS
+					119 heading DEATHMATCH HOUR, Value: 4
+						120 text DEATHMATCH HOUR
+					121 text AIM WARMUP
+					122 text FFA HSDM warmup. Pure aim, no thinking.
+					123 text + 10  FATIGUE + 2 Skill + 2 Reaction AUTHENTIC PRO FPS
+					124 heading GYM & CARDIO, Value: 4
+						125 text GYM & CARDIO
+					126 text PHYSICAL HEALTH
+					127 text Off-keyboard conditioning. Stamina for the third hour of a BO5.
+					128 text + -10  FATIGUE + 5 Health + 2 StressResistance AUTHENTIC PRO FPS
+					129 heading TEAM DINNER, Value: 4
+						130 text TEAM DINNER
+					131 text CHEMISTRY
+					132 text Coach treats the roster to dinner. Officially "team bonding," actually about the group chat memes.
+					133 text + -5  FATIGUE + 4 Teamwork + 3 Morale AUTHENTIC PRO FPS
+					134 heading OPPONENT DEMO REVIEW, Value: 4
+						135 text OPPONENT DEMO REVIEW
+					136 text ANTISTRAT
+					137 text Watch last week's opponent demos. Build map-specific anti-strats.
+					138 text + 7  FATIGUE + 4 Tactic + 1 Focus AUTHENTIC PRO FPS
+					139 heading MOLOTOV CRASH COURSE, Value: 4
+						140 text MOLOTOV CRASH COURSE
+					141 text POST-PLANT UTIL
+					142 text Post-plant molotovs, T-side ignites, CT-side stall throws.
+					143 text + 12  FATIGUE + 3 Grenades + 2 Tactic AUTHENTIC PRO FPS
+					144 heading IGL DECISION DRILL, Value: 4
+						145 text IGL DECISION DRILL
+					146 text IN-GAME LEADERSHIP
+					147 text Coach feeds the IGL a series of mid-round mini-puzzles. 10 seconds to decide.
+					148 text + 14  FATIGUE + 4 Leadership + 2 Tactic AUTHENTIC PRO FPS
+					149 heading TRADE-KILL CHOREOGRAPHY, Value: 4
+						150 text TRADE-KILL CHOREOGRAPHY
+					151 text TRADE DISCIPLINE
+					152 text Pair-up footwork: the second man peeks at the exact moment the first dies.
+					153 text + 14  FATIGUE + 3 Teamwork + 2 Reaction AUTHENTIC PRO FPS
+					154 heading RECOVERY PROTOCOL, Value: 4
+						155 text RECOVERY PROTOCOL
+					156 text RECOVERY
+					157 text Sleep-hygiene & nutrition consult with the team psychologist. Fights burnout.
+					158 text + -20  FATIGUE + 3 Health + 4 Morale + 2 StressResistance
+					159 button INITIALIZE SIMULATION
+				160 heading PLAYER DEVELOPMENT, Value: 3
+					161 text PLAYER DEVELOPMENT
+				162 text No active training sessions. Set up player training from the schedule.
+				163 container
+					164 container
+						165 image Zenmir
+					166 text 1
+					167 heading Zenmir, Value: 4
+						168 text Zenmir
+					169 text IGL 100 % 593 / 1000  XP
+					170 combo box (collapsed) Value: Balanced, Secondary Actions: Expand
+						171 text Balanced
+					172 button Specialist Training
+					173 button Train Role
+				174 container
+					175 container
+						176 image skydax
+					177 text 1
+					178 heading skydax, Value: 4
+						179 text skydax
+					180 text RIFLER 100 % 490 / 1000  XP
+					181 combo box (collapsed) Value: Balanced, Secondary Actions: Expand
+						182 text Balanced
+					183 button Specialist Training
+					184 button Train Role
+				185 container
+					186 container
+						187 image Fryphr9
+					188 text 1
+					189 heading Fryphr9, Value: 4
+						190 text Fryphr9
+					191 text RIFLER 100 % 499 / 1000  XP
+					192 combo box (collapsed) Value: Balanced, Secondary Actions: Expand
+						193 text Balanced
+					194 button Specialist Training
+					195 button Train Role
+				196 container
+					197 container
+						198 image dusk6
+					199 text 1
+					200 heading dusk6, Value: 4
+						201 text dusk6
+					202 text SUPPORT 100 % 505 / 1000  XP
+					203 combo box (collapsed) Value: Balanced, Secondary Actions: Expand
+						204 text Balanced
+					205 button Specialist Training
+					206 button Train Role
+				207 container
+					208 container
+						209 image Skyphr
+					210 text 1
+					211 heading Skyphr, Value: 4
+						212 text Skyphr
+					213 text RIFLER 100 % 515 / 1000  XP
+					214 combo box (collapsed) Value: Balanced, Secondary Actions: Expand
+						215 text Balanced
+					216 button Specialist Training
+					217 button Train Role
+				218 heading LOADOUT MANAGER, Value: 3
+					219 text LOADOUT MANAGER
+				220 text Customize your team's buy strategy and weapon loadouts for each economy situation
+				221 container
+					222 text CT Side = Defense roles T Side = Attack roles
+					223 button ECO CT Side
+						224 text ECO
+						225 text CT Side
+					226 button ECO T Side
+						227 text ECO
+						228 text T Side
+					229 button FORCE CT Side
+						230 text FORCE
+						231 text CT Side
+					232 button FORCE T Side
+						233 text FORCE
+						234 text T Side
+					235 button SEMIBUY CT Side
+						236 text SEMIBUY
+						237 text CT Side
+					238 button SEMIBUY T Side
+						239 text SEMIBUY
+						240 text T Side
+					241 button FULL CT Side
+						242 text FULL
+						243 text CT Side
+					244 button FULL T Side
+						245 text FULL
+						246 text T Side
+					247 button DOUBLE AWP CT Side
+						248 text DOUBLE AWP
+						249 text CT Side
+					250 button DOUBLE AWP T Side
+						251 text DOUBLE AWP
+						252 text T Side
+		253 button Report a Bug
+			254 text Report a Bug
+		255 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 6 pop up button (collapsed) Description: Search game navigation, Help: Search navigation (Ctrl / Command + K), Secondary Actions: Expand

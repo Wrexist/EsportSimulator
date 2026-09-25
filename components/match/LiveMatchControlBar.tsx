@@ -32,7 +32,7 @@ function LiveMatchControlBarComponent({
     onSimulateMatch
 }: LiveMatchControlBarProps) {
     return (
-        <div className="glass-panel-dark rounded-full p-2 flex items-center justify-between px-6 border-white/5 h-14">
+        <div className="match-playback glass-panel-dark rounded-xl p-2 flex flex-wrap items-center justify-between gap-2 border-white/5">
             <AnimatePresence mode="wait">
                 {gameState.status === "IN_PROGRESS" && (
                     <motion.div
@@ -52,7 +52,7 @@ function LiveMatchControlBarComponent({
                 )}
             </AnimatePresence>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center gap-2">
                 {/* AUTO TACTICS TOGGLE (Clean Switch) */}
                 <div className="flex items-center gap-3">
                     <span className={cn("text-[10px] font-bold tracking-wider transition-colors", isAutoTactics ? "text-amber-400" : "text-white/20")}>

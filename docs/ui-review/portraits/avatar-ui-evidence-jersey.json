@@ -1,0 +1,148 @@
+{
+  "capturedAt": "2026-09-25T18:37:25.746Z",
+  "isolatedContext": true,
+  "careerCreated": false,
+  "errors": [],
+  "viewports": [
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "route": "/new-game",
+      "screenshot": "docs/ui-review/portraits/avatar-team-selection-1920-jersey.png",
+      "rows": [
+        {
+          "alt": "Doe1yant",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-8f50b493e385c591.png",
+          "loaded": true
+        },
+        {
+          "alt": "NioLife",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-efbbc0212f4093de.png",
+          "loaded": true
+        },
+        {
+          "alt": "eyano",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-4cb7c41e05837e8f.png",
+          "loaded": true
+        },
+        {
+          "alt": "floffy",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-c0b137b02e9f3f23.png",
+          "loaded": true
+        },
+        {
+          "alt": "HiCkBNk",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-0986a8ef07fe409d.png",
+          "loaded": true
+        },
+        {
+          "alt": "k1sslyx",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-d0573cac91020311.png",
+          "loaded": true
+        },
+        {
+          "alt": "zialot",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-bd593807391402e2.png",
+          "loaded": true
+        },
+        {
+          "alt": "3glx",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-dd76c0931288a914.png",
+          "loaded": true
+        },
+        {
+          "alt": "Byuckmt",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-3d4ddd443626a53b.png",
+          "loaded": true
+        },
+        {
+          "alt": "EGL",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-061dfb62750ad9ef.png",
+          "loaded": true
+        },
+        {
+          "alt": "linci",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-93bebd4f07294e62.png",
+          "loaded": true
+        },
+        {
+          "alt": "MexOff",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-4e1c0bb4c3d0b3a1.png",
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1280,
+        720
+      ],
+      "route": "/new-game",
+      "screenshot": "docs/ui-review/portraits/avatar-team-selection-1280-jersey.png",
+      "rows": [
+        {
+          "alt": "Doe1yant",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-8f50b493e385c591.png",
+          "loaded": true
+        },
+        {
+          "alt": "NioLife",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-efbbc0212f4093de.png",
+          "loaded": true
+        },
+        {
+          "alt": "eyano",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-4cb7c41e05837e8f.png",
+          "loaded": true
+        },
+        {
+          "alt": "floffy",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-c0b137b02e9f3f23.png",
+          "loaded": true
+        },
+        {
+          "alt": "HiCkBNk",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-0986a8ef07fe409d.png",
+          "loaded": true
+        },
+        {
+          "alt": "k1sslyx",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-d0573cac91020311.png",
+          "loaded": true
+        },
+        {
+          "alt": "zialot",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-bd593807391402e2.png",
+          "loaded": true
+        },
+        {
+          "alt": "3glx",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-dd76c0931288a914.png",
+          "loaded": true
+        },
+        {
+          "alt": "Byuckmt",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-3d4ddd443626a53b.png",
+          "loaded": true
+        },
+        {
+          "alt": "EGL",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-061dfb62750ad9ef.png",
+          "loaded": true
+        },
+        {
+          "alt": "linci",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-93bebd4f07294e62.png",
+          "loaded": true
+        },
+        {
+          "alt": "MexOff",
+          "src": "http://127.0.0.1:3372/branding/portraits/polished-4e1c0bb4c3d0b3a1.png",
+          "loaded": true
+        }
+      ]
+    }
+  ]
+}

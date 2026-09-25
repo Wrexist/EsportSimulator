@@ -13,6 +13,8 @@ import type { GameSave, ScoutingMissionData, StaffSaveData } from "@/engine/save
 function makeSave(over: Partial<GameSave> = {}): GameSave {
     return {
         currentWeek: 10,
+        teams: [{ id: "player", staffIds: ["s1"], rosterIds: [] }],
+        playerTeamId: "player",
         players: [{ id: "target", nickname: "Target" }],
         staff: [],
         scoutedPlayers: [],
@@ -63,10 +65,11 @@ describe("processScoutingMissions — accuracy drives report tier", () => {
         expect(spec.scoutedPlayers[0].scoutLevel).toBe("ELITE")
     })
 
-    test("missing / fired scout falls back to ADVANCED", () => {
+    test("missing or fired scout produces no report", () => {
         const save = makeSave({ activeScoutingMission: mission("default_scout"), staff: [] })
         processScoutingMissions(save)
-        expect(save.scoutedPlayers[0].scoutLevel).toBe("ADVANCED")
+        expect(save.scoutedPlayers).toHaveLength(0)
+        expect(save.eventsLog[0].data.text).toContain("without a report")
     })
 })
 

@@ -7,7 +7,7 @@
  *
  *   loadGame()  →  pulls local primary + cloud candidate in parallel,
  *               →  validates integrity on both,
- *               →  picks the newer/healthier one (cloud wins by >1s).
+ *               →  asks for a choice when valid copies have different contents.
  *
  * Until Phase T this whole path had zero unit coverage. The test fakes
  * the Electron Steamworks bridge (writeToCloud / readFromCloud /
@@ -24,9 +24,8 @@
  *      survives a fresh-device install.
  *   3. Tampering the cloud copy without updating integrityHash, while
  *      local is also missing, fails the load with INTEGRITY_FAILED.
- *   4. When local AND cloud both exist with no version conflict, the
- *      newer save wins. Within the 1s tie-break window local is
- *      preserved; beyond it cloud is promoted to primary.
+ *   4. Different valid contents require an explicit choice, with both
+ *      originals preserved before either one is promoted.
  *   5. The cloud upload happens for the FINAL saveGame only (not for
  *      saveGameCheckpoint) — checkpoint writes must stay local-only
  *      to keep tick latency bounded.
@@ -63,9 +62,10 @@ class MemoryStorage implements AsyncStorage {
  * new dependency on the bridge shows up as a runtime crash in tests.
  */
 interface FakeCloudBridge {
-    writeToCloud: (filename: string, data: string) => Promise<void>
+    writeToCloud: (filename: string, data: string) => Promise<boolean>
     readFromCloud: (filename: string) => Promise<string | null>
-    deleteFromCloud: (filename: string) => Promise<void>
+    deleteFromCloud: (filename: string) => Promise<boolean>
+    listCloudFiles: () => Promise<string[]>
     files: Map<string, string>
 }
 
@@ -73,9 +73,10 @@ function makeFakeCloudBridge(): FakeCloudBridge {
     const files = new Map<string, string>()
     return {
         files,
-        async writeToCloud(filename, data) { files.set(filename, data) },
+        async listCloudFiles() { return [...files.keys()] },
+        async writeToCloud(filename, data) { files.set(filename, data); return true },
         async readFromCloud(filename) { return files.get(filename) ?? null },
-        async deleteFromCloud(filename) { files.delete(filename) },
+        async deleteFromCloud(filename) { files.delete(filename); return true },
     }
 }
 
@@ -152,6 +153,19 @@ describe("Steam Cloud save round-trip", () => {
         snapshot = attachFakeBridge(cloud)
     })
 
+    test('rejected cloud writes and deletes propagate false while local saves remain durable', async () => {
+        cloud.writeToCloud = async () => false
+        cloud.deleteFromCloud = async () => false
+        expect(await steamService.uploadSaveToCloud('test', '{}')).toBe(false)
+        expect(await steamService.deleteCloudFile('save_test.json')).toBe(false)
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave(sm)
+        expect((await sm.saveGame(save)).success).toBe(true)
+        expect(await storage.getItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId)).not.toBeNull()
+        expect(cloud.files.size).toBe(0)
+    })
+
     afterEach(() => {
         if (snapshot) {
             restoreService(snapshot)
@@ -193,6 +207,8 @@ describe("Steam Cloud save round-trip", () => {
         await storage.clear()
         expect(storage.store.size).toBe(0)
         expect(cloud.files.size).toBeGreaterThan(0)
+        const slots = await sm.getSaveSlots()
+        expect(slots.some(slot => slot.saveId === save.saveId && slot.slotId.startsWith("cloud:"))).toBe(true)
 
         const loaded = await sm.loadGame(save.saveId)
         expect(loaded.error).toBeUndefined()
@@ -242,7 +258,7 @@ describe("Steam Cloud save round-trip", () => {
         expect(loaded.errorCode).toBe("INTEGRITY_FAILED")
     })
 
-    test("when local and cloud both exist, the newer-by-1s candidate wins", async () => {
+    test("divergent copies require an explicit choice and retain both before promotion", async () => {
         const storage = new MemoryStorage()
         const sm = new SaveManager(storage)
         const save = makeSave(sm)
@@ -268,13 +284,15 @@ describe("Steam Cloud save round-trip", () => {
         // newer cloud.
         await storage.setItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId, t0Cloud!)
 
-        const loaded = await sm.loadGame(save.saveId)
+        const conflict = await sm.loadGame(save.saveId)
+        expect(conflict.errorCode).toBe("CLOUD_CONFLICT")
+        expect(conflict.save).toBeNull()
+        const loaded = await sm.loadGame(save.saveId, "cloud")
         expect(loaded.error).toBeUndefined()
-        // Cloud is >1s newer, so cloud's bumped budget should win.
         expect(loaded.save!.teams[0].budget).toBe(555_555)
     }, 15000)
 
-    test("higher-progress local save is NOT demoted by a stale cloud copy with a newer wall-clock timestamp", async () => {
+    test("clock-skewed divergent copies do not overwrite local progress without a choice", async () => {
         // Reproduces clock-skew across two machines: a cloud copy that is
         // OLDER in gameplay terms (fewer weeks played) carries a LARGER
         // updatedAt than the local save. Wall-clock-only conflict resolution
@@ -300,7 +318,11 @@ describe("Steam Cloud save round-trip", () => {
         // primary, leaving the newer-timestamp week-5 copy in the cloud.
         await storage.setItem(primaryKey, week10Local)
 
-        const loaded = await sm.loadGame(save.saveId)
+        const conflict = await sm.loadGame(save.saveId)
+        expect(conflict.errorCode).toBe("CLOUD_CONFLICT")
+        expect(await storage.getItem(primaryKey)).toBe(week10Local)
+        const loaded = await sm.loadGame(save.saveId, "local")
+        expect(await storage.getItem(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + "_cloud")).toBe(cloud.files.get(`save_${save.saveId}.json`))
         expect(loaded.error).toBeUndefined()
         // Progress wins over wall clock: the week-10 local save is kept.
         expect(loaded.save!.currentWeek).toBe(10)

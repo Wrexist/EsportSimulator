@@ -6,6 +6,7 @@ import type { CSSProperties } from "react"
 import { memo, useMemo, useState } from "react"
 
 import { cn } from "@/lib/utils"
+import { migrateLegacyPortraitSource } from "@/lib/player-portrait-source"
 
 export type PlayerPortraitVariant = "avatar" | "card" | "hero"
 
@@ -61,6 +62,7 @@ function PlayerPortraitFrameImpl({
   interactive = false,
   onImageError,
 }: PlayerPortraitFrameProps) {
+  src = migrateLegacyPortraitSource(src)
   const [imgError, setImgError] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const showImage = Boolean(src) && !imgError
@@ -115,8 +117,6 @@ function PlayerPortraitFrameImpl({
       )}
 
       {!loaded && showImage && <div className="portrait-realist-loading" />}
-      <div className="portrait-realist-glass" />
-      <div className="portrait-realist-shine" />
     </>
   )
 

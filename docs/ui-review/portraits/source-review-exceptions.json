@@ -1,0 +1,1915 @@
+{
+  "player_16_b8_s1zsi": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/b8/players/s1zzi.webp",
+      "raw-data/teams/b8/players/s1zzi.png"
+    ],
+    "note": "Alternate candidate visually inspected: existing stylized avatar, not an original portrait photograph.",
+    "alternateCandidates": [
+      "public/assets/teams/b8/players/s1zsi.webp"
+    ]
+  },
+  "player_226_8sins_txornex": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/8sins/players/tornex.webp",
+      "raw-data/teams/8sins/players/tornex.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_131_aedhar_z9rum": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/aether/players/s3rum.webp",
+      "raw-data/teams/aether/players/s3rum.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_131_aedhar_zeb": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/aether/players/seb.webp",
+      "raw-data/teams/aether/players/seb.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_221_akymbuyx_lxittlebeer": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/akimbo/players/littlebeer.webp",
+      "raw-data/teams/akimbo/players/littlebeer.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_221_akymbuyx_tzripp": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/akimbo/players/tripp.webp",
+      "raw-data/teams/akimbo/players/tripp.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_231_excendium_fzix": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ascend/players/fix.webp",
+      "raw-data/teams/ascend/players/fix.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_231_excendium_kr8wa": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ascend/players/kr0wa.webp",
+      "raw-data/teams/ascend/players/kr0wa.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_231_excendium_lucibezten": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ascend/players/lucibesten.webp",
+      "raw-data/teams/ascend/players/lucibesten.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_231_excendium_ninjat7": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ascend/players/ninjat1.webp",
+      "raw-data/teams/ascend/players/ninjat1.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_192_bad_alennnkar": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bad_luck/players/alennncar.webp",
+      "raw-data/teams/bad_luck/players/alennncar.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_192_bad_zakamoto": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bad_luck/players/sakamoto.webp",
+      "raw-data/teams/bad_luck/players/sakamoto.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_192_bad_zpace": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bad_luck/players/space.webp",
+      "raw-data/teams/bad_luck/players/space.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_192_bad_talksyn": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bad_luck/players/talkzyn.webp",
+      "raw-data/teams/bad_luck/players/talkzyn.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_147_bazamentor_facerealityy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/basement_boys/players/fakerealityy.webp",
+      "raw-data/teams/basement_boys/players/fakerealityy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_209_bayond_beaztman": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/beyond_limits/players/beastman.webp",
+      "raw-data/teams/beyond_limits/players/beastman.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_209_bayond_dens": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/beyond_limits/players/denz.webp",
+      "raw-data/teams/beyond_limits/players/denz.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_209_bayond_fxlixxy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/beyond_limits/players/flixxy.webp",
+      "raw-data/teams/beyond_limits/players/flixxy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_209_bayond_pr8mize": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/beyond_limits/players/pr0mise.webp",
+      "raw-data/teams/beyond_limits/players/pr0mise.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_81_big_kings_dxoni": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/big_academy/players/doni.webp",
+      "raw-data/teams/big_academy/players/doni.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_81_big_kings_tripex77": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/big_academy/players/tripex17.webp",
+      "raw-data/teams/big_academy/players/tripex17.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_178_bruti_kad7m": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/brute/players/kad1m.webp",
+      "raw-data/teams/brute/players/kad1m.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_159_byshedo_dxarendeli": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bushido_wildcats/players/darendeli.webp",
+      "raw-data/teams/bushido_wildcats/players/darendeli.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_159_byshedo_wej": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/bushido_wildcats/players/vej.webp",
+      "raw-data/teams/bushido_wildcats/players/vej.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_249_charrodos_pzrotado": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/charrados/players/protado.webp",
+      "raw-data/teams/charrados/players/protado.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_249_charrodos_rodfpz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/charrados/players/rodfps.webp",
+      "raw-data/teams/charrados/players/rodfps.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_249_charrodos_z7lent": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/charrados/players/s1lent.webp",
+      "raw-data/teams/charrados/players/s1lent.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_217_croshers_lakerda": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/crashers/players/lacerda.webp",
+      "raw-data/teams/crashers/players/lacerda.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_217_croshers_makhado": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/crashers/players/machado.webp",
+      "raw-data/teams/crashers/players/machado.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_179_csdiylyt_mzelty": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/csdiilit/players/melty.webp",
+      "raw-data/teams/csdiilit/players/melty.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_220_diamend_deztroyd": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/diamant/players/destro_yd.webp",
+      "raw-data/teams/diamant/players/destro_yd.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_220_diamend_jxernejj": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/diamant/players/jernejj.webp",
+      "raw-data/teams/diamant/players/jernejj.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_220_diamend_jun7": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/diamant/players/jun1.webp",
+      "raw-data/teams/diamant/players/jun1.png"
+    ],
+    "note": "Alternate candidate is a different person: source metadata name, nationality and age do not match. Do not use this face.",
+    "alternateCandidates": [
+      "public/assets/teams/boring_players/players/jun7.webp"
+    ]
+  },
+  "player_220_diamend_lzibraa": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/diamant/players/libraa.webp",
+      "raw-data/teams/diamant/players/libraa.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_240_dxa_k4put": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/dxa/players/c4put.webp",
+      "raw-data/teams/dxa/players/c4put.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_240_dxa_jxlb": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/dxa/players/jlb.webp",
+      "raw-data/teams/dxa/players/jlb.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_240_dxa_superz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/dxa/players/supers.webp",
+      "raw-data/teams/dxa/players/supers.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_240_dxa_zakheraay": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/dxa/players/zacheraay.webp",
+      "raw-data/teams/dxa/players/zacheraay.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_240_dxa_soot": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/dxa/players/zoot.webp",
+      "raw-data/teams/dxa/players/zoot.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_166_ikoisto_havachi": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/egoisto/players/hawachi.webp",
+      "raw-data/teams/egoisto/players/hawachi.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_166_ikoisto_jaw7ko": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/egoisto/players/jaw1ko.webp",
+      "raw-data/teams/egoisto/players/jaw1ko.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_166_ikoisto_zkhwarzkopf": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/egoisto/players/schwarzkopf.webp",
+      "raw-data/teams/egoisto/players/schwarzkopf.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_166_ikoisto_zh1seido": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/egoisto/players/sh1seido.webp",
+      "raw-data/teams/egoisto/players/sh1seido.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_166_ikoisto_zlazh": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/egoisto/players/slash.webp",
+      "raw-data/teams/egoisto/players/slash.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_170_ilidenergy_finv": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/elitenergy/players/finw.webp",
+      "raw-data/teams/elitenergy/players/finw.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_170_ilidenergy_qooddeph": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/elitenergy/players/gooddeph.webp",
+      "raw-data/teams/elitenergy/players/gooddeph.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_170_ilidenergy_c1zlll": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/elitenergy/players/k1slll.webp",
+      "raw-data/teams/elitenergy/players/k1slll.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_170_ilidenergy_ceeqan": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/elitenergy/players/keegan.webp",
+      "raw-data/teams/elitenergy/players/keegan.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_188_ex_jonk_semix": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ex-gank/players/zemix.webp",
+      "raw-data/teams/ex-gank/players/zemix.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_188_ex_jonk_zer8uky": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ex-gank/players/zer0uky.webp",
+      "raw-data/teams/ex-gank/players/zer0uky.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_57_ix_rubyel_yumzan": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ex-ruby/players/yumsan.webp",
+      "raw-data/teams/ex-ruby/players/yumsan.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_167_f5_kmrn": {
+    "status": "alternate-source-identity-review",
+    "reviewedSources": [
+      "public/assets/teams/f5/players/cmrn.webp",
+      "raw-data/teams/f5/players/cmrn.png"
+    ],
+    "note": "Original cmrn sources are placeholders. Alternative LAG kmrn is a real photo but has a different nickname and no shared stable external identity. Matching age/country alone is insufficient; do not assign without verification.",
+    "alternateCandidates": [
+      "public/assets/teams/lag/players/kmrn.webp"
+    ]
+  },
+  "player_167_f5_neiqht": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/f5/players/neight.webp",
+      "raw-data/teams/f5/players/neight.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_167_f5_ziqnal": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/f5/players/signal.webp",
+      "raw-data/teams/f5/players/signal.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_156_fengdoal_zalmon": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/fengda/players/salmon.webp",
+      "raw-data/teams/fengda/players/salmon.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_156_fengdoal_trazh": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/fengda/players/trash.webp",
+      "raw-data/teams/fengda/players/trash.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_203_vakusia_ariant8": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/fokus/players/ariant0.webp",
+      "raw-data/teams/fokus/players/ariant0.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_190_voorro_klon1": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/four_magic/players/clon7.webp",
+      "raw-data/teams/four_magic/players/clon7.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_224_hindxijht_mxadam": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/hindsight/players/madam.webp",
+      "raw-data/teams/hindsight/players/madam.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_224_hindxijht_miceri": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/hindsight/players/mikeri.webp",
+      "raw-data/teams/hindsight/players/mikeri.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_214_encontrol_jzfeltner": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/incontrol/players/jsfeltner.webp",
+      "raw-data/teams/incontrol/players/jsfeltner.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_214_encontrol_scorkhyy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/incontrol/players/scorchyy.webp",
+      "raw-data/teams/incontrol/players/scorchyy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_214_encontrol_txyra": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/incontrol/players/tyra.webp",
+      "raw-data/teams/incontrol/players/tyra.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_132_enfuryty_ozontoma": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/infurity/players/oontoma.webp",
+      "raw-data/teams/infurity/players/oontoma.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_132_enfuryty_rxinji": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/infurity/players/rinji.webp",
+      "raw-data/teams/infurity/players/rinji.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_132_enfuryty_zirius": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/infurity/players/sirius.webp",
+      "raw-data/teams/infurity/players/sirius.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_125_jumboex_pxroper": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/jumbo/players/proper.webp",
+      "raw-data/teams/jumbo/players/proper.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_171_jyxt_zator7": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/just_swing/players/sator1.webp",
+      "raw-data/teams/just_swing/players/sator1.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_171_jyxt_zcrr": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/just_swing/players/skrr.webp",
+      "raw-data/teams/just_swing/players/skrr.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_182_lastium_mziami": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/last_bullet/players/miami.webp",
+      "raw-data/teams/last_bullet/players/miami.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_182_lastium_rxoninbaby": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/last_bullet/players/roninbaby.webp",
+      "raw-data/teams/last_bullet/players/roninbaby.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_200_ligianal_bzloody": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/legion/players/bloody.webp",
+      "raw-data/teams/legion/players/bloody.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_200_ligianal_hsi": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/legion/players/hzi.webp",
+      "raw-data/teams/legion/players/hzi.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_200_ligianal_pawazt4r": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/legion/players/pavast4r.webp",
+      "raw-data/teams/legion/players/pavast4r.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_89_loxrix_azdrien": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/los_kogutos/players/adrien.webp",
+      "raw-data/teams/los_kogutos/players/adrien.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_207_mokicos_ghozt1": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/magicos/players/ghost1.webp",
+      "raw-data/teams/magicos/players/ghost1.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_207_mokicos_lks": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/magicos/players/lcs.webp",
+      "raw-data/teams/magicos/players/lcs.png"
+    ],
+    "note": "Alternate candidate is a different person: source metadata name, nationality and age do not match. Do not use this face.",
+    "alternateCandidates": [
+      "public/assets/teams/infinite/players/lks.webp"
+    ]
+  },
+  "player_207_mokicos_rxxq": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/magicos/players/rx.webp",
+      "raw-data/teams/magicos/players/rx.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_207_mokicos_snov": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/magicos/players/snow.webp",
+      "raw-data/teams/magicos/players/snow.png"
+    ],
+    "note": "Alternate candidate visually inspected: existing stylized avatar, not an original portrait photograph.",
+    "alternateCandidates": [
+      "public/assets/teams/sdengal/players/snov.png",
+      "public/assets/teams/sdengal/players/snov.webp"
+    ]
+  },
+  "player_193_mazroea_baqel": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mazraea/players/bagel.webp",
+      "raw-data/teams/mazraea/players/bagel.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_193_mazroea_k8c0": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mazraea/players/c0c0.webp",
+      "raw-data/teams/mazraea/players/c0c0.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_193_mazroea_no7nx": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mazraea/players/no1nx.webp",
+      "raw-data/teams/mazraea/players/no1nx.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_193_mazroea_tvigs": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mazraea/players/twigs.webp",
+      "raw-data/teams/mazraea/players/twigs.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_115_mekushort_mogw": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/megoshort/players/mogv.webp",
+      "raw-data/teams/megoshort/players/mogv.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_115_mekushort_tituluz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/megoshort/players/titulus.webp",
+      "raw-data/teams/megoshort/players/titulus.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_133_mindfraak_dxpr": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mindfreak/players/dpr.webp",
+      "raw-data/teams/mindfreak/players/dpr.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_133_mindfraak_zwersien": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mindfreak/players/swerzien.webp",
+      "raw-data/teams/mindfreak/players/swerzien.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_133_mindfraak_sune": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mindfreak/players/zune.webp",
+      "raw-data/teams/mindfreak/players/zune.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_82_marnengstar_zuci": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/morningstar/players/suki.webp",
+      "raw-data/teams/morningstar/players/suki.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_191_myertaex_lxumier": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/muerta/players/lumier.webp",
+      "raw-data/teams/muerta/players/lumier.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_191_myertaex_semzys": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/muerta/players/semsys.webp",
+      "raw-data/teams/muerta/players/semsys.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_74_naxvaid_diezen": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/nexvoid/players/diesen.webp",
+      "raw-data/teams/nexvoid/players/diesen.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_74_naxvaid_okeana": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/nexvoid/players/oceana.webp",
+      "raw-data/teams/nexvoid/players/oceana.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_213_nomadx_hzenx": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/nomads/players/henx.webp",
+      "raw-data/teams/nomads/players/henx.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_213_nomadx_hoolig6n": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/nomads/players/hoolig4n.webp",
+      "raw-data/teams/nomads/players/hoolig4n.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_222_overcneght_6taylor": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/overknight/players/4taylor.webp",
+      "raw-data/teams/overknight/players/4taylor.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_222_overcneght_amk": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/overknight/players/amc.webp",
+      "raw-data/teams/overknight/players/amc.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_222_overcneght_b7": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/overknight/players/b1.webp",
+      "raw-data/teams/overknight/players/b1.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_222_overcneght_majestikzz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/overknight/players/majesticzz.webp",
+      "raw-data/teams/overknight/players/majesticzz.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_228_piexaboo_hicomi": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/peekaboo/players/hikomi.webp",
+      "raw-data/teams/peekaboo/players/hikomi.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_223_pijaonsor_vieenn": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/pigeons/players/wieenn.webp",
+      "raw-data/teams/pigeons/players/wieenn.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_149_prezdigeel_folce": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/prestige/players/folke.webp",
+      "raw-data/teams/prestige/players/folke.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_149_prezdigeel_misi": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/prestige/players/mizi.webp",
+      "raw-data/teams/prestige/players/mizi.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_189_prysan_r9ct": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/prison_breakers/players/r3kt.webp",
+      "raw-data/teams/prison_breakers/players/r3kt.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_208_qyezar_7zs": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/quazar/players/1zz.webp",
+      "raw-data/teams/quazar/players/1zz.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_208_qyezar_ne7xxx": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/quazar/players/ne1xxx.webp",
+      "raw-data/teams/quazar/players/ne1xxx.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_208_qyezar_nevt": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/quazar/players/newt.webp",
+      "raw-data/teams/quazar/players/newt.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_158_qwintry_axbiraju": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/qwentry/players/abiraju.webp",
+      "raw-data/teams/qwentry/players/abiraju.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_158_qwintry_pzychodoctor": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/qwentry/players/psychodoctor.webp",
+      "raw-data/teams/qwentry/players/psychodoctor.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_158_qwintry_zlaxejeszz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/qwentry/players/slaxejezzz.webp",
+      "raw-data/teams/qwentry/players/slaxejezzz.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_153_rigaenro_dvrc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/regain/players/dvrk.webp",
+      "raw-data/teams/regain/players/dvrk.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_153_rigaenro_marekiev": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/regain/players/marekiew.webp",
+      "raw-data/teams/regain/players/marekiew.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_153_rigaenro_zazha": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/regain/players/sasha.webp",
+      "raw-data/teams/regain/players/sasha.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_153_rigaenro_zukar": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/regain/players/zucar.webp",
+      "raw-data/teams/regain/players/zucar.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_148_raoxter_adc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/rooster/players/adk.webp",
+      "raw-data/teams/rooster/players/adk.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_148_raoxter_ju7kes": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/rooster/players/ju1ces.webp",
+      "raw-data/teams/rooster/players/ju1ces.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_148_raoxter_txerryyy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/rooster/players/terryyy.webp",
+      "raw-data/teams/rooster/players/terryyy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_98_ryxtecrix_jakeces": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/rustec/players/jakekes.webp",
+      "raw-data/teams/rustec/players/jakekes.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_227_sakurayx_alikeravr": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sakura/players/alicerawr.webp",
+      "raw-data/teams/sakura/players/alicerawr.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_235_sidaqoest_qun": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sidequest/players/gun.webp",
+      "raw-data/teams/sidequest/players/gun.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_235_sidaqoest_larzecdahl": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sidequest/players/larsekdahl.webp",
+      "raw-data/teams/sidequest/players/larsekdahl.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_235_sidaqoest_lzur": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sidequest/players/lur.webp",
+      "raw-data/teams/sidequest/players/lur.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_235_sidaqoest_probl99m": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sidequest/players/probl33m.webp",
+      "raw-data/teams/sidequest/players/probl33m.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_235_sidaqoest_xtsy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sidequest/players/xtzy.webp",
+      "raw-data/teams/sidequest/players/xtzy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_134_xpurtsbetexpert_zml": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/sportsbetexpert/players/sml.webp",
+      "raw-data/teams/sportsbetexpert/players/sml.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_216_tymiwaves_kamille": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/timewaves/players/camille.webp",
+      "raw-data/teams/timewaves/players/camille.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_216_tymiwaves_hxarbor": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/timewaves/players/harbor.webp",
+      "raw-data/teams/timewaves/players/harbor.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_216_tymiwaves_cezza": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/timewaves/players/kezza.webp",
+      "raw-data/teams/timewaves/players/kezza.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_216_tymiwaves_lavlcay": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/timewaves/players/lawlkay.webp",
+      "raw-data/teams/timewaves/players/lawlkay.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_201_tnk_ezlem": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/tnc/players/elem.webp",
+      "raw-data/teams/tnc/players/elem.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_164_trukk_mil6nnn": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/truck_drivers/players/mil4nnn.webp",
+      "raw-data/teams/truck_drivers/players/mil4nnn.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_164_trukk_nzaiter": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/truck_drivers/players/naiter.webp",
+      "raw-data/teams/truck_drivers/players/naiter.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_164_trukk_obsvard": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/truck_drivers/players/obsward.webp",
+      "raw-data/teams/truck_drivers/players/obsward.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_180_undergroond_jzynx": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/underground/players/jynx.webp",
+      "raw-data/teams/underground/players/jynx.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_180_undergroond_n7qhtraid": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/underground/players/n1ghtraid.webp",
+      "raw-data/teams/underground/players/n1ghtraid.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_236_vantaga_arktik": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/vantage/players/arctic.webp",
+      "raw-data/teams/vantage/players/arctic.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_236_vantaga_nxeo": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/vantage/players/neo.webp",
+      "raw-data/teams/vantage/players/neo.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_236_vantaga_txidy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/vantage/players/tidy.webp",
+      "raw-data/teams/vantage/players/tidy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_246_wahweh_bxullet": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wahwah/players/bullet.webp",
+      "raw-data/teams/wahwah/players/bullet.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_246_wahweh_exekutor": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wahwah/players/executor.webp",
+      "raw-data/teams/wahwah/players/executor.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_246_wahweh_inzmutje": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wahwah/players/insmutje.webp",
+      "raw-data/teams/wahwah/players/insmutje.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_246_wahweh_ocay": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wahwah/players/okay.webp",
+      "raw-data/teams/wahwah/players/okay.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_210_wonted_jdubz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wanted_goons/players/jdubs.webp",
+      "raw-data/teams/wanted_goons/players/jdubs.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_199_weshengton_bewwe": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/washington/players/bevve.webp",
+      "raw-data/teams/washington/players/bevve.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_152_wetermelon_qleb86ruz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/watermelon/players/gleb86rus.webp",
+      "raw-data/teams/watermelon/players/gleb86rus.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_152_wetermelon_laczheri": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/watermelon/players/laksheri.webp",
+      "raw-data/teams/watermelon/players/laksheri.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_152_wetermelon_zexyvowa": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/watermelon/players/sexyvova.webp",
+      "raw-data/teams/watermelon/players/sexyvova.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_198_wildrix_ztrong9r": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/wild/players/strong3r.webp",
+      "raw-data/teams/wild/players/strong3r.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_232_wenners_patootic": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/winners/players/patootik.webp",
+      "raw-data/teams/winners/players/patootik.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_232_wenners_t8mmyyy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/winners/players/t0mmyyy.webp",
+      "raw-data/teams/winners/players/t0mmyyy.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_232_wenners_ualiqod": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/winners/players/ualigod.webp",
+      "raw-data/teams/winners/players/ualigod.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_113_ww_ct8m": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ww/players/ct0m.webp",
+      "raw-data/teams/ww/players/ct0m.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_113_ww_m3vsu": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ww/players/m3wsu.webp",
+      "raw-data/teams/ww/players/m3wsu.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_205_xdm_darcc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/xdm/players/darkk.webp",
+      "raw-data/teams/xdm/players/darkk.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_205_xdm_cunqao": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/xdm/players/kungao.webp",
+      "raw-data/teams/xdm/players/kungao.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_205_xdm_r1verlace": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/xdm/players/r1verlake.webp",
+      "raw-data/teams/xdm/players/r1verlake.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_205_xdm_shad8w": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/xdm/players/shad0w.webp",
+      "raw-data/teams/xdm/players/shad0w.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_205_xdm_txaidao": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/xdm/players/taidao.webp",
+      "raw-data/teams/xdm/players/taidao.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_218_altoyro_surgexnoc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/altay/players/forzenok.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_84_g_two_jxunyme": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/g2_ares/players/junyme.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_84_g_two_yczjupe": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/g2_ares/players/yksjupe.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_212_red_edw": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/red_canids_academy/players/edv.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_212_red_qtw": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/red_canids_academy/players/gtw.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_212_red_n8paqe": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/red_canids_academy/players/n0page.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_212_red_nc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/red_canids_academy/players/nk.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_212_red_zanc": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/red_canids_academy/players/sanc.png"
+    ],
+    "note": "All audited original and archive candidates match visually inspected faceless placeholders; do not treat them as real-photo references.",
+    "alternateCandidates": []
+  },
+  "player_45_nimeses_kruc1al": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reason": "Visually inspected: faceless flat illustrated placeholder, not a personal portrait. No other matching local image found.",
+    "reviewedSources": [
+      "public/assets/teams/nemesis/players/cruc1al.webp"
+    ],
+    "alternateCandidates": []
+  },
+  "player_45_nimeses_n8te": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reason": "Visually inspected: faceless flat illustrated placeholder, not a personal portrait. No other matching local image found.",
+    "reviewedSources": [
+      "public/assets/teams/nemesis/players/n0te.webp"
+    ],
+    "alternateCandidates": []
+  },
+  "player_45_nimeses_nexiuz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reason": "Visually inspected: faceless flat illustrated placeholder, not a personal portrait. No other matching local image found.",
+    "reviewedSources": [
+      "public/assets/teams/nemesis/players/nexius.webp"
+    ],
+    "alternateCandidates": []
+  },
+  "player_45_nimeses_txein": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reason": "Visually inspected: faceless flat illustrated placeholder. No other matching local image found.",
+    "reviewedSources": [
+      "public/assets/teams/nemesis/players/tein.webp"
+    ],
+    "alternateCandidates": []
+  },
+  "player_45_nimeses_thomaz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reason": "Visually inspected: faceless flat illustrated placeholder. No other matching local image found.",
+    "reviewedSources": [
+      "public/assets/teams/nemesis/players/thomas.webp"
+    ],
+    "alternateCandidates": []
+  },
+  "player_82_marnengstar_expzaziki": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/morningstar/players/expsasiki.webp"
+    ],
+    "note": "Faceless primary; no usable personal photo in exact-name local archive search."
+  },
+  "player_82_marnengstar_raqe": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/morningstar/players/rage.webp"
+    ],
+    "note": "Faceless primary; no usable personal photo in exact-name local archive search."
+  },
+  "player_82_marnengstar_rxuben": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/morningstar/players/ruben.webp"
+    ],
+    "note": "Faceless primary; no usable personal photo in exact-name local archive search."
+  },
+  "player_83_qhinggix_tikuac": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/chinggis_warriors/players/tikuak.webp"
+    ],
+    "note": "Faceless primary; no usable personal photo in exact-name local archive search."
+  },
+  "player_91_ruby_caide": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/ruby/players/kaide.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_57_ix_rubyel_caide",
+    "confirmedSource": "raw-data/teams/ex-ruby/players/kaide.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/kaide.json",
+      "candidate": "raw-data/teams/ex-ruby/players/kaide.json",
+      "name": "Kaide",
+      "country": "ru",
+      "age": 25
+    }
+  },
+  "player_91_ruby_fosil": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/ruby/players/fozil.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_57_ix_rubyel_fosil",
+    "confirmedSource": "raw-data/teams/ex-ruby/players/fozil.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/fozil.json",
+      "candidate": "raw-data/teams/ex-ruby/players/fozil.json",
+      "name": "fozil",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  "player_91_ruby_h4san6tor": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/ruby/players/h4san4tor.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_57_ix_rubyel_h4san6tor",
+    "confirmedSource": "raw-data/teams/ex-ruby/players/h4san4tor.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/h4san4tor.json",
+      "candidate": "raw-data/teams/ex-ruby/players/h4san4tor.json",
+      "name": "H4SAN4TOR",
+      "country": "ru",
+      "age": 20
+    }
+  },
+  "player_91_ruby_maguein": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/ruby/players/maquein.webp"
+    ],
+    "note": "Faceless primary; similarly named ex-RUBY photo exists for four players and needs metadata reconciliation before reuse."
+  },
+  "player_91_ruby_sh7nejezzz": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/ruby/players/sh1nejezzz.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_57_ix_rubyel_sh7nejezzz",
+    "confirmedSource": "raw-data/teams/ex-ruby/players/sh1nejezzz.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/ruby/players/sh1nejezzz.json",
+      "candidate": "raw-data/teams/ex-ruby/players/sh1nejezzz.json",
+      "name": "sh1nejezzz",
+      "country": "ru",
+      "age": 20
+    }
+  },
+  "player_95_iroptionra_wizcera": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/eruption/players/viscera.webp"
+    ],
+    "note": "Faceless primary; no usable personal photo in exact-name local archive search."
+  },
+  "player_99_cph_b7elany": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/cph_wolves/players/b1elany.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_54_xalesieium_b7elany",
+    "confirmedSource": "raw-data/teams/kolesie/players/b1elany.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/cph_wolves/players/b1elany.json",
+      "candidate": "raw-data/teams/kolesie/players/b1elany.json",
+      "name": "b1elany",
+      "country": "pl",
+      "age": 23
+    }
+  },
+  "player_99_cph_jorco": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/cph_wolves/players/jorko.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_99_cph_matheoz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/cph_wolves/players/matheos.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_99_cph_n7xen": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/cph_wolves/players/n1xen.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_109_eeb_n7xen",
+    "confirmedSource": "raw-data/teams/aab/players/n1xen.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/cph_wolves/players/n1xen.json",
+      "candidate": "raw-data/teams/aab/players/n1xen.json",
+      "name": "n1Xen",
+      "country": "dk",
+      "age": 22
+    }
+  },
+  "player_99_cph_tapevaare": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/cph_wolves/players/tapewaare.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_102_mevrik_brawkkzz": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mavrek/players/brawckzz.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_102_mevrik_jakhro": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mavrek/players/jachro.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_102_mevrik_kyrix": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mavrek/players/cyrix.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_102_mevrik_toazty": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mavrek/players/toasty.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_102_mevrik_zharpie": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/mavrek/players/sharpie.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_112_impulsa_zprayy": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/impulse_gw/players/sprayy.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_122_calaoskurnos_cunana": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/calaoscornos/players/kunana.png",
+      "public/assets/teams/calaoscornos/players/kunana.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_129_9buomprara_ax7le": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/9boompro/players/ax1le.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_248_tdk_ax7le",
+    "confirmedSource": "raw-data/teams/tdk/players/ax1le.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/ax1le.json",
+      "candidate": "raw-data/teams/tdk/players/ax1le.json",
+      "name": "Ax1Le",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  "player_129_9buomprara_sorte": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/9boompro/players/zorte.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_248_tdk_sorte",
+    "confirmedSource": "raw-data/teams/tdk/players/zorte.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/zorte.json",
+      "candidate": "raw-data/teams/tdk/players/zorte.json",
+      "name": "zorte",
+      "country": "ru",
+      "age": 27
+    }
+  },
+  "player_129_9buomprara_zhalfey": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/9boompro/players/shalfey.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_55_namega_zhalfey",
+    "confirmedSource": "raw-data/teams/nemiga/players/shalfey.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/9boompro/players/shalfey.json",
+      "candidate": "raw-data/teams/nemiga/players/shalfey.json",
+      "name": "shalfey",
+      "country": "ru",
+      "age": 23
+    }
+  },
+  "player_132_enfuryty_nolw7n": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/infurity/players/nolv1n.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_134_xpurtsbetexpert_rekk": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/sportsbetexpert/players/reck.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_75_wild_ace_rekk",
+    "confirmedSource": "raw-data/teams/wildcard/players/reck.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/sportsbetexpert/players/reck.json",
+      "candidate": "raw-data/teams/wildcard/players/reck.json",
+      "name": "reck",
+      "country": "us",
+      "age": 22
+    }
+  },
+  "player_139_vuejo_alennnkar": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/bad_luck/players/alennncar.png",
+      "public/assets/teams/bad_luck/players/alennncar.webp",
+      "public/assets/teams/fuego/players/alennncar.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_139_vuejo_lucita": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/fuego/players/lukita.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_139_vuejo_vsn": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "public/assets/teams/fuego/players/vzn.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_139_vuejo_zakamoto": {
+    "status": "no-real-photo-in-audited-candidates",
+    "reviewedSources": [
+      "raw-data/teams/bad_luck/players/sakamoto.png",
+      "public/assets/teams/bad_luck/players/sakamoto.webp",
+      "public/assets/teams/fuego/players/sakamoto.webp"
+    ],
+    "note": "Visually reviewed: only faceless generic avatars or silhouettes. Recursive exact-name search of raw-data/teams and public/assets/teams found no personal photo. See final-placeholder-search.json and final-placeholder-candidates-sources-1.png; Bad Luck alternate silhouettes also visually reviewed."
+  },
+  "player_168_exzod_blase": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/exsad/players/blaze.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_129_sow_blase",
+    "confirmedSource": "raw-data/teams/saw/players/blaze.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/blaze.json",
+      "candidate": "raw-data/teams/saw/players/blaze.json",
+      "name": "blaze",
+      "country": "pt",
+      "age": 20
+    }
+  },
+  "player_168_exzod_jerk8z": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/exsad/players/jerk0z.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_129_sow_jerk8z",
+    "confirmedSource": "raw-data/teams/saw/players/jerk0z.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/jerk0z.json",
+      "candidate": "raw-data/teams/saw/players/jerk0z.json",
+      "name": "jERK0z",
+      "country": "pt",
+      "age": 17
+    }
+  },
+  "player_168_exzod_morets": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/exsad/players/moretz.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_129_sow_morets",
+    "confirmedSource": "raw-data/teams/saw/players/moretz.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/moretz.json",
+      "candidate": "raw-data/teams/saw/players/moretz.json",
+      "name": "Moretz",
+      "country": "pt",
+      "age": 20
+    }
+  },
+  "player_168_exzod_txuxa": {
+    "status": "resolved-personal-photo-historical-roster",
+    "reviewedSources": [
+      "public/assets/teams/exsad/players/tuxa.webp"
+    ],
+    "note": "Original personal photograph located under a historical team; metadata and visual source review confirmed the same player. Canonical generated avatar is reused when exported.",
+    "canonicalPortraitId": "player_129_sow_txuxa",
+    "confirmedSource": "raw-data/teams/saw/players/tuxa.png",
+    "identityEvidence": {
+      "original": "raw-data/teams/exsad/players/tuxa.json",
+      "candidate": "raw-data/teams/saw/players/tuxa.json",
+      "name": "tuxa",
+      "country": "pt",
+      "age": 22
+    }
+  }
+}

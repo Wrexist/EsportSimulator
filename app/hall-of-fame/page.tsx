@@ -59,11 +59,11 @@ export default function HallOfFamePage() {
     const isStillActive = (legendId: string) => activeLegendSet.has(legendId)
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="premium-route space-y-6 max-w-7xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2 flex items-center gap-4">
+                    <h1 className="page-title mb-2 flex items-center gap-4">
                         Hall of Fame
                         <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/20">LEGENDS</Badge>
                     </h1>

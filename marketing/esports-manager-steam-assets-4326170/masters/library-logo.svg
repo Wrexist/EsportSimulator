@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Esports Manager FPS">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1" objectBoundingBox="true"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#b8cbdc"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b3f6f5"/><stop offset="1" stop-color="#19b8c7"/></linearGradient>
+  </defs>
+  <g fill="url(#silver)" font-family="Impact, Arial Black, sans-serif" font-weight="400" text-anchor="middle">
+    <text x="640" y="268" font-size="252" textLength="1170" lengthAdjust="spacingAndGlyphs">ESPORTS</text>
+    <text x="640" y="520" font-size="252" textLength="1170" lengthAdjust="spacingAndGlyphs">MANAGER</text>
+  </g>
+  <g fill="url(#teal)" font-family="Impact, Arial Black, sans-serif" text-anchor="middle">
+    <text x="640" y="675" font-size="154" letter-spacing="14" textLength="338" lengthAdjust="spacingAndGlyphs">FPS</text>
+  </g>
+  <path d="M60 618H402 M878 618H1220" fill="none" stroke="#55dbe1" stroke-width="6"/>
+</svg>

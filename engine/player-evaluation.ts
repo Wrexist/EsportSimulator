@@ -120,6 +120,9 @@ const ROLE_WEIGHTS: Record<string, Record<string, number>> = {
     },
 }
 
+// Stable role definitions: reuse their ordered entries without allocating per valuation.
+const ROLE_WEIGHT_ENTRIES = Object.fromEntries(Object.entries(ROLE_WEIGHTS).map(([role, weights]) => [role, Object.entries(weights)]))
+
 /**
  * Calculate role-specific fit score
  * This answers: "How good is this player at what they're supposed to do?"
@@ -145,10 +148,10 @@ export function calculateRoleFit(player: PlayerSaveData): number {
         normalizedRole = "Star"
     }
 
-    const weights = ROLE_WEIGHTS[normalizedRole] || ROLE_WEIGHTS.Rifler
+    const weights = ROLE_WEIGHT_ENTRIES[normalizedRole] || ROLE_WEIGHT_ENTRIES.Rifler
 
     let score = 0
-    for (const [stat, weight] of Object.entries(weights)) {
+    for (const [stat, weight] of weights) {
         const value = (player as unknown as Record<string, number>)[stat] ?? 50
         score += value * weight
     }

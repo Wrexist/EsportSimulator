@@ -1,0 +1,335 @@
+{
+  "replaySha256": "273155c8d96fe69369c0e6124f32ccb9662e92225328c6f1ed176905270ae796",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "careerEligible": false,
+  "elapsedMs": 33325,
+  "outcome": "CT",
+  "reason": "Round time expired without a completed plant.",
+  "ticks": 2880,
+  "frames": 361,
+  "events": 875,
+  "metrics": {
+    "shots": 300,
+    "damage": 100,
+    "reports": 170,
+    "waits": 868,
+    "replans": 47,
+    "minSeparation": 32.04035071388762
+  },
+  "routeFailures": [
+    {
+      "tick": 720,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T5",
+      "side": "T"
+    },
+    {
+      "tick": 1136,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T4",
+      "side": "T"
+    },
+    {
+      "tick": 1168,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T3",
+      "side": "T"
+    },
+    {
+      "tick": 2272,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T5",
+      "side": "T"
+    }
+  ],
+  "finalActors": [
+    {
+      "id": "CT1",
+      "position": [
+        -428.3345217587187,
+        -2217.31644486878,
+        -172.36922777414264
+      ],
+      "intent": "anchor",
+      "reason": "Stop advancing to engage a directly visible opponent."
+    },
+    {
+      "id": "CT2",
+      "position": [
+        -2075.6570239939933,
+        249.36404116996195,
+        -156
+      ],
+      "intent": "anchor",
+      "reason": "Hold the assigned opening angle."
+    },
+    {
+      "id": "CT3",
+      "position": [
+        -581.6343463063638,
+        -2274.5195059962834,
+        -172.53072891112492
+      ],
+      "intent": "anchor",
+      "reason": "Hold the assigned opening angle."
+    },
+    {
+      "id": "CT4",
+      "position": [
+        -2156.2135189401756,
+        104.30366120970183,
+        -156
+      ],
+      "intent": "anchor",
+      "reason": "Hold the assigned opening angle."
+    },
+    {
+      "id": "CT5",
+      "position": [
+        -535.221896675346,
+        -2128.1432366057807,
+        -175.61971560101668
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "T1",
+      "position": [
+        250.7227288894116,
+        -1547.4951,
+        -171.99998
+      ],
+      "intent": "rotate",
+      "reason": "Stop advancing to engage a directly visible opponent."
+    },
+    {
+      "id": "T2",
+      "position": [
+        -800.2155751824429,
+        -253.18898681104278,
+        -160
+      ],
+      "intent": "rotate",
+      "reason": "Stop advancing to engage a directly visible opponent."
+    },
+    {
+      "id": "T3",
+      "position": [
+        1262.7052898531422,
+        -358.38987408435537,
+        -163.10253728460393
+      ],
+      "intent": "blocked",
+      "reason": "Repeated movement attempts failed; hold until the team objective changes."
+    },
+    {
+      "id": "T4",
+      "position": [
+        1250.5883538729688,
+        -328.7212522056795,
+        -163
+      ],
+      "intent": "blocked",
+      "reason": "Repeated movement attempts failed; hold until the team objective changes."
+    },
+    {
+      "id": "T5",
+      "position": [
+        -773.3894510547639,
+        -275.81893452738365,
+        -160.17162896496404
+      ],
+      "intent": "blocked",
+      "reason": "Repeated movement attempts failed; hold until the team objective changes."
+    }
+  ],
+  "blockedActors": [],
+  "preview": {
+    "format": "esim-career-round-preview",
+    "version": 1,
+    "careerEligible": false,
+    "replaySha256": "273155c8d96fe69369c0e6124f32ccb9662e92225328c6f1ed176905270ae796",
+    "binding": {
+      "matchId": "mirage-integration-review",
+      "mapId": "Mirage",
+      "roundNumber": 1,
+      "homeTeamId": "review-home",
+      "awayTeamId": "review-away",
+      "homeSide": "T",
+      "players": [
+        {
+          "actorId": "CT1",
+          "playerId": "review:CT1",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT2",
+          "playerId": "review:CT2",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT3",
+          "playerId": "review:CT3",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT4",
+          "playerId": "review:CT4",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT5",
+          "playerId": "review:CT5",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "T1",
+          "playerId": "review:T1",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T2",
+          "playerId": "review:T2",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T3",
+          "playerId": "review:T3",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T4",
+          "playerId": "review:T4",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T5",
+          "playerId": "review:T5",
+          "teamId": "review-home"
+        }
+      ]
+    },
+    "round": {
+      "roundNumber": 1,
+      "winner": "ct",
+      "winType": "TIME",
+      "ctTeam": "review-away",
+      "tTeam": "review-home",
+      "winningTeamId": "review-away",
+      "kills": [
+        {
+          "playerId": "review:T2",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        }
+      ],
+      "deaths": [
+        {
+          "playerId": "review:CT5",
+          "deaths": 1
+        }
+      ],
+      "events": [
+        {
+          "type": "KILL",
+          "time": 24,
+          "killerId": "review:T2",
+          "victimId": "review:CT5",
+          "playerId": "review:T2",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false
+        },
+        {
+          "type": "ROUND_END",
+          "time": 45,
+          "side": "ct",
+          "details": "Round time expired without a completed plant."
+        }
+      ]
+    },
+    "players": [
+      {
+        "playerId": "review:CT1",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:CT2",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:CT3",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:CT4",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:CT5",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 0,
+        "health": 0
+      },
+      {
+        "playerId": "review:T1",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 22,
+        "health": 100
+      },
+      {
+        "playerId": "review:T2",
+        "kills": 1,
+        "deaths": 0,
+        "damage": 78,
+        "health": 100
+      },
+      {
+        "playerId": "review:T3",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:T4",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:T5",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      }
+    ],
+    "blockers": [
+      "Career weapons, armor/kit rules and player attributes must drive physical combat.",
+      "Reviewed spawn/plant polygons and traversal connections must drive objectives.",
+      "Career economy, match worker ownership and exactly-once settlement are not connected."
+    ]
+  },
+  "note": "One seed, provisional lab rules and unreviewed annotations. This is an integration smoke check, not balance or geometry certification."
+}

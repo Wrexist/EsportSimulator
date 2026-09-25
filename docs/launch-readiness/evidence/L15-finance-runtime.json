@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "node": "v22.18.0",
+  "platform": "win32",
+  "fixture": "createLaunchFixture season-boundary seed 3402, explicit financial-only scenario",
+  "scope": "Recurring finance/expiry/sponsor processing and canonical save replay, not a complete career or packaged acceptance run",
+  "checks": [
+    {
+      "scenario": "synthetic-stable",
+      "seed": 3402,
+      "startWeek": 52,
+      "settledWeeks": 52,
+      "opening": 200000,
+      "closing": 957224,
+      "ledgerRows": 260,
+      "endWeek": 104,
+      "gameOver": null,
+      "ledgerSha256": "0e2c3726ca2634ada307d4547c3dc2749a1dd006cf3e68aa33ef0bfffcaa857f",
+      "replayAndCanonicalRoundtrip": true
+    },
+    {
+      "scenario": "synthetic-distress-500k-weekly-wages",
+      "seed": 3402,
+      "startWeek": 52,
+      "settledWeeks": 8,
+      "opening": 1000,
+      "closing": -3660404,
+      "ledgerRows": 40,
+      "endWeek": 60,
+      "gameOver": "BANKRUPTCY",
+      "ledgerSha256": "5e5f8a9a4e1e596b97283473914b136edcdb3b0b22ed0779229678908035c147",
+      "replayAndCanonicalRoundtrip": true
+    }
+  ],
+  "ownerFiles": [
+    {
+      "file": "mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "file": "mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    }
+  ]
+}

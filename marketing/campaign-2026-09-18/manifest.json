@@ -1,0 +1,103 @@
+{
+  "method": "Built-in image_gen; locally resized under existing owner export authorization",
+  "kind": "Promotional concept artwork, not gameplay screenshots",
+  "uploaded": false,
+  "exports": [
+    {
+      "file": "promotional-1920x1080/01-build-your-dynasty.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c184c9391092e2b7ae788e9dfe6592c3960afcd8c8702922b0e0f1c90f776ca4"
+    },
+    {
+      "file": "about-800x450/01-build-your-dynasty.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "9ec33ba66605200e9bcf83c5f125f981be8a0538b38cdf993611e2ba258fda05"
+    },
+    {
+      "file": "promotional-1920x1080/02-find-your-next-star.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "78409af9b5ac5bb8c258cf0a2fe634732736ea3dd54f1f023242f612b0066315"
+    },
+    {
+      "file": "about-800x450/02-find-your-next-star.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "2059c0b502dae64e7562ca710d6f4e36d1fd3307f6796eb7a6f43b71b80c1fd0"
+    },
+    {
+      "file": "promotional-1920x1080/03-call-the-shots.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "9d08e5cd3f656f1f3c9f9cb4379b05890c4a2ebb8daac4e1a9a53a31f17a4dbf"
+    },
+    {
+      "file": "about-800x450/03-call-the-shots.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "a0f73a8a84722e30fe6f63b03bb315fc5ec8dc25a5932bd378a1997b62572db8"
+    },
+    {
+      "file": "promotional-1920x1080/04-build-your-dream-team.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "ee8d542744e710ac273ae1b825ea10182798d2c5082a588ea9f1b4f35d85df1f"
+    },
+    {
+      "file": "about-800x450/04-build-your-dream-team.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "334060c3265e857eb2336269c170f69a14591479ed56dcf082f462be4fa3389a"
+    },
+    {
+      "file": "promotional-1920x1080/05-create-your-home.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "bce0f47bae692e2c98140841a8419e8a46a337e81b7a20769a862b6e343334f2"
+    },
+    {
+      "file": "about-800x450/05-create-your-home.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "86366a3ba68d92e0c09ce6bfeeb7e9be08b37957a0f0f81dad32bf9fb7659d80"
+    },
+    {
+      "file": "promotional-1920x1080/06-gear-up.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "27fcc1bc329c22adb32cd4a5a1419025d6a8c93b2433156754d81a733116b445"
+    },
+    {
+      "file": "about-800x450/06-gear-up.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "bc0cfaf0a490f4e30d4a3f5451d850228d26c8bdb62a1026bd7932d3882827d4"
+    },
+    {
+      "file": "promotional-1920x1080/07-run-the-club.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "76da40e8cb321a128ba0ab22682fd7c88ae34ee08d831f2e4155fa92eaac4351"
+    },
+    {
+      "file": "about-800x450/07-run-the-club.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "49ddee0e649057c858fd96635c4b78e637e3d1c275a559cacbf81a44d132f352"
+    },
+    {
+      "file": "promotional-1920x1080/08-make-every-season-count.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "087e1ab6516b24ae0a98d9ca8a34698a5bc7ca57662220576f14921ec6eeb168"
+    },
+    {
+      "file": "about-800x450/08-make-every-season-count.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "663d0600f7bf24635144c56dc3c11ab9bbd901038f8512020a63d650aca1c97c"
+    }
+  ]
+}

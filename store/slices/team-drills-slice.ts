@@ -5,9 +5,9 @@
  *
  * Single action: runTeamDrill. Spends one weekly training slot to give
  * every active roster player:
- *   - Fatigue cost (cost parameter, −20% with `player_fit_2` Iron Lung talent)
+ *   - Fatigue cost (catalog cost, −20% with `player_fit_2` Iron Lung talent)
  *   - Flat 50 XP (with level-up handling and 1 talent point per level)
- *   - Per-stat point gains from `gains[]` (with drill terminology mapped
+ *   - Per-stat point gains from the drill catalog (with drill terminology mapped
  *     to actual player stat keys: agility→reaction, focus→stressResistance,
  *     entry/accuracy→rifle, mechanics→skill)
  *   - Weapon mastery XP for weapon-themed drills (rifle/awp/smg/pistol)
@@ -22,6 +22,7 @@
 import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
+import drillCatalog from "@/data/drills.json"
 import { nextDeterministicId } from "@/store/utils/helpers"
 
 const DRILL_XP_GAIN = 50
@@ -38,6 +39,8 @@ const STAT_MAPPING: Record<string, keyof PlayerSaveData> = {
     entry: "rifle",
     mechanics: "skill",
     accuracy: "rifle",
+    leadership: "leader",
+    stressresistance: "stressResistance",
 }
 
 const WEAPON_STAT_NAMES = new Set(["RIFLE", "AWP", "SMG", "PISTOL"])
@@ -51,7 +54,11 @@ export interface TeamDrillsActions {
 }
 
 export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => ({
-    runTeamDrill: (drillId, gains, cost) => {
+    runTeamDrill: (drillId, _legacyGains, _legacyCost) => {
+        const drill = drillCatalog.find(item => item.id === drillId)
+        if (!drill) return { success: false, message: "Unknown training drill" }
+        const gains = drill.rewards.map(reward => ({ stat: reward.stat, amount: reward.value }))
+        const cost = drill.fatigueCost
         let result = { success: false, message: "Unknown error" }
         set((state) => {
             if (!state.playerTeamId) {
@@ -65,6 +72,10 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                 return
             }
 
+            if (state.activeMatchId) { result = { success: false, message: "Finish the active match before training" }; return }
+            if (!Number.isFinite(cost) || cost < -100 || cost > 100 || gains.some(g => !Number.isFinite(g.amount) || g.amount < 0 || g.amount > 100)) {
+                result = { success: false, message: "Invalid drill effects" }; return
+            }
             // Weekly slot cap.
             if ((team.trainingSlotsUsed || 0) >= (team.maxTrainingSlots || DEFAULT_MAX_TRAINING_SLOTS)) {
                 result = { success: false, message: "Weekly training limit reached!" }
@@ -74,9 +85,10 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
             const drillName = drillId.replace(/_/g, " ").toUpperCase()
 
             // Exhaustion guard — block drill if any active player is gassed.
-            const roster = state.players.filter(p => team.rosterIds.includes(p.id))
+            const roster = state.players.filter(p => team.rosterIds.includes(p.id) && !p.isRetired && !team.activeRoleTraining?.some(t => t.playerId === p.id))
+            if (!roster.length) { result = { success: false, message: "No available squad players for this drill" }; return }
             const exhaustedPlayer = roster.find(p => (p.fatigue || 0) >= EXHAUSTION_THRESHOLD)
-            if (exhaustedPlayer) {
+            if (exhaustedPlayer && cost > 0) {
                 result = { success: false, message: `${exhaustedPlayer.nickname} is too exhausted to train!` }
                 return
             }
@@ -85,7 +97,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
             roster.forEach(p => {
                 // Iron Lung talent reduces fatigue by 20% (rounded up).
                 let fatigueHit = cost
-                if (p.unlockedTalentIds && p.unlockedTalentIds.includes(IRON_LUNG_TALENT_ID)) {
+                if (fatigueHit > 0 && p.unlockedTalentIds && p.unlockedTalentIds.includes(IRON_LUNG_TALENT_ID)) {
                     fatigueHit = Math.ceil(fatigueHit * IRON_LUNG_FATIGUE_REDUCTION)
                 }
                 p.fatigue = Math.max(0, Math.min(100, (p.fatigue || 0) + fatigueHit))
@@ -123,7 +135,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                         // matching processTraining, which clamps to potential. The
                         // max(currentVal, …) guard means a stat already above
                         // potential is held, never reduced.
-                        const cap = Math.min(100, Math.max(currentVal, p.potential ?? 100))
+                        const cap = ["morale", "health"].includes(statKey) ? 100 : Math.min(100, Math.max(currentVal, p.potential ?? 100))
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         ;(p as any)[statKey] = Math.max(0, Math.min(cap, currentVal + gain.amount))
                     }

@@ -1,0 +1,9 @@
+{
+  "bootstrap": "2063.7e540b3ae0b8cb87.js",
+  "shared": "3868.9ab10b489775e167.js",
+  "engine": "spatial-round-v3",
+  "sha256": "59ad629acaf27881526c97a1acfed0bc9cc6ddee853b8316ea7c30e276b733c5",
+  "repeated": true,
+  "actors": 2,
+  "scope": "Actual production geometry-worker code, isolated two-player floor fixture; no career storage or browser UI."
+}

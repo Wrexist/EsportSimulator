@@ -1,0 +1,846 @@
+{
+  "originals": [
+    {
+      "file": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+      "bytes": 143496
+    },
+    {
+      "file": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+      "bytes": 128763
+    }
+  ],
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "sourceVersion": "2000908",
+  "marks": 169,
+  "errors": 20,
+  "warnings": 87,
+  "zones": [
+    {
+      "id": "039da054-317d-4865-909e-bf938f08281f",
+      "kind": "ctspawn",
+      "label": "CT spawn area",
+      "samples": 113,
+      "safe": 85,
+      "unsupported": 18,
+      "blocked": 10,
+      "ambiguous": 0,
+      "exits": 1,
+      "candidates": [
+        {
+          "area": 2529,
+          "point": [
+            -2009.215981217983,
+            -2009.403610922732,
+            -295.76400926428016
+          ]
+        },
+        {
+          "area": 2505,
+          "point": [
+            -2009.215981217983,
+            -1819.6552472235146,
+            -296.37186079084665
+          ]
+        },
+        {
+          "area": 2474,
+          "point": [
+            -1917.1963200051584,
+            -2009.403610922732,
+            -277.4742855485864
+          ]
+        },
+        {
+          "area": 2448,
+          "point": [
+            -1794.503438388059,
+            -2009.403610922732,
+            -260.3129172985074
+          ]
+        }
+      ],
+      "point": {
+        "area": 2448,
+        "point": [
+          -1825.176658792334,
+          -1882.9047017899204,
+          -264.14706984904177
+        ]
+      }
+    },
+    {
+      "id": "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+      "kind": "tspawn",
+      "label": "T spawn area",
+      "samples": 121,
+      "safe": 86,
+      "unsupported": 0,
+      "blocked": 35,
+      "ambiguous": 0,
+      "exits": 2,
+      "candidates": [
+        {
+          "area": 758,
+          "point": [
+            1163.32759734899,
+            -332.32267219960085,
+            -162.81048184735937
+          ]
+        }
+      ],
+      "point": {
+        "area": 900,
+        "point": [
+          1289.1023069669704,
+          -117.89467524386887,
+          -164
+        ]
+      }
+    },
+    {
+      "id": "64aa2728-d3ba-4306-8287-83a0b7052483",
+      "kind": "bombsite",
+      "label": "A plant zone",
+      "samples": 88,
+      "safe": 55,
+      "unsupported": 22,
+      "blocked": 11,
+      "ambiguous": 0,
+      "exits": 0,
+      "candidates": [
+        {
+          "area": 2024,
+          "point": [
+            -601.399436430131,
+            -2290.6290529394173,
+            -171.73167345218934
+          ]
+        },
+        {
+          "area": 1978,
+          "point": [
+            -601.399436430131,
+            -2110.0817529980077,
+            -49.99998
+          ]
+        },
+        {
+          "area": 1956,
+          "point": [
+            -541.0787023612012,
+            -2079.990536341106,
+            -106
+          ]
+        },
+        {
+          "area": 2102,
+          "point": [
+            -420.43723422334136,
+            -2320.7202695963188,
+            -165.1703908248726
+          ]
+        },
+        {
+          "area": 2241,
+          "point": [
+            -360.1165001544114,
+            -2320.7202695963188,
+            -95.1865439753357
+          ]
+        }
+      ],
+      "point": {
+        "area": 2102,
+        "point": [
+          -420.43723422334136,
+          -2200.355402968712,
+          -173.19473309858478
+        ]
+      }
+    },
+    {
+      "id": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+      "kind": "bombsite",
+      "label": "B plant zone",
+      "samples": 88,
+      "safe": 52,
+      "unsupported": 25,
+      "blocked": 11,
+      "ambiguous": 0,
+      "exits": 0,
+      "candidates": [
+        {
+          "area": 2076,
+          "point": [
+            -2205.3560907960873,
+            205.72929709560282,
+            -156
+          ]
+        },
+        {
+          "area": 1739,
+          "point": [
+            -1949.5681448452162,
+            363.4581234828266,
+            -85.999985
+          ]
+        }
+      ],
+      "point": {
+        "area": 1838,
+        "point": [
+          -2077.4621178206517,
+          268.82082765049233,
+          -156
+        ]
+      }
+    }
+  ],
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "f103aabe-6d13-4012-9ccf-54c689aefef2"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "f103aabe-6d13-4012-9ccf-54c689aefef2"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "0da8dd31-ef0a-4857-98a2-d11cb217069c"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "0da8dd31-ef0a-4857-98a2-d11cb217069c"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-length",
+      "message": "This opening spans more than 5% of the radar. Check that it marks one opening or cover edge, rather than a whole corridor.",
+      "markId": "0da8dd31-ef0a-4857-98a2-d11cb217069c"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "bf5debe6-6f5b-47d3-af0d-7ad0c6d746a8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "bf5debe6-6f5b-47d3-af0d-7ad0c6d746a8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "a3bebe3e-7770-477f-9610-fef4a4b35ee8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "a3bebe3e-7770-477f-9610-fef4a4b35ee8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-overlap",
+      "message": "A blue marking and a green passage share these endpoints. Clarify whether walking and shooting use different heights, or keep the single intended type.",
+      "markId": "a3bebe3e-7770-477f-9610-fef4a4b35ee8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-wall-overlap",
+      "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+      "markId": "a3bebe3e-7770-477f-9610-fef4a4b35ee8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "f46362e8-cfb6-43a4-997c-abdc805b0afd"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "f46362e8-cfb6-43a4-997c-abdc805b0afd"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-wall-overlap",
+      "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+      "markId": "f46362e8-cfb6-43a4-997c-abdc805b0afd"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "2f856572-c483-4fb4-8c95-713eb8600dcc"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "2f856572-c483-4fb4-8c95-713eb8600dcc"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "5fd6942b-1c61-4e07-9a64-4b1cb129b6a8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "5fd6942b-1c61-4e07-9a64-4b1cb129b6a8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-overlap",
+      "message": "A blue marking and a green passage share these endpoints. Clarify whether walking and shooting use different heights, or keep the single intended type.",
+      "markId": "5fd6942b-1c61-4e07-9a64-4b1cb129b6a8"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "3cb0bb2a-0d74-476a-b2dc-8a06db07126e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "3cb0bb2a-0d74-476a-b2dc-8a06db07126e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-overlap",
+      "message": "A blue marking and a green passage share these endpoints. Clarify whether walking and shooting use different heights, or keep the single intended type.",
+      "markId": "3cb0bb2a-0d74-476a-b2dc-8a06db07126e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "c8e94615-8e0d-4ffa-802c-e267e8f82aee"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "c8e94615-8e0d-4ffa-802c-e267e8f82aee"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-wall-overlap",
+      "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+      "markId": "c8e94615-8e0d-4ffa-802c-e267e8f82aee"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "99cb29f0-9a83-447d-852b-64614bfb83b2"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "99cb29f0-9a83-447d-852b-64614bfb83b2"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "0f714a84-bf2d-4212-a2c8-e60f174b1269"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "0f714a84-bf2d-4212-a2c8-e60f174b1269"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "fbc0a38d-d702-48d9-a1d8-d34c58fded46"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "fbc0a38d-d702-48d9-a1d8-d34c58fded46"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-overlap",
+      "message": "A blue marking and a green passage share these endpoints. Clarify whether walking and shooting use different heights, or keep the single intended type.",
+      "markId": "fbc0a38d-d702-48d9-a1d8-d34c58fded46"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-wall-overlap",
+      "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+      "markId": "fbc0a38d-d702-48d9-a1d8-d34c58fded46"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "ddfea598-400f-45f5-bcbd-488adae30d6e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "ddfea598-400f-45f5-bcbd-488adae30d6e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-wall-overlap",
+      "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+      "markId": "ddfea598-400f-45f5-bcbd-488adae30d6e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "f122aa94-2dcc-4b7e-9bf3-46578d1f1a40"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "f122aa94-2dcc-4b7e-9bf3-46578d1f1a40"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "562b484b-f81b-4670-bae1-05d260f4e178"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "562b484b-f81b-4670-bae1-05d260f4e178"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "cf451d24-d59c-4818-b4dd-dc3a741db62b"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "cf451d24-d59c-4818-b4dd-dc3a741db62b"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "32665513-5010-41df-bb93-dcf38f108df6"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "32665513-5010-41df-bb93-dcf38f108df6"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "950ac9ae-8d63-422e-88fb-690687226a2d"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "950ac9ae-8d63-422e-88fb-690687226a2d"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "461a3100-5da8-494c-9c8c-801be89a7118"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "461a3100-5da8-494c-9c8c-801be89a7118"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "89c7eb72-e4b9-4962-8c58-801f2b341efc"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "89c7eb72-e4b9-4962-8c58-801f2b341efc"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "f1598fea-a05e-40e9-9a5a-97d7c2b8ef01"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "f1598fea-a05e-40e9-9a5a-97d7c2b8ef01"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "570d443f-73ac-4397-a7a9-b83cb21ebe28"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "570d443f-73ac-4397-a7a9-b83cb21ebe28"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "94420399-119a-4a08-86af-d9232ff4797e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "94420399-119a-4a08-86af-d9232ff4797e"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "464426c3-0319-459d-bc2f-76dfbb89f51a"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "464426c3-0319-459d-bc2f-76dfbb89f51a"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-description",
+      "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+      "markId": "afe5f9f8-a07a-4660-8b8d-238b72816b4b"
+    },
+    {
+      "severity": "warning",
+      "code": "opening-height",
+      "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+      "markId": "afe5f9f8-a07a-4660-8b8d-238b72816b4b"
+    },
+    {
+      "severity": "warning",
+      "code": "alignment-review",
+      "message": "Image alignment is provisional. Compare landmarks before marking it reviewed."
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "outline:Mirage:upper:0"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "outline:Mirage:upper:0"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "9e031950-9176-465d-b858-55629a85fc52"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "9e031950-9176-465d-b858-55629a85fc52"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "7a9570ca-72d4-49f9-98c4-8ca869ad0c98"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "7a9570ca-72d4-49f9-98c4-8ca869ad0c98"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "3ab9374d-0b4a-4e35-80c1-279a00cef173"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "3ab9374d-0b4a-4e35-80c1-279a00cef173"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "6e167c55-b797-4513-b72e-d65a35f84d32"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "6e167c55-b797-4513-b72e-d65a35f84d32"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "bde215a4-480e-49c4-b9ea-344115a521ce"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "bde215a4-480e-49c4-b9ea-344115a521ce"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "e7000224-c560-4b93-9d64-2459cf57d157"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "e7000224-c560-4b93-9d64-2459cf57d157"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "bed28f21-6d3f-474a-afb6-3de54088e521"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "bed28f21-6d3f-474a-afb6-3de54088e521"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "47e5c5ae-b0a1-4379-8d68-1510dbb78871"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "47e5c5ae-b0a1-4379-8d68-1510dbb78871"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "f0791d45-7988-4d66-ad67-80f641a525a9"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "f0791d45-7988-4d66-ad67-80f641a525a9"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "26cb7ff5-1aac-460d-8138-752576c0c9be"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "26cb7ff5-1aac-460d-8138-752576c0c9be"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "2737add1-48bd-49f3-8f71-aefdf52320c9"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "2737add1-48bd-49f3-8f71-aefdf52320c9"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "ed36e494-8758-4206-b04c-8d64288dc70f"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "ed36e494-8758-4206-b04c-8d64288dc70f"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "908e3b2c-f94e-429f-a788-7b68853a6491"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "908e3b2c-f94e-429f-a788-7b68853a6491"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "9c0839c2-2f6d-447c-aed2-837a36b163de"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "9c0839c2-2f6d-447c-aed2-837a36b163de"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "039da054-317d-4865-909e-bf938f08281f"
+    },
+    {
+      "severity": "error",
+      "code": "floor-coverage",
+      "message": "18 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+      "markId": "039da054-317d-4865-909e-bf938f08281f"
+    },
+    {
+      "severity": "warning",
+      "code": "body-clearance",
+      "message": "10 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+      "markId": "039da054-317d-4865-909e-bf938f08281f"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "d279ad51-a4b3-4d81-8860-067c3ad072c0"
+    },
+    {
+      "severity": "warning",
+      "code": "body-clearance",
+      "message": "35 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+      "markId": "d279ad51-a4b3-4d81-8860-067c3ad072c0"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "64aa2728-d3ba-4306-8287-83a0b7052483"
+    },
+    {
+      "severity": "error",
+      "code": "floor-coverage",
+      "message": "22 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+      "markId": "64aa2728-d3ba-4306-8287-83a0b7052483"
+    },
+    {
+      "severity": "warning",
+      "code": "body-clearance",
+      "message": "11 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+      "markId": "64aa2728-d3ba-4306-8287-83a0b7052483"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d"
+    },
+    {
+      "severity": "error",
+      "code": "floor-coverage",
+      "message": "25 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+      "markId": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d"
+    },
+    {
+      "severity": "warning",
+      "code": "body-clearance",
+      "message": "11 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+      "markId": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "8c9791f2-b3d0-4c10-89a1-250c3e76fb28"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "8c9791f2-b3d0-4c10-89a1-250c3e76fb28"
+    },
+    {
+      "severity": "warning",
+      "code": "draft",
+      "message": "This geometry has not been checked by its author.",
+      "markId": "e4b4df85-f252-435c-934c-c11e2a97d2db"
+    },
+    {
+      "severity": "error",
+      "code": "unbound-height",
+      "message": "Choose the floor and height range for this marking.",
+      "markId": "e4b4df85-f252-435c-934c-c11e2a97d2db"
+    },
+    {
+      "severity": "warning",
+      "code": "reference-limits",
+      "message": "Sampled static reference checks are not full collision certification. Release inclusion remains held for review and content clearance."
+    }
+  ],
+  "wallsUsed": 0,
+  "release": "held",
+  "note": "Read-only revalidation under L14 code. No owner marks, heights, types or polygons were changed."
+}

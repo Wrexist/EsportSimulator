@@ -1,0 +1,8 @@
+{
+  "excludedIds": [
+    "player_45_nimeses_txein",
+    "player_45_nimeses_thomaz"
+  ],
+  "reason": "Faceless source placeholders. Accidentally submitted by reference-equality filtering; generated outputs are unapproved and MUST NOT be integrated. Canonical batch-10-approved-inputs.json excludes both.",
+  "productionIntegrated": false
+}

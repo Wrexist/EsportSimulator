@@ -37,7 +37,8 @@
 
 import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
-import { AcademyEngine } from "@/engine/academy-engine"
+import { employedScout } from "@/engine/recruitment"
+import { AcademyEngine, ACADEMY_FOCUS_STATS, academyFocusWeights } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
 import { getStaffPassiveBonuses, isFeatureUnlocked } from "@/engine/talent-trees"
 import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
@@ -240,7 +241,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             // A hired Scout is mandatory — without one the mission can't run.
-            const scouter = state.staff.find(s => s.teamId === state.playerTeamId && s.role === "scout")
+            const scouter = employedScout(state.staff, team, state.currentWeek)
             if (!scouter) {
                 result = { success: false, message: "A hired Scout is required to start scouting missions" }
                 return
@@ -358,7 +359,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     setProspectTraining: (prospectId, focus) => {
         set((state) => {
             const prospect = state.academyPlayers.find(p => p.id === prospectId)
-            if (prospect) prospect.trainingFocus = focus
+            if (prospect && Object.prototype.hasOwnProperty.call(ACADEMY_FOCUS_STATS, focus)) prospect.trainingFocus = focus
         })
     },
 
@@ -467,6 +468,10 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 result = { success: false, message: `Roster is full (max ${MAX_ROSTER_SIZE} players)` }
                 return
             }
+            if (player.isRetired || state.teams.some(t => t.id !== team.id && (t.rosterIds.includes(player.id) || t.youthAcademyIds?.includes(player.id))) || state.contracts.some(c => c.playerId === player.id && c.endWeek > state.currentWeek)) {
+                result = { success: false, message: "Player is retired or already contracted to a club" }
+                return
+            }
             if (team.rosterIds.includes(player.id)) {
                 result = { success: false, message: "Player is already on the main roster" }
                 return
@@ -567,7 +572,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             ).filter(Boolean) as PlayerSaveData[]
 
             // Academy uses a derived seed so the main RNG chain isn't disturbed.
-            const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ ACADEMY_RNG_SALT)
+            const academyRng = new SeededRNG((state.lastRngSeed ?? generateSeed()) ^ ACADEMY_RNG_SALT)
             const matchResult = AcademyEngine.simulateDevelopmentMatch(
                 activeStarters,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -618,12 +623,13 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || !team.academyFacility || team.academyFacility.level === 0) return
 
+            if (state.academyWeeklyReports.some(report => report.week === state.currentWeek)) return
             const academyLevel = team.academyFacility.level
 
             // Coach talent "Youth Mentor" (academy_speed) stacks with the
             // facility-level dev bonus. Sum across every coach on the team,
             // capped at +50% so a team can't accumulate runaway acceleration.
-            const coaches = state.staff.filter(s => s.teamId === state.playerTeamId && s.role === "coach")
+            const coaches = state.staff.filter(s => s.teamId === state.playerTeamId && team.staffIds.includes(s.id) && s.role === "coach" && (s.contractEndWeek == null || s.contractEndWeek > state.currentWeek))
             const academySpeedBonus = Math.min(
                 50,
                 coaches.reduce((sum, c) => {
@@ -631,8 +637,8 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                     return sum + (b["academy_speed"] || 0)
                 }, 0),
             )
-            const coachMultiplier = 1 + academySpeedBonus / 100
-            const academyRng = new SeededRNG((state.lastRngSeed || generateSeed()) ^ SCOUT_RNG_SALT)
+            const coachMultiplier = (1 + academySpeedBonus / 100) * (ACADEMY_LEVELS[academyLevel]?.devBonus ?? 1)
+            const academyRng = new SeededRNG((state.lastRngSeed ?? generateSeed()) ^ SCOUT_RNG_SALT)
 
             const report: AcademyWeeklyReport = {
                 week: state.currentWeek,
@@ -641,8 +647,8 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             const starterIds = Object.values(state.academyRoster).filter(Boolean) as string[]
-            const scheduledDrills = Object.values(state.academyTrainingSchedule)
-                .map(id => ACADEMY_DRILLS.find(d => d.id === id))
+            const scheduledDrills = Array.from({ length: 7 }, (_, day) => state.academyTrainingSchedule[day as keyof typeof state.academyTrainingSchedule])
+                .map(id => ACADEMY_DRILLS.find(d => d.id === id && d.minLevel <= academyLevel))
                 .filter(Boolean) as AcademyTrainingDrill[]
 
             // Per-prospect: apply drills, recover energy, evaluate promotion.
@@ -652,35 +658,38 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
                 const isStarter = starterIds.includes(prospect.id)
                 let xpGained = 0
+                const startingEnergy = prospect.energy ?? 100
+                let currentEnergy = startingEnergy
                 let energyChange = 0
                 const statsImproved: Partial<Record<TrainableStat, number>> = {}
 
                 scheduledDrills.forEach(drill => {
-                    energyChange -= drill.energyCost
 
                     // Starters get 100% XP; bench gets 25%.
                     let drillXp = drill.xpGain * (isStarter ? 1.0 : BENCH_XP_MULTIPLIER)
 
                     // Fatigue penalty: drills do less while exhausted.
-                    if ((prospect.energy ?? 100) < ENERGY_CONFIG.fatigueThreshold) {
+                    if (currentEnergy < ENERGY_CONFIG.fatigueThreshold) {
                         drillXp *= ENERGY_CONFIG.fatiguePenalty
                     }
 
                     // Coach Youth Mentor talent: boosts academy XP.
                     drillXp *= coachMultiplier
                     xpGained += drillXp
+                    currentEnergy = Math.min(100, Math.max(0, currentEnergy - drill.energyCost))
 
                     // Stat gains scale with the player's room-to-grow against
                     // potential cap. Small per-drill increments multiplied by
                     // an RNG factor in [0.8, 1.2] for variety.
-                    drill.statFocus.forEach(stat => {
+                    const focusWeights = academyFocusWeights(prospect.trainingFocus, drill.statFocus)
+                    drill.statFocus.forEach((stat, statIndex) => {
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const currentValue = (player as any)[stat] as number
                         if (typeof currentValue !== "number") return
                         const potentialCap = player.potential
                         const roomToGrow = Math.max(0, potentialCap - currentValue)
                         const growthFactor = roomToGrow / 100
-                        const improvement = (drillXp / 100) * DEVELOPMENT_CONFIG.statGainPer100XP * growthFactor
+                        const improvement = (drillXp / 100) * DEVELOPMENT_CONFIG.statGainPer100XP * growthFactor * focusWeights[statIndex]
                             * (STAT_GROWTH_VARIANCE_LO + academyRng.next() * STAT_GROWTH_VARIANCE_HI)
                         statsImproved[stat] = (statsImproved[stat] || 0) + improvement
                     })
@@ -688,9 +697,8 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
                 // Weekly energy recovery — starters recover slower (they
                 // play more matches).
-                energyChange += isStarter ? ENERGY_CONFIG.starterRecovery : ENERGY_CONFIG.benchRecovery
-
-                prospect.energy = Math.min(100, Math.max(0, (prospect.energy ?? 100) + energyChange))
+                prospect.energy = Math.min(100, Math.max(0, currentEnergy + (isStarter ? ENERGY_CONFIG.starterRecovery : ENERGY_CONFIG.benchRecovery)))
+                energyChange = prospect.energy - startingEnergy
                 prospect.totalXpGained += xpGained
                 prospect.developmentProgress = Math.min(
                     100,
@@ -701,6 +709,11 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 // Apply the accumulated stat improvements via the engine.
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const updates = AcademyEngine.applyStatImprovements(player as any, statsImproved)
+                for (const stat of Object.keys(statsImproved) as TrainableStat[]) {
+                    const before = (player as unknown as Record<string, number>)[stat]
+                    const after = (updates as Record<string, number>)[stat] ?? before
+                    statsImproved[stat] = after - before
+                }
                 Object.assign(player, updates)
 
                 // Promotion readiness check.
@@ -745,6 +758,12 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             // pending pool if there's room; otherwise the mission is wasted
             // (the user gets a "scouting overload" notification).
             state.academyScoutingMissions.forEach((mission) => {
+                const assigned = employedScout(state.staff.filter(s => s.id === mission.scoutId), team, state.currentWeek)
+                if (!assigned) {
+                    mission.weeksRemaining = 0
+                    state.newsFeed.unshift({ id: nextDeterministicId(state, "academy_scout_cancel", mission.id), title: "Academy scouting cancelled", content: "The assigned scout is no longer employed. No prospect report was produced; commissioned costs are not refunded.", category: "STAFF", week: state.currentWeek, teamId: team.id })
+                    return
+                }
                 mission.weeksRemaining--
                 if (mission.weeksRemaining > 0) return
 
@@ -788,42 +807,39 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             // Drop completed missions.
             state.academyScoutingMissions = state.academyScoutingMissions.filter(m => m.weeksRemaining > 0)
 
-            // Deduct weekly upkeep (scales with prospect count + facility level).
-            // Charged only here (academy isn't in economy-manager's facilities
-            // upkeep, which reads team.facilities[]) — so it must be ledgered.
-            const upkeep = AcademyEngine.getWeeklyUpkeep(academyLevel, state.academyPlayers.length)
-            team.budget -= upkeep
-            if (upkeep > 0) {
-                state.financeLedger.push({
-                    id: nextDeterministicId(state, "fin_academy_upkeep", team.id),
-                    week: state.currentWeek,
-                    teamId: team.id,
-                    type: "EXPENSE",
-                    category: "FACILITIES",
-                    amount: upkeep,
-                    description: "Youth Academy — Weekly Upkeep",
-                    balance: team.budget,
-                })
-            }
+            // Recurring upkeep is settled by FinanceProcessor with the other club costs.
+
         })
     },
 
     updateAcademyRoster: (role, prospectId) => {
         set((state) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(state.academyRoster as any)[role] = prospectId
+            const roles = ['IGL', 'Entry', 'AWPer', 'Support', 'Rifler'] as const
+            if (!roles.some(slot => slot === role)) return
+            if (prospectId !== null) {
+                const prospect = state.academyPlayers.find(p => p.id === prospectId)
+                if (!prospect || !state.players.some(p => p.id === prospect.playerId && !p.isRetired)) return
+                for (const slot of roles) if (state.academyRoster[slot] === prospectId) state.academyRoster[slot] = null
+            }
+            state.academyRoster[role] = prospectId
         })
     },
 
     updateAcademySchedule: (day, drillId) => {
         set((state) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(state.academyTrainingSchedule as any)[day] = drillId
+            const team = state.teams.find(t => t.id === state.playerTeamId)
+            if (!team?.academyFacility?.level || !Number.isInteger(day) || day < 0 || day > 6) return
+            if (drillId !== null && !ACADEMY_DRILLS.some(d => d.id === drillId && d.minLevel <= team.academyFacility!.level)) return
+            state.academyTrainingSchedule[day as keyof typeof state.academyTrainingSchedule] = drillId
         })
     },
 
     discardPendingProspect: (playerId) => {
         set((state) => {
+            if (!state.academyPendingProspects.includes(playerId)) return
+            if (state.teams.some(t => t.rosterIds.includes(playerId) || t.youthAcademyIds?.includes(playerId))
+                || state.academyPlayers.some(p => p.playerId === playerId)
+                || state.contracts.some(c => c.playerId === playerId && c.endWeek > state.currentWeek)) return
             state.academyPendingProspects = state.academyPendingProspects.filter(id => id !== playerId)
             // Drop from global players pool too — scouted prospects were
             // only created for this academy session.

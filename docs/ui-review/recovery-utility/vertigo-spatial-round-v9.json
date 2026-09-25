@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Vertigo",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+  "simulatorSourceSha256": "fe5b09d22aaf5ef5c91af32c84d88c5d0260e303ad14f81d847eab88e711273b",
+  "fixtureSha256": "e41caadf6495ea001051de4d0d9a2a1a6c7492743945d20f6b1f5623d3fc233e",
+  "attempts": 1,
+  "origin": [
+    -145.750105,
+    -592.2499700000001,
+    11778
+  ],
+  "bomb": [
+    -145.74960129802943,
+    -714.9387913527925,
+    11779.071433780671
+  ],
+  "threat": [
+    -145.7496012980294,
+    -994.9387913527925,
+    11780
+  ],
+  "landing": [
+    -145.74960129802943,
+    -674.9387913527925,
+    11776.049134988987
+  ],
+  "bounces": [
+    [
+      -145.7501048725114,
+      -641.1984966149223,
+      11776.049134990271
+    ],
+    [
+      -145.74977280797773,
+      -666.8746784820498,
+      11776.049134989426
+    ],
+    [
+      -145.74960129802943,
+      -674.9387913527925,
+      11776.049134988987
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 121,
+  "checks": [
+    {
+      "id": "vertigo-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 120.3913985900045,
+  "outputSha256": "b11588a3a3035b97791f44ac69f325643d81c312096e153850aea3839dbdc7db"
+}

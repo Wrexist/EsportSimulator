@@ -1,0 +1,52 @@
+[
+  {
+    "path": "docs/launch-readiness/evidence/L27-cpu-profile.zip",
+    "bytes": 85010,
+    "sha256": "f76c7db6887260abc5eeac221315731b908e0c48ed20ee519d408302d601f9fe"
+  },
+  {
+    "path": "docs/launch-readiness/evidence/L27-fixtures.zip",
+    "bytes": 511978,
+    "sha256": "74b49470ae4db4e0f8a32c2a90afb95cb96a806ed250738bd03d26b8cb6c0ac1"
+  },
+  {
+    "path": "docs/launch-readiness/evidence/L27-worker-baseline-bundle.zip",
+    "bytes": 1815170,
+    "sha256": "3d87e5dcbf0224cfd6619e3dd321b8ad7bcde9f5bde60c1bdb35fb0f7b7fa0d3"
+  },
+  {
+    "path": "scripts/launch/measure-performance.ts",
+    "bytes": 7495,
+    "sha256": "3f03ac5d36c121edb5453dcffd0f90607bc225d61d50f8b2d18f6e6e3adda89c"
+  },
+  {
+    "path": "scripts/launch/measure-built-worker.cjs",
+    "bytes": 3242,
+    "sha256": "566e89b64f93c0e036ddc62990d2198aaddb02d3a68806e528b3c10859f7fcb0"
+  },
+  {
+    "path": "scripts/launch/measure-sustained-compute.ts",
+    "bytes": 1929,
+    "sha256": "c3fd531bd72bc1108f9ad94f9eb6eb2a527dd4bd5e66ba18e963ec91cb24fcd5"
+  },
+  {
+    "path": "scripts/launch/measure-asset-cost.cjs",
+    "bytes": 1761,
+    "sha256": "4c4d1947d58cdb6c98a8c10a988626c7c1cd35eac0d8a4970eaf498c1f901691"
+  },
+  {
+    "path": "scripts/launch/compare-performance.cjs",
+    "bytes": 1930,
+    "sha256": "98f15ba706ebd7bb3fd549c274c546a4e759769f67c9e2eeb5f1f7c35bc97739"
+  },
+  {
+    "path": "engine/ai/roster-management.ts",
+    "bytes": 12079,
+    "sha256": "9c9af8fac7f934ced05bc60f402b76d7bf0444dbfed74efbd2f33b7bb9346e73"
+  },
+  {
+    "path": "engine/player-evaluation.ts",
+    "bytes": 16026,
+    "sha256": "08f1f2e9cfb90aafb98dec17247de08588174af47671316c11e60649c3ef6b08"
+  }
+]

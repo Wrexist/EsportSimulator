@@ -1,0 +1,1982 @@
+[
+  {
+    "id": "team_1_vitalis",
+    "name": "Team Oblivion",
+    "sourceName": "Vitality",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_2_foria",
+    "name": "Umbra Esports",
+    "sourceName": "FURIA",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_3_falconry",
+    "name": "Ironspire",
+    "sourceName": "Falcons",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/falcons/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_4_muxeen",
+    "name": "Warblade",
+    "sourceName": "MOUZ",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_5_phantom",
+    "name": "Ember Rift",
+    "sourceName": "Spirit",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_6_perivesion",
+    "name": "Skypulse",
+    "sourceName": "PARIVISION",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/parivision/logo.original.webp",
+    "width": 600,
+    "height": 600,
+    "status": "available"
+  },
+  {
+    "id": "team_7_phaze",
+    "name": "Violet Lumen",
+    "sourceName": "FaZe",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_8_natusvincera",
+    "name": "Aegis Esports",
+    "sourceName": "Natus Vincere",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_9_gtwo",
+    "name": "Moonstorm Republic",
+    "sourceName": "G2",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_10_thenomads",
+    "name": "Meridian Initiative",
+    "sourceName": "The MongolZ",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_11_eurora",
+    "name": "Zenith",
+    "sourceName": "Aurora",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/aurora/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_12_astraflux",
+    "name": "Odyssey Initiative",
+    "sourceName": "Astralis",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_13_3dmax",
+    "name": "Raven Esports",
+    "sourceName": "3DMAX",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/3dmax/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_14_fut",
+    "name": "Ivory Monolith",
+    "sourceName": "FUT",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/fut/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_15_centuryrogues",
+    "name": "Warhowl",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_15_tide",
+    "name": "Team Halcyon",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_16_b8",
+    "name": "Riptide Athletic",
+    "sourceName": "B8",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/b8/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_17_pazsyonoa",
+    "name": "Cortex Gaming",
+    "sourceName": "Passion UA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/passion_ua/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_18_sting",
+    "name": "Scarlet Summit",
+    "sourceName": "paiN",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_19_nrg",
+    "name": "Bloodspire Gaming",
+    "sourceName": "NRG",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/nrg/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_20_gamerleague",
+    "name": "Bastion Corps",
+    "sourceName": "GamerLegion",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_21_novainvaders",
+    "name": "Eclipse Collective",
+    "sourceName": "Ninjas in Pyjamas",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_22_valiant",
+    "name": "Pulsar Coalition",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_22_virtusnova",
+    "name": "Ironwing",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_23_imperius",
+    "name": "Citadel",
+    "sourceName": "Imperial",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_24_a81",
+    "name": "Team Meridian",
+    "sourceName": "M80",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_25_lineage",
+    "name": "Maelstrom",
+    "sourceName": "Legacy",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/legacy/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_26_bkkame",
+    "name": "Void Vortex",
+    "sourceName": "BC.Game",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bcgame/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_27_gantlemotex",
+    "name": "Vanguard Esports",
+    "sourceName": "Gentle Mates",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/gentle_mates/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_28_mbesports",
+    "name": "Drake",
+    "sourceName": "MIBR",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_29_flycrest",
+    "name": "Nimbus",
+    "sourceName": "FlyQuest",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/flyquest/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_30_taroo",
+    "name": "Team Cortex",
+    "sourceName": "TYLOO",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_31_argongra",
+    "name": "Shadowhowl",
+    "sourceName": "Monte",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_32_boombyte",
+    "name": "Void Oblivion",
+    "sourceName": "BetBoom",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_33_phanatic",
+    "name": "Kraken",
+    "sourceName": "fnatic",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_34_iyeballars",
+    "name": "Ivory Cascade",
+    "sourceName": "EYEBALLERS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/eyeballers/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_35_hatual",
+    "name": "Ronin",
+    "sourceName": "HOTU",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/hotu/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_36_lynxvision",
+    "name": "Griffin Dynasty",
+    "sourceName": "Lynn Vision",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_37_besteayx",
+    "name": "Wolfclaw",
+    "sourceName": "BESTIA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bestia/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_38_redwolves",
+    "name": "Raven",
+    "sourceName": "RED Canids",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_39_hammerheads",
+    "name": "Titan Summit",
+    "sourceName": "Sharks",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_40_x27",
+    "name": "Iron Astra",
+    "sourceName": "K27",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/k27/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_41_9ink",
+    "name": "Arctic Cobra",
+    "sourceName": "9INE",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/9ine/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_42_9zed",
+    "name": "Quasar",
+    "sourceName": "9z",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/9z/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_43_nocliartijeres",
+    "name": "Team Astra",
+    "sourceName": "Nuclear TigeRES",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/nuclear_tigeres/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_44_ennarcercla",
+    "name": "Ash Crux",
+    "sourceName": "Inner Circle",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/inner_circle/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_45_nimeses",
+    "name": "Team Vanta",
+    "sourceName": "Nemesis",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/nemesis/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_46_illwill",
+    "name": "Shadow Obsidian",
+    "sourceName": "illwill",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/illwill/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_47_oddyx",
+    "name": "Viper Reserve",
+    "sourceName": "ODDIK",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/oddik/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_49_vuqa",
+    "name": "Basilisk",
+    "sourceName": "Voca",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/voca/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_50_iqstatical",
+    "name": "Sentry",
+    "sourceName": "ECSTATIC",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ecstatic/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_51_aramund",
+    "name": "Everpulse Reserve",
+    "sourceName": "Oramond",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/oramond/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_52_overgrowth",
+    "name": "Darkspire",
+    "sourceName": "OG",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/og/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_53_morsborni",
+    "name": "Cinder Solstice",
+    "sourceName": "Marsborne",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/marsborne/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_55_namega",
+    "name": "Wyvern",
+    "sourceName": "Nemiga",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/nemiga/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_56_kinone",
+    "name": "Starclaw Union",
+    "sourceName": "GenOne",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/genone/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_57_ixrubyel",
+    "name": "Obsidian",
+    "sourceName": "ex-RUBY",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ex-ruby/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_58_cybershoci",
+    "name": "Vermillion Requiem",
+    "sourceName": "CYBERSHOKE",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/cybershoke/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_59_trycked",
+    "name": "Comet",
+    "sourceName": "Tricked",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/tricked/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_60_arcredra",
+    "name": "Overborn Union",
+    "sourceName": "ARCRED",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/arcred/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_62_vriendlycampirs",
+    "name": "Sunstrike",
+    "sourceName": "Friendly Campers",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/friendly_campers/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_63_bigkings",
+    "name": "Drake Esports",
+    "sourceName": "BIG",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/big/logo.original.webp",
+    "width": 800,
+    "height": 800,
+    "status": "available"
+  },
+  {
+    "id": "team_64_goimingladiaturs",
+    "name": "Lynx Gaming",
+    "sourceName": "Gaimin Gladiators",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/gaimin_gladiators/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_65_xennersia",
+    "name": "Viper",
+    "sourceName": "SINNERS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sinners/logo.original.webp",
+    "width": 800,
+    "height": 800,
+    "status": "available"
+  },
+  {
+    "id": "team_66_fluxion",
+    "name": "Warden",
+    "sourceName": "Fluxo",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_67_thahonz",
+    "name": "Team Eclipse",
+    "sourceName": "The Huns",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/the_huns/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_68_vavbator",
+    "name": "Stormbane",
+    "sourceName": "FAVBET",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/favbet/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_69_muxenxd",
+    "name": "Vanta Order",
+    "sourceName": "MOUZ NXT",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_70_500ro",
+    "name": "Titan Cobra",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_70_ance",
+    "name": "Team Apogee",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_72_33or",
+    "name": "Frosthunt",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_72_rareelement",
+    "name": "Riptide",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_73_jahnnyspieds",
+    "name": "Ignis",
+    "sourceName": "Johnny Speeds",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/johnny_speeds/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_74_naxvaid",
+    "name": "Mirage Gaming",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_75_wildace",
+    "name": "Team Rift",
+    "sourceName": "Wildcard",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_76_alliankaia",
+    "name": "Riptide Syndicate",
+    "sourceName": "Alliance",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/alliance/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_77_1win",
+    "name": "Team Requiem",
+    "sourceName": "1win",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/1win/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_78_xashy",
+    "name": "Team Torrent",
+    "sourceName": "Sashi",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sashi/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_79_jijyahao",
+    "name": "Ivory Cobra",
+    "sourceName": "JiJieHao",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/jijiehao/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_80_batm",
+    "name": "Golden Jackal",
+    "sourceName": "BET-M",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bet-m/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_81_begiaacademy",
+    "name": "Ironrift",
+    "sourceName": "BIG Academy",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/big_academy/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_82_marnengstar",
+    "name": "Arctic Riptide",
+    "sourceName": "Morningstar",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/morningstar/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_83_chinjkiswarryars",
+    "name": "Titan Ignis",
+    "sourceName": "Chinggis Warriors",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/chinggis_warriors/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_84_k2erex",
+    "name": "Scarlet Pulsar",
+    "sourceName": "G2 Ares",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_85_urso",
+    "name": "Steelwraith Gaming",
+    "sourceName": "Ursa",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ursa/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_86_whitebird",
+    "name": "Wolfwraith",
+    "sourceName": "WHITEBIRD",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/whitebird/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_87_aztralor",
+    "name": "Onyx",
+    "sourceName": "ASTRAL",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/astral/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_88_coinhunters",
+    "name": "Nightfall Syndicate",
+    "sourceName": "Bounty Hunters",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bounty_hunters/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_89_loxxojutos",
+    "name": "Zephyr Corps",
+    "sourceName": "los kogutos",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/los_kogutos/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_91_ruby",
+    "name": "Everfall Reserve",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_91_unidyor",
+    "name": "Lynx",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_92_lazerrocadz",
+    "name": "Cinder Astra",
+    "sourceName": "Lazer Cats",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/lazer_cats/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_93_bitclic",
+    "name": "Kraken Dynasty",
+    "sourceName": "Betclic",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/betclic/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_94_bozz",
+    "name": "Shadowclaw Order",
+    "sourceName": "BOSS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/boss/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_95_iroptionra",
+    "name": "Overspire",
+    "sourceName": "Eruption",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/eruption/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_96_hiroeciumacedemy",
+    "name": "Violet Nocturne",
+    "sourceName": "HEROIC Academy",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_97_xengal",
+    "name": "Verdict",
+    "sourceName": "Sangal",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sangal/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_98_ryxtecrix",
+    "name": "Shadow Pulsar",
+    "sourceName": "RUSTEC",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/rustec/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_99_cphwolvez",
+    "name": "Bloodspire Union",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_99_thundereldawnynder",
+    "name": "Team Chimera",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_100_vekedoberu",
+    "name": "Jade Tempo",
+    "sourceName": "Fake do Biru",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/fake_do_biru/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_101_nexoz",
+    "name": "Requiem",
+    "sourceName": "Nexus",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/nexus/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_102_chongedhegame",
+    "name": "Riptide Gaming",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_102_mevrik",
+    "name": "Reverie Republic",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_103_akend",
+    "name": "Shadowfall Legion",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_103_famaliku",
+    "name": "Everspire Syndicate",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_104_em",
+    "name": "Titan Odyssey",
+    "sourceName": "AM",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/am/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_106_sporteyx",
+    "name": "Crux Union",
+    "sourceName": "SPARTA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sparta/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_108_finjerskrozsed",
+    "name": "Team Riptide",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_108_skynrava",
+    "name": "Team Sentry",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_109_eeb",
+    "name": "Frostbane",
+    "sourceName": "AaB",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/aab/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_110_spirytoracodemy",
+    "name": "Summit",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_110_sdeteal",
+    "name": "Torrent Athletic",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_111_ravero",
+    "name": "Lynx Reserve",
+    "sourceName": "Rave",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/rave/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_112_impulzigw",
+    "name": "Night Maelstrom",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_112_mone",
+    "name": "Shadowwing Order",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_113_ww",
+    "name": "Oblivion Union",
+    "sourceName": "WW",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ww/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_114_diepcrass",
+    "name": "Silver Pulsar",
+    "sourceName": "Deep Cross",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/deep_cross/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_115_mekushort",
+    "name": "Wild Rift",
+    "sourceName": "megoshort",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/megoshort/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_116_menlete",
+    "name": "Helix",
+    "sourceName": "MINLATE",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/minlate/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_117_wopa",
+    "name": "Quasar Guild",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_117_yowera",
+    "name": "Lunar Halcyon",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_118_riiknraabove",
+    "name": "Eclipse Gaming",
+    "sourceName": "Reign Above",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/reign_above/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_119_rebels",
+    "name": "Scarlet Ronin",
+    "sourceName": "Rebels",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/rebels/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_120_hevy",
+    "name": "Viper Coalition",
+    "sourceName": "HAVU",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/havu/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_121_omeja",
+    "name": "Violet Comet",
+    "sourceName": "Omega",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/omega/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_122_calaoskurnos",
+    "name": "Meridian Collective",
+    "sourceName": "CALAOSCORNOS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/calaoscornos/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_123_olybet",
+    "name": "Eclipse Esports",
+    "sourceName": "OlyBet",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/olybet/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_124_gomehynters",
+    "name": "Rampart Legion",
+    "sourceName": "GameHunters",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/gamehunters/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_125_jumboex",
+    "name": "Cortex",
+    "sourceName": "JUMBO",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/jumbo/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_126_phantum",
+    "name": "Cobalt Helix",
+    "sourceName": "Phantom",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/phantom/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_127_hyperspiryd",
+    "name": "Lunar Tempest",
+    "sourceName": "HyperSpirit",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_128_aljayx",
+    "name": "Team Lynx",
+    "sourceName": "ALGO",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/algo/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_129_sow",
+    "name": "Scarlet Halcyon",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_130_lia",
+    "name": "Everrift Order",
+    "sourceName": "Leo",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/leo/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_131_aedhar",
+    "name": "Anvil",
+    "sourceName": "Aether",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/aether/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_132_enfuryty",
+    "name": "Halcyon Athletic",
+    "sourceName": "INFURITY",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/infurity/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_133_mindfraak",
+    "name": "Ivory Comet",
+    "sourceName": "Mindfreak",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/mindfreak/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_134_xpurtsbetexpert",
+    "name": "Ivory Viper",
+    "sourceName": "SportsBetExpert",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sportsbetexpert/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_135_aymclub",
+    "name": "Havoc Corps",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_136_minxkhauze",
+    "name": "Cobra",
+    "sourceName": "Minsk House",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/minsk_house/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_137_sampervi",
+    "name": "Void Raven",
+    "sourceName": "SemperFi",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/semperfi/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_138_buringplayers",
+    "name": "Shadowcore",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_138_masonicia",
+    "name": "Reverie",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_139_vuejo",
+    "name": "Taiga",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_139_groondzaro",
+    "name": "Onyx Esports",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_140_lpex",
+    "name": "Nightwing",
+    "sourceName": "LP",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/lp/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_141_izyrus",
+    "name": "Odyssey Esports",
+    "sourceName": "Isurus",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/isurus/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_142_folqonspharce",
+    "name": "Violet Maelstrom",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_142_vishercallege",
+    "name": "Team Zodiac",
+    "sourceName": null,
+    "mapping": "ambiguous",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "unmatched"
+  },
+  {
+    "id": "team_143_nuveq",
+    "name": "Firefang Republic",
+    "sourceName": "NOVAQ",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/novaq/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_144_legor",
+    "name": "Drake Order",
+    "sourceName": "LAG",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/lag/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_145_prime",
+    "name": "Ruby Bulwark",
+    "sourceName": "PRIME",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/prime/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_147_besimentbays",
+    "name": "Neon Synapse",
+    "sourceName": "BASEMENT BOYS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/basement_boys/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_148_raoxter",
+    "name": "Everspire Guild",
+    "sourceName": "Rooster",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/rooster/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_149_prezdigeel",
+    "name": "Arctic Viper",
+    "sourceName": "Prestige",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/prestige/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_151_ecbongo",
+    "name": "Team Viper",
+    "sourceName": "EC BANGA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ec_banga/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_152_wetermelon",
+    "name": "Pulsar",
+    "sourceName": "WATERMELON",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/watermelon/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_154_oxojy",
+    "name": "Iron Warden",
+    "sourceName": "Oxuji",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/oxuji/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_156_fengdoal",
+    "name": "Lynx Initiative",
+    "sourceName": "FengDa",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/fengda/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_157_procyon",
+    "name": "Everhunt",
+    "sourceName": "Procyon",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/procyon/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_158_qwintry",
+    "name": "Eclipse Union",
+    "sourceName": "QWENTRY",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/qwentry/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_159_bushydowildcods",
+    "name": "Ivory Valor",
+    "sourceName": "Bushido Wildcats",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bushido_wildcats/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_160_zomblirs",
+    "name": "Helix Republic",
+    "sourceName": "Zomblers",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/zomblers/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_161_everblaze",
+    "name": "Rift Gaming",
+    "sourceName": "Eternal Fire",
+    "mapping": "preserved-rank-candidate",
+    "reference": null,
+    "width": null,
+    "height": null,
+    "status": "missing"
+  },
+  {
+    "id": "team_162_enphinite",
+    "name": "Halcyon Gaming",
+    "sourceName": "INFINITE",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/infinite/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_163_metezpurt",
+    "name": "Sentry Gaming",
+    "sourceName": "Metizport",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/metizport/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_164_tryckdrivirx",
+    "name": "Warstorm Dynasty",
+    "sourceName": "Truck Drivers",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/truck_drivers/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_166_ikoisto",
+    "name": "Sable",
+    "sourceName": "EGOISTO",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/egoisto/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_167_f5",
+    "name": "Synapse",
+    "sourceName": "F5",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/f5/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_168_exzod",
+    "name": "Quasar Republic",
+    "sourceName": "EXSAD",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/exsad/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_169_xeydstars",
+    "name": "Violet Apogee",
+    "sourceName": "Keyd Stars",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/keyd_stars/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_170_ilidenergy",
+    "name": "Reverie Reserve",
+    "sourceName": "eLITenergy",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/elitenergy/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_171_justexswing",
+    "name": "Sovereign",
+    "sourceName": "Just Swing",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/just_swing/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_172_xenquro",
+    "name": "Void Warden",
+    "sourceName": "SINQU",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/sinqu/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_174_ellinnars",
+    "name": "Moonbane",
+    "sourceName": "ALLINNERS",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/allinners/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_175_fulhaomarila",
+    "name": "Ash Halcyon",
+    "sourceName": "FOLHA AMARELA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/folha_amarela/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_176_aururayuunjblod",
+    "name": "Steelclaw Guild",
+    "sourceName": "Aurora Young Blud",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/aurora_young_blud/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_179_csdiylyt",
+    "name": "Ironfall",
+    "sourceName": "CSDIILIT",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/csdiilit/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_180_undergroond",
+    "name": "Griffin Esports",
+    "sourceName": "Underground",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/underground/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_181_kono",
+    "name": "Night Vector",
+    "sourceName": "kONO",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/kono/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_182_lestbyllet",
+    "name": "Helix Gaming",
+    "sourceName": "Last Bullet",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/last_bullet/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_183_bistiaaqedemy",
+    "name": "Ironwatch Dynasty",
+    "sourceName": "BESTIA Academy",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bestia_academy/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_184_lilmix",
+    "name": "Shadow Umbra",
+    "sourceName": "Lilmix",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/lilmix/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_185_golarysel",
+    "name": "Bulwark Gaming",
+    "sourceName": "Galorys",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/galorys/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_186_mesa",
+    "name": "Ironbane",
+    "sourceName": "Misa",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/misa/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_187_wewillwen",
+    "name": "Firepulse",
+    "sourceName": "WeWillWin",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/wewillwin/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_188_exjonk",
+    "name": "Citadel Union",
+    "sourceName": "ex-GANK",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ex-gank/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_190_fuuryxmogiq",
+    "name": "Ghostwraith Order",
+    "sourceName": "Four Magic",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/four_magic/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_191_myertaex",
+    "name": "Basilisk Order",
+    "sourceName": "MUERTA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/muerta/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_192_badlykk",
+    "name": "Darkspire Republic",
+    "sourceName": "Bad Luck",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/bad_luck/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_193_mazroea",
+    "name": "Darkhunt Gaming",
+    "sourceName": "MAZRAEA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/mazraea/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_194_bijaqoipa",
+    "name": "Team Vanguard",
+    "sourceName": "BIG EQUIPA",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/big_equipa/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_195_enceacodamy",
+    "name": "Eclipse",
+    "sourceName": "ENCE Academy",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/ence_academy/logo.original.webp",
+    "width": 100,
+    "height": 100,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_196_players",
+    "name": "Arctic Paragon",
+    "sourceName": "Players",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/players/logo.original.webp",
+    "width": 1024,
+    "height": 1024,
+    "status": "available"
+  },
+  {
+    "id": "team_197_qhikkencaup",
+    "name": "Wyvern Esports",
+    "sourceName": "Chicken Coop",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/chicken_coop/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_198_wildrix",
+    "name": "Neon Riptide",
+    "sourceName": "WiLD",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/wild/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  },
+  {
+    "id": "team_200_ligianal",
+    "name": "Cobra Esports",
+    "sourceName": "Legion",
+    "mapping": "preserved-rank-candidate",
+    "reference": "/assets/teams/legion/logo.original.webp",
+    "width": 50,
+    "height": 50,
+    "status": "small-reference"
+  }
+]

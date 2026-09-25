@@ -1,0 +1,25 @@
+node.exe : `next lint` is deprecated and will be removed in Next.js 16.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (`next lint` is ... in Next.js 16.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+
+./electron/main.js
+40:5  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+40:5  Warning: Unexpected console statement.  no-console
+254:9  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+254:9  Warning: Unexpected console statement.  no-console
+423:5  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+423:5  Warning: Unexpected console statement.  no-console
+
+./electron/steam.js
+69:22  Warning: Prefer `logger` from @/lib/logger (centralized dev/prod gating + in-game debug history).  no-restricted-syntax
+69:22  Warning: Unexpected console statement.  no-console
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

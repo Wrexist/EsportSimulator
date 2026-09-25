@@ -1,0 +1,44 @@
+{
+  "buildId": "1e5CW0tWz8eP6RO_F5jCn",
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "f1f174546ed2b1dc59e0874a71c6e15f57a782359d3f0c83e8a886e81df479bc"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    },
+    {
+      "path": "steam_appid.txt",
+      "sha256": "2d41b39e9cf25ff993af921cbf15a13a68fb8dbf32c816fa1e926163117242e3"
+    },
+    {
+      "path": "tmp/l17/academy-ui.json",
+      "sha256": "4633aba030ed5e9264fe102df533bdf047670294aa390e3d5d6cafa974c86a9f"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    },
+    {
+      "path": ".next/static/chunks/8654.8527f432f5c17845.js",
+      "sha256": "3d1ba086a524b5d7f9d83ded6de38d469661d9bf9418cb496c44b97faf607bb7"
+    }
+  ],
+  "steamAppId": 4326170,
+  "steamEvidence": {
+    "manifest": "D:/SteamLibrary/steamapps/appmanifest_4326170.acf",
+    "name": "Esports Manager: FPS",
+    "installDir": "Counter-Strike Manager",
+    "corroboration": [
+      "deployment/config/app_build_4326170.vdf",
+      "docs/STEAMWORKS_SETUP_GUIDE.md"
+    ]
+  },
+  "browserAcceptance": "Not completed: browser connection timed out twice. No owner career or map UI mutations this pass."
+}

@@ -1,0 +1,520 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Nuke",
+  "floor": "lower",
+  "marks": [
+    {
+      "id": "outline:Nuke:lower:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 54.883,
+          "y": 27.344
+        },
+        {
+          "x": 54.785,
+          "y": 30.176
+        },
+        {
+          "x": 54.98,
+          "y": 30.469
+        },
+        {
+          "x": 52.246,
+          "y": 30.273
+        },
+        {
+          "x": 52.344,
+          "y": 37.598
+        },
+        {
+          "x": 53.809,
+          "y": 37.695
+        },
+        {
+          "x": 54.883,
+          "y": 37.402
+        },
+        {
+          "x": 55.273,
+          "y": 37.598
+        },
+        {
+          "x": 55.273,
+          "y": 38.77
+        },
+        {
+          "x": 54.004,
+          "y": 38.867
+        },
+        {
+          "x": 53.516,
+          "y": 39.355
+        },
+        {
+          "x": 53.516,
+          "y": 44.922
+        },
+        {
+          "x": 52.637,
+          "y": 45.703
+        },
+        {
+          "x": 52.637,
+          "y": 58.203
+        },
+        {
+          "x": 49.316,
+          "y": 58.105
+        },
+        {
+          "x": 49.316,
+          "y": 61.426
+        },
+        {
+          "x": 50.098,
+          "y": 61.621
+        },
+        {
+          "x": 49.902,
+          "y": 61.816
+        },
+        {
+          "x": 48.438,
+          "y": 61.816
+        },
+        {
+          "x": 48.242,
+          "y": 62.012
+        },
+        {
+          "x": 48.242,
+          "y": 63.672
+        },
+        {
+          "x": 48.438,
+          "y": 63.867
+        },
+        {
+          "x": 62.793,
+          "y": 63.77
+        },
+        {
+          "x": 62.793,
+          "y": 68.359
+        },
+        {
+          "x": 68.457,
+          "y": 68.359
+        },
+        {
+          "x": 68.555,
+          "y": 68.555
+        },
+        {
+          "x": 68.164,
+          "y": 68.652
+        },
+        {
+          "x": 67.969,
+          "y": 70.703
+        },
+        {
+          "x": 68.164,
+          "y": 71.484
+        },
+        {
+          "x": 69.141,
+          "y": 71.582
+        },
+        {
+          "x": 69.141,
+          "y": 73.242
+        },
+        {
+          "x": 67.578,
+          "y": 73.34
+        },
+        {
+          "x": 67.676,
+          "y": 74.512
+        },
+        {
+          "x": 70.312,
+          "y": 74.609
+        },
+        {
+          "x": 70.312,
+          "y": 71.777
+        },
+        {
+          "x": 70.703,
+          "y": 71.484
+        },
+        {
+          "x": 70.508,
+          "y": 70.996
+        },
+        {
+          "x": 70.41,
+          "y": 68.652
+        },
+        {
+          "x": 70.117,
+          "y": 68.457
+        },
+        {
+          "x": 71.191,
+          "y": 68.359
+        },
+        {
+          "x": 71.191,
+          "y": 65.137
+        },
+        {
+          "x": 65.918,
+          "y": 65.137
+        },
+        {
+          "x": 65.723,
+          "y": 65.82
+        },
+        {
+          "x": 65.039,
+          "y": 65.82
+        },
+        {
+          "x": 64.844,
+          "y": 65.625
+        },
+        {
+          "x": 64.844,
+          "y": 54.785
+        },
+        {
+          "x": 68.555,
+          "y": 54.785
+        },
+        {
+          "x": 68.555,
+          "y": 53.125
+        },
+        {
+          "x": 68.066,
+          "y": 53.223
+        },
+        {
+          "x": 67.578,
+          "y": 52.93
+        },
+        {
+          "x": 67.578,
+          "y": 49.805
+        },
+        {
+          "x": 67.969,
+          "y": 49.609
+        },
+        {
+          "x": 68.066,
+          "y": 45.703
+        },
+        {
+          "x": 67.676,
+          "y": 45.703
+        },
+        {
+          "x": 67.48,
+          "y": 45.312
+        },
+        {
+          "x": 62.988,
+          "y": 45.312
+        },
+        {
+          "x": 62.695,
+          "y": 46.094
+        },
+        {
+          "x": 62.012,
+          "y": 46.094
+        },
+        {
+          "x": 61.914,
+          "y": 45.605
+        },
+        {
+          "x": 61.426,
+          "y": 45.508
+        },
+        {
+          "x": 61.426,
+          "y": 43.848
+        },
+        {
+          "x": 60.547,
+          "y": 43.066
+        },
+        {
+          "x": 60.547,
+          "y": 39.16
+        },
+        {
+          "x": 60.254,
+          "y": 38.867
+        },
+        {
+          "x": 58.887,
+          "y": 38.867
+        },
+        {
+          "x": 58.789,
+          "y": 37.598
+        },
+        {
+          "x": 61.719,
+          "y": 37.695
+        },
+        {
+          "x": 61.816,
+          "y": 37.5
+        },
+        {
+          "x": 61.523,
+          "y": 37.305
+        },
+        {
+          "x": 61.523,
+          "y": 36.816
+        },
+        {
+          "x": 61.816,
+          "y": 36.719
+        },
+        {
+          "x": 61.816,
+          "y": 31.641
+        },
+        {
+          "x": 61.523,
+          "y": 31.445
+        },
+        {
+          "x": 61.523,
+          "y": 31.152
+        },
+        {
+          "x": 61.816,
+          "y": 30.957
+        },
+        {
+          "x": 61.816,
+          "y": 30.664
+        },
+        {
+          "x": 61.523,
+          "y": 30.566
+        },
+        {
+          "x": 61.621,
+          "y": 30.273
+        },
+        {
+          "x": 59.668,
+          "y": 30.273
+        },
+        {
+          "x": 59.57,
+          "y": 30.566
+        },
+        {
+          "x": 59.082,
+          "y": 30.469
+        },
+        {
+          "x": 59.18,
+          "y": 27.344
+        },
+        {
+          "x": 54.883,
+          "y": 27.344
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Nuke:lower:0"
+      }
+    },
+    {
+      "id": "native-site:Nuke:B:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 52.639054675398775,
+          "y": 51.887355919196956
+        },
+        {
+          "x": 55.31672009559495,
+          "y": 51.88731004785417
+        },
+        {
+          "x": 55.31668951469976,
+          "y": 50.10219976772339
+        },
+        {
+          "x": 52.63902409450359,
+          "y": 50.102245639066176
+        }
+      ],
+      "label": "B native plant zone (1/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 1. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Nuke:B:1",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 54.424279633886535,
+          "y": 58.5814888887922
+        },
+        {
+          "x": 59.77961047427889,
+          "y": 58.58139714610663
+        },
+        {
+          "x": 59.77952637681712,
+          "y": 53.67234387574698
+        },
+        {
+          "x": 54.424195536424754,
+          "y": 53.67243561843255
+        }
+      ],
+      "label": "B native plant zone (2/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 2. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Nuke:B:2",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 55.31672009559495,
+          "y": 51.88731004785417
+        },
+        {
+          "x": 57.99438551579114,
+          "y": 51.88726417651139
+        },
+        {
+          "x": 55.31668951469976,
+          "y": 50.10219976772339
+        }
+      ],
+      "label": "B native plant zone (3/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 3. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Nuke:B:3",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 52.639115837189166,
+          "y": 55.457576479458524
+        },
+        {
+          "x": 54.42422611731995,
+          "y": 55.45754589856334
+        },
+        {
+          "x": 54.424195536424754,
+          "y": 53.67243561843255
+        },
+        {
+          "x": 52.639085256293974,
+          "y": 53.672466199327744
+        }
+      ],
+      "label": "B native plant zone (4/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 4. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Nuke:B:4",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 57.99441609668633,
+          "y": 53.672374456642174
+        },
+        {
+          "x": 60.22580394684981,
+          "y": 53.672336230523186
+        },
+        {
+          "x": 60.22577336595461,
+          "y": 51.8872259503924
+        },
+        {
+          "x": 57.99438551579114,
+          "y": 51.88726417651139
+        }
+      ],
+      "label": "B native plant zone (5/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 5. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Nuke:B:5",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 52.639085256293974,
+          "y": 53.672466199327744
+        },
+        {
+          "x": 57.99441609668633,
+          "y": 53.672374456642174
+        },
+        {
+          "x": 57.99438551579114,
+          "y": 51.88726417651139
+        },
+        {
+          "x": 52.639054675398775,
+          "y": 51.887355919196956
+        }
+      ],
+      "label": "B native plant zone (6/6)",
+      "note": "Installed func_bomb_target 2:61725, convex piece 6. Native volume Z -768 to -728. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_nuke_lower_radar_psd_2.png",
+    "sourceSha256": "250f4f8665907d8d1f19a7c26867af0ccdee48dfcb70b2e0be75769cc86ff05d",
+    "targetSha256": "b8c4e659491ba79be60b7d3f9bc78bdaeb808afc2bae14bf3b25b1801220ebe0",
+    "sourceVersion": "2000908",
+    "meshSha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+    "matrix": [
+      1.0003383572803117,
+      -0.000017136892214134307,
+      -0.019257544751277108,
+      0.000017136892214134307,
+      1.0003383572803117,
+      -0.02244391792029789
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "203 SIFT/RANSAC inliers; median 0.414px, p95 1.274px. Image alignment only; floors and walls need review."
+  }
+}

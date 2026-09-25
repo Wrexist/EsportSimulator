@@ -1,0 +1,13 @@
+node.exe : PASS __tests__/electron-ipc-boundaries.test.ts
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/...ndaries.test.ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS __tests__/storage-trust.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        1.338 s

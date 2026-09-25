@@ -49,11 +49,12 @@ import {
 } from "@/components/ui/GlassTable"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
+import { evaluatePlayer } from "@/engine/player-evaluation"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
+import { academyHeldPlayerIds, employedScout } from "@/engine/recruitment"
 import { SynergyCalculator } from "@/engine/synergy-calculator"
 import {
     ALL_REGIONS,
@@ -64,7 +65,8 @@ import {
     getAffordabilityStatus,
     getContractWeeksRemaining,
 } from "@/engine/scouting-helpers"
-import { fuzzyBand } from "@/engine/scouting-system"
+import { getVisibleStats, formatScoutedRating, scoutedRatingSortValue } from "@/engine/scouting-system"
+import { ReportCoverage } from "@/components/scouting/ReportCoverage"
 
 interface SnapshotPlayer {
     id: string
@@ -118,6 +120,8 @@ export default function ScoutingPage() {
         players,
         playerTeamId,
         scoutedPlayers,
+        academyPlayers,
+        academyPendingProspects,
         isPlayerScouted,
         startScoutingMission,
         activeScoutingMission,
@@ -132,6 +136,8 @@ export default function ScoutingPage() {
         players: state.players,
         playerTeamId: state.playerTeamId,
         scoutedPlayers: state.scoutedPlayers,
+        academyPlayers: state.academyPlayers,
+        academyPendingProspects: state.academyPendingProspects,
         isPlayerScouted: state.isPlayerScouted,
         startScoutingMission: state.startScoutingMission,
         activeScoutingMission: state.activeScoutingMission,
@@ -193,7 +199,6 @@ export default function ScoutingPage() {
         }
         return m
     }, [allTeams])
-    const getPlayerTeam = (playerId: string) => teamByPlayerId.get(playerId)
 
     // My roster for synergy calculations
     const myRoster = useMemo(() => {
@@ -214,6 +219,10 @@ export default function ScoutingPage() {
         return detectMissingRoles(myRoster as any)
     }, [myRoster])
 
+    const academyIds = useMemo(() => academyHeldPlayerIds({ teams: gameTeams, academyPlayers, academyPendingProspects }), [gameTeams, academyPlayers, academyPendingProspects])
+    const knowledge = useMemo(() => new Map(players.map(p => [p.id, getVisibleStats(p, scoutedPlayers, myRoster.map(p => p.id), currentWeek)])), [players, scoutedPlayers, myRoster, currentWeek])
+    const isFullyKnown = (id: string) => knowledge.get(id)?.scoutingLevel === "ELITE"
+
     // Evaluate and filter players — use teamByPlayerId Map (O(1) lookup)
     // rather than the getPlayerTeam helper so the dep array sees the
     // stable Map reference instead of the per-render function identity.
@@ -224,10 +233,9 @@ export default function ScoutingPage() {
             // no energy / talent / dynamic state). evaluatePlayer and
             // isPlayerForSale only read those subset fields at runtime,
             // so the bridging cast is safe here.
-            const evaluation = evaluatePlayer(player as unknown as PlayerSaveData)
+            const evaluation = evaluatePlayer(player as unknown as PlayerSaveData, undefined, undefined, currentWeek)
             const team = teamByPlayerId.get(player.id)
-            const teamRanking = team ? Math.max(1, 50 - Math.floor((team.reputation || 0) / 2)) : 50
-            const forSale = isPlayerForSale(player as unknown as PlayerSaveData, evaluation, teamRanking)
+            const forSale = !!player.forSale || !team
 
             return {
                 ...player,
@@ -236,18 +244,18 @@ export default function ScoutingPage() {
                 forSale,
             }
         })
-    }, [allPlayers, teamByPlayerId])
+    }, [allPlayers, teamByPlayerId, currentWeek])
 
     // Synergy map: playerId → average synergy with my roster
     const synergyMap = useMemo(() => {
         const map = new Map<string, number>()
         if (myRoster.length === 0) return map
         for (const ep of evaluatedPlayers) {
-            if (ep.team?.id === playerTeamId) continue // skip own team
+            if (ep.team?.id === playerTeamId || knowledge.get(ep.id)?.scoutingLevel !== "ELITE") continue // skip own team
             map.set(ep.id, calculateRosterSynergy(ep as any, myRoster as any))
         }
         return map
-    }, [evaluatedPlayers, myRoster, playerTeamId])
+    }, [evaluatedPlayers, myRoster, playerTeamId, knowledge])
 
     // Handle sort toggle
     const handleSort = (field: SortField) => {
@@ -281,7 +289,7 @@ export default function ScoutingPage() {
                 const notOnPlayerTeam = p.team?.id !== playerTeamId
 
                 // Exclude retired players
-                const notRetired = !p.isRetired
+                const notRetired = !p.isRetired && !academyIds.has(p.id)
 
                 // Exclude FPL non-pro generated players (they belong in FPL page only)
                 const notFPLNonPro = !(p as any).isFPLNonPro && !p.id.startsWith("fpl_nonpro_")
@@ -327,7 +335,7 @@ export default function ScoutingPage() {
                 let cmp = 0
                 switch (sortField) {
                     case "ovr":
-                        cmp = a.evaluation.overallRating - b.evaluation.overallRating
+                        cmp = scoutedRatingSortValue(knowledge.get(a.id)?.ovrRange || [0, 99]) - scoutedRatingSortValue(knowledge.get(b.id)?.ovrRange || [0, 99])
                         break
                     case "age":
                         cmp = a.age - b.age
@@ -351,7 +359,7 @@ export default function ScoutingPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [evaluatedPlayers, debouncedSearch, selectedRole, showForSaleOnly, priceRange, playerTeamId,
         ageRange, selectedRegions, showFreeAgentsOnly, showScoutedOnly, contractExpiryFilter,
-        minSynergy, showWatchlistedOnly, sortField, sortDirection, synergyMap, contracts, currentWeek])
+        minSynergy, showWatchlistedOnly, sortField, sortDirection, synergyMap, contracts, currentWeek, knowledge, academyIds, scoutedPlayers, watchlistedPlayerIds])
 
     const roles = ["ALL", "AWPER", "IGL", "ENTRY", "SUPPORT", "RIFLER", "LURKER"]
 
@@ -386,12 +394,12 @@ export default function ScoutingPage() {
 
     return (
         <ErrorBoundary section="Scouting">
-        <div className="space-y-6 max-w-[1600px] mx-auto">
+        <div className="scouting-page space-y-5 max-w-[1600px] mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2">
-                        Scouting Database
+                    <h1 className="page-title mb-2">
+                        Scouting Network
                     </h1>
                     <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">
                         {allPlayers.length} players across {allTeams.length} teams worldwide
@@ -407,7 +415,7 @@ export default function ScoutingPage() {
             </div>
 
             {/* Filters */}
-            <div className="glass-panel p-6 border-white/5 space-y-4">
+            <div className="scouting-cockpit glass-panel p-6 border-white/5 space-y-4">
                 {/* Row 1: Search + Quick Toggles */}
                 <div className="flex flex-wrap gap-3">
                     {/* Search */}
@@ -673,9 +681,9 @@ export default function ScoutingPage() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="scouting-layout">
                 {/* Player List */}
-                <div className="lg:col-span-2">
+                <div className="min-w-0 scouting-table">
                     <GlassTable>
                         <GlassTableHeader>
                             <GlassTableRow>
@@ -725,6 +733,10 @@ export default function ScoutingPage() {
                                             isWatchlisted && "border-l-2 border-l-amber-500/50"
                                         )}
                                         onClick={() => setSelectedPlayer(player)}
+                                        tabIndex={0}
+                                        aria-label={`Inspect ${player.nickname}`}
+                                        data-selected={selectedPlayer?.id === player.id}
+                                        onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); setSelectedPlayer(player) } }}
                                     >
                                         <GlassTableCell>
                                             <div className="flex items-center gap-3">
@@ -781,35 +793,7 @@ export default function ScoutingPage() {
                                             {player.age}
                                         </GlassTableCell>
                                         <GlassTableCell className="text-center">
-                                            {(() => {
-                                                const isScouted = isPlayerScouted(player.id)
-                                                const ovr = player.evaluation.overallRating
-
-                                                if (isScouted) {
-                                                    return (
-                                                        <span className={cn(
-                                                            "text-lg font-normal",
-                                                            ovr >= 80 ? "text-emerald-400" :
-                                                                ovr >= 70 ? "text-blue-400" :
-                                                                    ovr >= 60 ? "text-amber-400" :
-                                                                        "text-white/50"
-                                                        )}>
-                                                            {ovr}
-                                                        </span>
-                                                    )
-                                                } else {
-                                                    // Show a fuzzy range for unscouted players. The band is
-                                                    // OFFSET (not centered on the true rating) and deterministic
-                                                    // per player — previously it was [ovr-15, ovr+15], whose
-                                                    // midpoint leaked the exact OVR.
-                                                    const [min, max] = fuzzyBand(ovr, 15, player.id)
-                                                    return (
-                                                        <span className="text-sm font-sans text-white/40" title="Scout to reveal exact rating">
-                                                            {min}-{max}
-                                                        </span>
-                                                    )
-                                                }
-                                            })()}
+                                            <span className="text-sm tabular-nums" title="Rating from your current scouting report">{formatScoutedRating(knowledge.get(player.id)?.ovrRange || [0, 99])}</span>
                                         </GlassTableCell>
                                         {myRoster.length > 0 && (
                                             <GlassTableCell className="text-center">
@@ -913,7 +897,7 @@ export default function ScoutingPage() {
                 </div>
 
                 {/* Player Detail Panel */}
-                <div className="lg:col-span-1">
+                <div className="min-w-0">
                     <AnimatePresence mode="wait">
                         {selectedPlayer ? (
                             <motion.div
@@ -921,7 +905,7 @@ export default function ScoutingPage() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="glass-panel p-6 sticky top-8 border-primary/20"
+                                className="scouting-intelligence glass-panel border-primary/20"
                             >
                                 {/* Header */}
                                 <div className="flex justify-between items-start mb-6">
@@ -956,6 +940,7 @@ export default function ScoutingPage() {
                                             <Star size={18} className={isPlayerWatchlisted(selectedPlayer.id) ? "fill-amber-400" : ""} />
                                         </button>
                                         <button
+                                            aria-label="Close player intelligence"
                                             onClick={() => setSelectedPlayer(null)}
                                             className="p-2 hover:bg-white/5 rounded-lg"
                                         >
@@ -964,19 +949,14 @@ export default function ScoutingPage() {
                                     </div>
                                 </div>
 
+                                <ReportCoverage level={knowledge.get(selectedPlayer.id)?.scoutingLevel || 'NONE'} />
                                 {/* Stats Grid - Fog of War */}
                                 {(() => {
-                                    const isScouted = isPlayerScouted(selectedPlayer.id)
                                     const ovr = selectedPlayer.evaluation.overallRating
                                     const roleFit = selectedPlayer.evaluation.roleFit
                                     const potential = selectedPlayer.evaluation.futureValue
 
-                                    const isBeingScouted = activeScoutingMission?.playerId === selectedPlayer.id
-                                    const cw = useGameStore.getState().currentWeek || 0
-                                    const weeksRemaining = isBeingScouted
-                                        ? Math.max(0, (activeScoutingMission?.completionWeek || 0) - cw)
-                                        : 0
-                                    const scoutingComplete = isScouted || (isBeingScouted && weeksRemaining === 0)
+                                    const scoutingComplete = isFullyKnown(selectedPlayer.id)
 
                                     if (scoutingComplete) {
                                         return (
@@ -996,12 +976,10 @@ export default function ScoutingPage() {
                                             </div>
                                         )
                                     } else {
-                                        const ovrMin = Math.max(0, ovr - 15)
-                                        const ovrMax = Math.min(99, ovr + 15)
                                         return (
                                             <div className="grid grid-cols-3 gap-3 mb-6">
                                                 <div className="text-center p-3 bg-white/5 rounded-xl border border-dashed border-white/10">
-                                                    <p className="text-lg font-sans text-white/40">{ovrMin}-{ovrMax}</p>
+                                                    <p className="text-lg font-sans text-white/40">{formatScoutedRating(knowledge.get(selectedPlayer.id)?.ovrRange || [0, 99])}</p>
                                                     <p className="text-[8px] text-muted-foreground font-bold uppercase">Overall</p>
                                                 </div>
                                                 <div className="text-center p-3 bg-white/5 rounded-xl border border-dashed border-white/10">
@@ -1018,7 +996,7 @@ export default function ScoutingPage() {
                                 })()}
 
                                 {/* Spider Chart */}
-                                {(selectedPlayer.firepower || selectedPlayer.sniping) && (
+                                {isFullyKnown(selectedPlayer.id) && (selectedPlayer.firepower || selectedPlayer.sniping) && (
                                     <div className="mb-6">
                                         <PlayerSpiderChart
                                             stats={{
@@ -1036,7 +1014,7 @@ export default function ScoutingPage() {
                                 )}
 
                                 {/* Synergy Breakdown */}
-                                {myRoster.length > 0 && (
+                                {isFullyKnown(selectedPlayer.id) && myRoster.length > 0 && (
                                     <div className="mb-6 space-y-2">
                                         <h4 className="text-xs text-muted-foreground font-bold uppercase tracking-widest border-b border-white/5 pb-2 flex items-center gap-2">
                                             <Heart size={12} className="text-primary" />
@@ -1239,14 +1217,13 @@ export default function ScoutingPage() {
                                     </div>
                                 )}
 
+                                <Link href={`/player/${selectedPlayer.id}`} className="mb-4 block text-sm text-primary underline underline-offset-4">Open report and compare with squad or shortlist</Link>
+                                {activeScoutingMission?.playerId === selectedPlayer.id && <Button variant="ghost" className="mb-3 w-full" onClick={() => useGameStore.getState().cancelScoutingMission()}>Cancel mission (fee is non-refundable)</Button>}
                                 {/* Action Buttons */}
                                 <div className="space-y-3">
                                     {/* Scouting Status / Button */}
                                     {(() => {
-                                        const scoutStaff = useGameStore.getState().staff.filter(
-                                            s => s.teamId === playerTeamId && s.role === "scout"
-                                        )
-                                        const hasScoutAgent = scoutStaff.length > 0
+                                        const hasScoutAgent = !!employedScout(useGameStore.getState().staff, gameTeams.find(t => t.id === playerTeamId), currentWeek)
 
                                         const isBeingScouted = activeScoutingMission?.playerId === selectedPlayer.id
                                         const cw = useGameStore.getState().currentWeek || 0
@@ -1255,12 +1232,12 @@ export default function ScoutingPage() {
                                             : 0
                                         const isScouted = isPlayerScouted(selectedPlayer.id)
 
-                                        if (isScouted || (isBeingScouted && weeksRemaining === 0)) {
+                                        if (isScouted) {
                                             return (
                                                 <div className="space-y-2">
                                                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center">
                                                         <p className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Scouting Complete</p>
-                                                        <p className="text-white/50 text-xs mt-1">Full stats revealed above</p>
+                                                        <p className="text-white/50 text-xs mt-1">Your report controls which attributes are visible.</p>
                                                     </div>
                                                     <Link href={`/player/${selectedPlayer.id}`}>
                                                         <Button className="w-full h-10 bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 font-bold rounded-xl text-sm">

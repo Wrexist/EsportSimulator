@@ -3,15 +3,10 @@
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useState } from "react"
-import { PLACEHOLDERS } from "@/lib/asset-utils"
 import type { TeamBranding } from "@/data/snapshot-types"
 import { TeamEmblem } from "@/components/ui/TeamEmblem"
-
-/** Real hand-made / AI raster logos (.webp/.png/.jpg) win; the flat generated
- *  .svg shields are replaced by the live 3D <TeamEmblem>. */
-function isRasterLogo(p?: string): boolean {
-    return !!p && /\.(webp|png|jpe?g|gif)$/i.test(p)
-}
+import { defaultBrandingFor } from "@/lib/branding/fallback"
+import { teamLogoSources } from "@/lib/team-identity"
 
 interface TeamLogoDisplayProps {
     team: {
@@ -31,14 +26,10 @@ interface TeamLogoDisplayProps {
     className?: string
 }
 
-/**
- * Universal team logo component.
- * Resolution: uploaded image → real raster logo → live 3D procedural emblem
- * (from branding or custom colors) → placeholder. The procedural <TeamEmblem>
- * replaces the old flat 2D .svg shields for every generated team.
- */
+/** Uploaded image, authored raster/redesign, then a stable vector club emblem. */
 export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayProps) {
-    const [imgError, setImgError] = useState(false)
+    const [failedSources, setFailedSources] = useState<string[]>([])
+    const failSource = (source: string) => setFailedSources(previous => previous.includes(source) ? previous : [...previous.slice(-7), source])
 
     if (!team) {
         return (
@@ -51,38 +42,11 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // 1. Custom team with an uploaded image.
-    if (team.customTeamData?.logoData) {
-        return (
-            <img
-                src={team.customTeamData.logoData}
-                alt={team.name}
-                className={cn("object-contain", className)}
-                style={{ width: size, height: size }}
-            />
-        )
-    }
+    const source = teamLogoSources(team).find(candidate => !failedSources.includes(candidate))
+    if (source) return <Image src={source} alt={team.name} width={size} height={size}
+        className={cn("object-contain shrink-0", className)} unoptimized onError={() => failSource(source)} />
 
-    // 2. A real raster logo (hand-made or AI-generated .webp/.png) — these win.
-    if (isRasterLogo(team.logoPath) && !imgError) {
-        return (
-            <Image
-                src={team.logoPath as string}
-                alt={team.name}
-                width={size}
-                height={size}
-                className={cn(
-                    "object-contain transition-transform duration-300 ease-out",
-                    "[filter:drop-shadow(0_2px_4px_rgba(0,0,0,0.35))_drop-shadow(0_0_18px_rgba(255,255,255,0.06))]",
-                    className,
-                )}
-                onError={() => setImgError(true)}
-                unoptimized
-            />
-        )
-    }
-
-    // 3. Live 3D procedural emblem from the team's branding (replaces flat .svg).
+    // Procedural fallback for teams without an individually authored redesign.
     if (team.branding?.primaryColor) {
         return (
             <TeamEmblem
@@ -115,30 +79,7 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
         )
     }
 
-    // 5. No branding/colors but has a logo file (incl. legacy .svg) — load it.
-    if (team.logoPath && !imgError) {
-        return (
-            <Image
-                src={team.logoPath}
-                alt={team.name}
-                width={size}
-                height={size}
-                className={cn("object-contain", className)}
-                onError={() => setImgError(true)}
-                unoptimized
-            />
-        )
-    }
-
-    // 6. Generic placeholder.
-    return (
-        <Image
-            src={PLACEHOLDERS.logo}
-            alt={team.name}
-            width={size}
-            height={size}
-            className={cn("object-contain", className)}
-            unoptimized
-        />
-    )
+    return <TeamEmblem name={team.name} shortName={team.shortName}
+        seed={team.id || team.name} branding={defaultBrandingFor(team.id || team.name)}
+        size={size} className={className} />
 }

@@ -1,0 +1,22 @@
+{
+  "build": "P6YMlEYBkceFlAeTBiDU5",
+  "checks": [
+    {
+      "route": "/main-menu",
+      "status": 200
+    },
+    {
+      "route": "/transfers",
+      "status": 200
+    },
+    {
+      "route": "/dev",
+      "status": 404
+    },
+    {
+      "route": "/animations",
+      "status": 404
+    }
+  ],
+  "note": "HTTP status only; not visual or interaction acceptance"
+}

@@ -1,7 +1,7 @@
 import { GameSave, FinanceLedgerEntry } from "../save-types"
 import { EconomyEngine } from "../economy-engine" // You might need to check this path relative to processors
-import { SeededRNG, generateSeed } from "../rng"
-import { Team, EventType } from "@/types"
+import { SeededRNG } from "../rng"
+import { EventType } from "@/types"
 
 export interface FinanceProcessorResult {
     income: number
@@ -10,6 +10,24 @@ export interface FinanceProcessorResult {
 }
 
 export class FinanceProcessor {
+    /** Reconcile bills with prize/transfer income settled later in this tick. */
+    static reconcileWeeklySolvency(save: GameSave, playerTeamId: string): void {
+        const team = save.teams.find(t => t.id === playerTeamId)
+        if (!team || team.financeSettlement?.week !== save.currentWeek || !Number.isFinite(team.budget) || team.budget <= 0) return
+        const net = team.weeklyNet ?? 0
+        const runway = net < 0 ? team.budget / Math.abs(net) : 999
+        team.runwayWeeks = runway
+        team.financialState = EconomyEngine.determineState(team.budget, runway)
+        team._prevFinancialState = team.financialState
+        team.consecutiveInsolventWeeks = 0
+        // Never revive an earlier terminal career or undo a board dismissal.
+        if (save.gameOverReason === "BANKRUPTCY" && save.gameOverWeek === save.currentWeek) {
+            delete save.gameOverReason
+            delete save.gameOverWeek
+        }
+        save.eventsLog = save.eventsLog.filter(event => event.id !== `budget_warning_${save.currentWeek}_INSOLVENT`)
+    }
+
     static processFinance(
         save: GameSave,
         playerTeamId: string,
@@ -18,7 +36,7 @@ export class FinanceProcessor {
     ): FinanceProcessorResult {
         let totalIncome = 0
         let totalExpenses = 0
-        const rng = new SeededRNG(save.lastRngSeed || generateSeed())
+        const rng = new SeededRNG(save.lastRngSeed ?? 1)
 
         // Idempotency guards: like every other week-processor step, dedup ledger
         // and event pushes by their deterministic IDs so a replayed/resumed week
@@ -27,6 +45,13 @@ export class FinanceProcessor {
         // the guard is still correct, just O(n) instead of O(1).
         const ledgerIds = ledgerIdSet ?? new Set(save.financeLedger.map(e => e.id))
         const eventIds = eventIdSet ?? new Set(save.eventsLog.map(e => e.id))
+        // Older builds posted all teams synchronously but kept receipts only for
+        // the managed club. Its league payment proves that batch already ran.
+        const legacySettled = !save.teams.some(t => t.financeSettlement)
+            && ledgerIds.has(`inc_league_${save.currentWeek}_${playerTeamId}`)
+        const legacyRows = legacySettled ? save.financeLedger.filter(e =>
+            e.week === save.currentWeek && e.teamId === playerTeamId &&
+            /^(inc_spon_|inc_fan_|inc_league_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_fac_)/.test(e.id)) : []
         const pushLedger = (entry: FinanceLedgerEntry): void => {
             if (ledgerIds.has(entry.id)) return
             save.financeLedger.push(entry)
@@ -38,61 +63,36 @@ export class FinanceProcessor {
         save.players.forEach(p => playerMap.set(p.id, p))
 
         save.teams.forEach(team => {
+            if (team.financeSettlement && team.financeSettlement.week >= save.currentWeek) {
+                if (team.id === playerTeamId && team.financeSettlement.week === save.currentWeek) {
+                    totalIncome = team.financeSettlement.income
+                    totalExpenses = team.financeSettlement.expenses
+                }
+                return
+            }
             const report = EconomyEngine.processWeeklyFinances(
                 team,
                 save.players,
                 save.contracts,
-                save.staff
+                save.staff,
+                save.currentWeek,
+                team.id === playerTeamId ? (save.academyPlayers?.length ?? 0) : (team.managementState?.academyPlayers?.length ?? 0),
             )
+
+            if (legacySettled) {
+                const income = team.id === playerTeamId ? legacyRows.filter(e => e.type === "INCOME").reduce((n, e) => n + e.amount, 0) : report.income.total
+                const expenses = team.id === playerTeamId ? legacyRows.filter(e => e.type === "EXPENSE").reduce((n, e) => n + e.amount, 0) : report.expenses.total
+                team.financeSettlement = { week: save.currentWeek, income, expenses }
+                if (team.id === playerTeamId) { totalIncome = income; totalExpenses = expenses }
+                return
+            }
+            const openingBalance = team.budget
 
             // Update Team State
             team.budget = report.newBalance
             team.financialState = report.state
             team.runwayWeeks = report.runwayWeeks
             team.weeklyNet = report.net
-
-            // Deduct equipment weekly maintenance costs
-            let equipmentCosts = 0
-            if (team.equipment && team.equipment.length > 0) {
-                for (const item of team.equipment) {
-                    if (item.weeklyCost && item.weeklyCost > 0) {
-                        equipmentCosts += item.weeklyCost
-                    }
-                }
-                if (equipmentCosts > 0) {
-                    team.budget -= equipmentCosts
-                    // Guard against NaN from corrupt equipment cost data
-                    if (!Number.isFinite(team.budget)) team.budget = report.newBalance
-                    if (team.id === playerTeamId) {
-                        // Equipment is folded into totalExpenses below where
-                        // we read report.expenses.total + equipmentCosts.
-                        pushLedger({
-                            id: `exp_equip_${save.currentWeek}_${team.id}`,
-                            week: save.currentWeek,
-                            teamId: team.id,
-                            type: "EXPENSE",
-                            category: "FACILITIES",
-                            amount: equipmentCosts,
-                            description: "Equipment maintenance",
-                            balance: team.budget
-                        })
-                    }
-                    // Recalculate financial state to reflect equipment deduction
-                    // (report.state was computed before equipment costs were applied)
-                    const burnRate = Math.abs(Math.min(0, report.net)) + equipmentCosts
-                    const updatedRunway = burnRate > 0 ? team.budget / burnRate : 999
-                    if (team.budget <= 0)        team.financialState = "INSOLVENT"
-                    else if (updatedRunway < 3)  team.financialState = "CRISIS"
-                    else if (updatedRunway < 6)  team.financialState = "RISK"
-                    else if (updatedRunway < 12) team.financialState = "TIGHT"
-                    else                         team.financialState = "STABLE"
-                    team.runwayWeeks = Math.floor(updatedRunway)
-                    // Reflect equipment upkeep in the reported net too — AI
-                    // economy decisions read team.weeklyNet, so leaving it at the
-                    // pre-equipment value lets cash-negative AI act as if positive.
-                    team.weeklyNet = report.net - equipmentCosts
-                }
-            }
 
             // Apply Consequences based on State (Phase 8).
             // Use the POST-equipment financial state — equipment costs may
@@ -133,7 +133,7 @@ export class FinanceProcessor {
                         TIGHT: { desc: `Budget is getting tight. You have ${runway} weeks of runway remaining. Consider reducing expenses.`, importance: "MEDIUM" },
                         RISK: { desc: `Financial warning! Only ${runway} weeks of runway left. Cut costs or find new income sources urgently.`, importance: "HIGH" },
                         CRISIS: { desc: `CRITICAL: Team finances in crisis! ${runway} weeks until insolvency. Players are losing morale.`, importance: "HIGH" },
-                        INSOLVENT: { desc: `Team is INSOLVENT. Budget is depleted. Immediate action required to avoid collapse.`, importance: "HIGH" },
+                        INSOLVENT: { desc: `Team is INSOLVENT. This is week ${team.consecutiveInsolventWeeks ?? 1} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.`, importance: "HIGH" },
                     }
                     const msg = messages[report.state]
                     const warnId = `budget_warning_${save.currentWeek}_${report.state}`
@@ -153,10 +153,8 @@ export class FinanceProcessor {
 
             if (team.id === playerTeamId) {
                 totalIncome = report.income.total
-                // report.expenses.total excludes equipment maintenance; add it
-                // back so the returned summary matches what was actually
-                // deducted from the budget and recorded in the ledger.
-                totalExpenses = report.expenses.total + equipmentCosts
+                totalExpenses = report.expenses.total
+                const ledgerStart = save.financeLedger.length
 
                 // Income Entries
                 if (report.income.sponsors > 0) {
@@ -201,6 +199,23 @@ export class FinanceProcessor {
                 }
 
                 // Expense Entries
+                if (report.expenses.academy > 0) {
+                    pushLedger({ id: `exp_academy_${save.currentWeek}_${team.id}`, week: save.currentWeek, teamId: team.id,
+                        type: "EXPENSE", category: "FACILITIES", amount: report.expenses.academy,
+                        description: "Youth academy upkeep", balance: team.budget })
+                }
+                if (report.expenses.equipment > 0) {
+                    pushLedger({
+                        id: `exp_equip_${save.currentWeek}_${team.id}`,
+                        week: save.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "FACILITIES",
+                        amount: report.expenses.equipment,
+                        description: "Equipment maintenance",
+                        balance: team.budget,
+                    })
+                }
                 if (report.expenses.playerWages > 0) {
                     pushLedger({
                         id: `exp_wage_p_${save.currentWeek}_${team.id}`,
@@ -238,6 +253,15 @@ export class FinanceProcessor {
                     })
                 }
 
+                // Each row shows the balance after that movement, not the same
+                // closing balance repeated for every income and expense.
+                let runningBalance = openingBalance
+                for (let i = ledgerStart; i < save.financeLedger.length; i++) {
+                    const entry = save.financeLedger[i]
+                    runningBalance += entry.type === "INCOME" ? entry.amount : -entry.amount
+                    entry.balance = runningBalance
+                }
+
                 // Phase 21: News (Finance Summary)
                 if (save.newsFeed) {
                     const net = report.income.total - report.expenses.total
@@ -259,6 +283,7 @@ export class FinanceProcessor {
                     if (save.newsFeed.length > 50) save.newsFeed.pop()
                 }
             }
+            team.financeSettlement = { week: save.currentWeek, income: report.income.total, expenses: report.expenses.total }
         })
 
         save.lastRngSeed = rng.getState()
@@ -276,6 +301,26 @@ export class FinanceProcessor {
 
         // Early warning: alert player 4 weeks before contracts expire
         const WARNING_WEEKS = 4
+        for (const member of save.staff) {
+            if (member.contractEndWeek === undefined) continue // Old careers without a dated term retain their staff.
+            const weeksLeft = member.contractEndWeek - save.currentWeek
+            if (member.teamId === playerTeamId && weeksLeft <= WARNING_WEEKS) {
+                const id = `staff_contract_${save.currentWeek}_${member.id}`
+                if (!existingEventIds.has(id)) {
+                    save.eventsLog.unshift({ id, week: save.currentWeek, type: "CONTRACT", acknowledged: false,
+                        data: { staffId: member.id, weeksLeft: Math.max(0, weeksLeft), importance: "HIGH",
+                            description: weeksLeft <= 0 ? `${member.name}'s contract expired. They have left the staff and are available on the market.` : `${member.name}'s staff contract expires in ${weeksLeft} weeks. Renew to keep their services.` } })
+                    existingEventIds.add(id)
+                }
+            }
+            if (weeksLeft <= 0) {
+                const team = save.teams.find(t => t.id === member.teamId)
+                if (team) team.staffIds = team.staffIds.filter(id => id !== member.id)
+                save.marketStaff ??= []
+                if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0 })
+            }
+        }
+        save.staff = save.staff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)
         const soonExpiring = save.contracts.filter(c =>
             c.teamId === playerTeamId &&
             c.endWeek > save.currentWeek &&
@@ -300,6 +345,7 @@ export class FinanceProcessor {
                     },
                     acknowledged: false
                 })
+                existingEventIds.add(warnId)
             }
         }
 
@@ -316,8 +362,9 @@ export class FinanceProcessor {
 
                 // Clean up active role training for departing player
                 if (team.activeRoleTraining) {
+                    const removed = team.activeRoleTraining.filter(t => t.playerId === player.id).length
                     team.activeRoleTraining = team.activeRoleTraining.filter(t => t.playerId !== player.id)
-                    team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - 1)
+                    team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - removed)
                 }
 
                 const expiryId = `contract_expiry_${save.currentWeek}_${contract.teamId}_${contract.playerId}`

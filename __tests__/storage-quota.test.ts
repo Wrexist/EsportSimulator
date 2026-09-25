@@ -58,14 +58,15 @@ describe("storage quota handling", () => {
             expect(await adapter.getItem("save")).toBeNull()
         })
 
-        it("degrades gracefully (no throw) on a NON-quota failure", async () => {
+        it("reports non-quota failures without pretending volatile memory is a save", async () => {
             // Contrast with the quota case: a transient/availability error must NOT
             // propagate — it falls back to the in-memory map so the session continues.
             const ls = mockLocalStorage(() => { throw new Error("transient") })
             ;(global as { window?: unknown }).window = { localStorage: ls }
             const adapter = new LocalStorageAdapter()
 
-            await expect(adapter.setItem("save", "x".repeat(100))).resolves.toBeUndefined()
+            await expect(adapter.setItem("save", "x".repeat(100))).rejects.toThrow("transient")
+            expect(await adapter.getItem("save")).toBeNull()
         })
 
         it("propagates quota even when the very first/small write fails (probe path)", async () => {

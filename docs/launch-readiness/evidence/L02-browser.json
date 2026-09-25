@@ -1,0 +1,24 @@
+{
+  "format": "esim-browser-acceptance",
+  "status": "core journey executed; discrepancies require follow-up",
+  "buildId": "fqEs4AOEePEZfY9iNXuao",
+  "origin": "http://localhost:3210",
+  "manager": "Launch QA 3402",
+  "saveId": "save_1789259140507_y0ozre_8ntncd",
+  "schema": 7,
+  "week": 2,
+  "day": 0,
+  "lastGood": "tmp/launch-browser-acceptance/last-good-week-2.json",
+  "sha256": "b7897cdd8330b1c9ab57c9c5e6d6a0b9e60204e26b10d6f596f6690ef0dda6fd",
+  "bytes": 4463065,
+  "budget": 501400,
+  "completedMatches": 2,
+  "reopened": {
+    "week": 2,
+    "day": 1,
+    "budget": 501400,
+    "club": "Pulsar",
+    "bench": "HyperDragon",
+    "salaryPerWeek": 19200
+  }
+}

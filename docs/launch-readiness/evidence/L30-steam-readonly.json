@@ -1,0 +1,29 @@
+{
+  "appId": 4326170,
+  "mode": "read-only native SDK probe",
+  "sdkVersion": "0.4.0",
+  "connected": true,
+  "mutations": 0,
+  "accountFingerprint": "5318018fbb569411e48a9e96dc0173afa58180d58262490d844c49a95cc8b221",
+  "subscribed": true,
+  "runningAppId": 4326170,
+  "installedBuildId": 23556629,
+  "cloudAccountEnabled": true,
+  "cloudAppEnabled": true,
+  "capabilities": {
+    "achievement": true,
+    "integerStats": true,
+    "leaderboards": false,
+    "workshop": true
+  },
+  "sampleStats": {
+    "wins": 182,
+    "peakRanking": 0
+  },
+  "sampleAchievement": false,
+  "limitations": [
+    "Not launched as the packaged game",
+    "No partner definition export verified",
+    "No two-device Cloud or mutation/lifecycle tests performed"
+  ]
+}

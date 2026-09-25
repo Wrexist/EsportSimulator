@@ -1,0 +1,178 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Sandstone",
+  "fixtureSha256": "fd99eb2d21ee55579645449ff66c8ef2f0774631a6829849c81a13a1ccbf35ec",
+  "simulatorSourceSha256": "211c7e18de315f3e49835899a1f54fab4bb026ee5e78e7cfac0ed26c86e33c3d",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 89.796875,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 493640,
+      "metrics": {
+        "shots": 27,
+        "damage": 405,
+        "reports": 22,
+        "waits": 1231,
+        "replans": 109,
+        "minSeparation": 32.002903318513745
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 9,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 368,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 2608,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 2768,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "eaa4190ac59b9201d90a235ae319bfaa25465c7a3aadb5380025a0581234d195"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 63.046875,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 92654,
+      "metrics": {
+        "shots": 58,
+        "damage": 700,
+        "reports": 44,
+        "waits": 330,
+        "replans": 98,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 2,
+      "yields": 4,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "182f3185a6edc61628f5e0f2241ed0a2649280e9553191637b006fa6bc3be5b1"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 96526,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1668,
+        "waits": 966,
+        "replans": 171,
+        "minSeparation": 32.002903318513745
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 368,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            -1447.5327251028868,
+            2482.68921607887,
+            5.439250131043526
+          ],
+          "goal": [
+            -1432.374975,
+            2529.21855,
+            5.89131153337688
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "497c4f10b71365d4c19ae248225090d3879af8af6abcf55affff272e3182f3ef"
+    }
+  ]
+}

@@ -10,6 +10,7 @@
  */
 
 import { PlayerSaveData, ScoutedPlayerEntry, ScoutingMissionData } from "./save-types"
+import { evaluatePlayer } from "./player-evaluation"
 import { SCOUT_LEVEL_CONFIG } from "../lib/constants"
 
 // ===== SCOUT AGENT LEVELS =====
@@ -75,13 +76,23 @@ export function fuzzyBand(trueValue: number, halfWidth: number, playerId: string
     ]
 }
 
+export function formatScoutedRating(value: number | [number, number]): string {
+    return Array.isArray(value) ? `${value[0]}\u2013${value[1]}` : String(value)
+}
+
+/** Sorting may use the displayed estimate, never the hidden underlying rating. */
+export function scoutedRatingSortValue(value: number | [number, number]): number {
+    return Array.isArray(value) ? (value[0] + value[1]) / 2 : value
+}
+
 /**
  * Get visible stats for a player based on scouting level
  */
 export function getVisibleStats(
     player: PlayerSaveData,
     scoutedPlayers: ScoutedPlayerEntry[],
-    ownTeamPlayerIds: string[]
+    ownTeamPlayerIds: string[],
+    currentWeek?: number
 ): VisibleStats {
     // Own team players are always fully visible
     const isOwnTeam = ownTeamPlayerIds.includes(player.id)
@@ -104,19 +115,20 @@ export function getVisibleStats(
     }
 
     // Calculate fuzzy ranges based on level
-    const skill = player.skill || 50
+    const skill = player.skill ?? 50
+    const overall = evaluatePlayer(player, undefined, undefined, currentWeek).overallRating
 
     switch (scoutingLevel) {
         case "NONE":
             // Wide range ±20, centre offset so the midpoint isn't the answer
             baseStats.skillRange = fuzzyBand(skill, 20, player.id)
-            baseStats.ovrRange = baseStats.skillRange
+            baseStats.ovrRange = fuzzyBand(overall, 20, `${player.id}:ovr`)
             break
 
         case "BASIC":
             // Narrower range ±12, centre offset
             baseStats.skillRange = fuzzyBand(skill, 12, player.id)
-            baseStats.ovrRange = baseStats.skillRange
+            baseStats.ovrRange = fuzzyBand(overall, 12, `${player.id}:ovr`)
             // Reveal top 3 stat categories (rough)
             baseStats.exactStats = {
                 rifle: player.rifle,
@@ -128,7 +140,7 @@ export function getVisibleStats(
         case "ADVANCED":
             // Tight range ±6, centre offset
             baseStats.skillRange = fuzzyBand(skill, 6, player.id)
-            baseStats.ovrRange = baseStats.skillRange
+            baseStats.ovrRange = fuzzyBand(overall, 6, `${player.id}:ovr`)
             // Reveal most stats
             baseStats.exactStats = {
                 rifle: player.rifle,
@@ -143,7 +155,7 @@ export function getVisibleStats(
         case "EXPERT":
             // Very tight ±3, centre offset
             baseStats.skillRange = fuzzyBand(skill, 3, player.id)
-            baseStats.ovrRange = baseStats.skillRange
+            baseStats.ovrRange = fuzzyBand(overall, 3, `${player.id}:ovr`)
             // Reveal all combat stats
             baseStats.exactStats = {
                 skill: player.skill,
@@ -162,7 +174,7 @@ export function getVisibleStats(
         case "ELITE":
             // Exact values
             baseStats.skillRange = skill
-            baseStats.ovrRange = skill
+            baseStats.ovrRange = overall
             // Everything revealed
             baseStats.exactStats = { ...player }
             baseStats.proHistory = player.proHistory

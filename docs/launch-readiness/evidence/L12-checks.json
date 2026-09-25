@@ -1,0 +1,118 @@
+{
+  "date": "2026-09-13",
+  "package": "L12",
+  "status": "partial",
+  "buildId": "arZ0usroZzZJOgoAAO4tB",
+  "worker": "2063.e012be0b7cc0bb5f.js",
+  "electron": "44.3.0",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "sourceFiles": {
+    "engine/spatial/utility.ts": "dbd1a8c5715c439e5f2be07981b175fedab4e6444f8e668c085befb587462c70",
+    "engine/spatial/geometry.ts": "bd06bfa27a5f712f3107c0f08acc9b4af8826f09cdcec7a54ae801be88f0018d",
+    "engine/spatial/encounter.ts": "233fc9a88d697a478736568de2c85111fc36ffac18a95e5065b8ed88b4a81ede",
+    "engine/spatial/lab-encounter.ts": "d70c956f3665389c003fe3714459b6584e0462f468ab06a01c848e728c6d8cea",
+    "lib/spatial-lab-project.ts": "523986a955da6361c0a7926c0b8656d10a4e07bc35d99e18f4cdc444e64b556e",
+    "components/maps/EncounterLab.tsx": "0a1ff978d1fab557096523594d9a588ce47fce28340dda3c8c269251bd8fed07",
+    "components/maps/UtilityControls.tsx": "477423d846437f32aa64ff6951d6a31b28d7add2025f0e3a13b7427f52d718be",
+    "components/maps/UtilityReplay.tsx": "f2d4d2ec6784856a6c237d92379b6fd2012958232305162082f296149387f26f",
+    "components/maps/encounter-lab.module.css": "5bac2114c830a65da06c2f127d02a324ad277283d3ceb6d263c729dce0710887",
+    "__tests__/spatial-utility.test.ts": "305b7056ccf34f5123a11aee47f67f25dd4b14a0f1e7308949d810013663a4a5",
+    "scripts/launch/build-l12-fixtures.ts": "7b56385ff5a7d358acd5c421cdf2572083f53dd0c19919043ff86b453b0f74e5",
+    "scripts/launch/l12-browser.ts": "e6005c7f574baf8640ad6383b2989731a90dee4990f2fafa522e78d8fd3dc73a",
+    "scripts/launch/l12-discrete.ts": "50b5794ba88b26277adfc73595db48a738d7e1f08b0228be82be290f5980ba9c",
+    "scripts/launch/l12-mirage-review.ts": "b1d32b9df8e439b0c8411b54d5ac4da120c9ec8e1f5fc4c9a60d4d1397c1cc01",
+    "scripts/launch/l12-check-replay.ts": "ab2e1754359975e00082c77c5f51465de58eb4f112c8dbe7d5d8a798fb9762a6",
+    "scripts/launch/build-spatial-review-probe.cjs": "51d5e43b99fbe7b8e3a20727d70833d52b11fca218c2475215b0f07b8f173af2",
+    "public/map-studio/encounters/l12/index.json": "3357f8994d66c3e85eb860e20de47ae5bfe5a493b110432f51e974316f6570a6"
+  },
+  "ownerOriginals": [
+    {
+      "file": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+      "bytes": 143496
+    },
+    {
+      "file": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+      "bytes": 128763
+    }
+  ],
+  "checks": [
+    {
+      "command": "node node_modules/jest/bin/jest.js --runInBand",
+      "exitCode": 0,
+      "tests": 1418,
+      "suites": 146,
+      "log": "L12-full-tests.txt"
+    },
+    {
+      "command": "node node_modules/jest/bin/jest.js --runInBand __tests__/spatial-utility.test.ts __tests__/spatial-encounter.test.ts",
+      "exitCode": 0,
+      "tests": 43,
+      "suites": 2,
+      "log": "L12-focused-tests.txt"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "log": "L12-build.txt"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false",
+      "exitCode": 0,
+      "log": "L12-types.txt"
+    },
+    {
+      "name": "Five L12 fixtures repeated in compiled sandboxed Electron worker; exact cross-runtime authoritative state comparison",
+      "passed": true,
+      "report": "L12-native.json"
+    },
+    {
+      "name": "Five L11 fixtures plus twelve seed pairs remain repeatable in the compiled worker",
+      "passed": true,
+      "report": "L12-l11-regression-native.json"
+    },
+    {
+      "name": "Owner Mirage read-only review",
+      "marks": 169,
+      "errors": 20,
+      "warnings": 87,
+      "report": "L12-mirage-review.json"
+    },
+    {
+      "name": "Downloaded real Chrome replay independently validated against Node",
+      "passed": true,
+      "report": "L12-browser-replay-check.json"
+    }
+  ],
+  "browser": {
+    "url": "http://localhost:3210/map-editor/lab#controlled-encounter",
+    "previewPid": 137144,
+    "verified": [
+      "backed-up built-in utility import",
+      "saved target/bounce values restored after reload",
+      "negative bounce Z editing persisted",
+      "model checkpoints initially report zero error",
+      "editing bounce X/Z reports mismatch without steering flight",
+      "smoke causes lost sight in both players",
+      "flash blindness 0.55s and 2.02s at tick 128",
+      "observer trajectory/effect cells visually reviewed",
+      "downloaded final-build replay has 18 events and 769 frames; independent path/checkpoint differences zero"
+    ],
+    "limits": [
+      "narrow viewport not checked",
+      "native file-picker import not checked",
+      "no packaged Windows acceptance"
+    ]
+  },
+  "remaining": [
+    "L10/L11 calibration and acceptance",
+    "Mirage walls, openings, CT/A/B coverage and vertical transitions",
+    "reviewed utility cases for every launch map",
+    "dynamic entities/materials held until reviewed data exists",
+    "full cross-runtime bitwise equality (all five utility full hashes differ)",
+    "L13 team tactics and L14 live-match integration",
+    "Windows packaged acceptance, real Steam App ID and content clearance"
+  ]
+}

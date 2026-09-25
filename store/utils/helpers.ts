@@ -20,7 +20,7 @@ export type RngBackedState = {
 // ===== RNG HELPERS =====
 
 export const nextRandom = (state: RngBackedState): number => {
-  const rng = new SeededRNG(state.lastRngSeed || generateSeed())
+  const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
   const value = rng.next()
   state.lastRngSeed = rng.getState()
   return value
@@ -93,7 +93,7 @@ export const ensureDeterministicSeed = (
   state: RngBackedState,
   matchLike: { seed?: number }
 ): number => {
-  if (Number.isFinite(matchLike.seed) && (matchLike.seed as number) > 0) {
+  if (Number.isFinite(matchLike.seed) && (matchLike.seed as number) >= 0) {
     return matchLike.seed as number
   }
   const seed = nextRandomInt(state, 1, 2147483646)

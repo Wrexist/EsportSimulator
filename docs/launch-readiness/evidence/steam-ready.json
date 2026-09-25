@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-09-12T23:58:33.876Z",
+  "summary": {
+    "BLOCKER": 0,
+    "HIGH": 1,
+    "MEDIUM": 1,
+    "LOW": 0,
+    "INFO": 3
+  },
+  "findings": [
+    {
+      "check": "A5",
+      "severity": "HIGH",
+      "code": "TRADEMARK_IN_SOURCE",
+      "file": "lib/map-utility-templates.ts",
+      "detail": "Source file references trademark token 'cs2'. Strip from shipped code or replace with sanitized-brand alias."
+    },
+    {
+      "check": "A15",
+      "severity": "MEDIUM",
+      "code": "VALVE_MAP_NAME",
+      "file": "data/map-studio-library.json",
+      "detail": "Valve-specific map identifier 'dust2' is embedded in shipped data/code. Steam reviewers will recognise these — consider replacing with original map names (the safe-branding pipeline can map them at the data boundary)."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_SOURCE_ALLOWLIST",
+      "detail": "Skipped 11 file(s) covered by sourceAllowlist / sourceAllowlistGlobs in steam-compliance-policy.json."
+    },
+    {
+      "check": "A7",
+      "severity": "INFO",
+      "code": "NETWORK_CALL_SUMMARY",
+      "detail": "Scanned 446 client TS files; 0 external http(s) call site(s), 4 local fetch() call site(s)."
+    },
+    {
+      "check": "A9",
+      "severity": "INFO",
+      "code": "HYGIENE_SUMMARY",
+      "detail": "0 raw console.* file(s), 0 debugger statement(s)."
+    }
+  ]
+}

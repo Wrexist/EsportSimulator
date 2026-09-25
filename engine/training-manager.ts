@@ -33,6 +33,10 @@ export class TrainingManager {
     const player = idx.playerIndex.get(playerId) ?? game.players.find(p => p.id === playerId)
     if (!player) return { success: false, message: "Player not found" }
 
+    if (!team.rosterIds.includes(playerId) || player.isRetired) return { success: false, message: "Only active players in this squad can train" }
+    if (!Object.prototype.hasOwnProperty.call(ROLE_TO_PLAYER_ROLE, targetRole)) return { success: false, message: "Unknown training role" }
+    if (ROLE_TO_PLAYER_ROLE[targetRole] === player.role) return { success: false, message: "Player already plays this role" }
+
     // 1. Check if already training
     if (!team.activeRoleTraining) team.activeRoleTraining = []
     if (team.activeRoleTraining.find(t => t.playerId === playerId)) {

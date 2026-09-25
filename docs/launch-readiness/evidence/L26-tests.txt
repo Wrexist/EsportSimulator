@@ -1,0 +1,800 @@
+
+> esports-manager-sim@1.0.0 test
+> npx jest --passWithNoTests --runInBand --json --outputFile=docs/launch-readiness/evidence/L26-tests.json
+
+node.exe : PASS __tests__/radar-position-engine.test.ts (20.572 s)
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/...t.ts (20.572 s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS __tests__/week-tick-smoke.test.ts (5.273 s)
+PASS __tests__/save-size-budget.test.ts
+  ● Console
+
+    console.log
+      [budget] full-season save = 1211 KB
+
+      at Object.<anonymous> (__tests__/save-size-budget.test.ts:103:17)
+
+PASS __tests__/rng-long-replay.test.ts
+PASS __tests__/steam-cloud-roundtrip.test.ts
+PASS __tests__/week-tick-perf-profile.test.ts
+  ● Console
+
+    console.log
+      [perf] early avg=6.5ms late avg=50.8ms ratio=7.75×
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:146:17)
+
+    console.log
+      [perf] sizes wk1: completed=0 ledger=7 events=0
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:150:17)
+
+    console.log
+      [perf] sizes wk26: completed=103 ledger=377 events=121
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:152:17)
+
+    console.log
+      [perf] sizes wk52: completed=195 ledger=760 events=251
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:154:17)
+
+PASS __tests__/launch-content-scan.test.ts
+PASS __tests__/spatial-teams.test.ts
+PASS __tests__/engine.test.ts
+PASS __tests__/week-coordinator-replay.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+    > 112 |                     set({ autoSave: typeof enabled === 'boolean' ? enabled : get().autoSave, autoSavePrefer
+enceSet: true })
+          |                     ^
+      113 |                 }
+      114 |             },
+      115 |             setAutoSaveInterval: (interval) => set({ autoSaveInterval: Number.isFinite(interval) ? Math.max
+(1, Math.min(30, interval)) : 10 }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.adoptLegacyAutoSave (lib/settings-store.ts:112:21)
+      at store/game-store.ts:2516:58
+      at node_modules/zustand/middleware.js:420:50
+
+    console.warn
+      [WARN] 2026-09-14T11:40:49.473Z [WeekProcessor] Worker unavailable, using synchronous fallback: Error: No browser
+ worker in Node fixture
+          at WeekProcessorBridge.weekProcessorBridge [as createWorker] (C:\Users\IsacC\EsportSimulator\__tests__\week-c
+oordinator-replay.test.ts:10:73)
+          at WeekProcessorBridge.ensureWorker (C:\Users\IsacC\EsportSimulator\engine\worker\week-processor-client.ts:30
+:27)
+          at WeekProcessorBridge.processWeek (C:\Users\IsacC\EsportSimulator\engine\worker\week-processor-client.ts:75:
+39)
+          at Object.advanceWeek (C:\Users\IsacC\EsportSimulator\store\game-store.ts:2078:39)
+          at run (C:\Users\IsacC\EsportSimulator\__tests__\week-coordinator-replay.test.ts:22:9)
+          at C:\Users\IsacC\EsportSimulator\__tests__\week-coordinator-replay.test.ts:30:23
+
+      63 |      */
+      64 |     warn(message: string, ...args: unknown[]) {
+    > 65 |         console.warn(this.formatMessage('warn', message), ...args)
+         |                 ^
+      66 |         this.addToHistory('warn', message, args)
+      67 |     }
+      68 |
+
+      at Logger.warn (lib/logger.ts:65:17)
+      at WeekProcessorBridge.ensureWorker (engine/worker/week-processor-client.ts:60:14)
+      at WeekProcessorBridge.processWeek (engine/worker/week-processor-client.ts:75:39)
+      at Object.advanceWeek (store/game-store.ts:2078:39)
+      at run (__tests__/week-coordinator-replay.test.ts:22:9)
+      at __tests__/week-coordinator-replay.test.ts:30:23
+
+PASS __tests__/spatial-engine.test.ts
+PASS __tests__/spatial-utility.test.ts
+PASS __tests__/mirage-v12-review.test.ts
+PASS __tests__/l21-match-management.test.ts
+PASS __tests__/radar-nav.test.ts
+PASS __tests__/portrait-edge-cleanup.test.ts
+PASS __tests__/match-engine.test.ts
+PASS __tests__/spatial-encounter.test.ts
+PASS __tests__/team-identity-delivery.test.ts
+  ● Console
+
+    console.warn
+      Image with src "/mods/club.webp?version=2" is using a query string which is not configured in images.localPattern
+s. This config will be required starting in Next.js 16.
+      Read more: https://nextjs.org/docs/messages/next-image-unconfigured-localpatterns
+
+      34 |             const team = { ...club, logoPath: source }
+      35 |             expect(teamLogoSources(team)).toEqual([source])
+    > 36 |             expect(renderToStaticMarkup(React.createElement(TeamLogoDisplay, { team }))).toContain(source.re
+place('&', '&amp;'))
+         |                                        ^
+      37 |         }
+      38 |         expect(teamLogoSources({ ...club, customTeamData: { logoData: 'data:image/png;base64,TEST' }, logoPa
+th: '/mods/fallback.svg' })).toEqual(['data:image/png;base64,TEST', '/mods/fallback.svg'])
+      39 |     })
+
+      at warn (node_modules/next/src/shared/lib/utils/warn-once.ts:6:15)
+      at getImgProps (node_modules/next/src/shared/lib/get-img-props.ts:556:15)
+      at node_modules/next/src/client/image-component.tsx:389:64
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:9808:1
+8)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:5062:19)
+      at renderElement (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6017:39)
+      at retryNode (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6428:21)
+      at renderNodeDestructive (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6367:11)
+      at finishFunctionComponent (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:5106:13)
+      at renderElement (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:5552:11)
+      at retryNode (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:6428:21)
+      at performWork (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:7435:17)
+      at startWork (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:8270:7)
+      at renderToStringImpl (node_modules/react-dom/cjs/react-dom-server-legacy.node.development.js:8380:7)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.renderToStaticMarkup (node_modules/react-dom/cjs/react-dom-ser
+ver-legacy.node.development.js:9861:14)
+      at Object.<anonymous> (__tests__/team-identity-delivery.test.ts:36:40)
+
+PASS __tests__/week-store-commit.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+    > 112 |                     set({ autoSave: typeof enabled === 'boolean' ? enabled : get().autoSave, autoSavePrefer
+enceSet: true })
+          |                     ^
+      113 |                 }
+      114 |             },
+      115 |             setAutoSaveInterval: (interval) => set({ autoSaveInterval: Number.isFinite(interval) ? Math.max
+(1, Math.min(30, interval)) : 10 }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.adoptLegacyAutoSave (lib/settings-store.ts:112:21)
+      at store/game-store.ts:2516:58
+      at node_modules/zustand/middleware.js:420:50
+
+    console.error
+      [ERROR] 2026-09-14T11:40:53.619Z [saveGame] SaveManager failed Disk full
+
+      72 |     error(message: string, error?: Error | unknown, ...args: unknown[]) {
+      73 |         if (process.env.NODE_ENV !== 'production') {
+    > 74 |             console.error(this.formatMessage('error', message), error, ...args)
+         |                     ^
+      75 |         }
+      76 |         this.addToHistory('error', message, { error, args })
+      77 |
+
+      at Logger.error (lib/logger.ts:74:21)
+      at run (store/game-store.ts:1843:20)
+
+    console.error
+      [ERROR] 2026-09-14T11:40:53.619Z [saveGame] Error Disk full
+
+      72 |     error(message: string, error?: Error | unknown, ...args: unknown[]) {
+      73 |         if (process.env.NODE_ENV !== 'production') {
+    > 74 |             console.error(this.formatMessage('error', message), error, ...args)
+         |                     ^
+      75 |         }
+      76 |         this.addToHistory('error', message, { error, args })
+      77 |
+
+      at Logger.error (lib/logger.ts:74:21)
+      at run (store/game-store.ts:1851:18)
+
+    console.error
+      [ERROR] 2026-09-14T11:40:53.620Z [advanceWeek] post-tick authoritative save failed (week committed in memory) Err
+or: Disk full
+          at run (C:\Users\IsacC\EsportSimulator\store\game-store.ts:1860:17)
+
+      72 |     error(message: string, error?: Error | unknown, ...args: unknown[]) {
+      73 |         if (process.env.NODE_ENV !== 'production') {
+    > 74 |             console.error(this.formatMessage('error', message), error, ...args)
+         |                     ^
+      75 |         }
+      76 |         this.addToHistory('error', message, { error, args })
+      77 |
+
+      at Logger.error (lib/logger.ts:74:21)
+      at Object.advanceWeek (store/game-store.ts:2276:22)
+      at Object.<anonymous> (__tests__/week-store-commit.test.ts:97:5)
+
+PASS __tests__/annotation-registration.test.ts
+PASS __tests__/electron-ipc-boundaries.test.ts
+PASS __tests__/scouting-fuzzy-band.test.ts
+PASS __tests__/launch-fixtures.test.ts
+PASS __tests__/l15-financial-integrity.test.ts
+PASS __tests__/l17-development.test.ts
+PASS __tests__/l16-recruitment.test.ts
+PASS __tests__/save-compactor.test.ts
+PASS __tests__/l19-calendar-tournaments.test.ts
+PASS __tests__/match-tactical-timeout.test.ts
+PASS __tests__/map-studio-library.test.ts
+PASS __tests__/staff-management-slice.test.ts
+PASS __tests__/transfer-contract-slice.test.ts
+PASS __tests__/week-tick-resume.test.ts
+PASS __tests__/round-outcome.test.ts
+PASS __tests__/l18-organization.test.ts
+PASS __tests__/match-result-commit.test.ts
+PASS __tests__/electron-local-server.test.ts
+PASS __tests__/l20-career-boundaries.test.ts
+PASS __tests__/match-operations-slice.test.ts
+PASS __tests__/team-facilities-slice.test.ts
+PASS __tests__/store-helpers.test.ts
+PASS __tests__/shared-interface-rendering.test.ts
+PASS __tests__/accessibility-readiness.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      67 |             colorVisionPreferenceSet: false,
+      68 |             setColorVisionMode: mode => set({ colorVisionMode: normalizeColorVision(mode), colorVisionPrefer
+enceSet: true }),
+    > 69 |             adoptLegacyColorVision: mode => { if (!get().colorVisionPreferenceSet) set({ colorVisionMode: no
+rmalizeColorVision(mode), colorVisionPreferenceSet: true }) },
+         |                                                                                    ^
+      70 |             reducedMotion: false,
+      71 |             uiScale: 100,
+      72 |             masterVolume: 80,
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.adoptLegacyColorVision (lib/settings-store.ts:69:84)
+      at Object.<anonymous> (__tests__/accessibility-readiness.test.ts:66:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      66 |             colorVisionMode: 'off',
+      67 |             colorVisionPreferenceSet: false,
+    > 68 |             setColorVisionMode: mode => set({ colorVisionMode: normalizeColorVision(mode), colorVisionPrefer
+enceSet: true }),
+         |                                         ^
+      69 |             adoptLegacyColorVision: mode => { if (!get().colorVisionPreferenceSet) set({ colorVisionMode: no
+rmalizeColorVision(mode), colorVisionPreferenceSet: true }) },
+      70 |             reducedMotion: false,
+      71 |             uiScale: 100,
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setColorVisionMode (lib/settings-store.ts:68:41)
+      at Object.<anonymous> (__tests__/accessibility-readiness.test.ts:68:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      117 |             setNotifications: (enabled) => set({ notifications: enabled }),
+      118 |             setDifficulty: (diff) => set({ difficulty: diff }),
+    > 119 |             setLanguage: (_lang) => set({ language: SUPPORTED_UI_LANGUAGE }),
+          |                                     ^
+      120 |
+      121 |             // Apply window settings via Electron IPC or Browser API
+      122 |             applyWindowSettings: () => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setLanguage (lib/settings-store.ts:119:37)
+      at Object.<anonymous> (__tests__/accessibility-readiness.test.ts:73:37)
+
+PASS __tests__/radar-controls-rendering.test.ts
+PASS __tests__/events-slice.test.ts
+PASS __tests__/academy-slice.test.ts
+PASS __tests__/player-profile-loading.test.ts
+PASS __tests__/team-drills-slice.test.ts
+PASS __tests__/match-scheduling-slice.test.ts
+PASS __tests__/worker-compute-only.test.ts
+PASS __tests__/team-settings-slice.test.ts
+PASS __tests__/store-mutation-propagation.test.ts
+PASS __tests__/roster-change-penalty.test.ts
+PASS __tests__/spatial-round-replay.test.ts
+PASS __tests__/training-slot-carryover.test.ts
+PASS __tests__/post-tick-achievements.test.ts
+PASS __tests__/live-match-init.test.ts
+PASS __tests__/academy-promote-cleanup.test.ts
+PASS __tests__/l26-content-feedback.test.ts
+PASS __tests__/scouting-slice.test.ts
+PASS __tests__/tournament-slice.test.ts
+PASS __tests__/save-manager.test.ts
+PASS __tests__/academy-ownership-boundary.test.ts
+PASS __tests__/player-development-slice.test.ts
+PASS __tests__/player-portrait-source.test.ts
+PASS __tests__/audio-lifecycle.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:37:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:38:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:39:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:37:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:38:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:39:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:37:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:38:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:39:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:37:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:38:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/audio-lifecycle.test.ts:39:37)
+
+PASS __tests__/audit-wave3-fixes.test.ts
+PASS __tests__/sponsorship-slice.test.ts
+PASS __tests__/map-annotations.test.ts
+PASS __tests__/l22-first-session.test.ts
+PASS __tests__/tournament-forfeit-progression.test.ts
+PASS __tests__/finance-processor.test.ts
+PASS __tests__/week-processor-client.test.ts
+PASS __tests__/commentary-manager.test.ts
+PASS __tests__/pre-tick-mutations.test.ts
+PASS __tests__/critical-path.test.ts
+PASS __tests__/league-tiers.test.ts
+PASS __tests__/team-strength-and-buy.test.ts
+PASS __tests__/live-match-utils.test.ts
+PASS __tests__/ai-world-processor.test.ts
+PASS __tests__/scouting-tier-unlock.test.ts
+PASS __tests__/ai-fa-signing-news.test.ts
+PASS __tests__/world-ranking-peak.test.ts
+PASS __tests__/settings-slice.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+    > 109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+          |                                       ^
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+      112 |                     set({ autoSave: typeof enabled === 'boolean' ? enabled : get().autoSave, autoSavePrefer
+enceSet: true })
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setAutoSave (lib/settings-store.ts:109:39)
+      at Object.setAutoSave (store/slices/settings-slice.ts:94:33)
+      at Object.<anonymous> (__tests__/settings-slice.test.ts:129:15)
+
+PASS __tests__/ai-manager.test.ts
+PASS __tests__/ai-transfer-logic.test.ts
+PASS __tests__/tournament-integrity.test.ts
+PASS __tests__/week-replay-format.test.ts
+PASS __tests__/standings-processor.test.ts
+PASS __tests__/save-snapshot-roundtrip.test.ts
+PASS __tests__/sponsor-brand-effect.test.ts
+PASS __tests__/academy-engine.test.ts
+PASS __tests__/match-weapon-mastery.test.ts
+PASS __tests__/live-checkpoint.test.ts
+PASS __tests__/map-veto.test.ts
+PASS __tests__/ai-market-valuation.test.ts
+PASS __tests__/valve-map-name-purge.test.ts
+PASS __tests__/economy-engine.test.ts
+PASS __tests__/airborne-movement.test.ts
+PASS __tests__/team-logo-redesigns.test.ts
+PASS __tests__/match-forfeit.test.ts
+PASS __tests__/launch-evidence.test.ts
+PASS __tests__/ui-slice.test.ts
+PASS __tests__/storage-quota.test.ts
+PASS __tests__/double-elim.test.ts
+PASS __tests__/roster-emergency-signing.test.ts
+PASS __tests__/manager-career-profile.test.ts
+PASS __tests__/financial-projection.test.ts
+PASS __tests__/team-emblem-rendering.test.ts
+PASS __tests__/storage-trust.test.ts
+PASS __tests__/identity-refresh.test.ts
+PASS __tests__/board-expectations.test.ts
+PASS __tests__/tournament-modules.test.ts
+PASS __tests__/sound-preferences.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:42:33)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:43:33)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:44:33)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:51:33)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      105 |             },
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+    > 107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+          |                                      ^
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMusicVolume (lib/settings-store.ts:107:38)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:52:33)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/sound-preferences.test.ts:53:33)
+
+PASS __tests__/match-manager-xp.test.ts
+PASS __tests__/weekly-activity-processor.test.ts
+PASS __tests__/swiss-pairing.test.ts
+PASS __tests__/autosave-preference.test.ts
+PASS __tests__/manager-progression.test.ts
+PASS __tests__/team-synergy-recalc.test.ts
+PASS __tests__/staff-specialization.test.ts
+PASS __tests__/circuit-engine.test.ts
+PASS __tests__/training-processor.test.ts
+PASS __tests__/security-hardening.test.ts
+  ● Console
+
+    console.error
+      [ERROR] 2026-09-14T11:41:03.952Z [json-safe] untrusted parse failed Unexpected token 'o', "not json" is not valid
+ JSON
+
+      72 |     error(message: string, error?: Error | unknown, ...args: unknown[]) {
+      73 |         if (process.env.NODE_ENV !== 'production') {
+    > 74 |             console.error(this.formatMessage('error', message), error, ...args)
+         |                     ^
+      75 |         }
+      76 |         this.addToHistory('error', message, { error, args })
+      77 |
+
+      at Logger.error (lib/logger.ts:74:21)
+      at safeParseUntrusted (lib/json-safe.ts:55:16)
+      at Object.<anonymous> (__tests__/security-hardening.test.ts:41:34)
+
+PASS __tests__/match-stats.test.ts
+PASS __tests__/integrity-checker.test.ts
+PASS __tests__/fanbase-growth.test.ts
+PASS __tests__/auto-tactics.test.ts
+PASS __tests__/social-generator.test.ts
+PASS __tests__/save-integrity-v2.test.ts
+PASS __tests__/player-gc.test.ts
+PASS __tests__/match-tactical-bonus.test.ts
+PASS __tests__/live-staff-adapter.test.ts
+PASS __tests__/legend-events-manager.test.ts
+PASS __tests__/circuit-points-awarder.test.ts
+PASS __tests__/tournament-completion.test.ts
+PASS __tests__/session-persistence.test.ts
+PASS __tests__/scheduled-activities-processor.test.ts
+PASS __tests__/pre-tick-scout-accuracy.test.ts
+PASS __tests__/match-ui-slice.test.ts
+PASS __tests__/league-schedule.test.ts
+PASS __tests__/events-manager-media.test.ts
+PASS __tests__/chemistry.test.ts
+PASS __tests__/apply-talents.test.ts
+PASS __tests__/tournament-state-cleanup.test.ts
+PASS __tests__/sponsor-goal-payout.test.ts
+PASS __tests__/sponsor-goals-processor.test.ts
+PASS __tests__/settings-lifecycle.test.ts
+  ● Console
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+       99 |             setUiScale: (scale) => {
+      100 |                 const bounded = Number.isFinite(scale) ? Math.max(80, Math.min(120, scale)) : 100
+    > 101 |                 set({ uiScale: bounded })
+          |                 ^
+      102 |                 if (typeof document !== 'undefined') {
+      103 |                     document.documentElement.style.fontSize = `${bounded}%`
+      104 |                 }
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setUiScale (lib/settings-store.ts:101:17)
+      at Object.<anonymous> (__tests__/settings-lifecycle.test.ts:9:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+       99 |             setUiScale: (scale) => {
+      100 |                 const bounded = Number.isFinite(scale) ? Math.max(80, Math.min(120, scale)) : 100
+    > 101 |                 set({ uiScale: bounded })
+          |                 ^
+      102 |                 if (typeof document !== 'undefined') {
+      103 |                     document.documentElement.style.fontSize = `${bounded}%`
+      104 |                 }
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setUiScale (lib/settings-store.ts:101:17)
+      at Object.<anonymous> (__tests__/settings-lifecycle.test.ts:12:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      104 |                 }
+      105 |             },
+    > 106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+          |                                       ^
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+      108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setMasterVolume (lib/settings-store.ts:106:39)
+      at Object.<anonymous> (__tests__/settings-lifecycle.test.ts:14:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      106 |             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
+      107 |             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
+    > 108 |             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+          |                                    ^
+      109 |             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
+      110 |             adoptLegacyAutoSave: (enabled) => {
+      111 |                 if (!get().autoSavePreferenceSet) {
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setSfxVolume (lib/settings-store.ts:108:36)
+      at Object.<anonymous> (__tests__/settings-lifecycle.test.ts:15:37)
+
+    console.warn
+      [zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.
+
+      82 |
+      83 |             // Setters
+    > 84 |             setWindowMode: (mode) => set({ windowMode: mode }),
+         |                                      ^
+      85 |             setResolution: (res) => set({ resolution: res }),
+      86 |             setRenderingMode: (mode) => {
+      87 |                 set({ renderingMode: mode })
+
+      at node_modules/zustand/middleware.js:347:17
+      at Object.setWindowMode (lib/settings-store.ts:84:38)
+      at Object.<anonymous> (__tests__/settings-lifecycle.test.ts:26:37)
+
+PASS __tests__/route-view-cache.test.ts
+PASS __tests__/match-sponsor-goals.test.ts
+PASS __tests__/match-analyzer.test.ts
+PASS __tests__/hall-of-fame-manager.test.ts
+PASS __tests__/player-natural-growth.test.ts
+PASS __tests__/route-scroll.test.ts
+PASS __tests__/milestone-checker.test.ts
+PASS __tests__/role-training-refund.test.ts
+PASS __tests__/radar-level-selector.test.ts
+PASS __tests__/preseason-friendlies.test.ts
+PASS __tests__/match-achievement-flags.test.ts
+PASS __tests__/scouting-mission-processor.test.ts
+PASS __tests__/electron-app-origin.test.ts
+PASS __tests__/close-handshake.test.ts
+PASS __tests__/content-provenance.test.ts
+PASS __tests__/rivalry-effects.test.ts
+PASS __tests__/worker-storage-realm.test.ts
+
+Test Suites: 166 passed, 166 total
+Tests:       1608 passed, 1608 total
+Snapshots:   0 total
+Time:        56.807 s
+Ran all test suites.
+Test results written to: docs\launch-readiness\evidence\L26-tests.json

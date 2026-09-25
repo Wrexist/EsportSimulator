@@ -1,0 +1,217 @@
+Browser tab: 1182233822, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $541,200 #154 World SAT, 26 SEP 2026 WEEK  3 • DAY 1
+			39 button Switch to Onyx theme
+			40 button DAILY
+			41 button NEXT DAY
+			42 button SKIP WEEK
+		43 container main-content
+			44 text ORGANIZATION DASHBOARD
+			45 heading MANAGER DASHBOARD, Value: 1
+				46 text MANAGER  DASHBOARD
+			47 container
+				48 container Pulsar logo
+				49 heading PULSAR, Value: 3
+					50 text PULSAR
+				51 text WEEK  3  • DAY 1 $541K
+				52 container Average roster skill
+					53 text OVR  44
+			54 container
+				55 heading NO UPCOMING MATCHES, Value: 3
+					56 text NO UPCOMING MATCHES
+				57 link Description: CHECK TOURNAMENT SCHEDULE, Value: 127.0.0.1:3210/schedule
+			58 container
+				59 text SEASON PROGRESS 6 % WEEK  3  / 52
+			60 container
+				61 text RECENT FORM W L W
+			62 container
+				63 text FINANCIAL HUB STABLE AVAILABLE FUNDS $0.54M WEEKLY INCOME +$ 22.9 k WEEKLY NET + $ 20.6 k SALARIES -$ 1.3 k FACILITIES & EQUIPMENT -$ 1.0 k
+				64 link Description: VIEW LEDGER, Value: 127.0.0.1:3210/finances
+			65 container
+				66 text GETTING STARTED 1 / 4
+				67 button Dismiss getting started
+				68 link Description: Set this week's focus, Value: 127.0.0.1:3210/
+				69 link Description: Review your roster, Value: 127.0.0.1:3210/squad
+				70 link Description: Scout the transfer market, Value: 127.0.0.1:3210/transfers
+				71 link Description: Play your first match, Value: 127.0.0.1:3210/schedule
+			72 container
+				73 text THIS WEEK 2  to do
+				74 link Description: 10 training sessions unused Run drills to develop your roster, Value: 127.0.0.1:3210/training
+				75 text Set this week's focus Choose a weekly activity below
+			76 text WEEKLY FOCUS
+			77 container
+				78 button Stream Marathon +$2,500/p Players stream ranked games. Earns cash but fatigues players. -5 Morale +15 Fatigue
+					79 text Stream Marathon
+					80 text +$
+					81 text 2,500
+					82 text /p
+					83 text Players stream ranked games. Earns cash but fatigues players.
+					84 text -5
+					85 text  Morale
+					86 text +
+					87 text 15
+					88 text  Fatigue
+				89 button Team Bonding -$1,500 Dinner and fun activities to boost morale and synergy. +15 Morale -5 Fatigue
+					90 text Team Bonding
+					91 text -$
+					92 text 1,500
+					93 text Dinner and fun activities to boost morale and synergy.
+					94 text +
+					95 text 15
+					96 text  Morale
+					97 text -5
+					98 text  Fatigue
+				99 button Media Campaign -$5,000 Interviews and content creation to grow the brand. +5 Fatigue
+					100 text Media Campaign
+					101 text -$
+					102 text 5,000
+					103 text Interviews and content creation to grow the brand.
+					104 text +
+					105 text 5
+					106 text  Fatigue
+				107 button Intensive Bootcamp -$10,000 Hardcore training regime. Massive XP, massive fatigue. -10 Morale +25 Fatigue 2x XP
+					108 text Intensive Bootcamp
+					109 text -$
+					110 text 10,000
+					111 text Hardcore training regime. Massive XP, massive fatigue.
+					112 text -10
+					113 text  Morale
+					114 text +
+					115 text 25
+					116 text  Fatigue
+					117 text 2
+					118 text x XP
+			119 container
+				120 text SEASON OBJECTIVES 1 / 4 BOARD EXPECTS Build the project The board expects you to keep the club competitive and developing. War chest limited: the board sanctions single transfer fees up to  80 % of budget. CONFIDENCE
+				121 button Show stat explanation
+				122 text 60 Win a trophy this season None yet Break into the top 16 World #154 Reach 10k fans 80 fans Keep the club financially healthy Stable
+			123 heading INTELLIGENCE FEED, Value: 3
+				124 text INTELLIGENCE FEED
+			125 text LIVE
+			126 container
+				127 container
+					128 container Pulsar logo
+					129 text MATCH SEP 26
+					130 heading Clinical Win for Pulsar, Value: 4
+						131 text Clinical Win for Pulsar
+					132 text PULSAR Pulsar defeats Synapse 1-0 in tournament play. A well-deserved victory. ❤️  546 👁️  19,966
+				133 container
+					134 container Comet logo
+					135 text TRANSFER SEP 26
+					136 heading ZENDRIS7 transferred to Comet, Value: 4
+						137 text ZENDRIS7 transferred to Comet
+					138 text COMET Comet have acquired ZENDRIS7 from Viper for $19,500. ❤️  644 👁️  4,278
+				139 container
+					140 container Griffin Dynasty logo
+					141 text TRANSFER SEP 26
+					142 heading ph1wyn9 transferred to Griffin Dynasty, Value: 4
+						143 text ph1wyn9 transferred to Griffin Dynasty
+					144 text GRIFFIN DYNASTY Griffin Dynasty have acquired ph1wyn9 from Team Vanta for $117,000. ❤️  2,897 👁️  5,386
+				145 container
+					146 container Meridian Initiative logo
+					147 text TRANSFER SEP 26
+					148 heading V3xvil transferred to Meridian Initiative, Value: 4
+						149 text V3xvil transferred to Meridian Initiative
+					150 text MERIDIAN INITIATIVE Meridian Initiative have acquired V3xvil from Ivory Monolith for $156,000. ❤️  1,519 👁️  12,214
+				151 container
+					152 container Pulsar logo
+					153 text FINANCE SEP 26
+					154 heading Positive Earnings Reported for Pulsar, Value: 4
+						155 text Positive Earnings Reported for Pulsar
+					156 text PULSAR Pulsar finished the week with a net gain of $20,600. Management expresses confidence in the current growth trajectory. ❤️  92 👁️  1,439
+				157 container
+					158 container Pulsar logo
+					159 text MATCH SEP 19
+					160 heading Pulsar defeat Synapse 1-0, Value: 4
+						161 text Pulsar defeat Synapse 1-0
+					162 text PULSAR Pulsar secured a 1-0 victory against Synapse.
+				163 container
+					164 container Sable logo
+					165 text MATCH SEP 19
+					166 heading Clinical Win for Sable, Value: 4
+						167 text Clinical Win for Sable
+					168 text SABLE Sable defeats Pulsar 0-1 in tournament play. A well-deserved victory. ❤️  782 👁️  11,788
+				169 container
+					170 container Pulsar logo
+					171 text MATCH SEP 19
+					172 heading Clinical Win for Pulsar, Value: 4
+						173 text Clinical Win for Pulsar
+					174 text PULSAR Pulsar defeats Iron Warden 1-0 in tournament play. A well-deserved victory. ❤️  504 👁️  18,431
+				175 container
+					176 container Titan Cobra logo
+					177 text TRANSFER SEP 19
+					178 heading omnsyl transferred to Titan Cobra, Value: 4
+						179 text omnsyl transferred to Titan Cobra
+					180 text TITAN COBRA Titan Cobra have acquired omnsyl from Nimbus for $135,200. ❤️  1,705 👁️  9,340
+				181 container
+					182 container Raven Esports logo
+					183 text TRANSFER SEP 19
+					184 heading Prow14 transferred to Raven Esports, Value: 4
+						185 text Prow14 transferred to Raven Esports
+					186 text RAVEN ESPORTS Raven Esports have acquired Prow14 from Raven for $85,800. ❤️  1,086 👁️  8,424
+				187 container
+					188 container Umbra Esports logo
+					189 text TRANSFER SEP 19
+					190 heading volt3 transferred to Umbra Esports, Value: 4
+						191 text volt3 transferred to Umbra Esports
+					192 text UMBRA ESPORTS Umbra Esports have acquired volt3 from Quasar for $195,000. ❤️  2,174 👁️  4,530
+				193 container
+					194 container Pulsar logo
+					195 text FINANCE SEP 19
+					196 heading Positive Earnings Reported for Pulsar, Value: 4
+						197 text Positive Earnings Reported for Pulsar
+					198 text PULSAR Pulsar finished the week with a net gain of $20,600. Management expresses confidence in the current growth trajectory. ❤️  140 👁️  1,134
+				199 container
+					200 container Sable logo
+					201 text MATCH SEP 12
+					202 heading Sable defeat Pulsar 1-0, Value: 4
+						203 text Sable defeat Pulsar 1-0
+					204 text SABLE Sable secured a 1-0 victory against Pulsar.
+				205 container
+					206 container Pulsar logo
+					207 text MATCH SEP 12
+					208 heading Pulsar defeat Iron Warden 1-0, Value: 4
+						209 text Pulsar defeat Iron Warden 1-0
+					210 text PULSAR Pulsar secured a 1-0 victory against Iron Warden.
+		211 button Report a Bug
+			212 text Report a Bug
+		213 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/

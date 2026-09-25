@@ -23,12 +23,12 @@ import type { GameSave, TournamentSaveData, CompletedMatchSaveData } from "../sa
 import { EventType } from "@/types"
 import type { SaveIndexes } from "@/store/indexes"
 import { SeededRNG } from "../rng"
+import { QualificationEngine } from "../tournament-qualification"
 import { TournamentManager } from "../tournament-manager"
 import { LEGENDARY_PLAYERS } from "../legendary-players-data"
-import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
+import { CIRCUIT_POINTS, getTournamentById } from "@/data/tournament-calendar"
 import {
-    isTerminalBracketStage,
-    hasTerminalTournamentCompletion,
+    terminalTournamentWinner,
 } from "./tournament-completion"
 
 // Field-size-aware prize tables, the way real events publish them: each table
@@ -58,22 +58,13 @@ const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
 function compareStandings(
     a: TournamentSaveData["standings"][number],
     b: TournamentSaveData["standings"][number],
-    tournamentMatches: CompletedMatchSaveData[],
+    headToHeadWins: Map<string, number>,
 ): number {
     if (b.points !== a.points) return b.points - a.points
     if (b.wins !== a.wins) return b.wins - a.wins
 
-    // Head-to-head wins (desc) — only when teams have actually played.
-    const h2hMatches = tournamentMatches.filter(
-        m =>
-            (m.homeTeamId === a.teamId && m.awayTeamId === b.teamId) ||
-            (m.homeTeamId === b.teamId && m.awayTeamId === a.teamId)
-    )
-    if (h2hMatches.length > 0) {
-        const aH2HWins = h2hMatches.filter(m => m.result.winnerId === a.teamId).length
-        const bH2HWins = h2hMatches.filter(m => m.result.winnerId === b.teamId).length
-        if (aH2HWins !== bH2HWins) return bH2HWins - aH2HWins
-    }
+    const h2h = (headToHeadWins.get(b.teamId) || 0) - (headToHeadWins.get(a.teamId) || 0)
+    if (h2h) return h2h
     if (b.mapDiff !== a.mapDiff) return b.mapDiff - a.mapDiff
     if (b.roundDiff !== a.roundDiff) return b.roundDiff - a.roundDiff
     // Deterministic fallback for fully tied teams.
@@ -131,7 +122,13 @@ function recomputeStandings(
         })
     }
 
-    tournament.standings.sort((a, b) => compareStandings(a, b, tournamentMatches))
+    // A mini-table across every tied team is transitive even for A > B > C > A.
+    const headToHeadWins = new Map<string, number>()
+    for (const standing of tournament.standings) {
+        const tied = new Set(tournament.standings.filter(other => other.points === standing.points && other.wins === standing.wins).map(other => other.teamId))
+        headToHeadWins.set(standing.teamId, tournamentMatches.filter(match => tied.has(match.homeTeamId) && tied.has(match.awayTeamId) && match.result.winnerId === standing.teamId).length)
+    }
+    tournament.standings.sort((a, b) => compareStandings(a, b, headToHeadWins))
 }
 
 export function updateStandings(
@@ -141,37 +138,20 @@ export function updateStandings(
     ledgerIdSet?: Set<string>,
 ): void {
     save.tournaments.forEach(tournament => {
-        const tournamentMatches = save.completedMatches.filter(
-            m => m.tournamentId === tournament.id
-        )
+        const seen = new Set<string>()
+        const tournamentMatches = save.completedMatches.filter(m => {
+            if (m.tournamentId !== tournament.id || seen.has(m.id)) return false
+            seen.add(m.id)
+            return true
+        })
 
         recomputeStandings(tournament, tournamentMatches)
 
-        // Completion now requires a terminal competitive state — not just
-        // end-week — so a stalled bracket doesn't auto-award.
-        if (!tournament.isCompleted && hasTerminalTournamentCompletion(save, tournament)) {
-            let resolvedWinnerId = tournament.winnerId
-            if (!resolvedWinnerId) {
-                const terminalMatch = tournament.playoffBracket
-                    ?.filter(m => isTerminalBracketStage(m.stage) && m.isCompleted && m.winnerId)
-                    .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-                resolvedWinnerId = terminalMatch?.winnerId || tournament.standings[0]?.teamId
-            }
-            // Only lock the tournament as complete once a concrete champion is
-            // resolvable. Flipping isCompleted=true with no winnerId would
-            // permanently lock a stalled bracket with no trophy/prizes/
-            // qualifications and no way to finish it via the repair pass.
-            if (resolvedWinnerId) {
-                tournament.isCompleted = true
-                tournament.winnerId = resolvedWinnerId
-            }
-        }
-
-        if (!tournament.isCompleted || tournament.rewardsGranted) return
-        if (tournamentMatches.length === 0) return
-
-        const winnerTeamId = tournament.winnerId || tournament.standings[0]?.teamId
+        if (tournament.rewardsGranted) return
+        const winnerTeamId = terminalTournamentWinner(save, tournament)
         if (!winnerTeamId) return
+        tournament.isCompleted = true
+        tournament.winnerId = winnerTeamId
 
         const winningTeam = idx?.teamIndex.get(winnerTeamId)
             ?? save.teams.find(t => t.id === winnerTeamId)
@@ -197,6 +177,12 @@ export function updateStandings(
         }
 
         const placements = TournamentManager.calculatePlacements(save, tournament)
+        const definition = getTournamentById(toBaseTournamentId(tournament.id))
+        if (definition) {
+            save.tournamentQualifications = QualificationEngine.processQualifierResults(
+                save.tournamentQualifications || [], { ...definition, id: tournament.id }, placements,
+            )
+        }
 
         // Prize distribution by placement (UI-matching percentages).
         if (tournament.prizePool > 0) {
@@ -258,6 +244,7 @@ export function updateStandings(
             if (points <= 0) continue
 
             let entry = save.circuitPoints.find(cp => cp.teamId === p.teamId)
+            if (entry?.results.some(r => r.tournamentId === tournament.id)) continue
             if (entry) {
                 entry.points += points
                 entry.results.push({
@@ -283,10 +270,10 @@ export function updateStandings(
         }
 
         // Reputation + follower gains for the champion.
-        winningTeam.reputation = Math.min(100, winningTeam.reputation + 10)
+        if (!seasonAwareTrophyExists) winningTeam.reputation = Math.min(100, winningTeam.reputation + 10)
         const mult = TIER_FAN_MULTIPLIER[tournament.tier] || 10
         const fanGain = (mult * 100) + (winningTeam.reputation * mult)
-        winningTeam.followers = (winningTeam.followers || 0) + fanGain
+        if (!seasonAwareTrophyExists) winningTeam.followers = (winningTeam.followers || 0) + fanGain
 
         // MEDIA event for the win (idempotent via eventIdSet).
         const trophyEventId = `trophy_${tournament.id}_${winnerTeamId}`
@@ -354,7 +341,7 @@ function queueLegendPick(
     if (availableLegends.length < 3) return
 
     // Deterministic Fisher-Yates: same seed → same shuffle on save reload.
-    const pickRng = new SeededRNG(save.currentWeek * 31337 + (save.lastRngSeed || 1))
+    const pickRng = new SeededRNG(save.currentWeek * 31337 + (save.lastRngSeed ?? 1))
     const shuffled = [...availableLegends]
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = pickRng.int(0, i)

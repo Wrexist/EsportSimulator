@@ -170,6 +170,7 @@ export default function MapBuilderPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                        <Link href="/map-editor" className="h-10 px-4 rounded-lg bg-emerald-400 text-slate-950 text-xs font-semibold flex items-center">Open Map Studio</Link>
                         <button
                             onClick={handleReset}
                             className="h-10 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-white/70 hover:text-white transition-colors"

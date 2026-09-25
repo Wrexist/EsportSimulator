@@ -364,7 +364,7 @@ it emits per-call lines and an aggregate summary on \`perfTrace.flush()\`.
 ## Targets vs. measured
 
 Targets from the perf task (management sim budget). "Daily tick" target is
-500 ms; this codebase uses **weekly** ticks only, so we compare the weekly
+500 ms. This harness measures weekly processing; HYBRID_DAILY pacing exists but is not benchmarked here. We compare the weekly
 tick against a derived budget of 500 ms × 7 = **3500 ms/week**.
 
 | Metric | Target | Measured | Status |

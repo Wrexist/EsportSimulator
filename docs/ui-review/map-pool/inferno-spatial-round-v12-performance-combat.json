@@ -1,0 +1,59 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Inferno",
+  "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+  "simulatorSourceSha256": "d3a5a9982fd2cc301b6e23fe050605511e87d0ecdeae677842ed24ab6ed7265f",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 45,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 46805,
+      "metrics": {
+        "shots": 33,
+        "damage": 500,
+        "reports": 25,
+        "waits": 756,
+        "replans": 71,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "8ceaa63d54110d9836c38fa5e1811fbf3cd3ca7dbd946eea74bd8332f2cce1dd"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 43.421875,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 45185,
+      "metrics": {
+        "shots": 30,
+        "damage": 587,
+        "reports": 22,
+        "waits": 941,
+        "replans": 69,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 8,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "feb87e887c8e6a8a6cacd42c2c03914b3e419ef4d03679adfd953cdfbf60ed0c"
+    }
+  ]
+}

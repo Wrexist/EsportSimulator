@@ -1,0 +1,1130 @@
+{
+  "scope": "Grounded native spawns and projected plant-piece unions. Provisional static reference checks; no geometry certification or career adoption.",
+  "rows": [
+    {
+      "mapId": "Mirage",
+      "project": "/map-studio/teams/map-pool/mirage.lab.json",
+      "ready": false,
+      "note": "Existing authored fixture; consult the separate full-round campaign."
+    },
+    {
+      "mapId": "Inferno",
+      "project": "/map-studio/teams/map-pool/inferno.lab.json",
+      "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+      "evidenceSha256": "ef8683db8cf35976a8c5c6994a21c488bcf5038b87e6eacf21ea141e09ac8bc4",
+      "projectSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "18",
+          "origin": [
+            -1586.52002,
+            440.790009,
+            -46
+          ],
+          "ground": [
+            -1586.52002,
+            440.790009,
+            -60.000065
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "19",
+          "origin": [
+            -1520.060059,
+            430.890991,
+            -46
+          ],
+          "ground": [
+            -1520.060059,
+            430.890991,
+            -60.000065
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "20",
+          "origin": [
+            -1657.22998,
+            419.576996,
+            -46
+          ],
+          "ground": [
+            -1657.22998,
+            419.576996,
+            -60.00006499999999
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "21",
+          "origin": [
+            -1675.619995,
+            351.695007,
+            -46
+          ],
+          "ground": [
+            -1675.619995,
+            351.695007,
+            -60.000065000000006
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "22",
+          "origin": [
+            -1662.180054,
+            288.761993,
+            -46
+          ],
+          "ground": [
+            -1662.180054,
+            288.761993,
+            -60.000065
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "195",
+          "origin": [
+            2397,
+            2079,
+            155
+          ],
+          "ground": [
+            2397,
+            2079,
+            140.82450406842284
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "38",
+          "origin": [
+            2493,
+            2090,
+            140.843002
+          ],
+          "ground": [
+            2493,
+            2090,
+            139.3110478055898
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "41",
+          "origin": [
+            2353,
+            1977,
+            140.843002
+          ],
+          "ground": [
+            2353,
+            1977,
+            139.9834114482981
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "42",
+          "origin": [
+            2292.060059,
+            2027.689941,
+            140.843002
+          ],
+          "ground": [
+            2292.060059,
+            2027.689941,
+            140.72438222743557
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "33",
+          "origin": [
+            2483.560059,
+            2299.900146,
+            140.843002
+          ],
+          "ground": [
+            2483.560059,
+            2299.900146,
+            135.07594037467308
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "entity": "39",
+          "reason": "No collision-tested route to a separate A hold point"
+        },
+        {
+          "entity": "40",
+          "reason": "No collision-tested route to a separate A hold point"
+        }
+      ],
+      "siteSamples": {
+        "A": 33,
+        "B": 32
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 24.28125
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 24.921875
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 10.8125
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 14.109375
+        }
+      ],
+      "ready": true
+    },
+    {
+      "mapId": "Overpass",
+      "project": "/map-studio/teams/map-pool/overpass.lab.json",
+      "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+      "evidenceSha256": "bc3e8d941f15de1b56f212dabd1d83fccc285d7efe2f7c330549afcf393b8eb7",
+      "projectSha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "2:61729",
+          "origin": [
+            -1331,
+            -3190,
+            272
+          ],
+          "ground": [
+            -1331,
+            -3190,
+            264.8945234295483
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "2:61730",
+          "origin": [
+            -1448,
+            -3076,
+            272.228729
+          ],
+          "ground": [
+            -1448,
+            -3076,
+            265.47038322551975
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "2:61731",
+          "origin": [
+            -1271,
+            -3262,
+            270
+          ],
+          "ground": [
+            -1271,
+            -3262,
+            266.435388239585
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "2:61734",
+          "origin": [
+            -1499,
+            -3126,
+            284
+          ],
+          "ground": [
+            -1499,
+            -3126,
+            277.0205609602273
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "2:61735",
+          "origin": [
+            -1510.397949,
+            -3053.881836,
+            282.146362
+          ],
+          "ground": [
+            -1510.397949,
+            -3053.881836,
+            283.88854986113563
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "2:61712",
+          "origin": [
+            -2199,
+            740,
+            496
+          ],
+          "ground": [
+            -2199,
+            740,
+            479.9999700000001
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "2:61718",
+          "origin": [
+            -2273,
+            770,
+            496
+          ],
+          "ground": [
+            -2273,
+            770,
+            479.99997
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "2:61721",
+          "origin": [
+            -2343,
+            797,
+            496
+          ],
+          "ground": [
+            -2343,
+            797,
+            480.1584419045451
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "2:61722",
+          "origin": [
+            -2190,
+            817,
+            496
+          ],
+          "ground": [
+            -2190,
+            817,
+            479.99997
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "2:61777",
+          "origin": [
+            -2275,
+            842,
+            496
+          ],
+          "ground": [
+            -2275,
+            842,
+            480.39076169594153
+          ]
+        }
+      ],
+      "excluded": [],
+      "siteSamples": {
+        "A": 47,
+        "B": 20
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 36.28125
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 19.34375
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 2.203125
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 24.625
+        }
+      ],
+      "ready": true
+    },
+    {
+      "mapId": "Vertigo",
+      "project": "/map-studio/teams/map-pool/vertigo.lab.json",
+      "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+      "evidenceSha256": "cb1a47b2dbe3f5d6ac4f980dfdf40c9f990869340c6bfd171ef4966a8b82a170",
+      "projectSha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "2:29701",
+          "origin": [
+            -1411.314453,
+            -1130.31311,
+            11505
+          ],
+          "ground": [
+            -1411.314453,
+            -1130.31311,
+            11492
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "2:29703",
+          "origin": [
+            -1502.571777,
+            -1360.827515,
+            11505
+          ],
+          "ground": [
+            -1502.571777,
+            -1360.827515,
+            11492
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "2:29705",
+          "origin": [
+            -1439.760864,
+            -1322.035889,
+            11505
+          ],
+          "ground": [
+            -1439.760864,
+            -1322.035889,
+            11492
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "2:29706",
+          "origin": [
+            -1439.571777,
+            -1251.708374,
+            11505
+          ],
+          "ground": [
+            -1439.571777,
+            -1251.708374,
+            11492
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "2:29707",
+          "origin": [
+            -1468.837158,
+            -1194.397461,
+            11505
+          ],
+          "ground": [
+            -1468.837158,
+            -1194.397461,
+            11492
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "2:29679",
+          "origin": [
+            -860.143616,
+            940.282043,
+            11789
+          ],
+          "ground": [
+            -860.143616,
+            940.282043,
+            11780
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "2:29680",
+          "origin": [
+            -929.631409,
+            918.638428,
+            11789
+          ],
+          "ground": [
+            -929.631409,
+            918.638428,
+            11780
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "2:29687",
+          "origin": [
+            -1189.339722,
+            862.16864,
+            11789
+          ],
+          "ground": [
+            -1189.339722,
+            862.16864,
+            11780
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "2:29688",
+          "origin": [
+            -1126.576172,
+            925.892456,
+            11789
+          ],
+          "ground": [
+            -1126.576172,
+            925.892456,
+            11780
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "2:29689",
+          "origin": [
+            -1044.026245,
+            924.305481,
+            11789
+          ],
+          "ground": [
+            -1044.026245,
+            924.305481,
+            11780
+          ]
+        }
+      ],
+      "excluded": [],
+      "siteSamples": {
+        "A": 16,
+        "B": 12
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 20.984375
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 18.046875
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 10.8125
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 8.5625
+        }
+      ],
+      "ready": true
+    },
+    {
+      "mapId": "Ancient",
+      "project": "/map-studio/teams/map-pool/ancient.lab.json",
+      "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+      "evidenceSha256": "27f9a708174f939203284423624ffd5b26d6301098376a48d6406dea28bd7f63",
+      "projectSha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "2:32987",
+          "origin": [
+            -328,
+            -2288,
+            -156
+          ],
+          "ground": [
+            -328,
+            -2288,
+            -160.550745645384
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "2:32988",
+          "origin": [
+            -456,
+            -2288,
+            -156
+          ],
+          "ground": [
+            -456,
+            -2288,
+            -159.6618481453867
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "2:32990",
+          "origin": [
+            -584,
+            -2288,
+            -156
+          ],
+          "ground": [
+            -584,
+            -2288,
+            -160.14880935407152
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "2:32991",
+          "origin": [
+            -392,
+            -2224,
+            -156
+          ],
+          "ground": [
+            -392,
+            -2224,
+            -160.8008799569757
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "2:32992",
+          "origin": [
+            -520,
+            -2224,
+            -156
+          ],
+          "ground": [
+            -520,
+            -2224,
+            -158.5458883992274
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "2:32995",
+          "origin": [
+            -192,
+            1696,
+            32
+          ],
+          "ground": [
+            -192,
+            1696,
+            28.95139136464204
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "2:32997",
+          "origin": [
+            -256,
+            1728,
+            32
+          ],
+          "ground": [
+            -256,
+            1728,
+            30.82570956632528
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "2:32999",
+          "origin": [
+            -352,
+            1728,
+            32
+          ],
+          "ground": [
+            -352,
+            1728,
+            31.49238016354709
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "2:33001",
+          "origin": [
+            -448,
+            1728,
+            32
+          ],
+          "ground": [
+            -448,
+            1728,
+            31.692779692992396
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "2:33002",
+          "origin": [
+            -512,
+            1696,
+            32
+          ],
+          "ground": [
+            -512,
+            1696,
+            28.418427313689236
+          ]
+        }
+      ],
+      "excluded": [],
+      "siteSamples": {
+        "A": 23,
+        "B": 26
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 23.34375
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 20.1875
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 9.15625
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 12.5
+        }
+      ],
+      "ready": true
+    },
+    {
+      "mapId": "Anubis",
+      "project": "/map-studio/teams/map-pool/anubis.lab.json",
+      "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+      "evidenceSha256": "24bb9dfb94e7a1c70435795c00d461a7bfa94f5dbd4558dcb37b4e9da1e521b7",
+      "projectSha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "2:22611",
+          "origin": [
+            -416,
+            -1696,
+            16
+          ],
+          "ground": [
+            -416,
+            -1696,
+            6.000038
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "2:22613",
+          "origin": [
+            -234,
+            -1503.079956,
+            16
+          ],
+          "ground": [
+            -234,
+            -1503.079956,
+            -7.865773318673527
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "2:22614",
+          "origin": [
+            -154,
+            -1503.079956,
+            16
+          ],
+          "ground": [
+            -154,
+            -1503.079956,
+            -7.865773318673526
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "2:22615",
+          "origin": [
+            -384,
+            -1552,
+            16
+          ],
+          "ground": [
+            -384,
+            -1552,
+            -7.9999757
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "2:22616",
+          "origin": [
+            -328,
+            -1528,
+            16
+          ],
+          "ground": [
+            -328,
+            -1528,
+            -7.9999757
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "2:22262",
+          "origin": [
+            -400,
+            2192,
+            32.000099
+          ],
+          "ground": [
+            -400,
+            2192,
+            25.353863485509333
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "2:22263",
+          "origin": [
+            -560,
+            2192,
+            32
+          ],
+          "ground": [
+            -560,
+            2192,
+            24.113871061962207
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "2:22264",
+          "origin": [
+            -476,
+            2216,
+            32
+          ],
+          "ground": [
+            -476,
+            2216,
+            26.45313443657087
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "2:22265",
+          "origin": [
+            -608,
+            2120,
+            32
+          ],
+          "ground": [
+            -608,
+            2120,
+            20.27829731154323
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "2:22266",
+          "origin": [
+            -360,
+            2120,
+            32.000099
+          ],
+          "ground": [
+            -360,
+            2120,
+            22.243838445996712
+          ]
+        }
+      ],
+      "excluded": [],
+      "siteSamples": {
+        "A": 38,
+        "B": 22
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 26.109375
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 19.09375
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 13.625
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 12.3125
+        }
+      ],
+      "ready": true
+    },
+    {
+      "mapId": "Sandstone",
+      "project": "/map-studio/teams/map-pool/sandstone.lab.json",
+      "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+      "evidenceSha256": "9918a59e7c442b88a5672117400f7f8f5cb53c247cd195470b29343fc16f4dc7",
+      "projectSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+      "bindings": [
+        {
+          "actor": "T1",
+          "entity": "2:23496",
+          "origin": [
+            -822.365173,
+            -795.64209,
+            150.709
+          ],
+          "ground": [
+            -822.365173,
+            -795.64209,
+            120.85646220129729
+          ]
+        },
+        {
+          "actor": "T2",
+          "entity": "2:23497",
+          "origin": [
+            -857.506531,
+            -738.361328,
+            150.709
+          ],
+          "ground": [
+            -857.506531,
+            -738.361328,
+            124.85733023653242
+          ]
+        },
+        {
+          "actor": "T3",
+          "entity": "2:23498",
+          "origin": [
+            -760.662964,
+            -836.174011,
+            150.709
+          ],
+          "ground": [
+            -760.662964,
+            -836.174011,
+            121.69931850716694
+          ]
+        },
+        {
+          "actor": "T4",
+          "entity": "2:23499",
+          "origin": [
+            -696.844604,
+            -806.623718,
+            150.709
+          ],
+          "ground": [
+            -696.844604,
+            -806.623718,
+            123.50391693753605
+          ]
+        },
+        {
+          "actor": "T5",
+          "entity": "2:23500",
+          "origin": [
+            -657.271362,
+            -755.879639,
+            150.709
+          ],
+          "ground": [
+            -657.271362,
+            -755.879639,
+            123.63605062027737
+          ]
+        },
+        {
+          "actor": "CT1",
+          "entity": "2:23490",
+          "origin": [
+            182.249908,
+            2439.011719,
+            -110
+          ],
+          "ground": [
+            182.249908,
+            2439.011719,
+            -116.13731904681416
+          ]
+        },
+        {
+          "actor": "CT2",
+          "entity": "2:23491",
+          "origin": [
+            160.122742,
+            2369.67627,
+            -110
+          ],
+          "ground": [
+            160.122742,
+            2369.67627,
+            -116.2003286382158
+          ]
+        },
+        {
+          "actor": "CT3",
+          "entity": "2:23492",
+          "origin": [
+            258.159393,
+            2480.553711,
+            -110
+          ],
+          "ground": [
+            258.159393,
+            2480.553711,
+            -117.1027641686828
+          ]
+        },
+        {
+          "actor": "CT4",
+          "entity": "2:23493",
+          "origin": [
+            334.368744,
+            2433.733643,
+            -110
+          ],
+          "ground": [
+            334.368744,
+            2433.733643,
+            -116.83812489570909
+          ]
+        },
+        {
+          "actor": "CT5",
+          "entity": "2:23494",
+          "origin": [
+            351.39212,
+            2352.942383,
+            -110
+          ],
+          "ground": [
+            351.39212,
+            2352.942383,
+            -116.00001
+          ]
+        }
+      ],
+      "excluded": [],
+      "siteSamples": {
+        "A": 16,
+        "B": 23
+      },
+      "routes": [
+        {
+          "side": "T",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 31.921875
+        },
+        {
+          "side": "T",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 24.21875
+        },
+        {
+          "side": "CT",
+          "site": "A",
+          "arrived": true,
+          "reason": null,
+          "seconds": 29.90625
+        },
+        {
+          "side": "CT",
+          "site": "B",
+          "arrived": true,
+          "reason": null,
+          "seconds": 12.359375
+        }
+      ],
+      "ready": true
+    }
+  ]
+}

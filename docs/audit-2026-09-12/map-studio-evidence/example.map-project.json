@@ -1,0 +1,81 @@
+{
+  "format": "esim-map-annotations",
+  "version": 1,
+  "mapId": "Mirage",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "7df6b77d-72b3-4692-aed9-8451e88e1934",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 40.602,
+          "y": 32.405
+        },
+        {
+          "x": 40.602,
+          "y": 38.119
+        },
+        {
+          "x": 33.835,
+          "y": 38.119
+        }
+      ],
+      "label": "Example wall",
+      "note": ""
+    },
+    {
+      "id": "eec68acd-1877-410d-b20e-dfc7b9a81d85",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 42.707,
+          "y": 38.42
+        },
+        {
+          "x": 45.263,
+          "y": 38.42
+        }
+      ],
+      "label": "Example passage",
+      "note": ""
+    },
+    {
+      "id": "1176ab02-376b-406c-b15e-c37460c2cabb",
+      "kind": "window",
+      "points": [
+        {
+          "x": 41.805,
+          "y": 43.984
+        },
+        {
+          "x": 41.805,
+          "y": 48.044
+        }
+      ],
+      "label": "Example window",
+      "note": "Example only. Confirm the sight line before using this geometry.",
+      "detail": "window"
+    },
+    {
+      "id": "b4eb1328-2f7f-436a-a130-ec74a39ce845",
+      "kind": "route",
+      "points": [
+        {
+          "x": 70.375,
+          "y": 32.706
+        },
+        {
+          "x": 66.616,
+          "y": 41.127
+        },
+        {
+          "x": 53.233,
+          "y": 47.894
+        }
+      ],
+      "label": "Example route",
+      "note": ""
+    }
+  ]
+}

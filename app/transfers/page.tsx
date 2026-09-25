@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useDebounce } from "@/hooks/useDebounce"
+import { useRouteViewState } from "@/hooks/use-route-view-state"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,8 @@ import { Search, FileText, UserPlus, ChevronLeft, ChevronRight as ChevronRightIc
 import Link from "next/link"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { cn } from "@/lib/utils"
+import { getVisibleStats, formatScoutedRating, scoutedRatingSortValue } from "@/engine/scouting-system"
+import { academyHeldPlayerIds, recruitmentSalary } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { TableBody } from "@/components/ui/table"
 import {
@@ -41,19 +44,23 @@ export default function TransfersPage() {
 }
 
 function TransfersPageInner() {
-  const { players, teams, getPlayerTeam, transferPlayer, currentWeek } = useGameStore(useShallow(state => ({
+  const { players, teams, getPlayerTeam, transferPlayer, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
     players: state.players,
+    scoutedPlayers: state.scoutedPlayers,
+    academyPlayers: state.academyPlayers,
+    academyPendingProspects: state.academyPendingProspects,
     teams: state.teams,
     getPlayerTeam: state.getPlayerTeam,
     transferPlayer: state.transferPlayer,
     currentWeek: state.currentWeek,
   })))
   const playerTeam = getPlayerTeam()
-  const [searchTerm, setSearchTerm] = useState("")
+  const viewCareerId = useGameStore(state => state.saveId)
+  const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "transfers:search", "")
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [roleFilter, setRoleFilter] = useState<string | null>(null)
+  const [roleFilter, setRoleFilter] = useRouteViewState<string | null>(viewCareerId, "transfers:role", null)
   const [negotiationPlayerId, setNegotiationPlayerId] = useState<string | null>(null)
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useRouteViewState(viewCareerId, "transfers:page", 0)
   const [loadTimeout, setLoadTimeout] = useState(false)
   const PAGE_SIZE = 25
 
@@ -80,19 +87,21 @@ function TransfersPageInner() {
   // the search input updates via the 300ms debouncedSearch dep below, not
   // every keystroke. Must run before the early return so hook order stays
   // stable.
+  const academyIds = useMemo(() => academyHeldPlayerIds({ teams, academyPlayers, academyPendingProspects }), [teams, academyPlayers, academyPendingProspects])
+  const knowledge = useMemo(() => new Map(players.map(p => [p.id, getVisibleStats(p, scoutedPlayers, playerTeam?.rosterIds || [], currentWeek)])), [players, scoutedPlayers, playerTeam?.rosterIds, currentWeek])
   const searchLower = debouncedSearch.toLowerCase()
   const allFiltered = useMemo(
     () => players
       .filter(p =>
-        !rosterSet.has(p.id) &&
+        !rosterSet.has(p.id) && !academyIds.has(p.id) &&
         !p.isRetired &&
         p.nickname.toLowerCase().includes(searchLower) &&
         (roleFilter ? p.role === roleFilter : true)
       )
       .sort((a, b) =>
-        ((b.skill + b.tactic + b.teamwork) - (a.skill + a.tactic + a.teamwork))
+        scoutedRatingSortValue(knowledge.get(b.id)!.ovrRange) - scoutedRatingSortValue(knowledge.get(a.id)!.ovrRange)
       ),
-    [players, rosterSet, searchLower, roleFilter],
+    [players, rosterSet, searchLower, roleFilter, knowledge, academyIds],
   )
 
   const totalPages = Math.max(1, Math.ceil(allFiltered.length / PAGE_SIZE))
@@ -127,11 +136,7 @@ function TransfersPageInner() {
   }
 
   // Calculate estimated weekly salary based on player value
-  const getEstimatedSalary = (player: any) => {
-    const ovr = (player.skill + player.tactic + player.teamwork) / 3
-    const baseSalary = Math.round(ovr * 50 * (1 + (player.potential / 200)))
-    return Math.max(baseSalary, 300) // Minimum $300/week
-  }
+  const getEstimatedSalary = (player: typeof players[number]) => recruitmentSalary(player, currentWeek)
 
   // Get contract terms for a player
   const getContractTerms = (player: any) => {
@@ -142,7 +147,7 @@ function TransfersPageInner() {
     // affordability gate match what the modal will actually ask for. The old
     // ovr*1000 estimate was far lower, so the BUY button could be enabled yet
     // every offer the modal generated was unaffordable.
-    const transferFee = isFreeAgent ? 0 : Math.floor(evaluatePlayer(player).transferValue)
+    const transferFee = isFreeAgent ? 0 : Math.floor(evaluatePlayer(player, undefined, undefined, currentWeek).transferValue)
     const salary = getEstimatedSalary(player)
 
     return {
@@ -165,7 +170,7 @@ function TransfersPageInner() {
         {/* No entry animation here — GameShell applies a single uniform page
             entrance; a second one double-animates (forbidden by the shell). */}
         <div className="space-y-1">
-          <h1 className="text-3xl font-normal liquid-text tracking-tighter uppercase">Scouting & Transfers</h1>
+          <h1 className="page-title ">Scouting & Transfers</h1>
           <p className="text-muted-foreground font-medium text-sm">Discover and negotiate with the world&apos;s best talent.</p>
         </div>
 
@@ -212,7 +217,7 @@ function TransfersPageInner() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <GlassTable>
+        <GlassTable containerLabel="Transfer candidates">
           <GlassTableHeader>
             <GlassTableRow className="hover:bg-transparent">
               <GlassTableHead className="w-[200px]">Player</GlassTableHead>
@@ -231,7 +236,7 @@ function TransfersPageInner() {
             {availablePlayers.length > 0 ? (
               availablePlayers.map((player) => {
                 const team = getTeamForPlayer(player.id)
-                const ovr = Math.round((player.skill + player.tactic + player.teamwork) / 3)
+                const visible = knowledge.get(player.id)!
                 const terms = getContractTerms(player)
 
                 return (
@@ -262,10 +267,10 @@ function TransfersPageInner() {
                       </Badge>
                     </GlassTableCell>
                     <GlassTableCell className="text-center font-sans text-xs opacity-60 text-white">{player.age}</GlassTableCell>
-                    <GlassStatCell value={player.skill} />
-                    <GlassStatCell value={player.tactic} />
-                    <GlassStatCell value={player.teamwork} />
-                    <GlassStatCell value={ovr} className="bg-white/[0.03] scale-110 !text-white !opacity-100" />
+                    <GlassTableCell className="text-center">{visible.exactStats?.skill ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center">{visible.exactStats?.tactic ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center">{visible.exactStats?.teamwork ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center" title={`${visible.scoutingLevel.toLowerCase()} report`}>{formatScoutedRating(visible.ovrRange)}</GlassTableCell>
                     <GlassTableCell className="text-right">
                       <TooltipProvider>
                         <Tooltip>

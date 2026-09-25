@@ -24,7 +24,11 @@ export interface MatchUIActions {
 
 export const createMatchUISlice: SliceCreator<MatchUIActions> = (set) => ({
     setActiveMatch: (id) => set({ activeMatchId: id }),
-    updateActiveMatchState: (newState) => set({ activeMatchState: newState }),
+    updateActiveMatchState: (newState) => set(state => {
+        if (newState.playback?.saveId !== undefined && newState.playback.saveId !== state.saveId) return
+        if (state.activeMatchId !== newState.matchId || !state.scheduledMatches.some(m => m.id === newState.matchId) || state.completedMatches.some(m => m.id === newState.matchId)) return
+        state.activeMatchState = newState
+    }),
     clearActiveMatchState: () => set({ activeMatchState: null, activeMatchId: null }),
     updateCustomTactic: (id, side, tactic) => {
         set((state) => {

@@ -1,0 +1,7 @@
+{
+  "surface": "cua.getState",
+  "apps": [],
+  "browsers": [],
+  "visualAcceptance": "NOT_RUN",
+  "reason": "No enabled browser/native surface available"
+}

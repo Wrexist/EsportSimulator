@@ -1,0 +1,7 @@
+{
+  "electron": "44.3.0",
+  "node": "24.20.0",
+  "chrome": "152.0.7977.78",
+  "steamNativeLoads": true,
+  "next": "15.5.25"
+}

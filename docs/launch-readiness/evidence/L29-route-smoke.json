@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "buildId": "oLnHAm-kha__OkZyd5b_s",
+  "previewPid": 381840,
+  "route": "/settings/community-import",
+  "containsTitle": true,
+  "containsPreviewAction": true,
+  "scope": "HTTP/SSR only; no browser interaction or visual review"
+}

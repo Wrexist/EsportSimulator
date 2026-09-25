@@ -1,0 +1,87 @@
+{
+  "date": "2026-09-13",
+  "package": "L11",
+  "status": "partial",
+  "release": "held",
+  "buildId": "zZbpbMB5Hw2PAHSla0Kcw",
+  "spatialWorker": "2063.73661a1f4e6f081a.js",
+  "fullTests": {
+    "passed": 1394,
+    "suites": 145
+  },
+  "finalEncounterTests": {
+    "passed": 21,
+    "suites": 1,
+    "note": "Includes two burst/recoil/ammunition cases added after the full run; full suite not rerun for those test-only additions or subsequent camera/playback polish."
+  },
+  "typecheck": "fresh non-incremental pass",
+  "build": "production and compiled week-worker pass; existing lint warnings",
+  "native": {
+    "scenarios": 5,
+    "additionalSeeds": 12,
+    "validEncounterQueries": 34,
+    "malformedRequestRejected": true,
+    "sameRuntimeFullReplay": "exact",
+    "nodeChromiumDiscreteEventsAndOutcomes": "exact for all five fixtures",
+    "crossRuntimeFullReplay": false
+  },
+  "browser": {
+    "url": "http://localhost:3210/map-editor/lab#controlled-encounter",
+    "checks": [
+      "existing lab backed up before example import",
+      "settings and endpoints restored after reload",
+      "clear duel yields A survivor at 0.359375s",
+      "world and player knowledge views switch correctly",
+      "focused camera and quarter-speed playback visually inspected",
+      "opaque wall: eight seconds, no events, both full health and ammo",
+      "approach around wall: B first sees A at 0.359375s; A first sees B at 0.375s; A first shot obstructed; B survives at 0.84375s",
+      "replay downloads parsed and approach independently rerun against collision reference"
+    ],
+    "limits": [
+      "narrow viewport and native file-picker import not checked in this pass"
+    ]
+  },
+  "browserExportCheck": {
+    "passed": true,
+    "exportSha256": "a33fe33d98f9669f67c7422e5b8aacbcf67087bcf0a6e2a59936f1beccc5c92b",
+    "outcome": "B",
+    "ticks": 55,
+    "damagingRaysChecked": 3,
+    "obstructedRaysChecked": 1,
+    "nodeDiscreteReplay": "exact",
+    "sourceVersion": "2000908",
+    "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f"
+  },
+  "ownerUploadsUnchanged": true,
+  "remaining": [
+    "L04/L10 acceptance",
+    "Mirage wall heights, CT/A/B bounds and vertical review",
+    "weapon and behavior calibration",
+    "broader maps and packaged target-machine testing",
+    "real Steam App ID and content clearance",
+    "L12 utility, L13 team knowledge/tactics, L14 live-match integration"
+  ],
+  "sha256": {
+    "engine/spatial/encounter.ts": "325681696c207e0630792a58ab4fc04489ec4f80749c8776214c9683d5249859",
+    "engine/spatial/lab-encounter.ts": "f0d5ebf23dabc4f423628fc835ed837ca06c3f1932b94094b660964fb77e830e",
+    "engine/spatial/spatial-lab.worker.ts": "57a4eb306bbcfee0231c22180f3a1d8e8e6a75c9ad7a83c3406c80fd4157fec5",
+    "lib/spatial-lab-project.ts": "f54819df647d6ddc879c25aa7808c8b21a15ae298c7cf67349699339ff11a97d",
+    "components/maps/EncounterLab.tsx": "1222f0a5df22b28ff0a92648d4363244ae5f24533270425295f6cfaddc3ca562",
+    "components/maps/encounter-lab.module.css": "8a39731ff7c8cecf945d75d463f98679bf2e1d22f090c97ac42a568ece329595",
+    "components/maps/SpatialLab.tsx": "0e1e48e14b838b0d32147a75399594ebd565c6aada2ed8a3fc8f4108461acaa8",
+    "scripts/launch/build-l11-fixtures.ts": "f49e1a00f552d825402c4861fbcfe81e42a19f94d39510cbb0c754479963a99e",
+    "scripts/launch/l11-browser.ts": "1ad3c15123f1e7ca5b836bfb72ae474e5dd528768613f3a5f44a5fb6a364e50c",
+    "scripts/launch/build-spatial-review-probe.cjs": "8f8359307445cd02a38077b3c0de877ea7a93d29c689d78c3289a82360c201d6",
+    "scripts/launch/spatial-review-native.cjs": "d232863fc3460d169dc59afdec481091a194fd0c9de51c2263553fb1e27952d5",
+    "__tests__/spatial-encounter.test.ts": "2fc9f3abc45792e72f1fdce5151c1c7d10a29856e5691210577859ed507385ff",
+    "public/map-studio/drafts/mirage-user-v12-2026-09-13.json": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+    "public/map-studio/drafts/mirage-user-areas-2026-09-13.json": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+    ".next/static/chunks/2063.73661a1f4e6f081a.js": "173f3d788976dbc881a5c10e7e1fef36802dd5fe7a1ae3c0026949d1f43a3d84",
+    "public/map-studio/encounters/l11/clear-duel.lab.json": "32d4c4529f5ef8159d1f93654cc756bd42a8f5cb0b7b53b883d7d01469bccdef",
+    "public/map-studio/encounters/l11/empty-magazine.lab.json": "d4e3ba08537deefb4e62916b13c43aa737978de65b952032d5bf045f203ae953",
+    "public/map-studio/encounters/l11/facing-away.lab.json": "bf3182850ccbee5219d106f5b443c049ec3437bdd209633b8b2b49d6da9dd6db",
+    "public/map-studio/encounters/l11/index.json": "dfe0eff37ae20d9cc9bab970f1588063eaf7bbad90fb834ca143c40d1d6d9612",
+    "public/map-studio/encounters/l11/opaque-wall.lab.json": "af8062302c4c63bc6e6e6d0370bbae4b0a4d67efe01be42f163050b09c63a2a5",
+    "public/map-studio/encounters/l11/simultaneous-trade.lab.json": "e792ed32ad6af68174a9a276d1c8fdffb4addcc16b9b1aab6ccf999af8948979"
+  }
+}

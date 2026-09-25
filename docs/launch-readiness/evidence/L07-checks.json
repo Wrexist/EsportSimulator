@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-13",
+  "status": "partial",
+  "buildId": "MUOAwVvQOYQOGCJknx4cu",
+  "lockSha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53",
+  "sourceScope": "Electron modules, Cloud adapter, boundary tests and native probe source; not a full release attestation",
+  "files": [
+    {
+      "file": "electron/app-origin.js",
+      "sha256": "c259e7ff5da4e05a7e91cea16ff484383e64b66323757e61031641b59ea1dc8b"
+    },
+    {
+      "file": "electron/close-handshake.js",
+      "sha256": "555209b6e6c96152eb6e369c951b9e38210e7a73844b550b7940e9edccad731a"
+    },
+    {
+      "file": "electron/content-policy.js",
+      "sha256": "dd14d1dc7b2f4e714149fb4928c9b3174b6cf19a1d98ab39be103a7f879f25fa"
+    },
+    {
+      "file": "electron/ipc-policy.js",
+      "sha256": "a7976e6a47eeb896f9e300e93491fe54d84249448e9025d82d91721f6992ef80"
+    },
+    {
+      "file": "electron/local-files.js",
+      "sha256": "3b272253a8e4987152fbadaf1feb43c26c43ed2a5bd1f315b0fe472521fe1c3d"
+    },
+    {
+      "file": "electron/local-server.js",
+      "sha256": "413b00665ba2326e584ebd3cf3328854309076401c0d43a63fdb01ed389115c7"
+    },
+    {
+      "file": "electron/main.js",
+      "sha256": "953ffbf9370afa7df14713bcf5ded85dc0dd8216255e45e2aa145cec54173c1e"
+    },
+    {
+      "file": "electron/preload.js",
+      "sha256": "1edaa877785d3d6f466e170daeb553ea1208bd42264228e52e5497e2cbac8ae5"
+    },
+    {
+      "file": "electron/renderer-security.js",
+      "sha256": "53cd15d02ed5351c8f4ae444f265a70d26366dc8b9d801390fd4e499bf4ad8de"
+    },
+    {
+      "file": "electron/steam.js",
+      "sha256": "1b13f22a6ef3012a914a73c605c63c4b547abf922f3c22f6f4676c554ab78a83"
+    },
+    {
+      "file": "engine/steam-service.ts",
+      "sha256": "14835aec342bf7fdd97b1a27a45b4cc7676050209a2c0e89034c9fdfef364fa6"
+    },
+    {
+      "file": "__tests__/electron-app-origin.test.ts",
+      "sha256": "278c660f50af9eadb3e74bac0efde23b1212eb52cd82ae344c96b9e600d5286c"
+    },
+    {
+      "file": "__tests__/electron-ipc-boundaries.test.ts",
+      "sha256": "42502fcbfa267f0ccc55f29164349a3da67f122072ad00938f4dce74ade4e4d9"
+    },
+    {
+      "file": "__tests__/electron-local-server.test.ts",
+      "sha256": "99e8bdc1eda115075994019ceeed07b4437527d562224c581bd638f502e51c06"
+    },
+    {
+      "file": "__tests__/steam-cloud-roundtrip.test.ts",
+      "sha256": "cebd9049b4d4038cc20bd581b39e7202734f85195a7be6e5188d010ad212b9d5"
+    },
+    {
+      "file": "scripts/launch/electron-handler-harness.cjs",
+      "sha256": "493177d780b87a8f2d271941a4c573de686eee618fc0727cb8ea47e9d1c3f50b"
+    },
+    {
+      "file": "scripts/launch/electron-security-smoke.cjs",
+      "sha256": "e3e68bfc320e58bf8d68f3e70c5c7e907c4e85adaa70238084e1cc591b54fcae"
+    },
+    {
+      "file": "scripts/launch/electron-csp-smoke.cjs",
+      "sha256": "c5e1cc0641d85406f83fb6eb7d0b3b73380f8a840bd0f6f3b6eaba36a97f5965"
+    },
+    {
+      "file": "scripts/launch/ipc-inventory.cjs",
+      "sha256": "c8ba4e064992142eb8abf452af520a1309a1eb94bcc0c25a506404bd92bea196"
+    }
+  ],
+  "checks": {
+    "fullRegression": {
+      "suites": 135,
+      "tests": 1322,
+      "exitCode": 0
+    },
+    "cleanTypes": {
+      "exitCode": 0,
+      "incremental": false
+    },
+    "productionBuild": {
+      "exitCode": 0,
+      "worker": "3444.7dca8cc6acf45fed.js"
+    },
+    "targetedLint": {
+      "exitCode": 0
+    },
+    "actualElectronIPC": {
+      "passed": true,
+      "version": "44.3.0"
+    },
+    "productionCSP": {
+      "passed": true
+    }
+  },
+  "remaining": [
+    "Actual Windows ASAR/unpacked security acceptance",
+    "L06 packaged dependency/offline acceptance",
+    "Real Steam integration and native lifecycle/recovery"
+  ],
+  "preservedMirageSha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+}

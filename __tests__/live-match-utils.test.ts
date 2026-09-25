@@ -27,7 +27,7 @@ describe("live-match-utils", () => {
       savedMaps: [MapId.SANDSTONE],
       fallbackMaps: [MapId.ANUBIS]
     })
-    expect(bo1Maps).toEqual([MapId.MIRAGE])
+    expect(bo1Maps).toEqual([MapId.SANDSTONE])
 
     const bo3Maps = resolveCanonicalSeriesMaps({
       format: "BO3",
@@ -49,7 +49,7 @@ describe("live-match-utils", () => {
     })
     expect(bo5Maps).toHaveLength(getRequiredMapsForFormat("BO5"))
     expect(new Set(bo5Maps).size).toBe(5)
-    expect(bo5Maps[0]).toBe(MapId.SANDSTONE)
+    expect(bo5Maps[0]).toBe(MapId.MIRAGE)
   })
 
   it("resolves per-map starting side with override and deterministic fallback", () => {

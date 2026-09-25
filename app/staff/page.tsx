@@ -1,5 +1,7 @@
 "use client"
 
+import { staffDevelopmentEffects } from "@/engine/organization-effects"
+
 import React, { useEffect, useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -66,8 +68,8 @@ export default function StaffPage() {
 
     const playerTeam = useCurrentTeam()
     const currentStaff = useMemo(
-        () => staff.filter(s => s.teamId === playerTeamId),
-        [staff, playerTeamId]
+        () => staff.filter(s => s.teamId === playerTeamId && playerTeam?.staffIds.includes(s.id) && (s.contractEndWeek === undefined || s.contractEndWeek > currentWeek)),
+        [staff, playerTeamId, playerTeam, currentWeek]
     )
 
     // Negotiation State
@@ -79,19 +81,8 @@ export default function StaffPage() {
     // render (every store mutation), which on the 532 kB Staff page added up.
     // One pass over currentStaff, memoized to staff identity.
     const bonuses = useMemo(() => {
-        let coachDev = 0
-        let psychRecovery = 0
-        let analystAnalysis = 0
-        for (const s of currentStaff) {
-            if (s.role === 'coach') coachDev += s.stats?.development || 50
-            else if (s.role === 'psychologist') psychRecovery += s.stats?.mentalRecovery || 50
-            else if (s.role === 'analyst') analystAnalysis += s.stats?.analysis || 50
-        }
-        return {
-            xp: coachDev * 0.5,        // 100 stat = 50%
-            recovery: psychRecovery / 10, // 100 stat = 10
-            tactical: analystAnalysis / 20, // 100 stat = 5
-        }
+        const effects = staffDevelopmentEffects(currentStaff)
+        return { xp: (effects.trainingMultiplier - 1) * 100, recovery: effects.recovery, tactical: effects.tactical }
     }, [currentStaff])
     useEffect(() => {
         // Only refresh if hydrated and market is empty. Deliberately keyed
@@ -125,11 +116,11 @@ export default function StaffPage() {
     }
 
     return (
-        <div className="p-8 space-y-12 max-w-7xl mx-auto pb-24">
+        <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-5xl font-normal tracking-tighter uppercase liquid-text mb-2">Staff & Operations</h1>
+                    <h1 className="page-title mb-2">Staff & Operations</h1>
                     <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em] flex items-center gap-2">
                         <Briefcase size={12} /> Management Division
                     </p>
@@ -155,7 +146,7 @@ export default function StaffPage() {
                         <Sparkles size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-normal uppercase text-muted-foreground">Training XP Bonus</p>
+                        <p className="text-[10px] font-normal uppercase text-muted-foreground">Weekly training gains</p>
                         <p className="text-xl font-normal text-white">+{bonuses.xp.toFixed(1)}%</p>
                     </div>
                 </div>

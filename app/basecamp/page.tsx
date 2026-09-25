@@ -1,6 +1,9 @@
 "use client"
 
 import { useGameStore } from "@/store/game-store"
+import { useState } from "react"
+import Link from "next/link"
+import { UI_ASSETS } from "@/lib/ui-assets"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,49 +22,46 @@ import { toast } from "@/lib/toast"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { facilityEffect, facilityWeeklyCost } from "@/engine/organization-effects"
 
 // Hoisted to module scope — this is a static config that was being recreated
 // on every render of BasecampPage, including the per-level getStat closures.
 const FACILITY_CONFIG = {
   TRAINING: {
-    image: "/facilities/training.png",
+    image: UI_ASSETS.facilities.TRAINING,
     label: "Performance Center",
-    description: "Optimizes player XP gain and skill development speed.",
-    statLabel: "XP Multiplier",
-    getStat: (level: number) => `+${level * 10}%`,
+    description: "Improves weekly senior training gains.",
+    statLabel: "Weekly development",
     icon: Dumbbell,
     color: "text-cyan-400",
     bgFrom: "from-cyan-500/20",
     border: "hover:border-cyan-500/50"
   },
   RECOVERY: {
-    image: "/facilities/recovery.png",
+    image: UI_ASSETS.facilities.RECOVERY,
     label: "Wellness Lounge",
-    description: "Accelerates fatigue recovery and improves morale.",
+    description: "Adds recovery to the weekly fatigue calculation.",
     statLabel: "Fatigue Recovery",
-    getStat: (level: number) => `-${level * 5} pts/wk`,
     icon: HeartPulse,
     color: "text-emerald-400",
     bgFrom: "from-emerald-500/20",
     border: "hover:border-emerald-500/50"
   },
   TACTICAL: {
-    image: "/facilities/tactical.png",
+    image: UI_ASSETS.facilities.TACTICAL,
     label: "War Room",
-    description: "Unlocks advanced strategic tools and preparation speed.",
-    statLabel: "Prep Speed",
-    getStat: (level: number) => `+${level * 15}%`,
+    description: "Improves tactic, leadership and teamwork gains in weekly training.",
+    statLabel: "Tactical development",
     icon: ClipboardList,
     color: "text-amber-400",
     bgFrom: "from-amber-500/20",
     border: "hover:border-amber-500/50"
   },
   FANZONE: {
-    image: "/facilities/fanzone.png",
+    image: UI_ASSETS.facilities.FANZONE,
     label: "Fan Interaction Zone",
     description: "Boosts merchandise revenue and fan base growth.",
-    statLabel: "Merch Revenue",
-    getStat: (level: number) => `+${level * 20}%`,
+    statLabel: "Fan income and growth",
     icon: Users,
     color: "text-rose-400",
     bgFrom: "from-rose-500/20",
@@ -70,6 +70,7 @@ const FACILITY_CONFIG = {
 } as const
 
 export default function BasecampPage() {
+  const [selectedFacility, setSelectedFacility] = useState<keyof typeof FACILITY_CONFIG>('TRAINING')
   const upgradeFacility = useGameStore(state => state.upgradeFacility)
   const playerTeam = useCurrentTeam()
 
@@ -96,8 +97,8 @@ export default function BasecampPage() {
   }
 
   return (
-    <div className="min-h-screen text-white p-8">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="campus-page text-white">
+      <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
@@ -106,11 +107,11 @@ export default function BasecampPage() {
               <Building2 className="h-4 w-4" />
               <span className="text-xs font-bold uppercase tracking-[0.2em]">Operations Center</span>
             </div>
-            <h1 className="text-5xl font-normal tracking-tighter bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-              BASECAMP
+            <h1 className="page-title ">
+              Club Campus
             </h1>
             <p className="text-white/65 max-w-lg text-sm leading-relaxed font-medium">
-              Upgrade your infrastructure to gain competitive advantages. Higher level facilities unlock new abilities and passive bonuses.
+              Upgrades activate immediately. Weekly upkeep starts at the next settlement; lower levels cost less to maintain. Facilities cannot currently be sold.
             </p>
           </div>
 
@@ -130,37 +131,43 @@ export default function BasecampPage() {
           </div>
         </div>
 
-        {/* Facilities Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-0">
+        <nav aria-label="Club campus sections" className="flex gap-2">
+          <Button asChild variant="secondary"><Link href="/basecamp" aria-current="page">Campus</Link></Button>
+          <Button asChild variant="outline"><Link href="/equipment">Equipment</Link></Button>
+        </nav>
+        <div className="campus-scene" role="group" aria-label="Select a campus facility">
+          <Image src={UI_ASSETS.campus} alt="" fill priority sizes="(max-width: 1350px) 1000px, 1500px" className="object-cover" />
+          {(['TRAINING','TACTICAL','RECOVERY','FANZONE'] as const).map((type, index) => {
+            const positions = [{left:'20%',top:'50%'},{left:'44%',top:'27%'},{left:'65%',top:'37%'},{left:'81%',top:'64%'}]
+            const config = FACILITY_CONFIG[type]
+            const level = playerTeam.facilities?.find(f => f.type === type)?.level || 0
+            return <button key={type} type="button" className="campus-hotspot" style={positions[index]} aria-pressed={selectedFacility === type} aria-controls={`campus-${type}`} onClick={() => {
+              setSelectedFacility(type)
+              document.getElementById(`campus-${type}`)?.scrollIntoView({block:'nearest',behavior:'auto'})
+            }}><span className="flex items-center gap-2"><config.icon size={18} />{config.label}</span><small>{level ? `Level ${level}` : 'Not constructed'}</small></button>
+          })}
+        </div>
+        {/* Every facility remains visible and uses the existing upgrade action. */}
+        <div className="campus-facilities relative z-0">
           {(["TRAINING", "RECOVERY", "TACTICAL", "FANZONE"] as const).map((type, i) => {
             const facility = playerTeam.facilities?.find(f => f.type === type)
             const config = FACILITY_CONFIG[type]
             const level = facility?.level || 0
             const nextLevelCost = level === 0 ? 10000 : level * 25000
-            const maintenance = facility?.monthlyCost ? Math.floor(facility.monthlyCost / 4) : 0
+            const maintenance = Math.floor(facilityWeeklyCost(level))
             const Icon = config.icon
 
-            const getNextUnlock = (t: string, l: number) => {
-              if (t === "TACTICAL") {
-                if (l < 1) return "VOD Review"
-                if (l < 2) return "Playstyles"
-                if (l < 3) return "Antistrat"
-              }
-              if (t === "RECOVERY") {
-                if (l < 2) return "Mental Reset"
-              }
-              return null
-            }
-            const nextUnlock = getNextUnlock(type, level)
 
             return (
               <motion.div
                 key={type}
+                id={`campus-${type}`}
+                data-selected={selectedFacility === type}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 className={cn(
-                  "group glass-panel relative overflow-hidden rounded-3xl transition-all duration-500",
+                  "campus-facility group glass-panel relative overflow-hidden rounded-3xl transition-colors duration-200",
                   config.border
                 )}
               >
@@ -170,6 +177,7 @@ export default function BasecampPage() {
                     src={config.image}
                     alt={config.label}
                     fill
+                    sizes="(max-width: 1050px) 100vw, 50vw"
                     className="object-cover transition-transform duration-700 opacity-60"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/65 to-black/85" />
@@ -177,7 +185,7 @@ export default function BasecampPage() {
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 p-8 pt-32">
+                <div className="facility-content relative z-10">
                   <div className="flex justify-between items-end mb-4">
                     <div className="flex items-center gap-3">
                       <div className={cn("p-2 rounded-lg bg-black/50 backdrop-blur-md border border-white/10", config.color)}>
@@ -189,27 +197,23 @@ export default function BasecampPage() {
                           <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0.5 border-white/10 uppercase tracking-wider", level > 0 ? "text-white/80" : "text-white/40")}>
                             Tier {level}
                           </Badge>
-                          {nextUnlock && (
-                            <Badge className="bg-white text-black font-normal border border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] text-[10px] px-2 py-0.5 uppercase tracking-wide">
-                              Unlock: {nextUnlock}
-                            </Badge>
-                          )}
+
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-sm text-white/60 mb-8 min-h-[40px] leading-relaxed">
+                  <p className="facility-description text-sm text-white/60 leading-relaxed">
                     {config.description}
                   </p>
 
                   {/* Stats Comparison Grid */}
-                  <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="facility-comparison grid grid-cols-2 gap-4">
                     <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
                       <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Current Stats</p>
                       <div className="flex items-baseline gap-2">
                         <span className={cn("text-xl font-normal", level > 0 ? "text-white" : "text-white/30")}>
-                          {config.getStat(level)}
+                          {facilityEffect(type, level)}
                         </span>
                       </div>
                       <div className="mt-2 text-[10px] text-white/45 font-medium flex justify-between">
@@ -224,14 +228,14 @@ export default function BasecampPage() {
                         <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Next Level</p>
                         <div className="flex items-baseline gap-2">
                           <span className="text-xl font-normal text-emerald-400">
-                            {config.getStat(level + 1)}
+                            {facilityEffect(type, level + 1)}
                           </span>
                           <span className="text-xs text-emerald-500/50 font-bold">
                             <ArrowUpCircle className="w-3 h-3 inline mb-0.5" />
                           </span>
                         </div>
                         <div className="mt-2 text-[10px] text-white/55 font-medium flex justify-between">
-                          <span>Cost</span>
+                          <span>Cost · ${Math.floor(facilityWeeklyCost(level + 1)).toLocaleString()}/wk after upgrade</span>
                           <span className="text-white">${nextLevelCost.toLocaleString()}</span>
                         </div>
                       </div>

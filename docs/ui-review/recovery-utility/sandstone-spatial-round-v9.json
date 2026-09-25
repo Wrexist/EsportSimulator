@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Sandstone",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "simulatorSourceSha256": "fe5b09d22aaf5ef5c91af32c84d88c5d0260e303ad14f81d847eab88e711273b",
+  "fixtureSha256": "19d0a76b791a9f5e97f38f66d6d6d1898d4bdd3abab246590aa96723a2e27f1a",
+  "attempts": 1,
+  "origin": [
+    -1432.374975,
+    2529.21855,
+    5.89131153337688
+  ],
+  "bomb": [
+    -1522.8482317870216,
+    2440.0659258549504,
+    4.191098339214134
+  ],
+  "threat": [
+    -1720.838130519255,
+    2242.0760271227173,
+    1.2470363634417188
+  ],
+  "landing": [
+    -1494.5639605395597,
+    2468.3501971024125,
+    1.472321430766384
+  ],
+  "bounces": [
+    [
+      -1467.4244377114314,
+      2494.1694176999617,
+      2.017568991471491
+    ],
+    [
+      -1487.8806668785367,
+      2474.59637112091,
+      1.5286925658587307
+    ],
+    [
+      -1494.5639605395597,
+      2468.3501971024125,
+      1.472321430766384
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 121,
+  "checks": [
+    {
+      "id": "sandstone-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 128.33610645911324,
+  "outputSha256": "d7e5a71f6b955d36f4f59225feab7807bceb2817ffc73d138695f4e7101b7417"
+}

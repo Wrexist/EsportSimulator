@@ -1,0 +1,658 @@
+{
+  "recordedAt": "2026-09-16T07:03:40.417Z",
+  "limitations": [
+    "Source/creation review and owner authorization, not independent legal certification.",
+    "Excluded originals remain local. Imported lineup collection and mixed drafts remain outside this review.",
+    "Earlier owner confirmations apply to portrait/badge families regardless of their storage folder."
+  ],
+  "files": [
+    {
+      "path": "public/assets/grid.svg",
+      "sha256": "a67aadc507658d664d68a5212f72faf0a2dc3c5ea57d81a00f9b6b4864ed9243",
+      "bytes": 342,
+      "basis": "inspected project SVG drawing",
+      "source": "Project SVG source and L25 retained SVG study manifest",
+      "license": "Project-authored SVG drawing",
+      "permission": "Owner authorized the fictional logo redesigns and their inclusion in the game. Reviewed files contain locally authored vector paths/patterns, with no embedded original raster assets."
+    },
+    {
+      "path": "public/assets/legends/Bastion.svg",
+      "sha256": "d9e95dabed86a075913762dabbe72b1d686800a6716c4b3936bbd45d059182bb",
+      "bytes": 2173,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Cipherx.svg",
+      "sha256": "3820c1c826ec8011b4aa8464eb2b520bb78ffe3775f3f5331bf07313d2da9282",
+      "bytes": 2517,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Dupren.svg",
+      "sha256": "0129223149273fc709a7c4773ebce7b87d26af1aa0b5b64a21e1e4aed29b0627",
+      "bytes": 2876,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Frosthaven.svg",
+      "sha256": "a36f2b354ec8443e71019fb1e4610fa3f160fed72d7a00fdaa093afe49bcef13",
+      "bytes": 2758,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Ironbark.svg",
+      "sha256": "d80b52a6aac099ca8b104ec6de423f5140a0c3c076d07298f6997053633a9c8a",
+      "bytes": 2939,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Kalvera.svg",
+      "sha256": "31c2cc4baf319fac0978699c6fce05189239c9711f437fb2fa133727a12cf202",
+      "bytes": 2117,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Krolon.svg",
+      "sha256": "b2657d9bbb31da1e9505458795e14650dfb9005906c480245e6213ed61b29a9a",
+      "bytes": 2142,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Mirage.svg",
+      "sha256": "170f56199a81251684701605222b4b99c8c8ee4b769996d32b7c2be3837ede92",
+      "bytes": 1756,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Niklaus.svg",
+      "sha256": "1dd693ff574c3ed79a24b707666f397db87a2fbaa7849342d974223b21993579",
+      "bytes": 2212,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Nocturn.svg",
+      "sha256": "2f6e4a0a4c2aa5b4b69ec6379dd3a2acb824a416ca3f13e5cd5c5acd2f304d8d",
+      "bytes": 2629,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Pyren.svg",
+      "sha256": "8876153150f66f154e189ecbc2ff14c2927bcec184d0ae65ebb422c301273b47",
+      "bytes": 3083,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Sentryx.svg",
+      "sha256": "95a7c30b1fad408ad6e8caca1b796eb6e56df839330d2701df125c18fe2dcfd8",
+      "bytes": 2191,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Shoen.svg",
+      "sha256": "570591680ad8a054eccba9a9c01bab02ac2eff710c0ba11dd56dc3a8ba04823e",
+      "bytes": 2517,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Sovran.svg",
+      "sha256": "93d8b54930b4b488bff0926214330763fe9f48b9ddf035863cf186d3a403d650",
+      "bytes": 2004,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/V4ltz.svg",
+      "sha256": "2beea98eb3fe39314adcf098d55b7da85678b094099918ba3de5b2b648a8c6d2",
+      "bytes": 1915,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/legends/Varden.svg",
+      "sha256": "59129d27a140f54805a868768468ffc71256fd9295124bb69e8f46bfa8d343cb",
+      "bytes": 2519,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/assets/teams/eurora/logo.redesign.svg",
+      "sha256": "83ec54def0cbe1c2f6697280c7b9606b98fd92ac22c10805bd61f8e9c9b796e1",
+      "bytes": 277,
+      "basis": "inspected project SVG drawing",
+      "source": "Project SVG source and L25 retained SVG study manifest",
+      "license": "Project-authored SVG drawing",
+      "permission": "Owner authorized the fictional logo redesigns and their inclusion in the game. Reviewed files contain locally authored vector paths/patterns, with no embedded original raster assets."
+    },
+    {
+      "path": "public/assets/teams/falconry/logo.redesign.svg",
+      "sha256": "401f3f6d10a77cfe8f5527698b71c76e139b7aaea6062bd3f401cfa96d1499e6",
+      "bytes": 352,
+      "basis": "inspected project SVG drawing",
+      "source": "Project SVG source and L25 retained SVG study manifest",
+      "license": "Project-authored SVG drawing",
+      "permission": "Owner authorized the fictional logo redesigns and their inclusion in the game. Reviewed files contain locally authored vector paths/patterns, with no embedded original raster assets."
+    },
+    {
+      "path": "public/assets/teams/perivesion/logo.redesign.svg",
+      "sha256": "003e695c2ad797ebda3e729efc3cf90cd33b7ca1b6e9276e7fa79977432d648e",
+      "bytes": 291,
+      "basis": "inspected project SVG drawing",
+      "source": "Project SVG source and L25 retained SVG study manifest",
+      "license": "Project-authored SVG drawing",
+      "permission": "Owner authorized the fictional logo redesigns and their inclusion in the game. Reviewed files contain locally authored vector paths/patterns, with no embedded original raster assets."
+    },
+    {
+      "path": "public/data/snapshot/players.json",
+      "sha256": "1663a49d9dc6fc92e1a95922fb71adcd3d864dbd34ad0c270a88968df8abce83",
+      "bytes": 1095508,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "public/data/snapshot/sources.json",
+      "sha256": "3379950a9679b957982c982958bab32798203fd530fa93c0cb006fa4bbadbd81",
+      "bytes": 363936,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "public/data/snapshot/teams.json",
+      "sha256": "1d175e66684c7b0b31d8d46d9dd99b81bf07a64d4cd7249d613997363f46285b",
+      "bytes": 131962,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "public/data/snapshot/tournaments.json",
+      "sha256": "94e05ffc11e1e6b17340f273bebebc1deee7700a4f825875dccf8dcd2d7c8938",
+      "bytes": 16876,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/clear-duel.lab.json",
+      "sha256": "32d4c4529f5ef8159d1f93654cc756bd42a8f5cb0b7b53b883d7d01469bccdef",
+      "bytes": 891,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/empty-magazine.lab.json",
+      "sha256": "d4e3ba08537deefb4e62916b13c43aa737978de65b952032d5bf045f203ae953",
+      "bytes": 891,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/facing-away.lab.json",
+      "sha256": "bf3182850ccbee5219d106f5b443c049ec3437bdd209633b8b2b49d6da9dd6db",
+      "bytes": 891,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/index.json",
+      "sha256": "dfe0eff37ae20d9cc9bab970f1588063eaf7bbad90fb834ca143c40d1d6d9612",
+      "bytes": 2799,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/opaque-wall.lab.json",
+      "sha256": "af8062302c4c63bc6e6e6d0370bbae4b0a4d67efe01be42f163050b09c63a2a5",
+      "bytes": 887,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l11/simultaneous-trade.lab.json",
+      "sha256": "e792ed32ad6af68174a9a276d1c8fdffb4addcc16b9b1aab6ccf999af8948979",
+      "bytes": 887,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/index.json",
+      "sha256": "3357f8994d66c3e85eb860e20de47ae5bfe5a493b110432f51e974316f6570a6",
+      "bytes": 3713,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/utility-decoy.lab.json",
+      "sha256": "297901551782f7e67cf2990d6690300f11dc02afcd0ebe5355b387bc2f1e68d4",
+      "bytes": 1677,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/utility-fire.lab.json",
+      "sha256": "008127573219205467754027a48134dfba33a59dd22dc7c837ff1c83a03b93fa",
+      "bytes": 1674,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/utility-flash.lab.json",
+      "sha256": "8142632c86d19fcea417783587923ed6607200ff93fd81b2a04a0fec06806b7c",
+      "bytes": 1676,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/utility-he.lab.json",
+      "sha256": "18f6d4aef4c8c00d62a5c180600d01142609ae2a1cc9927217c248b4af3ea5a5",
+      "bytes": 1670,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/encounters/l12/utility-smoke.lab.json",
+      "sha256": "af42af59c4beeedaabe3f57a2bbf0055e278c2d6f35960af63d83d343ad50fe5",
+      "bytes": 1676,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/registration.json",
+      "sha256": "a4fe35070975d6158bf15ae52e6834464b8a071e19acf8962eae5062a60799bd",
+      "bytes": 13977,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/a-to-b.lab.json",
+      "sha256": "5b45ad9f1d22e91002c5b78916c8f37eced8f7a605e5735cca53ddaaef65a3d8",
+      "bytes": 45801,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/a-to-ct.lab.json",
+      "sha256": "da5d860e07fb05b5e90c66a98f4044472847f5a32e8e1bfc0373b550c59d9865",
+      "bytes": 45816,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/a-to-t.lab.json",
+      "sha256": "f1316f15e35296e6ecbc970a9949c6844a754ac896be213476d1951e4f0f4225",
+      "bytes": 45800,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/audit.json",
+      "sha256": "df7c1ed63f4d147b6ff6e89c9880693556d3bc4e5afe866b326fb3ea639c5ff4",
+      "bytes": 63768,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/b-to-a.lab.json",
+      "sha256": "148bfb4c2ec2ff17bc60c04424f5018a32a65628e1bf0d1dbc8f08d9f46d41ec",
+      "bytes": 45801,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/b-to-ct.lab.json",
+      "sha256": "67989a73a2ef7aa275b8d9bacb191bd70663cd1bf0159c4ddce332304768c927",
+      "bytes": 45801,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/b-to-t.lab.json",
+      "sha256": "b2e84b4f9988734e3f3809c48e4930fe4af003b5177749768a3a2e28fe0ed2c3",
+      "bytes": 45785,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/ct-to-a.lab.json",
+      "sha256": "b7af129f8081307e9b52f3c987eb0308f9a3063dbf15cf935a31016c6128bcd2",
+      "bytes": 45816,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/ct-to-b.lab.json",
+      "sha256": "a3399bdc5413f1b580279a668e19572ee0dcc2cd4fca463e4d7431403471ee35",
+      "bytes": 45801,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/routes.json",
+      "sha256": "3d485469b3520e975513d229554281ceaf941c84edb11392895111505db5c231",
+      "bytes": 108060,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/t-to-a.lab.json",
+      "sha256": "d5917d30c3dd1d805992769af0b16b95579506270218db29f65b98e28ded7b50",
+      "bytes": 45800,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v12/t-to-b.lab.json",
+      "sha256": "132b2b217e9e88cd9c87d1f6b9b2d48ba5d3115203d925cbbb332df88dba3d4a",
+      "bytes": 45785,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/deadline-save.lab.json",
+      "sha256": "c9b35571e5a118e71b565b15e1e1eb7b00a951319b485898664b6749a8c2b656",
+      "bytes": 3352,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/delayed-radio.lab.json",
+      "sha256": "7802093677ef6c46833024fb965bc8f48c811daf022c2bd9af447449168e735c",
+      "bytes": 3355,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/execute.lab.json",
+      "sha256": "1719dccd938700c5c0792f123d0bc40fdc4f44811ed9af3f2b760c3c16a934b3",
+      "bytes": 3354,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/index.json",
+      "sha256": "d48562c29a9e821b5f3de5754d8a855a76f118f0de1c076b7f07030b0e4cd2f6",
+      "bytes": 4391,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/retake.lab.json",
+      "sha256": "da89f6c0397047a16cf59c33d33fe0ee7258f99bbffc2024541513cda320ab43",
+      "bytes": 3353,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/support-smoke.lab.json",
+      "sha256": "258b3fbe2ece6ad4d8cd17ef16c772aafc59160c77f7f2862cba4217935feae9",
+      "bytes": 4424,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/map-studio/teams/l13/trade-clutch.lab.json",
+      "sha256": "0d66940d6ac0bd56102c62c8a91449aec0fa09ec94f479fa34d915dbf27364d3",
+      "bytes": 3354,
+      "basis": "project-authored spatial fixtures over owner-authorized maps",
+      "source": "scripts/launch/build-l11-fixtures.ts, build-l12-fixtures.ts, build-l13-fixtures.ts, review-mirage-v12.ts; L31-OWNER-MAP-CONFIRMATION.json",
+      "license": "Project simulation fixtures; underlying map use owner-attested",
+      "permission": "Project-authored encounter settings, routes and review results derived from the map data the owner confirmed was permitted. No independent third-party lineup collection is approved here."
+    },
+    {
+      "path": "public/player_placeholder.webp",
+      "sha256": "90a23c1b3460f69b1de58fb45d821a356e7e2bed7ab3f12241e00a16d39a4c93",
+      "bytes": 59776,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/staff_placeholder.webp",
+      "sha256": "9c45fd55366b7b9b6d8ccb36f258e73c29d1b47883730d2a0b523fdf4bd010cf",
+      "bytes": 64834,
+      "basis": "owner-attested portrait family",
+      "source": "L31-OWNER-ART-CONFIRMATION.json",
+      "license": "Project-created portraits; owner-attested origin",
+      "permission": "Owner confirmed fictional player/staff portraits were created for this project. These legend portraits and generic portrait placeholders are members of that same family."
+    },
+    {
+      "path": "public/team_placeholder.webp",
+      "sha256": "71049e99597144c548cf1fbdc53cdbb83b9d92fef6412ff75ec0474cb728f933",
+      "bytes": 59582,
+      "basis": "owner-attested badge family",
+      "source": "L31-OWNER-ADDITIONAL-ART-CONFIRMATION.json",
+      "license": "Project-created badge; owner-attested origin",
+      "permission": "Generic TEAM placeholder badge reviewed as part of the owner-confirmed project-created badge illustrations; it contains no original team identity."
+    },
+    {
+      "path": "data/drills.json",
+      "sha256": "22336dd6558c716195200a55b8c9c4d9ac00abb016f4545ea32b13412b889da3",
+      "bytes": 16874,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/identity-refresh.json",
+      "sha256": "a701a15ca012100147eaaa6e34eb5db726173382be612d3b1c7feffd803d016e",
+      "bytes": 189711,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/index.ts",
+      "sha256": "6d9c252155c85059d3736493c67039138fab43ff94d4e7a2de0689a0dc8677b9",
+      "bytes": 757,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/map-layouts/index.ts",
+      "sha256": "6de896d3ec92f2aef1d59f05dad48a8c902bf413a7fd86fb1c32423e3e50ef11",
+      "bytes": 1946,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/map-layouts/types.ts",
+      "sha256": "81dc6682f48cdf0da925ad4ba067e45e49ca288b57c539931084f277d1d21e99",
+      "bytes": 2541,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/map-pool.ts",
+      "sha256": "858a3447fc78d42ba864bf3fdc0c8e4b2e8120f48111483a0d89cb3fe7190a9f",
+      "bytes": 1936,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/portrait-asset-aliases.json",
+      "sha256": "2df1aac5ee431850d590fd40b082dd6c3e7eaffd1471d1a93fa2a46203af81be",
+      "bytes": 16168,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/snapshot-loader.ts",
+      "sha256": "d17856f9f8432ee8959e82ef729f4f788fdd91972134fc0f2b4e432d406d443b",
+      "bytes": 23961,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/snapshot-types.ts",
+      "sha256": "1e6fb5a1f11412aa9537ca622cd4378a3a706556fc7334041452d64ab007f672",
+      "bytes": 5546,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/team-identity-catalog.json",
+      "sha256": "53198626b81d7ba3fe9b136d3b1d947b6a61c2b09ebda833a5de0960863efd79",
+      "bytes": 60219,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/tournament-calendar.ts",
+      "sha256": "a2c7e54a6a4dc6ef4840c6f8c96e925ec562971dc0d7eeb6fd70842885d6cf3b",
+      "bytes": 8911,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "data/tournaments.json",
+      "sha256": "2d1fcaca82f6409013c73b8dbfa4a845424f8416f484012ef3237fe215011cbb",
+      "bytes": 30232,
+      "basis": "project implementation and game-data review",
+      "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
+      "license": "Project implementation and game-data compilation",
+      "permission": "Owner authorized distribution of this game and its fictionalized game database. Reviewed schema/loader/configuration, aliases, ratings and game text; media references checked separately against reviewed assets. This is not a license for original imported photography or logos."
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "c347cbc4039c5b2a9d8afceaf373bc6b67e50483d415222c47938a3d0b9892c0",
+      "bytes": 3044,
+      "basis": "project-authored notice review",
+      "source": "Verified font, flag, dependency and owner-confirmation records",
+      "license": "Project-authored attribution notice",
+      "permission": "Project release attribution document; owner authorized preparation and distribution with the game."
+    }
+  ]
+}

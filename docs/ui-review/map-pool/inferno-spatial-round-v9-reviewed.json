@@ -1,0 +1,178 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Inferno",
+  "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+  "simulatorSourceSha256": "405d200104882a5d3062758a17f837840f34d8227256de984a9329d198e3ee19",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 43.328125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 103292,
+      "metrics": {
+        "shots": 23,
+        "damage": 500,
+        "reports": 25,
+        "waits": 544,
+        "replans": 87,
+        "minSeparation": 32.02094832703379
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "882641916b96bf9093251f71f4a69680e1bb6279a1126d1ecc77828388a2794b"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 46.46875,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 83224,
+      "metrics": {
+        "shots": 31,
+        "damage": 500,
+        "reports": 26,
+        "waits": 837,
+        "replans": 71,
+        "minSeparation": 32.02910367467069
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1792,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "9ded1d1eb35551a7e50fca05e8c705d87bcab98f3679a2d164dee3d583f0f970"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 123410,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1077,
+        "waits": 5430,
+        "replans": 159,
+        "minSeparation": 32.02094832703379
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 21,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 3680,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            2131.3852728802162,
+            622.389679720652,
+            163.99994
+          ],
+          "goal": [
+            234.49993333333336,
+            2560,
+            163.99994
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T3",
+          "point": [
+            652.6768652310085,
+            2679.25,
+            149.91895140464743
+          ],
+          "goal": [
+            562.0013779310522,
+            2647.4739157241206,
+            162.71166444690226
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T5",
+          "point": [
+            593.4149936997085,
+            2653.7753656115924,
+            158.3965614099992
+          ],
+          "goal": [
+            362.4999333333334,
+            2560,
+            163.99994
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "65cbc6b6bbe5db0111971835329ebdd05c7d4409550d2ef09fdc0508c20e8681"
+    }
+  ]
+}

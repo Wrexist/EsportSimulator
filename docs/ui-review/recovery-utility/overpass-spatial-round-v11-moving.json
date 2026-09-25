@@ -1,0 +1,38 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Overpass",
+  "scope": "5v5 moving-squad recovery regression with gunfire disabled; not a combat or real-game lineup certificate.",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "fixtureSha256": "5403bd0a6d83c8b4c6b74029fc3cc0f5f68f4a015baa6b1531d75783d7d7a2df",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 122,
+  "minSeparation": 32.23413958973351,
+  "checks": [
+    {
+      "id": "overpass-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "82b8c396824b8c8523e75d6fcea18605b4271b89ff8ed69b0509eeaafd93e473"
+}

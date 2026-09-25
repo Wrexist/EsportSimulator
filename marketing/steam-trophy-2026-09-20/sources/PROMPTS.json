@@ -1,0 +1,7 @@
+{
+  "method": "built-in image_gen",
+  "prompt": "Create one photorealistic character cutout for a game marketing layout. Use the adult dark-haired bearded coach at the RIGHT of the reference as identity and wardrobe reference. One man only, waist-up, full head and both shoulders entirely inside frame, black fine-knit sweater, naturally focused expression, three-quarter view looking left toward a game screen, arms loosely folded with anatomically correct hands. Soft warm gold key light, subtle cool blue rim light. Clean believable photography, natural skin. Genuinely transparent alpha background, no scene, no desk, no text, no logos, no checkerboard. Entire silhouette isolated, no clipping of hair or arms. Portrait composition.",
+  "purpose": "Coach cutout for owner-authorized local promotional compositing",
+  "localCompositionAuthorization": "User: Yes, use the exact logo and local compositing",
+  "generatedMaster": "sources/coach.png"
+}

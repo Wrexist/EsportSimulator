@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "sharp": "0.35.4",
+  "xlsx": "0.20.3",
+  "checks": [
+    "IMG.LY PNG decode/mask/encode with Sharp + Zod + Lodash overrides",
+    "invalid model rejected",
+    "lossless WebP codec",
+    "XLSX workbook round trip",
+    "ONNX native binding load"
+  ],
+  "limitations": [
+    "No model inference/download or paid generation performed. Electron tested separately."
+  ]
+}

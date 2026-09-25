@@ -130,7 +130,7 @@ export function RarityTooltip({ rarity }: { rarity: string }) {
 export const StatExplanations = {
     aim: "Player's shooting accuracy and mechanical skill",
     positioning: "Map awareness and positioning sense",
-    utility: "Effective use of grenades and abilities",
+    utility: "Effective use of smoke, flash, HE and fire grenades",
     gamesense: "Reading the game and making smart decisions",
     clutch: "Performance in high-pressure 1vX situations",
     consistency: "Ability to maintain performance level",
@@ -142,7 +142,7 @@ export const StatExplanations = {
     development: "Player improvement and training effectiveness",
 
     // Team stats
-    chemistry: "How well the roster works together (compatibility × stability)",
+    chemistry: "How well the roster works together. Review compatibility, roles and recent roster changes.",
     prestige: "Team reputation affecting transfers and sponsors",
     facilities: "Training center quality affecting player development",
 
@@ -154,11 +154,11 @@ export const StatExplanations = {
     potential: "The ceiling a young player can grow toward with training. Higher potential = more room to improve.",
 
     // Competition & business
-    elo: "Hidden skill rating that sets match odds and tournament seeding. Beating stronger teams raises it faster.",
+    elo: "A team rating that changes with results and opponent strength. Check event entry rules for qualification and seeding.",
     worldRanking: "Your global position, derived from Elo. It climbs as you win against ranked opponents.",
-    circuitPoints: "Season-long points earned by placing well at events. They decide Major qualification and seeding.",
+    circuitPoints: "Points earned through event placements. Check each tournament's entry rules for qualification and seeding.",
     runway: "How many weeks your cash lasts at the current weekly net. Low runway means act before you go insolvent.",
-    boardConfidence: "How happy the board is with you. It sets your transfer war-chest and, if it bottoms out while you're on notice, your job.",
+    boardConfidence: "The board's confidence in your management. Review season expectations, job warnings and the limit shown during transfer negotiations.",
     reputation: "Your standing in the scene. Drives sponsor tiers, job offers, and which orgs will hire you."
 }
 

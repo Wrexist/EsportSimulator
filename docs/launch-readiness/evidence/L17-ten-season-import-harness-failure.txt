@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   canonicalSha256: '0c8e7cbac2092e72594a1c780ef49fe9e118bceb97be7e1fe92e9a2f9085b77d',
+-   canonicalSha256: 'f48960274cb77ffece3e64508b7400819a7f58eab48eaf6df97b9dc491b24d40',
+    intakes: 11,
+    matches: 401,
+    maxPlayers: 53,
+    promotions: 8,
+    retirements: 10,
+
+    at main (C:\Users\IsacC\EsportSimulator\scripts\launch\l17-ten-season-audit.ts:83:12)

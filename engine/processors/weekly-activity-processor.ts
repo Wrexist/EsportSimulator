@@ -18,7 +18,7 @@
 import type { GameSave } from "../save-types"
 import { WEEKLY_ACTIVITIES, type WeeklyActivityType } from "@/types"
 
-const FLAT_XP_BASE = 50
+import { weeklyActivityXpBonus } from '@/types/activities'
 
 interface WeeklyActivityContext {
     playerTeamId: string
@@ -42,6 +42,15 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const myTeam = save.teams.find((t: any) => t.id === ctx.playerTeamId)
     if (!myTeam) return
+    if (myTeam.weeklyActivityWeek !== undefined && myTeam.weeklyActivityWeek >= save.currentWeek) return
+    if (activity.cost > 0 && (!Number.isFinite(myTeam.budget) || myTeam.budget < activity.cost)) {
+        const id = `activity_unaffordable_${save.currentWeek}_${myTeam.id}`
+        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({
+            id, week: save.currentWeek, type: "TEAM_UPDATE", acknowledged: false,
+            data: { title: "Weekly activity cancelled", message: `${activity.name} needs $${activity.cost.toLocaleString()}. No payment was taken and no activity rewards were applied.`, severity: "warning" },
+        })
+        return
+    }
 
     if (activity.cost > 0) {
         myTeam.budget -= activity.cost
@@ -70,7 +79,7 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
             p.morale = Math.max(0, Math.min(100, (p.morale || 50) + activity.effects.morale))
         }
         if (activity.effects.xp && activity.effects.xp > 1) {
-            const bonus = Math.floor(FLAT_XP_BASE * (activity.effects.xp - 1))
+            const bonus = weeklyActivityXpBonus(activity)
             p.xp = (p.xp || 0) + bonus
         }
     })
@@ -109,4 +118,5 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
             severity: "info",
         },
     })
+    myTeam.weeklyActivityWeek = save.currentWeek
 }

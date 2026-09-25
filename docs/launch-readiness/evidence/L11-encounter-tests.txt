@@ -1,0 +1,34 @@
+node : PASS __tests__/spatial-encounter.test.ts
+At line:2 char:1
++ node node_modules/jest/bin/jest.js --runInBand __tests__/spatial-enco ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/spatial-encounter.test.ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  √ opaque wall prevents acquisition, aim changes, shots and damage (36 ms)
+  √ out-of-FOV opponents do not provoke a response (6 ms)
+  √ changing an unseen opponent position cannot change the observers decision state (51 ms)
+  √ reaction starts with visible evidence and prevents firing before its deadline (2 ms)
+  √ seeded damage and outcome repeat without mutating input (4 ms)
+  √ simultaneous lethal shots produce a trade instead of a first-player advantage
+  √ a floor slab blocks direct damage between vertically separated players (14 ms)
+  √ hit resolution chooses wall before target, but ignores a wall behind the target
+  √ partial cover allows visible head acquisition while torso shots still hit cover
+  √ head and torso hit volumes and misses are distinct (1 ms)
+  √ armor with a helmet reduces head damage and consumes armor (1 ms)
+  √ empty magazines reload before firing and reserve ammo decreases exactly once (3 ms)
+  √ aim turning is rate-limited after reaction and shots wait for aim alignment (1 ms)
+  √ visibility loss freezes knowledge, decays confidence, expires memory, and never fires blind (15 ms)
+  √ reacquisition requires a fresh uninterrupted reaction window (9 ms)
+  √ measured movement speed increases shot spread (9 ms)
+  √ three-shot bursts enforce cadence and accumulated recoil raises later rays (5 ms)
+  √ every shot consumes exactly one round across reloads; ammo cannot be created (8 ms)
+  √ invalid motion stops without teleporting (6 ms)
+  √ settings reject non-finite values, invalid booleans, excessive duration and magazine sizes (23 ms)
+  √ lab serialization preserves encounter settings and defaults older drafts without altering annotations
+
+Test Suites: 1 passed, 1 total
+Tests:       21 passed, 21 total
+Snapshots:   0 total
+Time:        1.34 s
+Ran all test suites matching /__tests__\\spatial-encounter.test.ts/i.

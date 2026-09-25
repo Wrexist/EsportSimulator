@@ -1,0 +1,201 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Vertigo",
+  "sourceVersion": "2000908",
+  "a": null,
+  "b": null,
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": true
+  },
+  "teams": {
+    "version": 1,
+    "seed": 4326170,
+    "seconds": 10,
+    "roundSeconds": 10,
+    "bombSeconds": 5,
+    "plantSeconds": 3,
+    "defuseSeconds": 5,
+    "openingSeconds": 10,
+    "communicationMs": 500,
+    "memorySeconds": 4,
+    "skill": {
+      "T": 0.7,
+      "CT": 0.7
+    },
+    "economy": "balanced",
+    "guns": false,
+    "initialBomb": "dropped",
+    "objective": "A",
+    "carrier": "T1",
+    "sites": {
+      "A": {
+        "area": 813,
+        "point": [
+          -145.74960129802943,
+          -714.9387913527925,
+          11779.071433780671
+        ]
+      },
+      "B": {
+        "area": 726,
+        "point": [
+          -145.750105,
+          -592.2499700000001,
+          11778
+        ]
+      }
+    },
+    "actors": [
+      {
+        "id": "T1",
+        "side": "T",
+        "start": {
+          "area": 809,
+          "point": [
+            -55.74960129802943,
+            -714.9387913527925,
+            11780
+          ]
+        },
+        "station": {
+          "area": 809,
+          "point": [
+            -55.74960129802943,
+            -714.9387913527925,
+            11780
+          ]
+        },
+        "role": "entry",
+        "yaw": -107.81888891452277,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T2",
+        "side": "T",
+        "start": {
+          "area": 726,
+          "point": [
+            -145.750105,
+            -592.2499700000001,
+            11778
+          ]
+        },
+        "station": {
+          "area": 726,
+          "point": [
+            -145.750105,
+            -592.2499700000001,
+            11778
+          ]
+        },
+        "role": "support",
+        "yaw": -89.99992833176509,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT1",
+        "side": "CT",
+        "start": {
+          "area": 933,
+          "point": [
+            -145.7496012980294,
+            -994.9387913527925,
+            11780
+          ]
+        },
+        "station": {
+          "area": 933,
+          "point": [
+            -145.7496012980294,
+            -994.9387913527925,
+            11780
+          ]
+        },
+        "role": "anchor",
+        "yaw": 0,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      }
+    ],
+    "utility": {
+      "version": 1,
+      "ceasefire": true,
+      "restitution": 0.45,
+      "friction": 0.3,
+      "inventory": {
+        "T1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T2": {
+          "smoke": 1,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        }
+      },
+      "throws": [
+        {
+          "id": "vertigo-recovery-smoke",
+          "owner": "T2",
+          "kind": "smoke",
+          "at": 0,
+          "yaw": -90,
+          "pitch": -15,
+          "power": 0.3,
+          "mode": "lob",
+          "tolerance": 4,
+          "bounceTargets": [
+            [
+              -145.7501048725114,
+              -641.1984966149223,
+              11776.049134990271
+            ],
+            [
+              -145.74977280797773,
+              -666.8746784820498,
+              11776.049134989426
+            ],
+            [
+              -145.74960129802943,
+              -674.9387913527925,
+              11776.049134988987
+            ]
+          ],
+          "origin": [
+            -145.750105,
+            -592.2499700000001,
+            11778
+          ],
+          "target": [
+            -145.74960129802943,
+            -674.9387913527925,
+            11776.049134988987
+          ],
+          "trigger": "recovery"
+        }
+      ]
+    }
+  }
+}

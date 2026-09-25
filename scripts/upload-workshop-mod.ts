@@ -14,8 +14,9 @@
  *      (App Admin → Workshop).
  *   4. You've built the mod:  npm run build:mod
  *
- * FIRST upload (creates a new Workshop item):
- *   npm run workshop:upload -- --title="Real Teams & Players 2026" \
+ * Default execution is local verification only. --publish is required to contact Steam.
+ * FIRST upload (only after release review; creates a new Workshop item):
+ *   npm run workshop:upload -- --publish --title="Real Teams & Players 2026" \
  *     --description="Real names, logos and portraits. Community overlay." \
  *     --preview=preview.png
  *
@@ -30,10 +31,11 @@
  *   --title / --description / --changenote
  *   --preview=<png|jpg>   thumbnail (Steam requires one; <=1MB, ~512x512)
  *   --tags=a,b,c          Workshop tags (default: real-data,roster)
- *   --visibility=public|friends|private   (default public)
+ *   --visibility=public|friends|private   (default private; --publish required for any upload)
  *   --appid=<n>           override steam_appid.txt
  */
 
+import { inspectModPackage } from "./mod-package"
 import fs from "node:fs"
 import path from "node:path"
 import { createRequire } from "node:module"
@@ -51,7 +53,7 @@ const DESCRIPTION = arg("description") ||
 const CHANGENOTE = arg("changenote") || "Update"
 const PREVIEW = arg("preview") ? path.resolve(ROOT, arg("preview")!) : ""
 const TAGS = (arg("tags") || "real-data,roster").split(",").map(s => s.trim()).filter(Boolean)
-const VIS = (arg("visibility") || "public").toLowerCase()
+const VIS = (arg("visibility") || "private").toLowerCase()
 
 function fail(msg: string): never {
     console.error(`\n[workshop-upload] ERROR: ${msg}\n`)
@@ -62,7 +64,9 @@ function fail(msg: string): never {
 // wrong app. Require the WHOLE trimmed value to be a positive integer.
 function parseAppId(value: string, source: string): number {
     if (!/^[1-9]\d*$/.test(value.trim())) fail(`${source} is not a valid App ID (got "${value}")`)
-    return Number(value.trim())
+    const id = Number(value.trim())
+    if (!Number.isSafeInteger(id) || id > 4294967295 || id === 480) fail("Use a real uint32 Steam App ID, not Spacewar")
+    return id
 }
 
 function resolveAppId(): number {
@@ -84,14 +88,22 @@ async function main(): Promise<void> {
     if (!fs.existsSync(path.join(CONTENT, "manifest.json"))) {
         fail(`no manifest.json in ${CONTENT} — is this a built mod folder?`)
     }
-    if (PREVIEW && !fs.existsSync(PREVIEW)) fail(`--preview file not found: ${PREVIEW}`)
-    if (!PREVIEW) {
-        console.warn("[workshop-upload] WARNING: no --preview given. Steam Workshop items need a thumbnail; " +
-            "add one via --preview=preview.png or set it on the item page afterward.")
-    }
-    if (!(VIS in VISIBILITY)) fail(`--visibility must be public|friends|private|unlisted (got "${VIS}")`)
-
+    if (!(VIS in VISIBILITY)) fail(`Unknown visibility: ${VIS}`)
     const appId = resolveAppId()
+    const preflight = await inspectModPackage(CONTENT)
+    if (appId !== preflight.manifest.appId) fail("App ID does not match the package")
+    if (ITEM && (!/^[1-9][0-9]{0,19}$/.test(ITEM) || BigInt(ITEM) > 18446744073709551615n)) fail("Invalid Workshop item ID")
+    console.log(JSON.stringify({ content: CONTENT, appId, files: preflight.files, teams: preflight.teams, players: preflight.players, bytes: preflight.bytes, releaseReady: preflight.releaseReady, action: "local preflight only" }, null, 2))
+    if (!process.argv.includes("--publish") || process.argv.includes("--dry-run") || process.argv.includes("--verify-only")) {
+        console.log("No Steam connection, upload, item creation or publication performed. Use --publish only at release after documented clearance.")
+        return
+    }
+    if (!preflight.releaseReady) fail("Package is not release-cleared. Complete release-review.json with rights and packaged Workshop evidence for this inventory, after game release.")
+    if (!PREVIEW || !fs.existsSync(PREVIEW) || fs.statSync(PREVIEW).size > 1024 * 1024) fail("A preview image up to 1 MiB is required")
+    const sharp = (await import("sharp")).default
+    const preview = await sharp(PREVIEW, { limitInputPixels: 16777216 }).metadata()
+    if (!["png", "jpeg"].includes(preview.format || "")) fail("Preview must be a PNG or JPEG")
+
     let steamworks: any
     try { steamworks = require("steamworks.js") } catch (e: any) {
         fail(`could not load steamworks.js (${e.message}). Run 'npm ci' and try again.`)

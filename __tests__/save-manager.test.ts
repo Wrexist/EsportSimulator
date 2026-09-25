@@ -68,6 +68,53 @@ function makeSave(overrides: Partial<GameSave> = {}): GameSave {
 }
 
 describe("SaveManager hardening", () => {
+    test("missing primary never promotes corrupt backup bytes, even when migration fails", async () => {
+        const storage = new MemoryStorage()
+        const save = makeSave()
+        const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+        await storage.setItem(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + '_1', '{broken')
+        const sm = new SaveManager(storage)
+        expect((await sm.loadGame(save.saveId)).save).toBeNull()
+        expect(await storage.getItem(key)).toBeNull()
+        await storage.setItem(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + '_1', JSON.stringify(save))
+        jest.spyOn(sm, 'migrateSave').mockImplementation(() => { throw new Error('migration failed') })
+        expect((await sm.loadGame(save.saveId)).save).toBeNull()
+        expect(await storage.getItem(key)).toBeNull()
+    })
+
+    test("a future-version primary is preserved even with a valid older backup", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame(save)
+        const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+        await storage.setItem(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + '_1', (await storage.getItem(key))!)
+        const future = JSON.stringify({ ...save, saveVersion: CURRENT_SAVE_VERSION + 1 })
+        await storage.setItem(key, future)
+        expect((await sm.loadGame(save.saveId)).errorCode).toBe('NEWER_VERSION')
+        expect((await sm.saveGame(save)).success).toBe(false)
+        expect(await storage.getItem(key)).toBe(future)
+    })
+
+    test("failed staging retains last-good primary; duplicate saves serialize and retry succeeds", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame(save)
+        const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
+        const lastGood = await storage.getItem(key)
+        const write = storage.setItem.bind(storage)
+        jest.spyOn(storage, 'setItem').mockImplementation(async (k, v) => {
+            if (k.endsWith('.tmp')) throw new Error('disk full')
+            await write(k, v)
+        })
+        expect((await sm.saveGame({ ...save, currentWeek: 2 })).success).toBe(false)
+        expect(await storage.getItem(key)).toBe(lastGood)
+        jest.restoreAllMocks()
+        const results = await Promise.all([sm.saveGame({ ...save, currentWeek: 2 }), sm.saveGame({ ...save, currentWeek: 3 })])
+        expect(results.every(r => r.success)).toBe(true)
+        expect((await new SaveManager(storage).loadGame(save.saveId)).save?.currentWeek).toBe(3)
+    })
     test("atomic write leaves no .tmp staging file after a successful save", async () => {
         const storage = new MemoryStorage()
         const sm = new SaveManager(storage)
@@ -399,4 +446,22 @@ describe("SaveManager migration ladder", () => {
         // v4 array fields exist
         expect(Array.isArray(migrated.academyPlayers)).toBe(true)
     })
+})
+
+
+test("career previews carry the actual club identity and player IDs without writing to the save", async () => {
+    const storage = new MemoryStorage()
+    const sm = new SaveManager(storage)
+    const save = makeSave()
+    const club = save.teams[0]
+    club.branding = { primaryColor: "#22d3ee", secondaryColor: "#164e63", accentColor: "#ffffff", logoStyle: "emblem" }
+    club.customTeamData = { primaryColor: "#22d3ee", secondaryColor: "#164e63", logoIndex: 2, logoData: "data:image/png;base64,example" } as typeof club.customTeamData
+    await storage.setItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId, JSON.stringify(save))
+    const before = [...storage.store.entries()]
+    const slots = await sm.getSaveSlots()
+    const preview = slots.find(slot => slot.saveId === save.saveId)!
+    expect(preview.teamPreview).toEqual({ id: club.id, name: club.name, logoPath: club.logoPath, branding: club.branding, customTeamData: club.customTeamData })
+    expect(preview.teamPreview).not.toHaveProperty("rosterIds")
+    expect(preview.topPlayerPreviews?.[0].id).toBe(save.players[0].id)
+    expect([...storage.store.entries()]).toEqual(before)
 })

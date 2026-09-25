@@ -87,7 +87,9 @@ describe("applyPreTickMutations — scouting completion", () => {
         const draft = makeDraft({
             currentWeek: 10,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            activeScoutingMission: { playerId: "p1", completionWeek: 10 } as any,
+            activeScoutingMission: { playerId: "p1", completionWeek: 10, scoutId: "scout1" } as any,
+            teams: [{ id: "player", rosterIds: [], staffIds: ["scout1"] }] as any,
+            staff: [{ id: "scout1", teamId: "player", role: "scout", stats: { accuracy: 70 } }] as any,
         })
         applyPreTickMutations(draft, {
             playerTeamId: "player", currentWeek: 10, rng: new SeededRNG(1), nextId,
@@ -96,7 +98,7 @@ describe("applyPreTickMutations — scouting completion", () => {
         expect(draft.scoutedPlayers.length).toBe(1)
         expect(draft.scoutedPlayers[0].playerId).toBe("p1")
         expect(draft.scoutedPlayers[0].scoutLevel).toBe("EXPERT")
-        const evt = draft.eventsLog.find(e => e.id.startsWith("evt_scout_complete"))
+        const evt = draft.eventsLog.find(e => e.id.startsWith("scouting_complete"))
         expect(evt).toBeDefined()
     })
 
@@ -112,7 +114,7 @@ describe("applyPreTickMutations — scouting completion", () => {
         })
         expect(draft.activeScoutingMission).toBeUndefined()
         expect(draft.scoutedPlayers.length).toBe(0)
-        const evt = draft.eventsLog.find(e => e.id.startsWith("evt_scout_failed"))
+        const evt = draft.eventsLog.find(e => e.id.startsWith("scouting_cancelled"))
         expect(evt).toBeDefined()
     })
 
@@ -120,7 +122,9 @@ describe("applyPreTickMutations — scouting completion", () => {
         const draft = makeDraft({
             currentWeek: 5,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            activeScoutingMission: { playerId: "p1", completionWeek: 10 } as any,
+            activeScoutingMission: { playerId: "p1", completionWeek: 10, scoutId: "scout1" } as any,
+            teams: [{ id: "player", rosterIds: [], staffIds: ["scout1"] }] as any,
+            staff: [{ id: "scout1", teamId: "player", role: "scout", stats: { accuracy: 70 } }] as any,
         })
         applyPreTickMutations(draft, {
             playerTeamId: "player", currentWeek: 5, rng: new SeededRNG(1), nextId,
@@ -134,7 +138,9 @@ describe("applyPreTickMutations — scouting completion", () => {
             currentWeek: 10,
             scoutedPlayers: [{ playerId: "p1", scoutedWeek: 5, scoutLevel: "EXPERT" } as never],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            activeScoutingMission: { playerId: "p1", completionWeek: 10 } as any,
+            activeScoutingMission: { playerId: "p1", completionWeek: 10, scoutId: "scout1" } as any,
+            teams: [{ id: "player", rosterIds: [], staffIds: ["scout1"] }] as any,
+            staff: [{ id: "scout1", teamId: "player", role: "scout", stats: { accuracy: 70 } }] as any,
         })
         applyPreTickMutations(draft, {
             playerTeamId: "player", currentWeek: 10, rng: new SeededRNG(1), nextId,

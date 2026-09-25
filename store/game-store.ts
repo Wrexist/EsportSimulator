@@ -1,5 +1,8 @@
 "use client"
 
+import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
+import { createDefaultTactics } from "@/engine/default-tactics"
+import { refreshStockIdentities } from "@/lib/identity-refresh"
 import { enableMapSet } from "immer"
 import { create } from "zustand"
 import { immer } from "zustand/middleware/immer"
@@ -83,6 +86,7 @@ import { createTournamentSlice } from "@/store/slices/tournament-slice"
 import { createEventsSlice } from "@/store/slices/events-slice"
 import { createUISlice } from "@/store/slices/ui-slice"
 import { createSponsorshipSlice } from "@/store/slices/sponsorship-slice"
+import { createPhysicalPreviewSlice, type PhysicalPreviewActions } from '@/store/slices/physical-preview-slice'
 import { createMatchUISlice } from "@/store/slices/match-ui-slice"
 import { createMatchOperationsSlice } from "@/store/slices/match-operations-slice"
 import { createMatchSchedulingSlice } from "@/store/slices/match-scheduling-slice"
@@ -90,6 +94,7 @@ import { createMatchSimulationSlice } from "@/store/slices/match-simulation-slic
 import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
+import { useSettingsStore } from "@/lib/settings-store"
 import { applyFplWeek } from "@/engine/processors/fpl-week-processor"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
@@ -114,7 +119,7 @@ type RngBackedState = {
 }
 
 const nextRandom = (state: RngBackedState): number => {
-  const rng = new SeededRNG(state.lastRngSeed || generateSeed())
+  const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
   const value = rng.next()
   state.lastRngSeed = rng.getState()
   return value
@@ -132,6 +137,9 @@ const nextRandomInt = (state: RngBackedState, min: number, max: number): number 
 // turn. The chain swallows prior rejections so one failed save can't block the
 // next; the caller still receives its own save's real result/rejection.
 let saveChain: Promise<void> = Promise.resolve()
+let pendingGameSave: Promise<void> | null = null
+export async function waitForPendingGameSave(): Promise<void> { await pendingGameSave }
+let careerGeneration = 0
 
 const nextDeterministicId = (
   state: RngBackedState,
@@ -242,7 +250,7 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
       match.id,
       match.week,
       match.day ?? 6,
-      state.lastRngSeed || 1
+      state.lastRngSeed ?? 1
     )
 
     const runtimeMatch: any = {
@@ -399,7 +407,7 @@ const parseBoundedNumber = (
 }
 
 // UI-specific state extensions
-interface GameStoreState {
+export interface GameStoreState {
   // Game Data (Mirrors GameSave)
   saveId: string | null
   saveName: string
@@ -408,6 +416,7 @@ interface GameStoreState {
   timeMode: "WEEKLY" | "HYBRID_DAILY"
   gameStartDate: string
   lastRngSeed: number
+  lastCommittedWeekTick?: number
 
   teams: TeamSaveData[]
   players: PlayerSaveData[]
@@ -437,6 +446,7 @@ interface GameStoreState {
   availableEquipment: EquipmentItem[]
 
   // Phase 22: Professional Polish
+  firstSession?: import('@/lib/first-session').FirstSessionState
   onboardingCompleted: boolean
   tutorialCompleted: boolean
   showTutorialOnNewGame: boolean
@@ -464,6 +474,7 @@ interface GameStoreState {
   // Phase 40: Navigation Guard
   activeMatchId: string | null
   activeMatchState: ActiveMatchState | null
+  physicalMatchPreview?: import('@/engine/spatial/career-round-journal').PhysicalCareerJournal | null
 
   // Phase 39: Customizable Tactical Loadouts
   customTactics: CustomTactics
@@ -546,11 +557,11 @@ interface GameStoreState {
   showBugReportButton: boolean
 }
 
-interface GameStoreActions {
+interface GameStoreActions extends PhysicalPreviewActions {
   // Lifecycle
   initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
-  loadGame: (saveId: string) => Promise<void>
+  loadGame: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<void>
   saveGame: () => Promise<void>
   initAchievements: () => void
   addNewsItem: (item: Omit<GameStoreState["newsFeed"][0], "id" | "week">) => void
@@ -593,7 +604,7 @@ interface GameStoreActions {
 
   // Multi-slot Save System
   listSaves: () => Promise<SaveSlotMetadata[]>
-  switchSave: (saveId: string) => Promise<boolean>
+  switchSave: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<boolean>
   deleteSaveInSlot: (saveId: string) => Promise<void>
   deleteAllSaves: () => Promise<void>
   attemptSaveRecovery: (saveId: string) => Promise<boolean>
@@ -601,6 +612,7 @@ interface GameStoreActions {
 
   // Phase 22: Professional Polish
   completeOnboarding: () => void
+  reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
@@ -615,6 +627,7 @@ interface GameStoreActions {
 
   // Phase 9: Scouting
   startScoutingMission: (playerId: string) => void
+  cancelScoutingMission: () => void
   getScoutingLevel: (playerId: string) => string
   isPlayerScouted: (playerId: string) => boolean
   toggleWatchlistPlayer: (playerId: string) => void
@@ -768,6 +781,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createSponsorshipSlice>[0],
         get as Parameters<typeof createSponsorshipSlice>[1],
       ),
+      ...createPhysicalPreviewSlice(
+        set as Parameters<typeof createPhysicalPreviewSlice>[0],
+        get as Parameters<typeof createPhysicalPreviewSlice>[1],
+      ),
       ...createMatchUISlice(
         set as Parameters<typeof createMatchUISlice>[0],
         get as Parameters<typeof createMatchUISlice>[1],
@@ -839,6 +856,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         maxBudget: 100000
       },
       lastRngSeed: generateSeed(),
+      lastCommittedWeekTick: undefined,
 
       teams: [],
       players: [],
@@ -941,122 +959,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Navigation Guard
       activeMatchId: null,
       activeMatchState: null,
+      physicalMatchPreview: null,
       // setActiveMatch / updateActiveMatchState / clearActiveMatchState /
       // updateCustomTactic moved to store/slices/match-ui-slice.ts (spread above).
 
       // Phase 39/43: Default Tactics with Per-Player Loadouts
-      customTactics: {
-        ECO: {
-          ct: {
-            primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "usp", secondaryWeaponId: "usp", armorTier: "NONE", hasKit: false, utility: [] }
-            ]
-          },
-          t: {
-            primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "glock", secondaryWeaponId: "glock", armorTier: "NONE", hasKit: false, utility: [] }
-            ]
-          }
-        },
-        FORCE: {
-          ct: {
-            primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "mp9", secondaryWeaponId: "fiveseven", armorTier: "LIGHT", hasKit: false, utility: [] }
-            ]
-          },
-          t: {
-            primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "mac10", secondaryWeaponId: "p250", armorTier: "LIGHT", hasKit: false, utility: [] }
-            ]
-          }
-        },
-        SEMIBUY: {
-          ct: {
-            primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "famas", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: false, utility: [] }
-            ]
-          },
-          t: {
-            primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "galil", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] }
-            ]
-          }
-        },
-        FULL: {
-          ct: {
-            primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] }
-            ]
-          },
-          t: {
-            primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "RIFLER", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] }
-            ]
-          }
-        },
-        "DOUBLE AWP": {
-          ct: {
-            primaryWeaponId: "awp", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 1, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "m4a1s", secondaryWeaponId: "usp", armorTier: "HEAVY", hasKit: true, utility: [] }
-            ]
-          },
-          t: {
-            primaryWeaponId: "awp", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [],
-            playerLoadouts: [
-              { slotIndex: 0, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 1, roleHint: "AWPER", primaryWeaponId: "awp", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 2, roleHint: "RIFLER", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 3, roleHint: "SUPPORT", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] },
-              { slotIndex: 4, roleHint: "IGL", primaryWeaponId: "ak47", secondaryWeaponId: "glock", armorTier: "HEAVY", hasKit: false, utility: [] }
-            ]
-          }
-        }
-      },
+      customTactics: createDefaultTactics(),
 
       playerTeamId: null,
       isLoading: false,
@@ -1096,6 +1004,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       initializeNewGame: async (saveName, playerTeamId) => {
+        careerGeneration++
+        weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null })
         try {
           // Ensure snapshot is loaded
@@ -1260,7 +1170,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const { initializeFPL } = require("@/engine/fpl-engine")
 
           // Generate non-pro FPL players (streamers, semi-pros, grinders, etc.)
-          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed || generateSeed())
+          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed ?? generateSeed())
           const { players: nonProPlayers, metadata: nonProMetadata } = generateFPLNonProPlayers(
             newSave.currentWeek,
             fplGeneratorRng
@@ -1281,17 +1191,21 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           seedPreseasonFriendlies(newSave, playerTeamId)
 
           // Initial Save
-          await saveManager.saveGame(newSave)
+          newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
+          newSave.selectedWeeklyActivity = null
+          const initialSaveResult = await saveManager.saveGame(newSave)
+          if (!initialSaveResult.success) throw new Error(initialSaveResult.error || "Could not save the new career. Free disk space and retry.")
 
           // Update Store
           set({
             ...newSave,
+            lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
+            manualTutorialTrigger: 0,
             tutorialCompleted: false, // Reset tutorial for new game
             onboardingCompleted: false, // Reset onboarding for new game
-            showTutorialOnNewGame: true, // Always enable tutorial for new games
             isInitialized: true,
             isLoading: false
           })
@@ -1310,6 +1224,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
        * Initialize a custom team for "Build Your Own Team" mode
        */
       initializeCustomTeam: async (managerName, teamData) => {
+        careerGeneration++
+        weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null })
         try {
           // Import team creator engine
@@ -1512,7 +1428,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const { initializeFPL } = require("@/engine/fpl-engine")
 
           // Generate non-pro FPL players (streamers, semi-pros, grinders, etc.)
-          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed || generateSeed())
+          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed ?? generateSeed())
           const { players: nonProPlayers, metadata: nonProMetadata } = generateFPLNonProPlayers(
             newSave.currentWeek,
             fplGeneratorRng
@@ -1530,7 +1446,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Generate starter academy prospects for custom teams
           try {
             const { generateProspectBatch } = await import("@/engine/prospect-generator")
-            const prospectRng = new SeededRNG(newSave.lastRngSeed || generateSeed())
+            const prospectRng = new SeededRNG(newSave.lastRngSeed ?? generateSeed())
             const starterProspects = generateProspectBatch(3, "LOCAL", prospectRng)
 
             // Convert prospects to PlayerSaveData and add to game
@@ -1624,20 +1540,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }
           })
 
-          // Save game (match initializeNewGame behavior — don't throw on validation failure)
-          await saveManager.saveGame(newSave)
+          // Do not open a career whose first durable write failed.
+          newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
+          newSave.selectedWeeklyActivity = null
+          const initialSaveResult = await saveManager.saveGame(newSave)
+          if (!initialSaveResult.success) throw new Error(initialSaveResult.error || "Could not save the new career. Free disk space and retry.")
 
           // Update Store
           set({
             ...newSave,
+            lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
             playerTeamId: result.teamId,
             theme: "crystal",
+            manualTutorialTrigger: 0,
             tutorialCompleted: false,
             onboardingCompleted: false,
-            showTutorialOnNewGame: true,
             isInitialized: true,
             isLoading: false,
           })
@@ -1675,10 +1595,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      loadGame: async (saveId) => {
+      loadGame: async (saveId, cloudChoice) => {
+        careerGeneration++
+        weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null, lastLoadError: null })
         try {
-          const { save, error, errorCode, restoredFromBackup } = await saveManager.loadGame(saveId)
+          const { save, error, errorCode, restoredFromBackup } = await saveManager.loadGame(saveId, cloudChoice)
 
           if (error || !save) {
             const message = error || "Save not found"
@@ -1717,6 +1639,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const hydratedSave: GameSave = typeof structuredClone === "function"
             ? structuredClone(save)
             : JSON.parse(JSON.stringify(save))
+
+          refreshStockIdentities(hydratedSave)
 
           // Augment with new fields if missing (backward compatibility)
           hydratedSave.players.forEach(p => {
@@ -1847,10 +1771,35 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           set({
             ...hydratedSave,
+            firstSession: restoreFirstSession(hydratedSave.firstSession),
+            selectedWeeklyActivity: restoreWeeklyPlan(hydratedSave.selectedWeeklyActivity),
+            manualTutorialTrigger: 0,
+            tutorialCompleted: restoreFirstSession(hydratedSave.firstSession).status !== "active",
+            onboardingCompleted: restoreFirstSession(hydratedSave.firstSession).status === "complete",
+            customTactics: hydratedSave.customTactics ?? createDefaultTactics(),
+            watchlistedPlayerIds: hydratedSave.watchlistedPlayerIds ?? [],
+            activeMatchId: hydratedSave.activeMatchId ?? null,
+            activeMatchState: hydratedSave.activeMatchState ?? null,
+            physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
+            boardState: hydratedSave.boardState,
+            socialFeed: hydratedSave.socialFeed,
+            activeScoutingMission: hydratedSave.activeScoutingMission,
+            gameOverReason: hydratedSave.gameOverReason,
+            gameOverWeek: hydratedSave.gameOverWeek,
+            pendingCelebration: hydratedSave.pendingCelebration ?? null,
+            pendingSeasonRecap: hydratedSave.pendingSeasonRecap ?? null,
+            pendingLegendPick: hydratedSave.pendingLegendPick ?? null,
+            signedLegendIds: hydratedSave.signedLegendIds ?? [],
+            activelyPlayingLegendIds: hydratedSave.activelyPlayingLegendIds ?? [],
+            declinedSponsorOfferIds: hydratedSave.declinedSponsorOfferIds ?? [],
+            sponsorOffers: hydratedSave.sponsorOffers ?? [],
+            difficulty: hydratedSave.difficulty ?? "normal",
+            nextMarketRefreshWeek: hydratedSave.nextMarketRefreshWeek,
+            lastCommittedWeekTick: hydratedSave.lastCommittedWeekTick,
             playerTeamId: inferredTeamId,
             currentDay: (typeof hydratedSave.currentDay === "number" ? Math.max(0, Math.min(6, Math.floor(hydratedSave.currentDay))) : 6),
             timeMode: hydratedSave.timeMode === "HYBRID_DAILY" ? "HYBRID_DAILY" : "WEEKLY",
-            lastRngSeed: hydratedSave.lastRngSeed || generateSeed(),
+            lastRngSeed: hydratedSave.lastRngSeed ?? generateSeed(),
             marketStaff: hydratedSave.marketStaff || [],
             newsFeed: hydratedSave.newsFeed || [],
             academyPlayers: hydratedSave.academyPlayers || [],
@@ -1894,76 +1843,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           return
         }
 
-        // NOTE: We intentionally do NOT set({ isLoading: true }) here.
-        // Setting isLoading triggers Zustand persist to serialize and write the
-        // entire multi-MB state to IndexedDB, creating concurrent transactions
-        // that interfere with SaveManager's own writes and cause save failures.
         try {
-          // Use gameStartDate as createdAt — avoids a full loadGame() round-trip
-          // (which involved IndexedDB reads + Steam Cloud IPC + SHA-256 hashing)
-          // just to retrieve a single timestamp.
-          const createdAt = state.gameStartDate || new Date().toISOString()
-
-          // Construct GameSave object from state
-          const gameSave: GameSave = {
-            saveVersion: CURRENT_SAVE_VERSION,
-            saveId: state.saveId,
-            saveName: state.saveName,
-            managerDetails: state.managerDetails,
-            playerTeamId: state.playerTeamId || "unknown",
-            createdAt,
-            updatedAt: new Date().toISOString(),
-            lastPlayedAt: new Date().toISOString(),
-            currentWeek: state.currentWeek,
-            currentDay: state.currentDay,
-            timeMode: state.timeMode,
-            gameStartDate: state.gameStartDate,
-            teams: state.teams,
-            players: state.players,
-            contracts: state.contracts,
-            tournaments: state.tournaments,
-            staff: state.staff,
-            marketStaff: state.marketStaff || [],
-            scheduledMatches: state.scheduledMatches,
-            completedMatches: state.completedMatches,
-            scheduledActivities: state.scheduledActivities || [],
-            financeLedger: state.financeLedger,
-            eventsLog: state.eventsLog,
-            acknowledgedEventIds: state.acknowledgedEventIds,
-            lastRngSeed: state.lastRngSeed || generateSeed(),
-            legendaryPlayers: state.legendaryPlayers,
-            weekTickState: null,
-            scoutedPlayers: state.scoutedPlayers || [],
-            activeScoutingMission: state.activeScoutingMission,
-            circuitPoints: state.circuitPoints || [],
-            tournamentQualifications: state.tournamentQualifications || [],
-            newsFeed: state.newsFeed,
-            transferHistory: state.transferHistory || [],
-            hallOfFame: state.hallOfFame || FOUNDING_LEGENDS, // Use constant if empty
-            signedLegendIds: state.signedLegendIds || [],
-            activelyPlayingLegendIds: state.activelyPlayingLegendIds || [],
-            // Academy (Phase 40)
-            academyPlayers: state.academyPlayers || [],
-            academyRoster: state.academyRoster || { IGL: null, Entry: null, AWPer: null, Support: null, Rifler: null },
-            academyMatchHistory: state.academyMatchHistory || [],
-            academyTrainingSchedule: state.academyTrainingSchedule || {},
-            academyWeeklyReports: state.academyWeeklyReports || [],
-            academyScoutingMissions: state.academyScoutingMissions || [],
-            academyPendingProspects: state.academyPendingProspects || [],
-            sponsorOffers: state.sponsorOffers || [],
-            declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
-            fplData: state.fplData,
-            boardState: state.boardState,
-            socialFeed: state.socialFeed,
-            careerStats: state.careerStats,
-            nextMarketRefreshWeek: state.nextMarketRefreshWeek,
-            pendingCelebration: state.pendingCelebration,
-            pendingSeasonRecap: state.pendingSeasonRecap,
-            pendingLegendPick: state.pendingLegendPick,
-            difficulty: state.difficulty,
-            gameOverReason: state.gameOverReason ?? undefined,
-            gameOverWeek: state.gameOverWeek ?? undefined,
-          }
+          const gameSave = buildSaveSnapshot(state)
 
           const saveResult = await saveManager.saveGame(gameSave)
           if (!saveResult.success) {
@@ -1992,12 +1873,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // order. The caller awaits its own link (with the real rejection); the
         // chain itself swallows rejections so a failure can't wedge later saves.
         const chained = saveChain.then(run, run)
+        pendingGameSave = chained
+        const finished = () => { if (pendingGameSave === chained) pendingGameSave = null }
+        void chained.then(finished, finished)
         saveChain = chained.catch(() => {})
         return chained
       },
 
       advanceDay: async () => {
         const state = get()
+        if (state.isLoading) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -2023,6 +1908,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
+        if (state.isLoading) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -2061,6 +1947,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceWeek: async () => {
         const state = get()
+        const generation = careerGeneration
 
         // Guard: prevent concurrent week processing (race condition from rapid key presses)
         if (state.isLoading) return
@@ -2096,16 +1983,18 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         await new Promise(resolve => setTimeout(resolve, 0))
 
         try {
-          const preTickRng = new SeededRNG(state.lastRngSeed || generateSeed())
+          if (generation !== careerGeneration || get().saveId !== state.saveId) return
 
           // Build a clean GameSave snapshot detached from store state so
           // the worker thread receives a serialization-safe copy.
           const latestState = get()
           const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
+          const preTickRng = new SeededRNG(saveState.lastRngSeed ?? generateSeed())
 
           // Yield so the browser can paint the overlay spinner frame after
           // the structuredClone (the most expensive synchronous step).
           await new Promise(resolve => setTimeout(resolve, 0))
+          if (generation !== careerGeneration || get().saveId !== state.saveId) return
 
           // Pre-tick mutations: scouting completion, staff-market rotation,
           // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
@@ -2195,11 +2084,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // original `saveState` reference.
           const { result, save: processedSave, rngState: postWeekRngState } =
             await weekProcessorBridge.processWeek(saveState, config, rng)
+          if (generation !== careerGeneration || get().saveId !== state.saveId) return
           processedSave.lastRngSeed = postWeekRngState
 
           if (result.success) {
             set((draft) => {
-              Object.assign(draft, { ...processedSave, isLoading: false })
+              Object.assign(draft, processedSave)
               draft.currentDay = draft.timeMode === "HYBRID_DAILY" ? 0 : 6
               draft.selectedWeeklyActivity = null // Reset selection
 
@@ -2212,11 +2102,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               recalculateAllSynergy(draft.teams, draft.players)
             })
 
-            // Post-week processing. The week is already committed by the set()
-            // above (and isLoading is false). Isolate any failure here in its
-            // own try so it cannot trigger the outer catch's "week failed"
-            // path or leave the store half-updated for an already-advanced
-            // week.
+            // Keep progression locked through post-processing and the final
+            // durable save. A failed post-step must not replay an advanced week.
             try {
             // Process academy weekly training, scouting missions, and prospect development
             get().processAcademyWeek()
@@ -2384,15 +2271,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               } catch { /* indexes are best-effort */ }
             }
 
-            // Authoritative persist of the fully post-processed week. The week
-            // processor runs in a Worker that writes nothing (compute-only), and
-            // even on the synchronous fallback the processor's own save happens
-            // BEFORE the post-tick steps above (academy budget/history, array
-            // pruning, synergy recompute, correct lastRngSeed) — which live only
-            // in memory until now. Persist once, from the main thread, so the
-            // on-disk save matches what the player sees. A failure here must NOT
-            // roll back the already-committed week: saveGame surfaces its own
-            // error toast and the next autosave retries.
+            // Both compute transports are persistence-free. Commit the complete
+            // application state once; failed saves retain the week in memory so
+            // manual save or autosave can retry without simulating it twice.
             try {
               await get().saveGame()
               // Refresh the cross-save career profile (peak level/majors/rank)
@@ -2401,12 +2282,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               void recordCareerProgress(get() as unknown as GameSave)
             } catch (saveErr) {
               logger.error("[advanceWeek] post-tick authoritative save failed (week committed in memory)", saveErr)
+            } finally {
+              if (generation === careerGeneration) set({ isLoading: false })
             }
           } else {
             throw new Error(result.error || "Week processing failed")
           }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Advance failed"
+          if (generation !== careerGeneration) return
           logger.error("[advanceWeek] Failed", err)
           set({ isLoading: false, error: message })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
@@ -2445,9 +2329,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         return await saveManager.getSaveSlots()
       },
 
-      switchSave: async (saveId) => {
+      switchSave: async (saveId, cloudChoice) => {
         try {
-          await get().loadGame(saveId)
+          await get().loadGame(saveId, cloudChoice)
+          if (get().lastLoadError) return false
           const loadedSaveId = get().saveId
           if (loadedSaveId === saveId) {
             await asyncStorage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, saveId)
@@ -2466,7 +2351,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       deleteAllSaves: async () => {
-        await saveManager.deleteAllSaves()
+        if (get().isLoading) throw new Error("Wait for the current operation before deleting careers.")
+        careerGeneration++
+        weekProcessorBridge.reset?.()
+        set({ isLoading: true })
+        try {
+        await waitForPendingGameSave()
+        const deleted = await saveManager.deleteAllSaves()
+        if (!deleted.success) throw new Error("Some careers could not be deleted. Your current session is still open; check storage and retry.")
         // Reset state
         set({
           saveId: null,
@@ -2476,6 +2368,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           teams: [],
           players: [],
         })
+        } finally { set({ isLoading: false }) }
       },
 
       attemptSaveRecovery: async (saveId) => {
@@ -2610,6 +2503,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // to restore it from the save file on page refresh.
       partialize: (state) => ({
         // User settings — must survive app restarts without an active game
+        firstSession: state.firstSession,
         onboardingCompleted: state.onboardingCompleted,
         tutorialCompleted: state.tutorialCompleted,
         showTutorialOnNewGame: state.showTutorialOnNewGame,
@@ -2620,7 +2514,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         musicVolume: state.musicVolume,
         gameSpeed: state.gameSpeed,
         difficulty: state.difficulty,
-        autoSave: state.autoSave,
         notifications: state.notifications,
         showBugReportButton: state.showBugReportButton,
         // UI preference
@@ -2629,6 +2522,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         saveId: state.saveId,
       }) as typeof state,
       onRehydrateStorage: () => (state, error) => {
+        if (state && !error) useSettingsStore.getState().adoptLegacyAutoSave(state.autoSave)
         if (error) {
           logger.error('[Store] Rehydration failed', error)
         }

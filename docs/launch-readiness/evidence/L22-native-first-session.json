@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "fixtureId": "qa_first-week_4022",
+  "legacyFixtureId": "qa_first-week_4023",
+  "realStoreLoadSave": true,
+  "skipReload": true,
+  "replayWorldUnchanged": true,
+  "crossCareerIsolation": true,
+  "weeklyFocusReload": true,
+  "firstMatchId": "qa_match_first-week",
+  "firstResultSaved": true,
+  "finalGuide": {
+    "version": 1,
+    "status": "complete",
+    "reviewed": [
+      "squad",
+      "budget",
+      "plan",
+      "match"
+    ]
+  },
+  "limitation": "Programmatic real-store acceptance in isolated Electron; no UI interaction or fresh-player testing.",
+  "buildId": "X-YUbkV5tvJuK3DL9cuDK"
+}

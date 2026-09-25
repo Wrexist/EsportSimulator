@@ -16,7 +16,7 @@ export function GlassTable({
     ...props
 }: React.ComponentProps<typeof Table>) {
     return (
-        <div className="glass-panel rounded-lg overflow-x-auto border-white/5 bg-black/20">
+        <div className="glass-card min-w-0 rounded-lg overflow-hidden border-white/5 bg-black/20">
             <Table className={cn("border-collapse", className)} {...props}>
                 {children}
             </Table>
@@ -37,7 +37,7 @@ export function GlassTableHead({ className, ...props }: React.ComponentProps<typ
     return (
         <TableHead
             className={cn(
-                "h-12 px-4 text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em] align-middle",
+                "h-10 px-3 text-xs font-medium text-muted-foreground tracking-wide align-middle",
                 className
             )}
             {...props}
@@ -48,6 +48,7 @@ export function GlassTableHead({ className, ...props }: React.ComponentProps<typ
 export function GlassTableRow({ className, ...props }: React.ComponentProps<typeof TableRow>) {
     return (
         <tr
+            data-slot="table-row"
             className={cn(
                 "border-b-white/5 group transition-colors duration-75 ease-out hover:bg-white/[0.045]",
                 (props as any).onClick ? "cursor-pointer" : "cursor-default",
@@ -63,7 +64,7 @@ export function GlassTableCell({ className, isHeader, ...props }: React.Componen
     return (
         <Component
             className={cn(
-                "p-4 text-sm font-medium text-white/90 align-middle",
+                "p-3 text-sm font-medium text-white/90 align-middle",
                 isHeader && "text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em]",
                 className
             )}

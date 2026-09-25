@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "electron": "44.3.0",
+  "checks": [
+    {
+      "stage": "preferences-reloaded",
+      "masterVolume": 0,
+      "uiScale": 110
+    }
+  ]
+}

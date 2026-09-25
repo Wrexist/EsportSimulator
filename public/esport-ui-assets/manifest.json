@@ -1,0 +1,326 @@
+{
+  "portraitsImported": false,
+  "basis": "Owner supplied visual pack and requested integration; original PNGs retained, WebP derivatives made by existing sharp pipeline.",
+  "files": [
+    {
+      "path": "public/esport-ui-assets/backgrounds/club-campus-dusk.png",
+      "source": "esport-ui-assets/backgrounds/club-campus-dusk.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2209177,
+      "sha256": "c9c8dccf7c48d935bc87e7634621e376be5e442311e803b7bcd0519d14dae599"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/club-campus-dusk.webp",
+      "source": "esport-ui-assets/backgrounds/club-campus-dusk.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 238212,
+      "sha256": "5a55d38621301ee7bd54c7111e0c5e064fbfe12f6cf2ef4f0fd7c030105b9f4b"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/club-overview-hq.png",
+      "source": "esport-ui-assets/backgrounds/club-overview-hq.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1982272,
+      "sha256": "d2021fb7b5d2c7e23a57f76e20594970296f2ddc89328935e42628f70da761a8"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/club-overview-hq.webp",
+      "source": "esport-ui-assets/backgrounds/club-overview-hq.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 159600,
+      "sha256": "73a4f63ffae8b9fbccfc773d0959cda7dcf8103d33587cafed84723022eada87"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/match-command-arena.png",
+      "source": "esport-ui-assets/backgrounds/match-command-arena.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1825493,
+      "sha256": "98606c674544873e313126809e11adcdc6696644f75bd7d597a155f718ce1af8"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/match-command-arena.webp",
+      "source": "esport-ui-assets/backgrounds/match-command-arena.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 113374,
+      "sha256": "041c729ef5f75e0c084edb62e4ffd4202e4b9550d0ed05d1905c975b130de3c5"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/scouting-war-room.png",
+      "source": "esport-ui-assets/backgrounds/scouting-war-room.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1651527,
+      "sha256": "a83f6dd8e51bc728c8b93e46fe947c75c4f8255c7994455e9fc72804dd438e7c"
+    },
+    {
+      "path": "public/esport-ui-assets/backgrounds/scouting-war-room.webp",
+      "source": "esport-ui-assets/backgrounds/scouting-war-room.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 108120,
+      "sha256": "0af8a29883db914e30b1404a90755689e629ef565e8b5ee8d963e0547982c136"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-00.png",
+      "source": "esport-ui-assets/facilities/facility-a-00.png",
+      "width": 992,
+      "height": 397,
+      "bytes": 614484,
+      "sha256": "223c529bae5e0057e30d4b8f58c8cbbc0ff7c1cb3324f7c269bbeebaf809681f"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-00.webp",
+      "source": "esport-ui-assets/facilities/facility-a-00.png",
+      "width": 992,
+      "height": 397,
+      "bytes": 75332,
+      "sha256": "08370602fc652ab5a521104873e1536acf2a678244f9870a3bc87f7ef73e8f15"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-01.png",
+      "source": "esport-ui-assets/facilities/facility-a-01.png",
+      "width": 991,
+      "height": 397,
+      "bytes": 665668,
+      "sha256": "35e39b752f781b5faa156154df1684d111cea0861d187ed89cb8419867fdc7f3"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-01.webp",
+      "source": "esport-ui-assets/facilities/facility-a-01.png",
+      "width": 991,
+      "height": 397,
+      "bytes": 82638,
+      "sha256": "3a36e654e46f7e1792898ef258e50df04f4b00734916bfbc40fe8081d109e154"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-02.png",
+      "source": "esport-ui-assets/facilities/facility-a-02.png",
+      "width": 992,
+      "height": 396,
+      "bytes": 667493,
+      "sha256": "e0f81f96ea364343739b489925f5c9793d68fa4aca049d034cd9e5ad31c858b3"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-02.webp",
+      "source": "esport-ui-assets/facilities/facility-a-02.png",
+      "width": 992,
+      "height": 396,
+      "bytes": 86414,
+      "sha256": "86b5099c33c8eaaded1a8a878e4c4b8cdb0d8d34b72b9233b0385284a5475d4c"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-03.png",
+      "source": "esport-ui-assets/facilities/facility-a-03.png",
+      "width": 991,
+      "height": 396,
+      "bytes": 606837,
+      "sha256": "bbb09c139fbd93ccb67455e9dabea461f0b6527010c4f368940d126760415c9e"
+    },
+    {
+      "path": "public/esport-ui-assets/facilities/facility-a-03.webp",
+      "source": "esport-ui-assets/facilities/facility-a-03.png",
+      "width": 991,
+      "height": 396,
+      "bytes": 71246,
+      "sha256": "81527012b8961da1f88a5481b8081e64102ff3adab39d8a47069c9606559e796"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-00.png",
+      "source": "esport-ui-assets/equipment/gear-a-00.png",
+      "width": 715,
+      "height": 550,
+      "bytes": 424673,
+      "sha256": "d69c60d5c62bff92d3620477c650e6e04615e761f285bd2c072d482657dc9921"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-00.webp",
+      "source": "esport-ui-assets/equipment/gear-a-00.png",
+      "width": 640,
+      "height": 453,
+      "bytes": 17596,
+      "sha256": "126e588420c4a77029b66460f2b6a8ce8ae4ea437738c21d96469da5601caed4"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-01.png",
+      "source": "esport-ui-assets/equipment/gear-a-01.png",
+      "width": 715,
+      "height": 550,
+      "bytes": 443138,
+      "sha256": "61f035f2529c45e321a97dab0e7e4e1b88d9a7c5d1f6e0bd86b0bf5d5c8ad5b1"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-01.webp",
+      "source": "esport-ui-assets/equipment/gear-a-01.png",
+      "width": 640,
+      "height": 453,
+      "bytes": 23042,
+      "sha256": "b55a70ced0ebc202a8b304d07ab07fdbb90d63b509f292ebc7df7178215e51fd"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-02.png",
+      "source": "esport-ui-assets/equipment/gear-a-02.png",
+      "width": 715,
+      "height": 550,
+      "bytes": 449213,
+      "sha256": "2b5dd33e14fdc27e83a54e79796d2dc1dd358576d69871b90bcb1f291a9e4fb8"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-02.webp",
+      "source": "esport-ui-assets/equipment/gear-a-02.png",
+      "width": 640,
+      "height": 453,
+      "bytes": 20970,
+      "sha256": "76af502f9556bccedf78deb0dd334c6da7bf54d649f84bec9674dc4b8d14ca80"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-03.png",
+      "source": "esport-ui-assets/equipment/gear-a-03.png",
+      "width": 715,
+      "height": 550,
+      "bytes": 367929,
+      "sha256": "2244a6cd1929d88a5eef67ccec485c2cafdc8149fd1106bec828e91a03013835"
+    },
+    {
+      "path": "public/esport-ui-assets/equipment/gear-a-03.webp",
+      "source": "esport-ui-assets/equipment/gear-a-03.png",
+      "width": 640,
+      "height": 453,
+      "bytes": 13604,
+      "sha256": "ae1943722e0f6fd36c134d9ba8ac1fcd41e8e83460681d094d94d286044c5fdb"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-00.png",
+      "source": "esport-ui-assets/crests/crest-a-00.png",
+      "width": 444,
+      "height": 444,
+      "bytes": 199686,
+      "sha256": "389ebcea7fe8585951d440a39896842786696526e3910ba0f5fd08a6bb895a37"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-00.webp",
+      "source": "esport-ui-assets/crests/crest-a-00.png",
+      "width": 444,
+      "height": 444,
+      "bytes": 14416,
+      "sha256": "405a8ac54b25cdfdcfca4bfe6d3ed262e1dbeaed7c33d748d03d6340e40e2fcd"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-01.png",
+      "source": "esport-ui-assets/crests/crest-a-01.png",
+      "width": 443,
+      "height": 444,
+      "bytes": 204274,
+      "sha256": "3a6fa5d17416146b83734395aaf8453822544e7a0477750f4e82d335d143eee7"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-01.webp",
+      "source": "esport-ui-assets/crests/crest-a-01.png",
+      "width": 443,
+      "height": 444,
+      "bytes": 13760,
+      "sha256": "dd17fe4e418155efb9daf03ddc4655fea17e510acc9a41fd9a534ef3e3df0e8a"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-02.png",
+      "source": "esport-ui-assets/crests/crest-a-02.png",
+      "width": 444,
+      "height": 444,
+      "bytes": 209172,
+      "sha256": "490f0dd43f135c064ce64a364db2d4c90e33f9bdaa4b8ce66c948c019351002b"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-02.webp",
+      "source": "esport-ui-assets/crests/crest-a-02.png",
+      "width": 444,
+      "height": 444,
+      "bytes": 15466,
+      "sha256": "44b9d4b7e638e21a8fce8ac76f8e71dd6e236802befecae510b353a711718be7"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-03.png",
+      "source": "esport-ui-assets/crests/crest-a-03.png",
+      "width": 443,
+      "height": 444,
+      "bytes": 203973,
+      "sha256": "ad3f9dda397bf8f111aa9ddb6969db34abcd088dd92f34b5e556d0407bcf5223"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-03.webp",
+      "source": "esport-ui-assets/crests/crest-a-03.png",
+      "width": 443,
+      "height": 444,
+      "bytes": 13552,
+      "sha256": "0b49da3a1d52aa113931c2d7ca13dc9452e2dde0a9931e0738877c0577fcda47"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-04.png",
+      "source": "esport-ui-assets/crests/crest-a-04.png",
+      "width": 444,
+      "height": 443,
+      "bytes": 214845,
+      "sha256": "7a68165ef341abea3f10c5bcb6927682c10da9cd482fc965f5f3bc7911e31696"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-04.webp",
+      "source": "esport-ui-assets/crests/crest-a-04.png",
+      "width": 444,
+      "height": 443,
+      "bytes": 14570,
+      "sha256": "9e4c2488af3331e500169bb3c869f6e5ea035d6dcde50fed93a1c5183d98ad3e"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-05.png",
+      "source": "esport-ui-assets/crests/crest-a-05.png",
+      "width": 443,
+      "height": 443,
+      "bytes": 217203,
+      "sha256": "f389f053e923273f66a8e31eec9788fd0b0d3f6f11f66e0cfff65f6f4a0199ce"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-05.webp",
+      "source": "esport-ui-assets/crests/crest-a-05.png",
+      "width": 443,
+      "height": 443,
+      "bytes": 16174,
+      "sha256": "0052f9f858cfb11e18fe6859159963037e7f7f7e40b1e37b3126bac8fefd05a8"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-06.png",
+      "source": "esport-ui-assets/crests/crest-a-06.png",
+      "width": 444,
+      "height": 443,
+      "bytes": 211775,
+      "sha256": "3c1436845ab7556dbd95ef908b7ae3eb74342c914bb56cb9044474b403ffb56d"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-06.webp",
+      "source": "esport-ui-assets/crests/crest-a-06.png",
+      "width": 444,
+      "height": 443,
+      "bytes": 15682,
+      "sha256": "c103e6d48d03a52820938c40557f5200d9845460cbd406db301f464fe8e1a401"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-07.png",
+      "source": "esport-ui-assets/crests/crest-a-07.png",
+      "width": 443,
+      "height": 443,
+      "bytes": 202656,
+      "sha256": "f062638cdf89308fc8f7baa65f72e0b8b2eb0dd9100a4c90c76329b3f2b6b4a8"
+    },
+    {
+      "path": "public/esport-ui-assets/crests/crest-a-07.webp",
+      "source": "esport-ui-assets/crests/crest-a-07.png",
+      "width": 443,
+      "height": 443,
+      "bytes": 14828,
+      "sha256": "53e0c94f61b33917994b6247ee3e057b1dad6dcf40ba2ded6ce877a3ce8aa6fe"
+    }
+  ]
+}

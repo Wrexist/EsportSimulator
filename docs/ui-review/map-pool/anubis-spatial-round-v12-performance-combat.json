@@ -1,0 +1,59 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Anubis",
+  "fixtureSha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77",
+  "simulatorSourceSha256": "d3a5a9982fd2cc301b6e23fe050605511e87d0ecdeae677842ed24ab6ed7265f",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 62.8125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 51223,
+      "metrics": {
+        "shots": 21,
+        "damage": 674,
+        "reports": 18,
+        "waits": 1102,
+        "replans": 97,
+        "minSeparation": 32.01237056496044
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 9,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "13be1e33f0dca4ca1308577054fbb2958f16e787dc56fe5bdb0e7c45886e3545"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 50.765625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 79305,
+      "metrics": {
+        "shots": 65,
+        "damage": 900,
+        "reports": 61,
+        "waits": 1102,
+        "replans": 84,
+        "minSeparation": 32.030174680098504
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "6069a09315093a55cdb42467714e1022c96303413453f5d0b0809363e3e5b60a"
+    }
+  ]
+}

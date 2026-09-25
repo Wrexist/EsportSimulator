@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Mirage",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "simulatorSourceSha256": "de33f1d960cf9d2395da50401e74791bade6dbc4a36a339dc78366f715cca080",
+  "fixtureSha256": "8f8917ecbb682babf7c25a3d67d82ec790de6c9d637c431e1d62ace27c7eed51",
+  "attempts": 1,
+  "origin": [
+    -2056.7501749999997,
+    277.25489999999996,
+    -156
+  ],
+  "bomb": [
+    -2056.7501749999997,
+    154.566358930167,
+    -156
+  ],
+  "threat": [
+    -2056.7501749999997,
+    -125.43364106983299,
+    -163.29917591575702
+  ],
+  "landing": [
+    -2056.7501749999997,
+    194.566358930167,
+    -157.95
+  ],
+  "bounces": [
+    [
+      -2056.7501749999997,
+      228.30665366806076,
+      -157.95
+    ],
+    [
+      -2056.7501749999997,
+      202.63047180087463,
+      -157.95
+    ],
+    [
+      -2056.7501749999997,
+      194.566358930167,
+      -157.95
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 143,
+  "checks": [
+    {
+      "id": "mirage-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 75.37373015145727,
+  "outputSha256": "9bc924575fa15d1ee883376198af98a60058d640eee40e3e71d57488aa983a68"
+}

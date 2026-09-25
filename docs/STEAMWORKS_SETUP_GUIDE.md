@@ -1,5 +1,7 @@
 # Steamworks Configuration Guide for Esports Manager: FPS
 
+> Current L30 evidence (14 September 2026): [report](launch-readiness/evidence/L30-REPORT.md). App ID 4326170, ownership and Cloud enabled verified through read-only native calls. Partner configuration, packaged client mutation and two-device/user acceptance are still open. Divergent valid saves now require a load-time choice; uploads refuse unseen changes in the current SDK view and retain a previous-copy local backup. Older setup/test expectations below are guidance, not evidence of accepted behavior.
+
 This guide walks you through setting up all achievements, statistics, and leaderboards in the Steamworks console to match the game code.
 
 ---

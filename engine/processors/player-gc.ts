@@ -32,6 +32,9 @@ export function garbageCollectRetiredPlayers(save: GameSave): number {
 
     for (const t of save.teams || []) {
         for (const id of t.rosterIds || []) add(id)
+        for (const p of t.managementState?.academyPlayers || []) add(p.playerId)
+        for (const p of t.managementState?.scoutedPlayers || []) add(p.playerId)
+        for (const id of t.managementState?.academyPendingProspects || []) add(id)
     }
     for (const c of save.contracts || []) add(c.playerId)
     for (const sp of save.scoutedPlayers || []) add(sp.playerId)

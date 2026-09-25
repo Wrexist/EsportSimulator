@@ -30,8 +30,8 @@ function scout(id: string, accuracy: number, specialization = "General"): StaffS
 function makeDraft(over: Partial<GameSave> = {}): GameSave {
     return {
         currentWeek: 10,
+        teams: [{ id: "player", staffIds: ["s1"], rosterIds: [] }],
         playerTeamId: "player",
-        teams: [],
         players: [{ id: "target", nickname: "Target" }],
         contracts: [],
         staff: [],
@@ -84,9 +84,9 @@ describe("applyScoutingCompletion — scout accuracy drives the report tier", ()
         expect(specialist.scoutedPlayers[0].scoutLevel).toBe("ELITE")
     })
 
-    test("legacy mission with no resolvable scout keeps the EXPERT default", () => {
+    test("legacy mission without an employed scout produces no report", () => {
         const draft = makeDraft({ activeScoutingMission: mission(undefined), staff: [] })
         run(draft)
-        expect(draft.scoutedPlayers[0].scoutLevel).toBe("EXPERT")
+        expect(draft.scoutedPlayers).toHaveLength(0)
     })
 })

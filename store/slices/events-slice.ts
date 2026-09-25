@@ -59,7 +59,11 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
     resolveEventChoice: (eventId, choiceId) => {
         set((state) => {
             const event = state.eventsLog.find(e => e.id === eventId)
-            if (!event || event.selectedChoiceId) return
+            if (!event || event.selectedChoiceId || event.data.isWithdrawn || state.gameOverReason) return
+            if (event.type === "JOB_OFFER") return
+            if (typeof event.data.deadlineWeek === 'number' && state.currentWeek > event.data.deadlineWeek) return
+            if (event.data.playerId && !state.teams.find(t => t.id === state.playerTeamId)?.rosterIds.includes(String(event.data.playerId))) return
+            if (event.data.teamId && event.data.teamId !== state.playerTeamId) return
 
             // Apply standard effect bundle (morale / money / loyalty / reputation)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by event type
@@ -69,7 +73,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 const choice = runtimeEvent.choices.find((c: any) => c.id === choiceId)
                 if (!choice || !choice.effects) return
 
-                const { morale, money, loyalty, reputation } = choice.effects
+                const { morale, money, loyalty, reputation, fatigue, chemistry } = choice.effects
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const playerId = (event.data as any).playerId
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,7 +82,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 let resolvedTeam: TeamSaveData | undefined
                 let normalizedMoney = 0
 
-                if (teamId && (money || reputation)) {
+                if (teamId && (money || reputation || chemistry)) {
                     resolvedTeam = state.teams.find(t => t.id === teamId)
                     if (!resolvedTeam) return
 
@@ -98,15 +102,17 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                     }
                 }
 
-                if (playerId && (morale || loyalty)) {
+                if (playerId && (morale || loyalty || fatigue)) {
                     const player = state.players.find(p => p.id === playerId)
                     if (player) {
                         if (morale) player.morale = Math.max(0, Math.min(100, player.morale + morale))
+                        if (fatigue) player.fatigue = Math.max(0, Math.min(100, player.fatigue + Math.max(-10, Math.min(10, fatigue))))
                         if (loyalty) player.loyalty = Math.max(0, Math.min(100, player.loyalty + loyalty))
                     }
                 }
 
                 if (resolvedTeam) {
+                    if (chemistry) resolvedTeam.chemistry = Math.max(0, Math.min(100, (resolvedTeam.chemistry ?? 50) + Math.max(-5, Math.min(5, chemistry))))
                     if (normalizedMoney !== 0) {
                         resolvedTeam.budget += normalizedMoney
                         state.financeLedger.push({
@@ -279,89 +285,8 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
     }),
 
     acceptJobOffer: (eventId) => {
-        let result = { success: false, message: "Unknown error" }
-        set((state) => {
-            const event = state.eventsLog.find(e => e.id === eventId)
-            if (!event || event.type !== "JOB_OFFER") {
-                result = { success: false, message: "Job offer not found" }
-                return
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const offerData = event.data as any
-            const newTeam = state.teams.find(t => t.id === offerData.offeringTeamId)
-            if (!newTeam) {
-                result = { success: false, message: "Team no longer exists" }
-                return
-            }
-
-            if (state.currentWeek > offerData.deadlineWeek) {
-                result = { success: false, message: "Offer has expired" }
-                return
-            }
-
-            // Anti-exploit cooldown: each accepted offer pays a salary×4 signing
-            // bonus to the new club. Without a cooldown, serial job-hopping farms
-            // that bonus every few weeks. Block another move for a set window.
-            const JOB_CHANGE_COOLDOWN_WEEKS = 12
-            const lastChange = state.managerDetails?.lastJobChangeWeek
-            if (typeof lastChange === "number" && state.currentWeek - lastChange < JOB_CHANGE_COOLDOWN_WEEKS) {
-                const weeksLeft = JOB_CHANGE_COOLDOWN_WEEKS - (state.currentWeek - lastChange)
-                result = {
-                    success: false,
-                    message: `You recently joined a club. You can't take another job for ${weeksLeft} more week${weeksLeft !== 1 ? "s" : ""}.`,
-                }
-                return
-            }
-
-            // === CRITICAL: switch the player's team ===
-            state.playerTeamId = newTeam.id
-            if (state.managerDetails) state.managerDetails.lastJobChangeWeek = state.currentWeek
-
-            // Honor the advertised signing bonus: credit it to the new club's
-            // budget (one-time, ledgered). Derived from the *current* salaryOffer
-            // so a successful negotiation actually pays off (negotiateJobOffer
-            // raises data.salaryOffer). The weekly manager salary stays personal
-            // flavor — crediting it to the club budget every week would compound
-            // into a balance-breaking income stream, and accepting an offer is a
-            // one-off career move (can't be farmed), so only the bonus lands.
-            const negotiatedSalary = Math.max(0, Math.floor(Number(offerData.salaryOffer) || 0))
-            const signingBonus = negotiatedSalary * 4
-            if (signingBonus > 0) {
-                newTeam.budget = (newTeam.budget || 0) + signingBonus
-                state.financeLedger.push({
-                    id: nextDeterministicId(state, "fin_signing", newTeam.id),
-                    week: state.currentWeek,
-                    teamId: newTeam.id,
-                    type: "INCOME",
-                    category: "OTHER",
-                    amount: signingBonus,
-                    description: `Manager signing bonus — ${newTeam.name}`,
-                    balance: newTeam.budget,
-                })
-            }
-
-            event.acknowledged = true
-            event.selectedChoiceId = "ACCEPT"
-
-            state.eventsLog.unshift({
-                id: nextDeterministicId(state, "job_transition", newTeam.id),
-                week: state.currentWeek,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                type: "CAREER_UPDATE" as any,
-                acknowledged: false,
-                data: {
-                    title: `Welcome to ${newTeam.name}!`,
-                    message: `You have accepted the position as manager of ${newTeam.name}. A $${signingBonus.toLocaleString()} signing bonus has been added to the club budget.`,
-                    severity: "success",
-                },
-            })
-
-            result = {
-                success: true,
-                message: `Welcome to ${newTeam.name}!`,
-            }
-        })
+        let result = { success: false, message: "Offer not found" }
+        set(state => { result = JobOfferGenerator.acceptJobOffer(state as unknown as GameSave, eventId) })
         return result
     },
 

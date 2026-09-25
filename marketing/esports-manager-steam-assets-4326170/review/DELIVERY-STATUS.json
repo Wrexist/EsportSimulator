@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-14",
+  "appId": 4326170,
+  "ownerFeedback": "Approved the promotional preview and requested all store assets; explicitly approved local size/format exports.",
+  "uiAccess": {
+    "inventory": {
+      "apps": [],
+      "browsers": []
+    },
+    "steamworksOpenResult": "No browser is available",
+    "uploadPerformed": false
+  },
+  "artwork": {
+    "exportedFiles": 18,
+    "fullGallery": false,
+    "missing": "Current gameplay screenshots; browser capture unavailable",
+    "newVectorLogo": "Generated alpha candidates failed visual/alpha checks; final is a clean vector wordmark with transparent PNG output",
+    "generationPrompts": "PROMPTS.json",
+    "mastersPreserved": true
+  },
+  "outstanding": [
+    "Upload into signed-in Steamworks editor and verify saved draft",
+    "Capture current gameplay screenshots",
+    "Review live Steam cropping and image placement",
+    "Final store content/disclosure review; game launch gates remain separate"
+  ]
+}

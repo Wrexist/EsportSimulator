@@ -1,0 +1,48 @@
+# L19 ? Calendar, tournaments, qualification and rankings
+
+Status: **partial; implementation and isolated format validation pass, full launch acceptance remains open.** Reviewed 14 September 2026. Dependencies L04 and L15 retain their outstanding acceptance work.
+
+## Implemented
+
+- Correct seeded single-elimination draws distribute byes to distinct top seeds. Previously a 12-team field paired byes together and stalled with unresolved branches. Every bracket node now exists before initial bye propagation; subsequent participants occupy their assigned source slot. Third-place repair uses semifinal losers. Foreign winners and conflicting repeats cannot replace a resolved result.
+- AI catch-up respects scheduled weeks, preserves fixture days and dispatches Swiss/GSL results through their actual format handlers. Round-of-32 ordering precedes round-of-16. Scheduling checks completed fixtures as well as pending fixtures, rejects repeated IDs, avoids earlier days in daily mode, and moves a fully booked match to a later week instead of forcing another Saturday match.
+- Automatic map veto now supplies one, three or five distinct maps for BO1/BO3/BO5. BO1 uses alternating bans; BO5 uses two bans, alternating picks and a decider. The stronger audit found actual BO5 finals ending 2?1 after only three maps; these now reach three map wins. BO3 selection is retained.
+- League completion requires its declared fixtures (or the full participant pair set for legacy records), rather than an empty remaining schedule after one game. Group upper finals cannot count as a championship final. Bracket rewards require a resolved final record and completion of the third-place decider where present. The champion comes from the final result, including upsets, rather than cumulative bracket wins.
+- Final qualification promotion now runs at the standings/reward boundary for both player and AI-only tournaments. Circuit-point receipts prevent duplicate awards in the engine and store action. Store tier lookup resolves season instance IDs; eligibility checks receive season-specific IDs. Duplicate roster IDs no longer satisfy the five-player requirement.
+- League/standings ties use a mini-table across all teams tied on points and wins, then map difference, round difference and stable team ID. This avoids a non-transitive A-beats-B-beats-C-beats-A comparator. Duplicate completed IDs are ignored during standings recomputation. Fully tied circuit leaderboard entries have a stable ID fallback.
+- Double-elimination group exits now receive the remaining placements, ordered by elimination depth then stable ID. The 16-team audit now pays the whole fixture pool instead of leaving group exits unplaced. The existing smaller-field prize policy is preserved: a 12-team fixture pays 96% of its advertised pool; changing that policy and matching UI disclosure remains part of economy review.
+- Shared UTC calendar conversion now serves the store date accessor, schedule, top bar and result dates. Historical results include the actual fixture day. Week/day offsets no longer change through local DST, and weekday labels derive from the saved career epoch.
+
+## Verification
+
+- **1,533 tests / 156 suites pass**, including 14 new L19 regressions: [Jest results](L19-jest.json), [log](L19-jest.txt). Coverage includes real BO1/BO3/BO5 simulation, byes, replayed/foreign winners, booking rollover, round ordering, incomplete leagues, upset finals/third place, unresolved winners, circular ties, duplicate standings records, season-specific circuit awards/qualification and duplicate roster IDs.
+- Updated older tests that explicitly expected duplicate circuit awards or completion from an upper final/partial league. The minimal league fixture now includes the mandatory completed-match/calendar fields. No validation gate or allowlist was weakened.
+- **Production build and compiled-worker smoke pass:** [build](L19-build.txt), [identity and source hashes](L19-build-identity.json). Build `bxlHNghfTicUnk6xOcJ0h`, worker `5894.5050000c43c02515.js`. TypeScript passes; existing lint warnings remain. Changed tracked source files pass `git diff --check`.
+- **Actual Electron coordinator/compiled-worker checks pass:** [native report](L19-native-week.json), using isolated profile `tmp/l04-native/run-187VMV`. The existing L15 probe exercises normal worker, repeated execution, fallback, injected worker error and reload with one authoritative save per tick. This is development-runtime evidence, not a packaged install or a complete tournament played through the UI.
+- **13 tournament cases each repeat exactly**, seed 3719, with actual MatchEngine results, tournament scheduling/progression and normal SaveManager save/load each week: [format report](L19-formats.json), [log](L19-formats.txt). Run with `npx tsx scripts/launch/l19-tournament-audit.ts`. Every case checks unique completed IDs, no self-match/team-day collision, no future-week result, complete unique placements, required series winning score/map count, bounded prizes and inert repeated final rewards.
+
+| Format | Fields checked | Completion / results |
+|---|---|---|
+| Single elimination | 8, 12, 16, 32 | Week 8; 8, 12, 16, 32 matches including third-place deciders |
+| Swiss + playoffs | 16, 24 | Both finish; full placement and series checks |
+| Two double-elimination groups + six-team playoffs | 16 | Week 8; 32 matches, all 16 placed, full fixture prize pool |
+| Single round-robin | 12, 16, 20, 24 | Weeks 11, 15, 19, 23; 66, 120, 190, 276 matches |
+| Season boundary bracket | 12, starts week 52 | Finishes week 59; save/reload and rewards repeat exactly |
+| Actual qualifier identity | 32, season 2 | `iem_katowice_open_s2`; two correct finalists promoted to the season-2 destination, without duplicates |
+
+The fixture uses cloned five-player clubs, a $100k pool, an initial nine-week tournament window and an owner club outside the event. These cover every format/field-size combination declared in the current calendar, not every event's real timing/economy or full-world campaign. The season-2 qualifier uses the real definition identity and promotion link with the isolated fixture's dates/economics. Scheduled AI progression is exercised directly rather than through full `computeWeek` careers. The absent manager case is not proof of job-switch or unstaffed/under-rostered world acceptance.
+
+## Remaining acceptance and next work
+
+1. Run full-world, multi-season daily/weekly calendars through `computeWeek`, actual player matches, elimination, jobs and club switches. Verify overlapping events, roster locks, missing/under-rostered AI teams, calendar/history/inbox/rankings consistency and tournament catch-up within the current day. Current AI catch-up has a future-week guard; complete daily ordering still needs acceptance.
+2. Review existing malformed legacy brackets separately. New seeding fixes new draws; already played draws were not reseeded and previously awarded results were not rewritten. Historical bye-versus-bye branches or self-match auto-advance paths need a preservation-first migration/repair campaign. No claim is made that all historical corruption is repaired.
+3. Reconcile promised formats and UI labels. Current declared combinations pass, but nonstandard field sizes can still fall back to a generic bracket; the implementation allows more GSL sizes than the audited 16. The 24-team Swiss implementation is a single Swiss stage plus playoffs, not the separate preliminary/Legends stages described by some catalog copy. Full qualification chains, tiebreak policy disclosure and actual event settings remain open.
+4. Finish calendar unification for every remaining contract/history surface and evaluate smaller-field prize allocation alongside L15/L18 economics. These changes do not resolve full-world roster supply, excess career cash, staff negotiation boundaries or remaining organization flows.
+5. Browser inventory returned no surfaces; opening the preview returned **?No browser is available.?** No new UI screenshots/interaction are claimed. Preview is running at `http://127.0.0.1:3210` (PID 368352). Verify schedule dates, eligibility buttons, bracket progression and rankings visually when browser control is connected.
+6. L14 full spatial 5v5/career/replay acceptance and Mirage wall-height/spawn/bombsite/utility calibration remain open. Both owner Mirage draft hashes match the prior recorded originals; no owner career was opened, imported or advanced.
+7. [Steam App ID check passes: **4326170**](L19-steam-appid.txt). [Content release gate remains blocked: **4,969 unresolved/changed items**](L19-content-gate.txt). No gate bypass, package acceptance, Steam upload or publication. Actual packaged Windows installation, offline/Steam launch and save/recovery checks remain required.
+8. **Next: L20 ? make long careers coherent and memorable:** board expectations, manager reputation, jobs/sacking, season outcomes, history and bounded narrative consequences, alongside the remaining L19 world-calendar and economy checks.
+
+## Migration and rollback
+
+No schema bump or bulk career migration. Saved dates and completed results remain in place. Future seeding, BO1/BO5 map choices, standings ties and reward timing change; old-seed recomputation across this code change is not guaranteed to reproduce old results. Preserve stored results/replay records and finish versioned replay acceptance in L14. Roll back only the relevant reviewed hunks, never reset the heavily modified workspace. Source/fixture/build hashes and untouched owner draft hashes are recorded in the identity artifact. All L19 acceptance items remain unchecked until the missing full-career/UI/dependency evidence exists.

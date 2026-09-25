@@ -46,6 +46,13 @@ export const MIN_SUPPORTED_VERSION = 1
  * All fields required - no partial saves allowed
  */
 export interface GameSave {
+    selectedWeeklyActivity?: import('@/types/activities').WeeklyActivityType | null
+  firstSession?: import('@/lib/first-session').FirstSessionState
+    customTactics?: import("@/types").CustomTactics
+    watchlistedPlayerIds?: string[]
+    activeMatchId?: string | null
+    activeMatchState?: import("@/types").ActiveMatchState | null
+    physicalMatchPreview?: import("./spatial/career-round-journal").PhysicalCareerJournal | null
     // === METADATA ===
     saveVersion: number
     saveId: string
@@ -186,6 +193,8 @@ export type BoardExpectationTier = "SURVIVE" | "COMPETE" | "CONTEND" | "WIN"
 
 /** Persisted board-confidence state (see engine/board-expectations.ts). */
 export interface BoardState {
+    rankTarget?: number
+
     teamId: string
     confidence: number // 0-100
     seasonExpectation: BoardExpectationTier
@@ -220,6 +229,8 @@ export interface CareerStats {
 }
 
 export interface SeasonSummary {
+    prizeMoney?: number
+
     seasonNumber: number
     startWeek: number
     endWeek: number
@@ -356,6 +367,8 @@ export interface ScoutedPlayerEntry {
  * Simplified team data for save (IDs only, no nested objects)
  */
 export interface TeamSaveData {
+    managementState?: import("./club-management").ClubManagementState
+
     id: string
     name: string
     shortName?: string // Team tag (2-5 chars)
@@ -389,6 +402,9 @@ export interface TeamSaveData {
     financialState?: "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT"
     runwayWeeks?: number // Cash / Net Burn
     weeklyNet?: number // Last week's net cashflow
+    /** Durable receipt; survives ledger compaction and prevents recurring costs/consequences being replayed. */
+    financeSettlement?: { week: number; income: number; expenses: number }
+    weeklyActivityWeek?: number // One weekly focus reward/cost per team and week, including after reload.
     consecutiveInsolventWeeks?: number // Tracks insolvency duration for game-over trigger
     _prevFinancialState?: "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT" // Tracks previous state for change detection
 
@@ -772,6 +788,7 @@ export interface TournamentStandingSaveData {
  * Match data for save (scheduled)
  */
 export interface MatchSaveData {
+    engineVersion?: 'legacy-v2'
     id: string
     homeTeamId: string
     awayTeamId: string
@@ -1036,6 +1053,7 @@ export interface SaveSlotMetadata {
 
     // Phase 2 Upgrade: Rich Metadata
     teamLogo?: string
+    teamPreview?: Pick<TeamSaveData, "id" | "name" | "logoPath" | "branding" | "customTeamData">
     stats?: {
         wins: number
         losses: number
@@ -1141,6 +1159,8 @@ export function collectValidationErrors(save: unknown): string[] {
     }
 
     const s = save as Record<string, unknown>
+    if (s.physicalMatchPreview && (typeof s.physicalMatchPreview !== 'object'
+        || (s.physicalMatchPreview as { saveId?: unknown }).saveId !== s.saveId)) errors.push('Physical preview belongs to another career')
 
     // Auto-migrate missing optional fields
     for (const field of REQUIRED_FIELDS) {
@@ -1421,4 +1441,5 @@ export interface ManagerDetails {
     /** Week of the most recent accepted job change — gates the signing-bonus
      *  cooldown so serial job-hopping can't farm signing bonuses. */
     lastJobChangeWeek?: number
+    tenureStartWeek?: number
 }

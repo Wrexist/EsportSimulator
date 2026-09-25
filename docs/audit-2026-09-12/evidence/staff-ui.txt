@@ -1,0 +1,227 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/staff".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/staff
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/staff#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading STAFF & OPERATIONS, Value: 1
+				144 text STAFF & OPERATIONS
+			145 text MANAGEMENT DIVISION
+			146 container
+				147 text WEEKLY PAYROLL -$ 0 STAFF SLOTS 0  / 5
+			148 container
+				149 text TRAINING XP BONUS
+				150 container
+					151 text + 0.0 %
+				152 text RECOVERY BONUS
+				153 container
+					154 text + 0.0 /week
+				155 text TACTICAL POWER
+				156 container
+					157 text + 0.0
+			158 container
+				159 heading ACTIVE ROSTER, Value: 2
+					160 text ACTIVE ROSTER
+				161 text No staff hired. Visit the market below to recruit talent.
+			162 container
+				163 heading FREE AGENT MARKET, Value: 2
+					164 text FREE AGENT MARKET
+				165 button REFRESH MARKET
+				166 image Bl4dr
+				167 heading Bl4dr, Value: 3
+					168 text Bl4dr
+				169 image Ukraine
+				170 text COACH LVL  4 Legendary Tactical WEEKLY RATE $ 1,000
+				171 button MAKE OFFER
+				172 image Kasparr
+				173 heading Kasparr, Value: 3
+					174 text Kasparr
+				175 image Serbia
+				176 text COACH LVL  4 Rare Tactical WEEKLY RATE $ 1,500
+				177 button MAKE OFFER
+				178 image Scythe
+				179 heading Scythe, Value: 3
+					180 text Scythe
+				181 image Finland
+				182 text COACH LVL  4 Epic Tactical WEEKLY RATE $ 2,500
+				183 button MAKE OFFER
+				184 image Dr. Kovac
+				185 heading Dr. Kovac, Value: 3
+					186 text Dr. Kovac
+				187 image USA
+				188 text ANALYST LVL  4 Rare Data Science
+				189 text ★ Specialist
+				190 text WEEKLY RATE $ 2,040
+				191 button MAKE OFFER
+				192 image Dr. Smith
+				193 heading Dr. Smith, Value: 3
+					194 text Dr. Smith
+				195 image Denmark
+				196 text PSYCHOLOGIST LVL  3 Common Mental Perf.
+				197 text ★ Specialist
+				198 text WEEKLY RATE $ 1,097
+				199 button MAKE OFFER
+				200 image Dr. Muller
+				201 heading Dr. Muller, Value: 3
+					202 text Dr. Muller
+				203 image Serbia
+				204 text SCOUT LVL  1 Common Talent ID
+				205 text ★ Specialist
+				206 text WEEKLY RATE $ 1,361
+				207 button MAKE OFFER
+				208 image Dr. Smith
+				209 heading Dr. Smith, Value: 3
+					210 text Dr. Smith
+				211 image Brazil
+				212 text COACH LVL  4 Rare Player Dev
+				213 text ★ Specialist
+				214 text WEEKLY RATE $ 2,703
+				215 button MAKE OFFER
+				216 image Dr. Dubois
+				217 heading Dr. Dubois, Value: 3
+					218 text Dr. Dubois
+				219 image Brazil
+				220 text ANALYST LVL  1 Common Data Science
+				221 text ★ Specialist
+				222 text WEEKLY RATE $ 1,175
+				223 button MAKE OFFER
+				224 image Dr. Muller
+				225 heading Dr. Muller, Value: 3
+					226 text Dr. Muller
+				227 image Brazil
+				228 text PSYCHOLOGIST LVL  3 Common Mental Perf.
+				229 text ★ Specialist
+				230 text WEEKLY RATE $ 1,309
+				231 button MAKE OFFER
+				232 image Dr. Kovac
+				233 heading Dr. Kovac, Value: 3
+					234 text Dr. Kovac
+				235 image Germany
+				236 text SCOUT LVL  5 Epic Talent ID
+				237 text ★ Specialist
+				238 text WEEKLY RATE $ 3,447
+				239 button MAKE OFFER
+				240 image Dr. Muller
+				241 heading Dr. Muller, Value: 3
+					242 text Dr. Muller
+				243 image Serbia
+				244 text COACH LVL  3 Rare Player Dev
+				245 text ★ Specialist
+				246 text WEEKLY RATE $ 2,896
+				247 button MAKE OFFER
+				248 image Dr. Smith
+				249 heading Dr. Smith, Value: 3
+					250 text Dr. Smith
+				251 image Germany
+				252 text ANALYST LVL  3 Common Data Science
+				253 text ★ Specialist
+				254 text WEEKLY RATE $ 1,362
+				255 button MAKE OFFER
+				256 image Dr. Silva
+				257 heading Dr. Silva, Value: 3
+					258 text Dr. Silva
+				259 image Germany
+				260 text PSYCHOLOGIST LVL  5 Legendary Mental Perf.
+				261 text ★ Specialist
+				262 text WEEKLY RATE $ 4,611
+				263 button MAKE OFFER
+				264 image Dr. Anderson
+				265 heading Dr. Anderson, Value: 3
+					266 text Dr. Anderson
+				267 image USA
+				268 text SCOUT LVL  3 Rare Talent ID
+				269 text ★ Specialist
+				270 text WEEKLY RATE $ 2,925
+				271 button MAKE OFFER
+				272 image Dr. Popov
+				273 heading Dr. Popov, Value: 3
+					274 text Dr. Popov
+				275 image France
+				276 text COACH LVL  5 Epic Player Dev
+				277 text ★ Specialist
+				278 text WEEKLY RATE $ 3,494
+				279 button MAKE OFFER
+				280 image Dr. Kovac
+				281 heading Dr. Kovac, Value: 3
+					282 text Dr. Kovac
+				283 image Russia
+				284 text ANALYST LVL  1 Common Data Science
+				285 text ★ Specialist
+				286 text WEEKLY RATE $ 1,082
+				287 button MAKE OFFER
+				288 image Dr. Muller
+				289 heading Dr. Muller, Value: 3
+					290 text Dr. Muller
+				291 image Russia
+				292 text PSYCHOLOGIST LVL  1 Common Mental Perf.
+				293 text ★ Specialist
+				294 text WEEKLY RATE $ 1,249
+				295 button MAKE OFFER
+				296 image Dr. Muller
+				297 heading Dr. Muller, Value: 3
+					298 text Dr. Muller
+				299 image Germany
+				300 text SCOUT LVL  1 Common Talent ID
+				301 text ★ Specialist
+				302 text WEEKLY RATE $ 815
+				303 button MAKE OFFER
+				304 image Dr. Popov
+				305 heading Dr. Popov, Value: 3
+					306 text Dr. Popov
+				307 image Denmark
+				308 text COACH LVL  2 Common Player Dev
+				309 text ★ Specialist
+				310 text WEEKLY RATE $ 1,715
+				311 button MAKE OFFER
+				312 image Dr. Kovac
+				313 heading Dr. Kovac, Value: 3
+					314 text Dr. Kovac
+				315 image Germany
+				316 text ANALYST LVL  5 Legendary Data Science
+				317 text ★ Specialist
+				318 text WEEKLY RATE $ 5,119
+				319 button MAKE OFFER
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 14 link Description: Staff, URL: 127.0.0.1:3210/staff

@@ -34,7 +34,7 @@ export default function Page() {
   // Consolidated data selectors (single subscription, shallow equality)
   const {
     isInitialized, playerTeamId, teams, players, contracts,
-    scheduledMatches, completedMatches, currentWeek, currentDay,
+    scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
     timeMode, _hasHydrated, saveId, pendingSeasonRecap,
     gameOverReason, gameOverWeek, tournamentQualifications,
     financeLedger, staff, storeLoading,
@@ -47,6 +47,7 @@ export default function Page() {
     scheduledMatches: s.scheduledMatches,
     completedMatches: s.completedMatches,
     currentWeek: s.currentWeek,
+    academyCount: s.academyPlayers.length,
     currentDay: s.currentDay,
     timeMode: s.timeMode,
     _hasHydrated: s._hasHydrated,
@@ -158,8 +159,8 @@ export default function Page() {
   // Financial Calculations - use the full EconomyEngine for accurate income/expense data
   const financialReport = useMemo(() => {
     if (!playerTeam) return null
-    return EconomyEngine.processWeeklyFinances(playerTeam, players, contracts, staff)
-  }, [playerTeam, players, contracts, staff])
+    return EconomyEngine.processWeeklyFinances(playerTeam, players, contracts, staff, currentWeek + 1, academyCount)
+  }, [playerTeam, players, contracts, staff, currentWeek, academyCount])
 
   const financialData = useMemo(() => {
     if (!financialReport || !playerTeam) return { budget: 0, expenses: 0, net: 0, income: 0, salaries: 0, facilities: 0, staffWages: 0 }
@@ -169,41 +170,27 @@ export default function Page() {
       income: financialReport.income.total,
       net: financialReport.net,
       salaries: financialReport.expenses.playerWages,
-      facilities: financialReport.expenses.facilities,
+      facilities: financialReport.expenses.facilities + financialReport.expenses.equipment + financialReport.expenses.academy,
       staffWages: financialReport.expenses.staffWages
     }
   }, [financialReport, playerTeam])
 
+  const careerStats = useGameStore(s => s.careerStats)
   const seasonRecapStats = useMemo(() => {
     if (!playerTeam || !pendingSeasonRecap) return null
-    const yearMatches = completedMatches.filter(m => m.week > (currentWeek - 53) && m.week < currentWeek)
-    const wins = yearMatches.filter(m => m.result.winnerId === playerTeamId).length
-    const losses = yearMatches.length - wins
-    const trophies = playerTeam.trophies?.filter(t => t.week > (currentWeek - 53)).length || 0
-
-    // Find best player by avg rating in last year
-    const roster = players.filter(p => playerTeam.rosterIds.includes(p.id))
-    const bestPlayer = [...roster].sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0))[0] || null
-
+    const summaries = careerStats?.seasons.filter(s => s.seasonNumber === pendingSeasonRecap) || []
+    const startWeek = (pendingSeasonRecap - 1) * 52 + 1, endWeek = pendingSeasonRecap * 52
+    const yearMatches = completedMatches.filter(m => m.week >= startWeek && m.week <= endWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
+    const wins = summaries.length ? summaries.reduce((n, s) => n + s.wins, 0) : yearMatches.filter(m => m.result.winnerId === playerTeamId).length
+    const losses = summaries.length ? summaries.reduce((n, s) => n + s.losses, 0) : yearMatches.length - wins
     return {
-      wins,
-      losses,
-      trophies,
-      budgetGrowth: (() => {
-        const seasonLedger = (financeLedger || []).filter(
-          (e: any) => e.teamId === playerTeamId && e.week > (currentWeek - 53) && e.week <= currentWeek
-        )
-        const income = seasonLedger.filter((e: any) => e.type === "INCOME").reduce((s: number, e: any) => s + e.amount, 0)
-        const expenses = seasonLedger.filter((e: any) => e.type === "EXPENSE").reduce((s: number, e: any) => s + e.amount, 0)
-        return income - expenses
-      })(),
-      bestPlayer: bestPlayer ? {
-        nickname: bestPlayer.nickname,
-        portraitPath: bestPlayer.portraitPath,
-        rating: bestPlayer.avgRating || 0
-      } : null
+      wins, losses,
+      trophies: summaries.length ? summaries.reduce((n, s) => n + s.trophiesWon.length, 0) : (playerTeam.trophies || []).filter(t => t.week >= startWeek && t.week <= endWeek).length,
+      budgetGrowth: summaries.length ? summaries.reduce((n, s) => n + s.totalIncome - s.totalExpenses, 0) : financeLedger.filter(e => e.teamId === playerTeamId && e.week >= startWeek && e.week <= endWeek).reduce((n, e) => n + (e.type === 'INCOME' ? e.amount : -e.amount), 0),
+      weeksActive: summaries.length ? summaries.reduce((n, s) => n + Math.max(0, s.endWeek - s.startWeek + 1), 0) : 52,
+      bestPlayer: null,
     }
-  }, [playerTeam, completedMatches, currentWeek, players, playerTeamId, pendingSeasonRecap, financeLedger])
+  }, [careerStats, playerTeam, completedMatches, playerTeamId, pendingSeasonRecap, financeLedger])
 
   const handleSimulate = async () => {
     if (!nextMatch) return
@@ -272,7 +259,7 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="dashboard space-y-6">
       {seasonRecapStats && (
         <SeasonRecapModal
           isOpen={!!pendingSeasonRecap}
@@ -302,7 +289,7 @@ export default function Page() {
               <p className="text-sm font-bold text-amber-300 uppercase tracking-wide">
                 {(latestProEvent.data as any)?.title || "Pro Top 20 Awards"}
               </p>
-              <p className="text-[10px] text-amber-400/60">Click to view the ceremony</p>
+              <p className="text-xs text-amber-400/60">Click to view the ceremony</p>
             </div>
           </div>
           <Button
@@ -313,7 +300,7 @@ export default function Page() {
                 setIsProModalOpen(true)
               }
             }}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-[10px] rounded-xl h-10 px-6"
+            className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-xs rounded-xl h-10 px-6"
           >
             <Trophy size={14} className="mr-2" /> View Ceremony
           </Button>
@@ -325,11 +312,10 @@ export default function Page() {
         <div>
           <div className="flex items-center gap-2 text-primary/80 mb-1">
             <TrendingUp size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Organization Dashboard</span>
+            <span className="dashboard-eyebrow uppercase">Your club. Your next move.</span>
           </div>
-          <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text">
-            MANAGER <span className="text-white">DASHBOARD</span>
-          </h1>
+          <h1 className="dashboard-title text-white">Club overview</h1>
+          <p className="mt-2 text-sm text-slate-400">The big picture, with your next decision in focus.</p>
         </div>
 
         {playerTeam && (
@@ -343,14 +329,14 @@ export default function Page() {
                   {playerTeam.name}
                 </h3>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-white/10 text-white/50 uppercase">
+                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-white/10 text-white/50 uppercase">
                     Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` • Day ${currentDay + 1}` : ""}
                   </Badge>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
+                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
                     {formatCurrency(playerTeam.budget)}
                   </Badge>
                   {teamRating > 0 && (
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-cyan-500/20 text-cyan-300 uppercase" title="Average roster skill">
+                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-cyan-500/20 text-cyan-300 uppercase" title="Average roster skill">
                       OVR {teamRating}
                     </Badge>
                   )}
@@ -361,29 +347,29 @@ export default function Page() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="dashboard-layout">
         {/* Main Column: Next Match & Financials */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="min-w-0 space-y-5">
           {/* Next Match Card */}
           {nextMatch ? (
-            <Card className="glass-panel overflow-hidden border-white/10 relative group rounded-lg">
+            <Card className="dashboard-hero overflow-hidden relative group rounded-3xl">
               <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
               <CardHeader className="pb-2 relative z-10">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-3">
                     <Badge className={cn(
-                      "uppercase tracking-widest text-[10px] border-none px-4 py-1.5 rounded-full font-bold",
+                      "uppercase tracking-widest text-xs border-none px-4 py-1.5 rounded-full font-bold",
                       isMatchLive
                         ? "bg-red-500/85 text-white"
                         : "bg-primary/20 text-primary"
                     )}>
                       {isMatchLive ? "LIVE MATCH" : "Upcoming Match"}
                     </Badge>
-                    <CardTitle className="text-3xl font-normal tracking-tight uppercase leading-none">Next Game</CardTitle>
+                    <CardTitle className="text-3xl font-normal tracking-tight uppercase leading-none">Next Match</CardTitle>
                   </div>
 
                   {tournament && (
-                    <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-right-4 duration-1000">
+                    <div className="flex flex-col items-end gap-2 ">
                       <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-md">
                         {tournament.logoPath && (
                           <div className="w-8 h-8 relative flex items-center justify-center">
@@ -391,11 +377,11 @@ export default function Page() {
                           </div>
                         )}
                         <div className="text-right">
-                          <p className="text-[10px] font-black text-white/90 uppercase tracking-widest leading-none mb-0.5">{tournament.name}</p>
-                          <p className="text-[8px] font-bold text-primary uppercase tracking-[0.2em] leading-none">{tournament.tier.replace('_', ' ')}</p>
+                          <p className="text-xs font-semibold text-white/90 uppercase tracking-widest leading-none mb-0.5">{tournament.name}</p>
+                          <p className="text-[11px] font-bold text-primary uppercase tracking-[0.2em] leading-none">{tournament.tier.replace('_', ' ')}</p>
                         </div>
                       </div>
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 mr-1">
+                      <span className="text-xs font-bold text-muted-foreground uppercase opacity-60 mr-1">
                         Week {nextMatch.week}{typeof nextMatch.day === "number" ? ` • Day ${nextMatch.day + 1}` : ""}
                       </span>
                     </div>
@@ -403,7 +389,7 @@ export default function Page() {
                 </div>
               </CardHeader>
               <CardContent className="relative z-10 py-8">
-                <div className="flex items-center justify-between gap-8 mb-10">
+                <div className="match-identity flex items-center justify-between gap-8 mb-10">
                   <div className="flex-1 text-center space-y-3">
                     <div className="w-24 h-24 mx-auto rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-glass-soft backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5">
                       <TeamLogoDisplay team={playerTeam} size={56} />
@@ -414,11 +400,11 @@ export default function Page() {
                   <div className="flex flex-col items-center gap-4">
                     <div className="relative group/vs">
                       <div className="absolute inset-0 bg-white/20 blur-2xl rounded-full opacity-0 group-hover/vs:opacity-100 transition-opacity duration-700" />
-                      <div className="px-8 py-4 rounded-xl liquid-button font-black text-3xl italic text-white transition-all duration-300 flex items-center justify-center relative z-10">
+                      <div className="px-8 py-4 rounded-xl liquid-button font-semibold text-3xl italic text-white transition-all duration-300 flex items-center justify-center relative z-10">
                         <span>VS</span>
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-[10px] uppercase font-bold px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">{nextMatch.format}</Badge>
+                    <Badge variant="secondary" className="text-xs uppercase font-bold px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">{nextMatch.format}</Badge>
                   </div>
 
                   <div className="flex-1 text-center space-y-3">
@@ -457,10 +443,11 @@ export default function Page() {
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-2 py-2">
+                      <Button asChild variant="play"><Link href="/squad">Prepare lineup <ArrowRight size={16} /></Link></Button>
                       <div className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm font-bold uppercase tracking-wider">
                         Match Starts Week {nextMatch.week}{typeof nextMatch.day === "number" ? ` • Day ${nextMatch.day + 1}` : ""}
                       </div>
-                      <p className="text-[10px] text-white/30 uppercase tracking-widest">
+                      <p className="text-xs text-white/30 uppercase tracking-widest">
                         {(() => {
                           const weeksUntil = Math.max(0, nextMatch.week - currentWeek)
                           if (weeksUntil > 0) {
@@ -482,7 +469,7 @@ export default function Page() {
             <Card className="glass-panel overflow-hidden border-white/10 relative rounded-lg">
               <CardHeader className="pb-2 relative z-10">
                 <div className="space-y-3">
-                  <Badge className="uppercase tracking-widest text-[10px] border-none px-4 py-1.5 rounded-full font-bold bg-amber-500/20 text-amber-400">
+                  <Badge className="uppercase tracking-widest text-xs border-none px-4 py-1.5 rounded-full font-bold bg-amber-500/20 text-amber-400">
                     Upcoming Events
                   </Badge>
                   <CardTitle className="text-3xl font-normal tracking-tight uppercase leading-none">On The Horizon</CardTitle>
@@ -501,7 +488,7 @@ export default function Page() {
 
                     {/* VS TBD */}
                     <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 font-black text-lg italic text-white/40">
+                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 font-semibold text-lg italic text-white/40">
                         VS
                       </div>
                     </div>
@@ -520,41 +507,52 @@ export default function Page() {
                         {t.logoPath && (
                           <Image src={t.logoPath} alt={t.name} width={16} height={16} className="object-contain brightness-110" />
                         )}
-                        <span className="text-[10px] font-black text-white/70 uppercase tracking-wider">{t.shortName}</span>
+                        <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">{t.shortName}</span>
                       </div>
-                      <Badge className={cn("text-[8px] uppercase font-bold px-2 py-0 rounded-full border-none", getTierBgColor(t.tier), getTierColor(t.tier))}>
+                      <Badge className={cn("text-[11px] uppercase font-bold px-2 py-0 rounded-full border-none", getTierBgColor(t.tier), getTierColor(t.tier))}>
                         {t.tier.replace('_', ' ')}
                       </Badge>
-                      <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
+                      <span className="text-xs font-bold text-white/30 uppercase tracking-wider">
                         In {t.weeksUntil} week{t.weeksUntil !== 1 ? 's' : ''}
                       </span>
                     </div>
                   </div>
                 ))}
 
-                <p className="text-[10px] text-white/20 uppercase tracking-widest text-center pt-2">
+                <p className="text-xs text-white/20 uppercase tracking-widest text-center pt-2">
                   Opponents drawn at tournament start
                 </p>
                 <div className="flex justify-center">
-                  <Button asChild variant="link" className="text-primary hover:text-white transition-colors uppercase text-[10px] tracking-widest">
+                  <Button asChild variant="link" className="text-primary hover:text-white transition-colors uppercase text-xs tracking-widest">
                     <Link href="/schedule">View Full Schedule <ArrowRight size={14} className="ml-2" /></Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <Card className="glass-panel border-dashed border-white/10 p-16 text-center bg-white/[0.01] backdrop-blur-sm rounded-lg">
-              <Calendar size={64} className="mx-auto mb-6 opacity-10" />
-              <h3 className="text-sm font-normal uppercase tracking-[0.4em] text-white/30">No Upcoming Matches</h3>
-              <Button asChild variant="link" className="mt-6 text-primary hover:text-white transition-colors uppercase text-[10px] tracking-widest">
-                <Link href="/schedule">Check Tournament Schedule <ArrowRight size={14} className="ml-2" /></Link>
-              </Button>
+            <Card className="dashboard-hero relative overflow-hidden p-6 lg:p-8">
+              <div className="flex items-center gap-2 text-sky-200 text-xs font-medium">
+                <Calendar size={15} /> Between matches
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-6">
+                <div className="max-w-sm">
+                  <h2 className="text-2xl lg:text-3xl font-semibold tracking-tight text-white">Make the next match yours.</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300">Your calendar is clear. Use the time to develop your roster and prepare for the next competition.</p>
+                </div>
+                <div className="hidden sm:flex w-24 h-24 rounded-3xl liquid-button items-center justify-center -rotate-6" aria-hidden="true">
+                  <TeamLogoDisplay team={playerTeam} size={62} />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Button asChild variant="play" className="h-10 px-5"><Link href="/training">Go to training <ArrowRight size={15} /></Link></Button>
+                <Button asChild variant="outline" className="h-10 px-5"><Link href="/schedule">View schedule</Link></Button>
+              </div>
             </Card>
           )}
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-lg overflow-hidden">
+          <div className="dashboard-support grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="glass-card border-white/10 rounded-lg overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
                   <div className="p-2 bg-amber-500/10 rounded-xl">
@@ -567,7 +565,7 @@ export default function Page() {
                 <div className="space-y-5">
                   <div className="flex justify-between items-end">
                     <span className="text-3xl font-normal leading-none text-white tracking-tighter">{(currentWeek / 52 * 100).toFixed(0)}<span className="text-sm text-white/40 ml-1">%</span></span>
-                    <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Week {currentWeek} / 52</span>
+                    <span className="text-[11px] text-muted-foreground uppercase font-semibold tracking-widest opacity-60">Week {currentWeek} / 52</span>
                   </div>
                   <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
                     <div className="h-full bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
@@ -576,7 +574,7 @@ export default function Page() {
               </CardContent>
             </Card>
 
-            <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-lg overflow-hidden">
+            <Card className="glass-card border-white/10 rounded-lg overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-xl">
@@ -601,14 +599,14 @@ export default function Page() {
                       <>
                         {form.map((result, i) => (
                           <div key={i} className={cn(
-                            "h-12 w-12 rounded-lg flex items-center justify-center font-black text-sm shadow-glass-soft transition-transform hover:-translate-y-0.5 cursor-default",
+                            "h-12 w-12 rounded-lg flex items-center justify-center font-semibold text-sm shadow-glass-soft transition-transform hover:-translate-y-0.5 cursor-default",
                             result === 'W' ? "bg-emerald-500/20 text-emerald-500" : "bg-red-500/20 text-red-400"
                           )}>
                             {result}
                           </div>
                         ))}
                         {nextMatch && (
-                          <div className="h-12 w-12 rounded-[1.2rem] bg-white/5 text-white/10 flex items-center justify-center font-black text-sm border border-white/5 animate-pulse">?</div>
+                          <div className="h-12 w-12 rounded-[1.2rem] bg-white/5 text-white/10 flex items-center justify-center font-semibold text-sm border border-white/5 animate-pulse">?</div>
                         )}
                       </>
                     )
@@ -619,7 +617,7 @@ export default function Page() {
           </div>
 
           {/* Financial Hub Card */}
-          <Card className="glass-panel border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+          <Card className="dashboard-financials glass-card border-white/10 rounded-lg overflow-hidden">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">
@@ -628,7 +626,7 @@ export default function Page() {
                   </div>
                   Financial Hub
                 </CardTitle>
-                <Badge variant="outline" className={cn("text-[8px] rounded-full px-3", {
+                <Badge variant="outline" className={cn("text-[11px] rounded-full px-3", {
                   "border-emerald-500/30 text-emerald-400 bg-emerald-500/5": financialReport?.state === "STABLE",
                   "border-yellow-500/30 text-yellow-400 bg-yellow-500/5": financialReport?.state === "TIGHT",
                   "border-orange-500/30 text-orange-400 bg-orange-500/5": financialReport?.state === "RISK",
@@ -639,18 +637,18 @@ export default function Page() {
             <CardContent className="py-6 pt-2">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Available Funds</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Available Funds</p>
                   <div className="flex items-end gap-2">
                     <AnimatedNumber
                       value={financialData.budget}
-                      format={(n) => `$${(n / 1000000).toFixed(2)}M`}
+                      format={(n) => Math.abs(n) >= 1000000 ? `$${(n / 1000000).toFixed(2)}M` : `$${Math.round(n).toLocaleString("en-US")}`}
                       className="text-3xl font-normal text-white"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Weekly Income</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Income</p>
                   <div className="flex items-center gap-2">
                     <ArrowUpCircle size={16} className="text-emerald-400" />
                     <span className="text-xl font-normal text-emerald-400/80">+${(financialData.income / 1000).toFixed(1)}k</span>
@@ -658,7 +656,7 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Weekly Net</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Net</p>
                   <div className="flex items-center gap-2">
                     {financialData.net >= 0 ? (
                       <ArrowUpCircle size={16} className="text-emerald-400" />
@@ -671,17 +669,17 @@ export default function Page() {
               </div>
 
               {/* Mini Budget Bar */}
-              <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="finance-breakdown mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Salaries</p>
+                  <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Salaries</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.salaries / 1000).toFixed(1)}k</p>
                 </div>
                 <div>
-                  <p className="text-[8px] text-white/50 uppercase font-black tracking-widest mb-1">Facilities</p>
+                  <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Facilities, equipment & academy</p>
                   <p className="text-xs text-white/60 font-medium">-${(financialData.facilities / 1000).toFixed(1)}k</p>
                 </div>
                 <div className="col-span-2 flex items-center justify-end">
-                  <Button asChild variant="ghost" size="sm" className="text-[9px] uppercase tracking-widest font-black text-primary hover:bg-primary/10 rounded-full h-8">
+                  <Button asChild variant="ghost" size="sm" className="text-[11px] uppercase tracking-widest font-semibold text-primary hover:bg-primary/10 rounded-full h-8">
                     <Link href="/finances">
                       View Ledger <ArrowRight size={10} className="ml-2" />
                     </Link>
@@ -706,14 +704,15 @@ export default function Page() {
               reputation={playerTeam.reputation}
               boardConfidence={boardState?.confidence}
               boardExpectation={boardState?.seasonExpectation}
+              boardRankTarget={boardState?.rankTarget}
               boardOnNotice={boardState?.onNotice}
             />
           )}
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-normal uppercase tracking-[0.3em] text-white/50">Intelligence Feed</h3>
+            <h3 className="text-xs font-normal uppercase tracking-wider text-white/50">Intelligence Feed</h3>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="text-[10px] font-black text-emerald-500/80 uppercase tracking-[0.2em]">Live</span>
+              <span className="text-xs font-semibold text-emerald-500/80 uppercase tracking-[0.2em]">Live</span>
             </div>
           </div>
 

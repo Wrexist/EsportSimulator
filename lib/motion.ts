@@ -34,14 +34,12 @@ export const modalTransition: Variants = {
 
 /** Full-page or section cross-fades */
 export const pageTransition: Variants = {
-  initial: { opacity: 0, y: 10, filter: "blur(6px)" },
+  initial: { opacity: 0.85 },
   animate: {
     opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
     transition: { duration: tokens.motion.durationMs.page / 1000, ease: tokens.motion.easeOutExpo },
   },
-  exit: { opacity: 0, y: -6, filter: "blur(4px)", transition: quickEase },
+  exit: { opacity: 0, transition: shortEase },
 }
 
 export const panelTransition: Variants = {

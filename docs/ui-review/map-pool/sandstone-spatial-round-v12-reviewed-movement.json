@@ -1,0 +1,35 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Sandstone",
+  "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "0 combat and 1 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 78.921875,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 225838,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 485,
+        "waits": 2045,
+        "replans": 130,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "ded39be84c8b7f317aaaeb3c7b7e2286e954380acd39da4a164186501323d772"
+    }
+  ]
+}

@@ -11,6 +11,7 @@
  * (and any future caller) can use.
  */
 
+import { resolveCompletedWinner } from "../tournament/seeding-helpers"
 import type { GameSave, TournamentSaveData } from "../save-types"
 
 /**
@@ -21,8 +22,8 @@ import type { GameSave, TournamentSaveData } from "../save-types"
  * resolve correctly.
  */
 export function isTerminalBracketStage(stage: string): boolean {
-    const normalized = stage.toLowerCase()
-    return normalized.includes("grand final")
+    const normalized = stage.trim().toLowerCase()
+    return (normalized === "grand final" || normalized === "grand final reset")
         || normalized === "final"
         || normalized === "finals"
 }
@@ -62,10 +63,18 @@ export function hasTerminalTournamentCompletion(save: GameSave, tournament: Tour
         // while later rounds are still pending.
         const pending = save.scheduledMatches.some(m => m.tournamentId === tournament.id)
         if (pending) return false
-        return tournamentMatches.length > 0
+        if (tournament.playoffBracket?.length) {
+            return tournament.playoffBracket.every(row => tournamentMatches.some(m => m.id === row.id && !!resolveCompletedWinner(m, row.homeTeamId, row.awayTeamId)))
+        }
+        const ids = [...new Set(tournament.teamIds)]
+        if (ids.length < 2) return false
+        return ids.every((home, index) => ids.slice(index + 1).every(away => tournamentMatches.some(m =>
+            !!resolveCompletedWinner(m) && ((m.homeTeamId === home && m.awayTeamId === away) || (m.homeTeamId === away && m.awayTeamId === home)))))
     }
 
     if (tournament.playoffBracket && tournament.playoffBracket.length > 0) {
+        if (tournament.playoffBracket.some(m => /3rd|third/i.test(m.stage)
+            && (!m.isCompleted || !tournamentMatches.some(record => record.id === m.id && !!resolveCompletedWinner(record, m.homeTeamId, m.awayTeamId))))) return false
         const terminalMatch = tournament.playoffBracket
             .filter(m => isTerminalBracketStage(m.stage))
             .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
@@ -73,11 +82,25 @@ export function hasTerminalTournamentCompletion(save: GameSave, tournament: Tour
         if (!terminalMatch || !terminalMatch.isCompleted || !terminalMatch.winnerId) {
             return false
         }
-        return tournamentMatches.some(m => m.id === terminalMatch.id)
+        return tournamentMatches.some(m => m.id === terminalMatch.id
+            && resolveCompletedWinner(m, terminalMatch.homeTeamId, terminalMatch.awayTeamId) === terminalMatch.winnerId)
     }
 
     const finalByStage = tournamentMatches
         .filter(m => m.stage && isTerminalBracketStage(m.stage))
         .sort((a, b) => (b.week || 0) - (a.week || 0))[0]
-    return !!finalByStage?.result?.winnerId
+    return !!finalByStage && !!resolveCompletedWinner(finalByStage)
+}
+
+/** Champion is derived from the final result; cumulative bracket wins do not decide it. */
+export function terminalTournamentWinner(save: GameSave, tournament: TournamentSaveData): string | undefined {
+    if (!hasTerminalTournamentCompletion(save, tournament)) return undefined
+    if (tournament.format === 'league') return tournament.standings[0]?.teamId
+    const terminal = save.completedMatches.filter(m => m.tournamentId === tournament.id && m.stage && isTerminalBracketStage(m.stage))
+        .sort((a, b) => b.week - a.week || b.id.localeCompare(a.id))[0]
+    if (terminal) return resolveCompletedWinner(terminal)
+    const bracket = tournament.playoffBracket?.filter(m => isTerminalBracketStage(m.stage) && m.isCompleted)
+        .sort((a, b) => b.week - a.week || b.id.localeCompare(a.id))[0]
+    const record = save.completedMatches.find(m => m.id === bracket?.id && m.tournamentId === tournament.id)
+    return record ? resolveCompletedWinner(record, bracket?.homeTeamId, bracket?.awayTeamId) : undefined
 }

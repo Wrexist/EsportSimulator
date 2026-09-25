@@ -1,0 +1,21 @@
+const fs=require('node:fs');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const e=path.resolve(__dirname,'../../docs/launch-readiness/evidence');
+const read=file=>JSON.parse(fs.readFileSync(path.join(e,file)));
+const baseline=read('L27-baseline-2.json'), candidate=read('L27-candidate.json');
+assert.deepEqual(baseline.host,candidate.host,'Host mismatch');
+assert.deepEqual(baseline.method,candidate.method,'Sampling method mismatch');
+assert.equal(baseline.lockHash,candidate.lockHash,'Dependencies changed');
+const compare=(before,after,beforeMs,afterMs)=>{
+    assert.equal(before.input?.sha256||before.inputHash,after.input?.sha256||after.inputHash,'Fixture mismatch');
+    assert.equal(before.outputHash,after.outputHash,'Simulation/RNG output changed');
+    return {scenario:before.scenario,beforeMs,afterMs,changePercent:(afterMs/beforeMs-1)*100,outputEqual:true};
+};
+const direct=baseline.measurements.map(before=>{const after=candidate.measurements.find(row=>row.scenario===before.scenario);assert.ok(after);return compare(before,after,before.computeMs.median,after.computeMs.median)});
+const workerBefore=read('L27-worker-baseline-2.json'),workerAfter=read('L27-worker-candidate.json');
+assert.deepEqual(workerBefore.host,workerAfter.host,'Bundled-worker host mismatch');
+const bundle=workerBefore.measurements.map(before=>{const after=workerAfter.measurements.find(row=>row.scenario===before.scenario);assert.ok(after);return compare(before,after,before.medianMs,after.medianMs)});
+const result={version:1,direct,bundle,baselineBuild:workerBefore.build,candidateBuild:workerAfter.build,limitation:'Local measurements only. Eight direct and six bundled samples per scenario; Node vm is not a real browser worker. No UI, storage-device or packaged acceptance.'};
+fs.writeFileSync(path.join(e,'L27-comparison.json'),JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify(result));

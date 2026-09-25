@@ -1,0 +1,364 @@
+{
+  "output": "C:\\Users\\IsacC\\EsportSimulator\\dist-mod\\real-teams-2026",
+  "dryRun": false,
+  "teams": 198,
+  "players": 1368,
+  "logos": 198,
+  "portraits": 1323,
+  "missing": [
+    {
+      "id": "player_129_9buomprara_ax7le",
+      "kind": "portrait",
+      "source": "/assets/teams/9boompro/players/ax1le.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_129_9buomprara_zhalfey",
+      "kind": "portrait",
+      "source": "/assets/teams/9boompro/players/shalfey.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_129_9buomprara_sorte",
+      "kind": "portrait",
+      "source": "/assets/teams/9boompro/players/zorte.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_83_qhinggix_tikuac",
+      "kind": "portrait",
+      "source": "/assets/teams/chinggis_warriors/players/tikuak.webp",
+      "reason": "Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 76 on line 612 column 42 of data: Opening and ending tag mismatch: span line 609 and div"
+    },
+    {
+      "id": "player_99_cph_b7elany",
+      "kind": "portrait",
+      "source": "/assets/teams/cph_wolves/players/b1elany.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_99_cph_jorco",
+      "kind": "portrait",
+      "source": "/assets/teams/cph_wolves/players/jorko.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_99_cph_matheoz",
+      "kind": "portrait",
+      "source": "/assets/teams/cph_wolves/players/matheos.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_99_cph_n7xen",
+      "kind": "portrait",
+      "source": "/assets/teams/cph_wolves/players/n1xen.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_99_cph_tapevaare",
+      "kind": "portrait",
+      "source": "/assets/teams/cph_wolves/players/tapewaare.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_95_iroptionra_wizcera",
+      "kind": "portrait",
+      "source": "/assets/teams/eruption/players/viscera.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_168_exzod_blase",
+      "kind": "portrait",
+      "source": "/assets/teams/exsad/players/blaze.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_168_exzod_jerk8z",
+      "kind": "portrait",
+      "source": "/assets/teams/exsad/players/jerk0z.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_168_exzod_morets",
+      "kind": "portrait",
+      "source": "/assets/teams/exsad/players/moretz.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_168_exzod_txuxa",
+      "kind": "portrait",
+      "source": "/assets/teams/exsad/players/tuxa.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_139_vuejo_alennnkar",
+      "kind": "portrait",
+      "source": "/assets/teams/fuego/players/alennncar.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_139_vuejo_lucita",
+      "kind": "portrait",
+      "source": "/assets/teams/fuego/players/lukita.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_139_vuejo_zakamoto",
+      "kind": "portrait",
+      "source": "/assets/teams/fuego/players/sakamoto.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_139_vuejo_vsn",
+      "kind": "portrait",
+      "source": "/assets/teams/fuego/players/vzn.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_112_impulsa_zprayy",
+      "kind": "portrait",
+      "source": "/assets/teams/impulse_gw/players/sprayy.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_132_enfuryty_nolw7n",
+      "kind": "portrait",
+      "source": "/assets/teams/infurity/players/nolv1n.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_102_mevrik_brawkkzz",
+      "kind": "portrait",
+      "source": "/assets/teams/mavrek/players/brawckzz.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_102_mevrik_kyrix",
+      "kind": "portrait",
+      "source": "/assets/teams/mavrek/players/cyrix.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_102_mevrik_jakhro",
+      "kind": "portrait",
+      "source": "/assets/teams/mavrek/players/jachro.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_102_mevrik_zharpie",
+      "kind": "portrait",
+      "source": "/assets/teams/mavrek/players/sharpie.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_102_mevrik_toazty",
+      "kind": "portrait",
+      "source": "/assets/teams/mavrek/players/toasty.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_82_marnengstar_expzaziki",
+      "kind": "portrait",
+      "source": "/assets/teams/morningstar/players/expsasiki.webp",
+      "reason": "Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 114 on line 992 column 338 of data: Excessive depth in document: 257 use XML_PARSE_HUGE option"
+    },
+    {
+      "id": "player_82_marnengstar_raqe",
+      "kind": "portrait",
+      "source": "/assets/teams/morningstar/players/rage.webp",
+      "reason": "Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 114 on line 995 column 336 of data: Excessive depth in document: 257 use XML_PARSE_HUGE option"
+    },
+    {
+      "id": "player_82_marnengstar_rxuben",
+      "kind": "portrait",
+      "source": "/assets/teams/morningstar/players/ruben.webp",
+      "reason": "Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 114 on line 1003 column 332 of data: Excessive depth in document: 257 use XML_PARSE_HUGE option"
+    },
+    {
+      "id": "player_45_nimeses_kruc1al",
+      "kind": "portrait",
+      "source": "/assets/teams/nemesis/players/cruc1al.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_45_nimeses_n8te",
+      "kind": "portrait",
+      "source": "/assets/teams/nemesis/players/n0te.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_45_nimeses_nexiuz",
+      "kind": "portrait",
+      "source": "/assets/teams/nemesis/players/nexius.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_45_nimeses_txein",
+      "kind": "portrait",
+      "source": "/assets/teams/nemesis/players/tein.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_45_nimeses_thomaz",
+      "kind": "portrait",
+      "source": "/assets/teams/nemesis/players/thomas.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_91_ruby_fosil",
+      "kind": "portrait",
+      "source": "/assets/teams/ruby/players/fozil.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_91_ruby_h4san6tor",
+      "kind": "portrait",
+      "source": "/assets/teams/ruby/players/h4san4tor.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_91_ruby_caide",
+      "kind": "portrait",
+      "source": "/assets/teams/ruby/players/kaide.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_91_ruby_maguein",
+      "kind": "portrait",
+      "source": "/assets/teams/ruby/players/maquein.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_91_ruby_sh7nejezzz",
+      "kind": "portrait",
+      "source": "/assets/teams/ruby/players/sh1nejezzz.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_110_phantom_ciryazoo",
+      "kind": "portrait",
+      "source": "/assets/teams/spirit_academy/players/kiryasoo.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_110_phantom_kurosze",
+      "kind": "portrait",
+      "source": "/assets/teams/spirit_academy/players/kurosse.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_110_phantom_zyph0",
+      "kind": "portrait",
+      "source": "/assets/teams/spirit_academy/players/syph0.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_134_xpurtsbetexpert_rekk",
+      "kind": "portrait",
+      "source": "/assets/teams/sportsbetexpert/players/reck.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_135_wild_ace_dxoni",
+      "kind": "portrait",
+      "source": "/assets/teams/wildcard_academy/players/doni.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_135_wild_ace_zsen",
+      "kind": "portrait",
+      "source": "/assets/teams/wildcard_academy/players/ssen.webp",
+      "reason": "Original image not found"
+    },
+    {
+      "id": "player_135_wild_ace_tripex77",
+      "kind": "portrait",
+      "source": "/assets/teams/wildcard_academy/players/tripex17.webp",
+      "reason": "Original image not found"
+    }
+  ],
+  "rawTeamsNotInBase": [
+    {
+      "id": "team_48_magic",
+      "name": "magic"
+    },
+    {
+      "id": "team_54_kolesie",
+      "name": "KOLESIE"
+    },
+    {
+      "id": "team_54_venom",
+      "name": "Venom"
+    },
+    {
+      "id": "team_71_shinden",
+      "name": "ShindeN"
+    },
+    {
+      "id": "team_74_fireflux",
+      "name": "Fire Flux"
+    },
+    {
+      "id": "team_90_forzereload",
+      "name": "FORZE Reload"
+    },
+    {
+      "id": "team_105_depo",
+      "name": "DEPO"
+    },
+    {
+      "id": "team_129_9boompro",
+      "name": "9BOOMPRO"
+    },
+    {
+      "id": "team_135_wildcardacademy",
+      "name": "Wildcard Academy"
+    },
+    {
+      "id": "team_146_youngninjas",
+      "name": "Young Ninjas"
+    },
+    {
+      "id": "team_150_outfit49",
+      "name": "Outfit 49"
+    },
+    {
+      "id": "team_153_regain",
+      "name": "regain"
+    },
+    {
+      "id": "team_155_vp.prodigy",
+      "name": "VP.Prodigy"
+    },
+    {
+      "id": "team_165_bebop",
+      "name": "Bebop"
+    },
+    {
+      "id": "team_173_vasco",
+      "name": "Vasco"
+    },
+    {
+      "id": "team_177_rethink",
+      "name": "ReThink"
+    },
+    {
+      "id": "team_178_brute",
+      "name": "BRUTE"
+    },
+    {
+      "id": "team_189_prisonbreakers",
+      "name": "Prison Breakers"
+    },
+    {
+      "id": "team_199_washington",
+      "name": "Washington"
+    }
+  ],
+  "files": 1528,
+  "bytes": 231307727,
+  "baseline": {
+    "players": "502e83a6ebde8cfb2d70824f6f43a4e88e2928a882295be33558af76a9a0cdae",
+    "teams": "1d175e66684c7b0b31d8d46d9dd99b81bf07a64d4cd7249d613997363f46285b"
+  }
+}

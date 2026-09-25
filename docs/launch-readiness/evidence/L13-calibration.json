@@ -1,0 +1,722 @@
+{
+  "model": {
+    "id": "lab-utility-v1",
+    "gravity": 320,
+    "radius": 2,
+    "speed": 500,
+    "fuse": 1.5,
+    "maxFlight": 6,
+    "smokeRadius": 120,
+    "smokeHeight": 128,
+    "smokeSeconds": 8,
+    "flashRange": 1500,
+    "flashTicks": 160,
+    "heRange": 350,
+    "heDamage": 98,
+    "fireRadius": 100,
+    "fireSeconds": 6,
+    "decoyRange": 1200,
+    "decoySeconds": 8
+  },
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "cases": [
+    {
+      "kind": "smoke",
+      "releaseTick": 32,
+      "detonationTick": 128,
+      "landing": [
+        162.7892622276332,
+        -418.8551994915582,
+        -164.95
+      ],
+      "bounces": [
+        [
+          161.99568870028685,
+          -420.4423465462509,
+          -164.95
+        ],
+        [
+          162.60109936974712,
+          -419.2315252073304,
+          -164.95
+        ],
+        [
+          162.7892622276332,
+          -418.8551994915582,
+          -164.95
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "smoke",
+          "start": 128,
+          "end": 640,
+          "cells": 60
+        }
+      ],
+      "consumed": 1,
+      "matched": {
+        "id": "support-smoke",
+        "state": "matches-model",
+        "landingError": 0,
+        "bounceErrors": [],
+        "reason": "Computed trajectory only; real-map lineup review still required."
+      },
+      "shiftedTarget": {
+        "id": "support-smoke",
+        "state": "mismatch",
+        "landingError": 64,
+        "bounceErrors": [],
+        "reason": "Landing or bounce target is outside the chosen tolerance."
+      }
+    },
+    {
+      "kind": "flash",
+      "releaseTick": 32,
+      "detonationTick": 128,
+      "landing": [
+        162.7892622276332,
+        -418.8551994915582,
+        -164.95
+      ],
+      "bounces": [
+        [
+          161.99568870028685,
+          -420.4423465462509,
+          -164.95
+        ],
+        [
+          162.60109936974712,
+          -419.2315252073304,
+          -164.95
+        ],
+        [
+          162.7892622276332,
+          -418.8551994915582,
+          -164.95
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "flash",
+          "start": 128,
+          "end": 128
+        }
+      ],
+      "consumed": 1,
+      "matched": {
+        "id": "support-smoke",
+        "state": "matches-model",
+        "landingError": 0,
+        "bounceErrors": [],
+        "reason": "Computed trajectory only; real-map lineup review still required."
+      },
+      "shiftedTarget": {
+        "id": "support-smoke",
+        "state": "mismatch",
+        "landingError": 64,
+        "bounceErrors": [],
+        "reason": "Landing or bounce target is outside the chosen tolerance."
+      }
+    },
+    {
+      "kind": "he",
+      "releaseTick": 32,
+      "detonationTick": 128,
+      "landing": [
+        162.7892622276332,
+        -418.8551994915582,
+        -164.95
+      ],
+      "bounces": [
+        [
+          161.99568870028685,
+          -420.4423465462509,
+          -164.95
+        ],
+        [
+          162.60109936974712,
+          -419.2315252073304,
+          -164.95
+        ],
+        [
+          162.7892622276332,
+          -418.8551994915582,
+          -164.95
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "he",
+          "start": 128,
+          "end": 128
+        }
+      ],
+      "consumed": 1,
+      "matched": {
+        "id": "support-smoke",
+        "state": "matches-model",
+        "landingError": 0,
+        "bounceErrors": [],
+        "reason": "Computed trajectory only; real-map lineup review still required."
+      },
+      "shiftedTarget": {
+        "id": "support-smoke",
+        "state": "mismatch",
+        "landingError": 64,
+        "bounceErrors": [],
+        "reason": "Landing or bounce target is outside the chosen tolerance."
+      }
+    },
+    {
+      "kind": "fire",
+      "releaseTick": 32,
+      "detonationTick": 63,
+      "landing": [
+        161.99568870028685,
+        -420.4423465462509,
+        -164.95
+      ],
+      "bounces": [
+        [
+          161.99568870028685,
+          -420.4423465462509,
+          -164.95
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "fire",
+          "start": 63,
+          "end": 447,
+          "cells": 63
+        }
+      ],
+      "consumed": 1,
+      "matched": {
+        "id": "support-smoke",
+        "state": "matches-model",
+        "landingError": 0,
+        "bounceErrors": [],
+        "reason": "Computed trajectory only; real-map lineup review still required."
+      },
+      "shiftedTarget": {
+        "id": "support-smoke",
+        "state": "mismatch",
+        "landingError": 64,
+        "bounceErrors": [],
+        "reason": "Landing or bounce target is outside the chosen tolerance."
+      }
+    },
+    {
+      "kind": "decoy",
+      "releaseTick": 32,
+      "detonationTick": 128,
+      "landing": [
+        162.7892622276332,
+        -418.8551994915582,
+        -164.95
+      ],
+      "bounces": [
+        [
+          161.99568870028685,
+          -420.4423465462509,
+          -164.95
+        ],
+        [
+          162.60109936974712,
+          -419.2315252073304,
+          -164.95
+        ],
+        [
+          162.7892622276332,
+          -418.8551994915582,
+          -164.95
+        ]
+      ],
+      "effects": [
+        {
+          "kind": "decoy",
+          "start": 128,
+          "end": 640
+        }
+      ],
+      "consumed": 1,
+      "matched": {
+        "id": "support-smoke",
+        "state": "matches-model",
+        "landingError": 0,
+        "bounceErrors": [],
+        "reason": "Computed trajectory only; real-map lineup review still required."
+      },
+      "shiftedTarget": {
+        "id": "support-smoke",
+        "state": "mismatch",
+        "landingError": 64,
+        "bounceErrors": [],
+        "reason": "Landing or bounce target is outside the chosen tolerance."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "skill": 0.2,
+      "tWins": 19,
+      "ctWins": 5,
+      "unresolved": 0,
+      "outcomes": [
+        {
+          "seed": 0,
+          "outcome": "T",
+          "shots": 7,
+          "damage": 532
+        },
+        {
+          "seed": 1,
+          "outcome": "T",
+          "shots": 7,
+          "damage": 532
+        },
+        {
+          "seed": 2,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 3,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 4,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 5,
+          "outcome": "CT",
+          "shots": 8,
+          "damage": 442
+        },
+        {
+          "seed": 6,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 7,
+          "outcome": "CT",
+          "shots": 8,
+          "damage": 442
+        },
+        {
+          "seed": 8,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 9,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 10,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 11,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 12,
+          "outcome": "CT",
+          "shots": 8,
+          "damage": 442
+        },
+        {
+          "seed": 13,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 14,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 15,
+          "outcome": "T",
+          "shots": 7,
+          "damage": 532
+        },
+        {
+          "seed": 16,
+          "outcome": "T",
+          "shots": 9,
+          "damage": 620
+        },
+        {
+          "seed": 17,
+          "outcome": "T",
+          "shots": 7,
+          "damage": 532
+        },
+        {
+          "seed": 18,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 19,
+          "outcome": "CT",
+          "shots": 8,
+          "damage": 442
+        },
+        {
+          "seed": 20,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        },
+        {
+          "seed": 21,
+          "outcome": "CT",
+          "shots": 8,
+          "damage": 442
+        },
+        {
+          "seed": 22,
+          "outcome": "T",
+          "shots": 7,
+          "damage": 532
+        },
+        {
+          "seed": 23,
+          "outcome": "T",
+          "shots": 6,
+          "damage": 532
+        }
+      ]
+    },
+    {
+      "skill": 0.65,
+      "tWins": 24,
+      "ctWins": 0,
+      "unresolved": 0,
+      "outcomes": [
+        {
+          "seed": 0,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 1,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 2,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 3,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 4,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 5,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 6,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 7,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 8,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 9,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 10,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 11,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 12,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 13,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 14,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 15,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 16,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 17,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 18,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 19,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 20,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 21,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 22,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        },
+        {
+          "seed": 23,
+          "outcome": "T",
+          "shots": 5,
+          "damage": 444
+        }
+      ]
+    },
+    {
+      "skill": 0.8,
+      "tWins": 24,
+      "ctWins": 0,
+      "unresolved": 0,
+      "outcomes": [
+        {
+          "seed": 0,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 1,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 2,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 3,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 4,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 5,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 6,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 7,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 8,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 9,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 10,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 11,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 12,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 13,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 14,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 15,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 16,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 17,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 18,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 19,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 20,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 21,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 22,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        },
+        {
+          "seed": 23,
+          "outcome": "T",
+          "shots": 4,
+          "damage": 355
+        }
+      ]
+    }
+  ],
+  "status": "provisional",
+  "limits": "Original near-feet diagnostics and one 2v2 seeded skill batch, not measured competitive lineups or a broad balance claim. Model matching is not real-map verification. No owner markings were changed."
+}

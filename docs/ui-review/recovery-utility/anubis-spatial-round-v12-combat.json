@@ -1,0 +1,40 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Anubis",
+  "scope": "One seeded 10-second 5v5 recovery with gunfire enabled; requires actual shots and successful screened pickup. Not full-match or real-game lineup certification.",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "fixtureSha256": "7742511cef2f3fb282b35da844a56332107dd3f63f6c7b2ec57a5e64576d5449",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 124,
+  "shots": 2,
+  "damage": 100,
+  "minSeparation": 32.49339058142888,
+  "checks": [
+    {
+      "id": "anubis-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "dc55d9cc7e7fa46efb9b6aa3ba1c46b4d02e36cdb3dc682f6435523e277ce575"
+}

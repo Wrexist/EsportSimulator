@@ -263,7 +263,7 @@ export default function TournamentDetailPage() {
     }, [completedMatches, displayTournament?.id])
     const playerRanking = playerTeam?.worldRanking || 999 // Fallback
     const eligibility = definition && playerTeam ? QualificationEngine.checkEligibility(
-        definition,
+        { ...definition, id: displayTournament?.id || definition.id },
         playerTeam,
         playerRanking,
         circuitPoints as any,
@@ -357,7 +357,7 @@ export default function TournamentDetailPage() {
 
     return (
         <ErrorBoundary section="Tournament">
-            <div className="min-h-screen bg-[#050505] text-white p-6 md:p-10 relative overflow-hidden selection:bg-blue-500/30">
+            <div className="premium-route text-white p-0 relative overflow-hidden selection:bg-blue-500/30">
                 {/* Background Image */}
                 {definition?.logoPath && (
                     <div

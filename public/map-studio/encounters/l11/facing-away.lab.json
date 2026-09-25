@@ -1,0 +1,53 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Mirage",
+  "sourceVersion": "2000908",
+  "a": {
+    "area": 1,
+    "point": [
+      184.99993,
+      104.75487625000001,
+      -156.47727276859504
+    ]
+  },
+  "b": {
+    "area": 8,
+    "point": [
+      183.49992666666665,
+      -140.49515,
+      -157.33332666666666
+    ]
+  },
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": true
+  },
+  "encounter": {
+    "seed": 11,
+    "seconds": 8,
+    "fov": 110,
+    "approach": false,
+    "a": {
+      "yaw": 89.64957072614199,
+      "pitch": 0,
+      "reactionMs": 250,
+      "aimError": 0,
+      "armor": 100,
+      "helmet": true,
+      "ammo": 30
+    },
+    "b": {
+      "yaw": -90.35042927385801,
+      "pitch": 0,
+      "reactionMs": 300,
+      "aimError": 0,
+      "armor": 100,
+      "helmet": true,
+      "ammo": 30
+    }
+  }
+}

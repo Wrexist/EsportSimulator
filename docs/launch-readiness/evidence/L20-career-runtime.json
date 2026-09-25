@@ -1,0 +1,137 @@
+{
+  "passed": true,
+  "repeatedExactly": true,
+  "tenSeasonsCompleted": true,
+  "scope": "Three-club real computeWeek career; canonical actions and weekly save/load; generated job offers forced at two milestones. Stops at game-over rather than continuing an ended career. Not full-world or UI/package acceptance.",
+  "ticks": 520,
+  "finalWeek": 521,
+  "terminal": null,
+  "seasons": [
+    {
+      "week": 52,
+      "managedClub": "team_player",
+      "confidence": 86,
+      "budgets": [
+        2224802,
+        13078025,
+        10951055
+      ],
+      "historyStints": 1
+    },
+    {
+      "week": 104,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        4572176,
+        50834110,
+        47276745
+      ],
+      "historyStints": 2
+    },
+    {
+      "week": 156,
+      "managedClub": "team_ai_1",
+      "confidence": 86,
+      "budgets": [
+        34455272,
+        60002847,
+        65295383
+      ],
+      "historyStints": 4
+    },
+    {
+      "week": 208,
+      "managedClub": "team_ai_1",
+      "confidence": 100,
+      "budgets": [
+        64827677,
+        60273117,
+        100874276
+      ],
+      "historyStints": 5
+    },
+    {
+      "week": 260,
+      "managedClub": "team_ai_1",
+      "confidence": 100,
+      "budgets": [
+        91706622,
+        60307903,
+        143715074
+      ],
+      "historyStints": 6
+    },
+    {
+      "week": 312,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        93568618,
+        90126308,
+        197772804
+      ],
+      "historyStints": 8
+    },
+    {
+      "week": 364,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        93746486,
+        99753009,
+        230530609
+      ],
+      "historyStints": 9
+    },
+    {
+      "week": 416,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        93887954,
+        124978622,
+        254415034
+      ],
+      "historyStints": 10
+    },
+    {
+      "week": 468,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        94043022,
+        159434176,
+        276449881
+      ],
+      "historyStints": 11
+    },
+    {
+      "week": 520,
+      "managedClub": "team_player",
+      "confidence": 100,
+      "budgets": [
+        94161690,
+        176446406,
+        307097453
+      ],
+      "historyStints": 12
+    }
+  ],
+  "moves": [
+    {
+      "week": 105,
+      "from": "team_player",
+      "to": "team_ai_1"
+    },
+    {
+      "week": 261,
+      "from": "team_ai_1",
+      "to": "team_player"
+    }
+  ],
+  "decisions": 0,
+  "shortages": [],
+  "maxEvents": 502,
+  "sha256": "ef86982c0ff27b2749d029d7eb76a81152eccf83fec2218d7889aeba56bac8b1"
+}

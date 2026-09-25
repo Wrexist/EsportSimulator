@@ -5,6 +5,7 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import { Monitor, Keyboard, Mouse, Headphones, Armchair, Cpu, Check, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { equipmentArtwork } from "@/lib/ui-assets"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
@@ -163,7 +164,7 @@ export function ShopApp() {
                                             )}>TIER {item.tier}</Badge>
                                         </div>
                                         <img
-                                            src={item.imagePath || "/team_placeholder.webp"}
+                                            src={equipmentArtwork(item.type, item.tier, item.imagePath || "/team_placeholder.webp")}
                                             alt={item.name}
                                             className="max-w-[80%] max-h-[80%] object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
                                         />

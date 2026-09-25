@@ -35,6 +35,36 @@ export const GameSaveSchema = z
         currentDay: z.number().int().min(0).max(6),
         timeMode: z.enum(["WEEKLY", "HYBRID_DAILY"]),
         gameStartDate: isoDate,
+        customTactics: z.object({
+            ECO: z.object({ ct: z.object({}).passthrough(), t: z.object({}).passthrough() }),
+            FORCE: z.object({ ct: z.object({}).passthrough(), t: z.object({}).passthrough() }),
+            SEMIBUY: z.object({ ct: z.object({}).passthrough(), t: z.object({}).passthrough() }),
+            "DOUBLE AWP": z.object({ ct: z.object({}).passthrough(), t: z.object({}).passthrough() }),
+            FULL: z.object({ ct: z.object({}).passthrough(), t: z.object({}).passthrough() }),
+        }).passthrough().optional(),
+        activeMatchId: z.string().nullable().optional(),
+        physicalMatchPreview: z.object({
+            version: z.literal(1), mode: z.literal('preview'), saveId: z.string().min(1), sessionId: z.string().min(1).max(160),
+            revision: z.number().int().nonnegative(), mapIndex: z.number().int().min(0).max(4),
+            settlement: z.object({ version: z.literal(1), mode: z.literal('preview'), matchId: z.string().min(1), mapId: z.string().min(1), nextRound: z.number().int().positive() }).passthrough(),
+            pending: z.object({}).passthrough().nullable(), latest: z.object({}).passthrough().nullable(),
+            series: z.object({
+                format: z.enum(['BO1','BO3','BO5']), seed: z.number().int().min(0).max(4294967295),
+                maps: z.array(z.object({mapId:z.string().min(1),homeStartsCT:z.boolean()})).min(1).max(5),
+                homePlayers: arrayOfUnknown.length(5), awayPlayers: arrayOfUnknown.length(5),
+                phase: z.enum(['buy','ready','map-complete','finished','settled']), homeSide:z.enum(['CT','T']),
+                overtimeSet:z.number().int().nonnegative(),homeWins:z.number().int().min(0).max(3),awayWins:z.number().int().min(0).max(3),
+                rounds:arrayOfUnknown,completedMaps:arrayOfUnknown.max(5),final:z.object({mode:z.literal('preview'),careerEligible:z.literal(false)}).passthrough().nullable(),
+            }).passthrough().optional(),
+        }).passthrough().nullable().optional(),
+        watchlistedPlayerIds: z.array(z.string()).optional(),
+        activeMatchState: z.object({
+            matchId: z.string(), gameState: z.object({}).passthrough(), simState: z.object({}).passthrough(),
+            homeRoster: arrayOfUnknown, awayRoster: arrayOfUnknown, logs: arrayOfUnknown,
+            originalHomePlayers: arrayOfUnknown, originalAwayPlayers: arrayOfUnknown,
+            matchResult: z.object({}).passthrough(), roundTime: z.number().finite(), bombTime: z.number().finite(),
+            isBombPlanted: z.boolean(), isWaitingForStrategy: z.boolean(),
+        }).passthrough().nullable().optional(),
 
         // Manager
         playerTeamId: z.string().min(1),

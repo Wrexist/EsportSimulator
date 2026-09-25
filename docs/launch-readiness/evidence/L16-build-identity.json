@@ -1,0 +1,21 @@
+{
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "59936a4b1a578bfe9c06412c08fc106f92aa6646d02a62370b84867464db422b"
+    },
+    {
+      "path": ".next/static/chunks/8654.3ad5903a0519e09b.js",
+      "sha256": "0220e8d1366de8f57b63d77fb71d30eccb64eecd74e2c40538168aa606b928bc"
+    },
+    {
+      "path": ".next/static/chunks/2063.dbacc41a85fa0716.js",
+      "sha256": "1f5973bc317a88ee46c44650dcaa96e2e5b78a641bce6b8e4d09e8a981d97041"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    }
+  ],
+  "buildId": "5AOpHd4zlZ1PZB6JFnixS"
+}

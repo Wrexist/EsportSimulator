@@ -1,0 +1,15 @@
+node.exe : PASS __tests__/map-annotations.test.ts
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/map-annotations.test.ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+PASS __tests__/radar-controls-rendering.test.ts
+PASS __tests__/team-logo-redesigns.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       43 passed, 43 total
+Snapshots:   0 total
+Time:        2.125 s
+Ran all test suites matching /map-annotations|radar-controls-rendering|team-logo-redesigns/i.

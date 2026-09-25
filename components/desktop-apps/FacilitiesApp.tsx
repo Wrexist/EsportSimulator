@@ -10,6 +10,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "@/lib/toast"
+import { UI_ASSETS } from "@/lib/ui-assets"
 import { soundManager } from "@/lib/sound-manager"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
@@ -26,28 +27,28 @@ const FACILITIES: {
             name: "Training Center",
             icon: Zap,
             color: "text-cyan-400",
-            imagePath: "/assets/facilities/training-room.png"
+            imagePath: UI_ASSETS.facilities.TRAINING
         },
         {
             id: "RECOVERY",
             name: "Wellness Center",
             icon: Heart,
             color: "text-rose-400",
-            imagePath: "/assets/facilities/recovery-hub.png"
+            imagePath: UI_ASSETS.facilities.RECOVERY
         },
         {
             id: "TACTICAL",
             name: "Command Hub",
             icon: LineChart,
             color: "text-amber-400",
-            imagePath: "/assets/facilities/tactical-suite.png"
+            imagePath: UI_ASSETS.facilities.TACTICAL
         },
         {
             id: "FANZONE",
             name: "Fan Plaza",
             icon: Users,
             color: "text-purple-400",
-            imagePath: "/assets/facilities/fan-zone.png"
+            imagePath: UI_ASSETS.facilities.FANZONE
         },
     ]
 

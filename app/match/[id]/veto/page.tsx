@@ -10,9 +10,10 @@ import { Ban, Check, ArrowLeft } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
 import { Player } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
-import { MAP_NAMES } from "@/data/map-pool"
+import { MAP_NAMES, ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { simulationEngineV2, SeededRNG } from "@/engine"
 import Image from "next/image"
+import { SideEmblem } from "@/components/match/SideEmblem"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, deterministicSeed } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -156,7 +157,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
 
         // Initialize Maps & Sequence only if not set
         if (availableMaps.length === 0 && vetoSequence.length === 0) {
-            setAvailableMaps(Object.values(MapId))
+            setAvailableMaps([...ACTIVE_MAP_POOL])
             setVetoSequence(generateVetoSequence(foundMatch.format || "BO3"))
             setStatus("Ready to start veto")
         }
@@ -378,7 +379,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
     const awayRatingNum = getTeamRating(awayPlayersList)
 
     return (
-        <div className="min-h-screen bg-[#0e1217] text-white p-6 overflow-hidden relative">
+        <div className="premium-route text-white p-0 overflow-hidden relative">
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/5 blur-[120px] pointer-events-none" />
 
@@ -516,7 +517,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             {/* Map Grid */}
             <div className="max-w-7xl mx-auto px-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {Object.values(MapId).map((mapId, idx) => {
+                    {[...ACTIVE_MAP_POOL].map((mapId, idx) => {
                         const isAvailable = availableMaps.includes(mapId)
                         const actionLog = vetoHistory.find(v => v.mapId === mapId)
                         const isBanned = actionLog?.action === "BAN"
@@ -532,11 +533,19 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.025, duration: 0.18, ease: "easeOut" }}
                                 className={cn(
-                                    "relative h-64 rounded-[32px] overflow-hidden border-2 transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
-                                    canInteract ? "border-white/10 hover:border-primary/50 cursor-pointer hover:-translate-y-2 hover:shadow-primary/20" : "border-white/5 opacity-40",
+                                    "relative h-64 rounded-[22px] overflow-hidden border transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
+                                    canInteract ? "border-white/10 hover:border-primary/50 cursor-pointer hover:-translate-y-1 hover:shadow-primary/20" : "border-white/10",
                                     isPicked && "border-emerald-500 shadow-emerald-500/20 ring-4 ring-emerald-500/20",
-                                    isBanned && "border-rose-500 grayscale opacity-30 shadow-none border opacity-20"
+                                    isBanned && "border-rose-400/40 grayscale shadow-none"
                                 )}
+                                role="button"
+                                tabIndex={canInteract ? 0 : -1}
+                                aria-label={`${mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
+                                aria-disabled={!canInteract}
+                                onKeyDown={event => {
+                                    if (event.target !== event.currentTarget || !canInteract) return
+                                    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleUserAction(mapId) }
+                                }}
                                 onClick={() => canInteract && handleUserAction(mapId)}
                             >
                                 {/* Map Wallpaper */}
@@ -566,19 +575,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                         <div className="flex gap-2">
                                             {isPicked && mapStartingSides[mapId] && (
                                                 <div className="flex gap-1 items-center bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-                                                    <Image
-                                                        src={mapStartingSides[mapId] === homeTeam!.id
-                                                            ? "/assets/badges/ct_coin.png"
-                                                            : "/assets/badges/t_coin.png"}
-                                                        alt="Side" width={20} height={20}
-                                                    />
+                                                    <SideEmblem side={mapStartingSides[mapId] === homeTeam!.id ? "CT" : "T"} className="h-5 w-5" />
                                                     <span className="text-[10px] font-bold text-white/60">VS</span>
-                                                    <Image
-                                                        src={mapStartingSides[mapId] === homeTeam!.id
-                                                            ? "/assets/badges/t_coin.png"
-                                                            : "/assets/badges/ct_coin.png"}
-                                                        alt="Side" width={20} height={20}
-                                                    />
+                                                    <SideEmblem side={mapStartingSides[mapId] === homeTeam!.id ? "T" : "CT"} className="h-5 w-5" />
                                                 </div>
                                             )}
                                             {isBanned && (
@@ -680,36 +679,36 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
 
                             <div className="grid grid-cols-2 gap-8">
                                 {/* CT CHOICE */}
-                                <motion.div
-                                    whileHover={{ scale: 1.05, y: -10 }}
+                                <motion.button type="button"
+                                    whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "CT")}
-                                    className="relative aspect-square rounded-[40px] bg-gradient-to-br from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-[0_0_50px_rgba(59,130,246,0.2)] transition-all duration-500"
+                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                                 >
                                     <div className="w-48 h-48 relative">
-                                        <Image src="/assets/badges/ct_coin.png" alt="CT" fill className="object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.5)] group-hover:scale-110 transition-transform duration-700" />
+                                        <SideEmblem side="CT" className="w-full h-full" />
                                     </div>
                                     <div className="text-center">
                                         <h3 className="text-3xl font-normal text-blue-400 uppercase tracking-tight">Counter-Terrorist</h3>
                                         <p className="text-blue-100/40 font-normal uppercase text-[10px] tracking-[0.3em] mt-1">Start Defending</p>
                                     </div>
-                                </motion.div>
+                                </motion.button>
 
                                 {/* T CHOICE */}
-                                <motion.div
-                                    whileHover={{ scale: 1.05, y: -10 }}
+                                <motion.button type="button"
+                                    whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "T")}
-                                    className="relative aspect-square rounded-[40px] bg-gradient-to-br from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-[0_0_50px_rgba(249,115,22,0.2)] transition-all duration-500"
+                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
                                 >
                                     <div className="w-48 h-48 relative">
-                                        <Image src="/assets/badges/t_coin.png" alt="T" fill className="object-contain drop-shadow-[0_0_30px_rgba(249,115,22,0.5)] group-hover:scale-110 transition-transform duration-700" />
+                                        <SideEmblem side="T" className="w-full h-full" />
                                     </div>
                                     <div className="text-center">
                                         <h3 className="text-3xl font-normal text-orange-400 uppercase tracking-tight">Terrorist</h3>
                                         <p className="text-orange-100/40 font-normal uppercase text-[10px] tracking-[0.3em] mt-1">Start Attacking</p>
                                     </div>
-                                </motion.div>
+                                </motion.button>
                             </div>
                         </div>
                     </motion.div>

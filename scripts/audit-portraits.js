@@ -5,7 +5,8 @@ const path = require("path")
 const sharp = require("sharp")
 
 const root = process.cwd()
-const playersPath = path.join(root, "raw-data", "snapshot", "players.json")
+const snapshotArgument = process.argv.find(arg => arg.startsWith("--snapshot="))?.slice("--snapshot=".length)
+const playersPath = path.resolve(root, snapshotArgument || "public/data/snapshot/players.json")
 const publicDir = path.join(root, "public")
 const minSourceSize = Number(process.env.PORTRAIT_MIN_SIZE || 512)
 const minFileBytes = Number(process.env.PORTRAIT_MIN_BYTES || 4096)
@@ -87,6 +88,7 @@ async function main() {
   }, {})
 
   const summary = {
+    snapshot: path.relative(root, playersPath).replace(/\\/g, "/"),
     checked: players.length,
     passed: players.length - failures.length,
     pathResolved: players.length - broken.length,

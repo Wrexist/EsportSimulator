@@ -1,0 +1,23 @@
+{
+  "build": "cAVrB5l32x2qQWbl99c0j",
+  "previewPid": 322816,
+  "routes": [
+    {
+      "path": "/main-menu",
+      "status": 200
+    },
+    {
+      "path": "/transfers",
+      "status": 200
+    },
+    {
+      "path": "/map-editor",
+      "status": 200
+    },
+    {
+      "path": "/dev",
+      "status": 404
+    }
+  ],
+  "limitation": "HTTP availability only; no browser rendering, interaction or latency acceptance."
+}

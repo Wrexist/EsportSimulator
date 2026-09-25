@@ -1,0 +1,112 @@
+[
+  {
+    "id": "player_122_calaoskurnos_cunana",
+    "stem": "kunana",
+    "files": [
+      "raw-data/teams/calaoscornos/players/kunana.png",
+      "public/assets/teams/calaoscornos/players/kunana.webp"
+    ]
+  },
+  {
+    "id": "player_99_cph_jorco",
+    "stem": "jorko",
+    "files": [
+      "public/assets/teams/cph_wolves/players/jorko.webp"
+    ]
+  },
+  {
+    "id": "player_99_cph_matheoz",
+    "stem": "matheos",
+    "files": [
+      "public/assets/teams/cph_wolves/players/matheos.webp"
+    ]
+  },
+  {
+    "id": "player_99_cph_tapevaare",
+    "stem": "tapewaare",
+    "files": [
+      "public/assets/teams/cph_wolves/players/tapewaare.webp"
+    ]
+  },
+  {
+    "id": "player_139_vuejo_alennnkar",
+    "stem": "alennncar",
+    "files": [
+      "raw-data/teams/bad_luck/players/alennncar.png",
+      "public/assets/teams/bad_luck/players/alennncar.webp",
+      "public/assets/teams/fuego/players/alennncar.webp"
+    ]
+  },
+  {
+    "id": "player_139_vuejo_lucita",
+    "stem": "lukita",
+    "files": [
+      "public/assets/teams/fuego/players/lukita.webp"
+    ]
+  },
+  {
+    "id": "player_139_vuejo_zakamoto",
+    "stem": "sakamoto",
+    "files": [
+      "raw-data/teams/bad_luck/players/sakamoto.png",
+      "public/assets/teams/bad_luck/players/sakamoto.webp",
+      "public/assets/teams/fuego/players/sakamoto.webp"
+    ]
+  },
+  {
+    "id": "player_139_vuejo_vsn",
+    "stem": "vzn",
+    "files": [
+      "public/assets/teams/fuego/players/vzn.webp"
+    ]
+  },
+  {
+    "id": "player_112_impulsa_zprayy",
+    "stem": "sprayy",
+    "files": [
+      "public/assets/teams/impulse_gw/players/sprayy.webp"
+    ]
+  },
+  {
+    "id": "player_132_enfuryty_nolw7n",
+    "stem": "nolv1n",
+    "files": [
+      "public/assets/teams/infurity/players/nolv1n.webp"
+    ]
+  },
+  {
+    "id": "player_102_mevrik_brawkkzz",
+    "stem": "brawckzz",
+    "files": [
+      "public/assets/teams/mavrek/players/brawckzz.webp"
+    ]
+  },
+  {
+    "id": "player_102_mevrik_kyrix",
+    "stem": "cyrix",
+    "files": [
+      "public/assets/teams/mavrek/players/cyrix.webp"
+    ]
+  },
+  {
+    "id": "player_102_mevrik_jakhro",
+    "stem": "jachro",
+    "files": [
+      "public/assets/teams/mavrek/players/jachro.webp"
+    ]
+  },
+  {
+    "id": "player_102_mevrik_zharpie",
+    "stem": "sharpie",
+    "files": [
+      "public/assets/teams/mavrek/players/sharpie.webp"
+    ]
+  },
+  {
+    "id": "player_102_mevrik_toazty",
+    "stem": "toasty",
+    "files": [
+      "public/assets/teams/mavrek/players/toasty.webp"
+    ]
+  }
+]

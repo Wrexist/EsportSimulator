@@ -1,0 +1,10 @@
+
+> esports-manager-sim@1.0.0 compliance:steam:strict
+> tsx scripts/steam-compliance-audit.ts --strict-medium
+
+=== Steam Compliance Audit ===
+Report: tmp\steam-compliance-report.json
+High: 0 | Medium: 1 | Low: 0
+[MEDIUM] TRADEMARK_KEYWORD_PATH :: public/hltvrankiing -> Path contains keyword 'hltv' that may require licensing verification.
+Historical baseline entries ignored for release: 415
+Strict mode medium delta: 1 new / 1 total

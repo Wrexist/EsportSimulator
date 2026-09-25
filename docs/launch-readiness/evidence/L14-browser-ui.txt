@@ -1,0 +1,280 @@
+TEAM COORDINATION · L13
+Read the round.
+
+Inspect what a team knows, where it moves and why its plan changes.
+
+Run team scenario
+Mirage team example
+Delayed reports · 2v2
+Entry, support and plant
+Retake and defuse
+Impossible deadline · save
+Support utility budget
+Reaction, trade and clutch
+Open team example
+
+Your current lab test downloads as a backup. Map Studio drawings stay separate. Save test above includes team settings.
+
+Round setup
+Seed
+Duration
+8s
+12s
+25s
+35s
+60s
+90s
+Communication delay
+0 ms
+250 ms
+500 ms
+1000 ms
+2000 ms
+Report memory
+1s
+2s
+4s
+8s
+Economy policy
+Protect equipment
+Balanced
+Commit to objective
+T execution skill · 70%
+CT execution skill · 70%
+Enable live fire
+Initial bomb
+carried
+planted
+dropped
+Round clock
+Bomb clock
+Plant seconds
+Defuse seconds
+Opening seconds
+Starting objective
+A
+B
+Bomb carrier
+T1
+T2
+Player assignments
+Selected player
+CT1
+CT2
+T1
+T2
+Role
+entry
+support
+lurk
+anchor
+Starting facing · 63°
+
+Place markers A and B on supported ground in the map above, then assign them below.
+
+A → player start
+B → hold angle
+A → test site A
+B → test site B
+
+Authored utility: 1 throw(s). Each waits for an execute or evidence trigger near the objective. Saving preserves unused grenades. Full trajectory settings are in the exported test.
+
+Model and review limits
+Knowledge view
+T · shared knowledge
+CT · shared knowledge
+Observer · world truth
+Export team replay
+Show full map
+Test A
+Test B
+smoke
+CT1
+CT2
+T1
+T2
+Play teams
+Restart teams
+Step teams
+3.000s · tick 192
+Playback speed
+0.25×
+0.5×
+1×
+2×
+
+Saved replay position restored. No events or rewards were applied again.
+
+T · execute · A. Opening interval complete; entry advances with support and bomb carrier.
+
+CT · rotate · A. A delivered enemy report permits a support rotation; anchors retain their assigned angle.
+
+Bomb: carried · T1 action 2.53s
+
+CT1 · anchor
+100 HP · 30 rounds · 0 grenades
+Hold the assigned opening angle.
+CT2 · rotate
+100 HP · 30 rounds · 0 grenades
+Approach the last communicated area, not a hidden live position.
+T1 · plant
+100 HP · 30 rounds · 0 grenades
+Hold position to complete the objective action.
+T2 · blocked
+100 HP · 30 rounds · 0 grenades
+Repeated movement attempts failed; hold until the team objective changes.
+Round replay
+
+Recorded positions, shots, health and outcome. Career integration is still held for review.
+
+Save replay position
+Resume replay position
+Export round replay
+Skip to round result
+
+spatial-round-v1 | 7c94e64ce6b0 | Mirage
+
+CT1 | 0 K / 0 D
+0 damage
+CT2 | 0 K / 0 D
+0 damage
+T1 | 0 K / 0 D
+0 damage
+T2 | 0 K / 0 D
+0 damage
+
+Rewards are diagnostic deltas from zero cash, using the existing round rules. Purchases, loss streaks and career payouts are not part of this lab.
+
+Decision timeline
+3.000s
+T2 · intent
+Repeated movement attempts failed; hold until the team objective changes.
+2.766s
+CT2 · spacing-wait
+Body sweep or teammate spacing prevents this movement; wait without overlap.
+2.500s
+T · report → CT1
+Radio report delivered from T1; position is an observation, not a live track.
+2.500s
+CT · report → T2
+Radio report delivered from CT1; position is an observation, not a live track.
+2.500s
+CT · report → T1
+Radio report delivered from CT1; position is an observation, not a live track.
+2.016s
+T2 · lost → CT1
+Line of sight interrupted; freeze the last observed position.
+2.016s
+T1 · lost → CT1
+Line of sight interrupted; freeze the last observed position.
+2.016s
+CT1 · lost → T2
+Line of sight interrupted; freeze the last observed position.
+2.016s
+CT1 · lost → T1
+Line of sight interrupted; freeze the last observed position.
+2.000s
+T2 · grenade-detonate
+smoke active for 8 seconds.
+2.000s
+T2 · route-blocked
+The collision reference blocks the direct movement segment.
+2.000s
+T · report → CT1
+Radio report delivered from T1; position is an observation, not a live track.
+2.000s
+CT · report → T2
+Radio report delivered from CT1; position is an observation, not a live track.
+2.000s
+CT · report → T1
+Radio report delivered from CT1; position is an observation, not a live track.
+1.703s
+T2 · grenade-bounce
+Bounce 3 against a resolved surface normal.
+1.672s
+CT2 · spacing-wait
+Body sweep or teammate spacing prevents this movement; wait without overlap.
+1.500s
+T · report → CT1
+Radio report delivered from T1; position is an observation, not a live track.
+1.500s
+CT · report → T2
+Radio report delivered from CT1; position is an observation, not a live track.
+1.500s
+CT · report → T1
+Radio report delivered from CT1; position is an observation, not a live track.
+1.484s
+T2 · grenade-bounce
+Bounce 2 against a resolved surface normal.
+1.000s
+T · report → CT1
+Radio report delivered from T1; position is an observation, not a live track.
+1.000s
+CT · report → T2
+Radio report delivered from CT1; position is an observation, not a live track.
+1.000s
+CT · report → T1
+Radio report delivered from CT1; position is an observation, not a live track.
+0.984s
+T2 · grenade-bounce
+Bounce 1 against a resolved surface normal.
+0.859s
+T2 · spacing-wait
+Body sweep or teammate spacing prevents this movement; wait without overlap.
+0.500s
+T2 · grenade-throw
+smoke released; one equipped grenade consumed.
+0.500s
+T2 · utility-commit
+Authored throw released after evidence/execute trigger and objective proximity; inventory is spent by flight resolution.
+0.500s
+T2 · intent
+Opening interval complete; entry advances with support and bomb carrier.
+0.500s
+CT2 · intent
+Approach the last communicated area, not a hidden live position.
+0.500s
+CT · plan
+A delivered enemy report permits a support rotation; anchors retain their assigned angle.
+0.500s
+T · report → CT1
+Radio report delivered from T1; position is an observation, not a live track.
+0.500s
+CT · report → T2
+Radio report delivered from CT1; position is an observation, not a live track.
+0.500s
+CT · report → T1
+Radio report delivered from CT1; position is an observation, not a live track.
+0.469s
+T1 · intent
+Hold position to complete the objective action.
+0.469s
+T1 · plant-start
+Begin an uninterrupted objective action within the declared test radius.
+0.000s
+T2 · intent
+Follow the entry with a 72-unit spacing buffer.
+0.000s
+T1 · intent
+Opening interval complete; entry advances with support and bomb carrier.
+0.000s
+CT2 · intent
+Hold the assigned opening angle.
+0.000s
+CT1 · intent
+Hold the assigned opening angle.
+0.000s
+T · plan
+Opening interval complete; entry advances with support and bomb carrier.
+0.000s
+T2 · sight → CT1
+Direct body sample visible inside field of view.
+0.000s
+T1 · sight → CT1
+Direct body sample visible inside field of view.
+0.000s
+CT1 · sight → T2
+Direct body sample visible inside field of view.
+0.000s
+CT1 · sight → T1
+Direct body sample visible inside field of view.

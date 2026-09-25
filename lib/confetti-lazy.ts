@@ -18,6 +18,7 @@
 // has no `.default`. The runtime dynamic-import value, however, is wrapped
 // by esModuleInterop into `{ default: confetti, shapeFromPath, ... }`.
 // We capture both shapes separately so the typings line up with reality.
+import { useSettingsStore } from "./settings-store"
 import type confettiFn from "canvas-confetti"
 
 export type ConfettiOptions = Parameters<typeof confettiFn>[0]
@@ -49,8 +50,9 @@ function loadConfetti(): Promise<ConfettiModule> {
  * `preloadConfetti()` ahead of time.
  */
 export function fireConfetti(options?: ConfettiOptions): Promise<ConfettiResult | undefined> {
+    if (shouldReduceConfetti()) return Promise.resolve(undefined)
     return loadConfetti()
-        .then(mod => mod.default(options))
+        .then(mod => shouldReduceConfetti() ? undefined : mod.default({ ...options, disableForReducedMotion: true }))
         .catch(() => undefined)
 }
 
@@ -60,4 +62,12 @@ export function fireConfetti(options?: ConfettiOptions): Promise<ConfettiResult 
  */
 export function preloadConfetti(): Promise<void> {
     return loadConfetti().then(() => void 0).catch(() => void 0)
+}
+
+export function shouldReduceConfetti(): boolean {
+    return useSettingsStore.getState().reducedMotion || (typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+}
+
+export function stopConfetti() {
+    if (modulePromise) void modulePromise.then(mod => mod.default.reset()).catch(() => {})
 }

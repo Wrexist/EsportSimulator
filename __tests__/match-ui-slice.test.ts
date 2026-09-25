@@ -29,6 +29,8 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
     return {
         activeMatchId: null,
         activeMatchState: null,
+        scheduledMatches: [{ id: "m_42" }] as any,
+        completedMatches: [],
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         customTactics: {
             Sandstone: { ct: "DEFAULT", t: "DEFAULT" },
@@ -54,7 +56,8 @@ describe("match-ui slice", () => {
         const h = makeHarness(makeBaseState())
         const slice = createMatchUISlice(h.set, h.get)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const liveState = { roundNumber: 5, score: { ct: 3, t: 2 } } as any as ActiveMatchState
+        slice.setActiveMatch("m_42")
+        const liveState = { matchId: "m_42", roundNumber: 5, score: { ct: 3, t: 2 } } as any as ActiveMatchState
         slice.updateActiveMatchState(liveState)
         expect(h.state().activeMatchState).toBe(liveState)
     })
@@ -90,4 +93,13 @@ describe("match-ui slice", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((h.state().customTactics as any).GhostMap).toBeUndefined()
     })
+})
+
+
+test('stale checkpoints cannot overwrite another career, another active match or a completed result', () => {
+    for (const overrides of [{ activeMatchId: 'other' }, { completedMatches: [{ id: 'm_42' }] }, { saveId: 'other-career' }]) {
+        const h = makeHarness(makeBaseState({ activeMatchId: 'm_42', saveId: 'career', ...overrides } as any))
+        createMatchUISlice(h.set, h.get).updateActiveMatchState({ matchId: 'm_42', playback: { saveId: 'career' } } as ActiveMatchState)
+        expect(h.state().activeMatchState).toBeNull()
+    }
 })

@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "electron": "44.3.0",
+  "buildId": "MUOAwVvQOYQOGCJknx4cu",
+  "checks": [
+    {
+      "route": "/main-menu",
+      "ready": true,
+      "workerReady": true,
+      "violations": []
+    },
+    {
+      "route": "/map-editor",
+      "ready": true,
+      "violations": []
+    },
+    {
+      "route": "/map-editor/lab",
+      "ready": true,
+      "violations": []
+    }
+  ],
+  "consoleErrors": [],
+  "limitations": [
+    "Source build, synthetic storage/Steam SDK; not packaged acceptance or full UI coverage."
+  ],
+  "worker": "3444.7dca8cc6acf45fed.js"
+}

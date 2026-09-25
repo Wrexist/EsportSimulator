@@ -1,0 +1,40 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Ancient",
+  "scope": "One seeded 10-second 5v5 recovery with gunfire enabled; requires actual shots and successful screened pickup. Not full-match or real-game lineup certification.",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "fixtureSha256": "7ce65a98b09f7b52949784406befce077226897ff43fb7bd8aacd8a46029602e",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 121,
+  "shots": 4,
+  "damage": 100,
+  "minSeparation": 32.316649255912964,
+  "checks": [
+    {
+      "id": "ancient-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "25069da12ef18e28b45c60c48a450fc9186c5bde9aef06e54a1c6d47ed6c29f2"
+}

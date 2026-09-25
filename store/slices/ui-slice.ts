@@ -1,5 +1,9 @@
 "use client"
 
+import { WEEKLY_ACTIVITIES } from '@/types/activities'
+import { restoreFirstSession, reviewFirstSession } from '@/lib/first-session'
+import { gameCalendarDate } from "@/lib/game-calendar"
+
 /**
  * UI slice.
  *
@@ -20,38 +24,13 @@
 
 import type { UIActions, SliceCreator } from "@/store/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { toastSoundFor } from "@/lib/audio-feedback"
 import { soundManager } from "@/lib/sound-manager"
 import { useSettingsStore } from "@/lib/settings-store"
 
 // Low-value toast types suppressed when the "Notifications" setting is off.
 // Meaningful types (achievement, level_up, warning, error) always show.
 const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
-
-// Map a toast type → matching pre-defined SFX from lib/sound-manager.
-// Most of these were already implemented in the manager but had no
-// trigger. Hooking addToast wires them up consistently across the
-// ~90 toast call sites without having to touch each one.
-//
-// NOTE: `toast.success(...)` resolves to the "achievement" store type
-// (see lib/toast.ts), which covers both rare wins AND routine
-// confirmations like "Facility Updated". To avoid the celebratory
-// achievement SFX firing 50× per session, we play the light "success"
-// SFX for the achievement type and reserve the louder one for the
-// explicit "level_up" event.
-function toastSoundFor(type: string): string | null {
-    switch (type) {
-        case "level_up":
-            return "achievement"
-        case "achievement":
-        case "xp_gain":
-            return "success"
-        case "warning":
-        case "error":
-            return "error"
-        default:
-            return "notification"
-    }
-}
 
 // Transient toast IDs must NOT be drawn from the deterministic game RNG.
 // `nextDeterministicId` advances `state.lastRngSeed`, and `advanceWeek`
@@ -85,7 +64,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         // lockstep with its cue, not before the visual lands.
         const sound = toastSoundFor(toast.type)
         if (sound && typeof window !== "undefined") {
-            soundManager.play(sound as any)
+            soundManager.play(sound)
         }
     },
 
@@ -109,9 +88,13 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         state.pendingLegendPick = null
     }),
 
-    setWeeklyActivity: (type) => set((state) => {
+    setWeeklyActivity: (type) => { set((state) => {
+        const activity = WEEKLY_ACTIVITIES[type]
+        const team = state.teams.find(t => t.id === state.playerTeamId)
+        if (!activity || !team || (activity.cost > 0 && activity.cost > team.budget) || state.gameOverReason) return
         state.selectedWeeklyActivity = type
-    }),
+        if (state.firstSession?.status === "active") state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "plan")
+    }); if (get().isInitialized && get().selectedWeeklyActivity === type) void get().saveGame?.() },
 
     selectLegend: (legendId: string) => set((state) => {
         if (!state.pendingLegendPick) return
@@ -200,10 +183,6 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
 
     getDateForWeek: (week) => {
         const state = get()
-        const start = new Date(state.gameStartDate)
-        const daysToAdd = (week - 1) * 7
-        const date = new Date(start)
-        date.setDate(date.getDate() + daysToAdd)
-        return date
+        return gameCalendarDate(state.gameStartDate, week)
     },
 })

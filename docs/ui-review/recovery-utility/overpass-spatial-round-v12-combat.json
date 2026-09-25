@@ -1,0 +1,40 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Overpass",
+  "scope": "One seeded 10-second 5v5 recovery with gunfire enabled; requires actual shots and successful screened pickup. Not full-match or real-game lineup certification.",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "fixtureSha256": "c8ce1d2d695f762a41ac21ab735d2f6f95ba63df8fa89cf81ed7715a8ed35cb2",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 122,
+  "shots": 2,
+  "damage": 100,
+  "minSeparation": 32.23413958973351,
+  "checks": [
+    {
+      "id": "overpass-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "97f3953f09ed445a149260eede30d053ef666cd249370c447b1989b5bd658618"
+}

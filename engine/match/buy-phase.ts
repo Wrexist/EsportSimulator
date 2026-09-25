@@ -24,7 +24,7 @@
 
 import { EconomyManager, WEAPONS } from "../economy-manager"
 import type { SeededRNG } from "../rng"
-import type { Player, CustomTactics, TacticalStrategy, PlayerLoadout } from "@/types"
+import type { CustomTactics, TacticalStrategy, PlayerLoadout } from "@/types"
 import { PlayerRole } from "@/types/enums"
 import type { PlayerSimulationState } from "./round-outcome"
 
@@ -53,7 +53,7 @@ export type BuyStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOU
  * SeededRNG. Same seed + same inputs → identical purchases.
  */
 export function performBuyPhase(
-    players: Player[],
+    players: { id: string; role: string }[],
     economy: Record<string, PlayerSimulationState>,
     strategy: BuyStrategy,
     isCT: boolean,
@@ -78,6 +78,7 @@ export function performBuyPhase(
                 state.cash -= 650
                 state.hasArmor = true
                 state.hasHelmet = false
+                if ('armorPoints' in state) state.armorPoints = 100
             }
 
             state.hasKit = false
@@ -112,7 +113,7 @@ export function performBuyPhase(
         if (!state) return
 
         let effectiveRole = p.role
-        const personalLoadout = playerLoadouts?.[idx] || playerLoadouts?.find((l) => l.slotIndex === idx)
+        const personalLoadout = playerLoadouts?.find((l) => l.slotIndex === idx)
 
         if (!personalLoadout) {
             if (awpRecipients.has(p.id)) {
@@ -140,9 +141,15 @@ export function performBuyPhase(
             state.weapon = newWeapon.id
         }
 
+        // Physical rounds retain damage to armor. Repair costs a vest, not a free refill.
+        if ('armorPoints' in state && typeof state.armorPoints === 'number' && state.hasArmor && state.armorPoints < 100 && buy.armorLevel > 0 && state.cash >= 650) {
+            state.cash -= 650
+            state.armorPoints = 100
+        }
+        const hadArmor = state.hasArmor
         // Armor ladder: 0 (none), 1 (vest $650), 2 (helmet $1000 or $350 upgrade).
         if (buy.armorLevel > 0) {
-            const currentArmorLevel = state.hasHelmet ? 2 : (state.hasArmor ? 1 : 0)
+            const currentArmorLevel = state.hasArmor ? (state.hasHelmet ? 2 : 1) : 0
 
             if (buy.armorLevel > currentArmorLevel) {
                 if (buy.armorLevel === 1 && currentArmorLevel === 0 && state.cash >= 650) {
@@ -152,14 +159,16 @@ export function performBuyPhase(
                     if (currentArmorLevel === 1 && state.cash >= 350) {
                         state.cash -= 350
                         state.hasHelmet = true
-                    } else if (currentArmorLevel === 0 && state.cash >= 1000) {
-                        state.cash -= 1000
+                    } else if (currentArmorLevel === 0 && state.cash >= (state.hasHelmet ? 650 : 1000)) {
+                        state.cash -= state.hasHelmet ? 650 : 1000
                         state.hasArmor = true
                         state.hasHelmet = true
                     }
                 }
             }
         }
+
+        if ('armorPoints' in state && !hadArmor && state.hasArmor) state.armorPoints = 100
 
         if (buy.kit && !state.hasKit && state.cash >= 400) {
             state.cash -= 400
@@ -189,7 +198,7 @@ export function performBuyPhase(
                     case "decoy": cost = 50; break
                 }
 
-                if (state.cash >= cost && (state.utility || []).length < 4) {
+                if (cost > 0 && state.cash >= cost && (state.utility || []).length < 4) {
                     state.cash -= cost
                     if (!state.utility) state.utility = []
                     state.utility.push(utilId)

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Shield, Sword, X, Save, User, Info, Copy, ClipboardPaste, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { WEAPONS as WEAPON_ICONS, EQUIPMENT, GRENADES } from "@/lib/asset-consta
 import { CustomTactics, TacticalStrategy, PlayerLoadout } from "@/types"
 import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface TacticalLoadoutEditorProps {
     side: "ct" | "t"
@@ -17,6 +18,7 @@ interface TacticalLoadoutEditorProps {
     config: TacticalStrategy
     teamBudget?: number
     playerCash?: number[]  // Per-player available cash from economy
+    playerIds?: string[]
     playerNames?: string[]
     playerImages?: string[]  // Array of image paths for each player
     onSave: (config: TacticalStrategy) => void
@@ -33,6 +35,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     playerCash = [],
     playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"],
     playerImages = [],
+    playerIds = [],
     onSave,
     onClose
 }) => {
@@ -58,13 +61,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     const [clipboard, setClipboard] = useState<PlayerLoadout | null>(null)
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
 
-    // Standard modal contract — Escape closes. Ref-stabilized so a
-    // non-memoized parent onClose doesn't churn the listener.
-    const onCloseRef = useRef(onClose)
-    useEffect(() => { onCloseRef.current = onClose }, [onClose])
+    const dialogRef = useFocusTrap(true, onClose)
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onCloseRef.current()
+            if (e.defaultPrevented) return
             // Arrow keys move between slots when nothing is focused on a
             // form control — slot picker UX without a mouse.
             const tgt = e.target as HTMLElement | null
@@ -202,7 +202,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     }
 
     return (
-        <div className="flex flex-col h-full max-h-[92vh] w-full max-w-[1400px] bg-[#0a0a0c] text-white rounded-[32px] border border-white/10 overflow-hidden shadow-2xl scale-[1.01] transition-all">
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${strategyId} ${side.toUpperCase()} loadout editor`} tabIndex={-1} className="glass-panel flex flex-col h-full max-h-[calc(100dvh-112px)] w-full max-w-[1400px] text-white rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
             <style jsx global>{`
                 .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar {
                     width: 6px;
@@ -244,6 +244,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                     <div className="text-left flex-1">
                         <div className="flex items-center gap-2">
                             <input
+                                aria-label="Strategy name"
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
                                 placeholder={`${strategyId} LOADOUT`}
@@ -302,7 +303,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 "bg-white/10"
                                     )}>
                                         <PlayerPortrait
-                                            src={playerImages[idx]}
+                                            src={playerImages[idx]} seed={playerIds[idx]}
                                             alt={playerNames[idx]}
                                             size={48}
                                             variant="card"

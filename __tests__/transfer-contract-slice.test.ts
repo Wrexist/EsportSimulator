@@ -200,7 +200,7 @@ describe("transferPlayer — validation failures", () => {
             players: [makePlayer("p1")],
         }))
         const slice = createTransferContractSlice(h.set, h.get)
-        const result = slice.transferPlayer("p1", "seller", "buyer", 100_000)
+        const result = slice.transferPlayer("p1", "seller", "buyer", 100_000, { salaryPerWeek: 1000, startWeek: 10, endWeek: 62, buyout: 0 })
         expect(result.success).toBe(false)
         expect(result.message).toContain("cannot afford")
     })
@@ -239,7 +239,7 @@ describe("transferPlayer — strategic refusal", () => {
             ],
         }))
         const slice = createTransferContractSlice(h.set, h.get)
-        const result = slice.transferPlayer("p1", "seller", "future_rival", 50000)
+        const result = slice.transferPlayer("p1", "seller", "future_rival", 50000, { salaryPerWeek: 1000, startWeek: 10, endWeek: 62, buyout: 0 })
         expect(result.success).toBe(true)
     })
 })
@@ -369,5 +369,52 @@ describe("renewContract — ownership guard", () => {
         const contract = h.state().contracts.find(c => c.playerId === "p1")!
         expect(contract.endWeek).toBeGreaterThan(52)
         expect(contract.salaryPerWeek).toBeGreaterThan(1000)
+    })
+})
+
+
+describe("L15 contract transaction boundaries", () => {
+    const contract = { playerId: "p1", teamId: "seller", salaryPerWeek: 1000, startWeek: 1, endWeek: 62, buyout: 0 }
+    function setup() {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("seller", { rosterIds: ["p1"] }), makeTeam("buyer")],
+            players: [makePlayer("p1")], contracts: [contract],
+            addToast: jest.fn(), playerTeamId: "seller",
+        }))
+        return { h, slice: createTransferContractSlice(h.set, h.get) }
+    }
+    test("wrong-owner release and repeated release cannot remove another contract or repeat chemistry loss", () => {
+        const { h, slice } = setup()
+        const before = JSON.stringify(h.state())
+        expect(slice.transferPlayer("p1", "buyer", "FA", 0).success).toBe(false)
+        expect(JSON.stringify(h.state())).toBe(before)
+        expect(slice.transferPlayer("p1", "seller", "FA", 0).success).toBe(true)
+        const released = JSON.stringify(h.state())
+        expect(slice.transferPlayer("p1", "seller", "FA", 0).success).toBe(false)
+        expect(JSON.stringify(h.state())).toBe(released)
+    })
+    test.each([undefined, { ...contract, startWeek: 11 }, { ...contract, startWeek: 9 }, { ...contract, startWeek: 10, endWeek: 10 }])("invalid terms cannot charge or move the player: %j", terms => {
+        const { h, slice } = setup()
+        const before = JSON.stringify(h.state())
+        expect(slice.transferPlayer("p1", "seller", "buyer", 10000, terms).success).toBe(false)
+        expect(JSON.stringify(h.state())).toBe(before)
+    })
+    test("repeated renewal stops at the enforceable remaining-term ceiling without charging cash", () => {
+        const { h, slice } = setup()
+        const before = h.state().teams[0].budget
+        for (let i = 0; i < 20; i++) slice.renewContract("p1")
+        expect(h.state().contracts[0].endWeek - 10).toBeLessThanOrEqual(520)
+        expect(h.state().teams[0].budget).toBe(before)
+        expect(h.state().financeLedger).toHaveLength(0)
+        expect(h.state().addToast).toHaveBeenLastCalledWith(expect.objectContaining({ type: "warning" }))
+    })
+    test("a poor club cannot renew and a departed player cannot be renewed", () => {
+        const { h, slice } = setup()
+        h.set(s => { s.teams[0].budget = 1 })
+        slice.renewContract("p1")
+        expect(h.state().contracts[0]).toEqual(contract)
+        h.set(s => { s.teams[0].budget = 100000; s.teams[0].rosterIds = [] })
+        slice.renewContract("p1")
+        expect(h.state().contracts[0]).toEqual(contract)
     })
 })

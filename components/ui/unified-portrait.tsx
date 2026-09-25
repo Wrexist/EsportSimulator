@@ -1,5 +1,6 @@
 "use client"
 
+import { TeamLogoImage } from '@/components/ui/asset-images'
 import Image from 'next/image'
 import { User } from 'lucide-react'
 import { useState } from 'react'
@@ -52,6 +53,8 @@ export function UnifiedPortrait({
     const imageSrc = error || !src
         ? fallbackImages[fallbackType]
         : src
+
+    if (fallbackType === 'team') return <TeamLogoImage src={src} alt={alt} size={{ sm: 32, md: 48, lg: 64, xl: 96 }[size]} className={className} />
 
     if (fallbackType === 'player') {
         const sizePx = size === 'sm' ? 32 : size === 'md' ? 48 : size === 'lg' ? 64 : 96

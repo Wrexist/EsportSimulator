@@ -1,0 +1,1188 @@
+{
+  "format": "esim-native-map-audit",
+  "version": 1,
+  "mapId": "Sandstone",
+  "sourceMap": "de_dust2",
+  "extraction": {
+    "vpk": "de_dust2.vpk",
+    "vpkSha256": "51d6bb432b6553bfae6c38219a527c5de2464a2b107080f2b8be7d8427ebb885",
+    "tool": "Source 2 Viewer CLI",
+    "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+  },
+  "navMatches": true,
+  "navAreas": 2242,
+  "ladders": 0,
+  "sites": [
+    {
+      "site": "A",
+      "entityId": "2:23316",
+      "model": "maps/de_dust2/entities/unnamed_2_23316.vmdl",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "sha256": "141229c734ce8bf81e4e940ab7f9909bcb2be410b27276190cd01c0804b59670",
+      "pieces": [
+        {
+          "id": "native-site:Sandstone:A:0",
+          "floor": "upper",
+          "vertices": [
+            [
+              1072,
+              2624,
+              136
+            ],
+            [
+              976,
+              2624,
+              136
+            ],
+            [
+              1072,
+              2448,
+              136
+            ],
+            [
+              976,
+              2448,
+              136
+            ],
+            [
+              1072,
+              2624,
+              96
+            ],
+            [
+              976,
+              2624,
+              96
+            ],
+            [
+              1072,
+              2448,
+              96
+            ],
+            [
+              976,
+              2448,
+              96
+            ]
+          ],
+          "zMin": 96,
+          "zMax": 136,
+          "points": [
+            {
+              "x": 76.62287026857915,
+              "y": 17.557223752849204
+            },
+            {
+              "x": 78.75363452411942,
+              "y": 17.5575823630688
+            },
+            {
+              "x": 78.75429197618867,
+              "y": 13.651181227911671
+            },
+            {
+              "x": 76.62352772064841,
+              "y": 13.650822617692077
+            }
+          ]
+        },
+        {
+          "id": "native-site:Sandstone:A:1",
+          "floor": "upper",
+          "vertices": [
+            [
+              1248,
+              2624,
+              192
+            ],
+            [
+              1072,
+              2624,
+              192
+            ],
+            [
+              1248,
+              2336,
+              192
+            ],
+            [
+              1072,
+              2336,
+              192
+            ],
+            [
+              1248,
+              2624,
+              96
+            ],
+            [
+              1072,
+              2624,
+              96
+            ],
+            [
+              1248,
+              2336,
+              96
+            ],
+            [
+              1072,
+              2336,
+              96
+            ]
+          ],
+          "zMin": 96,
+          "zMax": 192,
+          "points": [
+            {
+              "x": 78.75321614552989,
+              "y": 20.043473994532427
+            },
+            {
+              "x": 82.659617280687,
+              "y": 20.044131446601682
+            },
+            {
+              "x": 82.6606931113458,
+              "y": 13.65183867998093
+            },
+            {
+              "x": 78.75429197618867,
+              "y": 13.651181227911671
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "site": "B",
+      "entityId": "2:23326",
+      "model": "maps/de_dust2/entities/unnamed_2_23326.vmdl",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "sha256": "f0b25ba8d6c0df5177de86b60c0ae1d82d55a0bd4483e6040badbaa22710566d",
+      "pieces": [
+        {
+          "id": "native-site:Sandstone:B:0",
+          "floor": "upper",
+          "vertices": [
+            [
+              -1344,
+              2864,
+              96
+            ],
+            [
+              -1728,
+              2864,
+              96
+            ],
+            [
+              -1344,
+              2496,
+              96
+            ],
+            [
+              -1728,
+              2496,
+              96
+            ],
+            [
+              -1344,
+              2864,
+              0
+            ],
+            [
+              -1728,
+              2864,
+              0
+            ],
+            [
+              -1344,
+              2496,
+              0
+            ],
+            [
+              -1728,
+              2496,
+              0
+            ]
+          ],
+          "zMin": 0,
+          "zMax": 96,
+          "points": [
+            {
+              "x": 16.60652304263857,
+              "y": 16.481740770560478
+            },
+            {
+              "x": 25.12958006479957,
+              "y": 16.48317521143886
+            },
+            {
+              "x": 25.13095473730802,
+              "y": 8.315245565201229
+            },
+            {
+              "x": 16.607897715147022,
+              "y": 8.313811124322847
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "id": "2:23478",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        382.134918,
+        2102.437012,
+        -109
+      ],
+      "angles": [
+        0,
+        101,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 63.44047014609906,
+        "y": 25.224935177647314
+      }
+    },
+    {
+      "id": "2:23479",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        454.834656,
+        2099.009033,
+        -109
+      ],
+      "angles": [
+        0,
+        129,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 65.0540615399453,
+        "y": 25.301292323386395
+      }
+    },
+    {
+      "id": "2:23480",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        322.361481,
+        2165.008057,
+        -109
+      ],
+      "angles": [
+        0,
+        37.500004,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 62.11400489220113,
+        "y": 23.8359187038643
+      }
+    },
+    {
+      "id": "2:23481",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        347.861938,
+        2250.738525,
+        -109
+      ],
+      "angles": [
+        0,
+        335,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 62.68031953905007,
+        "y": 21.93318670281583
+      }
+    },
+    {
+      "id": "2:23482",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        421.494202,
+        2288.092285,
+        -109
+      ],
+      "angles": [
+        0,
+        307.5,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 64.31476111848527,
+        "y": 21.104377834735967
+      }
+    },
+    {
+      "id": "2:23484",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        222.911575,
+        2286.301025,
+        -109
+      ],
+      "angles": [
+        0,
+        266,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 59.9071214752871,
+        "y": 21.143393866203706
+      }
+    },
+    {
+      "id": "2:23485",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        153.576233,
+        2308.428223,
+        -109
+      ],
+      "angles": [
+        0,
+        294,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 58.36827425299621,
+        "y": 20.65201150228828
+      }
+    },
+    {
+      "id": "2:23486",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        264.453705,
+        2210.391602,
+        -109
+      ],
+      "angles": [
+        0,
+        202.5,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 60.828884639955376,
+        "y": 22.828393685156282
+      }
+    },
+    {
+      "id": "2:23487",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        217.633453,
+        2134.182129,
+        -109
+      ],
+      "angles": [
+        0,
+        139.999985,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 59.78940288065501,
+        "y": 24.5197231724595
+      }
+    },
+    {
+      "id": "2:23488",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        136.842346,
+        2117.158936,
+        -109
+      ],
+      "angles": [
+        0,
+        112.499985,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 1,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 57.99614342594556,
+        "y": 24.89725899165679
+      }
+    },
+    {
+      "id": "2:23490",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        182.249908,
+        2439.011719,
+        -110
+      ],
+      "angles": [
+        0,
+        356,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 59.00518748571656,
+        "y": 17.753757721377905
+      }
+    },
+    {
+      "id": "2:23491",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        160.122742,
+        2369.67627,
+        -110
+      ],
+      "angles": [
+        0,
+        23.999994,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 58.51380583165618,
+        "y": 19.292607318702657
+      }
+    },
+    {
+      "id": "2:23492",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        258.159393,
+        2480.553711,
+        -110
+      ],
+      "angles": [
+        0,
+        292.5,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 60.690188680272215,
+        "y": 16.831997619914848
+      }
+    },
+    {
+      "id": "2:23493",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        334.368744,
+        2433.733643,
+        -110
+      ],
+      "angles": [
+        0,
+        229.999985,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 62.38151546041652,
+        "y": 17.871475294794653
+      }
+    },
+    {
+      "id": "2:23494",
+      "classname": "info_player_counterterrorist",
+      "origin": [
+        351.39212,
+        2352.942383,
+        -110
+      ],
+      "angles": [
+        0,
+        202.5,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "CT",
+      "floor": "upper",
+      "radar": {
+        "x": 62.75905534081165,
+        "y": 19.66473814609324
+      }
+    },
+    {
+      "id": "2:23496",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -822.365173,
+        -795.64209,
+        150.709
+      ],
+      "angles": [
+        0,
+        106.999992,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 36.69520951608912,
+        "y": 89.54463740918536
+      }
+    },
+    {
+      "id": "2:23497",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -857.506531,
+        -738.361328,
+        150.709
+      ],
+      "angles": [
+        0,
+        37,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 35.915444848892214,
+        "y": 88.27313321908308
+      }
+    },
+    {
+      "id": "2:23498",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -760.662964,
+        -836.174011,
+        150.709
+      ],
+      "angles": [
+        0,
+        128.499969,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 38.06456708133895,
+        "y": 90.44449257083014
+      }
+    },
+    {
+      "id": "2:23499",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -696.844604,
+        -806.623718,
+        150.709
+      ],
+      "angles": [
+        0,
+        178,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 39.481155387300014,
+        "y": 89.78884859011089
+      }
+    },
+    {
+      "id": "2:23500",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -657.271362,
+        -755.879639,
+        150.709
+      ],
+      "angles": [
+        0,
+        207.500015,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 40.35969129224541,
+        "y": 88.66270819068893
+      }
+    },
+    {
+      "id": "2:23502",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -1141,
+        -808,
+        150.709
+      ],
+      "angles": [
+        0,
+        111.999992,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 29.62291647843632,
+        "y": 89.81773665080934
+      }
+    },
+    {
+      "id": "2:23503",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -1181,
+        -754,
+        150.709
+      ],
+      "angles": [
+        0,
+        42,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 28.735299756876405,
+        "y": 88.61903233614309
+      }
+    },
+    {
+      "id": "2:23504",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -1076,
+        -843,
+        150.709
+      ],
+      "angles": [
+        0,
+        133.499985,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 31.065490699815804,
+        "y": 90.59482059464456
+      }
+    },
+    {
+      "id": "2:23505",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -1015,
+        -808,
+        150.709
+      ],
+      "angles": [
+        0,
+        183.000015,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 32.419544563832886,
+        "y": 89.81820732672254
+      }
+    },
+    {
+      "id": "2:23506",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -980,
+        -754,
+        150.709
+      ],
+      "angles": [
+        0,
+        212.500015,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 33.19658741691381,
+        "y": 88.61978317629037
+      }
+    },
+    {
+      "id": "2:23508",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -493,
+        -808,
+        134.709
+      ],
+      "angles": [
+        0,
+        111.999992,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 44.005575203333,
+        "y": 89.8201572697916
+      }
+    },
+    {
+      "id": "2:23509",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -533,
+        -754,
+        134.709
+      ],
+      "angles": [
+        0,
+        42,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 43.117958481773094,
+        "y": 88.62145295512536
+      }
+    },
+    {
+      "id": "2:23510",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -428,
+        -843,
+        134.709
+      ],
+      "angles": [
+        0,
+        133.499985,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 45.4481494247125,
+        "y": 90.59724121362683
+      }
+    },
+    {
+      "id": "2:23511",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -367,
+        -808,
+        134.709
+      ],
+      "angles": [
+        0,
+        183.000015,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 46.80220328872959,
+        "y": 89.82062794570483
+      }
+    },
+    {
+      "id": "2:23512",
+      "classname": "info_player_terrorist",
+      "origin": [
+        -332,
+        -754,
+        134.709
+      ],
+      "angles": [
+        0,
+        212.500015,
+        0
+      ],
+      "scales": [
+        1,
+        1,
+        1
+      ],
+      "enabled": true,
+      "priority": 0,
+      "side": "T",
+      "floor": "upper",
+      "radar": {
+        "x": 47.579246141810486,
+        "y": 88.62220379527265
+      }
+    }
+  ],
+  "world": {
+    "hulls": 10143,
+    "meshes": [
+      {
+        "collisionAttributeIndex": 4,
+        "min": [
+          -2410.0312,
+          -1184.0312,
+          -130.03125
+        ],
+        "max": [
+          1835.0312,
+          3429.0312,
+          808.03125
+        ],
+        "vertexCount": 689,
+        "triangleCount": 2320
+      },
+      {
+        "collisionAttributeIndex": 2,
+        "min": [
+          -2312.0312,
+          -1200.0312,
+          -232.03125
+        ],
+        "max": [
+          1868.0312,
+          3204.0312,
+          820.03125
+        ],
+        "vertexCount": 5944,
+        "triangleCount": 12147
+      },
+      {
+        "collisionAttributeIndex": 3,
+        "min": [
+          -2184.0312,
+          -156.785,
+          -82.05063
+        ],
+        "max": [
+          1719.5164,
+          3018.5164,
+          411.03125
+        ],
+        "vertexCount": 7915,
+        "triangleCount": 14194
+      },
+      {
+        "collisionAttributeIndex": 0,
+        "min": [
+          -4736.0312,
+          -2496.0312,
+          -320.03125
+        ],
+        "max": [
+          3584.0312,
+          4608.0312,
+          964.03125
+        ],
+        "vertexCount": 101097,
+        "triangleCount": 175380
+      },
+      {
+        "collisionAttributeIndex": 1,
+        "min": [
+          253.96875,
+          1335.7992,
+          468.46674
+        ],
+        "max": [
+          2735.3801,
+          4224.0312,
+          927.28125
+        ],
+        "vertexCount": 76,
+        "triangleCount": 42
+      },
+      {
+        "collisionAttributeIndex": 5,
+        "min": [
+          -4736.0312,
+          -2496.0312,
+          -32.03125
+        ],
+        "max": [
+          3584.0312,
+          4608.0312,
+          1174.0312
+        ],
+        "vertexCount": 218,
+        "triangleCount": 266
+      }
+    ],
+    "collisionAttributeIndices": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "sourceHashes": {
+    "nav": "64bbc202edae8a92d432368e86948bbee3af9c56555e190dda251d28c64e1ea7",
+    "physics": "d31ef6c5ae4c60d1b2d242ecb9e938b7bad5ab72015c6523109f697f2c6abd41",
+    "entities": {
+      "default_ents.vents_c": "515efdfc1e452b3d7052c5ffb1801a05e23b2395fb90586ff2dc9d14ae7ef80a"
+    }
+  },
+  "limits": [
+    "Spawn pins are entity origins; runtime grounding and priority selection remain pending.",
+    "Each convex plant piece is projected separately; exact 3D trigger/player overlap and standing-floor binding remain pending.",
+    "Radar registration remains provisional; navigation equality does not certify visual alignment or collision masks.",
+    "Native collision categories, dynamic/breakable entities and runtime geometry adoption remain pending.",
+    "Library drawings and utility guides are preserved, not validated by this import."
+  ]
+}

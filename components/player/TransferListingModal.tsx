@@ -75,7 +75,7 @@ export function TransferListingModal({
                     {/* Player Mini Card */}
                     <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 mb-8">
                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-black/40 border border-white/5 shrink-0">
-                            <PlayerPortrait src={(player as any).portraitPath} alt={player.nickname} size={64} />
+                            <PlayerPortrait seed={player.id} src={(player as any).portraitPath} alt={player.nickname} size={64} />
                         </div>
                         <div className="flex-1 text-left">
                             <div className="flex items-center gap-2">

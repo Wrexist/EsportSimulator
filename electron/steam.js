@@ -11,6 +11,17 @@
 const { app, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('node:crypto');
+const cloudBaselines = new Map();
+const cloudWrites = new Set();
+const cloudDigest = value => crypto.createHash('sha256').update(value).digest('hex');
+function rememberCloud(key, value) {
+    if (cloudBaselines.size >= 1000 && !cloudBaselines.has(key)) cloudBaselines.delete(cloudBaselines.keys().next().value);
+    cloudBaselines.set(key, cloudDigest(value));
+}
+const { registerTrustedHandler, cloudName, workshopId, MAX_VALUE_BYTES } = require('./ipc-policy');
+const { containedPath, readBounded, writeAtomic } = require('./local-files');
+const handleSteam = (channel, handler) => registerTrustedHandler(ipcMain, channel, isTrustedSender, handler);
 
 let steamworks;
 try {
@@ -24,8 +35,7 @@ try {
 
 // ---- mutation throttle ---------------------------------------------------
 // Prevent a compromised or runaway renderer from spamming Steam write APIs
-// (stats, achievements, cloud saves) and getting us VAC-flagged or
-// rate-limited.
+// (stats, achievements, cloud saves) and exhausting API rate limits.
 const STEAM_MUTATION_WINDOW_MS = 1000;
 const STEAM_MUTATION_LIMIT = 30;
 const mutationTimestamps = new Map();
@@ -56,13 +66,11 @@ const ALLOWED_LEADERBOARDS = new Set([
     'lead_total_earnings', 'lead_win_streak', 'lead_tournaments_won',
 ]);
 
-// Spacewar, Valve's public test App ID. Used only when steam_appid.txt is
-// absent — production builds ship the real ID in steam_appid.txt (asarUnpack).
-const SPACEWAR_APP_ID = 480;
+const { resolveAppId } = require('./steam-app-id.cjs');
 
 let steamClient = null;
-let steamAppId = SPACEWAR_APP_ID;
-let trustedWebContentsIdGetter = () => -1;
+let steamAppId = null;
+let trustedSenderCheck = () => false;
 let logFn = (msg) => console.log(msg);
 
 // Steam's API does not expose a "read my own rich presence" call. Cache what
@@ -70,30 +78,13 @@ let logFn = (msg) => console.log(msg);
 const richPresenceCache = new Map();
 
 function loadAppId() {
-    const candidatePaths = [
-        path.join(process.resourcesPath || '', 'steam_appid.txt'),
-        path.join(app.getAppPath(), 'steam_appid.txt'),
-        path.join(__dirname, '..', 'steam_appid.txt'),
-    ];
-    for (const p of candidatePaths) {
-        try {
-            if (p && fs.existsSync(p)) {
-                const raw = fs.readFileSync(p, 'utf8').trim();
-                const parsed = parseInt(raw, 10);
-                if (Number.isFinite(parsed) && parsed > 0) {
-                    logFn(`[Steam] Loaded App ID ${parsed} from ${p}`);
-                    return parsed;
-                }
-            }
-        } catch (_) { /* try next candidate */ }
-    }
-    logFn(`[Steam] steam_appid.txt not found; falling back to Spacewar test ID ${SPACEWAR_APP_ID}`);
-    return SPACEWAR_APP_ID;
+    const id = resolveAppId();
+    logFn(id ? `[Steam] Configured release App ID ${id}` : '[Steam] Unexpected launch App ID; Steam integration stays disabled');
+    return id;
 }
 
 function isTrustedSender(event) {
-    const trusted = trustedWebContentsIdGetter();
-    return trusted !== -1 && event.sender.id === trusted;
+    return trustedSenderCheck(event) === true;
 }
 
 function canRunMutation(event, key) {
@@ -107,11 +98,29 @@ function canRunMutation(event, key) {
     return true;
 }
 
+// A local career previously synced by another Steam user cannot upload into this account.
+// Legacy careers without a receipt bind on their first successful local sync attempt.
+function cloudOwnerAllows(filename, claim = false) {
+    try {
+        const id = coerceSteamId(steamClient?.localplayer?.getSteamId?.());
+        if (!id || !/^[1-9][0-9]{0,19}$/.test(id)) return false;
+        const root = app.getPath('userData');
+        const receipt = 'steam-cloud-owners.json';
+        const target = containedPath(root, receipt, true);
+        const owners = fs.existsSync(target) ? JSON.parse(readBounded(root, receipt, 256 * 1024)) : {};
+        if (!owners || typeof owners !== 'object' || Array.isArray(owners)) return false;
+        if (owners[filename] && owners[filename] !== id) return false;
+        if (claim && !owners[filename]) {
+            if (Object.keys(owners).length >= 1000) return false;
+            owners[filename] = id;
+            writeAtomic(root, receipt, JSON.stringify(owners));
+        }
+        return true;
+    } catch (_) { return false; }
+}
+
 function isValidCloudFilename(filename) {
-    if (typeof filename !== 'string' || filename.length === 0 || filename.length > 255) return false;
-    if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) return false;
-    if (path.basename(filename) !== filename) return false;
-    return true;
+    return cloudName(filename);
 }
 
 function coerceSteamId(id) {
@@ -144,10 +153,10 @@ const EITEM_STATE_INSTALLED = 4;
 const EITEM_STATE_NEEDS_UPDATE = 8;
 
 function modsRoot() {
-    return path.join(app.getPath('userData'), 'mods');
+    return containedPath(app.getPath('userData'), 'mods', true);
 }
 function communityModDir() {
-    return path.join(modsRoot(), 'community');
+    return containedPath(app.getPath('userData'), 'mods/community', true);
 }
 function activePointerPath() {
     return path.join(modsRoot(), 'active.json');
@@ -157,16 +166,19 @@ function readActiveMod() {
     try {
         const p = activePointerPath();
         if (fs.existsSync(p)) {
-            const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-            if (j && (j.source === 'community' || j.source === 'workshop')) return j;
+            const j = JSON.parse(readBounded(modsRoot(), 'active.json', 4096));
+            if (j?.source === 'none') return { source: 'none' };
+            if (j?.source === 'community') return { source: 'community' };
+            if (j?.source === 'workshop' && workshopId(j.workshopId)) return {source:'workshop', workshopId:j.workshopId, ...(/^[a-f0-9]{64}$/.test(j.bundleId || '') ? {bundleId:j.bundleId} : {})};
+            return { source: 'none' };
         }
-    } catch (_) { /* fall through to default */ }
+    } catch (_) { return { source: 'none' }; }
     return { source: 'community' };
 }
 function writeActiveMod(obj) {
     try {
         fs.mkdirSync(modsRoot(), { recursive: true });
-        fs.writeFileSync(activePointerPath(), JSON.stringify(obj, null, 2), 'utf8');
+        writeAtomic(modsRoot(), 'active.json', JSON.stringify(obj, null, 2));
         return true;
     } catch (e) {
         logFn(`[Mod] Failed to write active pointer: ${e.message}`);
@@ -185,23 +197,26 @@ function workshopInstallFolder(idStr) {
 /**
  * Resolve the directory the active overlay is read/served from. A subscribed
  * Workshop item wins when selected AND installed on disk; otherwise we fall
- * back to the hand-imported community dir. Never throws.
+ * back to the base game. Never silently activate a different database.
  */
 function getActiveModDir() {
     try {
         const active = readActiveMod();
+        if (active.source === 'none') return null;
         if (active.source === 'workshop' && active.workshopId) {
+            if (active.bundleId) return require('./mod-assets').bundleDirectory(app.getPath('userData'), active.bundleId);
             const folder = workshopInstallFolder(active.workshopId);
             if (folder && fs.existsSync(folder)) return folder;
+            return null; // Missing Workshop content must never activate a different database.
         }
-    } catch (_) { /* fall through */ }
+    } catch (_) { return null; }
     return communityModDir();
 }
 
 function readModManifest(dir) {
     try {
         const p = path.join(dir, 'manifest.json');
-        if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+        if (fs.existsSync(p)) return JSON.parse(readBounded(dir, 'manifest.json', 256 * 1024));
     } catch (_) { /* ignore */ }
     return null;
 }
@@ -214,7 +229,7 @@ function listWorkshopMods() {
     let ids = [];
     try { ids = steamClient.workshop.getSubscribedItems() || []; } catch (_) { return []; }
     const out = [];
-    for (const id of ids) {
+    for (const id of ids.slice(0, 1000)) {
         try {
             const idStr = id.toString();
             let state = 0;
@@ -241,7 +256,7 @@ function listWorkshopMods() {
                 teams: count(manifest && manifest.teams),
                 players: count(manifest && manifest.players),
                 // Distinguishes our real-data overlays from unrelated subscriptions.
-                isEmMod: !!(manifest && (manifest.game === 'Esports Manager' || typeof manifest.schema === 'number')),
+                isEmMod: !!(manifest && (manifest.game === 'Esports Manager' && manifest.schema === 1)),
             });
         } catch (_) { /* skip malformed item */ }
     }
@@ -250,7 +265,7 @@ function listWorkshopMods() {
 
 function registerHandlers() {
     // ---- identity -------------------------------------------------------
-    ipcMain.handle('steam-get-id', (event) => {
+    handleSteam('steam-get-id', (event) => {
         if (!isTrustedSender(event)) return null;
         if (!steamClient) return null;
         try {
@@ -262,7 +277,7 @@ function registerHandlers() {
         }
     });
 
-    ipcMain.handle('steam-get-persona-name', (event) => {
+    handleSteam('steam-get-persona-name', (event) => {
         if (!isTrustedSender(event)) return null;
         if (!steamClient) return null;
         try {
@@ -274,18 +289,19 @@ function registerHandlers() {
     });
 
     // ---- stats ----------------------------------------------------------
-    ipcMain.handle('steam-get-stat', (event, name) => {
+    handleSteam('steam-get-stat', (event, name) => {
+        if (!ALLOWED_STATS.has(name)) return null;
         if (!isTrustedSender(event)) return null;
         if (!steamClient) return null;
         try {
-            return steamClient.stats.getInt(name) || steamClient.stats.getFloat(name);
+            return steamClient.stats.getInt(name);
         } catch (e) {
             logFn(`[Steam] Error getting stat ${name}: ${e.message}`);
             return null;
         }
     });
 
-    ipcMain.handle('steam-set-stat', (event, name, value) => {
+    handleSteam('steam-set-stat', (event, name, value) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-stat')) return false;
         if (typeof name !== 'string' || !ALLOWED_STATS.has(name)) {
@@ -297,25 +313,25 @@ function registerHandlers() {
             return false;
         }
         try {
-            if (Number.isInteger(value)) {
-                steamClient.stats.setInt(name, value);
-            } else {
-                steamClient.stats.setFloat(name, value);
-            }
-            return true;
+            if (!Number.isInteger(value) || value < 0 || value > 2147483647) return false;
+            const previous = steamClient.stats.getInt(name);
+            // Stats are best-career milestones; a new career must not erase an account's record.
+            const next = name === 'stat_peak_ranking'
+                ? (value > 0 && previous > 0 ? Math.min(previous, value) : Math.max(previous || 0, value))
+                : Math.max(previous || 0, value);
+            return steamClient.stats.setInt(name, next) === true;
         } catch (e) {
             logFn(`[Steam] Error setting stat ${name}: ${e.message}`);
             return false;
         }
     });
 
-    ipcMain.handle('steam-store-stats', (event) => {
+    handleSteam('steam-store-stats', (event) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-store-stats')) return false;
         try {
             if (!steamClient.stats?.store) return false;
-            steamClient.stats.store();
-            return true;
+            return steamClient.stats.store() === true;
         } catch (e) {
             logFn(`[Steam] Error storing stats: ${e.message}`);
             return false;
@@ -323,7 +339,7 @@ function registerHandlers() {
     });
 
     // ---- achievements ---------------------------------------------------
-    ipcMain.handle('steam-set-achievement', (event, name) => {
+    handleSteam('steam-set-achievement', (event, name) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-achievement')) return false;
         if (typeof name !== 'string' || !ALLOWED_ACHIEVEMENTS.has(name)) {
@@ -331,22 +347,22 @@ function registerHandlers() {
             return false;
         }
         try {
-            if (!steamClient.achievements?.activate || !steamClient.stats?.store) return false;
-            steamClient.achievements.activate(name);
-            steamClient.stats.store();
-            return true;
+            if (!steamClient.achievement?.activate || !steamClient.stats?.store) return false;
+            if (steamClient.achievement.activate(name) !== true) return false;
+            return steamClient.stats.store() === true;
         } catch (e) {
             logFn(`[Steam] Error setting achievement ${name}: ${e.message}`);
             return false;
         }
     });
 
-    ipcMain.handle('steam-is-achievement-unlocked', (event, name) => {
+    handleSteam('steam-is-achievement-unlocked', (event, name) => {
+        if (!ALLOWED_ACHIEVEMENTS.has(name)) return false;
         if (!isTrustedSender(event)) return false;
         if (!steamClient) return false;
         try {
-            if (!steamClient.achievements?.isActivated) return false;
-            return !!steamClient.achievements.isActivated(name);
+            if (!steamClient.achievement?.isActivated) return false;
+            return !!steamClient.achievement.isActivated(name);
         } catch (e) {
             logFn(`[Steam] Error reading achievement ${name}: ${e.message}`);
             return false;
@@ -354,7 +370,7 @@ function registerHandlers() {
     });
 
     // ---- leaderboards ---------------------------------------------------
-    ipcMain.handle('steam-set-leaderboard-score', async (event, name, score) => {
+    handleSteam('steam-set-leaderboard-score', async (event, name, score) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-set-leaderboard-score')) return false;
         if (typeof name !== 'string' || !ALLOWED_LEADERBOARDS.has(name)) {
@@ -377,7 +393,7 @@ function registerHandlers() {
     });
 
     // ---- rich presence --------------------------------------------------
-    ipcMain.handle('steam-set-rich-presence', async (event, key, value) => {
+    handleSteam('steam-set-rich-presence', async (event, key, value) => {
         if (!canRunMutation(event, 'steam-set-rich-presence')) return false;
         if (typeof key !== 'string' || !key) return false;
         // Always update the cache, even when Steam isn't running, so the
@@ -400,53 +416,84 @@ function registerHandlers() {
         }
     });
 
-    ipcMain.handle('steam-get-rich-presence', (event, key) => {
+    handleSteam('steam-get-rich-presence', (event, key) => {
         if (!isTrustedSender(event)) return null;
         if (typeof key !== 'string' || !key) return null;
         return richPresenceCache.get(key) ?? null;
     });
 
+    handleSteam('steam-cloud-list', () => {
+        try {
+            const cloud = steamClient?.cloud;
+            if (!cloud?.listFiles || cloud.isEnabledForAccount?.() === false || cloud.isEnabledForApp?.() === false) return [];
+            return cloud.listFiles().slice(0, 1000).filter(file => cloudName(file.name) && Number(file.size) <= MAX_VALUE_BYTES && cloudOwnerAllows(file.name)).map(file => file.name);
+        } catch (_) { return []; }
+    });
+
     // ---- cloud saves ----------------------------------------------------
-    ipcMain.handle('steam-cloud-write', async (event, filename, contents) => {
+    handleSteam('steam-cloud-write', async (event, filename, contents) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-cloud-write')) return false;
         if (!isValidCloudFilename(filename)) {
             logFn(`[Steam] Rejected invalid cloud filename: ${String(filename).substring(0, 50)}`);
             return false;
         }
+        const account = coerceSteamId(steamClient.localplayer?.getSteamId?.());
+        const key = account + '\0' + filename;
+        if (cloudWrites.has(key)) return false;
+        cloudWrites.add(key);
         try {
             const cloud = steamClient.cloud;
-            if (!cloud) return false;
-            if (typeof cloud.writeFile === 'function') {
-                await cloud.writeFile(filename, contents);
-                return true;
+            if (!cloud || cloud.isEnabledForAccount?.() === false || cloud.isEnabledForApp?.() === false) return false;
+            if (!cloudOwnerAllows(filename, true) || typeof cloud.fileExists !== 'function') return false;
+            // Refuse a blind replacement. Steam has no atomic compare-and-swap;
+            // this guards the current SDK view, not a second machine's unsynced writes.
+            if (await cloud.fileExists(filename)) {
+                if (typeof cloud.readFile !== 'function') return false;
+                const remote = await cloud.readFile(filename);
+                if (typeof remote !== 'string' || Buffer.byteLength(remote, 'utf8') > MAX_VALUE_BYTES) return false;
+                if (remote !== contents && cloudBaselines.get(key) !== cloudDigest(remote)) return false;
+                if (remote !== contents) {
+                    const recovery = containedPath(app.getPath('userData'), `steam-cloud-recovery/${account}`, true);
+                    fs.mkdirSync(recovery, {recursive:true});
+                    writeAtomic(recovery, filename, remote);
+                }
             }
-            if (typeof cloud.writeFileAsync === 'function') {
-                await cloud.writeFileAsync(filename, contents);
-                return true;
-            }
-            return false;
+            if (coerceSteamId(steamClient.localplayer?.getSteamId?.()) !== account) return false;
+            const accepted = typeof cloud.writeFile === 'function' && (await cloud.writeFile(filename, contents)) === true;
+            if (accepted) rememberCloud(key, contents);
+            return accepted;
         } catch (e) {
             logFn(`[Steam] Error writing cloud file ${filename}: ${e.message}`);
             return false;
-        }
+        } finally { cloudWrites.delete(key); }
     });
 
-    ipcMain.handle('steam-cloud-read', async (event, filename) => {
+    handleSteam('steam-cloud-read', async (event, filename) => {
         if (!steamClient) return null;
         if (!canRunMutation(event, 'steam-cloud-read')) return null;
         if (!isValidCloudFilename(filename)) {
             logFn(`[Steam] Rejected invalid cloud filename: ${String(filename).substring(0, 50)}`);
             return null;
         }
+        const account = coerceSteamId(steamClient.localplayer?.getSteamId?.());
         try {
             const cloud = steamClient.cloud;
-            if (!cloud) return null;
+            if (!cloud || cloud.isEnabledForAccount?.() === false || cloud.isEnabledForApp?.() === false) return null;
+            if (!cloudOwnerAllows(filename)) return null;
             if (typeof cloud.readFile === 'function') {
-                return await cloud.readFile(filename);
+                const value = await cloud.readFile(filename);
+                if (typeof value !== 'string' || Buffer.byteLength(value, 'utf8') > MAX_VALUE_BYTES) return null;
+                if (coerceSteamId(steamClient.localplayer?.getSteamId?.()) !== account) return null;
+                rememberCloud(account + '\0' + filename, value);
+                return value;
             }
             if (typeof cloud.readFileAsync === 'function') {
-                return await cloud.readFileAsync(filename);
+                const value = await cloud.readFileAsync(filename);
+                if (typeof value !== 'string' || Buffer.byteLength(value, 'utf8') > MAX_VALUE_BYTES) return null;
+                if (coerceSteamId(steamClient.localplayer?.getSteamId?.()) !== account) return null;
+                rememberCloud(account + '\0' + filename, value);
+                return value;
             }
             return null;
         } catch (e) {
@@ -455,7 +502,7 @@ function registerHandlers() {
         }
     });
 
-    ipcMain.handle('steam-cloud-delete', async (event, filename) => {
+    handleSteam('steam-cloud-delete', async (event, filename) => {
         if (!steamClient) return false;
         if (!canRunMutation(event, 'steam-cloud-delete')) return false;
         if (!isValidCloudFilename(filename)) {
@@ -464,14 +511,13 @@ function registerHandlers() {
         }
         try {
             const cloud = steamClient.cloud;
-            if (!cloud) return false;
+            if (!cloud || cloud.isEnabledForAccount?.() === false || cloud.isEnabledForApp?.() === false) return false;
+            if (!cloudOwnerAllows(filename)) return false;
             if (typeof cloud.deleteFile === 'function') {
-                await cloud.deleteFile(filename);
-                return true;
+                return (await cloud.deleteFile(filename)) === true;
             }
             if (typeof cloud.deleteFileAsync === 'function') {
-                await cloud.deleteFileAsync(filename);
-                return true;
+                return (await cloud.deleteFileAsync(filename)) === true;
             }
             return false;
         } catch (e) {
@@ -481,31 +527,36 @@ function registerHandlers() {
     });
 
     // ---- Steam Workshop / community mods ----
-    ipcMain.handle('workshop-available', () => {
+    handleSteam('workshop-available', () => {
         return !!(steamClient && steamClient.workshop && typeof steamClient.workshop.getSubscribedItems === 'function');
     });
 
-    ipcMain.handle('workshop-list', () => {
+    handleSteam('workshop-list', () => {
         try { return listWorkshopMods(); } catch (e) { logFn(`[Mod] list failed: ${e.message}`); return []; }
     });
 
-    ipcMain.handle('workshop-get-active', () => {
+    handleSteam('workshop-get-active', () => {
         try { return readActiveMod(); } catch (_) { return { source: 'community' }; }
     });
 
-    ipcMain.handle('workshop-set-active', (event, payload) => {
-        if (!isTrustedSender(event)) return false;
-        if (!payload || (payload.source !== 'community' && payload.source !== 'workshop')) return false;
-        if (payload.source === 'workshop' && typeof payload.workshopId !== 'string') return false;
-        return writeActiveMod(
-            payload.source === 'community'
-                ? { source: 'community' }
-                : { source: 'workshop', workshopId: payload.workshopId }
-        );
+    handleSteam('workshop-set-active', async (event, payload) => {
+        if (!canRunMutation(event, 'workshop-set-active')) return false;
+        if (!payload || !['none', 'community', 'workshop'].includes(payload.source)) return false;
+        if (payload.source === 'workshop') {
+            const folder = workshopInstallFolder(payload.workshopId);
+            const manifest = folder && readModManifest(folder);
+            if (!manifest || manifest.game !== 'Esports Manager' || manifest.schema !== 1) return false;
+            const { readDatabase } = require('./mod-storage');
+            const { validateModContent } = require('./mod-content');
+            if (!validateModContent(readDatabase(folder)).ok) return false;
+            const pinned = await require('./mod-assets').pinDatabase(folder, app.getPath('userData'));
+            return writeActiveMod({ source: 'workshop', workshopId: payload.workshopId, ...(pinned.assetBundleId ? {bundleId:pinned.assetBundleId} : {}) });
+        }
+        return writeActiveMod({ source: payload.source });
     });
 
-    ipcMain.handle('workshop-subscribe', async (event, idStr) => {
-        if (!isTrustedSender(event) || !steamClient || !steamClient.workshop) return false;
+    handleSteam('workshop-subscribe', async (event, idStr) => {
+        if (!canRunMutation(event, 'workshop-subscribe') || !steamClient || !steamClient.workshop) return false;
         try {
             await steamClient.workshop.subscribe(BigInt(idStr));
             if (typeof steamClient.workshop.download === 'function') {
@@ -515,37 +566,42 @@ function registerHandlers() {
         } catch (e) { logFn(`[Mod] subscribe failed: ${e.message}`); return false; }
     });
 
-    ipcMain.handle('workshop-unsubscribe', async (event, idStr) => {
-        if (!isTrustedSender(event) || !steamClient || !steamClient.workshop) return false;
+    handleSteam('workshop-unsubscribe', async (event, idStr) => {
+        if (!canRunMutation(event, 'workshop-unsubscribe') || !steamClient || !steamClient.workshop) return false;
         try { await steamClient.workshop.unsubscribe(BigInt(idStr)); return true; }
         catch (e) { logFn(`[Mod] unsubscribe failed: ${e.message}`); return false; }
     });
 
-    ipcMain.handle('workshop-open', (event, idStr) => {
-        if (!isTrustedSender(event)) return false;
+    handleSteam('workshop-open', async (event, idStr) => {
+        if (!canRunMutation(event, 'workshop-open')) return false;
         try {
             const { shell } = require('electron');
-            const safeId = String(idStr).replace(/[^0-9]/g, '');
+            const safeId = idStr || '';
             const url = safeId
                 ? `https://steamcommunity.com/sharedfiles/filedetails/?id=${safeId}`
                 : `https://steamcommunity.com/app/${steamAppId}/workshop/`;
-            shell.openExternal(url);
+            await shell.openExternal(url);
             return true;
         } catch (e) { logFn(`[Mod] open failed: ${e.message}`); return false; }
     });
 }
 
-function initializeSteam({ getTrustedWebContentsId, log } = {}) {
-    if (typeof getTrustedWebContentsId === 'function') {
-        trustedWebContentsIdGetter = getTrustedWebContentsId;
-    }
+function initializeSteam({ isTrustedSender: senderCheck, log } = {}) {
+    if (typeof senderCheck === 'function') trustedSenderCheck = senderCheck;
     if (typeof log === 'function') {
         logFn = log;
     }
 
     steamAppId = loadAppId();
 
-    if (!steamworks) {
+    if (fs.existsSync(path.join(process.resourcesPath || '', 'LOCAL-QA-ONLY'))) {
+        steamAppId = 0;
+        logFn('[Steam] Local QA package: Steam initialization and account writes disabled');
+        registerHandlers();
+        return { client: null, appId: 0 };
+    }
+
+    if (!steamworks || !steamAppId) {
         logFn('[Steam] steamworks.js not available — running in offline mode');
         registerHandlers();
         return { client: null, appId: steamAppId };

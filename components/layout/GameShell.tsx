@@ -1,5 +1,9 @@
 "use client"
 
+import { useRouteScroll } from "@/hooks/use-route-scroll"
+import { routeAtmosphere } from "@/lib/ui-assets"
+import { COLOR_VISION_MODES } from "@/lib/accessibility-preferences"
+import { stopConfetti } from "@/lib/confetti-lazy"
 import { Sidebar } from "./Sidebar"
 import { TopBar } from "./TopBar"
 import { ErrorBoundary } from "./ErrorBoundary"
@@ -12,10 +16,13 @@ import { useShallow } from "zustand/react/shallow"
 import type { ExitDialogVariant } from "./ExitConfirmDialog"
 import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
+import { routeMusicScene } from "@/lib/route-audio"
 import { debouncedStorage } from "@/engine/storage-adapter"
 import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
 import { logger } from "@/lib/logger"
 import { MotionConfig } from "framer-motion"
+import { createSessionPersistence } from "@/lib/session-persistence"
+import { waitForPendingGameSave } from "@/store/game-store"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -34,8 +41,9 @@ const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod =
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, timeMode, advanceDay, advanceWeek } = useGameStore(useShallow(state => ({
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, timeMode, advanceDay, advanceWeek, soundEnabled } = useGameStore(useShallow(state => ({
         theme: state.theme,
+        soundEnabled: state.soundEnabled,
         pendingCelebration: state.pendingCelebration,
         clearCelebration: state.clearCelebration,
         pendingLegendPick: state.pendingLegendPick,
@@ -53,9 +61,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Exit confirmation dialog state
     const [exitDialog, setExitDialog] = useState<{ open: boolean; variant: ExitDialogVariant } | null>(null)
     const exitResolverRef = useRef<((confirmed: boolean) => void) | null>(null)
-    const isExitInProgressRef = useRef(false)
 
-    const showExitConfirmRef = useRef<(variant: ExitDialogVariant) => Promise<boolean>>()
+    const showExitConfirmRef = useRef<((variant: ExitDialogVariant) => Promise<boolean>) | undefined>(undefined)
     showExitConfirmRef.current = (variant: ExitDialogVariant): Promise<boolean> => {
         return new Promise<boolean>((resolve) => {
             exitResolverRef.current = resolve
@@ -72,194 +79,112 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const handleExitCancel = useCallback(() => {
         exitResolverRef.current?.(false)
         exitResolverRef.current = null
-        isExitInProgressRef.current = false
         setExitDialog(null)
     }, [])
 
-    // Sync sound manager with persisted settings on mount
+    const reducedMotion = useSettingsStore(state => state.reducedMotion)
+    const preferencesHydrated = useGameStore(state => state._hasHydrated)
+
     useEffect(() => {
-        const settings = (window as any).__settingsStore
-        if (!settings) {
-            // Dynamic import to avoid circular deps
-            import("@/lib/settings-store").then(({ useSettingsStore }) => {
-                const s = useSettingsStore.getState()
-                import("@/lib/sound-manager").then(({ soundManager }) => {
-                    soundManager.setMasterVolume(s.masterVolume)
-                    soundManager.setMusicVolume(s.musicVolume)
-                    soundManager.setSfxVolume(s.sfxVolume)
-                    if (s.reducedMotion) {
-                        document.documentElement.classList.add('reduce-motion')
-                    }
-                    if (s.uiScale !== 100) {
-                        document.documentElement.style.fontSize = `${s.uiScale}%`
-                    }
-                })
-            })
+        try { useSettingsStore.getState().adoptLegacyColorVision(localStorage.getItem("colorblind-mode")) } catch { /* denied storage keeps defaults */ }
+        const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+        const applyPreferences = () => {
+            const settings = useSettingsStore.getState()
+            soundManager.setMasterVolume(settings.masterVolume)
+            soundManager.setMusicVolume(settings.musicVolume)
+            soundManager.setSfxVolume(settings.sfxVolume)
+            document.documentElement.classList.toggle("reduce-motion", settings.reducedMotion || media.matches)
+            if (settings.reducedMotion || media.matches) stopConfetti()
+            document.documentElement.classList.remove(...COLOR_VISION_MODES.filter(mode => mode !== "off"))
+            if (settings.colorVisionMode !== "off") document.documentElement.classList.add(settings.colorVisionMode)
+            document.documentElement.style.fontSize = `${settings.uiScale}%`
         }
+        applyPreferences()
+        const unsubscribe = useSettingsStore.subscribe(applyPreferences)
+        media.addEventListener("change", applyPreferences)
+        return () => { unsubscribe(); media.removeEventListener("change", applyPreferences) }
     }, [])
 
     useEffect(() => {
-        initAchievements()
-        if (typeof window !== "undefined") {
-            // Toggle only the theme classes — never overwrite className
-            // wholesale, which would wipe accessibility classes
-            // (reduce-motion, high-contrast) added by other effects.
-            const root = document.documentElement
-            root.classList.add("dark")
-            root.classList.toggle("onyx", theme === "onyx")
+        document.documentElement.classList.add("dark")
+        document.documentElement.classList.toggle("onyx", theme === "onyx")
+    }, [theme])
 
-            // Auto-save on close (Electron)
-            const runtimeWindow = window as typeof window & {
-                __esimCloseHookRegistered?: boolean
-                electron?: {
-                    onAppClose: (callback: () => void) => void
-                    confirmAppClose: () => Promise<boolean> | void
-                    cancelAppClose?: () => Promise<boolean> | void
-                }
-            }
-            const electronBridge = runtimeWindow.electron
-            if (!runtimeWindow.__esimCloseHookRegistered && electronBridge?.onAppClose) {
-                runtimeWindow.__esimCloseHookRegistered = true
-                electronBridge.onAppClose(async () => {
-                    if (isExitInProgressRef.current) return
-                    isExitInProgressRef.current = true
+    useEffect(() => { initAchievements() }, [initAchievements])
 
-                    let allowClose = true
-
-                    try {
-                        // Stop periodic auto-save to prevent concurrent IndexedDB writes
-                        clearInterval(autoSaveInterval)
-
-                        // Flush any pending debounced storage writes before saving
-                        try { await debouncedStorage.flush() } catch { /* best effort */ }
-
-                        let state = useGameStore.getState()
-
-                        if (state.isLoading) {
-                            allowClose = await (showExitConfirmRef.current?.("simulationRunning") ?? true)
-                        }
-
-                        // Re-fetch state — simulation may have finished while dialog was shown
-                        state = useGameStore.getState()
-
-                        if (allowClose && !state.isLoading && state.autoSave && state.saveId) {
-                            setExitDialog({ open: true, variant: "saving" })
-
-                            let saved = false
-                            for (let attempt = 0; attempt < 3 && !saved; attempt++) {
-                                try {
-                                    await useGameStore.getState().saveGame()
-                                    saved = true
-                                    setExitDialog(null)
-                                } catch (err) {
-                                    logger.error(`[GameShell] Close-save attempt ${attempt + 1} failed`, err instanceof Error ? err.message : err)
-                                    if (attempt < 2) {
-                                        await new Promise(r => setTimeout(r, 300))
-                                    }
-                                }
-                            }
-
-                            if (!saved) {
-                                allowClose = await (showExitConfirmRef.current?.("saveFailed") ?? true)
-                            }
-                        }
-                    } catch (err) {
-                        void err // Close handler error - don't trap user
-                        allowClose = true // On error, never trap the user
-                    } finally {
-                        isExitInProgressRef.current = false
-                    }
-
-                    if (allowClose) {
-                        electronBridge.confirmAppClose()
-                    } else {
-                        electronBridge.cancelAppClose?.()
-                    }
-                })
-            }
-
-            // Auto-save on close (browser / dev mode fallback only)
-            const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-                // In Electron, close is handled entirely via IPC (app-close-intent)
-                if (runtimeWindow.electron) return
-                const s = useGameStore.getState()
-                if (s.autoSave && s.saveId && !s.isLoading) {
-                    s.saveGame().catch(() => { })
-                    e.preventDefault()
-                    e.returnValue = ""
-                }
-            }
-            window.addEventListener("beforeunload", handleBeforeUnload)
-
-            // Periodic Auto-save. Base tick is short (30s); we accumulate elapsed
-            // time and only write once the player's configured interval has passed,
-            // so changing Auto-Save Interval in Settings takes effect without a reload.
-            let isSaving = false
-            let elapsedMs = 0
-            const AUTOSAVE_TICK_MS = 30 * 1000
-            const autoSaveInterval = setInterval(async () => {
-                elapsedMs += AUTOSAVE_TICK_MS
-                const intervalMs = Math.max(1, useSettingsStore.getState().autoSaveInterval) * 60 * 1000
-                if (elapsedMs < intervalMs) return
-                elapsedMs = 0
-                if (isSaving) return
-                const state = useGameStore.getState()
-                if (state.autoSave && state.saveId && !state.isLoading) {
-                    isSaving = true
-                    try {
-                        // Flush pending debounced writes before saving
-                        await debouncedStorage.flush()
-                        await state.saveGame()
-                    } catch {
-                        // Periodic auto-save silently retries next interval
-                    } finally {
-                        isSaving = false
-                    }
-                }
-            }, AUTOSAVE_TICK_MS)
-
-            // Pause week advancement when window loses focus
-            const handleVisibilityChange = () => {
-                const state = useGameStore.getState()
-                if (document.hidden && state.isLoading) {
-                    // If a simulation is running, we don't interrupt it
-                    return
-                }
-                // Mark window focus state so advanceWeek can check
-                ;(window as any).__esimWindowFocused = !document.hidden
-            }
-            document.addEventListener("visibilitychange", handleVisibilityChange)
-            ;(window as any).__esimWindowFocused = true
-
-            return () => {
-                clearInterval(autoSaveInterval)
-                window.removeEventListener("beforeunload", handleBeforeUnload)
-                document.removeEventListener("visibilitychange", handleVisibilityChange)
-            }
-        }
-    }, [theme, initAchievements])
-
-    // Ambient music management based on current route
-    const prevScene = useRef<string | null>(null)
     useEffect(() => {
-        const isLiveMatch = pathname?.includes("/match/") && pathname?.includes("/live")
-        const scene = isLiveMatch ? 'match' : 'menu'
-
-        if (prevScene.current !== scene) {
-            soundManager.stopMusic()
-            if (scene !== 'match') {
-                soundManager.startMusic(scene as 'menu' | 'match')
+        const runtimeWindow = window as typeof window & {
+            __esimWindowFocused?: boolean
+            electron?: {
+                onAppClose: (callback: () => void) => (() => void) | void
+                acknowledgeAppClose?: () => Promise<boolean>
+                confirmAppClose: () => Promise<boolean> | void
+                cancelAppClose?: () => Promise<boolean> | void
             }
-            prevScene.current = scene
         }
+        const electronBridge = runtimeWindow.electron
+        let disposed = false
+        const persistence = createSessionPersistence({
+            getState: useGameStore.getState,
+            getSettings: useSettingsStore.getState,
+            flush: async () => { await debouncedStorage.flush(); await waitForPendingGameSave() },
+            confirm: variant => showExitConfirmRef.current?.(variant) ?? Promise.resolve(false),
+            showSaving: saving => setExitDialog(saving ? { open: true, variant: "saving" } : null),
+            onError: error => logger.error("[GameShell] Save/close failed", error),
+        })
+        const unsubscribeClose = electronBridge?.onAppClose(async () => {
+            // Acknowledge receipt before awaiting a save or the player's choice.
+            // Electron's watchdog only covers an unresponsive close handler.
+            try { await electronBridge.acknowledgeAppClose?.() }
+            catch (error) { logger.warn("[GameShell] Close acknowledgement failed", error) }
+            const allowClose = await persistence.requestClose()
+            if (disposed) return
+            if (allowClose) await electronBridge.confirmAppClose()
+            else await electronBridge.cancelAppClose?.()
+        })
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (electronBridge) return
+            const state = useGameStore.getState()
+            if (useSettingsStore.getState().autoSave && state.saveId) {
+                if (!state.isLoading) void state.saveGame().catch(() => {})
+                event.preventDefault()
+                event.returnValue = ""
+            }
+        }
+        const handleVisibilityChange = () => {
+            runtimeWindow.__esimWindowFocused = !document.hidden
+            soundManager.setForeground(!document.hidden)
+        }
+        window.addEventListener("beforeunload", handleBeforeUnload)
+        document.addEventListener("visibilitychange", handleVisibilityChange)
+        handleVisibilityChange()
+        return () => {
+            disposed = true
+            persistence.dispose()
+            unsubscribeClose?.()
+            exitResolverRef.current?.(false)
+            exitResolverRef.current = null
+            window.removeEventListener("beforeunload", handleBeforeUnload)
+            document.removeEventListener("visibilitychange", handleVisibilityChange)
+        }
+    }, [])
 
+    const musicScene = routeMusicScene(pathname)
+    useEffect(() => {
+        soundManager.setQuietScene(musicScene === "silent")
+        soundManager.setEnabled(preferencesHydrated && soundEnabled)
+        if (musicScene === "silent") soundManager.stopMusic()
+        if (musicScene !== "silent") soundManager.startMusic(musicScene)
         return () => { soundManager.stopMusic() }
-    }, [pathname])
+    }, [musicScene, soundEnabled, preferencesHydrated])
 
     const isNewGame = pathname === "/new-game" || pathname?.startsWith("/new-game/")
     const isMainMenu = pathname === "/main-menu"
     const isDesktop = pathname === "/desktop"
-    const hideChrome = isNewGame || isMainMenu
+    const hideChrome = isNewGame || isMainMenu || pathname === "/map-editor" || pathname?.startsWith("/map-editor/")
+
+    const viewCareerId = useGameStore(state => state.saveId)
+    const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome && !isDesktop)
 
     // Global Keyboard Shortcuts (consolidated — TopBar no longer registers its own handlers)
     const router = useRouter()
@@ -289,6 +214,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         }
 
         const handler = (e: KeyboardEvent) => {
+            // A dialog can consume Escape and unmount before this window listener runs.
+            if (e.defaultPrevented) return
             // Don't intercept when a form control owns keyboard handling.
             // SELECT matters for number keys: the Gameplay auto-save interval
             // select has numeric options (2/5/10/15/30) that would otherwise
@@ -388,29 +315,29 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         // for every framer-motion descendant. Components that need to
         // override (e.g. a celebration that should still flash briefly) can
         // wrap themselves in a nested MotionConfig.
-        <MotionConfig reducedMotion="user">
-        <div className={`flex h-screen liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
-            {/* Ambient depth layers — sit behind all chrome (z-[-1]); grain over aurora. */}
-            <div className="liquid-aurora z-[-1]" />
-            <div className="pointer-events-none absolute inset-0 liquid-noise" />
+        <MotionConfig reducedMotion={reducedMotion ? "always" : "user"}>
+        <div data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
+            {/* Static light field behind the floating chrome. */}
+            <div className="liquid-aurora" />
+            {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}
+
             {/* Fixed Sidebar - Hidden on New Game/Main Menu */}
             {!hideChrome && <Sidebar />}
 
             {/* Main Layout Area */}
-            <div className="flex-1 flex flex-col min-w-0 relative z-10">
+            <div className="flex-1 flex flex-col min-h-0 min-w-0 relative z-10">
                 {/* Top Status Bar - Hidden on New Game/Main Menu */}
                 {!hideChrome && <TopBar />}
 
                 {/* Scrollable Content Area */}
-                <main id="main-content" className="flex-1 overflow-x-hidden relative overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-black/20">
-                    {/* Single uniform page-entry animation for every route —
-                        keyed on pathname so it re-runs per navigation. Pages
-                        must NOT add their own entry fade (double-animation). */}
+                <main ref={mainScrollRef} id="main-content" tabIndex={-1} className="min-h-0 flex-1 overflow-x-hidden relative overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-black/20">
+                    {/* Short opacity reveal; routing never waits for an exit animation. */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "p-8 pb-12 max-w-[1600px] mx-auto w-full animate-in fade-in slide-in-from-bottom-1 duration-300 ease-out"}
+                        className={hideChrome || isDesktop ? "" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
                     >
                         <ErrorBoundary>
+                            {!hideChrome && <TutorialOverlay />}
                             {children}
                         </ErrorBoundary>
                     </div>
@@ -445,8 +372,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             {showBugReportButton && !hideChrome && <BugReportButton />}
             {!hideChrome && <HelpSystem />}
-            {!hideChrome && <TutorialOverlay />}
-            <DevTools />
+            {!pathname?.startsWith("/map-editor") && <DevTools />}
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         </div >

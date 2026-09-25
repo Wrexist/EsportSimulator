@@ -10,6 +10,7 @@
  */
 
 import {
+    AcademyTrainingFocus,
     AcademyPlayer,
     AcademyMatchResult,
     AcademyLevelInfo,
@@ -25,6 +26,26 @@ import {
     calculateWeeklyUpkeep
 } from "./academy-constants"
 import { SeededRNG, generateSeed } from "./rng"
+
+export function visibleAcademyPotential(prospect: Pick<AcademyPlayer, 'potentialRevealed'>, player: { potential: number }): number | null {
+    return prospect.potentialRevealed && Number.isFinite(player.potential) ? player.potential : null
+}
+
+export const ACADEMY_FOCUS_STATS: Record<AcademyTrainingFocus, readonly TrainableStat[]> = {
+    BALANCED: [],
+    MECHANICAL: ['skill', 'rifle', 'awp', 'pistol'],
+    TACTICAL: ['tactic', 'grenades', 'creativity', 'teamwork', 'trading'],
+    MENTAL: ['leader', 'clutch', 'stressResistance'],
+    PHYSICAL: ['reaction', 'endurance', 'health'],
+}
+
+/** Redistribute a drill's development budget; specialization does not create free extra growth. */
+export function academyFocusWeights(focus: AcademyTrainingFocus, stats: readonly TrainableStat[]): number[] {
+    const preferred = ACADEMY_FOCUS_STATS[focus] || []
+    const weights = stats.map(stat => preferred.includes(stat) ? 1.5 : 1)
+    const total = weights.reduce((sum, weight) => sum + weight, 0)
+    return weights.map(weight => total > 0 ? weight * stats.length / total : 1)
+}
 
 // ===== PLAYER SAVE DATA TYPE (minimal interface) =====
 // Using a minimal interface to avoid circular imports
@@ -345,8 +366,9 @@ export class AcademyEngine {
             if (typeof current === "number" && improvement) {
                 // Cap at potential
                 const potentialCap = player.potential
-                const newValue = Math.min(potentialCap, current + improvement)
-                updates[stat as TrainableStat] = Math.round(newValue * 10) / 10
+                const newValue = Math.min(100, Math.max(current, Math.min(potentialCap, current + improvement)))
+                // Keep fractional development; rounding each week can erase small gains forever.
+                updates[stat as TrainableStat] = newValue
             }
         }
 

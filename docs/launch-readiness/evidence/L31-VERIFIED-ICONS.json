@@ -1,0 +1,62 @@
+{
+  "checkedOn": "2026-09-16",
+  "fontSource": "https://github.com/google/fonts/blob/main/ofl/barlowcondensed/BarlowCondensed-ExtraBold.ttf",
+  "fontSha256": "724c9c25952d5f4a2d87185d9767aa006144c5f0d944dc05bf7d5d603551c260",
+  "license": "OFL-1.1",
+  "basis": "Local user-directed EM composition from outlined Barlow glyphs. Barlow font and license matched upstream exactly; all five icon copies reproduced byte-for-byte from retained SVG. Archivo WOFF2 matched @fontsource/archivo-black 5.3.0 exactly; its license text matches after whitespace normalization. This evidence does not cover other artwork.",
+  "files": [
+    {
+      "path": "public/logo.png",
+      "sha256": "f42d561ab0e9e88c746e07b60fea12e028de02d06a3879a2b9d39f1da3564b61",
+      "bytes": 15157,
+      "source": "marketing/esports-manager-steam-assets-4326170/brand-v2/monogram.svg",
+      "sourceSha256": "31100eb6d14ea57b80bde548d4a9a16edf54541ee3e8b60aaefe42e51a9c1ad1"
+    },
+    {
+      "path": "build/icon.png",
+      "sha256": "f42d561ab0e9e88c746e07b60fea12e028de02d06a3879a2b9d39f1da3564b61",
+      "bytes": 15157,
+      "source": "marketing/esports-manager-steam-assets-4326170/brand-v2/monogram.svg",
+      "sourceSha256": "31100eb6d14ea57b80bde548d4a9a16edf54541ee3e8b60aaefe42e51a9c1ad1"
+    },
+    {
+      "path": "public/branding/icon.png",
+      "sha256": "c1a0282c6f3242b16230809c87f6ad48b43d5b4181cac0679d890a0bc919c3d3",
+      "bytes": 5669,
+      "source": "marketing/esports-manager-steam-assets-4326170/brand-v2/monogram.svg",
+      "sourceSha256": "31100eb6d14ea57b80bde548d4a9a16edf54541ee3e8b60aaefe42e51a9c1ad1"
+    },
+    {
+      "path": "public/logo.ico",
+      "sha256": "ac07f12151d67064aa158ca3a2e3146f26041a105aec8dbc45b8eb919a03620f",
+      "bytes": 12679,
+      "source": "marketing/esports-manager-steam-assets-4326170/brand-v2/monogram.svg",
+      "sourceSha256": "31100eb6d14ea57b80bde548d4a9a16edf54541ee3e8b60aaefe42e51a9c1ad1"
+    },
+    {
+      "path": "build/icon.ico",
+      "sha256": "ac07f12151d67064aa158ca3a2e3146f26041a105aec8dbc45b8eb919a03620f",
+      "bytes": 12679,
+      "source": "marketing/esports-manager-steam-assets-4326170/brand-v2/monogram.svg",
+      "sourceSha256": "31100eb6d14ea57b80bde548d4a9a16edf54541ee3e8b60aaefe42e51a9c1ad1"
+    },
+    {
+      "path": "licenses/Barlow-OFL.txt",
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f",
+      "bytes": 4377,
+      "source": "https://github.com/google/fonts/blob/main/ofl/barlowcondensed/OFL.txt"
+    },
+    {
+      "path": "app/fonts/archivo-black-latin-400-normal.woff2",
+      "sha256": "25f33e61cf995abd6be62931cf03bf427286259177b43618cc410ee0157cfd30",
+      "bytes": 18604,
+      "source": "https://www.npmjs.com/package/@fontsource/archivo-black/v/5.3.0"
+    },
+    {
+      "path": "licenses/Archivo-Black-OFL.txt",
+      "sha256": "3173acd82f8c6159b5b1037b539fcbd4edff68e65c2ea8b9412b5a5ca97b08ff",
+      "bytes": 4492,
+      "source": "https://www.npmjs.com/package/@fontsource/archivo-black/v/5.3.0"
+    }
+  ]
+}

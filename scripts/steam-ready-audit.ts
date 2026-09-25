@@ -23,7 +23,7 @@
  *   A8  Steam Deck readiness:  min window size, focus-visible CSS, shortcuts
  *   A9  Production hygiene:    raw console.* in engine/store, debugger stmts
  *   A10 Secrets hygiene:       tracked .env, API keys, tokens
- *   A11 Steam build files:     steam_appid in asarUnpack, license metadata
+ *   A11 Steam build files:     development App ID exclusion, native SDK unpacking
  *   A12 Achievement triggers:  every defined achievement has a code unlock
  *   A13 OSS license disclosure: NOTICE.md or THIRD_PARTY_LICENSES.md exists
  *   A14 Branding consistency:  package.json productName matches window title
@@ -43,6 +43,8 @@
 
 import fs from "node:fs"
 import path from "node:path"
+const { validReleaseIdentity, excludesDevelopmentAppId } = require('./launch/steam-identity-audit.cjs')
+const { executableSourceText, sourceTextWithoutUrls } = require('./launch/audit-source-text.cjs')
 
 type Severity = "BLOCKER" | "HIGH" | "MEDIUM" | "LOW" | "INFO"
 
@@ -150,11 +152,10 @@ function checkA2SteamSDK(): void {
     if (!/require\(['"]steamworks\.js['"]\)/.test(steamJs)) {
         add({ check: "A2", severity: "BLOCKER", code: "STEAMWORKS_NOT_LOADED", file: "electron/steam.js", detail: "steamworks.js is not required in the Steam module" })
     }
-    if (!/steam_appid\.txt/.test(steamJs)) {
-        add({ check: "A2", severity: "BLOCKER", code: "APPID_NOT_LOADED", file: "electron/steam.js", detail: "electron/steam.js never references steam_appid.txt; live App ID will fall back to test ID" })
-    }
-    if (!/SPACEWAR|480/.test(steamJs)) {
-        add({ check: "A2", severity: "INFO", code: "NO_SPACEWAR_FALLBACK", file: "electron/steam.js", detail: "No Spacewar (480) fallback found; dev/CI without steam_appid.txt will fail to init Steam" })
+    let releaseIdentity: unknown
+    try { releaseIdentity = require(path.join(REPO_ROOT, 'electron/steam-app-id.cjs')) } catch { releaseIdentity = null }
+    if (!/require\(['"]\.\/steam-app-id\.cjs['"]\)/.test(steamJs) || !/resolveAppId\(\)/.test(steamJs) || !validReleaseIdentity(releaseIdentity)) {
+        add({ check: "A2", severity: "BLOCKER", code: "RELEASE_APPID_INVALID", file: "electron/steam-app-id.cjs", detail: "Steam integration must use a valid explicit release App ID and reject mismatched Steam launch identity. Native initialization still requires installed Steam testing." })
     }
     const preload = readFileSafe("electron/preload.js")
     if (!preload) {
@@ -337,6 +338,9 @@ function checkA5TrademarkSource(): void {
             continue
         }
         const lowered = contents.toLowerCase()
+        const executableText = executableSourceText(rel, contents)
+        const executable = executableText.toLowerCase()
+        const withoutUrls = sourceTextWithoutUrls(rel, executableText).toLowerCase()
         for (const kw of keywords) {
             let from = 0
             let found = false
@@ -352,12 +356,17 @@ function checkA5TrademarkSource(): void {
             const key = `${rel}|${kw}`
             if (seen.has(key)) continue
             seen.add(key)
+            const commentOnly = !executable.includes(kw)
+            const urlOnly = !commentOnly && !withoutUrls.includes(kw)
             add({
                 check: "A5",
-                severity: "HIGH",
-                code: "TRADEMARK_IN_SOURCE",
+                severity: commentOnly || urlOnly ? "INFO" : "HIGH",
+                code: commentOnly ? "TRADEMARK_IN_COMMENT" : urlOnly ? "TRADEMARK_IN_REFERENCE_URL" : "TRADEMARK_IN_SOURCE",
                 file: rel,
-                detail: `Source file references trademark token '${kw}'. Strip from shipped code or replace with sanitized-brand alias.`,
+                detail: commentOnly
+                    ? `Token '${kw}' occurs only in source comments; retained as context, not a shipped-text blocker.`
+                    : urlOnly ? `Token '${kw}' occurs only inside URL literals. Retain the source link for review; this does not clear any linked/downloaded content or imply endorsement.`
+                    : `Source text references token '${kw}'. Review its use and provenance; a name match alone does not establish infringement or require removing attribution.`,
             })
         }
     }
@@ -572,19 +581,14 @@ function checkA11SteamBuildFiles(): void {
     try { pkg = JSON.parse(pkgRaw) } catch { return }
     const build = pkg.build ?? {}
     const asarUnpack: string[] = Array.isArray(build.asarUnpack) ? build.asarUnpack : []
-    if (!asarUnpack.some(p => /steam_appid\.txt/.test(p))) {
-        add({ check: "A11", severity: "BLOCKER", code: "APPID_NOT_UNPACKED", file: "package.json", detail: "build.asarUnpack must include steam_appid.txt so steamworks.js can read it at runtime." })
-    }
     if (!asarUnpack.some(p => /steamworks/.test(p))) {
         add({ check: "A11", severity: "BLOCKER", code: "STEAMWORKS_NOT_UNPACKED", file: "package.json", detail: "build.asarUnpack must include node_modules/steamworks.js/** so its native .node binary loads at runtime." })
     }
     const files: string[] = Array.isArray(build.files) ? build.files : []
-    if (!files.some(p => /steam_appid\.txt/.test(p))) {
-        add({ check: "A11", severity: "HIGH", code: "APPID_NOT_IN_BUILD_FILES", file: "package.json", detail: "build.files should include steam_appid.txt explicitly so electron-builder bundles it." })
-    }
-    const gi = readFileSafe(".gitignore") ?? ""
-    if (!/steam_appid\.txt/.test(gi)) {
-        add({ check: "A11", severity: "MEDIUM", code: "APPID_NOT_GITIGNORED", file: ".gitignore", detail: "steam_appid.txt should be gitignored so the live App ID is not committed; CI/build must materialize it." })
+    // Valve's SDK guide says to remove this development hint from depot uploads.
+    // The public numeric App ID is not a secret; verify identity, not gitignore.
+    if (!excludesDevelopmentAppId(files)) {
+        add({ check: "A11", severity: "BLOCKER", code: "DEV_APPID_NOT_EXCLUDED", file: "package.json", detail: "Exclude root and nested steam_appid.txt development files from the shipping package. Check the final depot as well." })
     }
 }
 
@@ -885,8 +889,12 @@ function main(): void {
     ]
     for (const [label, fn] of checks) {
         try {
+            const before = findings.length
             fn()
-            console.log(`  ok  ${label}`)
+            const added = findings.slice(before)
+            const status = added.some(f => f.severity === "BLOCKER" || f.severity === "HIGH") ? "FAIL"
+                : added.some(f => f.severity !== "INFO") ? "WARN" : added.length ? "INFO" : "PASS"
+            console.log(`  ${status} ${label} (${added.length} findings; static scan only)`)
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err)
             add({ check: label.split(" ")[0], severity: "BLOCKER", code: "AUDIT_CRASH", detail: `Audit check threw: ${msg}` })

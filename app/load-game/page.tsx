@@ -76,11 +76,11 @@ function LoadGamePageInner() {
         void refreshSlots()
     }, [refreshSlots])
 
-    const handleLoad = async (id: string) => {
+    const handleLoad = async (id: string, cloudChoice?: "local" | "cloud") => {
         setLoadingSlotId(id)
         clearLoadError()
         try {
-            const success = await switchSave(id)
+            const success = await switchSave(id, cloudChoice)
             if (success) {
                 try {
                     router.push("/") // Go to dashboard
@@ -228,7 +228,7 @@ function LoadGamePageInner() {
                                         const code = lastLoadError.errorCode
                                         const isNewerVersion = code === "NEWER_VERSION"
                                         const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
-                                        const heading = isNewerVersion
+                                        const heading = code === "CLOUD_CONFLICT" ? "Choose your save copy" : isNewerVersion
                                             ? "Save From Newer Version"
                                             : isCorrupted
                                                 ? "Save Appears Corrupted"
@@ -275,6 +275,12 @@ function LoadGamePageInner() {
                                                                 Copy Details
                                                             </button>
                                                         </>
+                                                    ) : code === "CLOUD_CONFLICT" ? (
+                                                        <>
+                                                            <button className="flex-1 rounded-lg bg-white/10 p-2 text-sm" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>Use this PC</button>
+                                                            <button className="flex-1 rounded-lg bg-white/10 p-2 text-sm" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>Use Steam Cloud</button>
+                                                            <button className="rounded-lg p-2 text-sm" onClick={handleSkip}>Cancel</button>
+                                                        </>
                                                     ) : isCorrupted ? (
                                                         <>
                                                             <button
@@ -317,7 +323,7 @@ function LoadGamePageInner() {
                                         <button
                                             onClick={() => slot.saveId && handleLoad(slot.saveId)}
                                             disabled={!!loadingSlotId}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white text-[10px] font-normal uppercase tracking-widest hover:bg-primary/80 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-wait"
+                                            className="premium-white-action flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-wait"
                                         >
                                             {loadingSlotId === slot.saveId ? (
                                                 <><Clock size={12} className="animate-spin" /> Loading...</>

@@ -1,6 +1,10 @@
 # Esports Simulator Game
 
-A tactical-FPS esports team management simulation game built with Next.js 14, Electron, and Steam SDK. Manage your team, compete in tournaments, develop players, and climb the world rankings.
+A tactical-FPS esports team management simulation game built with Next.js 15, React 19, Electron, and Steam integration. Manage your team, compete in tournaments, develop players, and climb the world rankings.
+
+**Current release handoff (25 September 2026):** [Game overview and Steam release requirements](STEAM_RELEASE_HANDOFF.md). Includes known blockers, installed-build testing, store assets, feature claims, all unaccepted L01–L36 tasks, and owner actions. This GitHub checkpoint is not a release approval or a Steam upload.
+
+**Current launch plan (13 September 2026):** [Windows 1.0 readiness plan](docs/launch-readiness/README.md), [complete checklist](docs/launch-readiness/CHECKLIST.md), and [36 master prompts](docs/launch-readiness/MASTER-PROMPTS.md). Covers all 40 current page routes and maps forward the earlier 60 audit packages. Current decision: **NO-GO**; see the plan for fresh failures and missing acceptance evidence. Older feature and test-count claims below require reconciliation against the actual release candidate.
 
 **Steam App ID:** 4326170
 
@@ -11,10 +15,9 @@ Double-click **`PLAY_DEV.bat`** in the root folder.
 This runs the game in development mode inside Electron.
 
 ### Build & Ship to Steam
-Double-click **`SHIP_GAME.bat`** in the root folder.
-This script will:
-1. **Build**: Create a production Next.js build and package it with Electron into `SteamBuild/`.
-2. **Upload**: Automatically upload to Steam using `steamcmd`.
+For a local Windows candidate, run `npm run dist`, then `npm run ship:verify`. The expected shipping root is `dist/win-unpacked`, containing `EsportsManager.exe`. Preserve any running preview before building, since the build scripts clean their output directories. Follow the [launch gates](docs/launch-readiness/README.md) before submitting a candidate.
+
+`SHIP_GAME.bat` builds, verifies and then invokes a Steam upload after its prompts. It is an external distribution workflow, not a local-only check. The old portable `SteamBuild/` directory is not the shipping artifact.
 
 ## Features
 
@@ -22,7 +25,7 @@ This script will:
 - **Team Management**: Build and manage a pro-FPS roster with 20+ player attributes
 - **Match Simulation**: Deterministic round-by-round match engine with economy, kills, and utility
 - **Tournament System**: Full tournament calendar with S/A/B/C tiers, Swiss format, and bracket stages
-- **Transfer Market**: Scout, negotiate, and sign players from 100+ real teams
+- **Transfer Market**: Scout, negotiate, and sign players in the fictional base-game team world
 - **Training & Drills**: Weapon mastery, role training, tactical drills, and bootcamps
 - **Staff System**: Hire coaches, analysts, and scouts with talent trees
 - **Youth Academy**: Scout and develop prospects for your roster
@@ -35,7 +38,7 @@ This script will:
 
 ### Technical Features
 - **Deterministic Simulation**: Seeded RNG ensures reproducible match results
-- **Save System**: Versioned saves (v1-v4) with SHA-256 integrity, validation, and auto-repair
+- **Save System**: Current schema version 7 with integrity checks and recovery paths; older-save and native recovery acceptance are tracked in the launch plan
 - **Auto-Save**: Saves on close (Electron IPC) and periodically every 2 minutes
 - **Zustand + Immer**: Immutable state management for predictable game state
 - **Sound System**: Ambient music, match sounds, and volume controls

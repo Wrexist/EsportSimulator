@@ -15,6 +15,25 @@ import {
     buildRestoredGameState,
 } from "@/engine/match/live-match-init"
 import type { MatchResult, SimState } from "@/types"
+import { buildCanonicalResultMaps } from "@/lib/live-match-builders"
+
+describe("restored live map ownership", () => {
+    test("can append rounds and update scores without mutating a frozen checkpoint", () => {
+        const saved = makeBaseResult().maps[0]
+        Object.freeze(saved.rounds[0])
+        Object.freeze(saved.rounds)
+        Object.freeze(saved.finalScore)
+        Object.freeze(saved)
+        const maps = buildCanonicalResultMaps([saved], [saved.map], "home", "away", undefined, 1)
+
+        maps[0].rounds.push({ winner: "AWAY" } as any)
+        maps[0].finalScore.team2 = 8
+        expect(maps[0].rounds).toHaveLength(2)
+        expect(saved.rounds).toHaveLength(1)
+        expect(saved.finalScore.team2).toBe(7)
+        expect(maps[0].rounds[0]).not.toBe(saved.rounds[0])
+    })
+})
 
 function makeBaseResult(overrides: Partial<MatchResult> = {}): MatchResult {
     return {

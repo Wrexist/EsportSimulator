@@ -66,6 +66,7 @@ export class CircuitPointsManager {
 
         const existing = circuitPoints.find(cp => cp.teamId === teamId)
 
+        if (existing?.results.some(result => result.tournamentId === tournament.id)) return circuitPoints
         if (existing) {
             existing.points += points
             existing.results.push({
@@ -113,7 +114,7 @@ export class CircuitPointsManager {
                 // Tertiary: most recent result week
                 const aLatest = a.results.reduce((max, r) => Math.max(max, r.week), 0)
                 const bLatest = b.results.reduce((max, r) => Math.max(max, r.week), 0)
-                return bLatest - aLatest
+                return bLatest - aLatest || a.teamId.localeCompare(b.teamId)
             })
             .slice(0, limit)
     }
@@ -180,7 +181,7 @@ export class QualificationEngine {
         let canRegister = false
 
         // CRITICAL: Check minimum roster size (need at least 5 players to compete)
-        const rosterSize = team.rosterIds?.length || 0
+        const rosterSize = new Set(team.rosterIds || []).size
         if (rosterSize < 5) {
             requirements.push({
                 type: "RANKING",

@@ -1,0 +1,451 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Sandstone",
+  "fixtureSha256": "fd99eb2d21ee55579645449ff66c8ef2f0774631a6829849c81a13a1ccbf35ec",
+  "simulatorSourceSha256": "11e1c5001b916f3addcaebfbf3b94d67477987a856dedf966c2a8643295e8c2f",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 80.09375,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 740862,
+      "metrics": {
+        "shots": 32,
+        "damage": 166,
+        "reports": 31,
+        "waits": 1316,
+        "replans": 108,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 208,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 2512,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 2656,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 2656,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 2656,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 2656,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "a36896cf5b3282c6e1b08962a30969a41ee8e384a63ea5c759c16730ae79f532"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 69.0625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 218523,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 0,
+        "waits": 1854,
+        "replans": 86,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 208,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "f3ccc01afb0648849140dc3e2a108c359b7d19349589f28a5c96d10cf788915c"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 40124,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 65,
+        "waits": 1342,
+        "replans": 92,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 176,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 208,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 784,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 2240,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 2368,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT1",
+          "point": [
+            299.99428486206494,
+            2319.1711963270313,
+            -116.00001
+          ],
+          "goal": [
+            1074,
+            2389.4998,
+            100
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "CT2",
+          "point": [
+            280.0761145733855,
+            2345.3834187246694,
+            -116.29464782248941
+          ],
+          "goal": [
+            -1432.374975,
+            2529.21855,
+            5.89131153337688
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "CT3",
+          "point": [
+            257.39228800594896,
+            2370.207224246806,
+            -116.57997749378954
+          ],
+          "goal": [
+            1125.125,
+            2384.2498499999997,
+            100.49057181305909
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "CT4",
+          "point": [
+            322.0180827424455,
+            2342.519032221813,
+            -116.00001
+          ],
+          "goal": [
+            -1536.62495,
+            2513.0623,
+            4.49902935210439
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T2",
+          "point": [
+            912.7576307823718,
+            2484.883126738201,
+            98.99999249999999
+          ],
+          "goal": [
+            1074,
+            2389.4998,
+            100
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T3",
+          "point": [
+            850.1013692001667,
+            2487.027454337443,
+            98.00449089115254
+          ],
+          "goal": [
+            939.1989849786291,
+            2506.394736931766,
+            98.99999249999999
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T4",
+          "point": [
+            817.9699765114649,
+            2489.2498,
+            97.999985
+          ],
+          "goal": [
+            939.1989849786291,
+            2506.394736931766,
+            98.99999249999999
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T5",
+          "point": [
+            880.7351447953066,
+            2476.497093976614,
+            98.68197229810191
+          ],
+          "goal": [
+            983.4903320081219,
+            2480.009467991878,
+            100
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "b2d9a379195254868c1a7268d644b1013c80568fa39200e727d2bc45c5d9dab1"
+    }
+  ]
+}

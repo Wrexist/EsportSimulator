@@ -124,20 +124,20 @@ export default function TrophyRoomPage() {
     const totalTrophies = trophies.length
 
     return (
-        <div className="p-8 space-y-12 max-w-7xl mx-auto pb-20">
+        <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
             {/* Hero Section */}
             <div className="relative">
                 <div className="absolute inset-0 bg-amber-500/5 blur-[150px] rounded-full pointer-events-none" />
-                <div className="relative pb-12 border-b border-white/5">
+                <div className="relative pb-6 border-b border-white/5">
                     <div className="flex flex-col md:flex-row items-end justify-between gap-8">
                         <div>
                             <Badge variant="outline" className="text-amber-400 border-amber-400/20 mb-4 px-4 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">
                                 Season {currentSeason}
                             </Badge>
-                            <h1 className="text-6xl font-normal tracking-tighter uppercase liquid-text leading-none mb-4">
+                            <h1 className="page-title mb-4">
                                 Trophy Room
                             </h1>
-                            <p className="text-muted-foreground font-medium uppercase text-sm tracking-[0.3em] flex items-center gap-2">
+                            <p className="text-muted-foreground font-medium text-sm flex items-center gap-2">
                                 <Trophy size={16} className="text-amber-400" /> {playerTeam?.name || "Your Team"} — Legacy & Achievements
                             </p>
                         </div>

@@ -226,7 +226,7 @@ export default function TrainingPage() {
   }
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto pb-20">
+    <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
       {/* Role Training Modal */}
       {trainingPlayer && (
         <RoleTrainingModal
@@ -260,8 +260,8 @@ export default function TrainingPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2">Performance Center</h1>
-          <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Forging elites through algorithmic discipline</p>
+          <h1 className="page-title mb-2">Performance Center</h1>
+          <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Develop your squad, one session at a time.</p>
         </div>
 
         <div className="flex gap-4">
@@ -278,8 +278,8 @@ export default function TrainingPage() {
           <div className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-4">
             <Zap className="text-primary" size={20} />
             <div>
-              <p className="text-[10px] font-normal uppercase text-muted-foreground">Staff Bonus</p>
-              <p className="text-sm font-normal text-white">+{coach?.level || 0}% Efficiency</p>
+              <p className="text-[10px] font-normal uppercase text-muted-foreground">Coaching</p>
+              <p className="text-sm font-normal text-white">{coach ? "Weekly development support" : "No coach assigned"}</p>
             </div>
           </div>
 
@@ -295,6 +295,7 @@ export default function TrainingPage() {
         </div>
       </div>
 
+      <p className="text-sm text-muted-foreground">Each drill uses one weekly slot and applies the listed effects immediately. Technical gains stop at potential; health and morale can recover to 100. Role trainees sit out team drills. Recovery drills remain available when players are exhausted. Coach bonuses apply to weekly development.</p>
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
         {/* LEFT COLUMN: Team Drills - Sticky */}
@@ -312,7 +313,7 @@ export default function TrainingPage() {
                   className={cn(
                     "glass-panel p-6 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group",
                     selectedDrill === drill.id
-                      ? "border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-[pulse-glow_2s_ease-in-out_infinite]"
+                      ? "border-emerald-400/60 bg-emerald-500/10 ring-1 ring-emerald-400/30"
                       : "border-white/5 hover:border-white/20"
                   )}
                 >
@@ -336,7 +337,7 @@ export default function TrainingPage() {
 
                   <div className="flex justify-between items-center pt-4 border-t border-white/5">
                     <span className={cn("text-[10px] font-normal uppercase text-rose-400")}>
-                      +{drill.fatigueCost} Fatigue
+                      {drill.fatigueCost > 0 ? "+" : ""}{drill.fatigueCost} Fatigue
                     </span>
                     <div className="flex gap-1">
                       {drill.rewards.map((g: any) => (
@@ -353,7 +354,7 @@ export default function TrainingPage() {
                 onClick={startDrill}
                 disabled={!selectedDrill}
               >
-                Initialize Simulation
+                Start training
               </Button>
             </div>
           ) : (
@@ -365,7 +366,7 @@ export default function TrainingPage() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h4 className="text-2xl font-normal text-white uppercase tracking-tighter animate-pulse">{activeRun.drill.name}</h4>
-                    <p className="text-xs font-sans text-primary">RUNNING SIMULATION_PROTOCOL_V2...</p>
+                    <p className="text-xs font-sans text-primary">Training in progress...</p>
                   </div>
                   <Badge variant="outline" className="animate-spin-slow border-primary text-primary h-8 w-8 rounded-full p-0 flex items-center justify-center">
                     <Zap size={14} />
@@ -442,7 +443,7 @@ export default function TrainingPage() {
                     <div className="relative">
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white/10 to-transparent border border-white/10 overflow-hidden">
                         <PlayerPortrait
-                          src={player.portraitPath}
+                          src={player.portraitPath} seed={player.id}
                           alt={player.nickname}
                           size={56}
                         />
@@ -629,6 +630,7 @@ export default function TrainingPage() {
               side={editingSide}
               strategyId={editingStrategy}
               config={customTactics[editingStrategy][editingSide]}
+              playerIds={teamPlayers.map(p => p.id)}
               playerNames={teamPlayers.map(p => p.nickname)}
               playerImages={teamPlayers.map(p => p.portraitPath || "")}
               onSave={(newConfig) => {

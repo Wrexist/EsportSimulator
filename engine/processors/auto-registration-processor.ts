@@ -21,6 +21,7 @@ import {
     isQualificationForTournament,
     normalizeQualificationStatus,
 } from "../circuit-engine"
+import { seniorRosterEligibility } from "../recruitment"
 import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
 
@@ -41,7 +42,7 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const myTeam = save.teams.find((t: any) => t.id === ctx.playerTeamId)
-    if (!myTeam) return
+    if (!myTeam || !seniorRosterEligibility(save, myTeam).eligible) return
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

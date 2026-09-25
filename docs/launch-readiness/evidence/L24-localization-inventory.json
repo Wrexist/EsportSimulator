@@ -1,0 +1,1422 @@
+{
+  "kind": "localization-source-triage-not-language-acceptance",
+  "candidateCount": 2088,
+  "files": [
+    {
+      "file": "app/error.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "CRITICAL FAULT",
+        "Match interrupted.",
+        "Try Again"
+      ]
+    },
+    {
+      "file": "app/global-error.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "The game crashed",
+        "Try Again"
+      ]
+    },
+    {
+      "file": "app/not-found.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "SIGNAL LOST",
+        "Off the map.",
+        "Whatever you were looking for isn&apos;t here. Maybe the page got refactored, maybe it never existed."
+      ]
+    },
+    {
+      "file": "app/page.tsx",
+      "staticTextCandidates": 34,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Seasons Managed",
+        "Weeks Survived",
+        "Trophies Won"
+      ]
+    },
+    {
+      "file": "app/academy/page.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Academy",
+        "Scout, develop, and graduate young talent for your roster"
+      ]
+    },
+    {
+      "file": "app/animations/page.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Back"
+      ]
+    },
+    {
+      "file": "app/basecamp/page.tsx",
+      "staticTextCandidates": 9,
+      "localeFormatCalls": 4,
+      "examples": [
+        "Loading...",
+        "Operations Center",
+        "Basecamp"
+      ]
+    },
+    {
+      "file": "app/career/page.tsx",
+      "staticTextCandidates": 21,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Manager Profile",
+        "Career Overview",
+        "Manage your legacy. Track progress across campaigns and aim for Hall of Fame induction."
+      ]
+    },
+    {
+      "file": "app/credits/page.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Back",
+        "Credits",
+        "Esports Manager: FPS"
+      ]
+    },
+    {
+      "file": "app/desktop/page.tsx",
+      "staticTextCandidates": 27,
+      "localeFormatCalls": 6,
+      "examples": [
+        "p.age",
+        "return (",
+        "Weekly Salary"
+      ]
+    },
+    {
+      "file": "app/dev/page.tsx",
+      "staticTextCandidates": 27,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Developer Console",
+        "Advanced tools for testing and debugging",
+        "Map Builder"
+      ]
+    },
+    {
+      "file": "app/equipment/page.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 2,
+      "examples": [
+        "LOGISTICS CENTER",
+        "Equipment",
+        "Budget"
+      ]
+    },
+    {
+      "file": "app/finances/page.tsx",
+      "staticTextCandidates": 62,
+      "localeFormatCalls": 23,
+      "examples": [
+        "Loading finances...",
+        "Health",
+        "Financial Command"
+      ]
+    },
+    {
+      "file": "app/fpl/page.tsx",
+      "staticTextCandidates": 40,
+      "localeFormatCalls": 7,
+      "examples": [
+        "FPL Season Not Started",
+        "Player",
+        "Team"
+      ]
+    },
+    {
+      "file": "app/hall-of-fame/page.tsx",
+      "staticTextCandidates": 6,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Hall of Fame",
+        "LEGENDS",
+        "Players who defined eras through exceptional careers"
+      ]
+    },
+    {
+      "file": "app/load-game/page.tsx",
+      "staticTextCandidates": 24,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Back to Dashboard",
+        "Career Archives",
+        "Select a legacy to continue your journey"
+      ]
+    },
+    {
+      "file": "app/main-menu/page.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 1,
+      "examples": [
+        "ESPORT MANAGER",
+        "Esport Manager",
+        "Build Your Dynasty • Conquer The World"
+      ]
+    },
+    {
+      "file": "app/new-game/page.tsx",
+      "staticTextCandidates": 32,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Game data could not load",
+        "Your setup draft is kept. Retry loading the local game data.",
+        "Retry"
+      ]
+    },
+    {
+      "file": "app/rankings/page.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 1,
+      "examples": [
+        "teamFlagByTeamId: Map",
+        "Rank",
+        "Team"
+      ]
+    },
+    {
+      "file": "app/schedule/page.tsx",
+      "staticTextCandidates": 9,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Schedule",
+        "Upcoming:",
+        "Jump to Next"
+      ]
+    },
+    {
+      "file": "app/scouting/page.tsx",
+      "staticTextCandidates": 62,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Scouting Database",
+        "For Sale",
+        "Free Agents"
+      ]
+    },
+    {
+      "file": "app/settings/page.tsx",
+      "staticTextCandidates": 123,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Settings & tools",
+        "Manage preferences and track achievements",
+        "Map Studio"
+      ]
+    },
+    {
+      "file": "app/sponsorships/page.tsx",
+      "staticTextCandidates": 7,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Sponsorship Manager",
+        "Manage partnerships and maximize your sponsorship revenue.",
+        "Weekly Income"
+      ]
+    },
+    {
+      "file": "app/squad/page.tsx",
+      "staticTextCandidates": 17,
+      "localeFormatCalls": 0,
+      "examples": [
+        "View Profile",
+        "Specialist ($5k)",
+        "Reduces recovery time by 2 weeks"
+      ]
+    },
+    {
+      "file": "app/staff/page.tsx",
+      "staticTextCandidates": 16,
+      "localeFormatCalls": 3,
+      "examples": [
+        "const RARITY_COLOR: Record",
+        "Staff & Operations",
+        "Management Division"
+      ]
+    },
+    {
+      "file": "app/stats/page.tsx",
+      "staticTextCandidates": 39,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Team Stats",
+        "Analytics, results, trophies, and rivalries",
+        "Wins"
+      ]
+    },
+    {
+      "file": "app/tournaments/page.tsx",
+      "staticTextCandidates": 30,
+      "localeFormatCalls": 1,
+      "examples": [
+        "ELIMINATED",
+        "LIVE",
+        "COMPLETED"
+      ]
+    },
+    {
+      "file": "app/training/page.tsx",
+      "staticTextCandidates": 26,
+      "localeFormatCalls": 2,
+      "examples": [
+        "No players to train",
+        "Sign players via Transfers to start training",
+        "Browse Transfers"
+      ]
+    },
+    {
+      "file": "app/transfers/page.tsx",
+      "staticTextCandidates": 25,
+      "localeFormatCalls": 5,
+      "examples": [
+        "Failed to load team data",
+        "Team data could not be retrieved. Please try again.",
+        "Retry"
+      ]
+    },
+    {
+      "file": "app/trophies/page.tsx",
+      "staticTextCandidates": 13,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Trophy Room",
+        "Trophies",
+        "Win Rate"
+      ]
+    },
+    {
+      "file": "app/tournaments/[id]/page.tsx",
+      "staticTextCandidates": 51,
+      "localeFormatCalls": 3,
+      "examples": [
+        "Tournament Not Found",
+        "Back to Tournaments",
+        "History"
+      ]
+    },
+    {
+      "file": "app/settings/community-import/page.tsx",
+      "staticTextCandidates": 27,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Back to Settings",
+        "Import Community Database",
+        "Active"
+      ]
+    },
+    {
+      "file": "app/schedule/staff-meeting/page.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Staff Meeting",
+        "Team Morale",
+        "Higher morale improves in-game performance and reduces transfer requests."
+      ]
+    },
+    {
+      "file": "app/player/[id]/page.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Back"
+      ]
+    },
+    {
+      "file": "app/new-game/create-team/page.tsx",
+      "staticTextCandidates": 34,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Create Your Team",
+        "Give your organization a name and identity",
+        "Manager Name"
+      ]
+    },
+    {
+      "file": "app/match/[id]/error.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Match crashed",
+        "Retry",
+        "Schedule"
+      ]
+    },
+    {
+      "file": "app/match/[id]/live/loading.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Connecting to Server..."
+      ]
+    },
+    {
+      "file": "app/match/[id]/live/page.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 2,
+      "examples": [
+        "TRADE",
+        "Regrouping — pressure relief active",
+        "Timeouts: between rounds only. Relieve losing-streak pressure for two rounds."
+      ]
+    },
+    {
+      "file": "app/match/[id]/result/page.tsx",
+      "staticTextCandidates": 31,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Match Not Found",
+        "Back to Schedule",
+        "Play Next Match"
+      ]
+    },
+    {
+      "file": "app/match/[id]/tactics/page.tsx",
+      "staticTextCandidates": 33,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Dashboard",
+        "ENEMY",
+        "Preparing for Battle"
+      ]
+    },
+    {
+      "file": "app/match/[id]/veto/page.tsx",
+      "staticTextCandidates": 16,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Veto Unavailable",
+        "Back to Dashboard",
+        "Back to HQ"
+      ]
+    },
+    {
+      "file": "app/dev/map-builder/page.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Map Builder",
+        "Open Map Studio",
+        "Reset"
+      ]
+    },
+    {
+      "file": "app/dev/radar-preview/page.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Radar Preview",
+        "Mock round → real position engine → MapRadarPanel. 2D tactical view.",
+        "Individual logo redesigns: first study"
+      ]
+    },
+    {
+      "file": "components/career/CareerLegacyCard.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Career Legacy",
+        "All-time · across every campaign"
+      ]
+    },
+    {
+      "file": "components/celebration/LegendPickModal.tsx",
+      "staticTextCandidates": 6,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Major Champion Reward",
+        "Choose Your Legend",
+        "Matches"
+      ]
+    },
+    {
+      "file": "components/celebration/ProAwardsModal.tsx",
+      "staticTextCandidates": 15,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Pro Top 20 Players",
+        "Reveal All",
+        "Rating"
+      ]
+    },
+    {
+      "file": "components/celebration/SeasonRecapModal.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Annual Report",
+        "Season",
+        "Recap"
+      ]
+    },
+    {
+      "file": "components/celebration/TournamentWinCelebration.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 2,
+      "examples": [
+        "CHAMPIONS OF THE WORLD",
+        "PRIZE MONEY",
+        "NEW FOLLOWERS"
+      ]
+    },
+    {
+      "file": "components/dashboard/ActionCenter.tsx",
+      "staticTextCandidates": 7,
+      "localeFormatCalls": 1,
+      "examples": [
+        "This Week",
+        "All caught up",
+        "Advance the week when you&apos;re ready."
+      ]
+    },
+    {
+      "file": "components/dashboard/GettingStartedChecklist.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "First session",
+        "Skip guide",
+        "The guide follows your career save. Replay it from Settings whenever you want."
+      ]
+    },
+    {
+      "file": "components/dashboard/NewsFeed.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 2,
+      "examples": [
+        "The wires are silent",
+        "No breaking headlines this week. Win a match, sign a player, or upgrade a facility to make the news."
+      ]
+    },
+    {
+      "file": "components/dashboard/SeasonObjectives.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Season Objectives",
+        "Board Expects",
+        "On Notice"
+      ]
+    },
+    {
+      "file": "components/dashboard/WeeklyFocusWidget.tsx",
+      "staticTextCandidates": 6,
+      "localeFormatCalls": 2,
+      "examples": [
+        "case WeeklyActivityType.TEAM_BONDING: return",
+        "case WeeklyActivityType.MEDIA_CAMPAIGN: return",
+        "case WeeklyActivityType.BOOTCAMP: return"
+      ]
+    },
+    {
+      "file": "components/debug/AnimationShowcase.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Animation Lab",
+        "Testing ground for \"Juicy\" UI interactions",
+        "Popup / Modal"
+      ]
+    },
+    {
+      "file": "components/debug/DevTools.tsx",
+      "staticTextCandidates": 63,
+      "localeFormatCalls": 3,
+      "examples": [
+        "Dev Tools (F9)",
+        "DEV TOOLS",
+        "No game loaded"
+      ]
+    },
+    {
+      "file": "components/desktop/DesktopHomeHero.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "World Rank",
+        "Budget",
+        "Week"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/AcademyApp.tsx",
+      "staticTextCandidates": 53,
+      "localeFormatCalls": 6,
+      "examples": [
+        "Team not found",
+        "Prospects",
+        "Weekly"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/CalendarApp.tsx",
+      "staticTextCandidates": 11,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Season Calendar",
+        "Timeline",
+        "Grid"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/FacilitiesApp.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 3,
+      "examples": [
+        "Team not found",
+        "Headquarters",
+        "Manage and upgrade your team's operational base."
+      ]
+    },
+    {
+      "file": "components/desktop-apps/FinanceApp.tsx",
+      "staticTextCandidates": 9,
+      "localeFormatCalls": 4,
+      "examples": [
+        "Team not found",
+        "Current Balance",
+        "Weekly Net"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/MailApp.tsx",
+      "staticTextCandidates": 25,
+      "localeFormatCalls": 0,
+      "examples": [
+        "case \"MORALE\": return",
+        "case \"INJURY\": return",
+        "case \"FINANCE\": return"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/MarketApp.tsx",
+      "staticTextCandidates": 11,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Transfer Market",
+        "New players become available • Some may be signed by AI teams",
+        "No players found"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/NewsApp.tsx",
+      "staticTextCandidates": 14,
+      "localeFormatCalls": 1,
+      "examples": [
+        "case \"loss_streak\": return",
+        "case \"TOURNAMENT\": return",
+        "case \"TRANSFER_OFFER\": return"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/ShopApp.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Team not found",
+        "My Setup",
+        "Avg. Tier"
+      ]
+    },
+    {
+      "file": "components/desktop-apps/SocialApp.tsx",
+      "staticTextCandidates": 16,
+      "localeFormatCalls": 3,
+      "examples": [
+        "Post",
+        "Trending in Esports",
+        "Who to Follow"
+      ]
+    },
+    {
+      "file": "components/dev/MapBuilderCanvas.tsx",
+      "staticTextCandidates": 29,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Snap",
+        "Zoom",
+        "Preview engine paths"
+      ]
+    },
+    {
+      "file": "components/layout/ExitConfirmDialog.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Stay",
+        "Exit"
+      ]
+    },
+    {
+      "file": "components/layout/GameShell.tsx",
+      "staticTextCandidates": 6,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Promise",
+        "Promise",
+        "Promise"
+      ]
+    },
+    {
+      "file": "components/layout/MatchNavigationGuard.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Match in Progress",
+        "Return to Match"
+      ]
+    },
+    {
+      "file": "components/layout/NavigationSearch.tsx",
+      "staticTextCandidates": 6,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Go to...",
+        "Ctrl K",
+        "Go to a game screen"
+      ]
+    },
+    {
+      "file": "components/layout/Sidebar.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Esports Manager",
+        "Manager Profile"
+      ]
+    },
+    {
+      "file": "components/layout/TopBar.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Your club",
+        "Play match",
+        "Next day"
+      ]
+    },
+    {
+      "file": "components/maps/EncounterLab.tsx",
+      "staticTextCandidates": 34,
+      "localeFormatCalls": 0,
+      "examples": [
+        "e.tick",
+        "CONTROLLED ENCOUNTER · L11 / L12",
+        "See. React. Resolve."
+      ]
+    },
+    {
+      "file": "components/maps/MapAnnotationEditor.tsx",
+      "staticTextCandidates": 102,
+      "localeFormatCalls": 0,
+      "examples": [
+        "p.x))",
+        "p.y))",
+        "Map studio"
+      ]
+    },
+    {
+      "file": "components/maps/MapCoordinateInput.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Map coordinates: 0–100%. X goes right; Y goes down.",
+        "Enter both coordinates between 0 and 100."
+      ]
+    },
+    {
+      "file": "components/maps/MapPointEditor.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Edit point coordinates",
+        "Point"
+      ]
+    },
+    {
+      "file": "components/maps/MapValidationPanel.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Geometry review · Release held",
+        "Checks use an approximate static reference. A passed check does not approve a map for release.",
+        "Overlay reference radar"
+      ]
+    },
+    {
+      "file": "components/maps/SpatialLab.tsx",
+      "staticTextCandidates": 50,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Simulation lab",
+        "MAP STUDIO",
+        "Real surfaces. Connected movement. Inspectable sight lines."
+      ]
+    },
+    {
+      "file": "components/maps/TeamLab.tsx",
+      "staticTextCandidates": 49,
+      "localeFormatCalls": 0,
+      "examples": [
+        "f.tick",
+        "TEAM COORDINATION · L13",
+        "Read the round."
+      ]
+    },
+    {
+      "file": "components/maps/UtilityControls.tsx",
+      "staticTextCandidates": 23,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Utility test · L12",
+        "Add throw",
+        "Disable utility test"
+      ]
+    },
+    {
+      "file": "components/maps/UtilityReplay.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "e.kind !== 'fire' || Math.hypot(p[0] - e.point[0], p[1] - e.point[1])",
+        "f.start",
+        "p.tick"
+      ]
+    },
+    {
+      "file": "components/match/DefeatOverlay.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Match Result",
+        "DEFEATED"
+      ]
+    },
+    {
+      "file": "components/match/HalfTimeOverlay.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Broadcast Pause",
+        "HALF TIME",
+        "Teams swapping sides"
+      ]
+    },
+    {
+      "file": "components/match/LiveMatchControlBar.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "LIVE",
+        "AUTO TACTICS",
+        "SKIP RND"
+      ]
+    },
+    {
+      "file": "components/match/MapRadar3D.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "smokes: Array",
+        "focusRef: React.MutableRefObject"
+      ]
+    },
+    {
+      "file": "components/match/MapRadarPanel.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "radar",
+        "alive"
+      ]
+    },
+    {
+      "file": "components/match/TacticalLoadoutEditor.tsx",
+      "staticTextCandidates": 7,
+      "localeFormatCalls": 5,
+      "examples": [
+        "Hover player for Copy/Paste",
+        "Remaining Budget",
+        "Total Team Cost"
+      ]
+    },
+    {
+      "file": "components/onboarding/RosterBuilderModal.tsx",
+      "staticTextCandidates": 25,
+      "localeFormatCalls": 13,
+      "examples": [
+        "Synergy Analysis",
+        "Chemistry",
+        "System Bonuses"
+      ]
+    },
+    {
+      "file": "components/player/player-detail.tsx",
+      "staticTextCandidates": 52,
+      "localeFormatCalls": 1,
+      "examples": [
+        "case \"IGL\": return",
+        "case \"SUPPORT\": return",
+        "case \"ENTRY\": return"
+      ]
+    },
+    {
+      "file": "components/player/PlayerMatchHistory.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 0,
+      "examples": [
+        "No matches played yet",
+        "Win-Loss",
+        "Avg Rating"
+      ]
+    },
+    {
+      "file": "components/player/PlayerSignatureMoments.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Career still being written"
+      ]
+    },
+    {
+      "file": "components/player/RecruitmentProfile.tsx",
+      "staticTextCandidates": 10,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Overall estimate",
+        "Opening wage expectation",
+        "Contract"
+      ]
+    },
+    {
+      "file": "components/player/RenewContractModal.tsx",
+      "staticTextCandidates": 7,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Contract Renewal Proposal",
+        "Current",
+        "New Offer"
+      ]
+    },
+    {
+      "file": "components/player/TransferListingModal.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Market Value:",
+        "Asking Price",
+        "Market Value (100%)"
+      ]
+    },
+    {
+      "file": "components/schedule/ActivityPickerModal.tsx",
+      "staticTextCandidates": 9,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Schedule Activity",
+        "Find Scrim",
+        "Practice match against other teams."
+      ]
+    },
+    {
+      "file": "components/schedule/BookBootcampModal.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 3,
+      "examples": [
+        "Schedule Bootcamp",
+        "Duration",
+        "Weeks"
+      ]
+    },
+    {
+      "file": "components/schedule/BookMarketingModal.tsx",
+      "staticTextCandidates": 12,
+      "localeFormatCalls": 7,
+      "examples": [
+        "Marketing Campaign",
+        "Campaign Type",
+        "Duration"
+      ]
+    },
+    {
+      "file": "components/schedule/BookScrimModal.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Find Scrim",
+        "OVR:",
+        "Selected"
+      ]
+    },
+    {
+      "file": "components/schedule/ScheduleActivityCard.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "if (isBootcamp) return",
+        "if (isTravel) return",
+        "if (isMedia) return"
+      ]
+    },
+    {
+      "file": "components/schedule/ScheduleMatchCard.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "UPCOMING",
+        "VS TBD"
+      ]
+    },
+    {
+      "file": "components/schedule/ScoutingReport.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Scouting Report",
+        "Scouting Report"
+      ]
+    },
+    {
+      "file": "components/schedule/TeamMatchPopup.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Match Preview",
+        "Team OVR",
+        "World Rank"
+      ]
+    },
+    {
+      "file": "components/schedule/TournamentDetailsModal.tsx",
+      "staticTextCandidates": 20,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Schedule",
+        "Prize Pool",
+        "Overview"
+      ]
+    },
+    {
+      "file": "components/settings/SettingsModal.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Settings",
+        "Cancel",
+        "Apply"
+      ]
+    },
+    {
+      "file": "components/sponsorships/ActiveSponsorCard.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Contract Duration",
+        "Performance Goals"
+      ]
+    },
+    {
+      "file": "components/sponsorships/EmptySponsorSlot.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Empty Slot",
+        "Browse offers below to sign a sponsor"
+      ]
+    },
+    {
+      "file": "components/sponsorships/SponsorOfferCard.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 4,
+      "examples": [
+        "base payout / week",
+        "Brand Effects",
+        "Performance Bonuses"
+      ]
+    },
+    {
+      "file": "components/squad/ChemistryMatrix.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Team Chemistry",
+        "Elite",
+        "Solid"
+      ]
+    },
+    {
+      "file": "components/squad/SynergyChart.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "SYNERGY RATING:"
+      ]
+    },
+    {
+      "file": "components/squad/SystemBonuses.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "System Bonuses",
+        "Activation Status",
+        "Active"
+      ]
+    },
+    {
+      "file": "components/squad/TrophyCabinet.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "The cabinet is currently empty",
+        "Win tournaments to display your legacy",
+        "Tournament MVP Awarded"
+      ]
+    },
+    {
+      "file": "components/staff/StaffDetailsModal.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 1,
+      "examples": [
+        "XP Progress",
+        "Attributes",
+        "Specialization"
+      ]
+    },
+    {
+      "file": "components/staff/StaffNegotiationModal.tsx",
+      "staticTextCandidates": 11,
+      "localeFormatCalls": 5,
+      "examples": [
+        "Level",
+        "Specialization",
+        "Current Rate"
+      ]
+    },
+    {
+      "file": "components/staff/TalentTree.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Needs Requirements",
+        "Click to Unlock",
+        "Unlocked"
+      ]
+    },
+    {
+      "file": "components/stats/TacticalHeatmap.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Tactical Density"
+      ]
+    },
+    {
+      "file": "components/tournament/AdvancementAnimation.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Completed",
+        "Next Stage",
+        "Click anywhere to continue"
+      ]
+    },
+    {
+      "file": "components/tournament/TournamentBracket.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Tournament Champion!",
+        "Your legacy is written",
+        "YOUR MATCH"
+      ]
+    },
+    {
+      "file": "components/tournament/TournamentMatchContext.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 1,
+      "examples": [
+        "GRAND FINAL",
+        "IF YOU WIN",
+        "IF YOU LOSE"
+      ]
+    },
+    {
+      "file": "components/tournament/TournamentStandings.tsx",
+      "staticTextCandidates": 17,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Invited Teams",
+        "Team",
+        "World Rank"
+      ]
+    },
+    {
+      "file": "components/tournament/TournamentStats.tsx",
+      "staticTextCandidates": 15,
+      "localeFormatCalls": 0,
+      "examples": [
+        "No Stats Available Yet",
+        "Statistics will appear once matches have been played in this tournament.",
+        "Tournament MVP"
+      ]
+    },
+    {
+      "file": "components/training/RoleTrainingModal.tsx",
+      "staticTextCandidates": 9,
+      "localeFormatCalls": 2,
+      "examples": [
+        "Target Secondary Role",
+        "Duration",
+        "Weekly Cost"
+      ]
+    },
+    {
+      "file": "components/training/WeaponTrainingModal.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 4,
+      "examples": [
+        "Weapon Training",
+        "Accuracy",
+        "Damage"
+      ]
+    },
+    {
+      "file": "components/transfer/NegotiationModal.tsx",
+      "staticTextCandidates": 22,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Rating",
+        "Country",
+        "Market Value"
+      ]
+    },
+    {
+      "file": "components/ui/animated-number.tsx",
+      "staticTextCandidates": 0,
+      "localeFormatCalls": 1,
+      "examples": []
+    },
+    {
+      "file": "components/ui/breadcrumb.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "More"
+      ]
+    },
+    {
+      "file": "components/ui/BugReportButton.tsx",
+      "staticTextCandidates": 26,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Report a Bug",
+        "Report a Bug",
+        "Help us improve the game by reporting issues you encounter."
+      ]
+    },
+    {
+      "file": "components/ui/bulk-actions.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "void | Promise",
+        "Clear Selection"
+      ]
+    },
+    {
+      "file": "components/ui/calendar.tsx",
+      "staticTextCandidates": 0,
+      "localeFormatCalls": 2,
+      "examples": []
+    },
+    {
+      "file": "components/ui/carousel.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Previous slide",
+        "Next slide"
+      ]
+    },
+    {
+      "file": "components/ui/confirm-dialog.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "void | Promise",
+        "Fire"
+      ]
+    },
+    {
+      "file": "components/ui/dialog.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Close"
+      ]
+    },
+    {
+      "file": "components/ui/error-boundary.tsx",
+      "staticTextCandidates": 5,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Try Again",
+        "Copied!",
+        "Copy Error Details"
+      ]
+    },
+    {
+      "file": "components/ui/field.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "error?.message &&"
+      ]
+    },
+    {
+      "file": "components/ui/help-system.tsx",
+      "staticTextCandidates": 86,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Team chemistry measures how well your players work together.",
+        "Calculation:",
+        "Chemistry = Average Compatibility × Roster Stability"
+      ]
+    },
+    {
+      "file": "components/ui/ImageUploader.tsx",
+      "staticTextCandidates": 8,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Upload Custom Logo",
+        "PNG or JPG, max 2MB",
+        "Change"
+      ]
+    },
+    {
+      "file": "components/ui/KeyboardShortcutsModal.tsx",
+      "staticTextCandidates": 7,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Keyboard shortcuts",
+        "Navigate your club and control the game from the keyboard.",
+        "macOS users: use"
+      ]
+    },
+    {
+      "file": "components/ui/pagination.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Previous",
+        "Next",
+        "More pages"
+      ]
+    },
+    {
+      "file": "components/ui/player-spider-chart.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Overall:"
+      ]
+    },
+    {
+      "file": "components/ui/PlayerCard.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "case \"RIFLER\": return",
+        "case \"IGL\": return",
+        "case \"SUPPORT\": return"
+      ]
+    },
+    {
+      "file": "components/ui/search-filter.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Clear"
+      ]
+    },
+    {
+      "file": "components/ui/sheet.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Close"
+      ]
+    },
+    {
+      "file": "components/ui/sidebar.tsx",
+      "staticTextCandidates": 3,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Sidebar",
+        "Displays the mobile sidebar.",
+        "Toggle Sidebar"
+      ]
+    },
+    {
+      "file": "components/ui/Taskbar.tsx",
+      "staticTextCandidates": 1,
+      "localeFormatCalls": 1,
+      "examples": [
+        "Week"
+      ]
+    },
+    {
+      "file": "components/ui/ToastNotifications.tsx",
+      "staticTextCandidates": 4,
+      "localeFormatCalls": 0,
+      "examples": [
+        "case \"xp_gain\": return",
+        "case \"achievement\": return",
+        "case \"warning\": return"
+      ]
+    },
+    {
+      "file": "components/ui/tutorial.tsx",
+      "staticTextCandidates": 36,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Skip tutorial",
+        "Previous",
+        "Finish"
+      ]
+    },
+    {
+      "file": "components/ui/WeekProcessingOverlay.tsx",
+      "staticTextCandidates": 2,
+      "localeFormatCalls": 0,
+      "examples": [
+        "Advancing week",
+        "Continue"
+      ]
+    }
+  ],
+  "fonts": [
+    {
+      "file": "app/fonts/archivo-black-latin-400-normal.woff2",
+      "sha256": "25f33e61cf995abd6be62931cf03bf427286259177b43618cc410ee0157cfd30",
+      "glyphCoverage": "NOT_VERIFIED"
+    }
+  ],
+  "intendedLanguage": "English",
+  "additionalLanguages": "No advertised support; partial dictionaries no longer selectable",
+  "fontFallback": "OS system sans / Segoe UI; bundled Archivo Black Latin display face; glyph/render testing pending"
+}

@@ -244,7 +244,7 @@ export default function MainMenuPage() {
                         <div className="grid grid-cols-3 gap-4">
                             {[
                                 { icon: Trophy, label: "Tournaments", value: "50+", desc: "Compete globally" },
-                                { icon: Users, label: "Players", value: "500+", desc: "Real players" },
+                                { icon: Users, label: "Players", value: "500+", desc: "Fictional players" },
                                 { icon: Zap, label: "Seasons", value: "∞", desc: "Endless career" }
                             ].map((feature, i) => (
                                 <motion.div
@@ -340,7 +340,7 @@ export default function MainMenuPage() {
                                                             ${selectedSlot === slot.saveId ? "bg-black/30 border-primary/20 shadow-lg shadow-primary/5" : "bg-white/[0.03] border-white/[0.06]"}
                                                         `}>
                                                             <TeamLogoImage
-                                                                src={slot.teamLogo}
+                                                                src={slot.teamLogo} team={slot.teamPreview}
                                                                 alt={slot.teamName || "Team"}
                                                                 size={42}
                                                             />
@@ -408,7 +408,7 @@ export default function MainMenuPage() {
                                                                 <div className="relative">
                                                                     <div className="w-10 h-10 rounded-xl bg-white/[0.03] overflow-hidden">
                                                                         <PlayerPortrait
-                                                                            src={p.portraitPath}
+                                                                            src={p.portraitPath} seed={p.id}
                                                                             alt={p.nickname}
                                                                             size={40}
                                                                         />

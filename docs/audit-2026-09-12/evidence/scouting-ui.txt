@@ -1,0 +1,649 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/scouting".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/scouting
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/scouting#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading SCOUTING DATABASE, Value: 1
+				144 text SCOUTING DATABASE
+			145 container
+				146 text 1641  PLAYERS ACROSS  198  TEAMS WORLDWIDE
+			147 text 1356  Results
+			148 container
+				149 text field (settable) Search players or teams
+				150 button FOR SALE
+				151 button FREE AGENTS
+				152 button SCOUTED
+				153 button WATCHLIST
+				154 button ALL
+				155 button AWPER
+				156 button IGL
+				157 button ENTRY
+				158 button SUPPORT
+				159 button RIFLER
+				160 button LURKER
+				161 button (collapsed) ADVANCED FILTERS, Secondary Actions: Expand
+			162 table
+				163 row
+					164 cell
+						165 button Player
+					166 cell
+						167 text TEAM
+					168 cell
+						169 text ROLE
+					170 cell
+						171 button Age
+					172 cell
+						173 button OVR
+					174 cell
+						175 button Syn
+					176 cell
+						177 button Value
+					178 cell
+						179 text STATUS
+				180 row
+					181 cell
+						182 container
+							183 image ulykos
+						184 text ulykos
+						185 image Brazil
+					186 cell
+						187 container Umbra Esports logo
+						188 text Umbra Esports
+					189 cell
+						190 text IGL
+					191 cell
+						192 text 26
+					193 cell
+						194 container Scout to reveal exact rating
+							195 text 72 - 99
+					196 cell
+						197 text 53
+					198 cell
+						199 text $8.8M
+					200 cell
+						201 text Not For Sale
+				202 row
+					203 cell
+						204 container
+							205 image Kryvane
+						206 text Kryvane
+						207 image Israel
+					208 cell
+						209 container Moonstorm Republic logo
+						210 text Moonstorm Republic
+					211 cell
+						212 text SUPPORT
+					213 cell
+						214 text 23
+					215 cell
+						216 container Scout to reveal exact rating
+							217 text 64 - 94
+					218 cell
+						219 text 53
+					220 cell
+						221 text $7.2M
+					222 cell
+						223 text Available
+				224 row
+					225 cell
+						226 container
+							227 image Xandris
+						228 text Xandris
+						229 image Ukraine
+					230 cell
+						231 container Aegis Esports logo
+						232 text Aegis Esports
+					233 cell
+						234 text AWPER
+					235 cell
+						236 text 21
+					237 cell
+						238 container Scout to reveal exact rating
+							239 text 74 - 99
+					240 cell
+						241 text 62
+					242 cell
+						243 text $9.9M
+					244 cell
+						245 text Not For Sale
+				246 row
+					247 cell
+						248 container
+							249 image Dronar
+						250 text Dronar
+						251 image Mongolia
+					252 cell
+						253 container Meridian Initiative logo
+						254 text Meridian Initiative
+					255 cell
+						256 text AWPER
+					257 cell
+						258 text 23
+					259 cell
+						260 container Scout to reveal exact rating
+							261 text 65 - 95
+					262 cell
+						263 text 52
+					264 cell
+						265 text $9.2M
+					266 cell
+						267 text Not For Sale
+				268 row
+					269 cell
+						270 container
+							271 image Zy5yl
+						272 text Zy5yl
+						273 image Canada
+					274 cell
+						275 container Violet Lumen logo
+						276 text Violet Lumen
+					277 cell
+						278 text IGL
+					279 cell
+						280 text 26
+					281 cell
+						282 container Scout to reveal exact rating
+							283 text 72 - 99
+					284 cell
+						285 text 53
+					286 cell
+						287 text $7.8M
+					288 cell
+						289 text Not For Sale
+				290 row
+					291 cell
+						292 container
+							293 image gryv1l
+						294 text gryv1l
+						295 image Russia
+					296 cell
+						297 image Skypulse logo
+						298 text Skypulse
+					299 cell
+						300 text SUPPORT
+					301 cell
+						302 text 19
+					303 cell
+						304 container Scout to reveal exact rating
+							305 text 72 - 99
+					306 cell
+						307 text 70
+					308 cell
+						309 text $7.3M
+					310 cell
+						311 text Not For Sale
+				312 row
+					313 cell
+						314 container
+							315 image zarnar
+						316 text zarnar
+						317 image Israel
+					318 cell
+						319 container Team Oblivion logo
+						320 text Team Oblivion
+					321 cell
+						322 text ENTRY
+					323 cell
+						324 text 22
+					325 cell
+						326 container Scout to reveal exact rating
+							327 text 63 - 93
+					328 cell
+						329 text 52
+					330 cell
+						331 text $7.2M
+					332 cell
+						333 text Not For Sale
+				334 row
+					335 cell
+						336 container
+							337 image Fryzor
+						338 text Fryzor
+						339 image Russia
+					340 cell
+						341 image Ironspire logo
+						342 text Ironspire
+					343 cell
+						344 text ENTRY
+					345 cell
+						346 text 18
+					347 cell
+						348 container Scout to reveal exact rating
+							349 text 65 - 95
+					350 cell
+						351 text 67
+					352 cell
+						353 text $6.6M
+					354 cell
+						355 text Available
+				356 row
+					357 cell
+						358 container
+							359 image Zarzor
+						360 text Zarzor
+						361 image Brazil
+					362 cell
+						363 container Umbra Esports logo
+						364 text Umbra Esports
+					365 cell
+						366 text SUPPORT
+					367 cell
+						368 text 34
+					369 cell
+						370 container Scout to reveal exact rating
+							371 text 75 - 99
+					372 cell
+						373 text 54
+					374 cell
+						375 text $4.9M
+					376 cell
+						377 text Not For Sale
+				378 row
+					379 cell
+						380 container
+							381 image 1unar
+						382 text 1unar
+						383 image Spain
+					384 cell
+						385 container Moonstorm Republic logo
+						386 text Moonstorm Republic
+					387 cell
+						388 text AWPER
+					389 cell
+						390 text 27
+					391 cell
+						392 container Scout to reveal exact rating
+							393 text 70 - 99
+					394 cell
+						395 text 52
+					396 cell
+						397 text $7.3M
+					398 cell
+						399 text Not For Sale
+				400 row
+					401 cell
+						402 container
+							403 image gl1tch
+						404 text gl1tch
+						405 image Hungary
+					406 cell
+						407 image Warblade logo
+						408 text Warblade
+					409 cell
+						410 text AWPER
+					411 cell
+						412 text 23
+					413 cell
+						414 container Scout to reveal exact rating
+							415 text 74 - 99
+					416 cell
+						417 text 52
+					418 cell
+						419 text $7.7M
+					420 cell
+						421 text Available
+				422 row
+					423 cell
+						424 container
+							425 image vortex3
+						426 text vortex3
+						427 image Ukraine
+					428 cell
+						429 container Aegis Esports logo
+						430 text Aegis Esports
+					431 cell
+						432 text SUPPORT
+					433 cell
+						434 text 23
+					435 cell
+						436 container Scout to reveal exact rating
+							437 text 65 - 95
+					438 cell
+						439 text 63
+					440 cell
+						441 text $5.8M
+					442 cell
+						443 text Not For Sale
+				444 row
+					445 cell
+						446 container
+							447 image vynmir
+						448 text vynmir
+						449 image Latvia
+					450 cell
+						451 container Violet Lumen logo
+						452 text Violet Lumen
+					453 cell
+						454 text AWPER
+					455 cell
+						456 text 24
+					457 cell
+						458 container Scout to reveal exact rating
+							459 text 65 - 95
+					460 cell
+						461 text 62
+					462 cell
+						463 text $7.3M
+					464 cell
+						465 text Not For Sale
+				466 row
+					467 cell
+						468 container
+							469 image 0rbdax
+						470 text 0rbdax
+						471 image Israel
+					472 cell
+						473 image Warblade logo
+						474 text Warblade
+					475 cell
+						476 text ENTRY
+					477 cell
+						478 text 25
+					479 cell
+						480 container Scout to reveal exact rating
+							481 text 60 - 90
+					482 cell
+						483 text 52
+					484 cell
+						485 text $5.7M
+					486 cell
+						487 text Not For Sale
+				488 row
+					489 cell
+						490 container
+							491 image xanwyn7
+						492 text xanwyn7
+						493 image Israel
+					494 cell
+						495 image Warblade logo
+						496 text Warblade
+					497 cell
+						498 text IGL
+					499 cell
+						500 text 21
+					501 cell
+						502 container Scout to reveal exact rating
+							503 text 68 - 98
+					504 cell
+						505 text 53
+					506 cell
+						507 text $7.3M
+					508 cell
+						509 text Not For Sale
+				510 row
+					511 cell
+						512 container
+							513 image NEOSYL
+						514 text NEOSYL
+						515 image Russia
+					516 cell
+						517 container Ember Rift logo
+						518 text Ember Rift
+					519 cell
+						520 text IGL
+					521 cell
+						522 text 22
+					523 cell
+						524 container Scout to reveal exact rating
+							525 text 61 - 91
+					526 cell
+						527 text 68
+					528 cell
+						529 text $7.4M
+					530 cell
+						531 text Not For Sale
+				532 row
+					533 cell
+						534 container
+							535 image Qu4mir
+						536 text Qu4mir
+						537 image Slovakia
+					538 cell
+						539 container Violet Lumen logo
+						540 text Violet Lumen
+					541 cell
+						542 text RIFLER
+					543 cell
+						544 text 23
+					545 cell
+						546 container Scout to reveal exact rating
+							547 text 65 - 95
+					548 cell
+						549 text 50
+					550 cell
+						551 text $5.4M
+					552 cell
+						553 text Not For Sale
+				554 row
+					555 cell
+						556 container
+							557 image SKYPHR3
+						558 text SKYPHR3
+						559 image Australia
+					560 cell
+						561 container Nimbus logo
+						562 text Nimbus
+					563 cell
+						564 text ENTRY
+					565 cell
+						566 text 21
+					567 cell
+						568 container Scout to reveal exact rating
+							569 text 69 - 99
+					570 cell
+						571 text 52
+					572 cell
+						573 text $5.4M
+					574 cell
+						575 text Available
+				576 row
+					577 cell
+						578 container
+							579 image Ke1ron
+						580 text Ke1ron
+						581 image Kosovo
+					582 cell
+						583 container Aegis Esports logo
+						584 text Aegis Esports
+					585 cell
+						586 text ENTRY
+					587 cell
+						588 text 19
+					589 cell
+						590 container Scout to reveal exact rating
+							591 text 69 - 99
+					592 cell
+						593 text 52
+					594 cell
+						595 text $5.9M
+					596 cell
+						597 text Not For Sale
+				598 row
+					599 cell
+						600 container
+							601 image rai7ov
+						602 text rai7ov
+						603 image Russia
+					604 cell
+						605 image Skypulse logo
+						606 text Skypulse
+					607 cell
+						608 text ENTRY
+					609 cell
+						610 text 20
+					611 cell
+						612 container Scout to reveal exact rating
+							613 text 65 - 95
+					614 cell
+						615 text 67
+					616 cell
+						617 text $5.7M
+					618 cell
+						619 text Not For Sale
+				620 row
+					621 cell
+						622 container
+							623 image Bly1ox
+						624 text Bly1ox
+						625 image Latvia
+					626 cell
+						627 container Umbra Esports logo
+						628 text Umbra Esports
+					629 cell
+						630 text ENTRY
+					631 cell
+						632 text 26
+					633 cell
+						634 container Scout to reveal exact rating
+							635 text 66 - 96
+					636 cell
+						637 text 62
+					638 cell
+						639 text $4.7M
+					640 cell
+						641 text Not For Sale
+				642 row
+					643 cell
+						644 container
+							645 image du5k4
+						646 text du5k4
+						647 image Mongolia
+					648 cell
+						649 container Meridian Initiative logo
+						650 text Meridian Initiative
+					651 cell
+						652 text ENTRY
+					653 cell
+						654 text 20
+					655 cell
+						656 container Scout to reveal exact rating
+							657 text 59 - 89
+					658 cell
+						659 text 52
+					660 cell
+						661 text $5.3M
+					662 cell
+						663 text Available
+				664 row
+					665 cell
+						666 container
+							667 image a2uruz
+						668 text a2uruz
+						669 image France
+					670 cell
+						671 container Team Oblivion logo
+						672 text Team Oblivion
+					673 cell
+						674 text SUPPORT
+					675 cell
+						676 text 32
+					677 cell
+						678 container Scout to reveal exact rating
+							679 text 62 - 92
+					680 cell
+						681 text 54
+					682 cell
+						683 text $3.9M
+					684 cell
+						685 text Not For Sale
+				686 row
+					687 cell
+						688 container
+							689 image Rove4
+						690 text Rove4
+						691 image Ukraine
+					692 cell
+						693 container Void Vortex logo
+						694 text Void Vortex
+					695 cell
+						696 text AWPER
+					697 cell
+						698 text 28
+					699 cell
+						700 container Scout to reveal exact rating
+							701 text 63 - 93
+					702 cell
+						703 text 62
+					704 cell
+						705 text $5.7M
+					706 cell
+						707 text Available
+				708 row
+					709 cell
+						710 container
+							711 image azu5en
+						712 text azu5en
+						713 image North Macedonia
+					714 cell
+						715 image Ironspire logo
+						716 text Ironspire
+					717 cell
+						718 text SUPPORT
+					719 cell
+						720 text 25
+					721 cell
+						722 container Scout to reveal exact rating
+							723 text 59 - 89
+					724 cell
+						725 text 53
+					726 cell
+						727 text $4.6M
+					728 cell
+						729 text Available
+			730 text SHOWING  1 - 25  OF  1356
+			731 button (disabled) PREV
+			732 text 1  /  55
+			733 button NEXT
+			734 container
+				735 heading SELECT A PLAYER, Value: 3
+					736 text SELECT A PLAYER
+				737 text Click on any player to view their detailed stats
+			738 container
+				739 heading RECENT MARKET ACTIVITY, Value: 3
+					740 text RECENT MARKET ACTIVITY
+				741 text NO ACTIVITY RECORDED YET
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 18 link Description: Scouting, URL: 127.0.0.1:3210/scouting

@@ -1,0 +1,684 @@
+{
+  "label": "pilot",
+  "scale": "small",
+  "seeds": 1,
+  "requestedWeeks": 104,
+  "templateHash": null,
+  "sourceHashes": {
+    "scripts/launch/l28-balance-campaign.ts": "eed9a6a672b0fc16dc523535d51ab1fde4c17f2a809d7f3f7b24794780e02e11",
+    "scripts/launch/balance-metrics.ts": "798cff2b5d026d036caa120e5fb3f500638935781344a2bda13fb83d6ab41314",
+    "engine/processors/training-processor.ts": "c2d05d8e6eda1133081c26975dc11133699e5aeb28eba0424b67524957c64ea4",
+    "engine/economy-engine.ts": "415568fea8e40e59faf1050c12135356b1b04e56540e622398c7653afc96bdd4",
+    "engine/ai-manager.ts": "9ca18fe228991c0d3601a68b916d4b9907ead166afeb9e6de54d1f16bb22dc47",
+    "engine/player-lifecycle.ts": "274ab5a2d4663d566e36b1c221f0d761286fe66bef0250afc8c9fb78921dd548",
+    "package-lock.json": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+  },
+  "results": [
+    {
+      "seed": 28001,
+      "scale": "small",
+      "difficulty": "story",
+      "tier": "B_TIER",
+      "rosterStyle": "youth",
+      "intensity": 1,
+      "startingCash": 603884,
+      "inputHash": "0931dd6edbf4a7f1fefc005dbe0bf5d22d61bcf1fafb80c9f5b834439ee8bd09",
+      "ticks": 6,
+      "requestedWeeks": 104,
+      "matches": 5,
+      "injuries": 0,
+      "signings": 0,
+      "terminal": null,
+      "failures": [
+        {
+          "week": 7,
+          "issues": [
+            "uncontracted-senior:ai_prospect_team_ai_1_7_1913"
+          ]
+        }
+      ],
+      "shortages": [],
+      "deadSeasons": [],
+      "seasons": [
+        {
+          "week": 7,
+          "managedCash": 603884,
+          "players": 17,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 259509,
+            "p10": 272500.2,
+            "median": 324465,
+            "p90": 548000.2,
+            "max": 603884
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 17,
+            "finite": 17,
+            "min": 51,
+            "p10": 65,
+            "median": 65,
+            "p90": 67.08800000000001,
+            "max": 69.28800000000001
+          },
+          "fatigue": {
+            "n": 17,
+            "finite": 17,
+            "min": 0,
+            "p10": 0,
+            "median": 52,
+            "p90": 52,
+            "max": 52
+          },
+          "injuries": 0,
+          "wages": {
+            "n": 15,
+            "finite": 15,
+            "min": 2500,
+            "p10": 2500,
+            "median": 2500,
+            "p90": 2500,
+            "max": 2500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 54336.8,
+            "max": 67921
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1129,
+            "p10": 1198.8,
+            "median": 1478,
+            "p90": 1490,
+            "max": 1493
+          },
+          "tick": 6,
+          "matches": 5,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 66.28800000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 18,
+              "skill": 68.28800000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 66.28800000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 18,
+              "skill": 69.28800000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 66.28800000000001,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            }
+          ],
+          "transfers": []
+        }
+      ],
+      "final": {
+        "week": 7,
+        "managedCash": 603884,
+        "players": 17,
+        "retired": 0,
+        "budgets": {
+          "n": 3,
+          "finite": 3,
+          "min": 259509,
+          "p10": 272500.2,
+          "median": 324465,
+          "p90": 548000.2,
+          "max": 603884
+        },
+        "insolvent": 0,
+        "shortRosters": [],
+        "skill": {
+          "n": 17,
+          "finite": 17,
+          "min": 51,
+          "p10": 65,
+          "median": 65,
+          "p90": 67.08800000000001,
+          "max": 69.28800000000001
+        },
+        "fatigue": {
+          "n": 17,
+          "finite": 17,
+          "min": 0,
+          "p10": 0,
+          "median": 52,
+          "p90": 52,
+          "max": 52
+        },
+        "injuries": 0,
+        "wages": {
+          "n": 15,
+          "finite": 15,
+          "min": 2500,
+          "p10": 2500,
+          "median": 2500,
+          "p90": 2500,
+          "max": 2500
+        },
+        "sponsors": {
+          "n": 3,
+          "finite": 3,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 54336.8,
+          "max": 67921
+        },
+        "elo": {
+          "n": 3,
+          "finite": 3,
+          "min": 1129,
+          "p10": 1198.8,
+          "median": 1478,
+          "p90": 1490,
+          "max": 1493
+        }
+      },
+      "outputHash": "2fd0fca60a97975bb20aa240645d6c9bba1d890c7d9673f6f90370e2cbf96337",
+      "limitation": "Real compute core plus human free-agent vacancy filling. Player matches use the missed-match autosimulation on the following tick. No live tactical actions, academy post-week coordinator, UI, durable storage or human playtest; terminal careers stop."
+    },
+    {
+      "seed": 28001,
+      "scale": "small",
+      "difficulty": "story",
+      "tier": "B_TIER",
+      "rosterStyle": "youth",
+      "intensity": 5,
+      "startingCash": 603884,
+      "inputHash": "0931dd6edbf4a7f1fefc005dbe0bf5d22d61bcf1fafb80c9f5b834439ee8bd09",
+      "ticks": 6,
+      "requestedWeeks": 104,
+      "matches": 5,
+      "injuries": 0,
+      "signings": 0,
+      "terminal": null,
+      "failures": [
+        {
+          "week": 7,
+          "issues": [
+            "uncontracted-senior:ai_prospect_team_ai_1_7_1913"
+          ]
+        }
+      ],
+      "shortages": [],
+      "deadSeasons": [],
+      "seasons": [
+        {
+          "week": 7,
+          "managedCash": 603884,
+          "players": 17,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 259509,
+            "p10": 272500.2,
+            "median": 324465,
+            "p90": 548000.2,
+            "max": 603884
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 17,
+            "finite": 17,
+            "min": 51,
+            "p10": 65,
+            "median": 65,
+            "p90": 68.23999999999997,
+            "max": 70.43999999999997
+          },
+          "fatigue": {
+            "n": 17,
+            "finite": 17,
+            "min": 0,
+            "p10": 0,
+            "median": 52,
+            "p90": 52,
+            "max": 52
+          },
+          "injuries": 0,
+          "wages": {
+            "n": 15,
+            "finite": 15,
+            "min": 2500,
+            "p10": 2500,
+            "median": 2500,
+            "p90": 2500,
+            "max": 2500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 54336.8,
+            "max": 67921
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1129,
+            "p10": 1198.8,
+            "median": 1478,
+            "p90": 1490,
+            "max": 1493
+          },
+          "tick": 6,
+          "matches": 5,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 67.43999999999997,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 18,
+              "skill": 69.43999999999997,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 67.43999999999997,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 18,
+              "skill": 70.43999999999997,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 18,
+              "skill": 67.43999999999997,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 18,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            }
+          ],
+          "transfers": []
+        }
+      ],
+      "final": {
+        "week": 7,
+        "managedCash": 603884,
+        "players": 17,
+        "retired": 0,
+        "budgets": {
+          "n": 3,
+          "finite": 3,
+          "min": 259509,
+          "p10": 272500.2,
+          "median": 324465,
+          "p90": 548000.2,
+          "max": 603884
+        },
+        "insolvent": 0,
+        "shortRosters": [],
+        "skill": {
+          "n": 17,
+          "finite": 17,
+          "min": 51,
+          "p10": 65,
+          "median": 65,
+          "p90": 68.23999999999997,
+          "max": 70.43999999999997
+        },
+        "fatigue": {
+          "n": 17,
+          "finite": 17,
+          "min": 0,
+          "p10": 0,
+          "median": 52,
+          "p90": 52,
+          "max": 52
+        },
+        "injuries": 0,
+        "wages": {
+          "n": 15,
+          "finite": 15,
+          "min": 2500,
+          "p10": 2500,
+          "median": 2500,
+          "p90": 2500,
+          "max": 2500
+        },
+        "sponsors": {
+          "n": 3,
+          "finite": 3,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 54336.8,
+          "max": 67921
+        },
+        "elo": {
+          "n": 3,
+          "finite": 3,
+          "min": 1129,
+          "p10": 1198.8,
+          "median": 1478,
+          "p90": 1490,
+          "max": 1493
+        }
+      },
+      "outputHash": "0c8d9c658609d67d860360550edbca10d8f21b230a8dd4e92dc65d98485dab00",
+      "limitation": "Real compute core plus human free-agent vacancy filling. Player matches use the missed-match autosimulation on the following tick. No live tactical actions, academy post-week coordinator, UI, durable storage or human playtest; terminal careers stop."
+    }
+  ]
+}

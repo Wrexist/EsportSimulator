@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "scenarios": [
+    {
+      "id": "utility-smoke",
+      "outcome": "timeout",
+      "frames": 769,
+      "events": 18,
+      "checks": [
+        {
+          "id": "test-smoke",
+          "state": "draft",
+          "bounceErrors": [],
+          "reason": "Computed trajectory only; real-map lineup review still required."
+        }
+      ],
+      "fullSha256": "2508dc078093353689ba3798af1fd1206d9237ca2a241f4013d10b05baa1ac55",
+      "fullMatchesNode": false,
+      "discreteSha256": "13287381291a64bddf1cdd79d3c03a872f89c149ae890c240b0a9492da7ab559"
+    },
+    {
+      "id": "utility-flash",
+      "outcome": "timeout",
+      "frames": 769,
+      "events": 18,
+      "checks": [
+        {
+          "id": "test-flash",
+          "state": "draft",
+          "bounceErrors": [],
+          "reason": "Computed trajectory only; real-map lineup review still required."
+        }
+      ],
+      "fullSha256": "f96abcace4a4472df3b0c703bc0aa6c6c97b3369d630f97eceb2c607f8abf390",
+      "fullMatchesNode": false,
+      "discreteSha256": "334828d7df368b6d0a18454d2d653ea3f993b0dc6025fc58b8dbf1576afbe085"
+    },
+    {
+      "id": "utility-he",
+      "outcome": "timeout",
+      "frames": 769,
+      "events": 11,
+      "checks": [
+        {
+          "id": "test-he",
+          "state": "draft",
+          "bounceErrors": [],
+          "reason": "Computed trajectory only; real-map lineup review still required."
+        }
+      ],
+      "fullSha256": "3fa308ce1bd34a82d183d883de5fab63d07dde1a3c98f6d592e882ab7709ce8f",
+      "fullMatchesNode": false,
+      "discreteSha256": "f9b51dd07c71988b9653a21164f9241756896290cb40340ba02c29cf0c442473"
+    },
+    {
+      "id": "utility-fire",
+      "outcome": "B",
+      "frames": 769,
+      "events": 28,
+      "checks": [
+        {
+          "id": "test-fire",
+          "state": "draft",
+          "bounceErrors": [],
+          "reason": "Computed trajectory only; real-map lineup review still required."
+        }
+      ],
+      "fullSha256": "426a2fc2679af4c239ff874174c9dca6b3a60ea643c079568b7f8d423d6af864",
+      "fullMatchesNode": false,
+      "discreteSha256": "743ddd43fa8244dcb4a02a16e46d642b14e6ddcc0034bc7e5d3036c17c88167f"
+    },
+    {
+      "id": "utility-decoy",
+      "outcome": "timeout",
+      "frames": 769,
+      "events": 26,
+      "checks": [
+        {
+          "id": "test-decoy",
+          "state": "draft",
+          "bounceErrors": [],
+          "reason": "Computed trajectory only; real-map lineup review still required."
+        }
+      ],
+      "fullSha256": "8cbe703e30a8cf9bc5d4927a12b0e818d9ee19bbe10dfc23dbad619dbbe97b0f",
+      "fullMatchesNode": false,
+      "discreteSha256": "34834c93e3a0f600f712b70509bf91d1dcc48eaca52a58d0debf05ae8767c968"
+    }
+  ],
+  "checks": [
+    "real compiled worker transport",
+    "five utility types repeat in Chromium",
+    "Node/native authoritative events, timings, damage, inventory and knowledge match",
+    "isolated serializer round-trip",
+    "invalid throw rejected"
+  ],
+  "limits": [
+    "original uncalibrated diagnostic throws",
+    "not packaged Windows acceptance",
+    "all-map reviewed utility coverage remains open",
+    "dynamic entities and material penetration held"
+  ],
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "electron": "44.3.0",
+  "buildId": "fnqGLOHcgCejWPb_-7-HO",
+  "worker": "2063.536af38005ec1c05.js"
+}

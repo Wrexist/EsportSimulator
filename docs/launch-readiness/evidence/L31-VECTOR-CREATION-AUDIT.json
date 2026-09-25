@@ -1,0 +1,3112 @@
+{
+  "method": "Exact SVG reproduction using project generator functions, ignoring surrounding whitespace only; original file hashes recorded.",
+  "limitations": [
+    "Creation evidence, not trademark clearance. No source images or logos modified."
+  ],
+  "generators": [
+    {
+      "path": "scripts/branding/generate_top30_logos.py",
+      "sha256": "f7c30cbf6bb9e72216ee57af129377af0a6a5f964f782649d809d3d53817da68"
+    },
+    {
+      "path": "scripts/branding/extend_branding_all.py",
+      "sha256": "341b8445167def918d8aa050ece377f4872ce11c475b77725dab471b0b612e70"
+    }
+  ],
+  "matched": [
+    {
+      "path": "public/assets/teams/1win/logo.svg",
+      "sha256": "f9a97f9db3e00069b077ee3943b02f924e858b8497b5db30acc2fab5a5d6c6d1",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "1win",
+        "letter": "1"
+      }
+    },
+    {
+      "path": "public/assets/teams/33or/logo.svg",
+      "sha256": "a8e6271d026deaa52650170a947a3e0a19ca8d79eba8264b2e49dfc50a705f16",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "33or",
+        "letter": "3"
+      }
+    },
+    {
+      "path": "public/assets/teams/3dmax/logo.svg",
+      "sha256": "ecd3e44f4a6e43cace2c197117d638650a993a2784698ca408f66d4964467a97",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "cube_3d",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "3DMAX",
+        "letter": "3DMAX"
+      }
+    },
+    {
+      "path": "public/assets/teams/500ro/logo.svg",
+      "sha256": "1772ddcc2329507cc3a01bfcd2f20bc2a399d5a39f8f7f647e4e9c43944aaf78",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#DB2777"
+        },
+        "name": "500ro",
+        "letter": "5"
+      }
+    },
+    {
+      "path": "public/assets/teams/9ink/logo.svg",
+      "sha256": "076e4ed36af5a0f3958f4f8b60c5dd46d283a2ea128ce16d3eb5d7eef055a1aa",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#581C87"
+        },
+        "name": "9INK",
+        "letter": "9INK",
+        "tag": "9INK"
+      }
+    },
+    {
+      "path": "public/assets/teams/9zed/logo.svg",
+      "sha256": "a00644ee1acbfa5f145b44bf38102391c79adb86bfd75c0f3cbd7496f327a67b",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "9ZED",
+        "letter": "9"
+      }
+    },
+    {
+      "path": "public/assets/teams/a81/logo.svg",
+      "sha256": "b8292be96c735f772c4a7729245b07a4cfade4601c63849ddd8d7f3186906835",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "nz_chevron",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "A81",
+        "letter": "9Z"
+      }
+    },
+    {
+      "path": "public/assets/teams/aedhar/logo.svg",
+      "sha256": "a3b8019a092b3ded1debde7fccf5f71b09f2dea310025c3c416802e395a83472",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#1E3A8A"
+        },
+        "name": "Aedhar",
+        "letter": "AEDH",
+        "tag": "AEDH"
+      }
+    },
+    {
+      "path": "public/assets/teams/akend/logo.svg",
+      "sha256": "2f8652ce649361f1b4e370a68e913c719fc5a2d64e4cd191fed4d277e96698a9",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Akend",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/aljayx/logo.svg",
+      "sha256": "6032ea03baa6f396049138a3fb01d1ad51f2a294d7691de12c9fec0081c721d6",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "ALJAyx",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/alliankaia/logo.svg",
+      "sha256": "242a2e3b0b8c9d335981256b106a992a12afb6dc74b2afb48ce260c4403d47f2",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Alliankaia",
+        "letter": "ALLI",
+        "tag": "ALLI"
+      }
+    },
+    {
+      "path": "public/assets/teams/ance/logo.svg",
+      "sha256": "b475f7efc5514d2bfae5a58de9efa9dcbaec15b23d2ef06b42881e4d54828c88",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "ANCE",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/aramund/logo.svg",
+      "sha256": "9573a24a3120235f52f3c9d0fe017747be57d931408a8f0cc6b5732f223715ab",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Aramund",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/arcredra/logo.svg",
+      "sha256": "c19ad05856519a6c3836f5a1e7aa006fef4fab05d983384fbf026c196305b6a5",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "ARCREDra",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/argongra/logo.svg",
+      "sha256": "cb83a5af7448d3e15df80e85f9702eb17a0389f508f8e9e84abcf66d30d1c328",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "Montegra",
+        "letter": "MONT",
+        "tag": "MONT"
+      }
+    },
+    {
+      "path": "public/assets/teams/astraflux/logo.svg",
+      "sha256": "d474c37cf56cf508b81ed71df72a7d1aa24bf533822c2d34121b4d372d9b9a5c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "astralis_star",
+      "arguments": {
+        "c": {
+          "primaryColor": "#1E40AF",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Astralians",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/aurura_yuunj_blod/logo.svg",
+      "sha256": "de6909b816a81c9709a07648eb74d27f345c8ec2116e6801e5aed54e9e57e18f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Aurura Yuunj Blod",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/aymclub/logo.svg",
+      "sha256": "6d17375b2c83e90985d0a41a70488a84f21b421f97c28244f74e4e2a5cffa80f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "aymclub",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/aztralor/logo.svg",
+      "sha256": "436f226576134038bf95ac04636b082ef8589d3124e00bfd8bddc9b7f3c644ad",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "AZTRALor",
+        "letter": "A"
+      }
+    },
+    {
+      "path": "public/assets/teams/b8/logo.svg",
+      "sha256": "d5283023422386c74c58ec1f9f481d5d6e2dc204ab45675ff9df25f0077e93a3",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#FACC15"
+        },
+        "name": "B8",
+        "letter": "B8"
+      }
+    },
+    {
+      "path": "public/assets/teams/bad_lykk/logo.svg",
+      "sha256": "6bf6fb2b2351258df4bc8b6f3e83996ea55414a7e2d06aaabe323c36fe933807",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Bad Lykk",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/bat_m/logo.svg",
+      "sha256": "f3f760829de3bd323bc0c4148620c5ad64f3afafde01797aca7e599fef43ff65",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "BAT-M",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/begia_academy/logo.svg",
+      "sha256": "8968d185ccd70aa06dc82df2e708d90df94dca5035efbbba361c1d359b7211e1",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "BEGia Academy",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/besiment_bays/logo.svg",
+      "sha256": "1b52eb5bb6eebd91f0fb7e32acfb733d8729f6ed8662b78722d27308d1bcecd5",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "BESIMENT BAYS",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/besteayx/logo.svg",
+      "sha256": "cb75d9ec06fcfdc0c085640067ca7ac0b10c008322f9ff2fb015fa1207466544",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "BESTEAyx",
+        "letter": "BEST",
+        "tag": "BEST"
+      }
+    },
+    {
+      "path": "public/assets/teams/big_kings/logo.svg",
+      "sha256": "39b78fd61f8fd857c526812ba27307a4808fd45624540d75543a92b8a789ef87",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "BIG Kings",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/bij_aqoipa/logo.svg",
+      "sha256": "8265798f5aaf8611fd1d3288ed46965bf38d36a15da74a93d9d131c832598700",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "BIJ AQOIPA",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/bistia_aqedemy/logo.svg",
+      "sha256": "2945208073d0b3110fa6f849b62c8e1b0b410662147273b61658d2726f7947d1",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "BISTIA Aqedemy",
+        "letter": "BIST",
+        "tag": "BIST"
+      }
+    },
+    {
+      "path": "public/assets/teams/bitclic/logo.svg",
+      "sha256": "f7684d25abf4073438a64b480327f205826b3ab4febad562caa953df091b3e21",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Bitclic",
+        "letter": "BITC",
+        "tag": "BITC"
+      }
+    },
+    {
+      "path": "public/assets/teams/bk_kame/logo.svg",
+      "sha256": "c52f51a8ca66e0c4858d17f901319749a57d2c9255d5487fb59205ae5b0d5a68",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "BK.Kame",
+        "letter": "BK",
+        "tag": "BK"
+      }
+    },
+    {
+      "path": "public/assets/teams/boombyte/logo.svg",
+      "sha256": "e50c6d891a4694cb99734cf6258ed562a71c620d7eb3a0d8e51935660a27f389",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#8B5CF6"
+        },
+        "name": "BoomByte",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/bozz/logo.svg",
+      "sha256": "819ce6ff0970413ad102f79a6520a782602bc188f4dbcebc3c9b937500238249",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "BOZZ",
+        "letter": "BOZZ",
+        "tag": "BOZZ"
+      }
+    },
+    {
+      "path": "public/assets/teams/buring_players/logo.svg",
+      "sha256": "ceea0ff427a7797cce1c9bbb711e9076e1f2dded90d4337e6968098620536174",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#F59E0B"
+        },
+        "name": "BURING PLAYERS",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/bushydo_wildcods/logo.svg",
+      "sha256": "14eaedc07b763d59f5af07c3a14e636893ec58860b7e94323d163ca793497811",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Bushydo Wildcods",
+        "letter": "B"
+      }
+    },
+    {
+      "path": "public/assets/teams/calaoskurnos/logo.svg",
+      "sha256": "7e3d4049d0b206098cde259260427cb6dad4681f0cbb58a2b8d8832f2dca0c59",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "CALAOSKURNOS",
+        "letter": "CALA",
+        "tag": "CALA"
+      }
+    },
+    {
+      "path": "public/assets/teams/century_rogues/logo.svg",
+      "sha256": "57c52d8cf5dbd780bca648cdb1d6691bee2602a40e0d2f2b3af695783d0a64df",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "rogue_skull",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Century Rogues",
+        "letter": "100"
+      }
+    },
+    {
+      "path": "public/assets/teams/chinjkis_warryars/logo.svg",
+      "sha256": "1520a06b817a3052fa8abc48656f0a81846c49c7d967aa17a429c2dfdd95b119",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#78350F"
+        },
+        "name": "Chinjkis Warryars",
+        "letter": "CHIN",
+        "tag": "CHIN"
+      }
+    },
+    {
+      "path": "public/assets/teams/chonge_dhe_game/logo.svg",
+      "sha256": "c2023f2630d4d0ba2349f9645d76ee0a1ed3016a6352be7899a6aa465dcb569c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Chonge Dhe Game",
+        "letter": "C"
+      }
+    },
+    {
+      "path": "public/assets/teams/coin_hunters/logo.svg",
+      "sha256": "da97e884e35af38858d232ab1173c266cf6ad9cf1586c602d5c7d99e014fdb0e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Coin Hunters",
+        "letter": "C"
+      }
+    },
+    {
+      "path": "public/assets/teams/cph_wolvez/logo.svg",
+      "sha256": "f9b63e1a9c57d9af344522046e9fd5f9dfd2bfd2f85f0c6fa6d1689cd1d96f3e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "CPH Wolvez",
+        "letter": "C"
+      }
+    },
+    {
+      "path": "public/assets/teams/csdiylyt/logo.svg",
+      "sha256": "5ac72790a7a6bb923079f47d9c76b4f405ca9e639288551c5c18cdf6cd4fed70",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "CSDIYLYT",
+        "letter": "C"
+      }
+    },
+    {
+      "path": "public/assets/teams/cybershoci/logo.svg",
+      "sha256": "b6d7bbd035d2cd4bbeff1cbd2dd28383e36a2775e0122b86280a8c00d3d8d85b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "CYBERSHOCI",
+        "letter": "C"
+      }
+    },
+    {
+      "path": "public/assets/teams/diep_crass/logo.svg",
+      "sha256": "a54cec262a09e9c653f2a3147612a15e418c54069d8bdb72b9639ddfb5e47825",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Diep Crass",
+        "letter": "DIEP",
+        "tag": "DIEP"
+      }
+    },
+    {
+      "path": "public/assets/teams/ec_bongo/logo.svg",
+      "sha256": "da6bbcb563ce37a42cb932a194d00542891125c87b5ff4d3c74f4b2a1edfed7a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "EC BONGO",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/eeb/logo.svg",
+      "sha256": "cf3d7142127b664784df9eb9d5a6a7ce38da92c4762e74c2d23b3b94cb42f82e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "EeB",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/ellinnars/logo.svg",
+      "sha256": "a6297352d6980f5aa6448eab7109241f7ed4c75d784d7905e3836b27a147561b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "ELLINNARS",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/em/logo.svg",
+      "sha256": "eaa178cd73b9ab3e23efca4cbedd8bca5cff05328a28e5b75e3d85881b1939fa",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#F59E0B"
+        },
+        "name": "EM",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/ence_acodamy/logo.svg",
+      "sha256": "115827e9a30524f47b680eb14a69f3e13ee4522b101f49e999162c5427252759",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "ENCE Acodamy",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/enfuryty/logo.svg",
+      "sha256": "34d2ebea8641b3c22a30e5124801465040c83a6d051e30c85eddb0fd703f331e",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "ENFURYTY",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/ennar_cercla/logo.svg",
+      "sha256": "3e84aaabefd7619a6f9a5507d9847438a056f6888267969bd98e5a8dd78fb16c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#A855F7"
+        },
+        "name": "Ennar Cercla",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/enphinite/logo.svg",
+      "sha256": "fc43b43b510a04428869bbd26f54b1ae25b22d841c8fcb6508e285e9eaaa35b6",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "ENPhINITE",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/eurora/logo.svg",
+      "sha256": "2d54b0db79301c947999cf751d9fe7636201550af84b32eec258a75333998ab7",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "aurora_diamond",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#A855F7"
+        },
+        "name": "Eurora",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/everblaze/logo.svg",
+      "sha256": "8e21834aae41589483c9af4019808a07aeb873d2dc49a226a1c8c1d2d976975a",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Everblaze",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/ex_jonk/logo.svg",
+      "sha256": "d507f612eb81aab3e30d74f33d56c8935880256094244b2f201b3ea25565e25e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#0E7490"
+        },
+        "name": "ex-JONK",
+        "letter": "EXJO",
+        "tag": "EXJO"
+      }
+    },
+    {
+      "path": "public/assets/teams/exzod/logo.svg",
+      "sha256": "e7cee4941ae1b780d18e089b978e81a04b335380f8d84ed1c3123bd0a59893ae",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "EXZOD",
+        "letter": "E"
+      }
+    },
+    {
+      "path": "public/assets/teams/f5/logo.svg",
+      "sha256": "1f4b6bf82063f89326ef67bec5e57f8dd9daa01fbcc15a0b0deae819e715b6b9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "F5",
+        "letter": "F5",
+        "tag": "F5"
+      }
+    },
+    {
+      "path": "public/assets/teams/falconry/logo.svg",
+      "sha256": "97587498f36a9217bb1e928f79f49bff062c6a6d2c4442d05a27b5f531281700",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wing_crest",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Falconry",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/famalik_u/logo.svg",
+      "sha256": "c9c459d3e7320265e5003dc8b2801b6f0e0fa5a2deee4716a576924f64ade77a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Famalik\u00e3u",
+        "letter": "FAMA",
+        "tag": "FAMA"
+      }
+    },
+    {
+      "path": "public/assets/teams/fengdoal/logo.svg",
+      "sha256": "ed188936e4204e5564ad180061f093bb499c45d6d930590d596c80b412a9315f",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "FengDoal",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/finjers_krozsed/logo.svg",
+      "sha256": "ae75ce9a32f3e313ad4485eff0ade16bdfad1665be45ca957f8db4f0e7597461",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "Finjers Krozsed",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/fluxion/logo.svg",
+      "sha256": "cefac99e762e612820890708137d9480aea67c7af8479a9f4674929cb925bd86",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "Fluxion",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/flycrest/logo.svg",
+      "sha256": "1fb913bd3bd4cb81a78d67ed7d3b6d9b30d6f87ee3b071ce4a164bf96fd4c13d",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "fly_wing",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "FlyCrest",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/folqons_pharce/logo.svg",
+      "sha256": "9f17d71a4e19c3cdf11d57dba94b1db6a4f2f934555b68525e880b8a35595a7d",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "Folqons Pharce",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/foria/logo.svg",
+      "sha256": "a9a84605ca60fbdfa08ce8dfd51342c6fdfac84d82a3f4da14df211e3ea1fb28",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "panther_diamond",
+      "arguments": {
+        "c": {
+          "primaryColor": "#000000",
+          "secondaryColor": "#000000",
+          "accentColor": "#00C896"
+        },
+        "name": "FORIA",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/fulha_omarila/logo.svg",
+      "sha256": "e5ebae6ceb0360a4c629dadf17a2916b59192db7b2c77013c7dc024e5c5b7add",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "FULHA OMARILA",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/fut/logo.svg",
+      "sha256": "f2eb4e7ac84b2dd9833e8afa83751e04fb9495511e4271b04d4eb024a6d4a3dd",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "fut_monogram",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "FUT",
+        "letter": "FUT"
+      }
+    },
+    {
+      "path": "public/assets/teams/fuuryx_mogiq/logo.svg",
+      "sha256": "2ecc4d04e3129642539bf222d8da166912ad355f685bca09e8901f1c923b0902",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Fuuryx Mogiq",
+        "letter": "F"
+      }
+    },
+    {
+      "path": "public/assets/teams/g_two/logo.svg",
+      "sha256": "da742ad71c3d6e33587ac85b20747edf7badda2c4e4d72a0ef42ffe9a7f04d91",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "g2_monogram",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FFFFFF",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#DC2626"
+        },
+        "name": "G-Two",
+        "letter": "G2"
+      }
+    },
+    {
+      "path": "public/assets/teams/gamer_league/logo.svg",
+      "sha256": "6a71afb21a3a6883aa8cbb5ab8c05215229e4c7756031a0693279a907cdb0815",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "gamerleg_sword",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "Gamer League",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/gantle_motex/logo.svg",
+      "sha256": "d02997f0771c4c6523c68cd2c6995c1593340b9a0ce9bf3d3471b345c92cf4e9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "flame_torch",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Gantle Motex",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/goimin_gladiaturs/logo.svg",
+      "sha256": "2e54eeef64a11c583558d0593165122d709cf2020a98809a115a610f812810d5",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Goimin Gladiaturs",
+        "letter": "G"
+      }
+    },
+    {
+      "path": "public/assets/teams/golarysel/logo.svg",
+      "sha256": "33f23e782d6afe163f1ddcca3ab7d412fbcbede9fc4aa324b1c110002da0dd1e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#8B5CF6"
+        },
+        "name": "Golarysel",
+        "letter": "G"
+      }
+    },
+    {
+      "path": "public/assets/teams/gomehynters/logo.svg",
+      "sha256": "aee8dbf668245dcf8446d749a0cb493c4766dc508be89255d10a760410220e78",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#A855F7"
+        },
+        "name": "GomeHynters",
+        "letter": "G"
+      }
+    },
+    {
+      "path": "public/assets/teams/groond_zaro/logo.svg",
+      "sha256": "14584790d2940e94fe2403f44eafd4b969467442979c0f9a351d55779110344d",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Groond Zaro",
+        "letter": "G"
+      }
+    },
+    {
+      "path": "public/assets/teams/hammerheads/logo.svg",
+      "sha256": "a57026454efded83c114af8a0aa07973583ea885ccd13b5c3d965c1be76d3d00",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#F59E0B"
+        },
+        "name": "Hammerheads",
+        "letter": "H"
+      }
+    },
+    {
+      "path": "public/assets/teams/hatual/logo.svg",
+      "sha256": "975bdce522bd6f9c42e73706d442d1da882a130af12ec6a59323241001e8f931",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "HATUal",
+        "letter": "H"
+      }
+    },
+    {
+      "path": "public/assets/teams/hevy/logo.svg",
+      "sha256": "96eaed518d8ce946aab96f6402c7f610870b8859879194821d98a9ee13d230a4",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#EF4444"
+        },
+        "name": "HEVY",
+        "letter": "H"
+      }
+    },
+    {
+      "path": "public/assets/teams/hiroecium_acedemy/logo.svg",
+      "sha256": "676cc3f617d79d4c6739b3b16cbfe12886a62c050b5ca33e33eb44c977712cc7",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#DC2626"
+        },
+        "name": "HIROECium Acedemy",
+        "letter": "H"
+      }
+    },
+    {
+      "path": "public/assets/teams/hyperspiryd/logo.svg",
+      "sha256": "81829d1a9e5b8c2b6dc9be62c72a51d2caafa8effd761ee31f9e85e547f373b0",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "HyperSpiryd",
+        "letter": "H"
+      }
+    },
+    {
+      "path": "public/assets/teams/ikoisto/logo.svg",
+      "sha256": "e128b22be549d8ccd686b0175e95cd44ba47612eb9cb5b27d6ccdcce74140c3b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "IKOISTO",
+        "letter": "IKOI",
+        "tag": "IKOI"
+      }
+    },
+    {
+      "path": "public/assets/teams/ilidenergy/logo.svg",
+      "sha256": "b5593bb9f60c8c1f3be4e2b4b08f9afef5ebd4e7dbaa3a6af50090776242df6e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "iLIDenergy",
+        "letter": "I"
+      }
+    },
+    {
+      "path": "public/assets/teams/illwill/logo.svg",
+      "sha256": "b4caf7b9fe5ff1a40936a0f2e1e5e324179a005f2d3ffb111d3def0f21a8edf2",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "illwill",
+        "letter": "I"
+      }
+    },
+    {
+      "path": "public/assets/teams/imperius/logo.svg",
+      "sha256": "622df037d7f626119ebcfd05264366fbab5fb35dfc8ffa423c805c13b9eef33f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "imperial_crown",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "Imperius",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/impulzi_gw/logo.svg",
+      "sha256": "d304bdb7f717ba6a4e6a649584985db50aee25ff198c96242e2f3113eb38c10b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#3B0764"
+        },
+        "name": "Impulzi GW",
+        "letter": "IMPU",
+        "tag": "IMPU"
+      }
+    },
+    {
+      "path": "public/assets/teams/iqstatical/logo.svg",
+      "sha256": "90104d8e872f606eef18be32ca009e1b98339ee0401966588418369119453cb7",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "IQSTATICal",
+        "letter": "I"
+      }
+    },
+    {
+      "path": "public/assets/teams/iroptionra/logo.svg",
+      "sha256": "c27cc5ef2c5f7e5b033f17a8e1e962d89c7c6ce87c3f5ce78f62f357a203aa9c",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "Iroptionra",
+        "letter": "I"
+      }
+    },
+    {
+      "path": "public/assets/teams/ix_rubyel/logo.svg",
+      "sha256": "c846261214a2b037335379fc41d6b25e10e388ce5eec07681b398f3c68e6b89f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#581C87"
+        },
+        "name": "ix-RUBYel",
+        "letter": "IXRU",
+        "tag": "IXRU"
+      }
+    },
+    {
+      "path": "public/assets/teams/iyeballars/logo.svg",
+      "sha256": "5cbb15256187f54a36af101a3d8200b0b8ec64eb165f6762173fbc99677fe384",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "IYEBALLARS",
+        "letter": "IYEB",
+        "tag": "IYEB"
+      }
+    },
+    {
+      "path": "public/assets/teams/izyrus/logo.svg",
+      "sha256": "6d118d9128ea58fae13f6ce05b54cd33ec7b98b776a3db8abe3102438590350c",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Izyrus",
+        "letter": "I"
+      }
+    },
+    {
+      "path": "public/assets/teams/jahnny_spieds/logo.svg",
+      "sha256": "6abbb3b7988cfa27f06bd7a37cd93611591c9e4ce87daa1ad0fd074004d02179",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#A855F7"
+        },
+        "name": "Jahnny Spieds",
+        "letter": "J"
+      }
+    },
+    {
+      "path": "public/assets/teams/jijyahao/logo.svg",
+      "sha256": "ca48e1c519930d5b730b253fc7ba35e29bdc6b501ef4ca0224d32c8b5caa12ac",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#7C2D12"
+        },
+        "name": "JiJyaHao",
+        "letter": "JIJY",
+        "tag": "JIJY"
+      }
+    },
+    {
+      "path": "public/assets/teams/jumboex/logo.svg",
+      "sha256": "8384af4bed98bbbe0eeeee058688c96bfd0de0cb1ac44fbb49ff7cdd00c8492a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#3B0764"
+        },
+        "name": "JUMBOex",
+        "letter": "JUMB",
+        "tag": "JUMB"
+      }
+    },
+    {
+      "path": "public/assets/teams/justex_swing/logo.svg",
+      "sha256": "84324e848f7efe4e8ecff4af624f6cd93fedf0ccee43a58a631ff1407c3e2ae6",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Justex Swing",
+        "letter": "J"
+      }
+    },
+    {
+      "path": "public/assets/teams/k2_erex/logo.svg",
+      "sha256": "4e7ee5e3b00f90f98fc980397c42247460e78a5e9a89160eef78d50f16b7d4ab",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "K2 Erex",
+        "letter": "K"
+      }
+    },
+    {
+      "path": "public/assets/teams/kinone/logo.svg",
+      "sha256": "bbd472f85f1bd17a368e2bb562ce650538ecc63e669069a3fad6145cb856f5c9",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#DB2777"
+        },
+        "name": "KinOne",
+        "letter": "K"
+      }
+    },
+    {
+      "path": "public/assets/teams/kono/logo.svg",
+      "sha256": "93546cbcb7863c471ec30d6f062722039d644fc902dca9e39dec463b77443c7e",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "kONO",
+        "letter": "K"
+      }
+    },
+    {
+      "path": "public/assets/teams/lazerro_cadz/logo.svg",
+      "sha256": "1054004beee4e4ae93f7e83f6fe446e38f779bf171dc86f55456e102bdb5d909",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "Lazerro Cadz",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/legor/logo.svg",
+      "sha256": "4d9fc91802468520d3527c863ae31266aedd0704d0057f8f013138f605c34044",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "LEGor",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/lest_byllet/logo.svg",
+      "sha256": "c5f71b2d58f3da84c572787b18cbd967714de4067ac71582b07ca222dc7351b1",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#F59E0B"
+        },
+        "name": "Lest Byllet",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/lia/logo.svg",
+      "sha256": "c8d6d8da75bc5e6a7e2c506e3729fab00b0e256d461a249d44fb0632e470d0db",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Lia",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/ligianal/logo.svg",
+      "sha256": "b9cce51d0f47fc31060f0d89f63c96a4107475615da903022bd2c00bd63e387a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0C4A6E"
+        },
+        "name": "Ligianal",
+        "letter": "LIGI",
+        "tag": "LIGI"
+      }
+    },
+    {
+      "path": "public/assets/teams/lilmix/logo.svg",
+      "sha256": "0db359228b25884a9276c6dc1df332ea18cb5607bd33d4ad6b9f67c342133a5b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#3B0764"
+        },
+        "name": "Lilmix",
+        "letter": "LILM",
+        "tag": "LILM"
+      }
+    },
+    {
+      "path": "public/assets/teams/lineage/logo.svg",
+      "sha256": "2a995398fd71a610d7c85de75c64dbe78730d1a1e00fba96e476cfc325fb6d3e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "lattice_emblem",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FCD34D"
+        },
+        "name": "Lineage",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/lox_xojutos/logo.svg",
+      "sha256": "aae4ff850428561aa823c4d47bafa460b0c561aa9db1cf02af10fa6e9f2ffdab",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "lox xojutos",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/lpex/logo.svg",
+      "sha256": "44717e0df446f5685b544796414e2ca3955cf7a9b9c13607263565d6c9b9da76",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "LPex",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/lynx_vision/logo.svg",
+      "sha256": "84cfb804c8fe62e3dc571531f37859df5eaa3385a9ce9768a1d32c25e43e1e41",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "Lynx Vision",
+        "letter": "L"
+      }
+    },
+    {
+      "path": "public/assets/teams/marnengstar/logo.svg",
+      "sha256": "68ff379b988afd5389e4a2e76777135bc62ed381bd2cc73a8a57c30eb5ae0d22",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#DC2626"
+        },
+        "name": "Marnengstar",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/masonicia/logo.svg",
+      "sha256": "f131da8a86dffe8079f977a82c1b7e76f03263e2c7c6d3f474136c9981084198",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#0E7490"
+        },
+        "name": "MASONICia",
+        "letter": "MASO",
+        "tag": "MASO"
+      }
+    },
+    {
+      "path": "public/assets/teams/mazroea/logo.svg",
+      "sha256": "e1f2ac3002d1ad8e37f6fc0599d6f2d1ab87d18658dbf3f43e0d967efa53373f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#DC2626"
+        },
+        "name": "MAZROEA",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/mb_esports/logo.svg",
+      "sha256": "3f5d1c23bfe22c82c01bc3bcaa41c761251949d6ba0c0a168c5dc5bf2fa10065",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "shield_brz",
+      "arguments": {
+        "c": {
+          "primaryColor": "#4ADE80",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "MB Esports",
+        "letter": "MB"
+      }
+    },
+    {
+      "path": "public/assets/teams/mekushort/logo.svg",
+      "sha256": "03973d7b23bf1c79c4866792bc1e7bce5edd45fb5bbbd129b25aeaccfc6af930",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#EF4444"
+        },
+        "name": "mekushort",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/menlete/logo.svg",
+      "sha256": "e0182ba28fba11e851f6513f06ef7bf05356693f2b381b0a88861b7d017a9d42",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "MENLETE",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/mesa/logo.svg",
+      "sha256": "8b488d32f430c316cc75f28b72c8217b1d87d6c957482aa309cc6cd5e4b9d156",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "Mesa",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/metezpurt/logo.svg",
+      "sha256": "aa90b7899b899990d84b2d44357ccefc468dcbd3dd0a4f833ffb141a52b519e8",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#365314"
+        },
+        "name": "Metezpurt",
+        "letter": "METE",
+        "tag": "METE"
+      }
+    },
+    {
+      "path": "public/assets/teams/mevrik/logo.svg",
+      "sha256": "28e7d814a5bbf9f38db195ea1ce8514e63648d8dd8c7820d91493e6a9c984b0a",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#EF4444"
+        },
+        "name": "Mevrik",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/mindfraak/logo.svg",
+      "sha256": "2346e5c86298cf9dc1ef5b781f06841955d706b1bc3fe61cad4567f2490bd6d9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#DC2626"
+        },
+        "name": "Mindfraak",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/minxk_hauze/logo.svg",
+      "sha256": "d63aa89146a1f80bb745a541b95f9d2f624532b1c6ca1bab58c638cdd6da162d",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#581C87"
+        },
+        "name": "Minxk Hauze",
+        "letter": "MINX",
+        "tag": "MINX"
+      }
+    },
+    {
+      "path": "public/assets/teams/mone/logo.svg",
+      "sha256": "fea717b3c3a61ec594df0fed38a894e001aff6b059c975eb5165fac56a8b8d2c",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#EF4444"
+        },
+        "name": "MONE",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/morsborni/logo.svg",
+      "sha256": "4da1582d75a438d44f841b320a96702dee3cd84e3b3760f3483bb83fa490d285",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#EF4444"
+        },
+        "name": "Morsborni",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/muxe_nxd/logo.svg",
+      "sha256": "2fb666dccc67dad8ac491e3433f824de3899bda89f97bc131828dedbff0b0081",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "MOUZ NXD",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/muxeen/logo.svg",
+      "sha256": "f386749899e78a13c7b38b8852ef530ea13e09fa4da2d4c0caff7a4d50772aec",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#E2061B",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Mouzen",
+        "letter": "MOUZ",
+        "tag": "MOUZ"
+      }
+    },
+    {
+      "path": "public/assets/teams/myertaex/logo.svg",
+      "sha256": "bb85f0ea69576e4f71eca3258913e1b85b27cc2b4e5085616e5b0a32a9b98a3f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "MYERTAex",
+        "letter": "M"
+      }
+    },
+    {
+      "path": "public/assets/teams/namega/logo.svg",
+      "sha256": "69f5805e827ea7fc74cd12cc146a06e1a9ff1961a7546bfb89ede8f95001529f",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Namega",
+        "letter": "N"
+      }
+    },
+    {
+      "path": "public/assets/teams/natus_vincera/logo.svg",
+      "sha256": "6b6b19c2356b4bd4a6580d9886ed845deadc6f52432ec710b9d7bb1f4c45a39a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "navee_star",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FFD700",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Natus Vincera",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/naxvaid/logo.svg",
+      "sha256": "9edf4663332fbdf9571c2fda61ac5015ff2bf449c42ddcdd4b635b1c9844c746",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#064E3B"
+        },
+        "name": "NAXVAID",
+        "letter": "NAXV",
+        "tag": "NAXV"
+      }
+    },
+    {
+      "path": "public/assets/teams/nexoz/logo.svg",
+      "sha256": "36b401e7bc24d03b03e383419285539df562e862914d5dc7bf23ef9fcdfd8f07",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#581C87"
+        },
+        "name": "Nexoz",
+        "letter": "NEXOZ",
+        "tag": "NEXOZ"
+      }
+    },
+    {
+      "path": "public/assets/teams/nimeses/logo.svg",
+      "sha256": "40f99379ef9b98b3257921e11bd4d364a314733994ad9e8ff54bb96670091799",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "Nimeses",
+        "letter": "NIME",
+        "tag": "NIME"
+      }
+    },
+    {
+      "path": "public/assets/teams/nocliar_tijeres/logo.svg",
+      "sha256": "9ee641c202efcec7093d8e9337117c7644d3783220f3c1cad629d29ed2b57c83",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "Nocliar TijeRES",
+        "letter": "N"
+      }
+    },
+    {
+      "path": "public/assets/teams/nova_invaders/logo.svg",
+      "sha256": "fc0def44c1b1381ea85a2557af49ba70a030c81e6ec749f71274cb9f7122c9c4",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "ninja_star",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Nova Invaders",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/nrg/logo.svg",
+      "sha256": "78ef59231c89a580a28f355ff0aa1b79da86e913cf70fc9cc01f54c19fb54d07",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#84CC16"
+        },
+        "name": "NRG",
+        "letter": "NRG"
+      }
+    },
+    {
+      "path": "public/assets/teams/nuveq/logo.svg",
+      "sha256": "d58f98e070943cd95bb5a33e138a7cc1f8584128ab01f48127ecc1c70614ec3a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EF4444",
+          "secondaryColor": "#7F1D1D",
+          "accentColor": "#7F1D1D"
+        },
+        "name": "NUVEQ",
+        "letter": "NUVEQ",
+        "tag": "NUVEQ"
+      }
+    },
+    {
+      "path": "public/assets/teams/oddyx/logo.svg",
+      "sha256": "971e8ba78979a14987c0478d09327d9dfefda6f035f5a1539831e20cb23a5fb3",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0C4A6E"
+        },
+        "name": "ODDYX",
+        "letter": "ODDYX",
+        "tag": "ODDYX"
+      }
+    },
+    {
+      "path": "public/assets/teams/olybet/logo.svg",
+      "sha256": "e639ed326d0f8cef8670625f8abec5bf6f710ace89eefc347e3494fa09dadd9e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "OlyBet",
+        "letter": "OLYB",
+        "tag": "OLYB"
+      }
+    },
+    {
+      "path": "public/assets/teams/omeja/logo.svg",
+      "sha256": "7cd4dff5f8ed4d1010150bc5b9e011c21a3ce04546ca8df18810f7c6d84ab5dd",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#3B0764"
+        },
+        "name": "Omeja",
+        "letter": "OMEJA",
+        "tag": "OMEJA"
+      }
+    },
+    {
+      "path": "public/assets/teams/overgrowth/logo.svg",
+      "sha256": "fcb5f77c7cb40288489e6d7cb4bf7df6fcb75a2b9a2547007e7616ea54085a5b",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#DC2626"
+        },
+        "name": "OverGrowth",
+        "letter": "O"
+      }
+    },
+    {
+      "path": "public/assets/teams/oxojy/logo.svg",
+      "sha256": "ca120818f9e67947b076bf8567201d5e6a716ce0a5f10f4a4557a13c3bb0b882",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "Oxojy",
+        "letter": "O"
+      }
+    },
+    {
+      "path": "public/assets/teams/pazsyon_oa/logo.svg",
+      "sha256": "c4bf64518fcc0e584ca45a188286d6f9975846e61db048c1929c028d8ab561f9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "crown_wordmark",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FCD34D",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1E3A8A"
+        },
+        "name": "Pazsyon OA",
+        "letter": "POA",
+        "tag": "POA"
+      }
+    },
+    {
+      "path": "public/assets/teams/perivesion/logo.svg",
+      "sha256": "456d4740e29cdd57b916277f1b75c1d6f1ed2106dc28299552deafa9382c2121",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "pain_monogram",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "PERIVESION",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/phanatic/logo.svg",
+      "sha256": "6eb0df27bac36acc56da454a8532c7818953d171b1958a205377489f719cad3c",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Phanatic",
+        "letter": "P"
+      }
+    },
+    {
+      "path": "public/assets/teams/phantom/logo.svg",
+      "sha256": "fdb97beb2334caf6132d9cea90e2dafa636367cf672e934576e550530e95081a",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "specter_chevron",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#1F0A2E",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "Specter",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/phantum/logo.svg",
+      "sha256": "adc59bd54812095fab2381f1af925794231b86530892ed288ae04d76de2d2e16",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#0E7490"
+        },
+        "name": "Phantum",
+        "letter": "PHAN",
+        "tag": "PHAN"
+      }
+    },
+    {
+      "path": "public/assets/teams/phaze/logo.svg",
+      "sha256": "b473bde062c29016b561704d3bc9741f953a023cedf17dd36b427d418e2f0a48",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "phaze_arrow",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Phaze",
+        "letter": "PHAZE"
+      }
+    },
+    {
+      "path": "public/assets/teams/players/logo.svg",
+      "sha256": "542bddef710f1bb8780544a998f139b8f36ed5e8efd43dd4f53b292766e83af2",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "Players",
+        "letter": "P"
+      }
+    },
+    {
+      "path": "public/assets/teams/prezdigeel/logo.svg",
+      "sha256": "d197a96b2c866fd47f8bee7188e9893d14d91c0d6c02110b407d8fbe8c8b0b67",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "Prezdigeel",
+        "letter": "P"
+      }
+    },
+    {
+      "path": "public/assets/teams/prime/logo.svg",
+      "sha256": "4ccf4000ab8fdf63b0cf14f47d364743dfdaa43a2fe1268b3f033ab7bd98b72e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "PRIME",
+        "letter": "P"
+      }
+    },
+    {
+      "path": "public/assets/teams/procyon/logo.svg",
+      "sha256": "31dfb12eef48259105d492aacdcc7f8fb1ada1969b978cb7727ddfbfd3bb1f6a",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "Procyon",
+        "letter": "P"
+      }
+    },
+    {
+      "path": "public/assets/teams/qhikken_caup/logo.svg",
+      "sha256": "46eb4fd912ea6cd64d2788a4125fd449ddb10f12ceffe2e12b3ba72bb3fdc58e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "Qhikken Caup",
+        "letter": "Q"
+      }
+    },
+    {
+      "path": "public/assets/teams/qwintry/logo.svg",
+      "sha256": "57eecc1c4db5fa6862c9c4ae38934948bf50907e37a0a5e168e8bbf051be719c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "QWINTRY",
+        "letter": "Q"
+      }
+    },
+    {
+      "path": "public/assets/teams/raoxter/logo.svg",
+      "sha256": "82669dfc6cd49745cb77fb6f9617582b7e1d65d297683fe76c856b5669456fb4",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "Raoxter",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/rare_element/logo.svg",
+      "sha256": "d6ee3f6faecc0a4d0c1846826a2417c8c21b5cee4b3a34e6e09bea460b4dde97",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "Rare Element",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/ravero/logo.svg",
+      "sha256": "4a9292497153f5b68c85dbd57c782623a704b1c71a2b2e216c4862980fb80811",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#365314"
+        },
+        "name": "Ravero",
+        "letter": "RAVE",
+        "tag": "RAVE"
+      }
+    },
+    {
+      "path": "public/assets/teams/rebels/logo.svg",
+      "sha256": "d561379b0f1a5af19fdd2dd27271b6790f4a5751db8e5551025170fd64126662",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Rebels",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/red_wolves/logo.svg",
+      "sha256": "49490bafb6cb974951f96b8680be42eb76714f25e1f118a9bd14c30f82b8add2",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#10B981",
+          "secondaryColor": "#064E3B",
+          "accentColor": "#10B981"
+        },
+        "name": "RED Wolves",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/riiknra_above/logo.svg",
+      "sha256": "d88dc64078b4c55409dda9024590b082b6342e23a6dcbc2d7b5d1c629320b0a9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "Riiknra Above",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/ruby/logo.svg",
+      "sha256": "c756abdd0c2dcb3fb78d90e25179337ca5425fb3a4d4fa1aaf0d66f5cfbda6eb",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#3B0764",
+          "accentColor": "#8B5CF6"
+        },
+        "name": "RUBY",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/ryxtecrix/logo.svg",
+      "sha256": "f0aad50f37544d2e3f1b69ac2a2fac175e0e946ece9f6af47bd57c1363cadec7",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "RYXTECrix",
+        "letter": "R"
+      }
+    },
+    {
+      "path": "public/assets/teams/sampervi/logo.svg",
+      "sha256": "44f7d60113f1f936304375e8bcc63cd9780e9c17aba7d074bcb81cdf94d81c74",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "SamperVi",
+        "letter": "S"
+      }
+    },
+    {
+      "path": "public/assets/teams/sdeteal/logo.svg",
+      "sha256": "0b0595c7a1e1824e1e2bc2e5c590237a0cfd66edfb17f6224bd699e3a708e165",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "SDETEal",
+        "letter": "SDET",
+        "tag": "SDET"
+      }
+    },
+    {
+      "path": "public/assets/teams/skynrava/logo.svg",
+      "sha256": "3096a8e2bdfa55764a13a5f708b01bcad272add4bc7ed6aad7c7cb19f4829f5d",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#365314"
+        },
+        "name": "SkynRava",
+        "letter": "SKYN",
+        "tag": "SKYN"
+      }
+    },
+    {
+      "path": "public/assets/teams/sow/logo.svg",
+      "sha256": "909508dd477182b5a313d45e6e667ae1e7b873c9e5af69297651a7e341a1ecac",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#500724"
+        },
+        "name": "SOW",
+        "letter": "SOW",
+        "tag": "SOW"
+      }
+    },
+    {
+      "path": "public/assets/teams/spirytor_acodemy/logo.svg",
+      "sha256": "2b156d8cf60bfe0953408c71a99c95d3ee16e168bfd2ee4c979b9f951e193e45",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#A855F7"
+        },
+        "name": "Spirytor Acodemy",
+        "letter": "S"
+      }
+    },
+    {
+      "path": "public/assets/teams/sporteyx/logo.svg",
+      "sha256": "5e847ff1751edc5f735a8b41112039e131feadb303c050c00b32c91a4d76dca5",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "SPORTEyx",
+        "letter": "S"
+      }
+    },
+    {
+      "path": "public/assets/teams/sting/logo.svg",
+      "sha256": "40dd794ec3d5621c3afd29a24344a8b1b1e1f4e74fb9a52be7caade34a753570",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "stinger_dart",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "Sting",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/taroo/logo.svg",
+      "sha256": "009d73a94dadc6f99d75afbc89c9b84e00d1e9a82791ffe6999e0ddb0149d807",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "TAROO",
+        "letter": "TAROO",
+        "tag": "TAROO"
+      }
+    },
+    {
+      "path": "public/assets/teams/tha_honz/logo.svg",
+      "sha256": "446cbafed725c538222eff749f6d857e5192b04dc8c7ddbda11de129b5f97891",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#7C2D12",
+          "accentColor": "#F97316"
+        },
+        "name": "Tha Honz",
+        "letter": "T"
+      }
+    },
+    {
+      "path": "public/assets/teams/the_nomads/logo.svg",
+      "sha256": "a900345402d42c3305e5e548fba843aa9391e1746b80790cfd09d20da695208c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "crown_crest",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "Nomads",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/thunderel_dawnynder/logo.svg",
+      "sha256": "020f743c64326a46fa52028240e85329da108f007b7ddbd463014853a49dabfc",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "THUNDERel dAWNYNDER",
+        "letter": "T"
+      }
+    },
+    {
+      "path": "public/assets/teams/tide/logo.svg",
+      "sha256": "4e3a4a45c36e27392fdea03c55f6a7bfb316bbcedf575ddaea5d63be13a92109",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "horse_silhouette",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#FFFFFF"
+        },
+        "name": "Tide",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/tryck_drivirx/logo.svg",
+      "sha256": "4dc9e827403ab8c2beda83c2763089b7f49c16c4c26eb4bd7f22ce8c71a0510e",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "Tryck Drivirx",
+        "letter": "T"
+      }
+    },
+    {
+      "path": "public/assets/teams/trycked/logo.svg",
+      "sha256": "1fd708d98dff73497080015d1064a758924784cc2afe9c09870c8f31a57edae4",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Trycked",
+        "letter": "TRYC",
+        "tag": "TRYC"
+      }
+    },
+    {
+      "path": "public/assets/teams/undergroond/logo.svg",
+      "sha256": "8b2ee8faedf939801a782fab1c84434747156cd80d79ec14559d09a69c024ef7",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Undergroond",
+        "letter": "U"
+      }
+    },
+    {
+      "path": "public/assets/teams/unidyor/logo.svg",
+      "sha256": "311057e909af1099d93c10e6d98d11a786ebca15edb386ae0b2c81bc369d32ac",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "UNiDYor",
+        "letter": "U"
+      }
+    },
+    {
+      "path": "public/assets/teams/urso/logo.svg",
+      "sha256": "5609db83262f0016282df2956cf4c39eb822b5883e35739534228d4ff6830549",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#164E63"
+        },
+        "name": "Urso",
+        "letter": "URSO",
+        "tag": "URSO"
+      }
+    },
+    {
+      "path": "public/assets/teams/valiant/logo.svg",
+      "sha256": "79cd2e338dcafbbdf6dc896b6385871d1350b50ce5076a6a71724ac5711c6593",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "crossed_swords",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DC2626",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#1F2937"
+        },
+        "name": "Valiant",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/vavbator/logo.svg",
+      "sha256": "8a391f544e2e24c5dea268270696c3b305c978c1a171aac98071caadb526f107",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#DB2777"
+        },
+        "name": "VAVBATor",
+        "letter": "V"
+      }
+    },
+    {
+      "path": "public/assets/teams/veke_do_beru/logo.svg",
+      "sha256": "a6c3b9a763dc826f35d10db189dfda605431fb9cf9c9aaee13efdd1e245658a1",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "Veke do Beru",
+        "letter": "V"
+      }
+    },
+    {
+      "path": "public/assets/teams/virtus_nova/logo.svg",
+      "sha256": "f7f12dd16943740de8d5cf229433451ecec6b68e31d691ae802d02a75324bc5b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "up_arrow",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F97316",
+          "secondaryColor": "#0B0B0B",
+          "accentColor": "#0B0B0B"
+        },
+        "name": "Virtus Nova",
+        "letter": ""
+      }
+    },
+    {
+      "path": "public/assets/teams/visher_callege/logo.svg",
+      "sha256": "413b3e86fec97f64bc0825c398641377725c9fc9fd4f73178b423865437d45a5",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#134E4A"
+        },
+        "name": "Visher Callege",
+        "letter": "VISH",
+        "tag": "VISH"
+      }
+    },
+    {
+      "path": "public/assets/teams/vitalis/logo.svg",
+      "sha256": "c5d73935a6ce83389c1e559345f56cbe9fda5b2960852d0ca79cde6c202b2aa1",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FFEE00",
+          "secondaryColor": "#1A1A1A",
+          "accentColor": "#FFEE00"
+        },
+        "name": "Vitals",
+        "letter": "V"
+      }
+    },
+    {
+      "path": "public/assets/teams/vriendly_campirs/logo.svg",
+      "sha256": "c347cc089cb18358c3e412ea503d99e67f98b212c9541fccda97f936004c23e8",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#365314"
+        },
+        "name": "Vriendly Campirs",
+        "letter": "VRIE",
+        "tag": "VRIE"
+      }
+    },
+    {
+      "path": "public/assets/teams/vuejo/logo.svg",
+      "sha256": "4b97ba89285415f02277fff3e7ba627654c6637d5add46c8e100f0761a13bffc",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "Vuejo",
+        "letter": "V"
+      }
+    },
+    {
+      "path": "public/assets/teams/vuqa/logo.svg",
+      "sha256": "963b5aa83008ba7681b188cd5334eca7fb8120913f02d69eccc0286097205d61",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Vuqa",
+        "letter": "V"
+      }
+    },
+    {
+      "path": "public/assets/teams/wetermelon/logo.svg",
+      "sha256": "a645e087bfa0b4337fdfc7fd266019895f65b72d2b191d8d7f0a6eb31b1f7c26",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "WETERMELON",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/wewillwen/logo.svg",
+      "sha256": "1c4a91b084de21db6f3fe3b1f3c8f41ab814bc643dbe95bf50b44979e407227b",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#84CC16",
+          "secondaryColor": "#365314",
+          "accentColor": "#84CC16"
+        },
+        "name": "WeWillWen",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/whitebird/logo.svg",
+      "sha256": "b938da2dc148af93cfc0c1a9b8caf020942cc0ba27115288a202c2b530632fab",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#A855F7",
+          "secondaryColor": "#581C87",
+          "accentColor": "#A855F7"
+        },
+        "name": "WHITEBIRD",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/wild_ace/logo.svg",
+      "sha256": "d20b94076199ea305ea53b20614c21663194eef74cde61cdd55e6e5ff1840446",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "wordmark_block",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#831843"
+        },
+        "name": "Wild Ace",
+        "letter": "WILD",
+        "tag": "WILD"
+      }
+    },
+    {
+      "path": "public/assets/teams/wildrix/logo.svg",
+      "sha256": "78f25c9d6ad2357bd3ddd2e624b5d05b8c7f6f71d82d6efe53f8e80426d49036",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "WiLDrix",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/wopa/logo.svg",
+      "sha256": "8aca4c8e9f4f2558400c70ca873450b3baf44050d9e026a68b8981adf7dc0bbe",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#22D3EE",
+          "secondaryColor": "#0E7490",
+          "accentColor": "#22D3EE"
+        },
+        "name": "WOPA",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/ww/logo.svg",
+      "sha256": "a17123c3add7e96194b7fbeb754d7656f1f8a7e4c46ccfc93065f2a38a0c351c",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#F59E0B",
+          "secondaryColor": "#78350F",
+          "accentColor": "#F59E0B"
+        },
+        "name": "WW",
+        "letter": "W"
+      }
+    },
+    {
+      "path": "public/assets/teams/x27/logo.svg",
+      "sha256": "009cada84cdcaf133c599cea7ffe91b5c6d3404e07bde0fed19e52e4a6e99e9c",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#EC4899",
+          "secondaryColor": "#831843",
+          "accentColor": "#EC4899"
+        },
+        "name": "X27",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xashy/logo.svg",
+      "sha256": "e33add09c0d6e9c82ae92db207bb1db2193605304c50bdc315ba250243587eb7",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#06B6D4",
+          "secondaryColor": "#164E63",
+          "accentColor": "#06B6D4"
+        },
+        "name": "Xashy",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xengal/logo.svg",
+      "sha256": "2be8399edf4c6271143f9f74e8c4321ac0969c59cd41ffbe1f52eaddf2477729",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#0EA5E9",
+          "secondaryColor": "#0C4A6E",
+          "accentColor": "#0EA5E9"
+        },
+        "name": "Xengal",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xennersia/logo.svg",
+      "sha256": "012c67ffce0b448fd848b453fee625b3ee69b5fbdd6f60fb2f75f4318fb923c9",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "XENNERSia",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xenquro/logo.svg",
+      "sha256": "28fd3345551d75aebd8b4d0bf9cf33ea70e2dc703161588f505993fd8d7454cc",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "XENQUro",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xeyd_stars/logo.svg",
+      "sha256": "532ec126ae034c063dc1991c23dd890252d6a2d610f10176e856fca1deb146bc",
+      "generator": "scripts/branding/generate_top30_logos.py",
+      "function": "octagon_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#DB2777",
+          "secondaryColor": "#500724",
+          "accentColor": "#DB2777"
+        },
+        "name": "Xeyd Stars",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/xpurtsbetexpert/logo.svg",
+      "sha256": "14d46ec878168ace5d4dd0b04839e672798dc654ae0b9c19501413bc224222a4",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#14B8A6",
+          "secondaryColor": "#134E4A",
+          "accentColor": "#14B8A6"
+        },
+        "name": "XpurtsBetExpert",
+        "letter": "X"
+      }
+    },
+    {
+      "path": "public/assets/teams/yowera/logo.svg",
+      "sha256": "88e094b67b7ca0eeaaf585b91cc0ea835a1514a49b1fe407f1b1739f804ffb94",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "disc_mono",
+      "arguments": {
+        "c": {
+          "primaryColor": "#3B82F6",
+          "secondaryColor": "#1E3A8A",
+          "accentColor": "#3B82F6"
+        },
+        "name": "Yowera",
+        "letter": "Y"
+      }
+    },
+    {
+      "path": "public/assets/teams/zomblirs/logo.svg",
+      "sha256": "c182a001a0526db78433e19c057655a25ac69a1a47f1a0810c638306d495ca73",
+      "generator": "scripts/branding/extend_branding_all.py",
+      "function": "hex_shield",
+      "arguments": {
+        "c": {
+          "primaryColor": "#FACC15",
+          "secondaryColor": "#1F2937",
+          "accentColor": "#FACC15"
+        },
+        "name": "Zomblirs",
+        "letter": "Z"
+      }
+    }
+  ],
+  "unmatched": [
+    {
+      "path": "public/assets/teams/9buomprara/logo.svg",
+      "sha256": "80447d19c73a888c5f7a8dda432a446759a1a159e0bb8dd042a04f4746f99ae1"
+    },
+    {
+      "path": "public/assets/teams/autfyt_49/logo.svg",
+      "sha256": "9a36aa74b2c5963e041b3f187a7e018071578e84d43883eccb7a33c46acca176"
+    },
+    {
+      "path": "public/assets/teams/bebop/logo.svg",
+      "sha256": "5c25a170b95bdfeb000a6e67f9b738111237cf432dfbb5c97aeb9f7b194a4fe4"
+    },
+    {
+      "path": "public/assets/teams/bruti/logo.svg",
+      "sha256": "252b82dfc27a1c83a01dea6f9d416336904503e9a01847b3c38488b0d522b142"
+    },
+    {
+      "path": "public/assets/teams/dipa/logo.svg",
+      "sha256": "2c5c60e0dca4c1fe1c61a483ffc9ee8dca16cac3bf6339caabca4df9443a7d40"
+    },
+    {
+      "path": "public/assets/teams/fira_phlox/logo.svg",
+      "sha256": "db76f58fca915165874c0f8bb3e136c7d4e4808dd07239c5c3cdf7ce74ec5c2a"
+    },
+    {
+      "path": "public/assets/teams/furziyx_ralaad/logo.svg",
+      "sha256": "5296bb651aaff1160ec84705764705400a6b28e34a026504f52e3e73dd488a16"
+    },
+    {
+      "path": "public/assets/teams/majyc/logo.svg",
+      "sha256": "47b56740080dc16e41599ed5b7de3a337bd8bb6c5d2f8b8f7900b396c827e1a3"
+    },
+    {
+      "path": "public/assets/teams/prison_breaxerx/logo.svg",
+      "sha256": "d32bdf766f2dd3137dcff68dcb39232e4a81a067f3160b630f3502b30cfce263"
+    },
+    {
+      "path": "public/assets/teams/rethync/logo.svg",
+      "sha256": "1b4fbb22b9587d1df34c7a862fbc0bc3da9e93499b7b6a839f2534634d96b19d"
+    },
+    {
+      "path": "public/assets/teams/rigaenro/logo.svg",
+      "sha256": "266480a32b8d590f76720a2eb509990f0ed76ed3ca8a508e3170daa65b540571"
+    },
+    {
+      "path": "public/assets/teams/shindan/logo.svg",
+      "sha256": "20abb4a0cb018c564148d950ce2215f29a2f2745127bdb862f8aedd53cc49b1d"
+    },
+    {
+      "path": "public/assets/teams/vanamor/logo.svg",
+      "sha256": "023aca657e8a71e5c3a326a2e93e038e1748e3fcc68768e761f0efcd6fd90951"
+    },
+    {
+      "path": "public/assets/teams/vesqo/logo.svg",
+      "sha256": "bdf0d138239377bd9978a559a9c556612fd94bcbc7716daccfeb091713668683"
+    },
+    {
+      "path": "public/assets/teams/vp_pradygy/logo.svg",
+      "sha256": "a3dfb4ce62975fb67b7b639fb512aa30c8739e252e730ada7f2cadd0b375b715"
+    },
+    {
+      "path": "public/assets/teams/weshengton/logo.svg",
+      "sha256": "91769e2b7ffd6d4b9afc1cd17d86760507bba382ba36e79cf10e66b1902b6199"
+    },
+    {
+      "path": "public/assets/teams/wildqard_ecodemy/logo.svg",
+      "sha256": "73225335950909b4c6990ad6fd665f0a6e02e7c5315cd39f5b21af7980afe76f"
+    },
+    {
+      "path": "public/assets/teams/xalesieium/logo.svg",
+      "sha256": "132c115f24569335647d031ca743fedd0290cf04a46d25fed22529a3fabe3f4b"
+    },
+    {
+      "path": "public/assets/teams/yoong_nynjos/logo.svg",
+      "sha256": "e4a9b8ad981bd31fff82f5645bcbbbc9f4bef5495f43a63e16e5e3ebff3ccc86"
+    }
+  ]
+}

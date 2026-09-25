@@ -87,8 +87,8 @@ export function getTierTargets(tier: BoardExpectationTier): TierTargets {
 
 /** Judge a finished season against its expectation tier. Forgiving bands: a
  *  near-miss is MISSED (recoverable), only a heavy underperformance is FAILED. */
-export function evaluateOutcome(tier: BoardExpectationTier, endRank: number, trophies: number): BoardOutcome {
-    const t = TIER_TARGETS[tier]
+export function evaluateOutcome(tier: BoardExpectationTier, endRank: number, trophies: number, rankTarget?: number): BoardOutcome {
+    const t = { ...TIER_TARGETS[tier], rankTarget: rankTarget ?? TIER_TARGETS[tier].rankTarget }
     const rank = endRank > 0 ? endRank : 30
     if (trophies > t.trophyTarget || rank <= t.rankTarget - 3) return "EXCEEDED"
     if (rank <= t.rankTarget && trophies >= t.trophyTarget) return "MET"
@@ -123,7 +123,7 @@ export function getBoardSanctionedFee(
 
 /** Trophies the player's club lifted within a given season window. */
 export function trophiesInSeason(save: GameSave, seasonNumber: number): number {
-    const start = (seasonNumber - 1) * 52 + 1
+    const start = Math.max((seasonNumber - 1) * 52 + 1, save.managerDetails?.tenureStartWeek ?? 1)
     const end = seasonNumber * 52
     const team = save.teams.find(t => t.id === save.playerTeamId)
     if (!team?.trophies) return 0
@@ -147,6 +147,7 @@ export function ensureBoardState(save: GameSave): BoardState {
             expectationSetSeason: currentSeason,
             lastReviewedSeason: currentSeason - 1,
             onNotice: false,
+            rankTarget: Math.max(TIER_TARGETS[deriveExpectationTier(ranking, reputation)].rankTarget, ranking > 30 ? Math.ceil(ranking * 0.9) : 0),
         }
         save.boardState = fresh
         return fresh
@@ -188,9 +189,9 @@ export function processMidSeasonBoardPulse(save: GameSave): BoardPulseResult {
     if (!team) return { pulsed: false }
 
     // Recent form: last PULSE_WINDOW player matches this season.
-    const seasonStart = Math.floor((save.currentWeek - 1) / 52) * 52 + 1
+    const seasonStart = Math.max(Math.floor((save.currentWeek - 1) / 52) * 52 + 1, save.managerDetails?.tenureStartWeek ?? 1)
     const recent = save.completedMatches
-        .filter(m => (m.homeTeamId === team.id || m.awayTeamId === team.id) && m.week >= seasonStart)
+        .filter(m => (m.homeTeamId === team.id || m.awayTeamId === team.id) && m.week >= seasonStart && m.week <= save.currentWeek)
         .sort((a, b) => b.week - a.week)
         .slice(0, PULSE_WINDOW)
     // Too few games to judge — boards don't react to nothing.
@@ -244,7 +245,13 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     const endRank = team?.worldRanking ?? 30
     const trophies = trophiesInSeason(save, seasonNumber)
     const tier = board.seasonExpectation
-    const outcome = evaluateOutcome(tier, endRank, trophies)
+    if (save.managerDetails?.tenureStartWeek && save.currentWeek - save.managerDetails.tenureStartWeek + 1 < 13) {
+        board.lastReviewedSeason = seasonNumber
+        board.expectationSetSeason = seasonNumber + 1
+        return { reviewed: true, tier, confidence: board.confidence, confidenceDelta: 0, newsTitle: `Board gives ${team?.name ?? 'the club'} time`, newsContent: 'You have managed fewer than 13 weeks. The board will judge a full campaign next season; no reward or penalty applies.' }
+    }
+    const reviewedTarget = board.rankTarget ?? TIER_TARGETS[tier].rankTarget
+    const outcome = evaluateOutcome(tier, endRank, trophies, reviewedTarget)
 
     const wasOnNotice = board.onNotice
     const delta = CONFIDENCE_DELTA[outcome]
@@ -258,9 +265,9 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     // Capped, upside-only board backing for over-delivering.
     let rewardBudget = 0
     if (team) {
-        if (outcome === "EXCEEDED") rewardBudget = Math.min(500_000, Math.round((team.budget || 0) * 0.06))
-        else if (outcome === "MET") rewardBudget = Math.min(250_000, Math.round((team.budget || 0) * 0.03))
-        if (rewardBudget > 0) {
+        if (outcome === "EXCEEDED") rewardBudget = Math.min(500_000, Math.max(0, Math.round((team.budget || 0) * 0.06)))
+        else if (outcome === "MET") rewardBudget = Math.min(250_000, Math.max(0, Math.round((team.budget || 0) * 0.03)))
+        if (rewardBudget > 0 && !save.financeLedger.some(e => e.id === `board_backing_s${seasonNumber}_${team.id}`)) {
             team.budget = (team.budget || 0) + rewardBudget
             save.financeLedger.push({
                 id: `board_backing_s${seasonNumber}_${team.id}`,
@@ -286,6 +293,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
         // Set next season's expectation from current stature.
         board.seasonExpectation = deriveExpectationTier(endRank, team?.reputation ?? 50)
         board.expectationSetSeason = seasonNumber + 1
+        board.rankTarget = Math.max(TIER_TARGETS[board.seasonExpectation].rankTarget, endRank > 30 ? Math.ceil(endRank * 0.9) : 0)
     }
     board.lastReviewedSeason = seasonNumber
 
@@ -301,7 +309,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
         endRank, trophies,
         rewardBudget,
         newsTitle: title,
-        newsContent: content,
+        newsContent: `${content} Target: top ${reviewedTarget}; finish: #${endRank}, ${trophies} trophies.`,
     }
 }
 

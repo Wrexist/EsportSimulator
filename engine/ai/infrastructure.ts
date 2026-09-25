@@ -19,6 +19,7 @@ import type { GameSave, TeamSaveData, FacilitySaveData } from "../save-types"
 import type { SeededRNG } from "../rng"
 import { StaffGenerator } from "../staff-generator"
 import { SponsorGenerator } from "../economy-manager"
+import { affordableInvestment } from "../recruitment"
 import { aiRoll, hashTeamId } from "./rng-helpers"
 
 /**
@@ -56,7 +57,7 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
 
     // Sign-on fee = 2 weeks' salary (matches the player-team default).
     const signOnFee = newStaff.salaryPerWeek * 2
-    if (team.budget < signOnFee) return
+    if (!affordableInvestment(save, team, signOnFee, newStaff.salaryPerWeek)) return
 
     team.budget -= signOnFee
     save.staff.push(newStaff)
@@ -81,10 +82,6 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
  */
 export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
     if (aiRoll(rng) > 0.05) return
-    if (team.financialState === "CRISIS"
-        || team.financialState === "INSOLVENT"
-        || team.financialState === "RISK") return
-
     const MAX_AI_SPONSORS = 2
     if (!team.sponsors) team.sponsors = []
     if (team.sponsors.length >= MAX_AI_SPONSORS) return
@@ -149,7 +146,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
 
     // Pass 1: build any missing facility type.
     const missingType = FACILITY_TYPES.find(t => !team.facilities!.some(f => f.type === t))
-    if (missingType && team.budget >= BUILD_COST) {
+    if (missingType && affordableInvestment(save, { ...team, facilities: [...team.facilities, { id: "projected", type: missingType, level: 1, monthlyCost: 2000, description: "" }] }, BUILD_COST)) {
         team.budget -= BUILD_COST
         team.facilities.push({
             id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
@@ -182,7 +179,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
     if (!target) return
 
     const upgradeCost = target.level * UPGRADE_BASE_COST
-    if (team.budget < upgradeCost) return
+    if (!affordableInvestment(save, { ...team, facilities: team.facilities.map(f => f === target ? { ...f, level: f.level + 1 } : f) }, upgradeCost)) return
 
     team.budget -= upgradeCost
     target.level += 1
@@ -220,7 +217,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
     // Build level 1 if no academy.
     if (!team.academyFacility || team.academyFacility.level === 0) {
         const cost = ACADEMY_LEVEL_BUILD_COSTS[1]
-        if (team.budget < cost) return
+        if (!affordableInvestment(save, { ...team, academyFacility: { level: 1, builtWeek: save.currentWeek } }, cost)) return
         team.budget -= cost
         team.academyFacility = { level: 1, builtWeek: save.currentWeek }
         save.financeLedger.push({
@@ -242,7 +239,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
 
     const nextLevel = currentLevel + 1
     const cost = ACADEMY_LEVEL_BUILD_COSTS[nextLevel]
-    if (team.budget < cost) return
+    if (!affordableInvestment(save, { ...team, academyFacility: { ...team.academyFacility, level: nextLevel } }, cost)) return
 
     team.budget -= cost
     team.academyFacility.level = nextLevel

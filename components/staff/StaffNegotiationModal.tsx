@@ -1,5 +1,7 @@
 "use client"
 
+import { useFocusTrap } from "@/lib/accessibility"
+
 import React, { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
@@ -88,6 +90,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, staffId, isRenewal])
 
+    const dialogRef = useFocusTrap(isOpen && !!staffMember, onClose)
     if (!isOpen || !staffMember) return null
 
     // Determine Rarity Colors
@@ -133,7 +136,11 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
         if (sanitizedSalaryOffer >= minAcceptable * 0.97) {
             // Execute Transaction
             if (isRenewal) {
-                renewStaffContract(staffId, sanitizedSalaryOffer, sanitizedDuration)
+                const result = renewStaffContract(staffId, sanitizedSalaryOffer, sanitizedDuration)
+                if (!result.success) {
+                    setNegotiationLog(prev => [...prev, result.message])
+                    return
+                }
                 setNegotiationLog(prev => [...prev, `${staffMember.name} accepted the offer!`])
                 setStage("SUCCESS")
             } else {
@@ -164,13 +171,13 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    role="dialog"
+                    ref={dialogRef} tabIndex={-1} role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-staff-negotiation"
-                    className="glass-panel w-full max-w-4xl h-[600px] flex overflow-hidden shadow-2xl border-white/10"
+                    className="glass-panel w-full max-w-4xl h-[min(600px,calc(100dvh-2rem))] flex overflow-hidden shadow-2xl border-white/10"
                 >
                     {/* Left Panel: Staff Info */}
-                    <div className="w-1/3 border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
+                    <div className="w-1/3 min-w-0 overflow-y-auto overscroll-contain border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
                         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
@@ -212,7 +219,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     </div>
 
                     {/* Right Panel: Negotiation Interface */}
-                    <div className="flex-1 flex flex-col bg-[#0e1217]">
+                    <div className="flex-1 min-w-0 min-h-0 flex flex-col bg-[#0e1217]">
                         {/* Header */}
                         <div className="p-6 border-b border-white/5 flex justify-between items-center">
                             <div>
@@ -230,7 +237,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                         </div>
 
                         {/* Content Area */}
-                        <div className="flex-1 p-8 flex flex-col justify-center relative">
+                        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 flex flex-col relative">
                             {/* Background Texture - Removed missing grid.svg */}
                             <div className="absolute inset-0 bg-white/5 opacity-[0.02]" />
 
@@ -244,7 +251,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                                 <DollarSign className="text-emerald-400" />
                                                 <input
                                                     type="number"
-                                                    value={salaryOffer}
+                                                    aria-label="Weekly salary offer" value={salaryOffer}
                                                     onChange={(e) => {
                                                         const val = Number(e.target.value)
                                                         if (!Number.isFinite(val)) {
@@ -268,7 +275,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                             <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4 block">Contract Duration</label>
                                             <div className="flex items-center gap-4">
                                                 <Slider
-                                                    value={[durationOffer]}
+                                                    aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
                                                     onValueChange={(v) => setDurationOffer(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(v[0] || 52))))}
                                                     min={MIN_CONTRACT_WEEKS}
                                                     max={MAX_CONTRACT_WEEKS}

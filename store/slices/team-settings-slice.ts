@@ -88,11 +88,11 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
     swapRosterPositions: (teamId, index1, index2) => {
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) return
+            if (!team || teamId !== state.playerTeamId || state.activeMatchId) return
             const len = team.rosterIds.length
             // Bounds check both indexes — UI can pass stale values during
             // a re-render race.
-            if (index1 < 0 || index1 >= len || index2 < 0 || index2 >= len) return
+            if (!Number.isInteger(index1) || !Number.isInteger(index2) || index1 < 0 || index1 >= len || index2 < 0 || index2 >= len) return
             const temp = team.rosterIds[index1]
             team.rosterIds[index1] = team.rosterIds[index2]
             team.rosterIds[index2] = temp

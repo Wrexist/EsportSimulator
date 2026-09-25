@@ -1,0 +1,311 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Vertigo",
+  "fixtureSha256": "45c845d722b0dc6616416665e63df0a51c62dae02a8ef2bb72c99f2d69a01ce8",
+  "simulatorSourceSha256": "405d200104882a5d3062758a17f837840f34d8227256de984a9329d198e3ee19",
+  "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 31.234375,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 23503,
+      "metrics": {
+        "shots": 25,
+        "damage": 587,
+        "reports": 32,
+        "waits": 827,
+        "replans": 32,
+        "minSeparation": 32.0259122218538
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 1,
+      "yields": 8,
+      "routeFailures": [
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 640,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 688,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1136,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1152,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 1248,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "a9b7abfdabb7f16d6418f8828d7b1aac718b8f19879fad3b803cb66a6876a549"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 43.125,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 31963,
+      "metrics": {
+        "shots": 64,
+        "damage": 644,
+        "reports": 42,
+        "waits": 1639,
+        "replans": 49,
+        "minSeparation": 32.0259122218538
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 640,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 688,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1136,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1152,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 1296,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "0c1c485d718327fdb863c1fe9b71b9a77366596ec9fdf2afec44630dc567d22b"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 56803,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 2484,
+        "waits": 2344,
+        "replans": 74,
+        "minSeparation": 32.0259122218538
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 15,
+      "routeFailures": [
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 640,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 688,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1136,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1152,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 1248,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 2688,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2688,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 2976,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2976,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 3120,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 3200,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 3200,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 3440,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 3472,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 3504,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T1",
+          "point": [
+            -2203.0936487521362,
+            588.7171731897616,
+            11759.28020499931
+          ],
+          "goal": [
+            -2278.134717991878,
+            782.634712991878,
+            11748
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T2",
+          "point": [
+            -2168.3421273584845,
+            588.25006,
+            11770.083774868439
+          ],
+          "goal": [
+            -2187.62505,
+            692.1250449999999,
+            11748
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "2589709d00634897df0b33270c9e367bfa0d005ad2595a94cb3b5f47c587214e"
+    }
+  ]
+}

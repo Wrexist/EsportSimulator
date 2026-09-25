@@ -61,6 +61,10 @@ function makeEvent(id: string, overrides: Partial<GameEventSaveData> = {}): Game
 
 function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState> {
     return {
+        managerDetails: { name: 'QA', level: 1, xp: 0, reputation: 50, careerWins: 0, careerLosses: 0, championships: 0 },
+        completedMatches: [],
+        financeLedger: [],
+
         teams: [makeTeam("player")],
         players: [],
         eventsLog: [],

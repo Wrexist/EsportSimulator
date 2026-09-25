@@ -1,0 +1,1172 @@
+{
+  "version": 1,
+  "saveVersion": 7,
+  "durable": [
+    {
+      "field": "customTactics",
+      "type": "import(\"@/types\").CustomTactics",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "watchlistedPlayerIds",
+      "type": "string[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "activeMatchId",
+      "type": "string | null",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "activeMatchState",
+      "type": "import(\"@/types\").ActiveMatchState | null",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "saveVersion",
+      "type": "number",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "saveId",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "saveName",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "createdAt",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "updatedAt",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "integrityHash",
+      "type": "string",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "Computed by SaveIntegrityManager before commit",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "currentWeek",
+      "type": "number",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "currentDay",
+      "type": "number",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "timeMode",
+      "type": "\"WEEKLY\" | \"HYBRID_DAILY\"",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "gameStartDate",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "gameOverReason",
+      "type": "string",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "gameOverWeek",
+      "type": "number",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "lastPlayedAt",
+      "type": "string",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "playerTeamId",
+      "type": "string",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "managerDetails",
+      "type": "ManagerDetails",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "difficulty",
+      "type": "\"easy\" | \"normal\" | \"hard\" | \"legendary\"",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "teams",
+      "type": "TeamSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "players",
+      "type": "PlayerSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "contracts",
+      "type": "ContractSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "tournaments",
+      "type": "TournamentSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "staff",
+      "type": "StaffSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "scheduledMatches",
+      "type": "MatchSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "completedMatches",
+      "type": "CompletedMatchSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "scheduledActivities",
+      "type": "ActivitySaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "marketStaff",
+      "type": "StaffSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "nextMarketRefreshWeek",
+      "type": "number",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "financeLedger",
+      "type": "FinanceLedgerEntry[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "sponsorOffers",
+      "type": "SponsorSaveData[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "declinedSponsorOfferIds",
+      "type": "string[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "hallOfFame",
+      "type": "HallOfFameEntry[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "eventsLog",
+      "type": "GameEventSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "newsFeed",
+      "type": "NewsFeedItem[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "acknowledgedEventIds",
+      "type": "string[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "lastRngSeed",
+      "type": "number",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "lastCommittedWeekTick",
+      "type": "number",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "legendaryPlayers",
+      "type": "PlayerSaveData[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "weekTickState",
+      "type": "WeekTickState | null",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "Separate transaction key; canonical application snapshot null; lastCommittedWeekTick makes final commit replay safe",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "scoutedPlayers",
+      "type": "ScoutedPlayerEntry[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "activeScoutingMission",
+      "type": "ScoutingMissionData",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "circuitPoints",
+      "type": "CircuitPointsEntry[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "tournamentQualifications",
+      "type": "QualificationStatus[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "transferHistory",
+      "type": "TransferRecord[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "pendingCelebration",
+      "type": "CelebrationData | null",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "pendingSeasonRecap",
+      "type": "number | null",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "pendingLegendPick",
+      "type": "LegendPickData | null",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "signedLegendIds",
+      "type": "string[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "activelyPlayingLegendIds",
+      "type": "string[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyPlayers",
+      "type": "AcademyPlayer[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyMatchHistory",
+      "type": "AcademyMatchResult[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyRoster",
+      "type": "Record<string, string | null>",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyTrainingSchedule",
+      "type": "Record<number, string | null>",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyWeeklyReports",
+      "type": "AcademyWeeklyReport[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyScoutingMissions",
+      "type": "AcademyScoutingMission[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "academyPendingProspects",
+      "type": "string[]",
+      "optional": false,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "fplData",
+      "type": "FPLSaveData",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "careerStats",
+      "type": "CareerStats",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "boardState",
+      "type": "BoardState",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    },
+    {
+      "field": "socialFeed",
+      "type": "SocialPost[]",
+      "optional": true,
+      "classification": "career durable",
+      "serialization": "canonical snapshot",
+      "migration": "runMigrationLadder 0–7; optional defaults at career load",
+      "paths": [
+        "manual",
+        "autosave",
+        "final week",
+        "export/import",
+        "backup",
+        "Cloud"
+      ]
+    }
+  ],
+  "otherState": [
+    {
+      "field": "isLoading",
+      "type": "boolean",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "error",
+      "type": "string | null",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "lastLoadError",
+      "type": "{ saveId: string; errorCode: SaveErrorCode; message: string } | null",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "isInitialized",
+      "type": "boolean",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_hasHydrated",
+      "type": "boolean",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "theme",
+      "type": "\"crystal\" | \"onyx\"",
+      "optional": false,
+      "classification": "device preference"
+    },
+    {
+      "field": "availableEquipment",
+      "type": "EquipmentItem[]",
+      "optional": false,
+      "classification": "derived equipment catalog"
+    },
+    {
+      "field": "onboardingCompleted",
+      "type": "boolean",
+      "optional": false,
+      "classification": "bootstrap/device tutorial preference; not career snapshot"
+    },
+    {
+      "field": "tutorialCompleted",
+      "type": "boolean",
+      "optional": false,
+      "classification": "bootstrap/device tutorial preference; not career snapshot"
+    },
+    {
+      "field": "showTutorialOnNewGame",
+      "type": "boolean",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "manualTutorialTrigger",
+      "type": "number",
+      "optional": false,
+      "classification": "transient replay trigger (legacy bootstrap persists it)"
+    },
+    {
+      "field": "soundEnabled",
+      "type": "boolean",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "selectedRegions",
+      "type": "string[]",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "weekReveal",
+      "type": "import(\"@/store/types\").WeekRevealData | null",
+      "optional": false,
+      "classification": "transient week summary; underlying career facts durable"
+    },
+    {
+      "field": "toasts",
+      "type": "{ id: string; message: string; type: \"level_up\" | \"xp_gain\" | \"achievement\" | \"info\" | \"warning\" | \"error\"; duration?: number }[]",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "selectedWeeklyActivity",
+      "type": "import(\"@/types\").WeeklyActivityType | null",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_teamIndex",
+      "type": "Map<string, TeamSaveData>",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_playerIndex",
+      "type": "Map<string, PlayerSaveData>",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_contractByPlayerIndex",
+      "type": "Map<string, ContractSaveData>",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_staffIndex",
+      "type": "Map<string, StaffSaveData>",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "_completedMatchIds",
+      "type": "Set<string>",
+      "optional": false,
+      "classification": "transient/derived"
+    },
+    {
+      "field": "resolution",
+      "type": "string",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "masterVolume",
+      "type": "number",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "musicVolume",
+      "type": "number",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "gameSpeed",
+      "type": "\"normal\" | \"fast\" | \"very-fast\"",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "autoSave",
+      "type": "boolean",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "notifications",
+      "type": "boolean",
+      "optional": false,
+      "classification": "device preference; canonical lib/settings-store.ts"
+    },
+    {
+      "field": "showBugReportButton",
+      "type": "boolean",
+      "optional": false,
+      "classification": "transient/derived"
+    }
+  ],
+  "limits": [
+    "Top-level inventory; nested entities are serialized through their parent. Per-field semantic and live match UI acceptance still required.",
+    "Map Studio projects, spatial lab drafts and cross-career manager profile have separate storage formats."
+  ]
+}

@@ -33,6 +33,8 @@ import type { SponsorSaveData, FacilitySaveData } from "@/engine/save-types"
 import { EquipmentManager } from "@/engine/equipment-manager"
 import { nextDeterministicId, nextRandomInt, parseBoundedInt, MAX_CONTRACT_LENGTH_WEEKS } from "@/store/utils/helpers"
 
+import { FACILITY_TYPES } from "@/engine/organization-effects"
+
 const MAX_FACILITY_LEVEL = 5
 const FACILITY_BUILD_COST = 10_000
 const FACILITY_UPGRADE_BASE_COST = 25_000
@@ -78,7 +80,7 @@ function getFacilityDescription(type: string, level: number): string {
             if (level === 2) return "Chill zone with gaming chairs and lounges."
             if (level === 3) return "Health suite with physical therapy equipment."
             if (level === 4) return "Performance kitchen and dedicated sleep pods."
-            if (level === 5) return "Empire Wellness Retreat: Infinite stamina."
+            if (level === 5) return "Empire Wellness Retreat: Specialist recovery support."
             return "Inactive"
         case "FANZONE":
             if (level === 1) return "Small local fan club booth."
@@ -92,7 +94,7 @@ function getFacilityDescription(type: string, level: number): string {
             if (level === 2) return "VOD review station with basic software."
             if (level === 3) return "War room with multi-screen data analysis."
             if (level === 4) return "AI-assisted strategic simulator."
-            if (level === 5) return "Empire Command Hub: Tactical perfection."
+            if (level === 5) return "Empire Command Hub: Advanced tactical training."
             return "Inactive"
         default:
             return "Professional facility"
@@ -116,17 +118,20 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             // so mutations through _teamIndex.get() silently fail to
             // reach state.teams[i] — see store-mutation-propagation test.
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) {
+            if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, message: "Team not found." }
                 return
             }
 
+            if (!FACILITY_TYPES.some(type => type === facilityType) || !Number.isFinite(team.budget)) {
+                result = { success: false, message: "Invalid facility or club budget." }; return
+            }
             if (!team.facilities) team.facilities = []
             const facility = team.facilities.find(f => f.type === facilityType)
 
             if (facility) {
                 // Upgrade path: cost scales linearly with current level.
-                if (facility.level >= MAX_FACILITY_LEVEL) {
+                if (!Number.isInteger(facility.level) || facility.level < 1 || facility.level >= MAX_FACILITY_LEVEL) {
                     result = { success: false, message: `${facilityType} facility is already at max level.` }
                     return
                 }
@@ -222,11 +227,20 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         let result = { success: false, message: "Sponsor signing failed." }
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) {
+            if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, message: "Team not found." }
                 return
             }
 
+            const offer = (state.sponsorOffers || []).find(o =>
+                sponsor.id ? o.id === sponsor.id : (o.name === sponsor.name && o.tier === sponsor.tier)
+            )
+            if (!offer) {
+                result = { success: false, message: "That sponsor offer is no longer available." }
+                return
+            }
+            sponsor = offer
+            if (!["STANDARD", "BASIC", "PREMIUM", "ELITE"].includes(sponsor.tier)) { result = { success: false, message: "Invalid sponsor tier." }; return }
             if (!team.sponsors) team.sponsors = []
 
             // Slot cap.
@@ -235,7 +249,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 return
             }
             // One per tier; one per name (covers re-clicking the same offer).
-            if (team.sponsors.some(s => s.tier === sponsor.tier)) {
+            if (team.sponsors.some(s => String(s.tier).replace("BASIC", "STANDARD") === String(sponsor.tier).replace("BASIC", "STANDARD"))) {
                 result = { success: false, message: `You already have an active ${sponsor.tier.toLowerCase()} sponsor.` }
                 return
             }
@@ -277,13 +291,6 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             // crafted/stale payload. Like every peer economy action, clamp the
             // numeric fields through parseBoundedInt so a bogus weeklyPayout
             // can't be spread through unchecked and pay out forever.
-            const offer = (state.sponsorOffers || []).find(o =>
-                sponsor.id ? o.id === sponsor.id : (o.name === sponsor.name && o.tier === sponsor.tier)
-            )
-            if (!offer) {
-                result = { success: false, message: "That sponsor offer is no longer available." }
-                return
-            }
             const payoutCheck = parseBoundedInt(offer.weeklyPayout, "Sponsor payout", 0, MAX_SPONSOR_WEEKLY_PAYOUT)
             if (!payoutCheck.ok) {
                 result = { success: false, message: payoutCheck.message }
@@ -324,7 +331,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         let result: { success: boolean; error?: string } = { success: false, error: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
-            if (!team) {
+            if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, error: "Team not found" }
                 return
             }
@@ -354,7 +361,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) {
+            if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, message: "Team not found" }
                 return
             }
@@ -402,7 +409,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         let result = { success: false, message: "Team not found" }
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
-            if (!team) return
+            if (!team || team.id !== state.playerTeamId) return
 
             if (!team.activeMerchItems) team.activeMerchItems = []
 

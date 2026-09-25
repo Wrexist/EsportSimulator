@@ -13,16 +13,16 @@ export { TableRowSkeleton as TableSkeleton } from '@/src/components/ui/Skeleton'
  */
 export const FLAVORED_LOADING: Record<string, string> = {
     default: 'Loading…',
-    boot: 'Booting systems…',
-    save: 'Pulling save from cloud…',
-    teams: 'Scouting talent…',
-    match: 'Warming up servers…',
-    tournament: 'Seeding the bracket…',
-    transfers: 'Opening the transfer window…',
-    stats: 'Crunching demos…',
+    boot: 'Starting game…',
+    save: 'Loading career…',
+    teams: 'Loading teams…',
+    match: 'Preparing match…',
+    tournament: 'Loading tournaments…',
+    transfers: 'Loading transfer market…',
+    stats: 'Loading statistics…',
     training: 'Loading drill schedules…',
-    finance: 'Reconciling the books…',
-    schedule: 'Compiling fixtures…',
+    finance: 'Loading finances…',
+    schedule: 'Loading schedule…',
 }
 
 interface LoadingStateProps {
@@ -56,7 +56,7 @@ export function LoadingState({
     return (
         <div
             className={cn(
-                'flex flex-col items-center justify-center gap-4',
+                'premium-loading flex flex-col items-center justify-center gap-4',
                 fullScreen ? 'min-h-screen liquid-app-bg' : 'p-12',
                 className,
             )}

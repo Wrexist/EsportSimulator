@@ -1,3 +1,4 @@
+import { generateCareerDecision } from "./career-decisions"
 /**
  * Atomic Week Processor
  * Phase 5: Transactional week tick with rollback/resume
@@ -61,6 +62,7 @@ import { detectAchievementFlags } from "./processors/match-achievement-flags"
 import { processForfeitMatch } from "./processors/match-forfeit"
 import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
 import { applyMatchManagerXP } from "./processors/match-manager-xp"
+import { settlePlayerContractBonuses } from "./processors/player-contract-bonuses"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
@@ -221,7 +223,7 @@ export class AtomicWeekProcessor {
         const resumeStep = 1 // Always re-run from start; resume is whole-tick, not step-level.
 
         // Build O(1) lookup indexes for this tick (rebuilt once, used throughout)
-        const idx = buildSaveIndexes(save)
+        let idx: SaveIndexes
 
         // Build O(1) dedup sets for event/ledger ID checks
         const eventIdSet = new Set(save.eventsLog.map(e => e.id))
@@ -240,6 +242,10 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // Expired players/staff cannot train, receive wages, or appear in
+            // cached match rosters. Build the indexes from the surviving contracts.
+            FinanceProcessor.processContractExpiry(save, config.playerTeamId)
+            idx = buildSaveIndexes(save)
 
             // ===== STEP 1: Training Effects =====
             if (resumeStep <= 1) {
@@ -273,7 +279,6 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 4) {
                 debugLog(`[Week ${save.currentWeek}] Step 4: Finance...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                FinanceProcessor.processContractExpiry(save, config.playerTeamId) // Process expiring contracts
                 result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId, eventIdSet, ledgerIdSet)
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
@@ -510,10 +515,15 @@ export class AtomicWeekProcessor {
 
             perfTrace.step("step.11_finalize", __sFinalize)
 
+            // Finance runs before tournaments/matches. Decide solvency using
+            // all settled income before narrative and board career outcomes.
+            FinanceProcessor.reconcileWeeklySolvency(save, config.playerTeamId)
+
             // ===== STEP 8C: Narrative & News =====
             debugLog(`[Week ${save.currentWeek}] Step 8C: Processing Narrative Features...`)
             const __sNarrative = perfTrace.stepsEnabled ? perfTrace.now() : 0
             this.generateNarrativeNews(save, rng, idx)
+            generateCareerDecision(save)
             perfTrace.step("step.12_narrative", __sNarrative)
 
             // === Cross-Season Career Statistics ===
@@ -958,6 +968,8 @@ export class AtomicWeekProcessor {
 
             this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
             this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
+            settlePlayerContractBonuses(save, match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet)
+            settlePlayerContractBonuses(save, match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet)
 
             // Phase 11: Update team rivalries
             updateRivalries(save, completedMatch)

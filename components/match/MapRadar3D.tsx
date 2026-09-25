@@ -16,13 +16,12 @@
  * <Text> — troika would fetch a remote font, which fails in the packaged
  * Steam/Electron build.
  *
- * Interaction: a one-shot camera fly-in on mount (skipped under reduced motion),
- * drag to orbit, gentle idle auto-rotate, and click a player to recentre the
+ * Interaction: immediate overview, drag to orbit, and click a player to recentre the
  * orbit on them (click the map to recentre on the bomb-site midpoint).
  */
 
 import { Suspense, useEffect, useLayoutEffect, useState, useRef, Component, type ReactNode } from "react"
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, useTexture, Line, ContactShadows, Grid, Html } from "@react-three/drei"
 import * as THREE from "three"
 import type { Line2, OrbitControls as OrbitControlsImpl } from "three-stdlib"
@@ -92,39 +91,16 @@ function usePrefersReducedMotion(): boolean {
     return reduced
 }
 
-/**
- * Drives the camera: a one-shot ease-out fly-in on mount (OrbitControls stays
- * disabled until it finishes), then per-frame it lerps the orbit target toward
- * focusRef so clicking a player smoothly recentres the view.
- */
-function CameraRig({ controlsRef, focusRef, introDone, onIntroDone }: {
+/** Keeps player focus responsive without moving the camera on entry. */
+function CameraRig({ controlsRef, focusRef, reducedMotion }: {
     controlsRef: React.MutableRefObject<OrbitControlsImpl | null>
     focusRef: React.MutableRefObject<THREE.Vector3>
-    introDone: boolean
-    onIntroDone: () => void
+    reducedMotion: boolean
 }) {
-    const { camera } = useThree()
-    const t = useRef(0)
-    const start = useRef(new THREE.Vector3(10, 150, 30))
-    const target = useRef(new THREE.Vector3(22, 62, 56))
-
-    useLayoutEffect(() => {
-        if (!introDone) camera.position.copy(start.current)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
     useFrame((_, delta) => {
-        if (!introDone) {
-            t.current = Math.min(1, t.current + delta / 1.3)
-            const e = 1 - Math.pow(1 - t.current, 3) // easeOutCubic
-            camera.position.lerpVectors(start.current, target.current, e)
-            camera.lookAt(0, 0, 0)
-            if (t.current >= 1) onIntroDone()
-            return
-        }
         const controls = controlsRef.current
         if (controls) {
-            controls.target.lerp(focusRef.current, 0.12)
+            controls.target.lerp(focusRef.current, reducedMotion ? 1 : 1 - Math.exp(-8 * delta))
             controls.update()
         }
     })
@@ -361,7 +337,6 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
 
     const controlsRef = useRef<OrbitControlsImpl | null>(null)
     const focusRef = useRef(new THREE.Vector3(0, 0, 0))
-    const [introDone, setIntroDone] = useState(reducedMotion) // reduced motion → no fly-in
 
     const focusPlayer = (x: number, z: number) => focusRef.current.set(x, 3, z)
     const resetFocus = () => focusRef.current.set(0, 0, 0)
@@ -455,21 +430,19 @@ function Scene({ radarSrc, dots, killLines, smokes, bombPosition, bombVisible, b
                 </mesh>
             ))}
 
-            <CameraRig controlsRef={controlsRef} focusRef={focusRef} introDone={introDone} onIntroDone={() => setIntroDone(true)} />
+            <CameraRig controlsRef={controlsRef} focusRef={focusRef} reducedMotion={reducedMotion} />
 
             <OrbitControls
                 ref={controlsRef}
-                enabled={introDone}
                 target={[0, 0, 0]}
                 enablePan={false}
-                enableDamping
+                enableDamping={!reducedMotion}
                 dampingFactor={0.08}
                 minDistance={48}
-                maxDistance={185}
+                maxDistance={240}
                 minPolarAngle={0.12}
                 maxPolarAngle={1.45}
-                autoRotate={introDone && !reducedMotion}
-                autoRotateSpeed={0.35}
+                autoRotate={false}
             />
         </>
     )
@@ -495,7 +468,7 @@ export default function MapRadar3D(props: MapRadar3DProps) {
             <Canvas
                 dpr={[1, 2]}
                 shadows
-                camera={{ position: [22, 62, 56], fov: 38 }}
+                camera={{ position: [35, 155, 115], fov: 38 }}
                 gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
                 style={{ width: "100%", height: "100%" }}
             >

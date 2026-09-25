@@ -104,7 +104,7 @@ describe("updateScheduledMatch — sanitization", () => {
 
     test("vetoComplete WITH a valid map pool is accepted", () => {
         const h = makeHarness(makeBaseState({
-            scheduledMatches: [makeMatch("m1")],
+            scheduledMatches: [makeMatch("m1", { format: "BO1" })],
         }))
         const slice = createMatchOperationsSlice(h.set, h.get)
         // de_mirage is a real ALLOWED_MAP_ID; pin a BO1 → 1 map.
@@ -276,4 +276,62 @@ describe("performMentalReset", () => {
         expect(h.state().teams[0].budget).toBe(100)
         expect(h.state().players[0].morale).toBe(50) // unchanged
     })
+})
+
+
+test('veto maps and side selections are frozen while a match is active or recoverable', () => {
+    for (const playing of [{ activeMatchId: 'm1' }, { activeMatchState: { matchId: 'm1' } }]) {
+        const original = makeMatch('m1', { maps: ['Nuke'], mapStartingSides: { Nuke: 'player' } })
+        const h = makeHarness(makeBaseState({ scheduledMatches: [original], ...playing } as any))
+        createMatchOperationsSlice(h.set, h.get).updateScheduledMatch('m1', { maps: ['Sandstone'], mapStartingSides: { Sandstone: 'away' } })
+        expect(h.state().scheduledMatches[0]).toEqual(original)
+    }
+})
+
+
+test('L21 generic fixture edits cannot mint or reset paid preparation', () => {
+    const h = makeHarness(makeBaseState({ scheduledMatches: [makeMatch('m1')] }))
+    const slice = createMatchOperationsSlice(h.set, h.get)
+    slice.updateScheduledMatch('m1', { vodReviewed: true, mentalPrep: true })
+    expect(h.state().scheduledMatches[0].vodReviewed).toBeUndefined()
+    expect(h.state().scheduledMatches[0].mentalPrep).toBeUndefined()
+    slice.performVODReview('m1'); slice.performMentalReset('m1')
+    const paid = JSON.stringify(h.state())
+    slice.updateScheduledMatch('m1', { vodReviewed: false, mentalPrep: false })
+    slice.performVODReview('m1'); slice.performMentalReset('m1')
+    expect(JSON.stringify(h.state())).toBe(paid)
+})
+
+test.each(['BO1', 'BO3', 'BO5'])('L21 %s veto seals only a complete pool and clears obsolete sides', format => {
+    const maps = ['Mirage', 'Inferno', 'Nuke', 'Overpass', 'Sandstone'].slice(0, format === 'BO1' ? 1 : format === 'BO3' ? 3 : 5)
+    const h = makeHarness(makeBaseState({ scheduledMatches: [makeMatch('m1', { format })] }))
+    const slice = createMatchOperationsSlice(h.set, h.get)
+    slice.updateScheduledMatch('m1', { maps, vetoComplete: true, mapStartingSides: { Mirage: 'player' } })
+    expect(h.state().scheduledMatches[0].vetoComplete).toBe(true)
+    slice.updateScheduledMatch('m1', { maps: maps.slice(1) })
+    expect(h.state().scheduledMatches[0].vetoComplete).toBe(false)
+    expect(h.state().scheduledMatches[0].mapStartingSides).toEqual({})
+})
+
+test('L21 stale, completed, foreign and active matches reject preparation and veto edits', () => {
+    for (const override of [
+        { currentWeek: 13 }, { currentWeek: 12, currentDay: 3, timeMode: 'HYBRID_DAILY' },
+        { activeMatchId: 'm1' }, { activeMatchState: { matchId: 'm1' } },
+        { completedMatches: [{ id: 'm1' }] }, { playerTeamId: 'foreign' },
+    ]) {
+        const h = makeHarness(makeBaseState({ scheduledMatches: [makeMatch('m1', { day: 2 })], ...override } as any))
+        const slice = createMatchOperationsSlice(h.set, h.get), before = JSON.stringify(h.state())
+        slice.performVODReview('m1'); slice.performMentalReset('m1')
+        slice.updateScheduledMatch('m1', { maps: ['Nuke'] })
+        expect(JSON.stringify(h.state())).toBe(before)
+    }
+})
+
+test('L21 generic mental reset is weekly and zero morale receives exactly fifteen', () => {
+    const h = makeHarness(makeBaseState({ players: [makePlayer('p1', 0)] }))
+    const slice = createMatchOperationsSlice(h.set, h.get)
+    slice.performMentalReset()
+    expect(h.state().players[0].morale).toBe(15)
+    const after = JSON.stringify(h.state()); slice.performMentalReset()
+    expect(JSON.stringify(h.state())).toBe(after)
 })

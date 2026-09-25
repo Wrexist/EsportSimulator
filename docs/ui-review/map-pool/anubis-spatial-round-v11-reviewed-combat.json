@@ -1,0 +1,89 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Anubis",
+  "fixtureSha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 63.8125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 105845,
+      "metrics": {
+        "shots": 23,
+        "damage": 587,
+        "reports": 19,
+        "waits": 885,
+        "replans": 94,
+        "minSeparation": 32.01237056496044
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [
+        {
+          "tick": 752,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 752,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "2183bb1887eb79ba8d5fbc152c093cbf906dc731fd1d03e8db402c2ad0dc7806"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 55.5625,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 112187,
+      "metrics": {
+        "shots": 61,
+        "damage": 800,
+        "reports": 60,
+        "waits": 683,
+        "replans": 81,
+        "minSeparation": 32.030174680098504
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 752,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 752,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "ffdd63dfce3474f768e974039bbce7ce58d62c8327121f399bcc80c71c86c295"
+    }
+  ]
+}

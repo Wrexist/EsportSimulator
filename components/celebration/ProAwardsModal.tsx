@@ -171,7 +171,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
 
                                                 {/* Player Portrait */}
                                                 <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden shrink-0">
-                                                    <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={40} variant="card" />
+                                                    <PlayerPortrait src={player.portraitPath} seed={player.playerId} alt={player.nickname} size={40} variant="card" />
                                                 </div>
 
                                                 {/* Player Info */}
@@ -230,7 +230,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                             {/* Player Header */}
                                             <div className="text-center">
                                                 <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 overflow-hidden mx-auto mb-3">
-                                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={96} variant="hero" />
+                                                    <PlayerPortrait src={selectedPlayer.portraitPath} seed={selectedPlayer.playerId} alt={selectedPlayer.nickname} size={96} variant="hero" />
                                                 </div>
                                                 <h2 className="text-2xl font-bold text-white">{selectedPlayer.nickname}</h2>
                                                 <div className="flex items-center justify-center gap-2 mt-1">

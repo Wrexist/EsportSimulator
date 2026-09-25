@@ -1,3 +1,4 @@
+import { restoreTimeoutState, spendTimeout, regroupLossStreak, managedLoadout } from "@/engine/match/manager-controls"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -6,6 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState, Coach, Analyst, Psychologist } from "@/types"
 import type { TeamSaveData } from "@/engine/save-types"
 import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
+import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents } from "@/engine/match/live-checkpoint"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { pickAutoStrategy } from "@/engine/match/auto-tactics"
 import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
@@ -40,6 +42,7 @@ type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
 const MAX_LIVE_LOG_ENTRIES = 200
 
 interface LiveMatchRuntimeData {
+    ownerSaveId: string | null
     match: any
     result: MatchResult
     // home/awayTeam are stored as the on-disk TeamSaveData shape. The
@@ -119,10 +122,12 @@ export function useLiveMatch(id: string) {
     const [originalHomePlayers, setOriginalHomePlayers] = useState<Player[]>([])
     const [originalAwayPlayers, setOriginalAwayPlayers] = useState<Player[]>([])
 
-    // Tactical Timeout (B5): 2 per match; arms a small round-win boost (0.06) for
+    // Tactical timeout: two per series, reduces our losing-streak pressure for
     // the next 2 rounds. The ref mirrors state so the per-round sim call reads the
     // latest value outside React's render cycle.
     const [timeoutsRemaining, setTimeoutsRemaining] = useState(2)
+    const timeoutsRemainingRef = useRef(2)
+    timeoutsRemainingRef.current = timeoutsRemaining
     const [timeoutBoostRounds, setTimeoutBoostRounds] = useState(0)
     const timeoutBoostRoundsRef = useRef(0)
     timeoutBoostRoundsRef.current = timeoutBoostRounds
@@ -139,6 +144,7 @@ export function useLiveMatch(id: string) {
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
     const lastProcessedTime = useRef(-1)
+    const pendingCheckpoint = useRef<ActiveMatchState | null>(null)
     const pendingTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
     const latestSimStateRef = useRef<SimState | null>(null)
     const latestGameStateRef = useRef<LiveGameState>(gameState)
@@ -229,6 +235,22 @@ export function useLiveMatch(id: string) {
             return
         }
 
+        let playback: ReturnType<typeof restoreLivePlayback> | null = null
+        try {
+            if (foundMatch.engineVersion && foundMatch.engineVersion !== LEGACY_MATCH_ENGINE) throw Error("Unsupported match engine")
+            if (activeMatchState?.matchId === id) {
+                playback = restoreLivePlayback(activeMatchState)
+                if (activeMatchState.playback?.saveId !== undefined && activeMatchState.playback.saveId !== useGameStore.getState().saveId) throw Error("This match checkpoint belongs to another career")
+                if (JSON.stringify(playback.homeRoster) !== JSON.stringify(homePlayers.map(p => p.id)) || JSON.stringify(playback.awayRoster) !== JSON.stringify(awayPlayers.map(p => p.id))) throw Error("The saved match roster has changed. Restore the pre-match recovery save to continue.")
+            }
+        } catch (error) {
+            hasInitialized.current = true
+            useGameStore.getState().addToast({ message: error instanceof Error ? error.message : "Could not restore match", type: "warning" })
+            setActiveMatch(null)
+            router.replace(`/match/${id}/tactics`)
+            return
+        }
+
         // All match data resolved — commit init exactly once. The flag is set
         // HERE, not before the guards above: on the first render the store may
         // still be hydrating (empty scheduledMatches/teams/players). Setting it
@@ -239,7 +261,7 @@ export function useLiveMatch(id: string) {
         // Arm the navigation lock only now that init is guaranteed to succeed.
         setActiveMatch(id)
 
-        const seed = getNormalizedSeed(foundMatch.seed, foundMatch.id)
+        const seed = activeMatchState?.matchId === id && activeMatchState.playback ? activeMatchState.playback.seed : getNormalizedSeed(foundMatch.seed, foundMatch.id)
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1
         const runtimeMatch: any = {
             ...foundMatch,
@@ -293,7 +315,7 @@ export function useLiveMatch(id: string) {
             format: foundMatch.format,
             seed,
             urlMaps: queryMaps,
-            savedMaps: Array.isArray(foundMatch.maps) ? foundMatch.maps : undefined,
+            savedMaps: playback?.maps.length ? playback.maps : Array.isArray(foundMatch.maps) ? foundMatch.maps : undefined,
             fallbackMaps: engineFallback.maps.map(map => map.map)
         })
 
@@ -363,6 +385,7 @@ export function useLiveMatch(id: string) {
             })
 
             matchData.current = {
+                ownerSaveId: useGameStore.getState().saveId,
                 match: runtimeMatch,
                 result: restoredResult,
                 homeTeam: hTeam,
@@ -375,8 +398,11 @@ export function useLiveMatch(id: string) {
 
             setGameState(restoredGameState)
             setSimState(sanitizedSimState)
-            setHomeRoster(sanitizeRosterFromEconomy(homePlayers, restoredHomeEconomy, homeStartsCT, activeMatchState.homeRoster))
-            setAwayRoster(sanitizeRosterFromEconomy(awayPlayers, restoredAwayEconomy, !homeStartsCT, activeMatchState.awayRoster))
+            // These are the visible mid-round inventories/deaths, not the already resolved end-of-round economy.
+            setHomeRoster(structuredClone(activeMatchState.homeRoster))
+            setAwayRoster(structuredClone(activeMatchState.awayRoster))
+            currentRoundEvents.current = playback!.events
+            lastProcessedTime.current = playback!.processedTime
             setLogs(Array.isArray(activeMatchState.logs) ? activeMatchState.logs : [])
             setRoundTime(typeof activeMatchState.roundTime === "number" ? activeMatchState.roundTime : ROUND_SECONDS)
             setIsBombPlanted(Boolean(activeMatchState.isBombPlanted))
@@ -384,8 +410,8 @@ export function useLiveMatch(id: string) {
             setIsWaitingForStrategy(Boolean(activeMatchState.isWaitingForStrategy))
             // Restore Tactical Timeout state so a reload mid-match can't mint
             // extra timeouts (fresh defaults only when the snapshot predates this).
-            setTimeoutsRemaining(typeof activeMatchState.timeoutsRemaining === "number" ? activeMatchState.timeoutsRemaining : 2)
-            setTimeoutBoostRounds(typeof activeMatchState.timeoutBoostRounds === "number" ? activeMatchState.timeoutBoostRounds : 0)
+            setTimeoutsRemaining(restoreTimeoutState(activeMatchState.timeoutsRemaining, activeMatchState.timeoutBoostRounds).remaining)
+            setTimeoutBoostRounds(restoreTimeoutState(activeMatchState.timeoutsRemaining, activeMatchState.timeoutBoostRounds).rounds)
             setOriginalHomePlayers(homePlayers)
             setOriginalAwayPlayers(awayPlayers)
             setIsPlaying(false)
@@ -416,6 +442,7 @@ export function useLiveMatch(id: string) {
         })
 
         matchData.current = {
+            ownerSaveId: useGameStore.getState().saveId,
             match: runtimeMatch,
             result: liveResult,
             homeTeam: hTeam,
@@ -452,13 +479,19 @@ export function useLiveMatch(id: string) {
         // the 500ms debounce can fire AFTER the user has navigated to the
         // result screen and saveMatchResult ran, overwriting the cleared
         // activeMatchState with stale "still playing" data.
-        if (gameState.status === "FINISHED") return
+        if (gameState.status === "FINISHED") { pendingCheckpoint.current = null; return }
 
         const currentResult = matchData.current?.result
         if (!currentResult) return // No match in flight — nothing to checkpoint.
 
         const state: ActiveMatchState = {
             matchId: id,
+            playback: {
+                version: 1, engine: LEGACY_MATCH_ENGINE, saveId: matchData.current!.ownerSaveId,
+                events: currentRoundEvents.current, processedTime: lastProcessedTime.current,
+                maps: matchData.current!.canonicalMaps, seed: matchData.current!.match.seed,
+                homeRoster: matchData.current!.homePlayerIds, awayRoster: matchData.current!.awayPlayerIds,
+            },
             gameState,
             simState,
             homeRoster,
@@ -480,16 +513,19 @@ export function useLiveMatch(id: string) {
             matchResult: currentResult as unknown as ActiveMatchState["matchResult"],
         }
 
-        const timer = setTimeout(() => {
-            // Re-check the mount flag at fire time. Unmounting between
-            // schedule and fire (route change, fast nav) shouldn't trigger
-            // a write to a stale slot.
-            if (!isMountedRef.current) return
-            updateActiveMatchState(state)
-        }, 500)
+        pendingCheckpoint.current = state
+    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers])
 
-        return () => clearTimeout(timer)
-    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers, updateActiveMatchState])
+    // Fixed cadence cannot be starved by fast playback. Clone at the ownership boundary.
+    useEffect(() => {
+        const flush = () => {
+            const snapshot = pendingCheckpoint.current
+            pendingCheckpoint.current = null
+            if (snapshot) updateActiveMatchState(structuredClone(snapshot))
+        }
+        const timer = setInterval(flush, 500)
+        return () => { clearInterval(timer); flush() }
+    }, [id, updateActiveMatchState])
 
     // Index staff by teamId once per `staff` array ref, so each live-match
     // round doesn't re-scan every staff member to build home/away coach/analyst/psych.
@@ -522,14 +558,7 @@ export function useLiveMatch(id: string) {
 
         const isPlayerHome = homeTeam.id === playerTeam?.id
 
-        // Tactical Timeout (B5): while armed, boost the player's round-win chance
-        // AND neutralise the opponent's momentum (regroup stops their run). The
-        // momentum override is per-round only — persistent sim state is untouched.
-        const boostActive = timeoutBoostRoundsRef.current > 0
-        const activeBoost = boostActive ? 0.06 : 0
-        const homeTacticalBoost = isPlayerHome ? activeBoost : -activeBoost
-        const homeMomentumArg = boostActive && !isPlayerHome ? 0 : currentSimState.homeMomentumScore
-        const awayMomentumArg = boostActive && isPlayerHome ? 0 : currentSimState.awayMomentumScore
+        const regrouping = timeoutBoostRoundsRef.current > 0
 
         let homeStrategy: RoundStrategy
         let awayStrategy: RoundStrategy
@@ -561,8 +590,8 @@ export function useLiveMatch(id: string) {
             aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] } as EconomyState
         })
 
-        simulationEngineV2.performBuyPhase(hPlayers, hEcon, homeStrategy, currentSimState.homeStartsCT, rng, customTactics)
-        simulationEngineV2.performBuyPhase(aPlayers, aEcon, awayStrategy, !currentSimState.homeStartsCT, rng, customTactics)
+        simulationEngineV2.performBuyPhase(hPlayers, hEcon, homeStrategy, currentSimState.homeStartsCT, rng, managedLoadout(customTactics, homeTeam.id, playerTeam?.id))
+        simulationEngineV2.performBuyPhase(aPlayers, aEcon, awayStrategy, !currentSimState.homeStartsCT, rng, managedLoadout(customTactics, awayTeam.id, playerTeam?.id))
 
         const startOfRoundHomeEcon: Record<string, number> = {}
         const startOfRoundAwayEcon: Record<string, number> = {}
@@ -572,8 +601,8 @@ export function useLiveMatch(id: string) {
         const hStaff = getTeamStaff(homeTeam.id)
         const aStaff = getTeamStaff(awayTeam.id)
 
-        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam as unknown as Team, hPlayers, hStaff)
-        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam as unknown as Team, aPlayers, aStaff)
+        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam as unknown as Team, hPlayers, hStaff, !!runtime.match.mentalPrep && (runtime.match.mentalPrepTeamId || homeTeam.id) === homeTeam.id)
+        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam as unknown as Team, aPlayers, aStaff, !!runtime.match.mentalPrep && runtime.match.mentalPrepTeamId === awayTeam.id)
         const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.SANDSTONE
         const homeMapStrength = simulationEngineV2.calculateMapStrengths(hPlayers).get(currentMapId) || 50
         const awayMapStrength = simulationEngineV2.calculateMapStrengths(aPlayers).get(currentMapId) || 50
@@ -589,8 +618,8 @@ export function useLiveMatch(id: string) {
             currentSimState.homeStartsCT,
             currentSimState.homeWinStreak,
             currentSimState.awayWinStreak,
-            currentSimState.homeLossStreak,
-            currentSimState.awayLossStreak,
+            regroupLossStreak(currentSimState.homeLossStreak, regrouping && isPlayerHome),
+            regroupLossStreak(currentSimState.awayLossStreak, regrouping && !isPlayerHome),
             currentRoundNumber,
             hEcon,
             aEcon,
@@ -602,8 +631,8 @@ export function useLiveMatch(id: string) {
             homeTeam.id,
             awayTeam.id,
             customTactics,
-            homeMomentumArg,
-            awayMomentumArg,
+            currentSimState.homeMomentumScore,
+            currentSimState.awayMomentumScore,
             hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
             currentMapId,
@@ -611,10 +640,9 @@ export function useLiveMatch(id: string) {
             undefined, // cachedHomeStressRes
             undefined, // cachedAwayStressRes
             undefined, // cachedPlayerMap
-            homeTacticalBoost
         )
 
-        // Consume one round of the Tactical Timeout boost (B5).
+        // Consume one round of regroup pressure relief.
         if (timeoutBoostRoundsRef.current > 0) {
             timeoutBoostRoundsRef.current -= 1
             setTimeoutBoostRounds(b => Math.max(0, b - 1))
@@ -780,10 +808,7 @@ export function useLiveMatch(id: string) {
         const toTime = currentTime
 
         const events = currentRoundEvents.current
-        const eventsToProcess = events.filter(event => {
-            const eventTime = Math.floor(event.time)
-            return eventTime > fromTime && eventTime <= toTime
-        }).sort((a, b) => a.time - b.time)
+        const eventsToProcess = pendingLiveEvents(events, fromTime, toTime)
 
         eventsToProcess.forEach(nextEvent => {
             if (nextEvent.type === "KILL") {
@@ -1300,20 +1325,21 @@ export function useLiveMatch(id: string) {
         setIsPlaying(true)
     }, [])
 
-    // Tactical Timeout (B5): spend one to arm the boost for the next 2 rounds.
     const callTimeout = useCallback(() => {
-        if (timeoutsRemaining <= 0) return
-        // Don't burn a charge while a boost is already running — it would just
-        // reset the window to 2 rounds with no added benefit.
-        if (timeoutBoostRoundsRef.current > 0) return
-        setTimeoutsRemaining(t => Math.max(0, t - 1))
-        setTimeoutBoostRounds(2)
+        const next = spendTimeout({ remaining: timeoutsRemainingRef.current, rounds: timeoutBoostRoundsRef.current }, isWaitingForStrategy, latestGameStateRef.current?.status || '')
+        if (!next) return
+        timeoutsRemainingRef.current = next.remaining
+        timeoutBoostRoundsRef.current = next.rounds
+        setTimeoutsRemaining(next.remaining)
+        setTimeoutBoostRounds(next.rounds)
+        setIsPlaying(false)
+        setIsAutoTactics(false)
         soundManager.play("notification")
-    }, [timeoutsRemaining])
+    }, [isWaitingForStrategy])
 
     const handleFinish = useCallback(() => {
         const runtime = matchData.current
-        if (!runtime) return
+        if (!runtime || latestGameStateRef.current?.status !== "FINISHED") return
 
         // Recompute player stats + MVP from the rounds ACTUALLY played live,
         // rather than shipping baseResult's quick-sim stats (which were produced
@@ -1335,6 +1361,11 @@ export function useLiveMatch(id: string) {
         }
 
         saveMatchResult(runtime.match.id, runtime.result)
+        if (!useGameStore.getState().completedMatches.some(m => m.id === runtime.match.id)) {
+            useGameStore.getState().addToast({ message: "The result could not be committed. Your match checkpoint has been preserved.", type: "warning" })
+            return
+        }
+        pendingCheckpoint.current = null
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])

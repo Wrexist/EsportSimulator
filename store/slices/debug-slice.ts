@@ -78,7 +78,7 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
     debugTriggerJobOffer: () => {
         if (!debugToolsEnabled()) return
         set((state) => {
-            const rng = new SeededRNG(state.lastRngSeed || generateSeed())
+            const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
             JobOfferGenerator.forceJobOffer(state as unknown as GameSave, rng)
             state.lastRngSeed = rng.getState()
         })

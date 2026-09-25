@@ -1,0 +1,44 @@
+Browser tab: 1182233820, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 660
+~			38 text Pulsar $541,200 #154 World SAT, 26 SEP 2026 WEEK  3 • DAY 1
++			660 button NEXT DAY
+~			188 button SKIP WEEK
+~				528 text WEEK  3  • DAY 1 $541K
+~				536 text SEASON PROGRESS 6 % WEEK  3  / 52
+~				540 text FINANCIAL HUB STABLE AVAILABLE FUNDS $0.54M WEEKLY INCOME +$ 22.9 k WEEKLY NET + $ 20.6 k SALARIES -$ 1.3 k FACILITIES & EQUIPMENT -$ 1.0 k
+~				599 text 60 Win a trophy this season None yet Break into the top 16 World #154 Reach 10k fans 80 fans Keep the club financially healthy Stable
++				661 container
++					662 container Pulsar logo
++					663 text MATCH SEP 26
++					664 heading Clinical Win for Pulsar, Value: 4
++						665 text Clinical Win for Pulsar
++					666 text PULSAR Pulsar defeats Synapse 1-0 in tournament play. A well-deserved victory. ❤️  546 👁️  19,966
++				667 container
++					668 container Comet logo
++					669 text TRANSFER SEP 26
++					670 heading ZENDRIS7 transferred to Comet, Value: 4
++						671 text ZENDRIS7 transferred to Comet
++					672 text COMET Comet have acquired ZENDRIS7 from Viper for $19,500. ❤️  644 👁️  4,278
++				673 container
++					674 container Griffin Dynasty logo
++					675 text TRANSFER SEP 26
++					676 heading ph1wyn9 transferred to Griffin Dynasty, Value: 4
++						677 text ph1wyn9 transferred to Griffin Dynasty
++					678 text GRIFFIN DYNASTY Griffin Dynasty have acquired ph1wyn9 from Team Vanta for $117,000. ❤️  2,897 👁️  5,386
++				679 container
++					680 container Meridian Initiative logo
++					681 text TRANSFER SEP 26
++					682 heading V3xvil transferred to Meridian Initiative, Value: 4
++						683 text V3xvil transferred to Meridian Initiative
++					684 text MERIDIAN INITIATIVE Meridian Initiative have acquired V3xvil from Ivory Monolith for $156,000. ❤️  1,519 👁️  12,214
++				685 container
++					686 container Pulsar logo
++					687 text FINANCE SEP 26
++					688 heading Positive Earnings Reported for Pulsar, Value: 4
++						689 text Positive Earnings Reported for Pulsar
++					690 text PULSAR Pulsar finished the week with a net gain of $20,600. Management expresses confidence in the current growth trajectory. ❤️  92 👁️  1,439
+~		658 container Week 2 review
++				691 text WEEK  2  COMPLETE A FLAWLESS WEEK Beat Synapse 1–0 Your first win!
++				692 button CONTINUE
+The focused UI element is 692 button CONTINUE

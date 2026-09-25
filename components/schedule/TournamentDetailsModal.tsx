@@ -116,7 +116,7 @@ export function TournamentDetailsModal({
                     >
                         {/* Header Background Image/Gradient */}
                         <div className="relative h-40 bg-gradient-to-br from-indigo-900/50 via-purple-900/50 to-black overflow-hidden shrink-0">
-                            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+                            <div className="absolute inset-0 premium-grid-texture opacity-20" />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
 
                             <Button

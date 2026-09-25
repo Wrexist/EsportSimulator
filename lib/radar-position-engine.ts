@@ -7,7 +7,7 @@
 import { MatchEvent, MapId } from "@/types"
 import { SeededRNG } from "@/engine/rng"
 import { Point, MAP_LAYOUTS } from "./map-radar-data"
-import { projectToWalkable } from "./radar-nav"
+import { isWalkable, isRadarSegmentWalkable, projectToWalkable, findRadarRoute } from "./radar-nav"
 
 type RadarLevel = "upper" | "lower"
 
@@ -94,6 +94,10 @@ interface PlayerSimState {
     level?: RadarLevel
     formationOffset: Point
     seed: number
+    route?: Point[]
+    routeGoal?: Point
+    routeLevel?: RadarLevel
+    routeTime?: number
 }
 
 type TacticalPhase = "freeze" | "default" | "prePlant" | "postPlant" | "retake"
@@ -533,12 +537,13 @@ function simulatePlayersAtTime(
     targetTime: number
 ): PlayerSimState[] {
     const safeTime = Math.max(0, finiteNumber(targetTime, 0))
-    const dt = 0.2
-    const steps = Math.max(1, Math.ceil(safeTime / dt))
+    const fixedStep = 0.2
+    const steps = Math.ceil(safeTime / fixedStep)
     const allStates = [...tStates, ...ctStates]
 
     for (let stepIndex = 1; stepIndex <= steps; stepIndex++) {
-        const currentTime = Math.min(stepIndex * dt, safeTime)
+        const currentTime = Math.min(stepIndex * fixedStep, safeTime)
+        const dt = currentTime - (stepIndex - 1) * fixedStep
 
         for (const state of allStates) {
             if (state.staticDead) {
@@ -551,10 +556,30 @@ function simulatePlayersAtTime(
                 continue
             }
 
+            // Freeze is an actual hold, not a slow advance or decorative jitter.
+            if (currentTime <= 3) { state.vel = { x: 0, y: 0 }; continue }
+
             const profile = getMotionProfile(state, currentTime, ctx)
             const perceivedTime = Math.max(0, currentTime - profile.reactionDelay)
-            const nextLevel = getPlayerLevel(state.side, state.index, currentTime, ctx) || "upper"
-            const target = projectPoint(ctx.mapId, nextLevel, getTargetForPlayer(state, perceivedTime, ctx, profile.jitterScale))
+            const requestedLevel = getPlayerLevel(state.side, state.index, currentTime, ctx) || "upper"
+            // Legacy floor estimates may switch only where both masks overlap; never snap to another floor.
+            const nextLevel = isWalkable(ctx.mapId, requestedLevel, state.pos) ? requestedLevel : (state.level || "upper")
+            const goal = projectPoint(ctx.mapId, nextLevel, getTargetForPlayer(state, perceivedTime, ctx, profile.jitterScale))
+            let target = goal
+            if (!isRadarSegmentWalkable(ctx.mapId, nextLevel, state.pos, goal)) {
+                const goalMoved = !state.routeGoal || magnitude(sub(goal, state.routeGoal)) > 2
+                const routeBlocked = !!state.route?.length && !isRadarSegmentWalkable(ctx.mapId, nextLevel, state.pos, state.route[0])
+                if (state.routeLevel !== nextLevel || state.routeTime === undefined || routeBlocked || (currentTime - state.routeTime >= 1.2 && (goalMoved || !state.route?.length))) {
+                    state.route = findRadarRoute(ctx.mapId, nextLevel, state.pos, goal)
+                    state.routeGoal = goal; state.routeLevel = nextLevel; state.routeTime = currentTime
+                }
+                // Advance only when the next segment is clear; never cut a corner
+                // just because a waypoint is within the arrival tolerance.
+                while (state.route && state.route.length > 1 && isRadarSegmentWalkable(ctx.mapId, nextLevel, state.pos, state.route[1])) state.route.shift()
+                target = state.route?.[0] || state.pos
+            } else {
+                state.route = undefined; state.routeTime = undefined
+            }
             const toTarget = sub(target, state.pos)
             const distance = magnitude(toTarget)
 
@@ -568,69 +593,20 @@ function simulatePlayersAtTime(
             const cappedAccel = clampVector(accelDelta, maxAccel * dt)
             state.vel = add(state.vel, cappedAccel)
 
-            state.vel = scale(state.vel, profile.damping)
+            state.vel = scale(state.vel, Math.pow(profile.damping, dt / fixedStep))
 
-            let nextPos = add(state.pos, scale(state.vel, dt))
-            nextPos = projectPoint(ctx.mapId, nextLevel, nextPos)
-            if (magnitude(sub(nextPos, state.pos)) > maxSpeed * dt * 1.2) {
-                const stepDir = normalize(sub(nextPos, state.pos))
-                nextPos = add(state.pos, scale(stepDir, maxSpeed * dt))
-                nextPos = projectPoint(ctx.mapId, nextLevel, nextPos)
-            }
-
-            // Final safety cap. After two projections nextPos can still
-            // sit further away than the velocity allows — projectToWalkable
-            // snaps to the nearest walkable cell, and "nearest" can lie
-            // across a wall. When that happens we'd rather stall the
-            // player than teleport them. The radar-test invariant
-            // (per-second jump ≤ 14) depends on this.
-            const finalStep = magnitude(sub(nextPos, state.pos))
-            const finalCap = maxSpeed * dt * 1.2
-            if (finalStep > finalCap) {
-                if (finalStep > 0) {
-                    const dir = normalize(sub(nextPos, state.pos))
-                    nextPos = add(state.pos, scale(dir, finalCap))
-                } else {
-                    nextPos = state.pos
-                }
-            }
-            // Verify the (capped) target lands on a walkable cell. If
-            // projecting moves it more than the cap, the capped point
-            // sits inside a wall — freeze at the last known walkable
-            // pos rather than let the snap carry the player into the
-            // void. Keeps the dot strictly inside the radar's walkable
-            // surface across level transitions.
-            const projected = projectPoint(ctx.mapId, nextLevel, nextPos)
-            if (magnitude(sub(projected, nextPos)) > finalCap) {
-                nextPos = state.pos
-            } else {
-                nextPos = projected
-            }
-
-            const projectionCorrection = magnitude(sub(nextPos, add(state.pos, scale(state.vel, dt))))
-            if (projectionCorrection > 0.35) {
-                state.vel = scale(state.vel, 0.45)
-            }
-
-            // Level transition (upper ↔ lower): state.pos was walkable on
-            // the OLD level but may not be on the NEW one. The dot's
-            // final projection will then snap to the nearest walkable
-            // cell — potentially 20+ units. Catch up here so the
-            // transition presents as a bounded "stair-step" jump
-            // (≤ TRANSITION_SNAP_CAP) rather than a teleport across
-            // the map. Velocity is zeroed so post-switch motion
-            // re-accelerates organically toward the new target.
-            if (state.level && state.level !== nextLevel) {
-                const targetOnNew = projectPoint(ctx.mapId, nextLevel, nextPos)
-                const transitionGap = magnitude(sub(targetOnNew, nextPos))
-                const TRANSITION_SNAP_CAP = 13.5
-                if (transitionGap > TRANSITION_SNAP_CAP) {
-                    const dir = normalize(sub(targetOnNew, nextPos))
-                    nextPos = add(nextPos, scale(dir, TRANSITION_SNAP_CAP))
-                } else {
-                    nextPos = targetOnNew
-                }
-                state.vel = { x: 0, y: 0 }
+            const proposed = add(state.pos, scale(state.vel, dt))
+            const walls = MAP_LAYOUTS[ctx.mapId]?.walls || []
+            const clear = (candidate: Point) => isRadarSegmentWalkable(ctx.mapId, nextLevel, state.pos, candidate)
+                && !walls.some(wall => segmentsIntersect(state.pos.x, state.pos.y, candidate.x, candidate.y, wall.from.x, wall.from.y, wall.to.x, wall.to.y))
+            // Sweep the entire move. If blocked, slide along one clear axis or stop.
+            // Projecting only the endpoint could jump across a narrow wall.
+            let nextPos = proposed
+            if (!clear(nextPos)) {
+                const slides = [{ x: proposed.x, y: state.pos.y }, { x: state.pos.x, y: proposed.y }]
+                    .filter(clear).sort((a, b) => magnitude(sub(a, target)) - magnitude(sub(b, target)))
+                nextPos = slides[0] || state.pos
+                state.vel = scale(sub(nextPos, state.pos), 1 / dt)
             }
             state.level = nextLevel
             state.pos = nextPos
@@ -676,11 +652,9 @@ export function computeRadarPositions(
     const plantEvent = allEvents.find(event => event.type === "PLANT")
     const defuseEvent = allEvents.find(event => event.type === "DEFUSE")
     const explodeEvent = allEvents.find(event => event.type === "EXPLODE")
-    const roundEndEvent = allEvents.find(event => event.type === "ROUND_END")
 
     const firstKillTime = killEvents.length > 0 ? Math.max(4, finiteNumber(killEvents[0].time, 22)) : 22
     const plantTime = plantEvent ? finiteNumber(plantEvent.time, 999) : 999
-    const roundEndTime = roundEndEvent ? finiteNumber(roundEndEvent.time, 120) : 120
 
     const ctPlayers = homeStartsCT ? homePlayers : awayPlayers
     const tPlayers = homeStartsCT ? awayPlayers : homePlayers
@@ -771,12 +745,8 @@ export function computeRadarPositions(
         bomb.defused = true
         bomb.defuseTime = finiteNumber(defuseEvent.time, 0)
     }
-    if (defuseEvent && plantEvent && !bomb.exploded) {
-        const defuseTime = finiteNumber(defuseEvent.time, 0)
-        if (safeCurrentTime >= defuseTime - 5 && safeCurrentTime < defuseTime) {
-            bomb.defuseProgress = clamp((safeCurrentTime - (defuseTime - 5)) / 5, 0, 1)
-        }
-    }
+    // DEFUSE records completion, not action start or kit ownership. Do not
+    // reveal a future successful defuse through an invented progress ring.
 
     const killLines: RadarKillLine[] = []
     const KILL_LINE_DURATION = 2
@@ -789,10 +759,17 @@ export function computeRadarPositions(
         const killerDot = snapshotDots.find(dot => dot.playerId === kill.killerId || dot.playerId === kill.playerId)
         const victimDot = snapshotDots.find(dot => dot.playerId === kill.victimId)
         if (!killerDot || !victimDot) continue
+        if (isDualLevel && killerDot.level !== victimDot.level) continue
 
         const distance = Math.hypot(killerDot.x - victimDot.x, killerDot.y - victimDot.y)
         const maxDistance = getMaxKillLineDistance(kill.weapon)
         if (distance > maxDistance) continue
+
+        // These event-derived positions do not prove a bullet trace. Suppress
+        // links through radar voids or between floors instead of drawing a
+        // misleading shot through a building. This never changes the result.
+        if (isDualLevel && killerDot.level !== victimDot.level) continue
+        if (!isRadarSegmentWalkable(mapId, killerDot.level || 'upper', killerDot, victimDot)) continue
 
         // Wall plausibility: if the layout has authored walls, drop any kill
         // line that crosses one. Drawn-through-walls lines were the
@@ -818,42 +795,9 @@ export function computeRadarPositions(
         })
     }
 
+    // Legacy match events do not record thrown utility. Invented smoke would
+    // imply cover and visibility rules that never affected this match.
     const smokes: RadarSmoke[] = []
-    const smokeRng = new SeededRNG(safeSeed + safeRoundNumber * 4999)
-    // Smoke count tied to round phase. Pistol rounds (1, 13) have no
-    // grenade economy so smokes don't make sense; anti-eco rounds (2, 14)
-    // get at most one; everything else can range 1-3 depending on RNG.
-    // Without this, eco rounds rendered the same util spam as full buys.
-    const isPistol = safeRoundNumber === 1 || safeRoundNumber === 13
-    const isAntiEco = safeRoundNumber === 2 || safeRoundNumber === 14
-    const numSmokes = isPistol
-        ? 0
-        : isAntiEco
-            ? (smokeRng.next() > 0.5 ? 1 : 0)
-            : 1 + (smokeRng.next() > 0.35 ? 1 : 0) + (smokeRng.next() > 0.75 ? 1 : 0)
-    for (let smokeIndex = 0; smokeIndex < numSmokes; smokeIndex++) {
-        const smokeStart = 6 + smokeRng.next() * 4
-        const smokeDuration = 15 + smokeRng.next() * 5
-        // Smoke 0 = execute smoke near the target site. Smoke 1 = block CT
-        // rotation. Smoke 2+ = extra util thrown along the attack path
-        // (only happens on full-buy rounds).
-        const base = smokeIndex === 0
-            ? lerpPoint(simCtx.engageZone, simCtx.targetSite, 0.18 + smokeRng.next() * 0.25)
-            : smokeIndex === 1
-                ? lerpAlongPath(simCtx.ctRotatePath, 0.35 + smokeRng.next() * 0.55, simCtx.engageZone)
-                : lerpAlongPath(simCtx.attackPath, 0.55 + smokeRng.next() * 0.3, simCtx.engageZone)
-
-        const smokeLevel: RadarLevel = isDualLevel && attackSite === "B" && smokeIndex === 0 ? "lower" : "upper"
-        const smokePos = projectPoint(mapId, smokeLevel, base)
-        smokes.push({
-            x: smokePos.x,
-            y: smokePos.y,
-            radius: clamp(4 + smokeRng.next() * 1.7, 2.8, 8),
-            startTime: clamp(smokeStart, 0, Math.max(120, roundEndTime)),
-            endTime: clamp(smokeStart + smokeDuration, 0, Math.max(140, roundEndTime + 20)),
-            level: isDualLevel ? smokeLevel : undefined,
-        })
-    }
 
     const aSite = projectPoint(mapId, "upper", point(layout.aSite.x, layout.aSite.y))
     const bLevel: RadarLevel = isDualLevel ? "lower" : "upper"

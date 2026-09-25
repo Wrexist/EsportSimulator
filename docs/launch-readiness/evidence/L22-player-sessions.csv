@@ -1,0 +1,13 @@
+participant_id,status,build_id,resolution,input,familiarity,club,starting_cash,available_starters,club_creation_seconds,first_decision_seconds,first_match_seconds,result_review_seconds,deliberate_choice,rescued,completed_without_rescue,confusion,follow_up,failure_evidence
+P01,NOT_RUN,,,,,,,,,,,,,,,,,
+P02,NOT_RUN,,,,,,,,,,,,,,,,,
+P03,NOT_RUN,,,,,,,,,,,,,,,,,
+P04,NOT_RUN,,,,,,,,,,,,,,,,,
+P05,NOT_RUN,,,,,,,,,,,,,,,,,
+P06,NOT_RUN,,,,,,,,,,,,,,,,,
+P07,NOT_RUN,,,,,,,,,,,,,,,,,
+P08,NOT_RUN,,,,,,,,,,,,,,,,,
+P09,NOT_RUN,,,,,,,,,,,,,,,,,
+P10,NOT_RUN,,,,,,,,,,,,,,,,,
+P11,NOT_RUN,,,,,,,,,,,,,,,,,
+P12,NOT_RUN,,,,,,,,,,,,,,,,,

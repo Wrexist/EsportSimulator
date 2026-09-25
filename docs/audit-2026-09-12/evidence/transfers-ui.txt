@@ -1,0 +1,633 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/transfers".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/transfers
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/transfers#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading SCOUTING & TRANSFERS, Value: 1
+				144 text SCOUTING & TRANSFERS
+			145 text Discover and negotiate with the world's best talent.
+			146 text field (settable) Search by nickname
+			147 button AWPER
+			148 button RIFLER
+			149 button IGL
+			150 button SUPPORT
+			151 button ENTRY
+			152 table
+				153 row
+					154 cell
+						155 text PLAYER
+					156 cell
+						157 text STATUS
+					158 cell
+						159 text ROLE
+					160 cell
+						161 text AGE
+					162 cell
+						163 text SKILL
+					164 cell
+						165 text TACTIC
+					166 cell
+						167 text TEAMWORK
+					168 cell
+						169 text OVR
+					170 cell
+						171 text CONTRACT TERMS
+				172 row
+					173 cell
+						174 link Description: Iriz0r Iriz0r, Value: 127.0.0.1:3210/player/player_129_sow_jayy2z
+					175 cell
+						176 text SCARLET HALCYON
+					177 cell
+						178 text IGL
+					179 cell
+						180 text 22
+					181 cell
+						182 text 94
+					183 cell
+						184 text 87
+					185 cell
+						186 text 84
+					187 cell
+						188 text 88
+					189 cell
+						190 container
+							191 text $ 4,490,000 $ 6603 /wk
+					192 cell
+						193 button (disabled) BUY, Help: Insufficient budget — need $3,990,000 more
+				194 row
+					195 cell
+						196 link Description: matt matt, Value: 127.0.0.1:3210/player/fpl_nonpro_1_44576_6870
+					197 cell
+						198 text FREE AGENT
+					199 cell
+						200 text SUPPORT
+					201 cell
+						202 text 22
+					203 cell
+						204 text 85
+					205 cell
+						206 text 83
+					207 cell
+						208 text 87
+					209 cell
+						210 text 85
+					211 cell
+						212 container
+							213 text FREE $ 5929 /wk
+					214 cell
+						215 button SIGN FREE
+				216 row
+					217 cell
+						218 link Description: FlashWolf FlashWolf, Value: 127.0.0.1:3210/player/fpl_nonpro_1_26992_8487
+					219 cell
+						220 text FREE AGENT
+					221 cell
+						222 text AWPER
+					223 cell
+						224 text 22
+					225 cell
+						226 text 83
+					227 cell
+						228 text 85
+					229 cell
+						230 text 85
+					231 cell
+						232 text 84
+					233 cell
+						234 container
+							235 text FREE $ 5482 /wk
+					236 cell
+						237 button SIGN FREE
+				238 row
+					239 cell
+						240 link Description: FrostEagle FrostEagle, Value: 127.0.0.1:3210/player/fpl_nonpro_1_91299_1765
+					241 cell
+						242 text FREE AGENT
+					243 cell
+						244 text ENTRY
+					245 cell
+						246 text 25
+					247 cell
+						248 text 83
+					249 cell
+						250 text 79
+					251 cell
+						252 text 86
+					253 cell
+						254 text 83
+					255 cell
+						256 container
+							257 text FREE $ 5497 /wk
+					258 cell
+						259 button SIGN FREE
+				260 row
+					261 cell
+						262 link Description: FlashEdge FlashEdge, Value: 127.0.0.1:3210/player/fpl_nonpro_1_30137_9002
+					263 cell
+						264 text FREE AGENT
+					265 cell
+						266 text IGL
+					267 cell
+						268 text 21
+					269 cell
+						270 text 83
+					271 cell
+						272 text 88
+					273 cell
+						274 text 75
+					275 cell
+						276 text 82
+					277 cell
+						278 container
+							279 text FREE $ 5494 /wk
+					280 cell
+						281 button SIGN FREE
+				282 row
+					283 cell
+						284 link Description: GhostStorm GhostStorm, Value: 127.0.0.1:3210/player/fpl_nonpro_1_94464_5578
+					285 cell
+						286 text FREE AGENT
+					287 cell
+						288 text ENTRY
+					289 cell
+						290 text 24
+					291 cell
+						292 text 84
+					293 cell
+						294 text 78
+					295 cell
+						296 text 80
+					297 cell
+						298 text 81
+					299 cell
+						300 container
+							301 text FREE $ 5042 /wk
+					302 cell
+						303 button SIGN FREE
+				304 row
+					305 cell
+						306 link Description: ColdReaper ColdReaper, Value: 127.0.0.1:3210/player/fpl_nonpro_1_87948_7184
+					307 cell
+						308 text FREE AGENT
+					309 cell
+						310 text ENTRY
+					311 cell
+						312 text 22
+					313 cell
+						314 text 83
+					315 cell
+						316 text 81
+					317 cell
+						318 text 78
+					319 cell
+						320 text 81
+					321 cell
+						322 container
+							323 text FREE $ 5143 /wk
+					324 cell
+						325 button SIGN FREE
+				326 row
+					327 cell
+						328 link Description: UROŠ UROŠ, Value: 127.0.0.1:3210/player/fpl_nonpro_1_37691_8406
+					329 cell
+						330 text FREE AGENT
+					331 cell
+						332 text IGL
+					333 cell
+						334 text 24
+					335 cell
+						336 text 82
+					337 cell
+						338 text 85
+					339 cell
+						340 text 73
+					341 cell
+						342 text 80
+					343 cell
+						344 container
+							345 text FREE $ 5200 /wk
+					346 cell
+						347 button SIGN FREE
+				348 row
+					349 cell
+						350 link Description: itsstan itsstan, Value: 127.0.0.1:3210/player/fpl_nonpro_1_89482_4547
+					351 cell
+						352 text FREE AGENT
+					353 cell
+						354 text AWPER
+					355 cell
+						356 text 29
+					357 cell
+						358 text 79
+					359 cell
+						360 text 81
+					361 cell
+						362 text 80
+					363 cell
+						364 text 80
+					365 cell
+						366 container
+							367 text FREE $ 5380 /wk
+					368 cell
+						369 button SIGN FREE
+				370 row
+					371 cell
+						372 link Description: ALEX ALEX, Value: 127.0.0.1:3210/player/fpl_nonpro_1_91431_5644
+					373 cell
+						374 text FREE AGENT
+					375 cell
+						376 text IGL
+					377 cell
+						378 text 19
+					379 cell
+						380 text 78
+					381 cell
+						382 text 86
+					383 cell
+						384 text 75
+					385 cell
+						386 text 80
+					387 cell
+						388 container
+							389 text FREE $ 5497 /wk
+					390 cell
+						391 button SIGN FREE
+				392 row
+					393 cell
+						394 link Description: IceCobra IceCobra, Value: 127.0.0.1:3210/player/fpl_nonpro_1_35159_5367
+					395 cell
+						396 text FREE AGENT
+					397 cell
+						398 text SUPPORT
+					399 cell
+						400 text 28
+					401 cell
+						402 text 78
+					403 cell
+						404 text 79
+					405 cell
+						406 text 81
+					407 cell
+						408 text 79
+					409 cell
+						410 container
+							411 text FREE $ 5494 /wk
+					412 cell
+						413 button SIGN FREE
+				414 row
+					415 cell
+						416 link Description: 4lek 4lek, Value: 127.0.0.1:3210/player/fpl_nonpro_1_44789_4420
+					417 cell
+						418 text FREE AGENT
+					419 cell
+						420 text RIFLER
+					421 cell
+						422 text 26
+					423 cell
+						424 text 82
+					425 cell
+						426 text 77
+					427 cell
+						428 text 79
+					429 cell
+						430 text 79
+					431 cell
+						432 container
+							433 text FREE $ 5553 /wk
+					434 cell
+						435 button SIGN FREE
+				436 row
+					437 cell
+						438 link Description: can can, Value: 127.0.0.1:3210/player/fpl_nonpro_1_82518_5640
+					439 cell
+						440 text FREE AGENT
+					441 cell
+						442 text RIFLER
+					443 cell
+						444 text 23
+					445 cell
+						446 text 84
+					447 cell
+						448 text 72
+					449 cell
+						450 text 81
+					451 cell
+						452 text 79
+					453 cell
+						454 container
+							455 text FREE $ 5372 /wk
+					456 cell
+						457 button SIGN FREE
+				458 row
+					459 cell
+						460 link Description: StormFox StormFox, Value: 127.0.0.1:3210/player/fpl_nonpro_1_43122_4559
+					461 cell
+						462 text FREE AGENT
+					463 cell
+						464 text RIFLER
+					465 cell
+						466 text 25
+					467 cell
+						468 text 82
+					469 cell
+						470 text 73
+					471 cell
+						472 text 81
+					473 cell
+						474 text 79
+					475 cell
+						476 container
+							477 text FREE $ 5290 /wk
+					478 cell
+						479 button SIGN FREE
+				480 row
+					481 cell
+						482 link Description: Phiqel Phiqel, Value: 127.0.0.1:3210/player/player_122_calaoskurnos_jayy2z
+					483 cell
+						484 text MERIDIAN COLLECTIVE
+					485 cell
+						486 text ENTRY
+					487 cell
+						488 text 22
+					489 cell
+						490 text 80
+					491 cell
+						492 text 82
+					493 cell
+						494 text 73
+					495 cell
+						496 text 78
+					497 cell
+						498 container
+							499 text $ 3,930,000 $ 5777 /wk
+					500 cell
+						501 button (disabled) BUY, Help: Insufficient budget — need $3,430,000 more
+				502 row
+					503 cell
+						504 link Description: ravyn ravyn, Value: 127.0.0.1:3210/player/player_220_diamend_lzibraa
+					505 cell
+						506 text FREE AGENT
+					507 cell
+						508 text IGL
+					509 cell
+						510 text 23
+					511 cell
+						512 text 78
+					513 cell
+						514 text 78
+					515 cell
+						516 text 79
+					517 cell
+						518 text 78
+					519 cell
+						520 container
+							521 text FREE $ 5738 /wk
+					522 cell
+						523 button SIGN FREE
+				524 row
+					525 cell
+						526 link Description: HAO HAO, Value: 127.0.0.1:3210/player/fpl_nonpro_1_25260_9806
+					527 cell
+						528 text FREE AGENT
+					529 cell
+						530 text ENTRY
+					531 cell
+						532 text 19
+					533 cell
+						534 text 82
+					535 cell
+						536 text 79
+					537 cell
+						538 text 74
+					539 cell
+						540 text 78
+					541 cell
+						542 container
+							543 text FREE $ 5248 /wk
+					544 cell
+						545 button SIGN FREE
+				546 row
+					547 cell
+						548 link Description: MegaEdge MegaEdge, Value: 127.0.0.1:3210/player/fpl_nonpro_1_68313_8815
+					549 cell
+						550 text FREE AGENT
+					551 cell
+						552 text IGL
+					553 cell
+						554 text 20
+					555 cell
+						556 text 81
+					557 cell
+						558 text 85
+					559 cell
+						560 text 69
+					561 cell
+						562 text 78
+					563 cell
+						564 container
+							565 text FREE $ 5366 /wk
+					566 cell
+						567 button SIGN FREE
+				568 row
+					569 cell
+						570 link Description: ninjaz ninjaz, Value: 127.0.0.1:3210/player/fpl_nonpro_1_21237_5539
+					571 cell
+						572 text FREE AGENT
+					573 cell
+						574 text AWPER
+					575 cell
+						576 text 24
+					577 cell
+						578 text 79
+					579 cell
+						580 text 71
+					581 cell
+						582 text 81
+					583 cell
+						584 text 77
+					585 cell
+						586 container
+							587 text FREE $ 5140 /wk
+					588 cell
+						589 button SIGN FREE
+				590 row
+					591 cell
+						592 link Description: GhostNinja GhostNinja, Value: 127.0.0.1:3210/player/fpl_nonpro_1_95338_2046
+					593 cell
+						594 text FREE AGENT
+					595 cell
+						596 text IGL
+					597 cell
+						598 text 19
+					599 cell
+						600 text 74
+					601 cell
+						602 text 84
+					603 cell
+						604 text 73
+					605 cell
+						606 text 77
+					607 cell
+						608 container
+							609 text FREE $ 5563 /wk
+					610 cell
+						611 button SIGN FREE
+				612 row
+					613 cell
+						614 link Description: Phisyl Phisyl, Value: 127.0.0.1:3210/player/player_114_diipor_w1zely
+					615 cell
+						616 text SILVER PULSAR
+					617 cell
+						618 text IGL
+					619 cell
+						620 text 22
+					621 cell
+						622 text 78
+					623 cell
+						624 text 78
+					625 cell
+						626 text 74
+					627 cell
+						628 text 77
+					629 cell
+						630 container
+							631 text $ 3,590,000 $ 5616 /wk
+					632 cell
+						633 button (disabled) BUY, Help: Insufficient budget — need $3,090,000 more
+				634 row
+					635 cell
+						636 link Description: ThunderKiller ThunderKiller, Value: 127.0.0.1:3210/player/fpl_nonpro_1_10479_5206
+					637 cell
+						638 text FREE AGENT
+					639 cell
+						640 text RIFLER
+					641 cell
+						642 text 25
+					643 cell
+						644 text 80
+					645 cell
+						646 text 80
+					647 cell
+						648 text 69
+					649 cell
+						650 text 76
+					651 cell
+						652 container
+							653 text FREE $ 4943 /wk
+					654 cell
+						655 button SIGN FREE
+				656 row
+					657 cell
+						658 link Description: flamex flamex, Value: 127.0.0.1:3210/player/fpl_nonpro_1_67598_5195
+					659 cell
+						660 text FREE AGENT
+					661 cell
+						662 text SUPPORT
+					663 cell
+						664 text 24
+					665 cell
+						666 text 77
+					667 cell
+						668 text 78
+					669 cell
+						670 text 74
+					671 cell
+						672 text 76
+					673 cell
+						674 container
+							675 text FREE $ 5343 /wk
+					676 cell
+						677 button SIGN FREE
+				678 row
+					679 cell
+						680 link Description: itsluka itsluka, Value: 127.0.0.1:3210/player/fpl_nonpro_1_33877_8807
+					681 cell
+						682 text FREE AGENT
+					683 cell
+						684 text RIFLER
+					685 cell
+						686 text 22
+					687 cell
+						688 text 80
+					689 cell
+						690 text 73
+					691 cell
+						692 text 75
+					693 cell
+						694 text 76
+					695 cell
+						696 container
+							697 text FREE $ 4978 /wk
+					698 cell
+						699 button SIGN FREE
+				700 row
+					701 cell
+						702 link Description: YT_gabr YT_gabr, Value: 127.0.0.1:3210/player/fpl_nonpro_1_60101_4888
+					703 cell
+						704 text FREE AGENT
+					705 cell
+						706 text RIFLER
+					707 cell
+						708 text 27
+					709 cell
+						710 text 79
+					711 cell
+						712 text 78
+					713 cell
+						714 text 70
+					715 cell
+						716 text 76
+					717 cell
+						718 container
+							719 text FREE $ 4918 /wk
+					720 cell
+						721 button SIGN FREE
+			722 text SHOWING  1 - 25  OF  1613
+			723 button (disabled) Prev
+			724 text 1  /  65
+			725 button Next
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 17 link Description: Transfers, URL: 127.0.0.1:3210/transfers

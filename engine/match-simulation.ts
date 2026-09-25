@@ -1,3 +1,4 @@
+import { managedLoadout } from "./match/manager-controls"
 /**
  * Phase 4 Simulation Engine
  * Deterministic, inspectable match simulation for the tactical FPS engine
@@ -10,6 +11,8 @@
  * - Full round history with clutch events and momentum shifts
  */
 
+import { resolveCanonicalSeriesMaps } from '@/lib/live-match-utils'
+import { LEGACY_MATCH_ENGINE } from './match/live-checkpoint'
 import { SeededRNG, createMatchRNG } from "./rng"
 import { EconomyManager, WEAPONS, Weapon, WeaponType as EconomyWeaponType } from "./economy-manager"
 import { TeamSaveData } from "./index"
@@ -159,11 +162,13 @@ export class SimulationEngineV2 {
         homeStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         awayStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         forcedMaps?: MapId[],
-        customTactics?: CustomTactics
+        customTactics?: CustomTactics,
+        managedTeamId?: string,
     ): MatchResult {
       const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
       try {
-        const matchSeed = (typeof match.seed === 'number' && Number.isFinite(match.seed) && match.seed > 0)
+        if (match.engineVersion && match.engineVersion !== LEGACY_MATCH_ENGINE) throw Error('Unsupported match engine')
+        const matchSeed = (typeof match.seed === 'number' && Number.isFinite(match.seed) && match.seed >= 0)
             ? Math.floor(match.seed) : 12345
         const rng = createMatchRNG(matchSeed)
 
@@ -185,6 +190,9 @@ export class SimulationEngineV2 {
 
         if (forcedMaps && forcedMaps.length > 0) {
             maps = forcedMaps
+        } else if (match.maps?.length) {
+            if (match.maps.some(m => !Object.values(MapId).includes(m))) throw Error('Saved veto contains an invalid map')
+            maps = resolveCanonicalSeriesMaps({ format: match.format, seed: matchSeed, savedMaps: match.maps })
         } else {
             const vetoResult = this.simulateMapVeto(
                 rng,
@@ -195,7 +203,8 @@ export class SimulationEngineV2 {
                 hStaff.analyst,
                 aStaff.analyst,
                 cachedHomeMapStrengths,
-                cachedAwayMapStrengths
+                cachedAwayMapStrengths,
+                match.format,
             )
             maps = vetoResult.maps
         }
@@ -234,7 +243,9 @@ export class SimulationEngineV2 {
                 homeMentalPrep,
                 awayMentalPrep,
                 cachedHomeMapStrengths,
-                cachedAwayMapStrengths
+                cachedAwayMapStrengths,
+                match.mapStartingSides?.[maps[i]],
+                managedTeamId ?? homeTeam.id,
             )
 
             mapResults.push(mapResult)
@@ -275,6 +286,8 @@ export class SimulationEngineV2 {
             })
         }
         return {
+            engineVersion: LEGACY_MATCH_ENGINE,
+            lineups: { [homeTeam.id]: activeHomePlayers.map(p => p.id), [awayTeam.id]: activeAwayPlayers.map(p => p.id) },
             homeScore,
             awayScore,
             maps: mapResults,
@@ -305,12 +318,13 @@ export class SimulationEngineV2 {
         homeAnalyst?: Analyst,
         awayAnalyst?: Analyst,
         cachedHomeMapStrengths?: Map<MapId, number>,
-        cachedAwayMapStrengths?: Map<MapId, number>
+        cachedAwayMapStrengths?: Map<MapId, number>,
+        format: string = 'BO3',
     ): { veto: MapVeto[]; maps: MapId[] } {
         return simulateMapVetoFn(
             rng, homeTeamId, awayTeamId, homePlayers, awayPlayers,
             homeAnalyst, awayAnalyst,
-            cachedHomeMapStrengths, cachedAwayMapStrengths,
+            cachedHomeMapStrengths, cachedAwayMapStrengths, format,
         )
     }
 
@@ -348,14 +362,17 @@ export class SimulationEngineV2 {
         homeMentalPrep?: boolean,
         awayMentalPrep?: boolean,
         cachedHomeMapStrengths?: Map<MapId, number>,
-        cachedAwayMapStrengths?: Map<MapId, number>
+        cachedAwayMapStrengths?: Map<MapId, number>,
+        startingCTTeamId?: string,
+        managedTeamId?: string,
     ): MapResult {
         const rounds: RoundResult[] = []
         let homeRounds = 0
         let awayRounds = 0
 
         // Determine starting sides (knife round)
-        const homeStartsCT = rng.bool()
+        const rolledHomeStartsCT = rng.bool()
+        const homeStartsCT = startingCTTeamId === homeTeam.id ? true : startingCTTeamId === awayTeam.id ? false : rolledHomeStartsCT
         let currentCTTeam = homeStartsCT ? homeTeam.id : awayTeam.id
         let currentTTeam = homeStartsCT ? awayTeam.id : homeTeam.id
 
@@ -533,8 +550,8 @@ export class SimulationEngineV2 {
             homePlayers.forEach(p => preBuyCash[p.id] = homeEconomy[p.id].cash)
             awayPlayers.forEach(p => preBuyCash[p.id] = awayEconomy[p.id].cash)
 
-            this.performBuyPhase(homePlayers, homeEconomy, homeStrategy, homeIsCT, roundRng, customTactics)
-            this.performBuyPhase(awayPlayers, awayEconomy, awayStrategy, !homeIsCT, roundRng, customTactics)
+            this.performBuyPhase(homePlayers, homeEconomy, homeStrategy, homeIsCT, roundRng, managedLoadout(customTactics, homeTeam.id, managedTeamId))
+            this.performBuyPhase(awayPlayers, awayEconomy, awayStrategy, !homeIsCT, roundRng, managedLoadout(customTactics, awayTeam.id, managedTeamId))
 
             // Calculate round win probability
             const roundResult = this.simulateRound(
@@ -794,11 +811,7 @@ export class SimulationEngineV2 {
         cachedHomeStressRes?: number,
         cachedAwayStressRes?: number,
         cachedPlayerMap?: Map<string, Player>,
-        /** Live-match Tactical Timeout (B5): a bounded additive to the home side's
-         *  round-win probability. Default 0 — quick-sim and the orchestrator's own
-         *  calls don't pass it, so they stay byte-identical. Applied before the
-         *  [0.1,0.9] clamp and consumes no RNG (rng.bool draws once regardless). */
-        homeTacticalBoost: number = 0
+
     ): RoundSimulationResult {
         // Pre-built lookup set for O(1) home-player checks
         const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
@@ -964,10 +977,6 @@ export class SimulationEngineV2 {
                 homeWinProb += T_SIDE_ADVANTAGE
             }
         }
-
-        // Live-match Tactical Timeout (B5) — player tactical input, bounded by
-        // the clamp below.
-        if (homeTacticalBoost) homeWinProb += homeTacticalBoost
 
         // Clamp probability
         homeWinProb = Math.max(0.1, Math.min(0.9, homeWinProb))

@@ -1,0 +1,2174 @@
+{
+  "label": "intermediate",
+  "scale": "small",
+  "seeds": 1,
+  "requestedWeeks": 520,
+  "templateHash": null,
+  "sourceHashes": {
+    "scripts/launch/l28-balance-campaign.ts": "6b03623af0bba89af7aef667f5d66c060253cedde1467e1ecf7b3b6a1ec7e002",
+    "scripts/launch/balance-metrics.ts": "4581f71102e7f7d0adbbf1a52cd020b5ba38b03c8456b604e36445b19632b2f5",
+    "engine/processors/training-processor.ts": "c2d05d8e6eda1133081c26975dc11133699e5aeb28eba0424b67524957c64ea4",
+    "engine/economy-engine.ts": "415568fea8e40e59faf1050c12135356b1b04e56540e622398c7653afc96bdd4",
+    "engine/ai-manager.ts": "19b5fdb53a9b6e43d8e76b5e3fc75733aefe1672f5a8154424eba7ddbd59960c",
+    "engine/player-lifecycle.ts": "274ab5a2d4663d566e36b1c221f0d761286fe66bef0250afc8c9fb78921dd548",
+    "package-lock.json": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+  },
+  "results": [
+    {
+      "seed": 28001,
+      "scale": "small",
+      "difficulty": "story",
+      "tier": "B_TIER",
+      "rosterStyle": "youth",
+      "intensity": 1,
+      "startingCash": 500000,
+      "inputHash": "0931dd6edbf4a7f1fefc005dbe0bf5d22d61bcf1fafb80c9f5b834439ee8bd09",
+      "ticks": 103,
+      "requestedWeeks": 520,
+      "matches": 81,
+      "injuries": 3,
+      "signings": 0,
+      "terminal": null,
+      "failures": [
+        {
+          "week": 104,
+          "issues": [
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.4.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.5.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.6.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.7.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.8.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.9.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.10.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.11.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.12.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.13.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.14.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.15.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.16.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.17.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.top20.18.kpr",
+            "nonfinite:save.eventsLog.163.data.proAwards.awperOfTheYear.kpr"
+          ]
+        }
+      ],
+      "shortages": [],
+      "deadSeasons": [],
+      "seasons": [
+        {
+          "week": 53,
+          "managedCash": 2483080,
+          "players": 20,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 2483080,
+            "p10": 4375985.4,
+            "median": 11947607,
+            "p90": 17724387.8,
+            "max": 19168583
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 20,
+            "finite": 20,
+            "min": 41,
+            "p10": 52.9,
+            "median": 65,
+            "p90": 68.6960000000001,
+            "max": 71.4960000000001
+          },
+          "fatigue": {
+            "n": 20,
+            "finite": 20,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 12.72000000000002,
+            "max": 12.72000000000002
+          },
+          "injuries": 0,
+          "wages": {
+            "n": 19,
+            "finite": 19,
+            "min": 2000,
+            "p10": 2460,
+            "median": 2500,
+            "p90": 3099.9999999999977,
+            "max": 7500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 66793.2,
+            "median": 333966,
+            "p90": 548226,
+            "max": 601791
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1187,
+            "p10": 1226.2,
+            "median": 1383,
+            "p90": 1513.4,
+            "max": 1546
+          },
+          "tick": 52,
+          "matches": 41,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 68.4960000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 19,
+              "skill": 70.4960000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 68.4960000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 19,
+              "skill": 71.4960000000001,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 68.4960000000001,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s1",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s1",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s1",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s1",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s1",
+              "winner": "team_ai_2",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s1",
+              "winner": "team_ai_2",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s1",
+              "winner": "team_ai_2",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s1",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s1",
+              "winner": "team_player",
+              "prize": 250000
+            }
+          ],
+          "transfers": []
+        },
+        {
+          "week": 104,
+          "managedCash": 4895546,
+          "players": 20,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 4895546,
+            "p10": 11996668,
+            "median": 40401156,
+            "p90": 50890278.4,
+            "max": 53512559
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 20,
+            "finite": 20,
+            "min": 42,
+            "p10": 53.8,
+            "median": 65,
+            "p90": 72.04400000000018,
+            "max": 73.94400000000019
+          },
+          "fatigue": {
+            "n": 20,
+            "finite": 20,
+            "min": 0,
+            "p10": 0,
+            "median": 16.934999999999988,
+            "p90": 55,
+            "max": 55
+          },
+          "injuries": 0,
+          "wages": {
+            "n": 19,
+            "finite": 19,
+            "min": 2000,
+            "p10": 2460,
+            "median": 2500,
+            "p90": 3099.9999999999977,
+            "max": 7500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 72929.2,
+            "median": 364646,
+            "p90": 528374.8,
+            "max": 569307
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1276,
+            "p10": 1308.2,
+            "median": 1437,
+            "p90": 1457.8,
+            "max": 1463
+          },
+          "tick": 103,
+          "matches": 40,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 70.94400000000019,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 20,
+              "skill": 72.94400000000019,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 70.94400000000019,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 20,
+              "skill": 73.94400000000019,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 71.94400000000019,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 67,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 67,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s1",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s1",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s1",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s1",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s1",
+              "winner": "team_ai_2",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s1",
+              "winner": "team_ai_2",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s1",
+              "winner": "team_ai_2",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s1",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s1",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "iem_katowice_open_s2",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s2",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s2",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s2",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s2",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s2",
+              "winner": "team_ai_1",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s2",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s2",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s2",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s2",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s2",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s2",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s2",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s2",
+              "winner": "team_ai_1",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s2",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s2",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s2",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s2",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s2",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s2",
+              "winner": "team_ai_1",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s2",
+              "winner": "team_ai_1",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s2",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s2",
+              "winner": "team_ai_2",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s2",
+              "winner": "team_ai_1",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s2",
+              "winner": "team_ai_1",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s2",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s2",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            }
+          ],
+          "transfers": []
+        }
+      ],
+      "final": {
+        "week": 104,
+        "managedCash": 4895546,
+        "players": 20,
+        "retired": 0,
+        "budgets": {
+          "n": 3,
+          "finite": 3,
+          "min": 4895546,
+          "p10": 11996668,
+          "median": 40401156,
+          "p90": 50890278.4,
+          "max": 53512559
+        },
+        "insolvent": 0,
+        "shortRosters": [],
+        "skill": {
+          "n": 20,
+          "finite": 20,
+          "min": 42,
+          "p10": 53.8,
+          "median": 65,
+          "p90": 72.04400000000018,
+          "max": 73.94400000000019
+        },
+        "fatigue": {
+          "n": 20,
+          "finite": 20,
+          "min": 0,
+          "p10": 0,
+          "median": 16.934999999999988,
+          "p90": 55,
+          "max": 55
+        },
+        "injuries": 0,
+        "wages": {
+          "n": 19,
+          "finite": 19,
+          "min": 2000,
+          "p10": 2460,
+          "median": 2500,
+          "p90": 3099.9999999999977,
+          "max": 7500
+        },
+        "sponsors": {
+          "n": 3,
+          "finite": 3,
+          "min": 0,
+          "p10": 72929.2,
+          "median": 364646,
+          "p90": 528374.8,
+          "max": 569307
+        },
+        "elo": {
+          "n": 3,
+          "finite": 3,
+          "min": 1276,
+          "p10": 1308.2,
+          "median": 1437,
+          "p90": 1457.8,
+          "max": 1463
+        }
+      },
+      "outputHash": "1498a26345da31862b9e694f92c8e810814eb6d7248ab0df82db0d0911e3a872",
+      "limitation": "Real compute core plus human free-agent vacancy filling. Player matches use the missed-match autosimulation on the following tick. No live tactical actions, academy post-week coordinator, UI, durable storage or human playtest; terminal careers stop."
+    },
+    {
+      "seed": 28001,
+      "scale": "small",
+      "difficulty": "story",
+      "tier": "B_TIER",
+      "rosterStyle": "youth",
+      "intensity": 5,
+      "startingCash": 500000,
+      "inputHash": "0931dd6edbf4a7f1fefc005dbe0bf5d22d61bcf1fafb80c9f5b834439ee8bd09",
+      "ticks": 103,
+      "requestedWeeks": 520,
+      "matches": 81,
+      "injuries": 4,
+      "signings": 0,
+      "terminal": null,
+      "failures": [
+        {
+          "week": 104,
+          "issues": [
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.3.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.4.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.5.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.6.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.7.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.8.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.9.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.10.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.11.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.12.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.13.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.14.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.15.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.16.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.top20.17.kpr",
+            "nonfinite:save.eventsLog.152.data.proAwards.awperOfTheYear.kpr"
+          ]
+        }
+      ],
+      "shortages": [],
+      "deadSeasons": [],
+      "seasons": [
+        {
+          "week": 53,
+          "managedCash": 2577232,
+          "players": 19,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 2577232,
+            "p10": 4562648,
+            "median": 12504312,
+            "p90": 15558637.6,
+            "max": 16322219
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 19,
+            "finite": 19,
+            "min": 52,
+            "p10": 62.6,
+            "median": 65,
+            "p90": 78.78399999999979,
+            "max": 80
+          },
+          "fatigue": {
+            "n": 19,
+            "finite": 19,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 14.72000000000002,
+            "max": 14.72000000000002
+          },
+          "injuries": 0,
+          "wages": {
+            "n": 18,
+            "finite": 18,
+            "min": 2300,
+            "p10": 2500,
+            "median": 2500,
+            "p90": 3400.0000000000023,
+            "max": 7500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 66793.2,
+            "median": 333966,
+            "p90": 549760.4,
+            "max": 603709
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1222,
+            "p10": 1261.2,
+            "median": 1418,
+            "p90": 1482.8,
+            "max": 1499
+          },
+          "tick": 52,
+          "matches": 41,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 78.47999999999973,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 19,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 78.47999999999973,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 19,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 19,
+              "skill": 78.47999999999973,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 19,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s1",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s1",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s1",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s1",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s1",
+              "winner": "team_ai_2",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s1",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s1",
+              "winner": "team_ai_1",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s1",
+              "winner": "team_ai_1",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s1",
+              "winner": "team_ai_2",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s1",
+              "winner": "team_ai_1",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s1",
+              "winner": "team_ai_1",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s1",
+              "winner": "team_player",
+              "prize": 250000
+            }
+          ],
+          "transfers": []
+        },
+        {
+          "week": 104,
+          "managedCash": 5119316,
+          "players": 20,
+          "retired": 0,
+          "budgets": {
+            "n": 3,
+            "finite": 3,
+            "min": 5119316,
+            "p10": 12039604,
+            "median": 39720756,
+            "p90": 51730276.8,
+            "max": 54732657
+          },
+          "insolvent": 0,
+          "shortRosters": [],
+          "skill": {
+            "n": 20,
+            "finite": 20,
+            "min": 53,
+            "p10": 53.9,
+            "median": 65,
+            "p90": 80,
+            "max": 80
+          },
+          "fatigue": {
+            "n": 20,
+            "finite": 20,
+            "min": 0,
+            "p10": 0,
+            "median": 30,
+            "p90": 75,
+            "max": 76
+          },
+          "injuries": 1,
+          "wages": {
+            "n": 19,
+            "finite": 19,
+            "min": 2300,
+            "p10": 2500,
+            "median": 2500,
+            "p90": 4299.999999999999,
+            "max": 7500
+          },
+          "sponsors": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 120259.8,
+            "median": 601299,
+            "p90": 690270.2,
+            "max": 712513
+          },
+          "elo": {
+            "n": 3,
+            "finite": 3,
+            "min": 1314,
+            "p10": 1339,
+            "median": 1439,
+            "p90": 1439.8,
+            "max": 1440
+          },
+          "tick": 103,
+          "matches": 40,
+          "cohort": [
+            {
+              "id": "p_a1",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a2",
+              "opening": {
+                "age": 18,
+                "skill": 68
+              },
+              "age": 20,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a3",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a4",
+              "opening": {
+                "age": 18,
+                "skill": 69
+              },
+              "age": 20,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_a5",
+              "opening": {
+                "age": 18,
+                "skill": 66
+              },
+              "age": 20,
+              "skill": 80,
+              "retired": false
+            },
+            {
+              "id": "p_b1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_b4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_b5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c1",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c2",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c3",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "p_c4",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 66,
+              "retired": false
+            },
+            {
+              "id": "p_c5",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            },
+            {
+              "id": "qa_free_agent",
+              "opening": {
+                "age": 18,
+                "skill": 65
+              },
+              "age": 20,
+              "skill": 65,
+              "retired": false
+            }
+          ],
+          "completedTournaments": [
+            {
+              "id": "iem_katowice_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s1",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s1",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s1",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s1",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s1",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s1",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s1",
+              "winner": "team_ai_2",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s1",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s1",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s1",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s1",
+              "winner": "team_ai_2",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s1",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s1",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s1",
+              "winner": "team_ai_1",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s1",
+              "winner": "team_ai_1",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s1",
+              "winner": "team_ai_2",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s1",
+              "winner": "team_ai_1",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s1",
+              "winner": "team_ai_2",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s1",
+              "winner": "team_ai_2",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s1",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s1",
+              "winner": "team_ai_1",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s1",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "iem_katowice_open_s2",
+              "winner": "team_ai_1",
+              "prize": 0
+            },
+            {
+              "id": "iem_katowice_closed_eu_s2",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_katowice_s2",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "copenhagen_rmr_eu_s2",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_na_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "copenhagen_rmr_asia_s2",
+              "winner": "team_ai_1",
+              "prize": 30000
+            },
+            {
+              "id": "blast_spring_showdown_s2",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "major_copenhagen_s2",
+              "winner": "team_ai_1",
+              "prize": 1250000
+            },
+            {
+              "id": "skyesports_championship_s2",
+              "winner": "team_ai_1",
+              "prize": 50000
+            },
+            {
+              "id": "betboom_dacha_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "dreamhack_open_s2",
+              "winner": "team_ai_1",
+              "prize": 100000
+            },
+            {
+              "id": "yalla_compass_s2",
+              "winner": "team_ai_2",
+              "prize": 100000
+            },
+            {
+              "id": "iem_dallas_s2",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "iem_cologne_open_s2",
+              "winner": "team_ai_1",
+              "prize": 0
+            },
+            {
+              "id": "blast_spring_s2",
+              "winner": "team_ai_1",
+              "prize": 425000
+            },
+            {
+              "id": "iem_cologne_closed_s2",
+              "winner": "team_ai_1",
+              "prize": 10000
+            },
+            {
+              "id": "iem_cologne_s2",
+              "winner": "team_player",
+              "prize": 1000000
+            },
+            {
+              "id": "betway_masters_s2",
+              "winner": "team_ai_2",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_open_qual_s2",
+              "winner": "team_ai_2",
+              "prize": 5000
+            },
+            {
+              "id": "shanghai_rmr_eu_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_na_s2",
+              "winner": "team_ai_2",
+              "prize": 50000
+            },
+            {
+              "id": "shanghai_rmr_asia_s2",
+              "winner": "team_ai_2",
+              "prize": 30000
+            },
+            {
+              "id": "iem_chengdu_s2",
+              "winner": "team_player",
+              "prize": 250000
+            },
+            {
+              "id": "thunderpick_closed_qual_s2",
+              "winner": "team_ai_2",
+              "prize": 10000
+            },
+            {
+              "id": "thunderpick_wc_s2",
+              "winner": "team_ai_2",
+              "prize": 500000
+            },
+            {
+              "id": "major_shanghai_s2",
+              "winner": "team_ai_2",
+              "prize": 1250000
+            },
+            {
+              "id": "blast_fall_showdown_s2",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "cct_online_finals_s2",
+              "winner": "team_ai_1",
+              "prize": 75000
+            },
+            {
+              "id": "gamers8_riyadh_s2",
+              "winner": "team_ai_1",
+              "prize": 100000
+            },
+            {
+              "id": "blast_fall_s2",
+              "winner": "team_ai_1",
+              "prize": 425000
+            },
+            {
+              "id": "elisa_masters_espoo_s2",
+              "winner": "team_ai_1",
+              "prize": 150000
+            },
+            {
+              "id": "roobet_cup_s2",
+              "winner": "team_ai_1",
+              "prize": 250000
+            },
+            {
+              "id": "blast_world_final_s2",
+              "winner": "team_ai_2",
+              "prize": 1000000
+            },
+            {
+              "id": "iem_rio_s2",
+              "winner": "team_player",
+              "prize": 250000
+            }
+          ],
+          "transfers": []
+        }
+      ],
+      "final": {
+        "week": 104,
+        "managedCash": 5119316,
+        "players": 20,
+        "retired": 0,
+        "budgets": {
+          "n": 3,
+          "finite": 3,
+          "min": 5119316,
+          "p10": 12039604,
+          "median": 39720756,
+          "p90": 51730276.8,
+          "max": 54732657
+        },
+        "insolvent": 0,
+        "shortRosters": [],
+        "skill": {
+          "n": 20,
+          "finite": 20,
+          "min": 53,
+          "p10": 53.9,
+          "median": 65,
+          "p90": 80,
+          "max": 80
+        },
+        "fatigue": {
+          "n": 20,
+          "finite": 20,
+          "min": 0,
+          "p10": 0,
+          "median": 30,
+          "p90": 75,
+          "max": 76
+        },
+        "injuries": 1,
+        "wages": {
+          "n": 19,
+          "finite": 19,
+          "min": 2300,
+          "p10": 2500,
+          "median": 2500,
+          "p90": 4299.999999999999,
+          "max": 7500
+        },
+        "sponsors": {
+          "n": 3,
+          "finite": 3,
+          "min": 0,
+          "p10": 120259.8,
+          "median": 601299,
+          "p90": 690270.2,
+          "max": 712513
+        },
+        "elo": {
+          "n": 3,
+          "finite": 3,
+          "min": 1314,
+          "p10": 1339,
+          "median": 1439,
+          "p90": 1439.8,
+          "max": 1440
+        }
+      },
+      "outputHash": "a5b995ecb87b5b7b7fcbee0cfa901ad80fbd825e0348c7421337f7cb830ef778",
+      "limitation": "Real compute core plus human free-agent vacancy filling. Player matches use the missed-match autosimulation on the following tick. No live tactical actions, academy post-week coordinator, UI, durable storage or human playtest; terminal careers stop."
+    }
+  ]
+}

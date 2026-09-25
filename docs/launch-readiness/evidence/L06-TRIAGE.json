@@ -1,0 +1,1172 @@
+{
+  "date": "2026-09-13",
+  "scope": "All 47 baseline npm package findings (not 47 distinct CVEs). Reachability is source/installed-graph triage; packaged graph remains unverified.",
+  "lockSha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53",
+  "rows": [
+    {
+      "name": "@babel/core",
+      "severity": "low",
+      "before": "7.29.0",
+      "after": "7.29.7",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "@babel/core: Arbitrary File Read via sourceMappingURL Comment",
+          "url": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "@huggingface/transformers",
+      "severity": "high",
+      "before": "4.2.0",
+      "after": "removed",
+      "baselineProduction": false,
+      "context": "Unused development package removed; no source import found.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "@imgly/background-removal-node",
+      "severity": "high",
+      "before": "1.4.5",
+      "after": "1.4.5",
+      "baselineProduction": false,
+      "context": "Offline asset production script only; validated patched Sharp/Zod/Lodash API overrides.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "@next/eslint-plugin-next",
+      "severity": "high",
+      "before": "14.2.35",
+      "after": "15.5.25",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "@xmldom/xmldom",
+      "severity": "high",
+      "before": "0.8.11",
+      "after": "0.8.15",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "xmldom: XML injection via unsafe CDATA serialization allows attacker-controlled markup insertion",
+          "url": "https://github.com/advisories/GHSA-wh4c-j3r5-mjhp"
+        },
+        {
+          "title": "xmldom: Uncontrolled recursion in XML serialization leads to DoS",
+          "url": "https://github.com/advisories/GHSA-2v35-w6hq-6mfw"
+        },
+        {
+          "title": "xmldom has XML injection through unvalidated DocumentType serialization",
+          "url": "https://github.com/advisories/GHSA-f6ww-3ggp-fr8h"
+        },
+        {
+          "title": "xmldom has XML node injection through unvalidated processing instruction serialization",
+          "url": "https://github.com/advisories/GHSA-x6wf-f3px-wcqx"
+        },
+        {
+          "title": "xmldom has XML node injection through unvalidated comment serialization",
+          "url": "https://github.com/advisories/GHSA-j759-j44w-7fr8"
+        },
+        {
+          "title": "xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization",
+          "url": "https://github.com/advisories/GHSA-6gmq-8vp8-gcm6"
+        },
+        {
+          "title": "xmldom: Element name injection via createElement() bypasses requireWellFormed",
+          "url": "https://github.com/advisories/GHSA-w2rr-34g9-rvrj"
+        },
+        {
+          "title": "xmldom: Attribute name injection via setAttribute() bypasses requireWellFormed",
+          "url": "https://github.com/advisories/GHSA-4w3w-2rp5-g8jm"
+        },
+        {
+          "title": "xmldom: Processing Instruction Target Injection Bypasses requireWellFormed",
+          "url": "https://github.com/advisories/GHSA-c7q8-3ch8-vqpv"
+        },
+        {
+          "title": "xmldom: DocType `name` Injection Bypasses requireWellFormed",
+          "url": "https://github.com/advisories/GHSA-27p8-2357-5qqv"
+        },
+        {
+          "title": "xmldom: Parser silently accepts a not-well-formed end tag whose name is followed by a line break and trailing content",
+          "url": "https://github.com/advisories/GHSA-6h8r-xr42-gp59"
+        },
+        {
+          "title": "xmldom: Quadratic-time attribute deduplication",
+          "url": "https://github.com/advisories/GHSA-8344-3jmq-59r6"
+        },
+        {
+          "title": "xmldom: End-tag Whitespace-Trim Regex ReDoS — quadratic backtracking in the 0.8.x end-tag parser",
+          "url": "https://github.com/advisories/GHSA-x4fp-j954-r2f4"
+        },
+        {
+          "title": "xmldom: Quadratic-memory consumption",
+          "url": "https://github.com/advisories/GHSA-965w-775f-mr7g"
+        },
+        {
+          "title": "xmldom: Quadratic-time parsing via the malformed-input recovery path — `parseElementStartPart` re-scan and `normalize()` adjacent-text merge",
+          "url": "https://github.com/advisories/GHSA-93r5-fhx6-vmg9"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "adm-zip",
+      "severity": "high",
+      "before": "0.5.17",
+      "after": "removed",
+      "baselineProduction": false,
+      "context": "Vulnerable copy removed with unused Transformers/ONNX graph.",
+      "advisories": [
+        {
+          "title": "adm-zip: Crafted ZIP file triggers 4GB memory allocation",
+          "url": "https://github.com/advisories/GHSA-xcpc-8h2w-3j85"
+        },
+        {
+          "title": "adm-zip extraction follows destination symlinks, allowing arbitrary file overwrite",
+          "url": "https://github.com/advisories/GHSA-vwc7-r8mq-g2x9"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "ajv",
+      "severity": "moderate",
+      "before": "6.14.0, 8.17.1",
+      "after": "6.15.0, 8.20.0",
+      "baselineProduction": true,
+      "context": "electron-store schema validation; upgrade all affected copies.",
+      "advisories": [
+        {
+          "title": "ajv has ReDoS when using `$data` option",
+          "url": "https://github.com/advisories/GHSA-2g4f-4pwh-qvx6"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "app-builder-lib",
+      "severity": "high",
+      "before": "26.7.0",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "electron-updater: Uncontrolled search path elements within `AppImage` built by `app-builder-lib`",
+          "url": "https://github.com/advisories/GHSA-7g7r-gx96-252g"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "axios",
+      "severity": "high",
+      "before": "1.13.4",
+      "after": "1.20.0",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "url": "https://github.com/advisories/GHSA-3p68-rc4w-qgx5"
+        },
+        {
+          "title": "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy",
+          "url": "https://github.com/advisories/GHSA-w9j2-pvgh-6h63"
+        },
+        {
+          "title": "Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0",
+          "url": "https://github.com/advisories/GHSA-pmwg-cvhr-8vh7"
+        },
+        {
+          "title": "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`",
+          "url": "https://github.com/advisories/GHSA-3w6x-2g7m-8v23"
+        },
+        {
+          "title": "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams",
+          "url": "https://github.com/advisories/GHSA-xhjh-pmcv-23jw"
+        },
+        {
+          "title": "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream",
+          "url": "https://github.com/advisories/GHSA-445q-vr5w-6q77"
+        },
+        {
+          "title": "Axios: no_proxy bypass via IP alias allows SSRF",
+          "url": "https://github.com/advisories/GHSA-m7pr-hjqh-92cm"
+        },
+        {
+          "title": "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0",
+          "url": "https://github.com/advisories/GHSA-5c9x-8gcm-mpgx"
+        },
+        {
+          "title": "Axios: HTTP adapter streamed responses bypass maxContentLength",
+          "url": "https://github.com/advisories/GHSA-vf2m-468p-8v99"
+        },
+        {
+          "title": "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking",
+          "url": "https://github.com/advisories/GHSA-pf86-5x62-jrwf"
+        },
+        {
+          "title": "Axios: Header Injection via Prototype Pollution",
+          "url": "https://github.com/advisories/GHSA-6chq-wfr3-2hj9"
+        },
+        {
+          "title": "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion",
+          "url": "https://github.com/advisories/GHSA-xx6v-rp6x-q39c"
+        },
+        {
+          "title": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig",
+          "url": "https://github.com/advisories/GHSA-43fc-jf86-j433"
+        },
+        {
+          "title": "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking",
+          "url": "https://github.com/advisories/GHSA-q8qp-cvcw-x6jj"
+        },
+        {
+          "title": "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "url": "https://github.com/advisories/GHSA-fvcv-3m26-pcqx"
+        },
+        {
+          "title": "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data",
+          "url": "https://github.com/advisories/GHSA-62hf-57xw-28j9"
+        },
+        {
+          "title": "Axios: Regular Expression Denial of Service (ReDoS) via Cookie Name Injection",
+          "url": "https://github.com/advisories/GHSA-hfxv-24rg-xrqf"
+        },
+        {
+          "title": "Allocation of Resources Without Limits or Throttling in Axios",
+          "url": "https://github.com/advisories/GHSA-777c-7fjr-54vf"
+        },
+        {
+          "title": "Axios: Proxy-Authorization Credential Leak to Origin Server Across HTTP-to-HTTPS Redirect in Axios Node.js HTTP Adapter",
+          "url": "https://github.com/advisories/GHSA-p92q-9vqr-4j8v"
+        },
+        {
+          "title": "Axios: Proxy-Authorization header leaks to redirect target when proxy is re-evaluated to direct connection",
+          "url": "https://github.com/advisories/GHSA-j5f8-grm9-p9fc"
+        },
+        {
+          "title": "axios Vulnerable to Credential Theft and Response Hijacking via Prototype Pollution Gadget in Config Merge",
+          "url": "https://github.com/advisories/GHSA-3g43-6gmg-66jw"
+        },
+        {
+          "title": "axios Vulnerable to Full Man-in-the-Middle via Prototype Pollution Gadget in `config.proxy`",
+          "url": "https://github.com/advisories/GHSA-35jp-ww65-95wh"
+        },
+        {
+          "title": "axios has DoS & Header Injection via Prototype Pollution Read-Side Gadgets in axios merge functions",
+          "url": "https://github.com/advisories/GHSA-898c-q2cr-xwhg"
+        },
+        {
+          "title": "Axios: Prototype pollution gadgets can alter axios request construction",
+          "url": "https://github.com/advisories/GHSA-mmx7-hfxf-jppx"
+        },
+        {
+          "title": "Axios: Deep formToJSON Key Recursion Can Cause Denial of Service",
+          "url": "https://github.com/advisories/GHSA-pmv8-rq9r-6j72"
+        },
+        {
+          "title": "Axios: HTTP/2 streamed uploads bypass `maxBodyLength`",
+          "url": "https://github.com/advisories/GHSA-mwf2-3pr3-8698"
+        },
+        {
+          "title": "Axios: Nested axios option objects can consume polluted prototype values",
+          "url": "https://github.com/advisories/GHSA-7q8q-rj6j-mhjq"
+        },
+        {
+          "title": "Axios: Fetch adapter `ReadableStream` uploads bypass `maxBodyLength`",
+          "url": "https://github.com/advisories/GHSA-jqh4-m9w3-8hp9"
+        },
+        {
+          "title": "Axios: Excessive recursion in formDataToJSON can cause denial of service",
+          "url": "https://github.com/advisories/GHSA-42h9-826w-cgv3"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "baseline-browser-mapping",
+      "severity": "moderate",
+      "before": "2.9.19",
+      "after": "2.11.23",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+          "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "brace-expansion",
+      "severity": "high",
+      "before": "1.1.12, 2.0.2, 2.1.0, 5.0.4",
+      "after": "1.1.18, 2.1.4, 5.0.9",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v"
+        },
+        {
+          "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v"
+        },
+        {
+          "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v"
+        },
+        {
+          "title": "brace-expansion: Large numeric range defeats documented `max` DoS protection",
+          "url": "https://github.com/advisories/GHSA-jxxr-4gwj-5jf2"
+        },
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp"
+        },
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp"
+        },
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "browserslist",
+      "severity": "high",
+      "before": "4.28.1",
+      "after": "4.28.9",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+          "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx"
+        },
+        {
+          "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+          "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "builder-util",
+      "severity": "high",
+      "before": "26.4.1",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "builder-util-runtime",
+      "severity": "high",
+      "before": "9.5.1",
+      "after": "9.7.0",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "electron-updater: Cross-origin redirect leaks `PRIVATE-TOKEN` and mixed-case `Authorization` credentials in `builder-util-runtime`",
+          "url": "https://github.com/advisories/GHSA-p2f4-r6v6-j797"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "concurrently",
+      "severity": "critical",
+      "before": "9.2.1",
+      "after": "9.2.4",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "dmg-builder",
+      "severity": "high",
+      "before": "26.7.0",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "electron",
+      "severity": "high",
+      "before": "39.8.10",
+      "after": "44.3.0",
+      "baselineProduction": false,
+      "context": "Desktop Chromium/Node runtime despite npm dev classification; native load verified, packaged launch pending.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "electron-builder",
+      "severity": "high",
+      "before": "26.7.0",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "electron-builder-squirrel-windows",
+      "severity": "high",
+      "before": "26.7.0",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "electron-publish",
+      "severity": "high",
+      "before": "26.6.0",
+      "after": "26.15.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "esbuild",
+      "severity": "low",
+      "before": "0.27.3",
+      "after": "0.28.2",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "esbuild allows arbitrary file read when running the development server on Windows",
+          "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "eslint-config-next",
+      "severity": "high",
+      "before": "14.2.35",
+      "after": "15.5.25",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "extract-zip",
+      "severity": "high",
+      "before": "2.0.1",
+      "after": "removed",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "extract-zip unvalidated symlink path traversal",
+          "url": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv"
+        },
+        {
+          "title": "extract-zip allows arbitrary file writes through symlink archive entries",
+          "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "fast-uri",
+      "severity": "high",
+      "before": "3.1.0",
+      "after": "3.1.7",
+      "baselineProduction": true,
+      "context": "URI parser under schema tooling/runtime validation; patched transitive graph.",
+      "advisories": [
+        {
+          "title": "fast-uri vulnerable to host confusion via literal backslash authority delimiter",
+          "url": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via backslash authority introducer",
+          "url": "https://github.com/advisories/GHSA-7p8r-x3mc-p8w7"
+        },
+        {
+          "title": "fast-uri vulnerable to path traversal via percent-encoded dot segments",
+          "url": "https://github.com/advisories/GHSA-q3j6-qgpj-74h6"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via percent-encoded authority delimiters",
+          "url": "https://github.com/advisories/GHSA-v39h-62p7-jpjc"
+        },
+        {
+          "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+          "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+          "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via failed IDN canonicalization",
+          "url": "https://github.com/advisories/GHSA-4c8g-83qw-93j6"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "fflate",
+      "severity": "moderate",
+      "before": "0.6.10",
+      "after": "0.6.11",
+      "baselineProduction": true,
+      "context": "3D asset decoding through Drei; upgraded Drei/Fiber graph.",
+      "advisories": [
+        {
+          "title": "fflate unzipSync can enter an infinite loop when parsing malformed ZIP64 archives",
+          "url": "https://github.com/advisories/GHSA-px8p-9vwx-vf98"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "follow-redirects",
+      "severity": "moderate",
+      "before": "1.15.11",
+      "after": "1.16.0",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets",
+          "url": "https://github.com/advisories/GHSA-r4q5-vmmm-2653"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "form-data",
+      "severity": "high",
+      "before": "4.0.5",
+      "after": "4.0.6",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+          "url": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "glob",
+      "severity": "high",
+      "before": "10.3.10, 10.5.0, 7.2.3",
+      "after": "7.2.3",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "handlebars",
+      "severity": "critical",
+      "before": "4.7.8",
+      "after": "4.7.9",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "Handlebars.js has JavaScript Injection via AST Type Confusion by tampering @partial-block",
+          "url": "https://github.com/advisories/GHSA-3mfm-83xf-c92r"
+        },
+        {
+          "title": "Handlebars.js has JavaScript Injection via AST Type Confusion",
+          "url": "https://github.com/advisories/GHSA-2w6w-674q-4c4q"
+        },
+        {
+          "title": "Handlebars.js has Prototype Pollution Leading to XSS through Partial Template Injection",
+          "url": "https://github.com/advisories/GHSA-2qvq-rjwj-gvw9"
+        },
+        {
+          "title": "Handlebars.js has a Prototype Method Access Control Gap via Missing __lookupSetter__ Blocklist Entry",
+          "url": "https://github.com/advisories/GHSA-7rx3-28cr-v5wh"
+        },
+        {
+          "title": "Handlebars.js has a Property Access Validation Bypass in container.lookup",
+          "url": "https://github.com/advisories/GHSA-442j-39wm-28r2"
+        },
+        {
+          "title": "Handlebars.js has JavaScript Injection via AST Type Confusion when passing an object as dynamic partial",
+          "url": "https://github.com/advisories/GHSA-xhpv-hc6g-r9c6"
+        },
+        {
+          "title": "Handlebars.js has Denial of Service via Malformed Decorator Syntax in Template Compilation",
+          "url": "https://github.com/advisories/GHSA-9cx6-37pm-9jff"
+        },
+        {
+          "title": "Handlebars.js has JavaScript Injection in CLI Precompiler via Unescaped Names and Options",
+          "url": "https://github.com/advisories/GHSA-xjpj-3mr7-gcpf"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "ip-address",
+      "severity": "high",
+      "before": "10.1.0",
+      "after": "removed",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "ip-address has XSS in Address6 HTML-emitting methods",
+          "url": "https://github.com/advisories/GHSA-v2v4-37r5-5v8g"
+        },
+        {
+          "title": "ip-address: Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF and trust-boundary bypass",
+          "url": "https://github.com/advisories/GHSA-mwp4-54f8-5fhr"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "joi",
+      "severity": "moderate",
+      "before": "18.0.2",
+      "after": "18.2.9",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "joi has an uncaught RangeError on deeply nested input through recursive `link()` schemas",
+          "url": "https://github.com/advisories/GHSA-q7cg-457f-vx79"
+        },
+        {
+          "title": "joi: Prototype pollution via a `__proto__` language key in custom messages",
+          "url": "https://github.com/advisories/GHSA-6w3j-5fw6-r9vr"
+        },
+        {
+          "title": "joi: object().rename() with a template target can set the validated object's prototype",
+          "url": "https://github.com/advisories/GHSA-gg4h-3hg2-grpc"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "js-yaml",
+      "severity": "high",
+      "before": "3.14.2, 4.1.1",
+      "after": "3.15.2, 4.3.2",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68"
+        },
+        {
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68"
+        },
+        {
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m"
+        },
+        {
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m"
+        },
+        {
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj"
+        },
+        {
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj"
+        },
+        {
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh"
+        },
+        {
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "lodash",
+      "severity": "high",
+      "before": "4.17.23",
+      "after": "4.18.1",
+      "baselineProduction": true,
+      "context": "Rendering helpers and offline portrait tools; patched root and pinned IMG.LY copy.",
+      "advisories": [
+        {
+          "title": "lodash vulnerable to Code Injection via `_.template` imports key names",
+          "url": "https://github.com/advisories/GHSA-r5fr-rjxr-66jc"
+        },
+        {
+          "title": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
+          "url": "https://github.com/advisories/GHSA-f23m-r3pf-42rh"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "minimatch",
+      "severity": "high",
+      "before": "10.2.4, 3.1.2, 3.1.5, 5.1.6, 9.0.5, 9.0.9",
+      "after": "10.2.6, 3.1.5, 5.1.9, 9.0.9",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26"
+        },
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26"
+        },
+        {
+          "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+          "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj"
+        },
+        {
+          "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+          "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74"
+        },
+        {
+          "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+          "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "nanoid",
+      "severity": "high",
+      "before": "3.3.11",
+      "after": "3.3.19",
+      "baselineProduction": true,
+      "context": "Build/style dependency with runtime graph presence; upgrade all affected copies.",
+      "advisories": [
+        {
+          "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+          "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv"
+        },
+        {
+          "title": "nanoid: custom generators can loop indefinitely when size is zero",
+          "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8"
+        },
+        {
+          "title": "nanoid: Integer Overflow or Wraparound",
+          "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "next",
+      "severity": "critical",
+      "before": "14.2.35",
+      "after": "15.5.25",
+      "baselineProduction": true,
+      "context": "Local Next server and browser bundles; old release unsupported. Framework and React upgraded.",
+      "advisories": [
+        {
+          "title": "Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration",
+          "url": "https://github.com/advisories/GHSA-9g9p-9gw9-jx7f"
+        },
+        {
+          "title": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+          "url": "https://github.com/advisories/GHSA-h25m-26qc-wcjf"
+        },
+        {
+          "title": "Next.js: HTTP request smuggling in rewrites",
+          "url": "https://github.com/advisories/GHSA-ggv3-7p47-pfv8"
+        },
+        {
+          "title": "Next.js: Unbounded next/image disk cache growth can exhaust storage",
+          "url": "https://github.com/advisories/GHSA-3x4c-7xq6-9pq8"
+        },
+        {
+          "title": "Next.js has a Denial of Service with Server Components",
+          "url": "https://github.com/advisories/GHSA-q4gf-8mx6-v5v3"
+        },
+        {
+          "title": "Next.js Vulnerable to Denial of Service with Server Components",
+          "url": "https://github.com/advisories/GHSA-8h8q-6873-q5fj"
+        },
+        {
+          "title": "Next.js's Middleware / Proxy redirects can be cache-poisoned",
+          "url": "https://github.com/advisories/GHSA-3g8h-86w9-wvmq"
+        },
+        {
+          "title": "Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces",
+          "url": "https://github.com/advisories/GHSA-ffhc-5mcf-pf4q"
+        },
+        {
+          "title": "Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting",
+          "url": "https://github.com/advisories/GHSA-vfv6-92ff-j949"
+        },
+        {
+          "title": "Next.js has cross-site scripting in beforeInteractive scripts with untrusted input",
+          "url": "https://github.com/advisories/GHSA-gx5p-jg67-6x7h"
+        },
+        {
+          "title": "Next.js has a Denial of Service in the Image Optimization API",
+          "url": "https://github.com/advisories/GHSA-h64f-5h5j-jqjh"
+        },
+        {
+          "title": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+          "url": "https://github.com/advisories/GHSA-c4j6-fc7j-m34r"
+        },
+        {
+          "title": "Next.js vulnerable to cache poisoning in React Server Component responses",
+          "url": "https://github.com/advisories/GHSA-wfc6-r584-vfw7"
+        },
+        {
+          "title": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
+          "url": "https://github.com/advisories/GHSA-36qx-fr4f-26g5"
+        },
+        {
+          "title": "Next.js: Denial of Service in App Router using Server Actions",
+          "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj"
+        },
+        {
+          "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+          "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x"
+        },
+        {
+          "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+          "url": "https://github.com/advisories/GHSA-68g3-v927-f742"
+        },
+        {
+          "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+          "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q"
+        },
+        {
+          "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+          "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3"
+        },
+        {
+          "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+          "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4"
+        },
+        {
+          "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+          "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp"
+        },
+        {
+          "title": "Next.js: Unauthenticated Remote Code Execution on windows-hosted servers",
+          "url": "https://github.com/advisories/GHSA-p293-qw3h-jr36"
+        },
+        {
+          "title": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used",
+          "url": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "onnxruntime-node",
+      "severity": "high",
+      "before": "1.17.3, 1.24.3",
+      "after": "1.17.3",
+      "baselineProduction": false,
+      "context": "Vulnerable 1.24 copy removed with unused Transformers; retained IMG.LY 1.17.3 native binding loads.",
+      "advisories": [],
+      "resolved": true
+    },
+    {
+      "name": "postcss",
+      "severity": "high",
+      "before": "8.4.31, 8.5.6",
+      "after": "8.5.28",
+      "baselineProduction": true,
+      "context": "CSS compilation and Next server graph; patched root and Next nested copy. No attacker CSS exploit established.",
+      "advisories": [
+        {
+          "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+          "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93"
+        },
+        {
+          "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+          "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q"
+        },
+        {
+          "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+          "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp"
+        },
+        {
+          "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+          "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "postcss-selector-parser",
+      "severity": "low",
+      "before": "6.1.2",
+      "after": "6.1.4",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "postcss-selector-parser allows denial of service through uncontrolled AST recursion",
+          "url": "https://github.com/advisories/GHSA-w9m9-85wc-3x92"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "protobufjs",
+      "severity": "high",
+      "before": "7.5.6",
+      "after": "removed",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "protobufjs: Denial of Service via unbounded recursive JSON descriptor expansion",
+          "url": "https://github.com/advisories/GHSA-jggg-4jg4-v7c6"
+        },
+        {
+          "title": "protobufjs: Denial of service through unbounded Any expansion during JSON conversion",
+          "url": "https://github.com/advisories/GHSA-wcpc-wj8m-hjx6"
+        },
+        {
+          "title": "protobufjs : Schema-derived names can shadow runtime-significant properties",
+          "url": "https://github.com/advisories/GHSA-f38q-mgvj-vph7"
+        },
+        {
+          "title": "protobufjs: Denial of Service via infinite loop in .proto option parsing",
+          "url": "https://github.com/advisories/GHSA-j3f2-48v5-ccww"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "sharp",
+      "severity": "high",
+      "before": "0.32.6, 0.34.5",
+      "after": "0.35.4",
+      "baselineProduction": false,
+      "context": "Image build/asset tooling and optional Next image runtime; codecs smoke-tested, patched all copies.",
+      "advisories": [
+        {
+          "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+          "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
+        },
+        {
+          "title": "sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545",
+          "url": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "shell-quote",
+      "severity": "critical",
+      "before": "1.8.3",
+      "after": "1.9.0",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "shell-quote quote() does not escape newlines in object .op values",
+          "url": "https://github.com/advisories/GHSA-w7jw-789q-3m8p"
+        },
+        {
+          "title": "shell-quote: Quadratic-complexity Denial of Service in `parse()` (CWE-407)",
+          "url": "https://github.com/advisories/GHSA-395f-4hp3-45gv"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "tar",
+      "severity": "critical",
+      "before": "7.5.7",
+      "after": "7.5.22",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+          "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+        },
+        {
+          "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+          "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+        },
+        {
+          "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+          "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+        },
+        {
+          "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+          "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+        },
+        {
+          "title": "node-tar: Process crash via PAX numeric path type confusion",
+          "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+        },
+        {
+          "title": "node-tar: Decompression/parse DoS via unlimited input",
+          "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+        },
+        {
+          "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+          "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+        },
+        {
+          "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+          "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+        },
+        {
+          "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+          "url": "https://github.com/advisories/GHSA-r292-9mhp-454m"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "tmp",
+      "severity": "high",
+      "before": "0.2.5",
+      "after": "0.2.7",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "tmp has Path Traversal via unsanitized prefix/postfix that enables directory escape",
+          "url": "https://github.com/advisories/GHSA-ph9p-34f9-6g65"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "ws",
+      "severity": "high",
+      "before": "7.5.10",
+      "after": "7.5.13",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
+          "url": "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "xlsx",
+      "severity": "high",
+      "before": "0.18.5",
+      "after": "0.20.3",
+      "baselineProduction": false,
+      "context": "Offline spreadsheet import/build scripts; switched from stale npm package to official SheetJS tarball.",
+      "advisories": [
+        {
+          "title": "Prototype Pollution in sheetJS",
+          "url": "https://github.com/advisories/GHSA-4r6h-8v6p-xvw6"
+        },
+        {
+          "title": "SheetJS Regular Expression Denial of Service (ReDoS)",
+          "url": "https://github.com/advisories/GHSA-5pgg-2g8v-p4x9"
+        }
+      ],
+      "resolved": true
+    },
+    {
+      "name": "zod",
+      "severity": "moderate",
+      "before": "3.21.4, 3.25.76",
+      "after": "3.25.76",
+      "baselineProduction": false,
+      "context": "Development/build dependency chain; updated compatible resolved versions. Not a demonstrated gameplay exploit.",
+      "advisories": [
+        {
+          "title": "Zod denial of service vulnerability",
+          "url": "https://github.com/advisories/GHSA-m95q-7qp3-xv42"
+        }
+      ],
+      "resolved": true
+    }
+  ]
+}

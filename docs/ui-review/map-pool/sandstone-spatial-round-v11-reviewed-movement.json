@@ -1,0 +1,124 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Sandstone",
+  "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "0 combat and 1 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 94.640625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 214852,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 863,
+        "waits": 1923,
+        "replans": 135,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 10,
+      "routeFailures": [
+        {
+          "tick": 3584,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 3760,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 5136,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT5",
+          "side": "CT"
+        },
+        {
+          "tick": 5200,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 5408,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            -1592.8897254056765,
+            2394.5751388947238,
+            1.9890838082715032
+          ],
+          "goal": [
+            160.122742,
+            2369.67627,
+            -116.2003286382158
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5650,
+            "type": "spacing-wait",
+            "reason": "Body T3 occupies the swept path.",
+            "actor": "CT2",
+            "side": "CT",
+            "from": [
+              -1592.8897254056765,
+              2394.5751388947238,
+              1.9890838082715032
+            ],
+            "point": [
+              -1592.779460838728,
+              2393.9253384979966,
+              1.9781737165430078
+            ]
+          }
+        },
+        {
+          "id": "CT4",
+          "point": [
+            -1545.3255954326355,
+            2613.7401487527886,
+            6.5158193355135365
+          ],
+          "goal": [
+            334.368744,
+            2433.733643,
+            -116.83812489570909
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5408,
+            "type": "route-blocked",
+            "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+            "actor": "CT4",
+            "side": "CT"
+          }
+        }
+      ],
+      "outputSha256": "45b167af8ac17290eb33fe6e579f4313313bbe4f31306cb5ed45b95320e647be"
+    }
+  ]
+}

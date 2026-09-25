@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 import {
   Target, Gamepad2, TrendingUp, Heart, Zap, User as UserIcon,
@@ -11,15 +10,11 @@ import { memo, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { formatRole } from "@/lib/utils-extended"
 
-// Lazy three.js so cards that don't enable 3D never pull the bundle.
-const Player3DPortrait = dynamic(
-  () => import("@/components/ui/Player3DPortrait").then(m => m.Player3DPortrait),
-  { ssr: false, loading: () => null },
-)
 import { Badge } from "@/components/ui/badge"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { ProgressBar } from "@/src/components/ui/ProgressBar"
+import { playerEnergyPercent } from "@/lib/player-energy"
 import { getTierStyle, type TierLevel } from "@/engine/tier-system"
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -44,6 +39,7 @@ export interface PlayerCardPlayer {
   form?: number
   morale?: number
   fatigue?: number
+  energy?: number
   salaryPerWeek?: number
   contractYearsLeft?: number
 }
@@ -80,13 +76,7 @@ export interface PlayerCardProps {
   /** framer-motion layoutId for shared-element transitions */
   layoutId?: string
   className?: string
-  /**
-   * Render a live three.js 3D head instead of the static portrait. Off by
-   * default because each enabled card spins up its own WebGL context — only
-   * turn this on for views with ≤6 cards visible at once (e.g. starting
-   * lineup, hero/reveal).
-   */
-  enable3DPortrait?: boolean
+
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -168,7 +158,6 @@ function PlayerCardImpl({
   children,
   layoutId,
   className,
-  enable3DPortrait = false,
 }: PlayerCardProps) {
   const isCompact = variant === "compact" || size === "xs"
   const isReveal = variant === "reveal"
@@ -214,10 +203,7 @@ function PlayerCardImpl({
         "relative z-10 flex items-center gap-3",
         isReveal && size === "lg" && "flex-col text-center gap-4",
       )}>
-        {/* Portrait — real photo when the player has one; otherwise a generated
-            portrait: the live 3D head where enabled (few cards on screen), or the
-            matching procedural face (via `seed`) for dense lists. Never a bare
-            placeholder silhouette. */}
+        {/* Stable portrait shared with profile and transfer screens. */}
         <div
           className={cn(
             "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
@@ -229,21 +215,8 @@ function PlayerCardImpl({
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >
-          {player.portraitPath && player.portraitPath !== '/player_placeholder.webp' ? (
-            <div className="absolute inset-0">
-              <PlayerPortrait src={player.portraitPath} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
-            </div>
-          ) : (
-            enable3DPortrait ? (
-              <div className="absolute inset-0">
-                <Player3DPortrait seed={player.id} size={portraitPx} interactive={false} />
-              </div>
-            ) : (
-              <div className="absolute inset-0">
-                <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
-              </div>
-            )
-          )}
+          <PlayerPortrait key={player.id} src={player.portraitPath} seed={player.id}
+            alt={player.nickname} size={portraitPx} variant={isReveal ? "hero" : "card"} />
         </div>
 
         {/* Identity + bars */}
@@ -318,7 +291,7 @@ function PlayerCardImpl({
             <div className="flex-1 w-full grid grid-cols-1 gap-1.5 mt-2">
               <ProgressBar label="Morale" value={player.morale ?? 75} tone="success" />
               <ProgressBar label="Form" value={player.form ?? 70} tone="brand" />
-              <ProgressBar label="Energy" value={Math.max(0, 100 - (player.fatigue ?? 0))} tone="warning" />
+              <ProgressBar label="Energy" value={playerEnergyPercent(player)} tone="warning" />
             </div>
           )}
         </div>

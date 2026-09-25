@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-09-25T09:11:21.263Z",
+  "summary": {
+    "BLOCKER": 0,
+    "HIGH": 0,
+    "MEDIUM": 1,
+    "LOW": 0,
+    "INFO": 7
+  },
+  "findings": [
+    {
+      "check": "A15",
+      "severity": "MEDIUM",
+      "code": "VALVE_MAP_NAME",
+      "file": "data/map-studio-library.json",
+      "detail": "Valve-specific map identifier 'dust2' is embedded in shipped data/code. Steam reviewers will recognise these — consider replacing with original map names (the safe-branding pipeline can map them at the data boundary)."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_IN_COMMENT",
+      "file": "engine/spatial/airborne.ts",
+      "detail": "Token 'cs2' occurs only in source comments; retained as context, not a shipped-text blocker."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_IN_COMMENT",
+      "file": "engine/spatial/encounter.ts",
+      "detail": "Token 'cs2' occurs only in source comments; retained as context, not a shipped-text blocker."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_IN_COMMENT",
+      "file": "engine/spatial/utility.ts",
+      "detail": "Token 'cs2' occurs only in source comments; retained as context, not a shipped-text blocker."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_IN_REFERENCE_URL",
+      "file": "lib/map-utility-templates.ts",
+      "detail": "Token 'cs2' occurs only inside URL literals. Retain the source link for review; this does not clear any linked/downloaded content or imply endorsement."
+    },
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_SOURCE_ALLOWLIST",
+      "detail": "Skipped 11 file(s) covered by sourceAllowlist / sourceAllowlistGlobs in steam-compliance-policy.json."
+    },
+    {
+      "check": "A7",
+      "severity": "INFO",
+      "code": "NETWORK_CALL_SUMMARY",
+      "detail": "Scanned 520 client TS files; 0 external http(s) call site(s), 9 local fetch() call site(s)."
+    },
+    {
+      "check": "A9",
+      "severity": "INFO",
+      "code": "HYGIENE_SUMMARY",
+      "detail": "0 raw console.* file(s), 0 debugger statement(s)."
+    }
+  ]
+}

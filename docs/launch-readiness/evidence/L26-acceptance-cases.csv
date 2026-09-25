@@ -1,0 +1,19 @@
+id,area,scenario,expected,status
+L26-UI01,Finances,Zero league income,No invented payment and zero share bar,NOT_RUN
+L26-UI02,Finances,Negative balance and zero net,Consistent minus sign and no claim of profit,NOT_RUN
+L26-UI03,Contracts,Large precise fee and wage,Exact figures agree with the final quote,NOT_RUN
+L26-UI04,Help,New player reads stats and buying guide,Player can distinguish OVR ADR series maps and wages,NOT_RUN
+L26-UI05,Inbox,Old save with missing event data,Readable fallback title and usable decision controls,NOT_RUN
+L26-UI06,Forecast,Contract expires or sponsor changes,Displayed forecast agrees with next settlement,NOT_RUN
+L26-UI07,Calendar,Daily advance across week and DST,Week labels and focus reset agree with simulation,NOT_RUN
+L26-UI08,Results,BO1 BO3 and BO5 outcomes,Round scores and series scores are clearly distinguished,NOT_RUN
+L26-A01,Audio,Startup with each audio bus muted,No unexpected sound on first interaction,NOT_RUN
+L26-A02,Audio,Menu to live match and return,One appropriate scene and no stale music,NOT_RUN
+L26-A03,Audio,Open Map Studio and Spatial Lab then return,Studio stays silent including first click,NOT_RUN
+L26-A04,Audio,Background foreground and system resume,No duplicate music or unexpected bursts,NOT_RUN
+L26-A05,Audio,Repeated notifications and signing cues,Visual messages remain and cues do not stack excessively,NOT_RUN
+L26-A06,Audio,Warning followed by error,Distinct readable feedback and tolerable cue levels,NOT_RUN
+L26-A07,Audio,Long session at all volume settings,No clipping transition clicks or growing audio nodes,NOT_RUN
+L26-A08,Audio,Speakers and headphones,Comfortable balanced audible mix,NOT_RUN
+L26-C01,Content,Review packaged portraits crests text and audio,Item-specific authorship and permissions recorded,NOT_RUN
+L26-C02,Content,Review Steam media and survey draft,Disclosure matches delivered player-facing content,NOT_RUN

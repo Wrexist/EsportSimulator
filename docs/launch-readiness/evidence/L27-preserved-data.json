@@ -1,0 +1,17 @@
+[
+  {
+    "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+    "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+    "unchanged": true
+  },
+  {
+    "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+    "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+    "unchanged": true
+  },
+  {
+    "path": "public/data/snapshot/teams.json",
+    "sha256": "1d175e66684c7b0b31d8d46d9dd99b81bf07a64d4cd7249d613997363f46285b",
+    "unchanged": true
+  }
+]

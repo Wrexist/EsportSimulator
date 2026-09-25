@@ -1,0 +1,136 @@
+{
+  "package": "L13",
+  "status": "partial",
+  "buildId": "fnqGLOHcgCejWPb_-7-HO",
+  "spatialWorker": "2063.536af38005ec1c05.js",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "checks": [
+    {
+      "command": "npx jest --runInBand",
+      "passed": true,
+      "tests": 1435,
+      "suites": 147,
+      "evidence": "L13-tests.log"
+    },
+    {
+      "command": "npx jest --runInBand __tests__/spatial-teams.test.ts __tests__/spatial-encounter.test.ts __tests__/spatial-utility.test.ts",
+      "passed": true,
+      "tests": 60,
+      "suites": 3,
+      "evidence": "L13-focused-tests.log"
+    },
+    {
+      "command": "npx tsc --noEmit --pretty false",
+      "passed": true,
+      "evidence": "L13-types.log"
+    },
+    {
+      "command": "npm run build",
+      "passed": true,
+      "evidence": "L13-build.log",
+      "note": "Existing repository-wide lint warnings; compiled worker validation passes."
+    },
+    {
+      "command": "targeted next lint for new team engine/panel files",
+      "passed": true,
+      "warnings": 0,
+      "evidence": "L13-lint.log"
+    },
+    {
+      "command": "node scripts/launch/build-spatial-review-probe.cjs l13 + isolated spatial-review-native.cjs",
+      "passed": true,
+      "evidence": "L13-native.json",
+      "scenarios": 6,
+      "runsPerScenario": 2,
+      "fullNodeMatches": 6
+    },
+    {
+      "command": "node scripts/launch/build-spatial-review-probe.cjs l12 + isolated spatial-review-native.cjs",
+      "passed": true,
+      "evidence": "L13-l12-regression-native.json",
+      "scenarios": 5,
+      "runsPerScenario": 2,
+      "fullNodeMatches": 0,
+      "note": "Authoritative discrete values match all five; remaining float differences are retained."
+    },
+    {
+      "command": "npx tsx scripts/launch/l13-calibration.ts",
+      "passed": true,
+      "evidence": "L13-calibration.json",
+      "note": "Provisional model checks, not real-game calibration."
+    },
+    {
+      "command": "npx tsx scripts/launch/l12-mirage-review.ts l13",
+      "passed": true,
+      "evidence": "L13-mirage-review.json",
+      "note": "Read-only execution passed; map acceptance remains held with errors."
+    },
+    {
+      "command": "npx tsx scripts/launch/l13-check-replay.ts docs/launch-readiness/evidence/L13-browser-replay.json",
+      "passed": true,
+      "evidence": "L13-browser-replay-check.json"
+    }
+  ],
+  "browser": {
+    "passed": true,
+    "url": "http://localhost:3210/map-editor/lab#team-lab",
+    "observed": [
+      "example backup download",
+      "delayed report appears at 1.000s",
+      "team/observer visibility separation",
+      "settings edits invalidate previous replay",
+      "250ms communication persists after reload",
+      "support smoke visible at 3s",
+      "step advances 8 ticks / 0.125s",
+      "timed playback advances",
+      "browser replay export fully matches Node"
+    ],
+    "evidence": [
+      "L13-browser-ui.txt",
+      "L13-team-lab.png",
+      "L13-browser-replay.json"
+    ]
+  },
+  "ownerDrafts": [
+    {
+      "file": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+      "bytes": 143496
+    },
+    {
+      "file": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+      "bytes": 128763
+    }
+  ],
+  "sourceFiles": {
+    "engine/spatial/team-model.ts": "d3072df5349feed27c0308a868e650af057c21e723d743361de70e9b3a611e0d",
+    "engine/spatial/team-simulation.ts": "c1c538e27f1822dd6eb02ae1d5a17fe8738d4851251405a5ea535e130d985cde",
+    "engine/spatial/team-view.ts": "23595741f6b988cd4e76727eded2c32d42b785112240d4929a185188d03444bc",
+    "engine/spatial/lab-teams.ts": "5976a077fc613791515409ad95a00b08f57fcc5d38be7aae20d2ad8b2c1318ad",
+    "engine/spatial/utility.ts": "bf03fabf2b6e151637fa6ae959487d9ead05efceb2efcd421cfb28acaf23f6ce",
+    "engine/spatial/encounter.ts": "6ee405703bdda29d82b6ff79a602f55db0f8a847789be02a2feda83c31c0de46",
+    "engine/spatial/spatial-lab.worker.ts": "b882541d04c44e7ac6ea4f4dead59a418ffad6da7498984b54a87d2de87dc768",
+    "lib/spatial-lab-project.ts": "8ee13e14c45dc60e2d32dab7b4a2dfbc110a8579e3a7381f6420b2a05e51ab92",
+    "components/maps/TeamLab.tsx": "cafb9eecdf28749c0824fc09cb8cab88a7875ae48e2d376908fa7c8bc2b548e7",
+    "components/maps/SpatialLab.tsx": "23cca93b1da0376191dd3108c1ce8dfd0e4982117f7a83703a352be77b4d0bb8",
+    "components/maps/UtilityReplay.tsx": "a93e3bf863fb930d19c22faec2af97be0b6d6ad3d880b7c5b2357c9c8caf5857",
+    "components/maps/UtilityControls.tsx": "ecc026a2fa409dfd8367ca794aca7f7b81596d20feb1d9da0f3bd97de7b0ea5a",
+    "__tests__/spatial-teams.test.ts": "2d0fb6ee9d69152056f6c293f0f914d401e1e2ab96230afb32a1ae4a78b1f3ea"
+  },
+  "remaining": [
+    "L11/L12 dependency acceptance",
+    "full 5v5/all-map/mirrored scenario breadth",
+    "congestion yielding, reviewed angle coverage and richer team tactics",
+    "Mirage wall heights/spawn/site/vertical review",
+    "measured utility and combat calibration",
+    "L14 versioned career integration",
+    "Windows packaged tests, real Steam App ID and content clearance"
+  ],
+  "queuedUi": [
+    "transfer popup portrait",
+    "compact match results",
+    "compact Hall of Fame and fictional aliases"
+  ]
+}

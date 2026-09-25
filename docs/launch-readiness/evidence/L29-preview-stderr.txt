@@ -1,0 +1,1 @@
+[zustand persist middleware] Unable to update item 'game-settings', the given storage is currently unavailable.

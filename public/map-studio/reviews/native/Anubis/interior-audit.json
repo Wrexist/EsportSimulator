@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "mapId": "Anubis",
+  "floor": "upper",
+  "sourceRadarSha256": "2cea0b5111b6b942e8ef0549ffd7282eb9880bb71c00ca1a0a04312a83f95c03",
+  "sourcePhysicsSha256": "45dd920caa17b2d46796f10afb6bc6fe774ea1d26bb0968c9091d2385758d95c",
+  "sourceNavSha256": "5d492f867497cc47a6072fc803fb7b0fcf8f1b99030590e3fbff627c9cba7eeb",
+  "nativeNavMatches": true,
+  "navAreas": 2633,
+  "physicsHulls": 15055,
+  "physicsMeshes": 9,
+  "collisionAttributes": [
+    {
+      "interactAs": [
+        "npcclip",
+        "playerclip"
+      ],
+      "interactExclude": [],
+      "group": "ConditionallySolid"
+    },
+    {
+      "interactAs": [],
+      "interactExclude": [],
+      "group": "Default"
+    },
+    {
+      "interactAs": [],
+      "interactExclude": [
+        "player"
+      ],
+      "group": "Default"
+    },
+    {
+      "interactAs": [],
+      "interactExclude": [
+        "csgo_thrown_grenade"
+      ],
+      "group": "default"
+    },
+    {
+      "interactAs": [
+        "navclip"
+      ],
+      "interactExclude": [],
+      "group": "conditionallysolid"
+    },
+    {
+      "interactAs": [
+        "passbullets"
+      ],
+      "interactExclude": [],
+      "group": "conditionallysolid"
+    },
+    {
+      "interactAs": [
+        "csgo_grenadeclip"
+      ],
+      "interactExclude": [],
+      "group": "ConditionallySolid"
+    },
+    {
+      "interactAs": [
+        "window"
+      ],
+      "interactExclude": [],
+      "group": "conditionallysolid"
+    },
+    {
+      "interactAs": [
+        "sky"
+      ],
+      "interactExclude": [],
+      "group": "conditionallysolid"
+    }
+  ],
+  "holeCount": 18,
+  "markCount": 19,
+  "protectedNavCrossings": 0,
+  "holes": [
+    {
+      "number": 1,
+      "boundsPx": [
+        508,
+        157,
+        171,
+        222
+      ],
+      "areaPx": 17306,
+      "nativeNavOverlapPx": 77,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 2,
+      "boundsPx": [
+        463,
+        167,
+        22,
+        19
+      ],
+      "areaPx": 309,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 3,
+      "boundsPx": [
+        694,
+        229,
+        36,
+        89
+      ],
+      "areaPx": 1068,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 4,
+      "boundsPx": [
+        320,
+        266,
+        167,
+        183
+      ],
+      "areaPx": 14821,
+      "nativeNavOverlapPx": 199,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 5,
+      "boundsPx": [
+        315,
+        276,
+        58,
+        59
+      ],
+      "areaPx": 2483,
+      "nativeNavOverlapPx": 39,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 6,
+      "boundsPx": [
+        839,
+        288,
+        21,
+        21
+      ],
+      "areaPx": 324,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 0.8704
+    },
+    {
+      "number": 7,
+      "boundsPx": [
+        529,
+        325,
+        314,
+        260
+      ],
+      "areaPx": 27501,
+      "nativeNavOverlapPx": 361,
+      "nearNativeVerticalEdgeFraction": 0.9811
+    },
+    {
+      "number": 8,
+      "boundsPx": [
+        371,
+        349,
+        191,
+        259
+      ],
+      "areaPx": 18176,
+      "nativeNavOverlapPx": 315,
+      "nearNativeVerticalEdgeFraction": 0.9557
+    },
+    {
+      "number": 9,
+      "boundsPx": [
+        310,
+        491,
+        41,
+        29
+      ],
+      "areaPx": 917,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 10,
+      "boundsPx": [
+        536,
+        494,
+        48,
+        24
+      ],
+      "areaPx": 779,
+      "nativeNavOverlapPx": 63,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 11,
+      "boundsPx": [
+        375,
+        498,
+        18,
+        17
+      ],
+      "areaPx": 232,
+      "nativeNavOverlapPx": 11,
+      "nearNativeVerticalEdgeFraction": 0.9565
+    },
+    {
+      "number": 12,
+      "boundsPx": [
+        701,
+        544,
+        92,
+        147
+      ],
+      "areaPx": 7625,
+      "nativeNavOverlapPx": 143,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 13,
+      "boundsPx": [
+        308,
+        558,
+        18,
+        17
+      ],
+      "areaPx": 234,
+      "nativeNavOverlapPx": 8,
+      "nearNativeVerticalEdgeFraction": 0.9783
+    },
+    {
+      "number": 14,
+      "boundsPx": [
+        235,
+        564,
+        267,
+        185
+      ],
+      "areaPx": 15740,
+      "nativeNavOverlapPx": 98,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 15,
+      "boundsPx": [
+        634,
+        606,
+        18,
+        13
+      ],
+      "areaPx": 230,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 16,
+      "boundsPx": [
+        529,
+        614,
+        169,
+        125
+      ],
+      "areaPx": 12370,
+      "nativeNavOverlapPx": 87,
+      "nearNativeVerticalEdgeFraction": 1.0
+    },
+    {
+      "number": 17,
+      "boundsPx": [
+        345,
+        720,
+        280,
+        177
+      ],
+      "areaPx": 31372,
+      "nativeNavOverlapPx": 39,
+      "nearNativeVerticalEdgeFraction": 0.9928
+    },
+    {
+      "number": 18,
+      "boundsPx": [
+        312,
+        726,
+        24,
+        23
+      ],
+      "areaPx": 277,
+      "nativeNavOverlapPx": 0,
+      "nearNativeVerticalEdgeFraction": 1.0
+    }
+  ],
+  "limits": [
+    "Provisional radar registration; outlines inset two source pixels.",
+    "Draft 2D boundaries, not height-bound gameplay walls.",
+    "Vertical-face proximity is corroboration only, not a proof of solid volume or wall height."
+  ]
+}

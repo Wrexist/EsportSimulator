@@ -1,3 +1,5 @@
+import { UI_ASSETS } from "./ui-assets"
+
 /**
  * Asset Constants for Esports Simulator
  * Centralized paths to all game assets
@@ -60,11 +62,11 @@ export const EVENTS = {
 // FACILITY IMAGES
 // =============================================================================
 export const FACILITIES = {
-    fanZone: '/assets/facilities/fan-zone.png',
-    hqOverview: '/assets/facilities/hq-overview.png',
-    recoveryHub: '/assets/facilities/recovery-hub.png',
-    tacticalSuite: '/assets/facilities/tactical-suite.png',
-    trainingRoom: '/assets/facilities/training-room.png',
+    fanZone: UI_ASSETS.facilities.FANZONE,
+    hqOverview: UI_ASSETS.hq,
+    recoveryHub: UI_ASSETS.facilities.RECOVERY,
+    tacticalSuite: UI_ASSETS.facilities.TACTICAL,
+    trainingRoom: UI_ASSETS.facilities.TRAINING,
 } as const;
 
 // =============================================================================

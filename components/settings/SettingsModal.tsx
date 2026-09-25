@@ -1,9 +1,12 @@
 "use client"
 
+import { useFocusTrap } from "@/lib/accessibility"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Monitor, Volume2, Gamepad2, Keyboard, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import {
     useSettingsStore,
@@ -15,6 +18,7 @@ import {
 } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
 import { cn } from "@/lib/utils"
+import { useGameStore } from "@/store/game-store"
 
 interface SettingsModalProps {
     isOpen: boolean
@@ -53,6 +57,7 @@ const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
     { value: 'easy', label: 'Easy', desc: 'AI teams make fewer optimal decisions' },
     { value: 'normal', label: 'Normal', desc: 'Balanced AI competition' },
     { value: 'hard', label: 'Hard', desc: 'AI teams play optimally and aggressively' },
+    { value: 'legendary', label: 'Legendary', desc: 'Highest career difficulty' },
 ]
 
 const RENDERING_MODES: { value: RenderingMode; label: string; desc: string }[] = [
@@ -95,6 +100,7 @@ const SHORTCUT_GROUPS = [
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const [activeTab, setActiveTab] = useState<Tab>('display')
+    const dialogRef = useFocusTrap(isOpen, onClose)
     const settings = useSettingsStore()
 
     const handleApply = () => {
@@ -123,14 +129,15 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         transition={{ duration: 0.2 }}
                         className="fixed inset-0 top-16 flex items-center justify-center z-modal p-4"
                     >
-                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-settings" className="w-full max-w-2xl bg-gradient-to-br from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
+                        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-settings" className="w-full max-w-2xl max-h-full flex flex-col bg-gradient-to-br from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                            <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-white/5">
                                 <h2 id="modal-title-settings" className="text-xl font-bold text-white">Settings</h2>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={onClose}
+                                    aria-label="Close settings"
                                     className="w-8 h-8 p-0 rounded-lg text-white/40 hover:text-white hover:bg-white/5"
                                 >
                                     <X className="w-4 h-4" />
@@ -138,7 +145,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex border-b border-white/5">
+                            <div className="flex shrink-0 overflow-x-auto border-b border-white/5">
                                 {TABS.map((tab) => (
                                     <button
                                         key={tab.id}
@@ -158,7 +165,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Content */}
-                            <div className="p-6 min-h-[320px] max-h-[460px] overflow-y-auto">
+                            <div className="p-5 min-h-0 overflow-y-auto overscroll-contain">
                                 {activeTab === 'display' && (
                                     <DisplaySettings settings={settings} />
                                 )}
@@ -178,6 +185,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 <Button
                                     variant="ghost"
                                     onClick={onClose}
+                                    aria-label="Close settings"
                                     className="text-white/40 hover:text-white hover:bg-white/5 transition-all"
                                 >
                                     Cancel
@@ -204,7 +212,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
         <div className="space-y-6">
             <SettingRow label="Window Mode">
                 <select
-                    value={settings.windowMode}
+                    aria-label="Window mode" value={settings.windowMode}
                     onChange={(e) => settings.setWindowMode(e.target.value as WindowMode)}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
@@ -218,7 +226,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
 
             <SettingRow label="Resolution">
                 <select
-                    value={settings.resolution}
+                    aria-label="Resolution" value={settings.resolution}
                     onChange={(e) => settings.setResolution(e.target.value as Resolution)}
                     disabled={settings.windowMode === 'fullscreen'}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
@@ -234,7 +242,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
             <SettingRow label="Rendering Mode">
                 <div className="flex flex-col items-end gap-1">
                     <select
-                        value={settings.renderingMode}
+                        aria-label="Rendering mode" value={settings.renderingMode}
                         onChange={(e) => settings.setRenderingMode(e.target.value as RenderingMode)}
                         className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
                     >
@@ -251,7 +259,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
             <SettingRow label="UI Scale">
                 <div className="flex items-center gap-3 w-48">
                     <Slider
-                        value={[settings.uiScale]}
+                        aria-label="UI scale" aria-valuetext={`${settings.uiScale}%`} value={[settings.uiScale]}
                         onValueChange={(vals) => settings.setUiScale(vals[0])}
                         min={80}
                         max={120}
@@ -264,7 +272,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
 
             <SettingRow label="Reduced Motion">
                 <ToggleSwitch
-                    enabled={settings.reducedMotion}
+                    label="Reduced motion" enabled={settings.reducedMotion}
                     onChange={settings.setReducedMotion}
                 />
             </SettingRow>
@@ -306,13 +314,17 @@ function AudioSettings({ settings }: { settings: ReturnType<typeof useSettingsSt
 
 // Game Settings Tab
 function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettingsStore.getState> }) {
+    const difficulty = useGameStore(state => state.difficulty)
+    const setDifficulty = useGameStore(state => state.setDifficulty)
+    const hasCareer = useGameStore(state => !!state.saveId)
     return (
         <div className="space-y-6">
-            <SettingRow label="Difficulty">
+            <SettingRow label="Career difficulty">
                 <div className="flex flex-col items-end gap-1">
                     <select
-                        value={settings.difficulty}
-                        onChange={(e) => settings.setDifficulty(e.target.value as Difficulty)}
+                        aria-label="Career difficulty" disabled={!hasCareer}
+                        value={difficulty ?? 'normal'}
+                        onChange={(e) => setDifficulty(e.target.value as Difficulty)}
                         className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
                     >
                         {DIFFICULTIES.map((diff) => (
@@ -322,14 +334,14 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
                         ))}
                     </select>
                     <span className="text-[10px] text-white/30">
-                        {DIFFICULTIES.find(d => d.value === settings.difficulty)?.desc}
+                        {hasCareer ? 'Saved with this career.' : 'Start or load a career to change difficulty.'}
                     </span>
                 </div>
             </SettingRow>
 
             <SettingRow label="Game Speed">
                 <select
-                    value={settings.gameSpeed}
+                    aria-label="Game speed" value={settings.gameSpeed}
                     onChange={(e) => settings.setGameSpeed(e.target.value as GameSpeed)}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
@@ -343,14 +355,14 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
 
             <SettingRow label="Auto-Save">
                 <ToggleSwitch
-                    enabled={settings.autoSave}
+                    label="Auto-save" enabled={settings.autoSave}
                     onChange={settings.setAutoSave}
                 />
             </SettingRow>
 
             <SettingRow label="Auto-Save Interval">
                 <select
-                    value={settings.autoSaveInterval}
+                    aria-label="Auto-save interval" value={settings.autoSaveInterval}
                     onChange={(e) => settings.setAutoSaveInterval(Number(e.target.value))}
                     disabled={!settings.autoSave}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
@@ -363,14 +375,14 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
 
             <SettingRow label="Notifications">
                 <ToggleSwitch
-                    enabled={settings.notifications}
+                    label="Notifications" enabled={settings.notifications}
                     onChange={settings.setNotifications}
                 />
             </SettingRow>
 
             <SettingRow label="Language">
                 <select
-                    value={settings.language}
+                    aria-label="Language" value={settings.language}
                     onChange={(e) => settings.setLanguage(e.target.value)}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
@@ -385,6 +397,7 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
 function ControlsSettings() {
     return (
         <div className="space-y-6">
+            <p className="text-sm text-slate-300">Windows keyboard and mouse. Controller navigation and Steam Deck support are not currently implemented. Interface language: English.</p>
             {SHORTCUT_GROUPS.map((group) => (
                 <div key={group.label}>
                     <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">{group.label}</h3>
@@ -414,34 +427,15 @@ function ControlsSettings() {
 // Reusable Components
 function SettingRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm text-white/70">{label}</span>
             {children}
         </div>
     )
 }
 
-function ToggleSwitch({ enabled, onChange }: { enabled: boolean; onChange: (val: boolean) => void }) {
-    return (
-        <button
-            onClick={() => onChange(!enabled)}
-            className={cn(
-                "relative w-12 h-6 rounded-full transition-all duration-300 outline-none",
-                enabled
-                    ? "bg-emerald-500/20 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                    : "bg-white/5 border border-white/10"
-            )}
-        >
-            <motion.div
-                className={cn(
-                    "absolute top-0.5 w-4.5 h-4.5 rounded-full shadow-lg transition-colors",
-                    enabled ? "bg-emerald-400 shadow-emerald-500/50" : "bg-white/20"
-                )}
-                animate={{ left: enabled ? 26 : 3 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            />
-        </button>
-    )
+function ToggleSwitch({ label, enabled, onChange }: { label: string; enabled: boolean; onChange: (val: boolean) => void }) {
+    return <Switch aria-label={label} checked={enabled} onCheckedChange={onChange} />
 }
 
 function VolumeSlider({ label, value, onChange }: { label: string; value: number; onChange: (val: number) => void }) {
@@ -452,7 +446,7 @@ function VolumeSlider({ label, value, onChange }: { label: string; value: number
                 <span className="text-sm text-white/50 tabular-nums w-12 text-right">{value}%</span>
             </div>
             <Slider
-                value={[value]}
+                aria-label={label} aria-valuetext={`${value}%`} value={[value]}
                 onValueChange={(vals) => onChange(vals[0])}
                 min={0}
                 max={100}

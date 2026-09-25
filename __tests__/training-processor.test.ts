@@ -11,6 +11,7 @@ import { TrainingProcessor } from "@/engine/processors/training-processor"
 import { TrainingFocus } from "@/types"
 import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
+import { PlayerLifecycleManager } from '@/engine/player-lifecycle'
 
 function makePlayer(id: string, overrides: Partial<PlayerSaveData> = {}): PlayerSaveData {
     return {
@@ -55,6 +56,17 @@ function makeSave(team: TeamSaveData, players: PlayerSaveData[], staff: StaffSav
 }
 
 describe("TrainingProcessor.processTraining", () => {
+    test('recovery uses the UTC career year even when the local calendar differs', () => {
+        const save = makeSave(makeTeam(), [makePlayer('utc-player')])
+        save.gameStartDate = '2026-01-01T00:00:00.000Z'
+        save.currentWeek = 52
+        const localYear = jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2025)
+        const update = jest.spyOn(PlayerLifecycleManager, 'processWeeklyUpdates').mockImplementation(() => {})
+        try {
+            TrainingProcessor.processFatigueRecovery(save, new SeededRNG(0))
+            expect(update).toHaveBeenCalledWith(save.players[0], 2027, 52, 0, expect.any(SeededRNG))
+        } finally { localYear.mockRestore(); update.mockRestore() }
+    })
     test("applies stat gains to roster players under AIM focus", () => {
         const p = makePlayer("p1", { rifle: 50, reaction: 50 })
         const team = makeTeam({ rosterIds: ["p1"] })

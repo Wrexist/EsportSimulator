@@ -18,6 +18,7 @@ export interface WorkshopModItem {
 /** Which overlay source is currently live. */
 export type ActiveModPointer =
     | { source: "community" }
+    | { source: "none" }
     | { source: "workshop"; workshopId: string };
 
 declare global {
@@ -42,6 +43,7 @@ declare global {
                 setRichPresence: (key: string, value: string) => Promise<boolean>;
                 getRichPresence: (key: string) => Promise<string | null>;
                 // cloud saves
+                listCloudFiles: () => Promise<string[]>;
                 writeToCloud: (filename: string, contents: string) => Promise<boolean>;
                 readFromCloud: (filename: string) => Promise<string | null>;
                 deleteFromCloud: (filename: string) => Promise<boolean>;
@@ -60,6 +62,9 @@ declare global {
                 getAllKeys: () => Promise<string[]>;
             };
             mods?: {
+                readFolder: () => Promise<string | null>;
+                install: (contents: string) => Promise<boolean>;
+                restore: () => Promise<boolean>;
                 exists: () => Promise<boolean>;
                 read: (filename: string) => Promise<string | null>;
                 write: (filename: string, contents: string) => Promise<boolean>;
@@ -75,7 +80,8 @@ declare global {
                 unsubscribe: (id: string) => Promise<boolean>;
                 open: (id?: string) => Promise<boolean>;
             };
-            onAppClose: (callback: () => void) => void;
+            onAppClose: (callback: () => void) => () => void;
+            acknowledgeAppClose: () => Promise<boolean>;
             confirmAppClose: () => Promise<boolean>;
             cancelAppClose: () => Promise<boolean>;
         };

@@ -14,13 +14,13 @@ import type { GameEventSaveData } from "@/engine/save-types"
  */
 export function getEventTitle(event: GameEventSaveData): string {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
-    const data = event.data as any
+    const data = (event.data ?? {}) as any
     const type = event.type as string
     switch (type) {
         case "CONTRACT": return "Contract Expiry"
         case "MORALE": return "Internal Morale"
         case "INJURY": return data.fatigue ? "Fatigue Warning" : "Medical Report"
-        case "FINANCE": return "Finance Dept"
+        case "FINANCE": return "Finance update"
         case "win_streak": return "Performance"
         case "loss_streak": return "Performance"
         case "TRANSFER_OFFER": return "Transfer Offer"

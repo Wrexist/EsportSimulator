@@ -1,0 +1,163 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/desktop?app=mail".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/desktop?app=mail
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/desktop?app=mail#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container
+			143 container
+				144 button Mail
+				145 button Social
+				146 button News
+				147 button Market
+				148 button Calendar
+				149 button Shop
+				150 button Facilities
+				151 button Finance
+				152 button Academy
+				153 container Pulsar logo
+				154 text Pulsar
+				155 container
+					156 text CIS  · SEASON ROSTER
+				157 text WORLD RANK
+				158 container
+					159 text # 154
+				160 text BUDGET
+				161 text $500K
+				162 text WEEK
+				163 text 1
+				164 button NEXT MATCH Sable logo vs Sable Preseason Friendly · Week 1 · Day 5 VIEW
+					165 text NEXT MATCH
+					166 container Sable logo
+					167 container
+						168 text vs  Sable
+					169 container
+						170 text Preseason Friendly  · Week  1  · Day 5
+					171 text VIEW
+				172 button SQUAD
+				173 button SCHEDULE
+				174 button TRANSFERS
+				175 button TOURNAMENTS
+				176 text WEEKLY FOCUS
+				177 container
+					178 button Stream Marathon +$2,500/p Players stream ranked games. Earns cash but fatigues players. -5 Morale +15 Fatigue
+						179 text Stream Marathon
+						180 text +$
+						181 text 2,500
+						182 text /p
+						183 text Players stream ranked games. Earns cash but fatigues players.
+						184 text -5
+						185 text  Morale
+						186 text +
+						187 text 15
+						188 text  Fatigue
+					189 button Team Bonding -$1,500 Dinner and fun activities to boost morale and synergy. +15 Morale -5 Fatigue
+						190 text Team Bonding
+						191 text -$
+						192 text 1,500
+						193 text Dinner and fun activities to boost morale and synergy.
+						194 text +
+						195 text 15
+						196 text  Morale
+						197 text -5
+						198 text  Fatigue
+					199 button Media Campaign -$5,000 Interviews and content creation to grow the brand. +5 Fatigue
+						200 text Media Campaign
+						201 text -$
+						202 text 5,000
+						203 text Interviews and content creation to grow the brand.
+						204 text +
+						205 text 5
+						206 text  Fatigue
+					207 button Intensive Bootcamp -$10,000 Hardcore training regime. Massive XP, massive fatigue. -10 Morale +25 Fatigue 2x XP
+						208 text Intensive Bootcamp
+						209 text -$
+						210 text 10,000
+						211 text Hardcore training regime. Massive XP, massive fatigue.
+						212 text -10
+						213 text  Morale
+						214 text +
+						215 text 25
+						216 text  Fatigue
+						217 text 2
+						218 text x XP
+				219 container
+					220 button Close window
+					221 button Minimize window
+					222 button Maximize window
+					223 text Mail
+				224 container
+					225 heading FOLDERS, Value: 3
+						226 text FOLDERS
+					227 button Inbox 1
+						228 text Inbox
+						229 text 1
+					230 button Action
+					231 button Unread 1
+						232 text Unread
+						233 text 1
+					234 button Transfers
+					235 button Medical
+					236 button Career 1
+						237 text Career
+						238 text 1
+					239 button Read All
+					240 text Career Update W 1
+					241 text Congratulations on your appointment as head coach! Here's what you need to know: 🎮 YOUR TEAM You're managing Pulsar with 5 players on the roster. Your current average team rating is 44. 📋 FIRST STEPS • Review your roster in the Squad page — know your players' strengths • Check the Schedule to see upcoming matches • Visit Training to start improving your players • Keep an eye on your Budget in Finances 🔍 GROW YOUR TEAM • Transfers — sign free agents or buy from rival rosters • Scouting — research targets before you negotiate • Youth Academy — develop the next generation of pros • Sponsorships — unlock more deals as your reputation grows 💡 KEY TIPS • Player morale affects performance — keep it high! • Don't overtrain — exhausted players perform poorly • Save money for the transfer window to improve your roster • Watch your players' contract expiration dates 🏆 YOUR GOAL Build a championship-winning team! Start by competing in local tournaments, climb the rankings, and eventually qualify for a Major. Click 'Advance Week' when you're ready to begin. Good luck, Coach!
+				242 container
+					243 container Description: Pulsar desktop, Help: Pulsar
+						244 image Pulsar
+					245 button Mail
+						246 text 1
+					247 button Social
+					248 button Market
+					249 button Calendar
+					250 button News
+					251 button Shop
+					252 button Facilities
+					253 button Finance
+					254 button Academy
+					255 text WEEK 1 11:35
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 9 link Description: Inbox, URL: 127.0.0.1:3210/desktop?app=mail

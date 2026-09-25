@@ -34,10 +34,10 @@ Path alias: `@/` = repo root.
 
 ## Critical invariants
 
-1. **Save schema:** new `GameSave` fields must be optional (no migration; `saveVersion` stays) AND plumbed into **both** explicit save builders — `store/utils/build-save-snapshot.ts` and the `saveGame` action in `store/game-store.ts` (mirror `fplData`). Load/result paths spread wholesale, so only the builders drop fields — silently.
+1. **Save schema:** use the canonical serializer in `store/utils/build-save-snapshot.ts`; both manual saves and week snapshots call it. New optional fields still need explicit serialization and round-trip tests. Use `CURRENT_SAVE_VERSION` (currently 7), and define defaults for older saves. Reset optional fields explicitly when switching careers; a spread cannot clear a missing field.
 2. **Determinism:** engine code never calls `Math.random()` / `Date.now()`. Thread the provided `SeededRNG`; IDs via `nextDeterministicId` or deterministic templates (`board_review_s{N}_{teamId}`).
 3. **Replay safety:** week-tick processors thread `eventIdSet`/`ledgerIdSet`. Any new `eventsLog`/`financeLedger`/`newsFeed` push inside the tick must be dedup-guarded, and dedup scope is **all pending weeks**, not the current week.
-4. **One authoritative save per tick** (end of `atomic-week-processor`). Never add intra-tick `saveGame` calls — JSON.stringify cost dominated wall time before this was fixed.
+4. **One authoritative application save per tick:** worker and fallback use `engine/worker/compute-week.ts` with a non-persistent save manager. `store/game-store.ts` applies post-processing, saves the final snapshot, then clears `isLoading`. Standalone `AtomicWeekProcessor` callers can still use its normal persistence contract. Never add durable writes inside the application compute path.
 5. **Economy:** every budget mutation gets a `FinanceLedgerEntry` (id, week, teamId, type, category, amount, description, running balance). New income sources must be capped and non-farmable (see signing-bonus exploit in LEARNINGS).
 6. **Unbounded growth:** `compactPersistentState` caps logs. Anything pushed weekly needs a cap or cross-week dedup.
 

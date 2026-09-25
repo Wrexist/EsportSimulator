@@ -2,18 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide scrollbar globally */
-* {
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* IE/Edge */
-}
-
-*::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
-}
+/* Quiet, discoverable scrollbars for dense management screens. */
+* { scrollbar-width: thin; scrollbar-color: rgba(183, 204, 234, .22) transparent; }
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-thumb { background: rgba(183, 204, 234, .22); border-radius: 8px; }
 
 /* Custom Focus Styles
    High-contrast double-ring (solid outline + soft outer glow) so focus is
@@ -97,7 +89,8 @@ html.reduce-motion .animate-schedule-week-pulse {
 html,
 body {
   overflow-x: hidden;
-  font-family: var(--font-archivo), sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Snappy click defaults for every interactive surface.
@@ -188,9 +181,9 @@ body[data-scroll-locked] {
     --glass-blur-xl: 40px;
 
     /* Liquid glass — mirrors src/design/tokens semantics */
-    --glass-bg-base: rgba(8, 11, 16, 0.72);
-    --glass-bg-raised: rgba(11, 15, 22, 0.68);
-    --glass-bg-dense: rgba(12, 16, 22, 0.58);
+    --glass-bg-base: rgba(17, 26, 43, 0.78);
+    --glass-bg-raised: rgba(22, 33, 53, 0.58);
+    --glass-bg-dense: rgba(20, 29, 46, 0.68);
     --glass-bg-ultrathin: rgba(255, 255, 255, 0.045);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-border-hover: rgba(255, 255, 255, 0.16);
@@ -302,6 +295,58 @@ body[data-scroll-locked] {
    `.liquid-panel { position: relative }` to override `.fixed`, breaking
    dialog/modal centering game-wide. */
 @layer components {
+  /* Lens rim: sharp specular edges over a translucent, saturated body.
+     Blur stays on shell/panels; ordinary cards and table rows stay cheap. */
+  .game-sidebar,
+  .game-topbar {
+    border: 1px solid rgba(205, 225, 255, .16);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(210, 230, 255, .12), rgba(156, 181, 215, .025) 45%, rgba(184, 169, 235, .055)), var(--glass-bg-raised);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    box-shadow: inset 0 1px 0 rgba(241, 249, 255, .2), inset 1px 0 0 rgba(213, 235, 255, .06), inset 0 -1px 0 rgba(5, 12, 24, .3), 0 12px 32px -20px rgba(0, 0, 0, .6);
+  }
+  .game-sidebar { margin: 12px 0 12px 12px; height: calc(100% - 24px); flex-shrink: 0; }
+  .game-topbar { margin: 12px 12px 0; }
+  .game-page { animation: page-reveal 140ms ease-out; }
+  @keyframes page-reveal { from { opacity: .85; } to { opacity: 1; } }
+  .nav-lens {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    border: 1px solid rgba(222, 241, 255, .25);
+    background: linear-gradient(115deg, rgba(200, 226, 255, .2), rgba(186, 215, 255, .06));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), inset 0 -1px 0 rgba(158, 205, 243, .1), 0 4px 16px rgba(4, 12, 24, .15);
+    pointer-events: none;
+  }
+  .nav-route { min-height: 38px; outline-offset: -2px; }
+  .nav-route[aria-current="page"] { color: #f0f8ff; }
+  .nav-route svg { stroke-width: 1.65; }
+  .nav-route[aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #a5e2ff;
+    box-shadow: 0 0 8px #a5e2ff;
+  }
+  .dashboard .dashboard-title { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.045em; }
+  .dashboard .dashboard-eyebrow { color: #a9bfd6; font-size: 11px; font-weight: 500; letter-spacing: .12em; }
+  .dashboard [data-slot="card"] { border-radius: 22px; }
+  .dashboard [data-slot="card-title"] { font-weight: 500; letter-spacing: -.015em; text-transform: none; }
+  .dashboard .dashboard-hero {
+    background: radial-gradient(ellipse at 95% 0%, rgba(143, 180, 237, .14), transparent 65%), linear-gradient(135deg, rgba(195, 223, 255, .09), transparent 65%), rgba(19, 30, 48, .64);
+    border: 1px solid rgba(205, 225, 255, .17);
+    box-shadow: inset 0 1px 0 rgba(233, 246, 255, .18), 0 18px 50px -38px #000;
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    html .game-sidebar, html .game-topbar, html .glass-panel, html .liquid-panel { background: #172338; }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    html .game-sidebar, html .game-topbar, html .glass-panel, html .glass-card, html .liquid-panel { background: #172338; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  }
   .glass-panel {
     position: relative;
     background:
@@ -335,8 +380,8 @@ body[data-scroll-locked] {
     background:
       linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
       var(--glass-bg-dense);
-    backdrop-filter: blur(18px) saturate(145%);
-    -webkit-backdrop-filter: blur(18px) saturate(145%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: 1px solid rgba(255, 255, 255, 0.085);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 14px 34px -26px rgba(0, 0, 0, 0.72);
     transition:
@@ -388,102 +433,68 @@ body[data-scroll-locked] {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 22px -18px rgba(0, 0, 0, 0.65);
   }
 
-  /* Layered depth — no large decorative cyan orbs */
+  /* Static light fields give the glass something to refract without a
+     full-screen animated filter competing with simulation rendering. */
   .liquid-app-bg {
     background:
-      radial-gradient(ellipse 90% 45% at 50% -12%, rgba(125, 211, 252, 0.045), transparent 55%),
-      radial-gradient(ellipse 70% 40% at 85% 65%, rgba(255, 255, 255, 0.035), transparent 50%),
-      linear-gradient(165deg, #05070b 0%, #0a1017 48%, #080a0e 100%);
+      radial-gradient(ellipse at 12% 0%, #192b3e 0%, transparent 55%),
+      #0c1420;
   }
-
-  /* Onyx variant — deeper near-black backdrop. */
   .liquid-app-bg.onyx {
-    background:
-      radial-gradient(ellipse 90% 45% at 50% -12%, rgba(125, 211, 252, 0.03), transparent 55%),
-      radial-gradient(ellipse 70% 40% at 85% 65%, rgba(255, 255, 255, 0.022), transparent 50%),
-      linear-gradient(165deg, #010204 0%, #04070b 48%, #020305 100%);
+    background: radial-gradient(ellipse at 10% 0%, #1b2839, transparent 48%), #090e17;
   }
 
-  /* Living ambient backdrop — two oversized, heavily-blurred accent blobs that
-     drift very slowly behind all chrome. Adds depth and life without clutter:
-     low opacity + 80px blur keep it a whisper, not a light show. Animation is
-     paused under reduced-motion (system or the .reduce-motion class). */
+  /* Profiles use quiet, opaque data surfaces; glass stays on shell controls. */
+  .player-profile .glass-panel {
+    background: #172231;
+    border: 1px solid rgba(192, 210, 228, .1);
+    border-radius: 12px;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .player-profile .profile-summary > div {
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 639px) {
+    .player-profile .profile-summary > div:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+  @media (min-width: 640px) and (max-width: 1279px) {
+    .player-profile .profile-summary > div:nth-child(3n + 1) {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
   .liquid-aurora {
     position: absolute;
     inset: 0;
-    overflow: hidden;
     pointer-events: none;
-  }
-  .liquid-aurora::before,
-  .liquid-aurora::after {
-    content: "";
-    position: absolute;
-    width: 66vw;
-    height: 66vw;
-    border-radius: 50%;
-    filter: blur(90px);
-    will-change: transform;
+    overflow: hidden;
   }
   .liquid-aurora::before {
-    top: -16%;
-    left: -10%;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 64%);
-    animation: aurora-drift-a 38s ease-in-out infinite alternate;
+    content: "";
+    position: absolute;
+    width: 90vw;
+    height: 90vw;
+    top: -65vw;
+    left: 5vw;
+    border-radius: 50%;
+    border: 0;
+    box-shadow: none;
+    transform: rotate(-18deg);
   }
-  .liquid-aurora::after {
-    bottom: -22%;
-    right: -10%;
-    background: radial-gradient(circle, rgba(129, 140, 248, 0.17), transparent 64%);
-    animation: aurora-drift-b 46s ease-in-out infinite alternate;
-  }
-  .onyx .liquid-aurora::before { background: radial-gradient(circle, rgba(56, 189, 248, 0.06), transparent 62%); }
-  .onyx .liquid-aurora::after  { background: radial-gradient(circle, rgba(129, 140, 248, 0.05), transparent 62%); }
 
-  @keyframes aurora-drift-a {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to   { transform: translate3d(7%, 5%, 0) scale(1.18); }
-  }
-  @keyframes aurora-drift-b {
-    from { transform: translate3d(0, 0, 0) scale(1.12); }
-    to   { transform: translate3d(-6%, -7%, 0) scale(1); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .liquid-aurora::before,
-    .liquid-aurora::after { animation: none; }
-  }
-  .reduce-motion .liquid-aurora::before,
-  .reduce-motion .liquid-aurora::after { animation: none; }
-
-  /* Primary-CTA sheen — a slow, subtle diagonal light sweep on the core-loop
-     buttons (PLAY MATCH / NEXT DAY) so the key action quietly draws the eye.
-     ::before sits above the button fill but behind the label; it rests
-     off-screen ~68% of the loop, then sweeps across. Hidden for reduced-motion. */
+  /* Primary actions catch light only when hovered. */
   .liquid-cta-shine {
     position: relative;
     overflow: hidden;
   }
-  .liquid-cta-shine::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 42%;
-    pointer-events: none;
-    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.30) 50%, transparent 100%);
-    transform: translateX(-240%) skewX(-18deg);
-    animation: cta-shine 5.5s ease-in-out infinite;
-  }
-  @keyframes cta-shine {
-    0%, 68% { transform: translateX(-240%) skewX(-18deg); }
-    100% { transform: translateX(340%) skewX(-18deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .liquid-cta-shine::before { display: none; }
-  }
-  .reduce-motion .liquid-cta-shine::before { display: none; }
-
-  /* Richer one-shot sweep on hover, layered over the constant ::before. */
+  /* A single highlight on interaction; no idle shimmer loop. */
   .liquid-cta-shine::after {
     content: "";
     position: absolute;
@@ -858,8 +869,8 @@ html.colorblind-tritanopia {
 
 /* High contrast mode */
 html.high-contrast {
-  --foreground: #ffffff;
-  --background: #000000;
+  --foreground: 0 0% 100%;
+  --background: 0 0% 0%;
 }
 
 html.high-contrast * {
@@ -870,3 +881,16 @@ html.high-contrast .glass-panel {
   background: rgba(0, 0, 0, 0.95) !important;
   border-color: rgba(255, 255, 255, 0.4) !important;
 }
+
+/* Shared management-route heading. Avoid full hero typography above dense controls. */
+.page-title {
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: #f1f5f9;
+  overflow-wrap: anywhere;
+}
+
+html.high-contrast .glass-card,
+html.high-contrast .liquid-panel { background: #000 !important; backdrop-filter: none !important; }

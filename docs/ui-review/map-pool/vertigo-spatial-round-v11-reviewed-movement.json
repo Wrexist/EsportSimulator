@@ -1,0 +1,145 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Vertigo",
+  "fixtureSha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+  "complete": true,
+  "scope": "0 combat and 1 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 84.65625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 291362,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 991,
+        "waits": 2503,
+        "replans": 101,
+        "minSeparation": 32.01420459280727
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 10,
+      "routeFailures": [
+        {
+          "tick": 3328,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 3328,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 4064,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 4352,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 5040,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            -2393.8436923118356,
+            534.0059640497332,
+            11748.000000000002
+          ],
+          "goal": [
+            -929.631409,
+            918.638428,
+            11780
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5040,
+            "type": "route-blocked",
+            "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+            "actor": "CT2",
+            "side": "CT"
+          }
+        },
+        {
+          "id": "CT4",
+          "point": [
+            -2345.348327955975,
+            578.9528206886159,
+            11748
+          ],
+          "goal": [
+            -1126.576172,
+            925.892456,
+            11780
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 4848,
+            "type": "spacing-wait",
+            "reason": "Body T5 occupies the swept path.",
+            "actor": "CT4",
+            "side": "CT",
+            "from": [
+              -2345.348327955975,
+              578.9528206886159,
+              11748
+            ],
+            "point": [
+              -2345.2039944054477,
+              578.7871475512029,
+              11748
+            ]
+          }
+        },
+        {
+          "id": "T4",
+          "point": [
+            -936.2293659260309,
+            -373.9666390945872,
+            11780
+          ],
+          "goal": [
+            -2320.8969578953797,
+            749.394098546157,
+            11748
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 3328,
+            "type": "route-blocked",
+            "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+            "actor": "T4",
+            "side": "T"
+          }
+        }
+      ],
+      "outputSha256": "fa43f9965b46c30eed4adec5f2c9d93cc1445a6be8caa7ea8777cbdfa57c6ae9"
+    }
+  ]
+}

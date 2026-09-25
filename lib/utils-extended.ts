@@ -57,20 +57,23 @@ export function clutchRateFraction(raw: number | undefined | null): number {
  * e.g., $1.2M, $50k, $500
  */
 export function formatCurrency(amount: number, prefix = '$', abbreviate = true): string {
-    if (!abbreviate) return `${prefix}${amount.toLocaleString()}`
+    if (!Number.isFinite(amount)) return '—'
     const abs = Math.abs(amount)
-    const sign = amount < 0 ? '-' : ''
+    const sign = amount < 0 && abs >= 0.005 ? '-' : ''
+    if (!abbreviate) return `${sign}${prefix}${abs.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
     if (abs >= 1_000_000) return `${sign}${prefix}${(abs / 1_000_000).toFixed(1)}M`
     if (abs >= 10_000) return `${sign}${prefix}${Math.round(abs / 1_000)}k`
     if (abs >= 1_000) return `${sign}${prefix}${(abs / 1_000).toFixed(1)}k`
-    return `${sign}${prefix}${abs.toLocaleString()}`
+    return `${sign}${prefix}${abs.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
 }
 
 /**
  * Format percentage
  */
 export function formatPercentage(value: number, decimals = 0): string {
-    return `${(value * 100).toFixed(decimals)}%`
+    if (!Number.isFinite(value)) return '—'
+    const precision = Number.isFinite(decimals) ? Math.max(0, Math.min(6, Math.trunc(decimals))) : 0
+    return `${(value * 100).toFixed(precision)}%`
 }
 
 /**

@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
+import { useState, useEffect, useRef } from "react"
+import type { LucideIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { motion, AnimatePresence } from "framer-motion"
@@ -32,7 +34,6 @@ import {
     Star,
     AlertCircle,
     Gamepad2,
-    PartyPopper
 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { useGameStore } from "@/store/game-store"
@@ -45,14 +46,13 @@ import {
     REGION_INFO,
     PRESET_COLORS
 } from "@/types/team-creator"
-import { fireConfetti } from "@/lib/confetti-lazy"
 import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 
 // Wizard steps
 type WizardStep = "name" | "region" | "colors" | "difficulty" | "review"
 
-const STEPS: { id: WizardStep; label: string; icon: React.ElementType }[] = [
+const STEPS: { id: WizardStep; label: string; icon: LucideIcon }[] = [
     { id: "name", label: "Team Name", icon: Shield },
     { id: "region", label: "Region", icon: MapPin },
     { id: "colors", label: "Colors", icon: Palette },
@@ -71,20 +71,10 @@ export default function CreateTeamPage() {
     // Wizard state
     const [currentStep, setCurrentStep] = useState<WizardStep>("name")
     const [isCreating, setIsCreating] = useState(false)
-    const [showCelebration, setShowCelebration] = useState(false)
     const [showRosterBuilder, setShowRosterBuilder] = useState(false)
 
     // Manager name (passed from previous page or stored)
     const [managerName, setManagerName] = useState("")
-
-    // Load manager name from localStorage on mount
-    useEffect(() => {
-        const storedName = localStorage.getItem("pending_manager_name")
-        if (storedName) {
-            setManagerName(storedName)
-            localStorage.removeItem("pending_manager_name") // Clean up
-        }
-    }, [])
 
     // Team data
     const [teamData, setTeamData] = useState<CustomTeamData>({
@@ -97,12 +87,24 @@ export default function CreateTeamPage() {
         secondaryColor: PRESET_COLORS[0].secondary,
     })
 
+    const creatingRef = useRef(false)
+    const [draftReady, setDraftReady] = useState(false)
+    const [draftSaved, setDraftSaved] = useState(true)
+    useEffect(() => {
+        const draft = loadCareerDraft()
+        if (draft) { setManagerName(draft.managerName); if (draft.custom) setTeamData(draft.custom) }
+        setDraftReady(true)
+    }, [])
+    useEffect(() => {
+        if (draftReady && !isCreating) setDraftSaved(saveCareerDraft({ managerName, custom: teamData }))
+    }, [draftReady, managerName, teamData, isCreating])
+
     // Navigation guard - warn about unsaved changes
     const hasUnsavedChanges = teamData.name.trim() !== "" || managerName.trim() !== ""
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (hasUnsavedChanges && !showCelebration && !showRosterBuilder) {
+            if (hasUnsavedChanges && !showRosterBuilder) {
                 e.preventDefault()
                 e.returnValue = "" // Required for Chrome
                 return ""
@@ -111,7 +113,7 @@ export default function CreateTeamPage() {
 
         window.addEventListener("beforeunload", handleBeforeUnload)
         return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-    }, [hasUnsavedChanges, showCelebration, showRosterBuilder])
+    }, [hasUnsavedChanges, showRosterBuilder])
 
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -207,47 +209,11 @@ export default function CreateTeamPage() {
     // Get difficulty settings
     const difficultySettings = DIFFICULTY_SETTINGS[teamData.difficulty]
 
-    // Trigger confetti celebration
-    const triggerCelebration = () => {
-        // Fire confetti from multiple angles
-        const duration = 3000
-        const animationEnd = Date.now() + duration
-        const colors = [teamData.primaryColor, teamData.secondaryColor, '#ffffff']
-
-        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
-
-        const interval = setInterval(() => {
-            const timeLeft = animationEnd - Date.now()
-            if (timeLeft <= 0) {
-                clearInterval(interval)
-                return
-            }
-
-            const particleCount = 50 * (timeLeft / duration)
-
-            // Left side burst
-            fireConfetti({
-                particleCount: Math.floor(particleCount),
-                startVelocity: 30,
-                spread: 60,
-                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                colors,
-            })
-
-            // Right side burst
-            fireConfetti({
-                particleCount: Math.floor(particleCount),
-                startVelocity: 30,
-                spread: 60,
-                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                colors,
-            })
-        }, 250)
-    }
-
     // Handle team creation
     const handleCreateTeam = async () => {
-        if (isCreating) return
+        if (isCreating || creatingRef.current) return
+        if (managerName.trim().length < 2 || teamData.name.trim().length < 2 || teamData.shortName.trim().length < 2) { setCurrentStep('name'); return }
+        creatingRef.current = true
         setIsCreating(true)
 
         try {
@@ -261,19 +227,13 @@ export default function CreateTeamPage() {
                     description: storeError,
                     duration: 8000,
                 })
+                creatingRef.current = false
                 setIsCreating(false)
                 return
             }
 
-            // Show celebration
-            setShowCelebration(true)
-            triggerCelebration()
-
-            // Show roster builder after celebration
-            setTimeout(() => {
-                setShowCelebration(false)
-                setShowRosterBuilder(true)
-            }, 3500)
+            clearCareerDraft()
+            setShowRosterBuilder(true)
         } catch (err) {
             // Fallback for unexpected errors
             const msg = err instanceof Error ? err.message : "An unexpected error occurred"
@@ -282,6 +242,7 @@ export default function CreateTeamPage() {
                 description: msg,
                 duration: 8000,
             })
+            creatingRef.current = false
             setIsCreating(false)
         }
     }
@@ -554,7 +515,7 @@ export default function CreateTeamPage() {
                                 </span>
                                 <span className="inline-flex items-center gap-1">
                                     Income
-                                    <HelpTooltip size={12} content="A multiplier on all income — prize money, sponsors, and merch. Below 1.0× on harder difficulties." />
+                                    <HelpTooltip size={12} content="A multiplier on recurring sponsor and merchandise income — Tournament prizes are handled separately. Below 1.0× on harder difficulties." />
                                 </span>
                             </div>
                         </div>
@@ -571,7 +532,8 @@ export default function CreateTeamPage() {
                                             : "bg-white/5 border-white/10 hover:bg-white/10"
                                     )}
                                 >
-                                    <div className="flex items-center justify-between mb-2">
+                                    <p className="mb-3 text-xs text-slate-400">{draftSaved ? 'Setup saved on this device. Uploaded logos over 500 KB need to be selected again after reload.' : 'Setup could not be saved. Keep this page open until you finish.'}</p>
+                    <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-3">
                                             <DifficultyIcon difficulty={key} />
                                             <div>
@@ -676,7 +638,7 @@ export default function CreateTeamPage() {
                             <div className="text-sm">
                                 <p className="text-amber-500 font-bold">Starting from scratch</p>
                                 <p className="text-muted-foreground">
-                                    You'll begin with an empty roster. Visit the Transfers page to sign free agents and build your team.
+                                    You begin with an empty roster. Choose affordable starters in the roster builder, or continue recruiting through Transfers. Five available players are required for a match.
                                 </p>
                             </div>
                         </div>
@@ -687,90 +649,6 @@ export default function CreateTeamPage() {
 
     return (
         <div className="min-h-screen relative flex flex-col">
-            {/* Celebration Overlay */}
-            <AnimatePresence>
-                {showCelebration && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            className="text-center"
-                        >
-                            {/* Team Logo */}
-                            <motion.div
-                                initial={{ y: -20 }}
-                                animate={{ y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="mx-auto mb-6"
-                            >
-                                {teamData.logoData ? (
-                                    <img
-                                        src={teamData.logoData}
-                                        alt={teamData.name}
-                                        className="w-32 h-32 rounded-3xl object-contain shadow-2xl border-4"
-                                        style={{
-                                            borderColor: teamData.primaryColor,
-                                            boxShadow: `0 0 60px ${teamData.primaryColor}50`
-                                        }}
-                                    />
-                                ) : (
-                                    <div
-                                        className="w-32 h-32 rounded-3xl flex items-center justify-center text-4xl font-bold shadow-2xl"
-                                        style={{
-                                            background: `linear-gradient(135deg, ${teamData.primaryColor} 0%, ${teamData.secondaryColor} 100%)`,
-                                            color: "white",
-                                            boxShadow: `0 0 60px ${teamData.primaryColor}50`
-                                        }}
-                                    >
-                                        {teamData.shortName.slice(0, 2)}
-                                    </div>
-                                )}
-                            </motion.div>
-
-                            {/* Celebration Text */}
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.4 }}
-                            >
-                                <div className="flex items-center justify-center gap-3 mb-4">
-                                    <PartyPopper className="text-amber-400" size={32} />
-                                    <h1 className="text-4xl font-bold text-white">Your Team is Ready!</h1>
-                                    <PartyPopper className="text-amber-400 scale-x-[-1]" size={32} />
-                                </div>
-                                <p className="text-2xl font-bold mb-2" style={{ color: teamData.primaryColor }}>
-                                    {teamData.name}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    Welcome to the esports world, {managerName}!
-                                </p>
-                            </motion.div>
-
-                            {/* Loading indicator */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 1.5 }}
-                                className="mt-8 text-sm text-muted-foreground flex items-center justify-center gap-2"
-                            >
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                    className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full"
-                                />
-                                Entering headquarters...
-                            </motion.div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
             {/* Roster Builder Modal */}
             <RosterBuilderModal
                 isOpen={showRosterBuilder}
@@ -887,9 +765,9 @@ export default function CreateTeamPage() {
             <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Discard your team?</AlertDialogTitle>
+                        <AlertDialogTitle>Leave team setup?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            You have unsaved changes. Going back will lose the team you&apos;ve started building.
+                            Your setup stays on this device so you can continue later. A career is created only when you finish.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

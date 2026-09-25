@@ -1,0 +1,93 @@
+{
+  "at": "2026-09-15T20:57:12.267Z",
+  "count": 4988,
+  "issues": 4988,
+  "byKind": {
+    "artwork-other": {
+      "count": 693,
+      "examples": [
+        "public/Live match.jpg",
+        "public/assets/Assets.txt",
+        "public/assets/Thecore"
+      ]
+    },
+    "marketing-branding": {
+      "count": 22,
+      "examples": [
+        "public/assets/Steamworks Bilder/Desktop.png",
+        "public/assets/Steamworks Bilder/Hall Of Fame.png",
+        "public/assets/Steamworks Bilder/Live match.png"
+      ]
+    },
+    "portrait": {
+      "count": 2944,
+      "examples": [
+        "public/assets/legends/Bastion.svg",
+        "public/assets/legends/Cipherx.svg",
+        "public/assets/legends/Dupren.svg"
+      ]
+    },
+    "logo": {
+      "count": 765,
+      "examples": [
+        "public/assets/teams/1win/logo.original.webp",
+        "public/assets/teams/1win/logo.svg",
+        "public/assets/teams/1win/logo.webp"
+      ]
+    },
+    "database": {
+      "count": 14,
+      "examples": [
+        "public/data/snapshot/players.json",
+        "public/data/snapshot/sources.json",
+        "public/data/snapshot/teams.json"
+      ]
+    },
+    "user-draft-mixed": {
+      "count": 5,
+      "examples": [
+        "public/map-studio/drafts/mirage-registered-review.json",
+        "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+        "public/map-studio/drafts/mirage-user-draft-2026-09-12.json"
+      ]
+    },
+    "map-geometry": {
+      "count": 43,
+      "examples": [
+        "public/map-studio/spatial/Ancient-upper.png",
+        "public/map-studio/spatial/Ancient.json",
+        "public/map-studio/spatial/Ancient.mesh"
+      ]
+    },
+    "map-reference": {
+      "count": 31,
+      "examples": [
+        "public/maps/WqSceeErZORFGoG8gJ4nLT.webp",
+        "public/maps/ancient.png",
+        "public/maps/anubis.png"
+      ]
+    },
+    "lineup-reference": {
+      "count": 3,
+      "examples": [
+        "data/map-studio-library.json",
+        "lib/map-studio-library.ts",
+        "lib/map-utility-templates.ts"
+      ]
+    },
+    "code-and-player-text": {
+      "count": 467,
+      "examples": [
+        "app/academy/page.tsx",
+        "app/animations/layout.tsx",
+        "app/animations/page.tsx"
+      ]
+    },
+    "font": {
+      "count": 1,
+      "examples": [
+        "app/fonts/archivo-black-latin-400-normal.woff2"
+      ]
+    }
+  }
+}

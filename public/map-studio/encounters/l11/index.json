@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "mapId": "Mirage",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "release": "held",
+  "tuning": "lab-rifle-v1; original, provisional, uncalibrated",
+  "comparison": "Discrete hashes cover event types, ticks, damage, outcome, health, armor, ammo, reserve and knowledge visibility/age. Full hashes retain ray and angle floating point values.",
+  "scenarios": [
+    {
+      "id": "clear-duel",
+      "title": "Clear sight · reaction duel",
+      "lab": "/map-studio/encounters/l11/clear-duel.lab.json",
+      "outcome": "A",
+      "events": 11,
+      "fullSha256": "57ccc2555c396bad402f23d10d23c8ba2a44807c5d7075b1d13f26fecb95dabc",
+      "discreteSha256": "2883b512a7c3b6bf6a44b7759594f44c1174362b67485cc0f256336b9faf8cb4",
+      "projectSha256": "32d4c4529f5ef8159d1f93654cc756bd42a8f5cb0b7b53b883d7d01469bccdef"
+    },
+    {
+      "id": "opaque-wall",
+      "title": "Opaque geometry · no contact",
+      "lab": "/map-studio/encounters/l11/opaque-wall.lab.json",
+      "outcome": "timeout",
+      "events": 0,
+      "fullSha256": "e84ea8e53f3d281476be984db353773e50ecf8d90bae4453860850389ba8213b",
+      "discreteSha256": "ed43bb5594f13352d648ba1c017c84db1db169d450f9cdc69a30d78325cc6a23",
+      "projectSha256": "af8062302c4c63bc6e6e6d0370bbae4b0a4d67efe01be42f163050b09c63a2a5"
+    },
+    {
+      "id": "facing-away",
+      "title": "Both players face away",
+      "lab": "/map-studio/encounters/l11/facing-away.lab.json",
+      "outcome": "timeout",
+      "events": 0,
+      "fullSha256": "57b49efcb9054be08353c0f2afaf958cce67aa8fe436f60d43ac9c66f5726bd9",
+      "discreteSha256": "ed43bb5594f13352d648ba1c017c84db1db169d450f9cdc69a30d78325cc6a23",
+      "projectSha256": "bf3182850ccbee5219d106f5b443c049ec3437bdd209633b8b2b49d6da9dd6db"
+    },
+    {
+      "id": "empty-magazine",
+      "title": "A must reload before firing",
+      "lab": "/map-studio/encounters/l11/empty-magazine.lab.json",
+      "outcome": "A",
+      "events": 9,
+      "fullSha256": "7f636ad9a15d145ed7f67f89e9a4ea97f83e9b67aa8d96cf1f86da0ffab1bb2c",
+      "discreteSha256": "fbdff512651083a51d772ad7e87ef9e9b3fdc96b8e7a069e2e6ada3f2f3801a1",
+      "projectSha256": "d4e3ba08537deefb4e62916b13c43aa737978de65b952032d5bf045f203ae953"
+    },
+    {
+      "id": "simultaneous-trade",
+      "title": "Equal reaction · same-tick trade",
+      "lab": "/map-studio/encounters/l11/simultaneous-trade.lab.json",
+      "outcome": "trade",
+      "events": 10,
+      "fullSha256": "d9ca117c0cd6eb7853895ebc83c59040dba153012f39b7bd050f496a68bce52f",
+      "discreteSha256": "20cbd861062efe5a35449f6180123f78601f92da2754285be4698c6500304203",
+      "projectSha256": "e792ed32ad6af68174a9a276d1c8fdffb4addcc16b9b1aab6ccf999af8948979"
+    }
+  ]
+}

@@ -98,7 +98,7 @@ describe("MatchEngine.simulateMatch", () => {
 
         // Sample several seeds — at least some pair should disagree.
         const results = [1, 2, 3, 4, 5].map(seed =>
-            matchEngine.simulateMatch(match, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
+            matchEngine.simulateMatch({ ...match, seed }, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
         )
         const distinctScores = new Set(results.map(r => `${r.homeScore}:${r.awayScore}`))
         expect(distinctScores.size).toBeGreaterThan(1)
@@ -112,7 +112,7 @@ describe("MatchEngine.simulateMatch", () => {
         const awayPlayers = makeRoster("away")
 
         for (let seed = 1; seed <= 10; seed++) {
-            const r = matchEngine.simulateMatch(match, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
+            const r = matchEngine.simulateMatch({ ...match, seed }, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
             const total = r.homeScore + r.awayScore
             expect(total).toBe(1)
         }
@@ -126,7 +126,7 @@ describe("MatchEngine.simulateMatch", () => {
         const awayPlayers = makeRoster("away")
 
         for (let seed = 1; seed <= 10; seed++) {
-            const r = matchEngine.simulateMatch(match, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
+            const r = matchEngine.simulateMatch({ ...match, seed }, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
             expect(Math.max(r.homeScore, r.awayScore)).toBe(2)
             // Loser has 0, 1, or 2 (sweep or close). Total at most 3.
             expect(r.homeScore + r.awayScore).toBeLessThanOrEqual(3)
@@ -189,10 +189,23 @@ describe("MatchEngine.simulateMatch", () => {
 
         let homeWins = 0
         for (let seed = 1; seed <= 30; seed++) {
-            const r = matchEngine.simulateMatch(match, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
+            const r = matchEngine.simulateMatch({ ...match, seed }, home, away, homePlayers, awayPlayers, new SeededRNG(seed))
             if (r.homeScore > r.awayScore) homeWins++
         }
         // Should be a strong majority — not a coin flip.
         expect(homeWins).toBeGreaterThan(20)
     })
+})
+
+
+test('saved Nuke/Sandstone map and starting side survive the weekly adapter independently of global RNG', () => {
+    for (const map of ['Nuke', 'Sandstone']) {
+        const match = makeMatch({ maps: [map], mapStartingSides: { [map]: 'away' }, vetoComplete: true, seed: 0 })
+        const run = (seed: number) => matchEngine.simulateMatch(match, makeTeam('home'), makeTeam('away'), makeRoster('home'), makeRoster('away'), new SeededRNG(seed))
+        const a = run(1), b = run(9000)
+        expect(a).toEqual(b)
+        expect(a.engineVersion).toBe('legacy-v2')
+        expect(a.maps[0].map).toBe(map)
+        expect(a.maps[0].rounds[0].ctTeam).toBe('away')
+    }
 })

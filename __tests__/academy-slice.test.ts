@@ -271,7 +271,7 @@ describe("enrollProspect", () => {
 
 describe("updateAcademyRoster + updateAcademySchedule", () => {
     test("updateAcademyRoster slots a prospect into a role and accepts null to clear", () => {
-        const h = makeHarness(makeBaseState())
+        const h = makeHarness(makeBaseState({ players: [makePlayer('p1')], academyPlayers: [{ id: 'acad_1', playerId: 'p1' } as never] }))
         const slice = createAcademySlice(h.set, h.get)
         slice.updateAcademyRoster("AWPer", "acad_1")
         expect((h.state().academyRoster as Record<string, string | null>).AWPer).toBe("acad_1")
@@ -279,17 +279,29 @@ describe("updateAcademyRoster + updateAcademySchedule", () => {
         expect((h.state().academyRoster as Record<string, string | null>).AWPer).toBeNull()
     })
 
-    test("updateAcademySchedule writes drill IDs keyed by NUMERIC day", () => {
-        // The fact this slot is number-indexed (not string-indexed) was
-        // the Phase R signature-mismatch fix. Pin it explicitly.
-        const h = makeHarness(makeBaseState())
+    test("updateAcademySchedule accepts unlocked drills on seven numeric days", () => {
+        const h = makeHarness(makeBaseState({ teams: [makeTeam("player", { academyFacility: { level: 1, builtWeek: 1 } })] }))
         const slice = createAcademySlice(h.set, h.get)
-        slice.updateAcademySchedule(0, "drill_aim")
-        slice.updateAcademySchedule(3, "drill_strats")
+        slice.updateAcademySchedule(0, "aim_intensive")
+        slice.updateAcademySchedule(3, "util_expert")
         slice.updateAcademySchedule(5, null)
         const schedule = h.state().academyTrainingSchedule as Record<number, string | null>
-        expect(schedule[0]).toBe("drill_aim")
-        expect(schedule[3]).toBe("drill_strats")
+        expect(schedule[0]).toBe("aim_intensive")
+        expect(schedule[3]).toBe("util_expert")
         expect(schedule[5]).toBeNull()
     })
+})
+
+
+test("L15 academy development does not charge upkeep a second time", () => {
+    const h = makeHarness(makeBaseState({
+        teams: [makeTeam("player", { academyFacility: { level: 1, builtWeek: 1 } })],
+        academyWeeklyReports: [], academyScoutingMissions: [],
+    }))
+    const slice = createAcademySlice(h.set, h.get)
+    const opening = h.state().teams[0].budget
+    slice.processAcademyWeek()
+    expect(h.state().teams[0].budget).toBe(opening)
+    expect(h.state().financeLedger).toHaveLength(0)
+    expect(h.state().academyWeeklyReports).toHaveLength(1)
 })

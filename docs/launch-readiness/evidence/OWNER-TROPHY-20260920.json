@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-20",
+  "source": "marketing/approved-brand/ESM_LOGO.png",
+  "sourceSha256": "bea0e7e9a5a7029067139f3a4a72309f801737ff74b81bc34308ca09f8577f49",
+  "basis": "Owner supplied ESM_LOGO.png and explicitly authorized game and screenshot use. Local size exports authorized earlier. No independent third-party license verification asserted.",
+  "method": "Contain resize with transparent padding; no repainting or regeneration",
+  "files": [
+    {
+      "path": "public/logo.png",
+      "sha256": "c24c6782708ccf79219d6766d05243973e471f6b9813380c64b361b90f52ccd4",
+      "bytes": 212631
+    },
+    {
+      "path": "build/icon.png",
+      "sha256": "c24c6782708ccf79219d6766d05243973e471f6b9813380c64b361b90f52ccd4",
+      "bytes": 212631
+    },
+    {
+      "path": "public/branding/icon.png",
+      "sha256": "7ef9d22e2ddb73ba799f87ffaeb51e2958a5ca90119fbf975d75aa259a8f303b",
+      "bytes": 59670
+    },
+    {
+      "path": "marketing/approved-brand/exports/steam-icon-256.png",
+      "sha256": "7ef9d22e2ddb73ba799f87ffaeb51e2958a5ca90119fbf975d75aa259a8f303b",
+      "bytes": 59670
+    },
+    {
+      "path": "marketing/approved-brand/exports/game-icon-512.png",
+      "sha256": "c24c6782708ccf79219d6766d05243973e471f6b9813380c64b361b90f52ccd4",
+      "bytes": 212631
+    },
+    {
+      "path": "public/logo.ico",
+      "sha256": "d3350e3c6a36307db398a798c29fd4ed6b833520568f9ec2db8a8b7d40d8a7d7",
+      "bytes": 89293
+    },
+    {
+      "path": "build/icon.ico",
+      "sha256": "d3350e3c6a36307db398a798c29fd4ed6b833520568f9ec2db8a8b7d40d8a7d7",
+      "bytes": 89293
+    },
+    {
+      "path": "marketing/approved-brand/exports/game-icon.ico",
+      "sha256": "d3350e3c6a36307db398a798c29fd4ed6b833520568f9ec2db8a8b7d40d8a7d7",
+      "bytes": 89293
+    }
+  ]
+}

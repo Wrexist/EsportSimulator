@@ -1,0 +1,144 @@
+{
+  "release": {
+    "artifacts": {
+      "geometry.zip": {
+        "bytes": 49702546,
+        "sha256": "0c7fe56ca2b9be08d2af8d842aff87968f916fc93d833b6275c6485aedfd8843"
+      },
+      "images.zip": {
+        "bytes": 2876805,
+        "sha256": "5a1ad984bc1287218baa7d375cfb259b23d76603d939268d5430832aecf13d82"
+      },
+      "navs.zip": {
+        "bytes": 7091576,
+        "sha256": "427c4a685ad652f7a3b8c383a36abc04e9996caa04f934990ae2e9b7b8551c22"
+      }
+    },
+    "buildid": "25218825",
+    "client_version": "2000908",
+    "generated_at": "2026-09-10T05:55:48.154981+00:00",
+    "maps": [
+      "ar_baggage",
+      "ar_pool_day",
+      "ar_shoots",
+      "ar_shoots_night",
+      "cs_italy",
+      "cs_office",
+      "cs_shelter",
+      "de_ancient",
+      "de_ancient_night",
+      "de_anubis",
+      "de_boulder",
+      "de_cache",
+      "de_debris",
+      "de_dust2",
+      "de_eldorado",
+      "de_fachwerk",
+      "de_inferno",
+      "de_mirage",
+      "de_nuke",
+      "de_overpass",
+      "de_poseidon",
+      "de_train",
+      "de_vertigo"
+    ],
+    "patch_version": "1.41.8.1",
+    "release_key": "2000908",
+    "server_version": "2000908",
+    "source_revision": "10981323",
+    "version_date": "Sep 09 2026",
+    "version_time": "15:23:58"
+  },
+  "maps": {
+    "Mirage": {
+      "areas": 2544,
+      "directedEdges": 6381,
+      "ladders": 2,
+      "excludedEdges": 0,
+      "navSha256": "f9b23bb5d2303549259040ddfd5ed6c075760d2dfa5ab2025e097719e2e016aa",
+      "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Nuke": {
+      "areas": 3040,
+      "directedEdges": 7676,
+      "ladders": 6,
+      "excludedEdges": 0,
+      "navSha256": "58a9ef6b9ba7f471fcfc1e399f28c638b4a56b5609e4920e4b5e8f4f5aeb1c56",
+      "meshSha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+      "radars": [
+        "upper",
+        "lower"
+      ]
+    },
+    "Sandstone": {
+      "areas": 2242,
+      "directedEdges": 6275,
+      "ladders": 0,
+      "excludedEdges": 0,
+      "navSha256": "64bbc202edae8a92d432368e86948bbee3af9c56555e190dda251d28c64e1ea7",
+      "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Inferno": {
+      "areas": 2738,
+      "directedEdges": 7068,
+      "ladders": 0,
+      "excludedEdges": 0,
+      "navSha256": "8d312122a9758a1b64b397f0e02b16e18e9432f738ab7308d0b73cb7df118111",
+      "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Anubis": {
+      "areas": 2633,
+      "directedEdges": 6877,
+      "ladders": 0,
+      "excludedEdges": 0,
+      "navSha256": "5d492f867497cc47a6072fc803fb7b0fcf8f1b99030590e3fbff627c9cba7eeb",
+      "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Ancient": {
+      "areas": 1970,
+      "directedEdges": 5087,
+      "ladders": 0,
+      "excludedEdges": 0,
+      "navSha256": "967c483c0e2e4471834a9e0ba80432c8e9a8114e61ff5a6fb08c32b7331fc6d4",
+      "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Overpass": {
+      "areas": 3936,
+      "directedEdges": 10020,
+      "ladders": 1,
+      "excludedEdges": 0,
+      "navSha256": "8ca1049396331fab2fe2b00ef13ec7d3532af35d48d1a5d562f616c149a6ad8f",
+      "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+      "radars": [
+        "upper"
+      ]
+    },
+    "Vertigo": {
+      "areas": 2105,
+      "directedEdges": 5321,
+      "ladders": 1,
+      "excludedEdges": 0,
+      "navSha256": "efca544d49be608d6017908ef083be1e11ec8a5e819da40808210268da9d6890",
+      "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+      "radars": [
+        "upper",
+        "lower"
+      ]
+    }
+  }
+}

@@ -152,7 +152,8 @@ export const fontWeight = {
 } as const
 
 export const fontFamily: Record<string, string[]> = {
-  sans: ['var(--font-archivo)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  display: ['var(--font-archivo)', 'ui-sans-serif', 'sans-serif'],
   mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
 }
 
@@ -181,7 +182,7 @@ export const motion = {
     fast: 120,
     base: 180,
     deliberate: 280,
-    page: 420,
+    page: 140,
   },
   /** CSS easing — cubic bezier */
   easeOutExpo: [0.22, 1, 0.36, 1] as const,

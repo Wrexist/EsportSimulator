@@ -1,0 +1,13 @@
+{
+  "buildId": 25370240,
+  "depotId": 4326171,
+  "manifest": "7171118896994346851",
+  "checkedFiles": 1439,
+  "missing": [
+    "resources\\app.asar.unpacked\\node_modules\\steamworks.js\\dist\\win64\\steam_api64.lib"
+  ],
+  "changed": [],
+  "source": "C:\\Users\\IsacC\\EsportSimulator\\dist\\win-unpacked",
+  "steamDownload": "C:\\steamcmd\\steamapps\\content\\app_4326170\\depot_4326171",
+  "scope": "SteamCMD exact-manifest round trip, not Steam client installation acceptance"
+}

@@ -49,7 +49,7 @@ function makeSave(teams: TeamSaveData[], players: PlayerSaveData[]): GameSave {
 }
 
 describe("manageRoster — emergency signing below quorum", () => {
-    it("an insolvent sub-quorum team still signs a free agent", () => {
+    it("an insolvent team cannot create unaffordable new wages", () => {
         const broke = makeTeam("broke", {
             budget: -200_000,
             financialState: "INSOLVENT",
@@ -61,7 +61,9 @@ describe("manageRoster — emergency signing below quorum", () => {
 
         manageRoster(broke, save)
 
-        expect(broke.rosterIds.length).toBe(4) // signed one toward quorum
+        expect(broke.rosterIds.length).toBe(3)
+        expect(save.contracts).toHaveLength(0)
+        expect(broke.budget).toBe(-200_000)
     })
 
     it("a solvent, full roster is unaffected by the emergency path", () => {

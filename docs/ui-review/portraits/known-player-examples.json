@@ -1,0 +1,32 @@
+[
+  {
+    "id": "player_5_phantom_sh7ro",
+    "reference": "/assets/teams/spirit/players/sh1ro.png",
+    "image": "/branding/portraits/polished-9dd6c79786228312.png"
+  },
+  {
+    "id": "player_5_phantom_donc",
+    "reference": "/assets/teams/spirit/players/donk.png",
+    "image": "/branding/portraits/polished-6cecba57cecdf35d.png"
+  },
+  {
+    "id": "player_12_astraflux_jxabbi",
+    "reference": "/assets/teams/astralis/players/jabbi.png",
+    "image": "/branding/portraits/polished-790d9fb644d08a43.png"
+  },
+  {
+    "id": "player_9_g_two_hzunter",
+    "reference": "/assets/teams/g2/players/hunter-.png",
+    "image": "/branding/portraits/polished-d5203dae6ebe41df.png"
+  },
+  {
+    "id": "player_7_phaze_tviztzz",
+    "reference": "/assets/teams/faze/players/twistzz.png",
+    "image": "/branding/portraits/polished-99c286ac1add927d.png"
+  },
+  {
+    "id": "player_11_eurora_voxik",
+    "reference": "/assets/teams/aurora/players/woxic.webp",
+    "image": "/branding/portraits/polished-b32bfef9d3d4ad2a.png"
+  }
+]

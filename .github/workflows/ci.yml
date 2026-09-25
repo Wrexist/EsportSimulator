@@ -1,125 +1,94 @@
-# CI/CD Pipeline
-# Note: IDE warnings about actions not found are false positives - these resolve correctly in GitHub
-name: CI/CD
+name: Launch quality gates
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  source-checks:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-
+    timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: Install Dependencies
-      run: npm ci
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - name: Collect required source checks (all failures retained)
+        run: npm run release:checks
+        env:
+          CI_FUZZ_WEEKS: '50'
+      - name: Retain evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-evidence
+          path: |
+            tmp/launch-evidence/
+            tmp/launch-fixtures/
+            tmp/steam-*-report.*
+          if-no-files-found: error
+          retention-days: 14
 
-    # Run type-check FIRST so we fail fast on type errors instead of
-    # wasting CI minutes on a test suite that can pass with type bugs.
-    - name: Type Check
-      run: npm run type-check
-
-    - name: Lint
-      run: npm run lint
-      continue-on-error: true
-
-    - name: Run Tests
-      run: npm test
-
-    - name: Build
-      run: npm run build
-      
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      if: matrix.node-version == '20.x'
-      with:
-        name: build
-        path: .next/
-        retention-days: 7
-
-  hardening:
+  web-build:
     runs-on: ubuntu-latest
-    needs: build
+    timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - name: Production build including worker realm check
+        run: npm run build
+      - name: Retain web build (not a Windows artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          include-hidden-files: true
+          path: |
+            .next/
+            !.next/cache/**
+          if-no-files-found: error
+          retention-days: 7
 
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: 'npm'
-
-    - name: Install Dependencies
-      run: npm ci
-
-    - name: Release Hardening Suite
-      run: npm run release:hardening
-      timeout-minutes: 10
-      env:
-        CI_FUZZ_WEEKS: "50"
-  
-  electron:
+  windows-candidate:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: windows-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-
+    timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    - name: Install
-      run: npm ci
-    - name: Build Next.js
-      run: npm run build
-    - name: Package Electron
-      run: npx electron-builder --win --publish never
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Upload Electron Build
-      uses: actions/upload-artifact@v4
-      with:
-        name: electron-win
-        path: dist/*.exe
-        retention-days: 14
-
-  performance:
-    runs-on: ubuntu-latest
-    needs: [build, hardening]
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    - name: Install
-      run: npm ci
-    - name: Build with analysis
-      run: ANALYZE=true npm run build
-      continue-on-error: true
-    - name: Check bundle size
-      run: |
-        echo "=== Build Output Size ==="
-        du -sh .next/ 2>/dev/null || echo "N/A"
-        echo "=== Static Pages ==="
-        find .next/server -name '*.html' 2>/dev/null | wc -l || echo "0"
-      continue-on-error: true
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - name: Fresh Windows package and release evidence (no publication)
+        run: npm run release:verify -- --package
+      - name: Retain candidate evidence even when acceptance is missing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-candidate-evidence
+          path: |
+            tmp/launch-evidence/
+            tmp/launch-fixtures/
+            tmp/steam-*-report.*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain package for testing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-candidate
+          path: dist/*.exe
+          if-no-files-found: warn
+          retention-days: 14
