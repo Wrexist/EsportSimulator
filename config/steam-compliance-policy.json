@@ -1,7 +1,10 @@
 {
   "sourceAllowlist": [
     "lib/motion.ts",
-    "lib/sound-manager.ts"
+    "lib/sound-manager.ts",
+    "data/player-portrait-batch-inputs.json",
+    "data/player-portrait-replacements.json",
+    "data/player-portrait-reviewed.json"
   ],
   "sourceAllowlistGlobs": [
     "lib/safe-branding/**",
