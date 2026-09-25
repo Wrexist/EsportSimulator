@@ -68,14 +68,13 @@ describe("isTerminalBracketStage", () => {
         "Final",
         "final",
         "Finals",
-        "Upper Bracket Grand Final", // contains 'grand final'
     ])("'%s' is a terminal stage", (stage) => {
         expect(isTerminalBracketStage(stage)).toBe(true)
     })
 
     test.each([
         "Semifinal", "Quarterfinal", "Group Stage",
-        "Round 1", "Lower Bracket Round 1",
+        "Round 1", "Lower Bracket Round 1", "Upper Bracket Grand Final",
     ])("'%s' is NOT a terminal stage", (stage) => {
         expect(isTerminalBracketStage(stage)).toBe(false)
     })
@@ -210,10 +209,10 @@ describe("hasTerminalTournamentCompletion — league format path", () => {
         const save = makeSave({
             currentWeek: 10,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            completedMatches: [{ id: "c1", tournamentId: "t1", week: 5 } as any as CompletedMatchSaveData],
+            completedMatches: [{ id: "c1", tournamentId: "t1", week: 5, homeTeamId: "t1", awayTeamId: "t2", result: { homeScore: 1, awayScore: 0, winnerId: "t1" } } as any as CompletedMatchSaveData],
             scheduledMatches: [],
         })
-        const tournament = makeTournament({ format: "league" })
+        const tournament = makeTournament({ format: "league", teamIds: ["t1", "t2"] })
         expect(hasTerminalTournamentCompletion(save, tournament)).toBe(true)
     })
 
@@ -239,7 +238,7 @@ describe("hasTerminalTournamentCompletion — league format path", () => {
         const save = makeSave({
             currentWeek: 20,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            completedMatches: [{ id: "c1", tournamentId: "t1", week: 5 } as any as CompletedMatchSaveData],
+            completedMatches: [{ id: "b1", tournamentId: "t1", week: 5, homeTeamId: "t1", awayTeamId: "t2", result: { homeScore: 1, awayScore: 0, winnerId: "t1" } } as any as CompletedMatchSaveData],
             scheduledMatches: [],
         })
         const tournament = makeTournament({

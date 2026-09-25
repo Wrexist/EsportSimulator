@@ -1,0 +1,46 @@
+{
+  "method": "built-in image_gen",
+  "base": "Use case: ads-marketing. Create ONE polished landscape 16:9 promotional feature illustration for the PC game ESPORTS MANAGER: FPS. This is editorial marketing artwork for the About section and social advertising, NOT a gameplay screenshot. Cohesive premium stylized 3D sports-management art: expressive adult esports characters, attractive tactile materials, confident clean composition, deep midnight navy with vivid turquoise, warm coral and restrained championship gold, bright readable faces, high energy, sophisticated playful personality. Large beautifully typeset sans-serif headline; small brand wordmark 'ESPORTS MANAGER: FPS'. No real people, real team brands, fake review stars, sales claims, download claims, prices, fake game UI, rifles or military combat. No dense tables. Realistic anatomy and hands. Make it inviting and fun, professionally art-directed rather than generic sci-fi neon. Include small unobtrusive footer 'PROMOTIONAL ARTWORK'. ",
+  "scenes": [
+    [
+      "01-build-your-dynasty",
+      "BUILD YOUR DYNASTY",
+      "Hero campaign: five distinct adult esports teammates in coordinated navy and turquoise jerseys, celebrating a hard-earned win beside their coach. One player fist-bumps the coach, another raises both arms. Beautiful arena stage bokeh, tasteful confetti, large trophy silhouette in background. Characters dominate right two thirds, headline exceptionally legible left. Sell team camaraderie and managerial ambition."
+    ],
+    [
+      "02-find-your-next-star",
+      "FIND YOUR NEXT STAR",
+      "Young adult fictional esports prospect with stylish dark hair and glasses sits at gaming desk, turning with an excited confident smile toward a manager holding a scouting notebook. Warm coral desk lighting, turquoise monitor reflections. Human story of discovering talent, bold close portrait, no readable statistics or invented UI."
+    ],
+    [
+      "03-call-the-shots",
+      "CALL THE SHOTS",
+      "Focused coach and two adult players lean over a physical tabletop tactical board in a beautiful team strategy room. Simple two-dimensional abstract plan with colored tokens and arrows, no specific copyrighted map, strong diagonal composition, dynamic gestures, team concentration, turquoise and coral markers."
+    ],
+    [
+      "04-build-your-dream-team",
+      "BUILD YOUR DREAM TEAM",
+      "Five distinct adult teammates in coordinated navy jerseys arranged in a dynamic sports roster editorial group portrait: confident glasses-wearing strategist, exuberant curly-haired player, calm bearded veteran, focused East Asian teammate, athletic Black teammate. Warm friendly expressions, high-end character design, layered depths, clean graphic navy background with bold teal/coral shapes. No stats or fictional gameplay menus."
+    ],
+    [
+      "05-create-your-home",
+      "CREATE YOUR HOME",
+      "Inviting stylish esports training headquarters seen in beautiful wide interior perspective: five gaming stations, turquoise desk lighting, warm daylight, team lounge and a coach reviewing a whiteboard, plants and tasteful gold trophy on shelf. A believable aspirational club base, vivid welcoming atmosphere and organized architectural composition."
+    ],
+    [
+      "06-gear-up",
+      "GEAR UP FOR THE CLIMB",
+      "Beautiful stylized 3D equipment editorial still life: unbranded gaming mouse, mechanical keyboard, headphones and tournament monitor arranged on an elegant navy desktop, tactile materials, turquoise and coral accents, warm directional light. Background a teammate settling into a chair. Dynamic premium hardware campaign without real logos or unreadable text."
+    ],
+    [
+      "07-run-the-club",
+      "RUN THE CLUB",
+      "Confident esports manager in casual dark jacket at desk discussing a player contract with an adult teammate. Paperwork with abstract non-readable lines, pen and a tasteful club scarf, warm daylight and teal accents. Human business story, friendly ambitious tone, no stacks of cash, no fictional dollar values or misleading game screens."
+    ],
+    [
+      "08-make-every-season-count",
+      "MAKE EVERY SEASON COUNT",
+      "Heroic yet playful adult coach seen three-quarter profile at arena tunnel entrance with the five-person team heading toward a luminous competitive esports stage. Navy, vivid turquoise and warm gold/coral stage lights, restrained confetti and audience shapes. Feeling of anticipation, long-term team journey and competition, no claims of winning or features not shown."
+    ]
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "build": "cAVrB5l32x2qQWbl99c0j",
+  "public": {
+    "count": 4451,
+    "bytes": 298587618,
+    "byExtension": {
+      ".txt": 3748,
+      ".png": 194272463,
+      ".webp": 51352422,
+      ".svg": 4042750,
+      ".jpg": 1446693,
+      "(none)": 23139,
+      ".json": 9592693,
+      ".ico": 4286,
+      ".mesh": 37849424
+    },
+    "largest": [
+      {
+        "path": "public/map-studio/spatial/Inferno.mesh",
+        "bytes": 10004548
+      },
+      {
+        "path": "public/map-studio/spatial/Ancient.mesh",
+        "bytes": 7803196
+      },
+      {
+        "path": "public/map-studio/spatial/Anubis.mesh",
+        "bytes": 6853012
+      },
+      {
+        "path": "public/map-studio/spatial/Overpass.mesh",
+        "bytes": 4522648
+      },
+      {
+        "path": "public/map-studio/spatial/Sandstone.mesh",
+        "bytes": 4344292
+      },
+      {
+        "path": "public/assets/facilities/hq-overview.png",
+        "bytes": 2464218
+      },
+      {
+        "path": "public/assets/facilities/fan-zone.png",
+        "bytes": 2395220
+      },
+      {
+        "path": "public/assets/merch/jersey-pro-black.png",
+        "bytes": 2371940
+      },
+      {
+        "path": "public/assets/merch/hoodie-onyx-white.png",
+        "bytes": 2371773
+      },
+      {
+        "path": "public/assets/merch/jersey-pro-white.png",
+        "bytes": 2354690
+      },
+      {
+        "path": "public/assets/merch/hoodie-onyx-red.png",
+        "bytes": 2324332
+      },
+      {
+        "path": "public/assets/facilities/recovery-hub.png",
+        "bytes": 2262921
+      },
+      {
+        "path": "public/assets/merch/jersey-pro-red.png",
+        "bytes": 2242659
+      },
+      {
+        "path": "public/assets/facilities/training-room.png",
+        "bytes": 2217370
+      },
+      {
+        "path": "public/assets/facilities/tactical-suite.png",
+        "bytes": 2194129
+      },
+      {
+        "path": "public/assets/ui/phone-wallpaper.png",
+        "bytes": 2105020
+      },
+      {
+        "path": "public/assets/portraits/mockup_team_upscayl_16x_ultrasharp.png",
+        "bytes": 2084251
+      },
+      {
+        "path": "public/assets/tournaments/logo_eastern_major_2025.png",
+        "bytes": 2063691
+      },
+      {
+        "path": "public/assets/tournaments/b_tier_trophy_1.png",
+        "bytes": 1997445
+      },
+      {
+        "path": "public/assets/tournaments/tournament_logo_open.png",
+        "bytes": 1961682
+      }
+    ]
+  },
+  "jsChunks": {
+    "count": 198,
+    "bytes": 7056434,
+    "gzipBytes": 1788233,
+    "largest": [
+      {
+        "path": ".next/static/chunks/6269-9edef2c9858977c8.js",
+        "bytes": 1090191,
+        "gzipBytes": 62503
+      },
+      {
+        "path": ".next/static/chunks/app/map-editor/page-8328beefca72a782.js",
+        "bytes": 510768,
+        "gzipBytes": 77607
+      },
+      {
+        "path": ".next/static/chunks/7179-2bf214ec42bdd328.js",
+        "bytes": 465603,
+        "gzipBytes": 143288
+      },
+      {
+        "path": ".next/static/chunks/2263-7f4c048bd9891984.js",
+        "bytes": 378727,
+        "gzipBytes": 101815
+      },
+      {
+        "path": ".next/static/chunks/804-de2d0da530d7e4c0.js",
+        "bytes": 253304,
+        "gzipBytes": 71494
+      },
+      {
+        "path": ".next/static/chunks/framework-20800d3e34c2077b.js",
+        "bytes": 189787,
+        "gzipBytes": 59901
+      },
+      {
+        "path": ".next/static/chunks/1255-0aa470368f74fb91.js",
+        "bytes": 173812,
+        "gzipBytes": 46078
+      },
+      {
+        "path": ".next/static/chunks/4bd1b696-182b6b13bdad92e3.js",
+        "bytes": 173025,
+        "gzipBytes": 54364
+      },
+      {
+        "path": ".next/static/chunks/app/desktop/page-1b36856a08df45ff.js",
+        "bytes": 154813,
+        "gzipBytes": 37111
+      },
+      {
+        "path": ".next/static/chunks/3816.4d88bc92ad6a093e.js",
+        "bytes": 138429,
+        "gzipBytes": 46541
+      },
+      {
+        "path": ".next/static/chunks/2798-9e8e76ddd3997151.js",
+        "bytes": 122632,
+        "gzipBytes": 39927
+      },
+      {
+        "path": ".next/static/chunks/main-f5d41e4fc82162c7.js",
+        "bytes": 121996,
+        "gzipBytes": 35605
+      },
+      {
+        "path": ".next/static/chunks/app/dev/radar-preview/page-74c7d6184f34e6ed.js",
+        "bytes": 113064,
+        "gzipBytes": 21976
+      },
+      {
+        "path": ".next/static/chunks/polyfills-42372ed130431b0a.js",
+        "bytes": 112594,
+        "gzipBytes": 39627
+      },
+      {
+        "path": ".next/static/chunks/app/player/[id]/page-b73c66130ccf3f13.js",
+        "bytes": 108382,
+        "gzipBytes": 28254
+      }
+    ]
+  },
+  "limitation": "On-disk public and build chunk census, not network transfer, loaded-per-route cost, decoded image memory or packaged inclusion. L08 holds remain."
+}

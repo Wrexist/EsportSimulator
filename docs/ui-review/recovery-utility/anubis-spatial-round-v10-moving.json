@@ -1,0 +1,37 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Anubis",
+  "scope": "5v5 moving-squad recovery regression with gunfire disabled; not a combat or real-game lineup certificate.",
+  "simulatorSourceSha256": "fd9003692c62cfd136741d5c2ba649f842def9544630ea7353ced86ea1073174",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "fixtureSha256": "1660f68246727b730603c522ec3201e4b1fa2a867833030ed7c09c90d07b7ba3",
+  "passed": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 124,
+  "minSeparation": 32.49339058142888,
+  "checks": [
+    {
+      "id": "anubis-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "d7259f171ad3c6a755b38ecf193a3007890f121190eec3352f904e84659096e2"
+}

@@ -1,16 +1,21 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import Image from "next/image"
-import dynamic from "next/dynamic"
+import { formatCurrency } from "@/lib/utils-extended"
+import { useFocusTrap } from "@/lib/accessibility"
+
+import { createPortal } from "react-dom"
+import React, { useState, useEffect, useRef, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
+import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
+import { recruitmentSalary } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
+import { quotePlayerSigning } from "@/engine/finance-forecast"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider" // Assuming we have or will treat as standard input
@@ -27,13 +32,6 @@ import {
     AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-// Lazy three.js — only this single focal portrait spins up a WebGL context,
-// so the cost is bounded to one modal at a time.
-const Player3DPortrait = dynamic(
-    () => import("@/components/ui/Player3DPortrait").then(m => m.Player3DPortrait),
-    { ssr: false, loading: () => null },
-)
 
 interface NegotiationModalProps {
     playerId: string
@@ -63,10 +61,13 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
     const router = useRouter()
-    const { players, teams, contracts, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, staff, academyCount, scoutedPlayers, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState } = useGameStore(useShallow(state => ({
         players: state.players,
+        scoutedPlayers: state.scoutedPlayers,
         teams: state.teams,
         contracts: state.contracts,
+        staff: state.staff,
+        academyCount: state.academyPlayers.length,
         playerTeamId: state.playerTeamId,
         transferPlayer: state.transferPlayer,
         currentWeek: state.currentWeek,
@@ -77,8 +78,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
     // Derived Data
     const playerSave = players.find(p => p.id === playerId)
-    const activeContract = contracts.find(c => c.playerId === playerId)
-    const currentTeam = teams.find(t => t.id === activeContract?.teamId)
+    const currentTeam = teams.find(t => t.rosterIds.includes(playerId))
     const myTeam = teams.find(t => t.id === playerTeamId)
     // Board war-chest: the single-fee ceiling the board will sanction.
     const boardSanction = getBoardSanctionedFee(boardState, myTeam?.budget || 0)
@@ -89,48 +89,58 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
     const [salaryOffer, setSalaryOffer] = useState<number>(0)
     const [durationOffer, setDurationOffer] = useState<number>(52) // 1 year
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
-    const [aiMood, setAiMood] = useState<"HAPPY" | "NEUTRAL" | "ANGRY">("NEUTRAL")
-    const [hasInitialized, setHasInitialized] = useState(false)
+    const [initializedKey, setInitializedKey] = useState("")
+    const sessionKey = `${saveId}:${playerId}:${currentWeek}`
+    const originalOwner = useRef<string | null>(null)
     const [failureMessage, setFailureMessage] = useState<string | null>(null)
     // transferPlayer is synchronous, but React batches state updates — a
     // same-frame double-click would call the handler twice before `stage`
     // re-renders. A ref updates synchronously and closes that window.
     const dealSubmittedRef = useRef(false)
+    const costPreview = useMemo(() => myTeam ? quotePlayerSigning(myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount) : null,
+        [myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount])
 
     // Initialization
     useEffect(() => {
-        if (isOpen && !hasInitialized && playerSave) {
+        if (isOpen && initializedKey !== sessionKey && playerSave) {
             // Determine starting stage
             // We need to define currentTeam here loosely or assume the derived one is correct for initial load
-            const initialTeam = teams.find(t => t.id === contracts.find(c => c.playerId === playerId)?.teamId)
+            const initialTeam = teams.find(t => t.rosterIds.includes(playerId))
+            originalOwner.current = initialTeam?.id || null
+            setBuyoutOffer(0)
+            setDurationOffer(104)
+            setNegotiationLog([])
+            setFailureMessage(null)
+            dealSubmittedRef.current = false
 
             if (!initialTeam) {
                 setStage("CONTRACT")
             } else {
                 setStage("BUYOUT")
                 // Start suggestion (use safely)
-                const contract = contracts.find(c => c.playerId === playerId)
-                if (contract) setBuyoutOffer(contract.buyout * 0.8)
+                const contract = contracts.find(c => c.playerId === playerId && c.teamId === initialTeam.id && c.endWeek > currentWeek)
+                setBuyoutOffer(Math.round((contract?.buyout || evaluatePlayer(playerSave, undefined, undefined, currentWeek).transferValue) * 0.8))
             }
 
             // Default salary suggestion
-            const ev = evaluatePlayer(playerSave)
-            const suggestedSalary = Math.round(ev.transferValue / 100)
+            const suggestedSalary = recruitmentSalary(playerSave, currentWeek)
             setSalaryOffer(suggestedSalary)
 
-            setHasInitialized(true)
+            setInitializedKey(sessionKey)
         } else if (!isOpen) {
-            setHasInitialized(false)
+            setInitializedKey("")
             setNegotiationLog([])
             setFailureMessage(null)
             dealSubmittedRef.current = false
         }
-    }, [isOpen, hasInitialized, playerSave, playerId, teams, contracts])
+    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek])
 
-    if (!isOpen || !playerSave) return null
+    const dialogRef = useFocusTrap(isOpen && !!playerSave && initializedKey === sessionKey, onClose)
+    if (!isOpen || !playerSave || initializedKey !== sessionKey || typeof document === "undefined") return null
 
-    const evaluation = evaluatePlayer(playerSave)
-    const playerTier = getDisplayPlayerTier(evaluation.overallRating, currentTeam?.tier as TierLevel)
+    const evaluation = evaluatePlayer(playerSave, undefined, undefined, currentWeek)
+    const knowledge = getVisibleStats(playerSave, scoutedPlayers, myTeam?.rosterIds || [], currentWeek)
+    const playerTier = getDisplayPlayerTier(knowledge.scoutingLevel === "ELITE" ? evaluation.overallRating : 0, currentTeam?.tier as TierLevel)
     const tierStyle = getTierStyle(playerTier)
     const getNegotiationRng = (phase: string) => new SeededRNG(
         deterministicSeed(
@@ -198,11 +208,15 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             setStage("CONTRACT")
         } else {
             setNegotiationLog(prev => [...prev, `Offer of ${formatMoney(sanitizedBuyoutOffer)} rejected. Team wants ${formatMoney(minPrice)}.`]) // In hard mode, don't show specific price
-            setAiMood("ANGRY")
+
         }
     }
 
     const handleContractSubmit = () => {
+        if ((currentTeam?.id || null) !== originalOwner.current) {
+            setFailureMessage("This player's club changed during negotiations. Close and reopen to request current terms.")
+            return
+        }
         const sanitizedDuration = Math.max(12, Math.min(156, Math.floor(durationOffer)))
         const sanitizedSalary = Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(salaryOffer)))
         const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
@@ -210,17 +224,17 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         // Step 1: Check duration preference
         if (sanitizedDuration < durationPref.minWeeks) {
             setNegotiationLog(prev => [...prev, `Player wants a longer contract (at least ${formatWeeksAsYears(durationPref.minWeeks)}).`])
-            setAiMood("ANGRY")
+
             return
         }
         if (sanitizedDuration > durationPref.maxWeeks) {
             setNegotiationLog(prev => [...prev, `Player doesn't want to commit that long (max ${formatWeeksAsYears(durationPref.maxWeeks)}).`])
-            setAiMood("ANGRY")
+
             return
         }
 
         // Step 2: Check salary
-        let baseSalary = evaluation.transferValue / 150
+        const baseSalary = evaluation.transferValue / 150
 
         // Deterministic variance blocks re-roll abuse via reload/reopen.
         const variance = getNegotiationRng("CONTRACT_THRESHOLD").range(0.9, 1.2)
@@ -275,14 +289,11 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             }
         } else {
             setNegotiationLog(prev => [...prev, `Player rejected ${formatMoney(sanitizedSalary)}/wk. Minimum expected: ${formatMoney(minimumSalary)}/wk.`])
-            setAiMood("ANGRY")
+
         }
     }
 
-    const formatMoney = (val: number) => {
-        if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`
-        return `$${val.toLocaleString()}`
-    }
+    const formatMoney = (value: number) => formatCurrency(value, '$', false)
 
     // Scale the feedback to the signing: a marquee player (high skill) gets a
     // blockbuster celebration; everyone else a normal toast (D12). Also fixes the
@@ -296,41 +307,44 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         }
     }
 
-    return (
+    return createPortal(
         <AnimatePresence>
-            <div className={cn("fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md", className)}>
+            <div className={cn(className, "fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md")}>
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    role="dialog"
+                    ref={dialogRef} tabIndex={-1} role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-negotiation"
-                    className="glass-panel w-full max-w-4xl max-h-[min(600px,85vh)] flex overflow-hidden shadow-2xl border-white/10"
+                    className="glass-panel w-full max-w-4xl h-[min(600px,85vh)] flex overflow-hidden shadow-2xl border-white/10"
                 >
                     {/* Left Panel: Player Info */}
-                    <div className="w-1/3 border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
+                    <div className="w-1/3 shrink-0 min-h-0 overflow-y-auto border-r border-white/10 bg-black/20 p-5 flex flex-col relative">
                         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg">
-                                {playerSave.portraitPath && playerSave.portraitPath !== '/player_placeholder.webp' ? (
-                                    <PlayerPortrait src={playerSave.portraitPath} alt={playerSave.nickname} size={96} variant="hero" />
-                                ) : (
-                                    <Player3DPortrait seed={playerSave.id} size={96} interactive={false} />
-                                )}
+                                <PlayerPortrait
+                                    key={playerSave.id}
+                                    src={playerSave.portraitPath}
+                                    seed={playerSave.id}
+                                    alt={playerSave.nickname}
+                                    size={96}
+                                    variant="hero"
+                                />
                             </div>
                             <h2 id="modal-title-negotiation" className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
                             <p className="text-sm text-muted-foreground mb-2">{playerSave.name}</p>
 
                             <Badge className={cn("mb-4", tierStyle.bgColor, tierStyle.color)}>
-                                {tierStyle.label}
+                                {knowledge.scoutingLevel === "ELITE" ? tierStyle.label : "Scouting estimate"}
                             </Badge>
 
-                            <div className="w-full space-y-4">
+                            <div className="w-full space-y-3">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Rating</span>
-                                    <span className="font-bold text-white">{evaluation.overallRating}</span>
+                                    <span className="font-bold text-white">{formatScoutedRating(knowledge.ovrRange)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Age</span>
@@ -350,13 +364,28 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     <span className="font-bold text-white max-w-[120px] truncate">{currentTeam?.name || "Free Agent"}</span>
                                 </div>
                             </div>
+                            {stage === "CONTRACT" && (
+                                <div className="w-full mt-5 border-t border-white/10 pt-4">
+                                    <Button onClick={handleContractSubmit} className="w-full h-11 text-sm font-normal bg-primary hover:bg-primary/90 text-primary-foreground">
+                                        OFFER CONTRACT
+                                    </Button>
+
+                                    {negotiationLog.length > 0 && (
+                                        <div role="status" className="mt-3 rounded-lg bg-black/20 p-3 text-xs space-y-1 max-h-24 overflow-y-auto">
+                                            {negotiationLog.map((log, i) => (
+                                                <p key={i} className="text-white/70">→ {log}</p>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {/* Right Panel: Negotiation Interface */}
-                    <div className="flex-1 flex flex-col bg-[#0e1217]">
+                    <div className="flex-1 min-w-0 min-h-0 flex flex-col bg-[#0e1217]">
                         {/* Header */}
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
+                        <div className="p-5 shrink-0 border-b border-white/5 flex justify-between items-center">
                             <div>
                                 <h3 className="text-xl font-normal uppercase tracking-tight text-white flex items-center gap-2">
                                     <Handshake className="text-primary" />
@@ -372,9 +401,9 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                         </div>
 
                         {/* Content Area */}
-                        <div className="flex-1 p-8 flex flex-col justify-center relative">
+                        <div className="flex-1 min-h-0 overflow-y-auto p-6 relative">
                             {/* Background Texture */}
-                            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
+                            <div className="absolute inset-0 premium-grid-texture opacity-[0.02]" />
 
                             {stage === "BUYOUT" && (
                                 <div className="space-y-8 relative z-10">
@@ -385,7 +414,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                 <DollarSign className="text-emerald-400" />
                                                 <input
                                                     type="number"
-                                                    value={buyoutOffer}
+                                                    aria-label="Transfer fee offer" value={buyoutOffer}
                                                     onChange={(e) => {
                                                         const val = Number(e.target.value)
                                                         if (!Number.isFinite(val)) {
@@ -453,7 +482,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                 <DollarSign className="text-emerald-400" />
                                                 <input
                                                     type="number"
-                                                    value={salaryOffer}
+                                                    aria-label="Weekly salary offer" value={salaryOffer}
                                                     onChange={(e) => {
                                                         const val = Number(e.target.value)
                                                         if (!Number.isFinite(val)) {
@@ -471,7 +500,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                             <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4 block">Contract Duration (Weeks)</label>
                                             <div className="flex items-center gap-4">
                                                 <Slider
-                                                    value={[durationOffer]}
+                                                    aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
                                                     onValueChange={(v) => setDurationOffer(Math.max(12, Math.min(156, Math.floor(v[0] || 52))))}
                                                     min={12}
                                                     max={156}
@@ -491,17 +520,18 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                         </div>
                                     </div>
 
-                                    <Button onClick={handleContractSubmit} className="w-full h-14 text-lg font-normal bg-primary hover:bg-primary/90 text-primary-foreground">
-                                        OFFER CONTRACT
-                                    </Button>
+                                    <div className="rounded-lg border border-white/10 p-4 text-sm space-y-2" aria-label="Contract costs">
+                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Due on signing</span><span>{formatMoney(buyoutOffer)}</span></div>
+                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Cash after signing</span><span className={cn((myTeam?.budget ?? 0) < buyoutOffer && "text-rose-400")}>{formatMoney((myTeam?.budget ?? 0) - buyoutOffer)}</span></div>
+                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Added weekly wages</span><span>{formatMoney(salaryOffer)}/wk</span></div>
+                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Scheduled wages over term</span><span>{formatMoney(salaryOffer * Math.max(0, durationOffer - 1))}</span></div>
+                                        {costPreview && <>
+                                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Estimated weekly net after signing</span><span className={cn(costPreview.weeklyNet < 0 && "text-rose-400")}>{formatMoney(costPreview.weeklyNet)}</span></div>
+                                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Runway at this rate</span><span>{costPreview.runwayWeeks >= 999 ? "No current deficit" : `${costPreview.runwayWeeks} weeks`}</span></div>
+                                        </>}
+                                        <p className="text-xs text-muted-foreground">Wages start at the next weekly settlement and stop when the contract expires. The signing fee is paid once; wages are paid weekly.</p>
+                                    </div>
 
-                                    {negotiationLog.length > 0 && (
-                                        <div className="bg-black/40 p-4 rounded-xl text-sm space-y-1">
-                                            {negotiationLog.map((log, i) => (
-                                                <p key={i} className="text-white/70">→ {log}</p>
-                                            ))}
-                                        </div>
-                                    )}
                                 </div>
                             )}
 
@@ -559,6 +589,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                     </div>
                 </motion.div>
             </div>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     )
 }

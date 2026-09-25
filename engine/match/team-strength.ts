@@ -1,3 +1,4 @@
+import { EquipmentManager } from "../equipment-manager"
 /**
  * Team-strength calculation: avgSkill × (energy × form × fatigue) +
  * additive bonuses (role coverage, chemistry, morale, staff, equipment,
@@ -95,14 +96,8 @@ export function calculateTeamStrength(
         staffMod += (staff.psychologist.level * 1.5) / 100
     }
 
-    // Equipment: each stat-point gives ~0.5% strength.
-    let equipMod = 1.0
-    if (team.equipment && team.equipment.length > 0) {
-        team.equipment.forEach((item) => {
-            const bonusValue = item.bonus?.value || 0
-            equipMod += (bonusValue / 80)
-        })
-    }
+    // Each gear point contributes 1/80 strength; one bounded item per slot.
+    const equipMod = 1 + EquipmentManager.strengthBonus(team)
 
     // +2% per average facility level, capped at +10% (reached when every
     // facility hits the level-5 cap). The old /100 capped at +5% — half the

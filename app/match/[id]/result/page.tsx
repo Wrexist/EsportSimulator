@@ -1,7 +1,8 @@
 "use client"
 
+import { resultLineup, matchFollowup } from '@/lib/match-followup'
 import { useEffect, useMemo, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { LoadingState } from "@/components/ui/loading"
 import { useShallow } from "zustand/react/shallow"
@@ -11,7 +12,7 @@ import { Home, Trophy, Swords, Calendar, Clock, ArrowRight } from "lucide-react"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
-import { format } from "date-fns"
+import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
 import { formatRole } from "@/lib/utils-extended"
@@ -25,8 +26,8 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { DefeatOverlay } from "@/components/match/DefeatOverlay"
 
 
-export default function MatchResultPage({ params }: { params: { id: string } }) {
-    const { id } = params
+export default function MatchResultPage() {
+    const { id } = useParams<{ id: string }>()
     const router = useRouter()
     const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
@@ -231,15 +232,15 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     // Sort player rows by rating, once per data-change instead of per render.
     const homeStats = useMemo(
         () => playerStatsList
-            .filter(s => homeTeam?.rosterIds.includes(s.playerId))
+            .filter(s => resultLineup(match?.result, homeTeam?.id, homeTeam?.rosterIds).includes(s.playerId))
             .sort((a, b) => b.rating - a.rating),
-        [playerStatsList, homeTeam],
+        [playerStatsList, homeTeam, match?.result],
     )
     const awayStats = useMemo(
         () => playerStatsList
-            .filter(s => awayTeam?.rosterIds.includes(s.playerId))
+            .filter(s => resultLineup(match?.result, awayTeam?.id, awayTeam?.rosterIds).includes(s.playerId))
             .sort((a, b) => b.rating - a.rating),
-        [playerStatsList, awayTeam],
+        [playerStatsList, awayTeam, match?.result],
     )
 
     // Loading guard runs AFTER all hooks above so React's hook-order rule
@@ -269,6 +270,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
     const result = match.result
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
+    matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
     const getPlayer = (id: string) => playersById.get(id)
     const mvpPlayer = getPlayer(result.mvpPlayerId)
 
@@ -298,7 +300,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
             || (nextPlayerMatch.day ?? 6) <= currentDay)
 
     return (
-        <div className="min-h-screen bg-[#0e1217] text-white p-6 pb-20 space-y-8">
+        <div className="premium-route text-white p-0 pb-20 space-y-8">
             <DefeatOverlay active={playerLostThisMatch} />
             {/* Header / Nav */}
             <div className="max-w-7xl mx-auto flex items-center gap-4">
@@ -493,7 +495,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
 
                             <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                                 <Calendar size={12} />
-                                <span>{format(matchDate, "MMM d, yyyy")}</span>
+                                <span>{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
                             </div>
                         </div>
 
@@ -551,6 +553,18 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                 </motion.div>
             </div>
 
+            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (
+                <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-4" aria-label="Next match preparation">
+                    <p className="text-sm text-slate-200">{matchFollowup(playerTeamId === match.homeTeamId ? homeStats : awayStats)}</p>
+                    {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {[['Training', '/training'], ['Scout recruitment', '/scouting'], ['Squad and roles', '/squad'], ['Prepare next match', '/schedule']].map(([label, href]) => (
+                            <button key={href} onClick={() => router.push(href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">{label}</button>
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {/* TAB NAVIGATION */}
             <div className="max-w-7xl mx-auto mb-6">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
@@ -585,7 +599,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                                 <div className="flex items-center gap-6 mb-6">
                                     <div className="w-20 h-20 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center overflow-hidden">
                                         <PlayerPortrait
-                                            src={mvpPlayer.portraitPath}
+                                            src={mvpPlayer.portraitPath} seed={mvpPlayer.id}
                                             alt={mvpPlayer.nickname}
                                             size={80}
                                         />
@@ -808,7 +822,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
-                                    .filter((s: any) => team.rosterIds?.includes(s.playerId))
+                                    .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
                                     .sort((a: any, b: any) => {
                                         const aRatio = (a.firstKills || 0) - (a.firstDeaths || 0)
                                         const bRatio = (b.firstKills || 0) - (b.firstDeaths || 0)
@@ -866,7 +880,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
-                                    .filter((s: any) => team.rosterIds?.includes(s.playerId))
+                                    .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
                                     .sort((a: any, b: any) => (b.kast || 0) - (a.kast || 0))
                                 return (
                                     <div key={team.id} className={teamIdx > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
@@ -918,7 +932,7 @@ export default function MatchResultPage({ params }: { params: { id: string } }) 
                         const getTeamEconomy = (round: any, teamId: string) => {
                             const econ = round.playerEconomy || []
                             const team = teamId === match.homeTeamId ? homeTeam : awayTeam
-                            const teamPlayers = econ.filter((e: any) => team?.rosterIds?.includes(e.playerId))
+                            const teamPlayers = econ.filter((e: any) => resultLineup(result, team?.id, team?.rosterIds).includes(e.playerId))
                             if (teamPlayers.length === 0) return 0
                             return teamPlayers.reduce((sum: number, e: any) => sum + (e.spent || 0) + (e.remaining || 0), 0) / teamPlayers.length
                         }
@@ -1067,7 +1081,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                                 <td className="px-4 py-3 font-medium text-white flex items-center gap-3">
                                     <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center overflow-hidden relative">
                                         <PlayerPortrait
-                                            src={player?.portraitPath}
+                                            src={player?.portraitPath} seed={player?.id}
                                             alt={player?.nickname || "Player"}
                                             size={32}
                                         />

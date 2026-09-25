@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 
 interface KeyboardShortcutsModalProps {
@@ -9,33 +9,17 @@ interface KeyboardShortcutsModalProps {
 }
 
 export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModalProps) {
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [open, onClose])
-
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title-keyboard-shortcuts"
-        className="w-full max-w-lg mx-4 glass-panel rounded-2xl p-6 space-y-5 max-h-[85vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title-keyboard-shortcuts" className="text-lg font-bold text-white">
-          Keyboard Shortcuts
-        </h2>
+    <Dialog open={open} onOpenChange={value => { if (!value) onClose() }}>
+      <DialogContent className="space-y-3">
+        <DialogHeader>
+          <DialogTitle>Keyboard shortcuts</DialogTitle>
+          <DialogDescription>Navigate your club and control the game from the keyboard.</DialogDescription>
+        </DialogHeader>
 
         {SHORTCUT_GROUPS.map((group) => (
           <div key={group.label} className="space-y-2">
-            <h3 className="text-xs uppercase tracking-widest text-white/40 font-medium">
+            <h3 className="text-xs uppercase tracking-widest text-white/65 font-medium">
               {group.label}
             </h3>
             <div className="space-y-1.5">
@@ -65,7 +49,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
           <br />
           Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10 text-[10px] font-mono">Esc</kbd> to close
         </p>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

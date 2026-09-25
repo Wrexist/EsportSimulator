@@ -1,0 +1,97 @@
+{
+  "buildId": "tePTzTD8nT08jz6H4qLMx",
+  "steamAppId": 4326170,
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "87768e04861735284cedfb1fc11fd177585abf751183c0bd678f19b44485b27b"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    },
+    {
+      "path": "steam_appid.txt",
+      "sha256": "2d41b39e9cf25ff993af921cbf15a13a68fb8dbf32c816fa1e926163117242e3"
+    },
+    {
+      "path": ".next/static/chunks/5894.0f48b5ac600e2dd1.js",
+      "sha256": "7615545e3228518558d8b1957049c452f3d8d3b1d24dd659f327bf2615c63996"
+    },
+    {
+      "path": "engine/organization-effects.ts",
+      "sha256": "bb2d90df5ad650efa8b837d37e29abdf3c3405d014e2c4066b59acac5f0dbf35"
+    },
+    {
+      "path": "engine/equipment-manager.ts",
+      "sha256": "8784980adbca748cf6dbefea3850be40756d3fe04db6682e49d430e849766b0d"
+    },
+    {
+      "path": "engine/economy-engine.ts",
+      "sha256": "415568fea8e40e59faf1050c12135356b1b04e56540e622398c7653afc96bdd4"
+    },
+    {
+      "path": "engine/match/team-strength.ts",
+      "sha256": "f89f093ee24b078d0bf440e6397c3b3c79ba0dd856857a69278230d861709809"
+    },
+    {
+      "path": "engine/processors/training-processor.ts",
+      "sha256": "c2d05d8e6eda1133081c26975dc11133699e5aeb28eba0424b67524957c64ea4"
+    },
+    {
+      "path": "engine/processors/match-tactical-bonus.ts",
+      "sha256": "1ac8e69bddb2d2f28373fb186d27da2eeb8ebf21dcadc340a3cc16996a9d1256"
+    },
+    {
+      "path": "store/slices/team-facilities-slice.ts",
+      "sha256": "4f788ba4f84d60501a6cd4430cb6b254ff8d92189d7f3a5ae786490290bcba5a"
+    },
+    {
+      "path": "store/slices/staff-management-slice.ts",
+      "sha256": "75b3a595c4587e90a5913f55593a4d4275a21d78c1083ab818de26b8608785cc"
+    },
+    {
+      "path": "app/basecamp/page.tsx",
+      "sha256": "566175a485df3e73b655114f41a73959ee5af0a256f73457e7ad033c680b3b4d"
+    },
+    {
+      "path": "app/equipment/page.tsx",
+      "sha256": "a6b128af7f57ab124a0404ecb4c94d2d7fcb1862952c69de95762a77e8aec222"
+    },
+    {
+      "path": "app/staff/page.tsx",
+      "sha256": "b66120dfc35fbf9942dc0c2123b74688067fdd376c22216c8798d07f79071c68"
+    },
+    {
+      "path": "app/sponsorships/page.tsx",
+      "sha256": "7dca3e8eb1cac4718c38f1df16b49dd4c1816bc8b7711ce4c854877afe968f7a"
+    },
+    {
+      "path": "components/staff/StaffNegotiationModal.tsx",
+      "sha256": "8f502721a151ff6ab0d57e40428f77f1c0c4243d5a7f5b1096b1fa20bac684f0"
+    },
+    {
+      "path": "components/sponsorships/SponsorOfferCard.tsx",
+      "sha256": "f3948b4ec46b2575565cb6e37cb1f3ae28141e643430aaa9bf37b928ef39412f"
+    },
+    {
+      "path": "__tests__/l18-organization.test.ts",
+      "sha256": "c0ba1eba98bd882fb7b8430f14da429fd871c5d2452d4563acd816bd4a3d8cbe"
+    },
+    {
+      "path": "scripts/launch/l18-organization-audit.ts",
+      "sha256": "ae3c146f43523c5815c492923cc8c4077c31f0596d6492398b2025ff8f438a7e"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    }
+  ],
+  "browserAcceptance": "No connected browser: inventory empty; getBrowser returned No browser is available. No owner career/UI mutations.",
+  "nativeProfile": "tmp/l04-native/run-H7Iom5",
+  "preview": "http://127.0.0.1:3210"
+}

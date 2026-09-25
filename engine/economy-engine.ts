@@ -1,18 +1,19 @@
+import { EquipmentManager } from "./equipment-manager"
 import {
     TeamSaveData,
     PlayerSaveData,
     StaffSaveData,
-    SponsorSaveData,
     ContractSaveData
 } from "./save-types"
 import {
     ECONOMY_CONSTANTS,
     FACILITY_CONSTANTS,
 } from "../lib/constants"
+import { facilityWeeklyCost } from "./organization-effects"
+import { calculateWeeklyUpkeep } from "./academy-constants"
 
 const FACILITY_BASE_COST = ECONOMY_CONSTANTS.FACILITY_BASE_COST
 const FACILITY_COST_EXPONENT = FACILITY_CONSTANTS.COST_EXPONENT
-const MAX_FACILITY_LEVEL = FACILITY_CONSTANTS.MAX_LEVEL
 const BASE_FAN_INCOME_PER_FAN = ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN
 const LEAGUE_REVENUE_SHARE = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
 
@@ -29,6 +30,8 @@ export interface WeeklyFinancialReport {
         playerWages: number
         staffWages: number
         facilities: number
+        equipment: number
+        academy: number
         total: number
     }
     net: number
@@ -46,15 +49,19 @@ export class EconomyEngine {
         team: TeamSaveData,
         players: PlayerSaveData[],
         contracts: ContractSaveData[],
-        staff: StaffSaveData[]
+        staff: StaffSaveData[],
+        settlementWeek?: number,
+        academyProspectCount = 0,
     ): WeeklyFinancialReport {
 
         // 1. Calculate Expenses
-        const playerWages = this.calculatePlayerWages(team.rosterIds, contracts)
-        const staffWages = this.calculateStaffWages(team.staffIds, staff)
+        const playerWages = this.calculatePlayerWages(team, contracts, settlementWeek)
+        const staffWages = this.calculateStaffWages(team.staffIds, staff, settlementWeek)
         const facilitiesUpkeep = this.calculateFacilitiesUpkeep(team)
 
-        const totalExpenses = playerWages + staffWages + facilitiesUpkeep
+        const equipmentUpkeep = EquipmentManager.calculateWeeklyCost(team)
+        const academyUpkeep = team.academyFacility?.level ? calculateWeeklyUpkeep(team.academyFacility.level, academyProspectCount) : 0
+        const totalExpenses = playerWages + staffWages + facilitiesUpkeep + equipmentUpkeep + academyUpkeep
 
         // 2. Calculate Income
         // Note: Prize money is handled separately by MatchEngine/Tournament logic
@@ -79,7 +86,7 @@ export class EconomyEngine {
         // For simplicity in this step, we use current net.
         // If net is positive, runway is infinite (999).
         const weeklyBurn = net < 0 ? Math.abs(net) : 0
-        const rawRunway = weeklyBurn > 0 ? newBalance / weeklyBurn : 999
+        const rawRunway = newBalance <= 0 ? 0 : weeklyBurn > 0 ? newBalance / weeklyBurn : 999
         const runwayWeeks = Number.isFinite(rawRunway) ? rawRunway : 0
 
         const state = this.determineState(newBalance, runwayWeeks)
@@ -95,6 +102,8 @@ export class EconomyEngine {
                 playerWages,
                 staffWages,
                 facilities: facilitiesUpkeep,
+                equipment: equipmentUpkeep,
+                academy: academyUpkeep,
                 total: totalExpenses
             },
             net,
@@ -106,14 +115,14 @@ export class EconomyEngine {
 
     // === INCOME LOGIC ===
 
-    private static calculateSponsorIncome(team: TeamSaveData): number {
+    static calculateSponsorIncome(team: TeamSaveData): number {
         const repFactor = ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE
             + (team.reputation / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
 
         let total = 0
         if (team.sponsors && team.sponsors.length > 0) {
             team.sponsors.forEach(sponsor => {
-                total += sponsor.weeklyPayout * repFactor
+                if (sponsor.remainingWeeks === undefined || sponsor.remainingWeeks > 0) total += sponsor.weeklyPayout * repFactor
             })
         }
 
@@ -164,18 +173,21 @@ export class EconomyEngine {
 
     // === EXPENSE LOGIC ===
 
-    private static calculatePlayerWages(rosterIds: string[], contracts: ContractSaveData[]): number {
-        const contractMap = new Map(contracts.map(c => [c.playerId, c]))
+    private static calculatePlayerWages(team: TeamSaveData, contracts: ContractSaveData[], week?: number): number {
+        const contractMap = new Map(contracts.filter(c =>
+            (!c.teamId || c.teamId === team.id) &&
+            (week === undefined || (c.startWeek === undefined || c.startWeek <= week) && (c.endWeek === undefined || c.endWeek > week))
+        ).map(c => [c.playerId, c]))
         let total = 0
-        rosterIds.forEach(id => {
+        new Set(team.rosterIds).forEach(id => {
             const contract = contractMap.get(id)
             if (contract) total += contract.salaryPerWeek
         })
         return total
     }
 
-    private static calculateStaffWages(staffIds: string[], staff: StaffSaveData[]): number {
-        const staffMap = new Map(staff.map(s => [s.id, s]))
+    private static calculateStaffWages(staffIds: string[], staff: StaffSaveData[], week?: number): number {
+        const staffMap = new Map(staff.filter(s => week === undefined || s.contractEndWeek === undefined || s.contractEndWeek > week).map(s => [s.id, s]))
         let total = 0
         staffIds.forEach(id => {
             const member = staffMap.get(id)
@@ -190,7 +202,7 @@ export class EconomyEngine {
         let total = 0
         team.facilities.forEach(fac => {
             // Formula: Level ^ 1.25 * Base
-            const cost = Math.pow(Math.min(fac.level, MAX_FACILITY_LEVEL), FACILITY_COST_EXPONENT) * FACILITY_BASE_COST
+            const cost = facilityWeeklyCost(fac.level)
             total += cost
         })
 
@@ -204,7 +216,7 @@ export class EconomyEngine {
 
     // === STATE LOGIC ===
 
-    private static determineState(balance: number, runway: number): FinancialState {
+    static determineState(balance: number, runway: number): FinancialState {
         // Non-finite balance means corrupt data; every comparison against NaN
         // is false, which would otherwise fall through to "STABLE" and hide a
         // team in real trouble. Treat it as insolvent.

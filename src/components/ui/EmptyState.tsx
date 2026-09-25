@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import type { LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
@@ -36,21 +37,21 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className={cn(
-      "flex flex-col items-center justify-center text-center",
-      framed && "p-10 rounded-2xl border border-dashed border-white/10 bg-white/[0.01]",
+      "premium-empty-state flex flex-col items-center justify-center text-center",
+      framed && "p-6 sm:p-8 rounded-xl border border-dashed border-white/10 bg-white/[0.01]",
       !framed && "py-8",
       className,
     )}>
       {Icon && (
-        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-5 border border-white/10">
-          <Icon className="w-8 h-8 text-muted-foreground/60" />
+        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+          <Icon className="w-6 h-6 text-muted-foreground" />
         </div>
       )}
-      <h3 className="text-sm font-bold uppercase tracking-widest text-white">
+      <h3 className="text-base font-semibold text-foreground">
         {title}
       </h3>
       {description && (
-        <p className="text-xs text-muted-foreground/70 mt-2 max-w-md">
+        <p className="text-sm leading-relaxed text-muted-foreground mt-2 max-w-md">
           {description}
         </p>
       )}
@@ -59,7 +60,7 @@ export function EmptyState({
         <div className="mt-5">
           {action.href ? (
             <Button asChild variant="outline" size="sm" className="gap-2">
-              <a href={action.href}>{action.label}</a>
+              <Link href={action.href}>{action.label}</Link>
             </Button>
           ) : (
             <Button onClick={action.onClick} variant="outline" size="sm" className="gap-2">

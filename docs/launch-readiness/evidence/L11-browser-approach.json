@@ -1,0 +1,3112 @@
+{
+  "format": "esim-encounter-replay",
+  "version": 1,
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "project": {
+    "format": "esim-spatial-lab",
+    "version": 1,
+    "mapId": "Mirage",
+    "sourceVersion": "2000908",
+    "a": {
+      "area": 7,
+      "point": [
+        212.374935,
+        -77.68264625,
+        -179.65997268238817
+      ]
+    },
+    "b": {
+      "area": 24,
+      "point": [
+        76.74991466666667,
+        -349.74503000000004,
+        -177.99998
+      ]
+    },
+    "blocked": [],
+    "links": [],
+    "settings": {
+      "height": 72,
+      "speed": 220,
+      "ladders": true
+    },
+    "encounter": {
+      "seed": 11,
+      "seconds": 8,
+      "fov": 110,
+      "approach": true,
+      "a": {
+        "yaw": -116.49657920567442,
+        "pitch": 0,
+        "reactionMs": 250,
+        "aimError": 0,
+        "armor": 100,
+        "helmet": true,
+        "ammo": 30
+      },
+      "b": {
+        "yaw": 63.50342079432558,
+        "pitch": 0,
+        "reactionMs": 300,
+        "aimError": 0,
+        "armor": 100,
+        "helmet": true,
+        "ammo": 30
+      }
+    }
+  },
+  "result": {
+    "version": 1,
+    "weapon": {
+      "id": "lab-rifle-v1",
+      "damage": 34,
+      "headMultiplier": 4,
+      "range": 4096,
+      "falloffPer500": 0.98,
+      "armorAbsorption": 0.35,
+      "magazine": 30,
+      "reserve": 60,
+      "shotTicks": 7,
+      "burstSize": 3,
+      "burstPauseTicks": 14,
+      "reloadTicks": 144,
+      "recoilDegrees": 0.55,
+      "turnDegreesPerSecond": 300,
+      "memoryTicks": 128
+    },
+    "seed": 11,
+    "frames": [
+      {
+        "tick": 0,
+        "time": 0,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              212.374935,
+              -77.68264625,
+              -179.65997268238817
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 1,
+        "time": 0.015625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              212.43328464052652,
+              -77.88687009742797,
+              -179.60369034181664
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 14.062500000000059,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 2,
+        "time": 0.03125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              212.54998392157958,
+              -78.29531779228391,
+              -179.49112566067362
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 28.12499999999965,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 3,
+        "time": 0.046875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              212.72503284315917,
+              -78.90798933456782,
+              -179.32227863895906
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 42.18749999999971,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 4,
+        "time": 0.0625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              212.95843140526532,
+              -79.72488472427969,
+              -179.09714927667298
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 56.25000000000025,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 5,
+        "time": 0.078125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              213.250179607898,
+              -80.74600396141953,
+              -178.8157375738154
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 70.31249999999984,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 6,
+        "time": 0.09375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              213.6002774510572,
+              -81.97134704598734,
+              -178.4780435303863
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 84.3749999999999,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 7,
+        "time": 0.109375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              214.00872493474293,
+              -83.40091397798312,
+              -178.08406714638565
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 98.43749999999997,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 8,
+        "time": 0.125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              214.4755220589552,
+              -85.03470475740687,
+              -177.6338084218135
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 112.49999999999955,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 9,
+        "time": 0.140625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              215.00066882369399,
+              -86.87271938425859,
+              -177.12726735666985
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 126.56249999999962,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 10,
+        "time": 0.15625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              215.5841652289593,
+              -88.91495785853827,
+              -176.56444395095465
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 140.62499999999966,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 11,
+        "time": 0.171875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              216.22601127475116,
+              -91.16142018024593,
+              -175.94533820466793
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 154.68749999999972,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 12,
+        "time": 0.1875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              216.92620696106957,
+              -93.61210634938155,
+              -175.2699501178097
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 168.7499999999998,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 13,
+        "time": 0.203125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              217.6847522879145,
+              -96.26701636594515,
+              -174.53827969037997
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 182.81250000000068,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 14,
+        "time": 0.21875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              218.50164725528597,
+              -99.12615022993673,
+              -173.7503269223787
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 196.87500000000074,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 15,
+        "time": 0.234375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              219.37689186318397,
+              -102.18950794135627,
+              -172.90609181380592
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 210.93750000000034,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 16,
+        "time": 0.25,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              220.28973957275463,
+              -105.38447657667383,
+              -172.0255858635315
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 220.00000000000043,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 17,
+        "time": 0.265625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              221.20258728232528,
+              -108.5794452119914,
+              -171.14507991325706
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 220.00000000000043,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 18,
+        "time": 0.28125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              222.1154349918959,
+              -111.77441384730896,
+              -170.26457396298264
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999991,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 19,
+        "time": 0.296875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              223.02828270146657,
+              -114.96938248262653,
+              -169.3840680127082
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 220.00000000000043,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 20,
+        "time": 0.3125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              223.9411304110372,
+              -118.1643511179441,
+              -168.5035620624338
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999991,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 21,
+        "time": 0.328125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              224.85397812060785,
+              -121.35931975326164,
+              -167.62305611215936
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999957,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 22,
+        "time": 0.34375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              225.6063984361132,
+              -124.57836771522938,
+              -166.71607700952305
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.39044298399907,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          }
+        ]
+      },
+      {
+        "tick": 23,
+        "time": 0.359375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              225.97054716432254,
+              -127.85569300499597,
+              -166.25497443030545
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 213.09290820968724,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "holding",
+            "knowledge": null
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                233.97054716432254,
+                -127.85569300499597,
+                -123.05497443030546
+              ],
+              "seenTick": 23,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 24,
+        "time": 0.375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              226.3346991448177,
+              -131.13301713179757,
+              -167.22602857554426
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999918,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                84.74991466666667,
+                -349.74503000000004,
+                -134.79998
+              ],
+              "seenTick": 24,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                234.3346991448177,
+                -131.13301713179757,
+                -124.02602857554427
+              ],
+              "seenTick": 24,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 25,
+        "time": 0.390625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              226.90915927384924,
+              -134.3820751653681,
+              -167.98172682281475
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 216.6327905332391,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                84.74991466666667,
+                -349.74503000000004,
+                -134.79998
+              ],
+              "seenTick": 25,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                234.90915927384924,
+                -134.3820751653681,
+                -124.78172682281476
+              ],
+              "seenTick": 25,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 26,
+        "time": 0.40625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              228.30947635776548,
+              -137.52013536150443,
+              -167.89174615868612
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 26,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                228.30947635776548,
+                -137.52013536150443,
+                -103.89174615868612
+              ],
+              "seenTick": 26,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 27,
+        "time": 0.421875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              229.7097934416817,
+              -140.65819555764077,
+              -167.8017654945575
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 27,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                229.7097934416817,
+                -140.65819555764077,
+                -103.80176549455749
+              ],
+              "seenTick": 27,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 28,
+        "time": 0.4375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              231.11011052559795,
+              -143.7962557537771,
+              -167.71178483042885
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 28,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                231.11011052559795,
+                -143.7962557537771,
+                -103.71178483042885
+              ],
+              "seenTick": 28,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 29,
+        "time": 0.453125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              232.51042760951418,
+              -146.93431594991344,
+              -167.62180416630022
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 29,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                232.51042760951418,
+                -146.93431594991344,
+                -103.62180416630022
+              ],
+              "seenTick": 29,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 30,
+        "time": 0.46875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              233.91074469343042,
+              -150.07237614604978,
+              -167.5318235021716
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 30,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                233.91074469343042,
+                -150.07237614604978,
+                -103.53182350217159
+              ],
+              "seenTick": 30,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 31,
+        "time": 0.484375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              235.31106177734668,
+              -153.2104363421861,
+              -167.44184283804296
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 220,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 31,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                235.31106177734668,
+                -153.2104363421861,
+                -103.44184283804296
+              ],
+              "seenTick": 31,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 32,
+        "time": 0.5,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              236.71137886126292,
+              -156.34849653832245,
+              -167.35186217391433
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 32,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                236.71137886126292,
+                -156.34849653832245,
+                -103.35186217391433
+              ],
+              "seenTick": 32,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 33,
+        "time": 0.515625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              238.11169594517918,
+              -159.4865567344588,
+              -167.26188150978572
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999994,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 33,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                238.11169594517918,
+                -159.4865567344588,
+                -103.26188150978572
+              ],
+              "seenTick": 33,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 34,
+        "time": 0.53125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              239.5120130290954,
+              -162.62461693059512,
+              -167.1719008456571
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 34,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                239.5120130290954,
+                -162.62461693059512,
+                -103.17190084565709
+              ],
+              "seenTick": 34,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 35,
+        "time": 0.546875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              240.91233011301165,
+              -165.76267712673146,
+              -167.0819201815285
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999923,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 35,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                240.91233011301165,
+                -165.76267712673146,
+                -103.08192018152849
+              ],
+              "seenTick": 35,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 36,
+        "time": 0.5625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              242.3126471969279,
+              -168.9007373228678,
+              -166.99193951739986
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 220,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 36,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                242.3126471969279,
+                -168.9007373228678,
+                -102.99193951739986
+              ],
+              "seenTick": 36,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 37,
+        "time": 0.578125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              243.71296428084415,
+              -172.03879751900413,
+              -166.90195885327125
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999923,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 37,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                243.71296428084415,
+                -172.03879751900413,
+                -102.90195885327125
+              ],
+              "seenTick": 37,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 38,
+        "time": 0.59375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              245.11328136476038,
+              -175.17685771514047,
+              -166.81197818914262
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 38,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                245.11328136476038,
+                -175.17685771514047,
+                -102.81197818914262
+              ],
+              "seenTick": 38,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 39,
+        "time": 0.609375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              246.51359844867665,
+              -178.3149179112768,
+              -166.72199752501402
+            ],
+            "yaw": -116.49657920567442,
+            "pitch": 0,
+            "speed": 219.99999999999994,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 39,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                246.51359844867665,
+                -178.3149179112768,
+                -102.72199752501402
+              ],
+              "seenTick": 39,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 40,
+        "time": 0.625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              247.91391553259288,
+              -181.45297810741314,
+              -166.6320168608854
+            ],
+            "yaw": -121.18407920567442,
+            "pitch": -2.71142014929843,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 40,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                247.91391553259288,
+                -181.45297810741314,
+                -102.63201686088539
+              ],
+              "seenTick": 40,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 41,
+        "time": 0.640625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              249.31423261650914,
+              -184.59103830354948,
+              -166.54203619675678
+            ],
+            "yaw": -125.87157920567442,
+            "pitch": -2.746328025258628,
+            "speed": 219.99999999999994,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 41,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                249.31423261650914,
+                -184.59103830354948,
+                -102.54203619675678
+              ],
+              "seenTick": 41,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 42,
+        "time": 0.65625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              250.71454970042538,
+              -187.72909849968582,
+              -166.45205553262815
+            ],
+            "yaw": -130.55907920567444,
+            "pitch": -2.781068475085661,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 42,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 63.50342079432558,
+            "pitch": 0,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "reacting",
+            "knowledge": {
+              "point": [
+                250.71454970042538,
+                -187.72909849968582,
+                -102.45205553262815
+              ],
+              "seenTick": 42,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 43,
+        "time": 0.671875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              252.11486678434164,
+              -190.86715869582216,
+              -166.36207486849955
+            ],
+            "yaw": -135.24657920567444,
+            "pitch": -2.8156123246034226,
+            "speed": 219.99999999999994,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 43,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 58.81592079432558,
+            "pitch": 2.8156123246034226,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                252.11486678434164,
+                -190.86715869582216,
+                -102.36207486849955
+              ],
+              "seenTick": 43,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 44,
+        "time": 0.6875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              253.51518386825788,
+              -194.0052188919585,
+              -166.27209420437092
+            ],
+            "yaw": -138.61819505668888,
+            "pitch": -2.8499298643546145,
+            "speed": 219.9999999999993,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 44,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 54.12842079432558,
+            "pitch": 2.8499298643546145,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                253.51518386825788,
+                -194.0052188919585,
+                -102.27209420437092
+              ],
+              "seenTick": 44,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 45,
+        "time": 0.703125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              254.9155009521741,
+              -197.14327908809483,
+              -166.1821135402423
+            ],
+            "yaw": -139.41940241618323,
+            "pitch": -2.8839909274256557,
+            "speed": 219.99999999999923,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 45,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 49.44092079432558,
+            "pitch": 2.8839909274256557,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                254.9155009521741,
+                -197.14327908809483,
+                -102.18211354024231
+              ],
+              "seenTick": 45,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 46,
+        "time": 0.71875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              256.3158180360904,
+              -200.28133928423117,
+              -166.09213287611368
+            ],
+            "yaw": -140.22731626673823,
+            "pitch": -2.9177649735391125,
+            "speed": 220,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 46,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 44.75342079432558,
+            "pitch": 2.9177649735391125,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 30,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                256.3158180360904,
+                -200.28133928423117,
+                -102.09213287611368
+              ],
+              "seenTick": 46,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 47,
+        "time": 0.734375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.71613512000664,
+              -203.4193994803675,
+              -166.00215221198508
+            ],
+            "yaw": -141.0416959467862,
+            "pitch": -2.951221179123886,
+            "speed": 219.99999999999994,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 47,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 40.06592079432558,
+            "pitch": 2.951221179123886,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.71613512000664,
+                -203.4193994803675,
+                -102.00215221198508
+              ],
+              "seenTick": 47,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 48,
+        "time": 0.75,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -206.84894301438524,
+              -165.93011002045722
+            ],
+            "yaw": -141.70957741936905,
+            "pitch": -2.9960822482310756,
+            "speed": 219.54986804614802,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 48,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 38.29042258063096,
+            "pitch": 2.9960822482310756,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -206.84894301438524,
+                -101.93011002045722
+              ],
+              "seenTick": 48,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 49,
+        "time": 0.765625,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -210.28569728477902,
+              -165.8585115921916
+            ],
+            "yaw": -142.38598419684234,
+            "pitch": -3.041649092497542,
+            "speed": 219.99999999999974,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 49,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 37.61401580315767,
+            "pitch": 3.041649092497542,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -210.28569728477902,
+                -101.8585115921916
+              ],
+              "seenTick": 49,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 50,
+        "time": 0.78125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -213.7224515551728,
+              -165.78691316392602
+            ],
+            "yaw": -143.0749236783866,
+            "pitch": -3.0876213068474967,
+            "speed": 219.9999999999997,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 50,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 36.92507632161342,
+            "pitch": 3.0876213068474967,
+            "speed": 0,
+            "health": 100,
+            "armor": 100,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -213.7224515551728,
+                -101.78691316392602
+              ],
+              "seenTick": 50,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 51,
+        "time": 0.796875,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -217.15920582556657,
+              -165.7153147356604
+            ],
+            "yaw": -143.7765426209981,
+            "pitch": -3.1339775938137677,
+            "speed": 219.99999999999974,
+            "health": 12,
+            "armor": 52,
+            "ammo": 28,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 51,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 36.2234573790018,
+            "pitch": 3.1339775938137677,
+            "speed": 0,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -217.15920582556657,
+                -101.7153147356604
+              ],
+              "seenTick": 51,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 52,
+        "time": 0.8125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -220.59596009596035,
+              -165.6437163073948
+            ],
+            "yaw": -144.49097802066495,
+            "pitch": -3.1806945117794108,
+            "speed": 219.9999999999997,
+            "health": 12,
+            "armor": 52,
+            "ammo": 28,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 52,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 35.50902197933506,
+            "pitch": 3.1806945117794108,
+            "speed": 0,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -220.59596009596035,
+                -101.64371630739481
+              ],
+              "seenTick": 52,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 53,
+        "time": 0.828125,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -224.03271436635413,
+              -165.5721178791292
+            ],
+            "yaw": -145.218355980632,
+            "pitch": -3.227746385176293,
+            "speed": 219.99999999999974,
+            "health": 12,
+            "armor": 52,
+            "ammo": 28,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 53,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 34.78164401936802,
+            "pitch": 3.227746385176293,
+            "speed": 0,
+            "health": 12,
+            "armor": 52,
+            "ammo": 29,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -224.03271436635413,
+                -101.5721178791292
+              ],
+              "seenTick": 53,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      },
+      {
+        "tick": 54,
+        "time": 0.84375,
+        "actors": [
+          {
+            "id": "A",
+            "position": [
+              257.74994,
+              -227.4694686367479,
+              -165.5005194508636
+            ],
+            "yaw": -145.95879052600577,
+            "pitch": -3.275105219009841,
+            "speed": 0,
+            "health": 0,
+            "armor": 4,
+            "ammo": 28,
+            "reserve": 60,
+            "state": "dead",
+            "knowledge": {
+              "point": [
+                76.74991466666667,
+                -349.74503000000004,
+                -113.99998
+              ],
+              "seenTick": 54,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          },
+          {
+            "id": "B",
+            "position": [
+              76.74991466666667,
+              -349.74503000000004,
+              -177.99998
+            ],
+            "yaw": 34.04120947399413,
+            "pitch": 3.275105219009841,
+            "speed": 0,
+            "health": 12,
+            "armor": 52,
+            "ammo": 28,
+            "reserve": 60,
+            "state": "tracking",
+            "knowledge": {
+              "point": [
+                257.74994,
+                -227.4694686367479,
+                -101.5005194508636
+              ],
+              "seenTick": 54,
+              "confidence": 1,
+              "uncertainty": 0,
+              "visible": true
+            }
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "tick": 23,
+        "time": 0.359375,
+        "actor": "B",
+        "type": "sight",
+        "reason": "Opponent body sample enters the field of view with clear line of sight.",
+        "target": "A",
+        "to": [
+          233.97054716432254,
+          -127.85569300499597,
+          -123.05497443030546
+        ]
+      },
+      {
+        "tick": 24,
+        "time": 0.375,
+        "actor": "A",
+        "type": "sight",
+        "reason": "Opponent body sample enters the field of view with clear line of sight.",
+        "target": "B",
+        "to": [
+          84.74991466666667,
+          -349.74503000000004,
+          -134.79998
+        ]
+      },
+      {
+        "tick": 40,
+        "time": 0.625,
+        "actor": "A",
+        "type": "react",
+        "reason": "Continuous visual evidence satisfied the reaction delay."
+      },
+      {
+        "tick": 43,
+        "time": 0.671875,
+        "actor": "B",
+        "type": "react",
+        "reason": "Continuous visual evidence satisfied the reaction delay."
+      },
+      {
+        "tick": 44,
+        "time": 0.6875,
+        "actor": "A",
+        "type": "shot",
+        "reason": "Fired with 29 rounds left; movement and recoil affect the ray.",
+        "from": [
+          253.51518386825788,
+          -194.0052188919585,
+          -102.27209420437092
+        ],
+        "to": [
+          -2763.1748958068038,
+          -2961.996977008227,
+          -224.82245197814595
+        ],
+        "spread": 2.619999999999992
+      },
+      {
+        "tick": 44,
+        "time": 0.6875,
+        "actor": "A",
+        "type": "obstruction",
+        "reason": "Opaque geometry stopped the bullet. No penetration is modeled.",
+        "from": [
+          253.51518386825788,
+          -194.0052188919585,
+          -102.27209420437092
+        ],
+        "to": [
+          -415.2078235617116,
+          -807.5981714793386,
+          -129.4383730224207
+        ]
+      },
+      {
+        "tick": 47,
+        "time": 0.734375,
+        "actor": "B",
+        "type": "shot",
+        "reason": "Fired with 29 rounds left; movement and recoil affect the ray.",
+        "from": [
+          76.74991466666667,
+          -349.74503000000004,
+          -113.99998
+        ],
+        "to": [
+          3207.357567348683,
+          2282.762578814808,
+          101.44238932632064
+        ],
+        "spread": 0.12
+      },
+      {
+        "tick": 47,
+        "time": 0.734375,
+        "actor": "B",
+        "type": "damage",
+        "reason": "head hit; 88 damage after range and armor.",
+        "target": "A",
+        "damage": 88,
+        "region": "head",
+        "from": [
+          76.74991466666667,
+          -349.74503000000004,
+          -113.99998
+        ],
+        "to": [
+          251.77738594808852,
+          -202.56556804946766,
+          -101.95492763524294
+        ]
+      },
+      {
+        "tick": 51,
+        "time": 0.796875,
+        "actor": "A",
+        "type": "shot",
+        "reason": "Fired with 28 rounds left; movement and recoil affect the ray.",
+        "from": [
+          257.74994,
+          -217.15920582556657,
+          -101.7153147356604
+        ],
+        "to": [
+          -3074.3111355545107,
+          -2594.789448433955,
+          -248.2056495994072
+        ],
+        "spread": 2.6199999999999974
+      },
+      {
+        "tick": 51,
+        "time": 0.796875,
+        "actor": "A",
+        "type": "damage",
+        "reason": "head hit; 88 damage after range and armor.",
+        "target": "B",
+        "damage": 88,
+        "region": "head",
+        "from": [
+          257.74994,
+          -217.15920582556657,
+          -101.7153147356604
+        ],
+        "to": [
+          77.59032157141004,
+          -345.7141595193004,
+          -109.63583066682081
+        ]
+      },
+      {
+        "tick": 54,
+        "time": 0.84375,
+        "actor": "B",
+        "type": "shot",
+        "reason": "Fired with 28 rounds left; movement and recoil affect the ray.",
+        "from": [
+          76.74991466666667,
+          -349.74503000000004,
+          -113.99998
+        ],
+        "to": [
+          3462.69164343649,
+          1940.530567567267,
+          145.33049750528608
+        ],
+        "spread": 0.12
+      },
+      {
+        "tick": 54,
+        "time": 0.84375,
+        "actor": "B",
+        "type": "damage",
+        "reason": "head hit; 88 damage after range and armor.",
+        "target": "A",
+        "damage": 88,
+        "region": "head",
+        "from": [
+          76.74991466666667,
+          -349.74503000000004,
+          -113.99998
+        ],
+        "to": [
+          252.77677042838792,
+          -230.67918523307446,
+          -100.51802070620361
+        ]
+      },
+      {
+        "tick": 54,
+        "time": 0.84375,
+        "actor": "A",
+        "type": "death",
+        "reason": "Health reached zero from resolved shot damage."
+      }
+    ],
+    "outcome": "B",
+    "reason": "Player B survived resolved damage."
+  }
+}

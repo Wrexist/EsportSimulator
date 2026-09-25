@@ -1,0 +1,468 @@
+{
+  "kind": "static-source-triage-not-ui-acceptance",
+  "routes": [
+    {
+      "route": "/academy",
+      "file": "app/academy/page.tsx",
+      "sha256": "8ff4751162ed6b6a9d8d69b3676a8e2c9fcf605b373a629a516ce094a4ba39e6",
+      "lines": 17,
+      "signals": [
+        "local heading"
+      ],
+      "scenario": "Prospect generation, ownership, promotion, roster/training, season rollover and no-cash state",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/animations",
+      "file": "app/animations/page.tsx",
+      "sha256": "5689060705d6ecc2f49ffdd70a72d2ac221e73566b66ea0c85f8a67b9f3fed12",
+      "lines": 25,
+      "signals": [
+        "viewport-height layout to review",
+        "production gate in parent layout"
+      ],
+      "scenario": "Classify intended audience; verify reduced motion, controls and production inclusion or gate",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/basecamp",
+      "file": "app/basecamp/page.tsx",
+      "sha256": "c8cb28c7f7ea055c07f9d448ff65d2086f96dc1de4e21df5cba757538908a306",
+      "lines": 252,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Upgrade eligibility/cost/time, activation, capacity/effect, replacement and stale completion",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/career",
+      "file": "app/career/page.tsx",
+      "sha256": "d5a9fd12e4e8d2febd2b28c2a42150c7acd051fa4fedd78ec798b846cd725b32",
+      "lines": 637,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Board/reputation milestones, jobs/club switching, sacking/bankruptcy and old-career isolation",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/credits",
+      "file": "app/credits/page.tsx",
+      "sha256": "b9a3d499bfb9bcd750ef3583eaad3a5baaabcc54c7270d686e9628368613e34b",
+      "lines": 127,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review"
+      ],
+      "scenario": "Accurate contributor/license/asset notices, links, supported fonts and packaged notice availability",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/desktop",
+      "file": "app/desktop/page.tsx",
+      "sha256": "33e91a4ee26c780d21b9153efd3f0f4a54833fc4f9abab94b3547f0a49cc1f44",
+      "lines": 1407,
+      "signals": [
+        "viewport-height layout to review"
+      ],
+      "scenario": "Inbox discoverability, actionable decisions, archived/expired items, keyboard navigation and duplicate shell behavior",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/dev/map-builder",
+      "file": "app/dev/map-builder/page.tsx",
+      "sha256": "92de65c127fe67f083f923ce69c275c79a8a1a5e429c1fcb9a79647621832cd0",
+      "lines": 257,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review",
+        "production gate in parent layout"
+      ],
+      "scenario": "Developer-only route: gate, validated inputs, data ownership, import/export and no accidental career mutation",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/dev",
+      "file": "app/dev/page.tsx",
+      "sha256": "9710f2fe26a0264ad1ee9081f48848160ca6ab9321d56301bb1bb2d9cc0c562b",
+      "lines": 582,
+      "signals": [
+        "local heading",
+        "shared table",
+        "production gate in parent layout"
+      ],
+      "scenario": "Developer-only route: confirm intended production gate and no privileged actions exposed",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/dev/radar-preview",
+      "file": "app/dev/radar-preview/page.tsx",
+      "sha256": "55df68397709660c35d73d26579ec25d8bd3f887e4d545dfd98d185f7cca0521",
+      "lines": 118,
+      "signals": [
+        "local heading",
+        "production gate in parent layout"
+      ],
+      "scenario": "Developer-only route: gate, fabricated data isolation, map/floor/identity controls and no career advancement",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/equipment",
+      "file": "app/equipment/page.tsx",
+      "sha256": "574eb70e65b8919e079b24b660ef90a9d8a0f0a1ec37ab7e28aeb867365b1c77",
+      "lines": 433,
+      "signals": [
+        "shared title",
+        "viewport-height layout to review"
+      ],
+      "scenario": "Purchase/equip/replace, recurring upkeep, affordability, displayed effect and repeated clicks",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/finances",
+      "file": "app/finances/page.tsx",
+      "sha256": "b075e19fcc6624b934062d27edd0d8d22cbfbee745c47ecff6938b258fa4cd14",
+      "lines": 853,
+      "signals": [
+        "shared title",
+        "native table: check horizontal/focus behavior"
+      ],
+      "scenario": "Ledger reconciliation, forecasts/runway, one-off costs, signed deltas, empty history and distress",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/fpl",
+      "file": "app/fpl/page.tsx",
+      "sha256": "9a34ae9edd954732e3c154f282ac3404b9bc59d10460272d3f71b67b936b6719",
+      "lines": 853,
+      "signals": [
+        "shared title",
+        "shared table"
+      ],
+      "scenario": "Eligibility, participation, rewards, promotion/ownership, history, empty and already-completed states",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/hall-of-fame",
+      "file": "app/hall-of-fame/page.tsx",
+      "sha256": "77af7018f23b18908424779b1da88bf4704b86e8639b6b8d6d8baa9b07844234",
+      "lines": 260,
+      "signals": [
+        "local heading"
+      ],
+      "scenario": "Inductions/records, legends if included, fictional identities, empty history and repeated load",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/load-game",
+      "file": "app/load-game/page.tsx",
+      "sha256": "a2b64623179f835713a4e475284de91bf231b3ea1416cfe1a66a3e2b0029c920",
+      "lines": 408,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review"
+      ],
+      "scenario": "Older versions, missing/corrupt primary, backup recovery, delete scope, failed disk write and restart",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/main-menu",
+      "file": "app/main-menu/page.tsx",
+      "sha256": "0b2a2267ab77de91d9fc880b69e7fe4e240cadc5d4d6c28e82e470263d5defe1",
+      "lines": 578,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review"
+      ],
+      "scenario": "New/continue/load/settings flows, no-save state, unavailable save, menu audio and keyboard focus",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/map-editor/lab",
+      "file": "app/map-editor/lab/page.tsx",
+      "sha256": "bf1e405f48a34dd53362e9baa37b9db9cfe243f72d813f44e866ff9a749ac9ed",
+      "lines": 3,
+      "signals": [
+        "dedicated map component; shell chrome/scroll restoration excluded"
+      ],
+      "scenario": "Reference registration, overlapping floors, routes/rays/traversal, saved settings, diagnostics, worker failure and silence",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/map-editor",
+      "file": "app/map-editor/page.tsx",
+      "sha256": "bd332f1bad7b5c6600ef802bc5321f14350f5e872f58dbb7e3779b197e43efe6",
+      "lines": 5,
+      "signals": [
+        "dedicated map component; shell chrome/scroll restoration excluded"
+      ],
+      "scenario": "142-mark draft safety, site/spawn naming, geometry/utility tools, undo, import/export, keyboard alternatives and silence",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/match/[id]/live",
+      "file": "app/match/[id]/live/page.tsx",
+      "sha256": "38dea9400f234eb43dd56f568fc571f3f107932c769c1fb3d74281f239e0a1e5",
+      "lines": 640,
+      "signals": [
+        "viewport-height layout to review"
+      ],
+      "scenario": "Physical event stream, floors/visibility, interventions, pause/speed/skip/resume, one result commit and performance",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/match/[id]/result",
+      "file": "app/match/[id]/result/page.tsx",
+      "sha256": "8bb0c3ed8e2a8ec1f0a7ed29de2b25ed84ea99818edd13f64000005b097ab243",
+      "lines": 1147,
+      "signals": [
+        "viewport-height layout to review",
+        "native table: check horizontal/focus behavior"
+      ],
+      "scenario": "Map/score/stat agreement, unique rewards, explanatory analysis, next action and reload idempotency",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/match/[id]/tactics",
+      "file": "app/match/[id]/tactics/page.tsx",
+      "sha256": "b2aed18af755742a314765a8e99076f40ef3a2b8509b00d959590cb2bebf1e7f",
+      "lines": 917,
+      "signals": [
+        "viewport-height layout to review"
+      ],
+      "scenario": "Valid roster/roles, tactic persistence, budget constraints, map setup, stale fixture and back/resume",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/match/[id]/veto",
+      "file": "app/match/[id]/veto/page.tsx",
+      "sha256": "79034209a2d411b2ef5f749af77378a4026c52ef34fafd88351969ba2ac955f6",
+      "lines": 739,
+      "signals": [
+        "viewport-height layout to review",
+        "native table: check horizontal/focus behavior"
+      ],
+      "scenario": "Turn ownership, ban/pick order, BO1/3/5, canonical map IDs and live/instant/result agreement",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/new-game/create-team",
+      "file": "app/new-game/create-team/page.tsx",
+      "sha256": "e232379f4418bd0fba66abb7d5115607d4a7e6c322e97aaf6aa8f9075a783f6e",
+      "lines": 806,
+      "signals": [
+        "viewport-height layout to review"
+      ],
+      "scenario": "Name/identity validation, roster/budget constraints, logo failure, back navigation and save",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/new-game",
+      "file": "app/new-game/page.tsx",
+      "sha256": "a105df944c6c93a5bf63d43da528ad298e7072f0823e50f8098605f9dd715b49",
+      "lines": 914,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review"
+      ],
+      "scenario": "Valid manager/team eligibility, locked choices, cancellation, duplicate submit and initial save",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/",
+      "file": "app/page.tsx",
+      "sha256": "ce0ffa23ee0db0eb9c800fc072cc8cc15a80c7b36788a69ebc4abf1cc5bf3467",
+      "lines": 725,
+      "signals": [
+        "local heading"
+      ],
+      "scenario": "Overview priorities, next day/week, truthful cash and fixture data, loading locks, failed save recovery",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/player/[id]",
+      "file": "app/player/[id]/page.tsx",
+      "sha256": "0f44a5a124870c350c0da7b26caecd7155647537bd63c56c9241735347160457",
+      "lines": 50,
+      "signals": [],
+      "scenario": "Revealed versus hidden attributes, contracts, development/history, stale/missing player and return context",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/rankings",
+      "file": "app/rankings/page.tsx",
+      "sha256": "0a257944c66d67b5eef00e246f7ece6d0c072322472d5d56fd9d20dee05ac437",
+      "lines": 972,
+      "signals": [
+        "shared title",
+        "shared table",
+        "career-scoped list controls"
+      ],
+      "scenario": "One result source, tie ordering, season resets, qualification and player/club history links",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/schedule",
+      "file": "app/schedule/page.tsx",
+      "sha256": "1a1c7ad869610c4052d7e2a0318310ca588f3962165dd35fd13e06956b06d79c",
+      "lines": 868,
+      "signals": [
+        "local heading"
+      ],
+      "scenario": "Day/week consistency, overlapping activities, due fixtures, year rollover and completion links",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/schedule/staff-meeting",
+      "file": "app/schedule/staff-meeting/page.tsx",
+      "sha256": "d4d35f8987b9bd807af60f9105a1549dfe369f90571b837099f7647de4259286",
+      "lines": 528,
+      "signals": [
+        "shared title",
+        "viewport-height layout to review"
+      ],
+      "scenario": "Availability, cost/timing, choice consequences, cancel/repeat and saved outcome",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/scouting",
+      "file": "app/scouting/page.tsx",
+      "sha256": "cce06c6a7cd65436636b2590c2a4fa97057d2b479e3e7fbdb82f1af4da2573b7",
+      "lines": 1425,
+      "signals": [
+        "shared title",
+        "shared table"
+      ],
+      "scenario": "Mission budget/timing, uncertainty, results, ownership, repeated actions and no-eligible-player state",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/settings/community-import",
+      "file": "app/settings/community-import/page.tsx",
+      "sha256": "881584f506040f9bc4cc07c070f51654d3f8dc988c19bd9de9b2e95f4a76beae",
+      "lines": 416,
+      "signals": [
+        "local heading"
+      ],
+      "scenario": "Preview, schema/size/path validation, attribution, backup, rollback and incompatible/invalid content",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/settings",
+      "file": "app/settings/page.tsx",
+      "sha256": "35accda0706c77ab271f6ab130a3697c9228a451b55651f41d5a6f3bd8c3567a",
+      "lines": 1211,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Preference consistency, mute/scale/motion, reset scope, fullscreen and restart persistence",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/sponsorships",
+      "file": "app/sponsorships/page.tsx",
+      "sha256": "a135f0abe8eddff65911e13b9a3621bc1f60741404e40a968e726e6ebe8fbb36",
+      "lines": 262,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Offer conditions, forecast versus earned revenue, accept/decline/expiry and duplicate payouts",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/squad",
+      "file": "app/squad/page.tsx",
+      "sha256": "aa820a3b60223443b76304aa0cbae4331587e459f549c299c3d09e910ebf98c5",
+      "lines": 563,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Role/roster validation, bench/lineup changes, ratings agreement, unavailable players and keyboard table actions",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/staff",
+      "file": "app/staff/page.tsx",
+      "sha256": "29d0c1b64f8e2c7f6cde473c7b5966ab829c1d17474557c23d55c05f8d41b4c9",
+      "lines": 433,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Hire/renew/fire, wage commitments, role limits, actual bonuses, missing candidates and reload",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/stats",
+      "file": "app/stats/page.tsx",
+      "sha256": "c93d8c9f70d0cc0e022c54966eeb464538c446495c78a22484498caf2545f1d9",
+      "lines": 853,
+      "signals": [
+        "local heading",
+        "shared table"
+      ],
+      "scenario": "Filters, totals versus per-map/per-season values, missing data, sample sizes and history consistency",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/tournaments/[id]",
+      "file": "app/tournaments/[id]/page.tsx",
+      "sha256": "43a56575bc42751e03f63da86f64c58aa5a93209b0222cb3ea2241cac9fed261",
+      "lines": 1912,
+      "signals": [
+        "local heading",
+        "viewport-height layout to review",
+        "native table: check horizontal/focus behavior"
+      ],
+      "scenario": "Brackets/byes/tiebreaks, series progression, final rewards, missing tournament and historical consistency",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/tournaments",
+      "file": "app/tournaments/page.tsx",
+      "sha256": "bd6ef345accbd9c6c2e12fc5e7c6fd2ca7726e8e62f3d7e2f6c681ad11f7f0f8",
+      "lines": 979,
+      "signals": [
+        "local heading",
+        "career-scoped list controls"
+      ],
+      "scenario": "Eligibility, qualification, field sizes/formats, active/completed/empty filters and next action",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/training",
+      "file": "app/training/page.tsx",
+      "sha256": "d7a583b8ddc2733918fd2e639fbef6177856f79e9d1460c17c5c9c7cef8ed0ba",
+      "lines": 648,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Truthful slot capacity, schedule conflicts, fatigue/recovery, projections, completion and narrow layout",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/transfers",
+      "file": "app/transfers/page.tsx",
+      "sha256": "52a41d357e7ee4a7059f53778e1f944867f11bd415407fbea353b24564f9b2bc",
+      "lines": 419,
+      "signals": [
+        "shared title",
+        "shared table",
+        "career-scoped list controls"
+      ],
+      "scenario": "Scout/compare/offer/negotiate/sign, expiry, affordability, stale offers, cancellation and reload",
+      "visualAcceptance": "NOT_RUN"
+    },
+    {
+      "route": "/trophies",
+      "file": "app/trophies/page.tsx",
+      "sha256": "8fd88fccff11ba0256bb0f786c044ae5dc2deb65ed6d0141f63de5385c4ca2c7",
+      "lines": 356,
+      "signals": [
+        "shared title"
+      ],
+      "scenario": "Award exactly once, correct club/season, zero-trophy state, identity assets and historical persistence",
+      "visualAcceptance": "NOT_RUN"
+    }
+  ]
+}

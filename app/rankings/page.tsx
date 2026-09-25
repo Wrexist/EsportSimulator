@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useRef } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useDebounce } from "@/hooks/useDebounce"
+import { useRouteViewState } from "@/hooks/use-route-view-state"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
@@ -329,10 +330,11 @@ function RankingsPageInner() {
             (s.unlockedTalentIds || []).some(id => id === "analyst_basics")
         )
     }, [staff, playerTeamId])
-    const [searchTerm, setSearchTerm] = useState("")
+    const viewCareerId = useGameStore(state => state.saveId)
+    const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "rankings:search", "")
     const debouncedSearch = useDebounce(searchTerm, 300)
-    const [selectedTier, setSelectedTier] = useState<TierLevel | "ALL">("ALL")
-    const [activeTab, setActiveTab] = useState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">("WORLD")
+    const [selectedTier, setSelectedTier] = useRouteViewState<TierLevel | "ALL">(viewCareerId, "rankings:tier", "ALL")
+    const [activeTab, setActiveTab] = useRouteViewState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">(viewCareerId, "rankings:tab", "WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
@@ -505,11 +507,11 @@ function RankingsPageInner() {
     }, [rankedTeams, playerTeamId])
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="premium-route space-y-6 max-w-7xl mx-auto">
             {/* Header with Season Info */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2 flex items-center gap-4">
+                    <h1 className="page-title mb-2 flex items-center gap-4">
                         {activeTab === "TROPHIES" ? "Trophy Room" :
                          activeTab === "CIRCUIT" ? "Circuit Points" :
                          activeTab === "WORLD" ? "World Rankings" :
@@ -559,7 +561,7 @@ function RankingsPageInner() {
                         className={cn(
                             "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
                             activeTab === "WORLD"
-                                ? "bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] focus:bg-blue-500 active:bg-blue-500 focus:text-white active:text-white"
+                                ? "bg-slate-100 text-slate-900 shadow-sm focus:bg-white active:bg-slate-200"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
                         )}
                     >
@@ -905,7 +907,7 @@ function RankingsPageInner() {
                                             <div key={id} className="group flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
                                                 <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 relative">
                                                     <PlayerPortrait
-                                                        src={player.portraitPath}
+                                                        src={player.portraitPath} seed={player.id}
                                                         alt={player.nickname}
                                                         size={48}
                                                         variant="card"

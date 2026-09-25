@@ -11,7 +11,9 @@
  * history) are intentionally NOT required to survive and aren't asserted.
  */
 
-import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
+import { buildSaveSnapshot, type SaveSnapshotState } from "@/store/utils/build-save-snapshot"
+import { createDefaultTactics } from "@/engine/default-tactics"
+import { runMigrationLadder } from "@/engine/save-migrations"
 
 // Minimal store-state stand-in. buildSaveSnapshot defaults most arrays, so we
 // only set what the assertions read plus the fields under test.
@@ -38,10 +40,26 @@ function makeState(over: Record<string, unknown> = {}) {
         acknowledgedEventIds: [],
         lastRngSeed: 12345,
         ...over,
-    }
+    } as unknown as SaveSnapshotState
 }
 
 describe("buildSaveSnapshot — stateful optional fields survive the builder", () => {
+    test("custom loadouts and a mid-match checkpoint survive JSON and old careers receive isolated defaults", () => {
+        const customTactics = createDefaultTactics()
+        customTactics.FULL.ct.primaryWeaponId = "test-custom"
+        const activeMatchState = { matchId: "match-1", timeoutsRemaining: 0, simState: { currentRound: 12 } }
+        const snapshot = JSON.parse(JSON.stringify(buildSaveSnapshot(makeState({ customTactics, activeMatchId: "match-1", activeMatchState }))))
+        expect(snapshot.customTactics.FULL.ct.primaryWeaponId).toBe("test-custom")
+        expect(snapshot.activeMatchState).toEqual(activeMatchState)
+        expect(snapshot.activeMatchId).toBe("match-1")
+        for (let version = 0; version <= 7; version++) {
+            const migrated = runMigrationLadder({ ...buildSaveSnapshot(makeState()), saveVersion: version })
+            expect(migrated.customTactics).toEqual(createDefaultTactics())
+            expect(migrated.activeMatchState).toBeNull()
+            expect(migrated.activeMatchId).toBeNull()
+            expect(migrated.customTactics).not.toBe(customTactics)
+        }
+    })
     test("boardState round-trips intact (accumulated confidence must not be dropped)", () => {
         const boardState = {
             teamId: "player",
@@ -82,4 +100,27 @@ describe("buildSaveSnapshot — stateful optional fields survive the builder", (
         expect(snap.gameOverReason).toBe("SACKED")
         expect(snap.gameOverWeek).toBe(104)
     })
+})
+
+
+test("the committed tick and zero RNG state survive a fresh snapshot, while transient fields do not", () => {
+    const state = makeState({ lastCommittedWeekTick: 39, lastRngSeed: 0, isLoading: true, error: "temporary" })
+    const snapshot = JSON.parse(JSON.stringify(buildSaveSnapshot(state)))
+    expect(snapshot.lastCommittedWeekTick).toBe(39)
+    expect(snapshot.lastRngSeed).toBe(0)
+    expect(snapshot).not.toHaveProperty("isLoading")
+    expect(snapshot).not.toHaveProperty("error")
+})
+
+
+test("L15 finance and activity receipts survive canonical save, migration and career replacement", () => {
+    const financeSettlement = { week: 40, income: 30000, expenses: 18000 }
+    const state = makeState({ teams: [{ id: "player", name: "My Club", financeSettlement, weeklyActivityWeek: 40 }] })
+    const disk = JSON.parse(JSON.stringify(buildSaveSnapshot(state)))
+    const restored = runMigrationLadder(disk)
+    expect(restored.teams[0].financeSettlement).toEqual(financeSettlement)
+    expect(restored.teams[0].weeklyActivityWeek).toBe(40)
+    const newCareer = buildSaveSnapshot(makeState())
+    expect(newCareer.teams[0].financeSettlement).toBeUndefined()
+    expect(newCareer.teams[0].weeklyActivityWeek).toBeUndefined()
 })

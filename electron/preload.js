@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('electron', {
         setRichPresence: (key, value) => ipcRenderer.invoke('steam-set-rich-presence', key, value),
         getRichPresence: (key) => ipcRenderer.invoke('steam-get-rich-presence', key),
         // cloud saves
+        listCloudFiles: () => ipcRenderer.invoke('steam-cloud-list'),
         writeToCloud: (filename, contents) => ipcRenderer.invoke('steam-cloud-write', filename, contents),
         readFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-read', filename),
         deleteFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-delete', filename),
@@ -49,6 +50,9 @@ contextBridge.exposeInMainWorld('electron', {
         getAllKeys: () => ipcRenderer.invoke('storage-get-all-keys'),
     },
     mods: {
+        readFolder: () => ipcRenderer.invoke('mod-read-folder'),
+        install: (contents) => ipcRenderer.invoke('mod-install', contents),
+        restore: () => ipcRenderer.invoke('mod-restore'),
         exists: () => ipcRenderer.invoke('mod-exists'),
         read: (filename) => ipcRenderer.invoke('mod-read', filename),
         write: (filename, contents) => ipcRenderer.invoke('mod-write', filename, contents),
@@ -64,7 +68,12 @@ contextBridge.exposeInMainWorld('electron', {
         unsubscribe: (id) => ipcRenderer.invoke('workshop-unsubscribe', id),
         open: (id) => ipcRenderer.invoke('workshop-open', id),
     },
-    onAppClose: (callback) => ipcRenderer.on('app-close-intent', (_, ...args) => callback(...args)),
+    onAppClose: (callback) => {
+        const handler = (_, ...args) => callback(...args);
+        ipcRenderer.on('app-close-intent', handler);
+        return () => ipcRenderer.removeListener('app-close-intent', handler);
+    },
+    acknowledgeAppClose: () => ipcRenderer.invoke('app-close-received'),
     confirmAppClose: () => ipcRenderer.invoke('app-close-confirmed'),
     cancelAppClose: () => ipcRenderer.invoke('app-close-cancelled'),
 });

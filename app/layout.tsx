@@ -1,7 +1,9 @@
+import { SkipToContent } from '@/lib/accessibility'
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import { ConsoleToTerminal } from '@/components/console-to-terminal'
 import './globals.css'
+import './premium-ui.css'
 
 // Self-hosted Archivo Black (was next/font/google). Bundling the woff2 keeps the
 // production build fully offline — no build-time fetch to fonts.gstatic.com, which
@@ -17,8 +19,6 @@ const archivoBlack = localFont({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: '#0e1217',
 }
 
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   title: 'Esports Manager: FPS',
   description: 'Manage your professional esports team to glory.',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo.png?v=trophy-20260920',
+    apple: '/logo.png?v=trophy-20260920',
   },
 }
 
@@ -43,10 +43,8 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${archivoBlack.className} ${archivoBlack.variable} font-sans antialiased bg-[#0e1217] text-foreground`}>
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-modal px-4 py-2 bg-primary text-primary-foreground rounded-md ring-2 ring-cyan-400">
-          Skip to main content
-        </a>
+      <body className={`${archivoBlack.variable} font-sans antialiased bg-[#0e1217] text-foreground`}>
+        <SkipToContent />
         <ColorblindFilters />
         <ErrorBoundary>
           <ConsoleToTerminal />

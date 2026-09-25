@@ -63,15 +63,16 @@ import { steamService as steamAchievements, Achievement } from "@/engine/steam-s
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { saveManager } from "@/engine"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 type SettingsTab = "SETTINGS" | "DEV_TOOLS" | "ACHIEVEMENTS"
 
 export default function SettingsPage() {
+  const hasCareer = useGameStore(state => !!state.saveId)
   const devToolsEnabled = isDevToolsEnabled()
   const {
     saveGame, deleteAllSaves, soundEnabled, setSoundEnabled, showTutorialOnNewGame, setShowTutorialOnNewGame,
     difficulty, setDifficulty,
-    autoSave, setAutoSave,
     showBugReportButton, setShowBugReportButton
   } = useGameStore(useShallow(state => ({
     saveGame: state.saveGame,
@@ -82,8 +83,6 @@ export default function SettingsPage() {
     setShowTutorialOnNewGame: state.setShowTutorialOnNewGame,
     difficulty: state.difficulty,
     setDifficulty: state.setDifficulty,
-    autoSave: state.autoSave,
-    setAutoSave: state.setAutoSave,
     showBugReportButton: state.showBugReportButton,
     setShowBugReportButton: state.setShowBugReportButton,
   })))
@@ -99,6 +98,7 @@ export default function SettingsPage() {
     masterVolumeS, setMasterVolumeS,
     musicVolumeS, setMusicVolumeS,
     sfxVolumeS, setSfxVolumeS,
+    autoSave, setAutoSave,
     autoSaveInterval, setAutoSaveInterval,
     applyWindowSettings,
     resolution, setResolution,
@@ -117,6 +117,8 @@ export default function SettingsPage() {
     setMusicVolumeS: state.setMusicVolume,
     sfxVolumeS: state.sfxVolume,
     setSfxVolumeS: state.setSfxVolume,
+    autoSave: state.autoSave,
+    setAutoSave: state.setAutoSave,
     autoSaveInterval: state.autoSaveInterval,
     setAutoSaveInterval: state.setAutoSaveInterval,
     applyWindowSettings: state.applyWindowSettings,
@@ -128,17 +130,8 @@ export default function SettingsPage() {
     setNotifications: state.setNotifications,
   })))
 
-  // Accessibility: colorblind mode — persisted to localStorage
-  const [colorblindMode, setColorblindMode] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'off'
-    return localStorage.getItem('colorblind-mode') || 'off'
-  })
-
-  useEffect(() => {
-    const html = document.documentElement
-    html.classList.remove('colorblind-deuteranopia', 'colorblind-protanopia', 'colorblind-tritanopia', 'high-contrast')
-    if (colorblindMode !== 'off') html.classList.add(colorblindMode)
-  }, [colorblindMode])
+  const colorblindMode = useSettingsStore(state => state.colorVisionMode)
+  const setColorblindMode = useSettingsStore(state => state.setColorVisionMode)
 
   // Save location (Electron). Resolved once on mount.
   const [saveLocation, setSaveLocation] = useState<string | null>(null)
@@ -152,16 +145,7 @@ export default function SettingsPage() {
   // Import save — hidden file input triggered by button
   const importInputRef = useRef<HTMLInputElement>(null)
   const [licensesOpen, setLicensesOpen] = useState(false)
-
-  // Esc dismisses the licenses dialog. Needs a local handler because the
-  // global GameShell keydown handler bails out whenever a [role="dialog"]
-  // is present on the page.
-  useEffect(() => {
-    if (!licensesOpen) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLicensesOpen(false) }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [licensesOpen])
+  const licensesButtonRef = useRef<HTMLButtonElement>(null)
 
   // Achievements state
   const [achievements, setAchievements] = useState<Achievement[]>([])
@@ -282,14 +266,11 @@ export default function SettingsPage() {
   }
 
   const handleReplayTutorial = () => {
-    // Use the real trigger the TutorialOverlay listens to (manualTutorialTrigger
-    // via triggerTutorial). The previous version set `onboardingCompleted`, a
-    // flag nothing reads — so the button claimed the guide would reappear but it
-    // never did. The overlay lives on the dashboard, so it shows on arrival.
+    // Replay guidance without resetting the career or changing new-game preferences.
     useGameStore.getState().triggerTutorial()
     toast({
       title: "Tutorial Ready",
-      description: "Head to the dashboard and the guide will walk you through the basics again.",
+      description: "The first-session guide is available again. Your squad, cash and results are unchanged.",
     })
   }
 
@@ -368,10 +349,13 @@ export default function SettingsPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-3xl font-normal liquid-text tracking-tighter">SETTINGS & TOOLS</h1>
+          <h1 className="page-title ">Settings & tools</h1>
           <p className="text-sm text-muted-foreground font-medium">Manage preferences and track achievements</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Link href="/map-editor" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm hover:bg-white/10">
+            <Crosshair className="mr-2 h-4 w-4" /> Map Studio
+          </Link>
           <Link href="/main-menu">
             <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
               <Home className="mr-2 h-4 w-4" /> Main Menu
@@ -597,10 +581,11 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Difficulty</p>
-                    <p className="text-xs text-muted-foreground">Affects AI strength and economy</p>
+                    <p className="text-xs text-muted-foreground">{hasCareer ? "Saved with this career" : "Start or load a career to change difficulty"}</p>
                   </div>
                   <select
                     value={difficulty || "normal"}
+                    disabled={!hasCareer}
                     onChange={(e) => setDifficulty(e.target.value as any)}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
@@ -681,7 +666,6 @@ export default function SettingsPage() {
                     onChange={(e) => {
                       const val = e.target.value
                       setColorblindMode(val)
-                      try { localStorage.setItem('colorblind-mode', val) } catch {}
                     }}
                     className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
@@ -795,14 +779,14 @@ export default function SettingsPage() {
                 />
                 <ConfirmDialog
                   title="Clear all save data?"
-                  description="Deletes every save on this machine. The current session returns to the main menu. This cannot be undone."
+                  description="Deletes all local careers and their backups, then returns to the main menu. Device preferences, your manager profile and Map Studio drafts are kept. This cannot be undone."
                   onConfirm={handleNewGame}
                   destructive
                   confirmText="Delete all saves"
                   icon="danger"
                 >
                   <Button variant="destructive" className="w-full h-12 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20">
-                    <RefreshCcw className="mr-2 h-4 w-4" /> Clear all data
+                    <RefreshCcw className="mr-2 h-4 w-4" /> Delete all local careers
                   </Button>
                 </ConfirmDialog>
               </CardContent>
@@ -831,6 +815,7 @@ export default function SettingsPage() {
                     </Button>
                   </Link>
                   <Button
+                    ref={licensesButtonRef}
                     variant="outline"
                     onClick={() => setLicensesOpen(true)}
                     className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
@@ -843,22 +828,12 @@ export default function SettingsPage() {
           </motion.div>
         )}
 
-        {licensesOpen && (
-          <div
-            className="fixed inset-0 z-overlay flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onClick={() => setLicensesOpen(false)}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="licenses-title"
-              className="glass-panel rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto space-y-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 id="licenses-title" className="text-lg font-bold text-white">Third-party licenses</h2>
-              <p className="text-xs text-muted-foreground">
+        <Dialog open={licensesOpen} onOpenChange={setLicensesOpen}>
+            <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(event) => { event.preventDefault(); licensesButtonRef.current?.focus() }}>
+              <DialogTitle>Third-party licenses</DialogTitle>
+              <DialogDescription>
                 This game is built with the following open-source components. Full license texts ship in <span className="font-mono">THIRD_PARTY_LICENSES.txt</span> alongside the executable.
-              </p>
+              </DialogDescription>
               <ul className="space-y-2 text-xs text-white/70">
                 <li><strong className="text-white">Electron</strong> — MIT</li>
                 <li><strong className="text-white">Chromium</strong> — BSD</li>
@@ -879,9 +854,8 @@ export default function SettingsPage() {
                   Close
                 </Button>
               </div>
-            </div>
-          </div>
-        )}
+            </DialogContent>
+        </Dialog>
 
         {devToolsEnabled && activeTab === "DEV_TOOLS" && (
           <motion.div
@@ -977,16 +951,16 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <ConfirmDialog
-                  title="Start New Game?"
-                  description="All unsaved progress will be permanently lost. This action cannot be undone."
+                  title="Delete all local careers?"
+                  description="Deletes all local careers and their backups, then returns to the main menu. Device preferences, your manager profile and Map Studio drafts are kept. This cannot be undone."
                   onConfirm={handleNewGame}
                   destructive
-                  confirmText="Erase & Start New"
+                  confirmText="Delete all careers"
                   icon="danger"
                 >
                   <Button variant="destructive" className="w-full h-12 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20">
                     <Home className="mr-2 h-4 w-4" />
-                    Start New Game (Erase Current)
+                    Delete all local careers
                   </Button>
                 </ConfirmDialog>
               </CardContent>

@@ -87,9 +87,7 @@ let currentLocale = "en"
  * Set the active locale
  */
 export function setLocale(locale: string) {
-    if (translations[locale]) {
-        currentLocale = locale
-    }
+    currentLocale = getAvailableLocales().includes(locale) ? locale : "en"
 }
 
 /**
@@ -103,7 +101,7 @@ export function getLocale(): string {
  * Get available locales
  */
 export function getAvailableLocales(): string[] {
-    return Object.keys(translations)
+    return Object.keys(translations).filter(locale => getLocaleCompleteness(locale).complete)
 }
 
 /**
@@ -126,12 +124,9 @@ export function t(key: string, params?: Record<string, string | number>): string
         return key
     }
 
-    // Interpolate {{param}} placeholders
-    if (params) {
-        for (const [k, v] of Object.entries(params)) {
-            value = value.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v))
-        }
-    }
+    // Substitute once with a callback: names may contain dollar signs or braces.
+    if (params) value = value.replace(/\{\{([^{}]+)\}\}/g, (token, key: string) =>
+        Object.prototype.hasOwnProperty.call(params, key) ? String(params[key]) : token)
 
     return value
 }
@@ -141,5 +136,13 @@ export function t(key: string, params?: Record<string, string | number>): string
  * Call this to add support for a new language
  */
 export function registerLocale(locale: string, dict: TranslationDict) {
-    translations[locale] = { ...translations.en, ...dict }
+    if (locale === "en" || !/^[a-z]{2,3}(?:-[A-Za-z0-9]+)*$/.test(locale)) return
+    translations[locale] = { ...dict }
+}
+
+/** Dictionary completeness is not a claim that every route has been translated or tested. */
+export function getLocaleCompleteness(locale: string) {
+    const dict = Object.prototype.hasOwnProperty.call(translations, locale) ? translations[locale] : {}
+    const missing = Object.keys(translations.en).filter(key => typeof dict[key] !== 'string' || !dict[key].trim())
+    return { complete: missing.length === 0, missing }
 }

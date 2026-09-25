@@ -1,0 +1,59 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Ancient",
+  "fixtureSha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed",
+  "simulatorSourceSha256": "d3a5a9982fd2cc301b6e23fe050605511e87d0ecdeae677842ed24ab6ed7265f",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 43.3125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 19559,
+      "metrics": {
+        "shots": 35,
+        "damage": 500,
+        "reports": 26,
+        "waits": 1140,
+        "replans": 58,
+        "minSeparation": 32.00643198279406
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 10,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "b6993a12e3d8cf1c314bf32e06263b9111932c4f5f7d1a313d4ba7941014ed7a"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 40.1875,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 12247,
+      "metrics": {
+        "shots": 10,
+        "damage": 500,
+        "reports": 12,
+        "waits": 269,
+        "replans": 61,
+        "minSeparation": 32.03282653013663
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 3,
+      "yields": 4,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "04e4f832fea7d7ae7a1986039e168729ab1eff56543289c1fca0bd34a6d91b76"
+    }
+  ]
+}

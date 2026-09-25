@@ -1,5 +1,6 @@
 "use client"
 
+import { IncomeBreakdown } from "@/components/finance/IncomeBreakdown"
 import { useMemo } from "react"
 import Image from "next/image"
 import { useGameStore } from "@/store/game-store"
@@ -10,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -36,9 +37,11 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { EconomyManager } from "@/engine/economy-manager"
+import { cashRunway, forecastFinances } from "@/engine/finance-forecast"
 import { toast } from "@/lib/toast"
 import { motion } from "framer-motion"
 
+const money = (value: number) => formatCurrency(value, '$', false)
 const economyManager = new EconomyManager()
 
 // Financial scoring weights and thresholds
@@ -61,8 +64,8 @@ const HEALTH_SPONSOR_WEIGHT = 8.33
 
 export default function FinancesPage() {
   const router = useRouter()
-  const { playerTeamId, currentWeek, players, staff, contracts } = useGameStore(useShallow(state => ({
-    playerTeamId: state.playerTeamId,
+  const { currentWeek, players, staff, contracts, academyCount } = useGameStore(useShallow(state => ({
+    academyCount: state.academyPlayers.length,
     currentWeek: state.currentWeek,
     players: state.players,
     staff: state.staff,
@@ -85,7 +88,7 @@ export default function FinancesPage() {
       .filter(Boolean) as typeof players
   }, [players, playerTeam])
 
-  // Cast for EconomyManager since it expects the simpler Team type
+  // The display report adapts the same projection used by weekly settlement.
   const { report, currentMoney, weeklyIncomeTotal, weeklyExpensesTotal, netCashflow, isPositiveCashflow } = useMemo(() => {
     if (!playerTeam) {
       return {
@@ -102,22 +105,22 @@ export default function FinancesPage() {
       playerTeam,
       players,
       staff,
-      contracts
+      contracts,
+      currentWeek + 1,
+      academyCount,
     )
     const money = playerTeam.budget ?? 0
     const incomeTotal = r.weeklyIncome?.total ?? 0
     const expensesTotal = r.weeklyExpenses?.total ?? 0
     const net = r.netCashflow ?? 0
     return { report: r, currentMoney: money, weeklyIncomeTotal: incomeTotal, weeklyExpensesTotal: expensesTotal, netCashflow: net, isPositiveCashflow: net >= 0 }
-  }, [playerTeam, players, staff, contracts])
+  }, [playerTeam, players, staff, contracts, currentWeek, academyCount])
   // === ADVANCED FINANCIAL METRICS (memoized) ===
 
   const { runwayWeeks, financialGrade, healthScore, projectedBudget } = useMemo(() => {
     const sponsorCount = playerTeam?.sponsors?.length || 0
     // Runway Calculation - How many weeks until insolvency
-    const runway = netCashflow < 0
-      ? Math.floor(currentMoney / Math.abs(netCashflow))
-      : 999 // Infinite if zero or positive cashflow
+    const runway = cashRunway(currentMoney, netCashflow)
 
     // Financial Grade (AAA to F)
     const budgetScore = Math.min(currentMoney / BUDGET_SCORE_DIVISOR, 1) * BUDGET_SCORE_MAX
@@ -144,14 +147,10 @@ export default function FinancesPage() {
     ))
 
     // 12-Week Projection
-    const projected = Array.from({ length: 12 }, (_, i) => ({
-      week: currentWeek + i + 1,
-      budget: Math.max(0, currentMoney + (netCashflow * (i + 1))),
-      isNegative: currentMoney + (netCashflow * (i + 1)) < 0
-    }))
+    const projected = playerTeam ? forecastFinances(playerTeam, players, contracts, staff, currentWeek, 12, academyCount) : []
 
     return { runwayWeeks: runway, financialGrade: grade, healthScore: health, projectedBudget: projected }
-  }, [currentMoney, netCashflow, playerTeam?.sponsors?.length, currentWeek])
+  }, [currentMoney, netCashflow, playerTeam, players, contracts, staff, currentWeek, academyCount])
 
   if (!playerTeam) {
     return <div className="flex items-center justify-center h-64 gap-2 text-white/50"><svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Loading finances...</div>
@@ -159,6 +158,10 @@ export default function FinancesPage() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      {currentMoney <= 0 && <div role="status" className="rounded-xl border border-red-400/30 bg-red-400/10 px-5 py-4 text-sm">
+        <p className="font-semibold text-red-300">Cash depleted: {playerTeam.consecutiveInsolventWeeks ?? 0} of 8 insolvent weekly settlements</p>
+        <p className="mt-1 text-muted-foreground">The club disbands after eight consecutive settlements at zero cash or below. A positive closing balance at a weekly settlement resets the counter. Reduce ongoing costs or raise funds before advancing.</p>
+      </div>}
       {/* ===== GROUNDBREAKING HERO DASHBOARD ===== */}
       <div className="relative overflow-hidden">
         {/* Ambient Glow Background */}
@@ -207,10 +210,10 @@ export default function FinancesPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-primary/80">
                   <Wallet className="h-4 w-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Financial Command</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Club finances</span>
                 </div>
-                <h1 className="text-3xl font-black tracking-tight uppercase">
-                  Empire's <span className="text-primary">Ledger</span>
+                <h1 className="page-title ">
+                  Finances
                 </h1>
               </div>
             </div>
@@ -219,17 +222,17 @@ export default function FinancesPage() {
             <div className="xl:col-span-5 grid grid-cols-3 gap-4">
               {/* Net Worth */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-all group">
-                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Net Worth</p>
+                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Cash balance</p>
                 <motion.p
                   className="text-xl font-black text-white"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <AnimatedNumber value={currentMoney} format={(n) => `$${(n / 1000000).toFixed(2)}M`} />
+                  <AnimatedNumber value={currentMoney} format={money} />
                 </motion.p>
                 <div className={cn("flex items-center justify-center gap-1 mt-1 text-[10px] font-bold", isPositiveCashflow ? "text-emerald-400" : "text-red-400")}>
                   {isPositiveCashflow ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                  <span>${Math.abs(netCashflow).toLocaleString()}/wk</span>
+                  <span>{money(netCashflow)}/wk</span>
                 </div>
               </div>
 
@@ -240,7 +243,7 @@ export default function FinancesPage() {
                   runwayWeeks > 12 ? "bg-yellow-500/10 border-yellow-500/20" :
                     "bg-red-500/10 border-red-500/20 animate-pulse"
               )}>
-                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Runway</p>
+                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Runway at current rate</p>
                 <motion.p
                   className={cn(
                     "text-xl font-black",
@@ -251,20 +254,20 @@ export default function FinancesPage() {
                 >
                   {runwayWeeks >= 999 ? "∞" : runwayWeeks}
                 </motion.p>
-                <p className="text-[10px] text-white/40">{runwayWeeks >= 999 ? "Profitable" : "Weeks Left"}</p>
+                <p className="text-[10px] text-white/40">{runwayWeeks >= 999 ? "No current deficit" : "Weeks remaining"}</p>
               </div>
 
               {/* Weekly Net */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-all">
-                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Weekly P/L</p>
+                <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Projected weekly net</p>
                 <motion.p
                   className={cn("text-xl font-black", isPositiveCashflow ? "text-emerald-400" : "text-red-400")}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  {isPositiveCashflow ? "+" : ""}{netCashflow >= 1000 ? `$${(netCashflow / 1000).toFixed(1)}k` : `$${netCashflow}`}
+                  {netCashflow > 0 ? "+" : ""}{money(netCashflow)}
                 </motion.p>
-                <p className="text-[10px] text-white/40">This Period</p>
+                <p className="text-[10px] text-white/40">Next weekly settlement</p>
               </div>
             </div>
 
@@ -345,7 +348,7 @@ export default function FinancesPage() {
                               <div className="text-[10px] text-muted-foreground uppercase">{formatRole(p.role)}</div>
                             </div>
                           </td>
-                          <td className="p-4 font-sans">${salary.toLocaleString()}</td>
+                          <td className="p-4 font-sans">{money(salary)}</td>
                           <td className="p-4">
                             <Badge variant="outline" className={cn(weeksLeft < 5 ? "border-red-500/50 text-red-500 bg-red-500/10" : "border-white/10")}>
                               {weeksLeft} Weeks
@@ -353,13 +356,13 @@ export default function FinancesPage() {
                           </td>
                           <td className="p-4">
                             <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                              {contract?.matchWinBonus ? <span>Win Bonus: <span className="text-green-400">+${contract.matchWinBonus.toLocaleString()}</span></span> : null}
-                              {contract?.mvpBonus ? <span>MVP Bonus: <span className="text-amber-400">+${contract.mvpBonus.toLocaleString()}</span></span> : null}
+                              {contract?.matchWinBonus ? <span>Win Bonus: <span className="text-green-400">+{money(contract.matchWinBonus)}</span></span> : null}
+                              {contract?.mvpBonus ? <span>MVP Bonus: <span className="text-amber-400">+{money(contract.mvpBonus)}</span></span> : null}
                               {!contract?.matchWinBonus && !contract?.mvpBonus && <span className="opacity-50">None</span>}
                             </div>
                           </td>
                           <td className="p-4 text-right font-sans font-bold">
-                            ${(salary * weeksLeft).toLocaleString()}
+                            {money((salary * weeksLeft))}
                           </td>
                         </tr>
                       )
@@ -385,28 +388,10 @@ export default function FinancesPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Sponsorship Payouts</span>
-                    <span className="font-bold text-green-400">${report.weeklyIncome.sponsors.toLocaleString()}</span>
-                  </div>
-                  <Progress value={75} className="h-1 bg-green-500/10" />
-
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Merchandise (Fanbase)</span>
-                    <span className="font-bold text-green-400">${report.weeklyIncome.fanbaseBonus.toLocaleString()}</span>
-                  </div>
-                  <Progress value={25} className="h-1 bg-green-500/10" />
-
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">League Revenue Share</span>
-                    <span className="font-bold text-green-400">${(report.weeklyIncome.leagueShare || 15000).toLocaleString()}</span>
-                  </div>
-                  <Progress value={100} className="h-1 bg-green-500/10" />
-                </div>
+                <IncomeBreakdown income={report.weeklyIncome} />
                 <div className="pt-4 border-t border-white/5 flex justify-between items-center">
                   <span className="text-md font-bold">Projected Weekly Revenue</span>
-                  <span className="text-xl font-normal text-green-500">${weeklyIncomeTotal.toLocaleString()}</span>
+                  <span className="text-xl font-normal text-green-500">{money(weeklyIncomeTotal)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -425,30 +410,22 @@ export default function FinancesPage() {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Roster Salaries</span>
-                    <span className="font-bold text-red-400">${report.weeklyExpenses.playerSalaries.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Player & staff salaries</span>
+                    <span className="font-bold text-red-400">{money(report.weeklyExpenses.playerSalaries)}</span>
                   </div>
-                  <Progress value={60} className="h-1 bg-red-500/10" />
+                  <Progress value={weeklyExpensesTotal > 0 ? report.weeklyExpenses.playerSalaries / weeklyExpensesTotal * 100 : 0} className="h-1 bg-red-500/10" />
 
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Facility Upkeep</span>
-                    <span className="font-bold text-red-400">${report.weeklyExpenses.facilities.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Facilities, equipment & academy</span>
+                    <span className="font-bold text-red-400">{money((report.weeklyExpenses.facilities + report.weeklyExpenses.equipment + report.weeklyExpenses.academy))}</span>
                   </div>
-                  <Progress value={30} className="h-1 bg-red-500/10" />
+                  <Progress value={weeklyExpensesTotal > 0 ? (report.weeklyExpenses.facilities + report.weeklyExpenses.equipment + report.weeklyExpenses.academy) / weeklyExpensesTotal * 100 : 0} className="h-1 bg-red-500/10" />
 
-                  {(report.weeklyExpenses as any).training > 0 && (
-                    <>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">Role Training</span>
-                        <span className="font-bold text-red-400">${((report.weeklyExpenses as any).training || 0).toLocaleString()}</span>
-                      </div>
-                      <Progress value={15} className="h-1 bg-red-500/10" />
-                    </>
-                  )}
+
                 </div>
                 <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                  <span className="text-md font-bold">Projected Weekly Burn</span>
-                  <span className="text-xl font-normal text-red-500">${weeklyExpensesTotal.toLocaleString()}</span>
+                  <span className="text-md font-bold">Projected weekly expenses</span>
+                  <span className="text-xl font-normal text-red-500">{money(weeklyExpensesTotal)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -466,7 +443,7 @@ export default function FinancesPage() {
                     <BarChart3 className="h-5 w-5 text-primary" />
                     12-Week Budget Projection
                   </CardTitle>
-                  <CardDescription>Forecasted budget based on current cash flow</CardDescription>
+                  <CardDescription>Current income and upkeep, with player, staff and sponsor contracts ending on schedule.</CardDescription>
                 </div>
                 <Badge variant="outline" className={cn(
                   "text-xs",
@@ -478,17 +455,18 @@ export default function FinancesPage() {
             </CardHeader>
             <CardContent>
               {/* Visual Bar Chart */}
+              <p className="mb-4 text-xs text-muted-foreground">Assumes unchanged reputation, followers and academy enrollment. No new signings, upgrades, activities, prize money or unearned sponsor bonuses or conditional player bonuses. Expiring players leave without replacement. Negative amounts show debt.</p>
               <div className="flex items-end justify-between gap-2 h-48 mb-4">
                 {(() => {
                   // Hoist maxBudget out of the per-bar map — was re-running
                   // Math.max + a fresh spread over all bars on every iteration
                   // (O(n²) over 52 projection weeks, ~2700 ops per render).
                   const maxBudget = projectedBudget.reduce(
-                    (m, d) => d.budget > m ? d.budget : m,
-                    currentMoney,
+                    (m, d) => Math.max(m, Math.abs(d.budget)),
+                    Math.max(1, Math.abs(currentMoney)),
                   )
                   return projectedBudget.map((data, i) => {
-                  const heightPercent = (data.budget / maxBudget) * 100
+                  const heightPercent = (Math.abs(data.budget) / maxBudget) * 100
                   return (
                     <motion.div
                       key={data.week}
@@ -555,21 +533,21 @@ export default function FinancesPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                     <span className="text-sm text-white/60">Starting Balance</span>
-                    <span className="font-bold text-white">${currentMoney.toLocaleString()}</span>
+                    <span className="font-bold text-white">{money(currentMoney)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-emerald-500/10 rounded-xl border-l-4 border-emerald-500">
                     <div className="flex items-center gap-2">
                       <ArrowUpRight className="h-4 w-4 text-emerald-400" />
                       <span className="text-sm text-emerald-400">Income</span>
                     </div>
-                    <span className="font-bold text-emerald-400">+${weeklyIncomeTotal.toLocaleString()}</span>
+                    <span className="font-bold text-emerald-400">+{money(weeklyIncomeTotal)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-xl border-l-4 border-red-500">
                     <div className="flex items-center gap-2">
                       <ArrowDownRight className="h-4 w-4 text-red-400" />
                       <span className="text-sm text-red-400">Expenses</span>
                     </div>
-                    <span className="font-bold text-red-400">-${weeklyExpensesTotal.toLocaleString()}</span>
+                    <span className="font-bold text-red-400">-{money(weeklyExpensesTotal)}</span>
                   </div>
                   <div className={cn(
                     "flex items-center justify-between p-4 rounded-xl border-2",
@@ -577,7 +555,7 @@ export default function FinancesPage() {
                   )}>
                     <span className="text-sm font-bold">Projected Ending</span>
                     <span className={cn("text-xl font-bold", isPositiveCashflow ? "text-emerald-400" : "text-red-400")}>
-                      ${(currentMoney + netCashflow).toLocaleString()}
+                      {money((currentMoney + netCashflow))}
                     </span>
                   </div>
                 </div>
@@ -650,7 +628,7 @@ export default function FinancesPage() {
                   <CardDescription>{playerTeam.sponsors?.length || 0}/3 active partnerships</CardDescription>
                 </div>
                 <Badge variant="outline" className="h-8 border-green-500/20 bg-green-500/5 text-green-400">
-                  ${report.weeklyIncome.sponsors.toLocaleString()}/wk
+                  {money(report.weeklyIncome.sponsors)}/wk
                 </Badge>
               </div>
             </CardHeader>
@@ -668,7 +646,7 @@ export default function FinancesPage() {
                         )}>{sponsor.tier}</Badge>
                       </div>
                       <div className="text-right">
-                        <span className="text-green-400 font-bold">${sponsor.weeklyPayout.toLocaleString()}/wk</span>
+                        <span className="text-green-400 font-bold">{money(sponsor.weeklyPayout)}/wk</span>
                         <span className="text-xs text-muted-foreground ml-2">{sponsor.remainingWeeks}w left</span>
                       </div>
                     </div>
@@ -718,7 +696,7 @@ export default function FinancesPage() {
               <CardContent>
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-4xl font-normal">{(playerTeam.followers || 0).toLocaleString()}</p>
+                    <p className="text-4xl font-normal">{(playerTeam.followers || 0).toLocaleString("en-US")}</p>
                     <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter">Social Reach</p>
                   </div>
                   <div className="flex flex-col items-end">
@@ -743,7 +721,7 @@ export default function FinancesPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-end justify-between">
-                  <p className="text-4xl font-normal">${report.weeklyIncome.fanbaseBonus.toLocaleString()}</p>
+                  <p className="text-4xl font-normal">{money(report.weeklyIncome.fanbaseBonus)}</p>
                   <p className="text-xs text-muted-foreground mb-1">Global Revenue</p>
                 </div>
                 <div className="mt-4 flex items-center justify-between text-[10px] font-bold uppercase text-muted-foreground">
@@ -790,7 +768,7 @@ export default function FinancesPage() {
                   }}
                 >
                   {(playerTeam.merchStoreLevel || 1) < 5 ? (
-                    `Upgrade to Level ${(playerTeam.merchStoreLevel || 1) + 1} ($${(50000 * Math.pow(2, (playerTeam.merchStoreLevel || 1) - 1)).toLocaleString()})`
+                    `Upgrade to Level ${(playerTeam.merchStoreLevel || 1) + 1} (${money((50000 * Math.pow(2, (playerTeam.merchStoreLevel || 1) - 1)))})`
                   ) : (
                     "Maximum Level Reached"
                   )}
@@ -847,7 +825,7 @@ export default function FinancesPage() {
                 <p className="text-xs text-muted-foreground leading-tight">
                   Each active line adds <span className="text-emerald-400 font-bold">+4%</span> merchandise revenue
                   {" — "}currently <span className="text-emerald-400 font-bold">+{Math.min(5, playerTeam.activeMerchItems?.length ?? 0) * 4}%</span> from
-                  your {playerTeam.followers?.toLocaleString()} followers. Unlock more lines by upgrading the store.
+                  your {playerTeam.followers?.toLocaleString("en-US")} followers. Unlock more lines by upgrading the store.
                 </p>
               </div>
             </Card>

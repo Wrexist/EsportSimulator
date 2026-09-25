@@ -1,0 +1,1154 @@
+{
+  "scope": "Top 25 stock teams; verified stylized PNGs and original-face crops. Original photographs and branded full-body source images remain excluded. Other players keep stable existing fallbacks.",
+  "evidence": [
+    {
+      "id": "player_1_vitalis_axpex",
+      "source": "/assets/teams/vitalisor/players/axpex.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-429bf6627cd8dd51.png",
+      "sourceSha256": "4ea9532db6642af1f1ceea066ec6308b51c6001715a71d3e5320e47b02e97644",
+      "sha256": "429bf6627cd8dd51b289eb1b398112179008118eb7c2b20834f5c5e7f59f3418",
+      "team": "Vitalis"
+    },
+    {
+      "id": "player_1_vitalis_flames",
+      "team": "Vitalis",
+      "source": "/assets/teams/vitalisor/players/flames.png",
+      "destination": "/branding/portraits/portrait-832b755af4fd95f1.png",
+      "sha256": "650eac23548ed3d329d1b78c0e659876bf7519a2c698392c32158265a9da9e07"
+    },
+    {
+      "id": "player_1_vitalis_mesii",
+      "team": "Vitalis",
+      "source": "/assets/teams/vitalisor/players/mesii.png",
+      "destination": "/branding/portraits/portrait-2cbf4afd3a64edf0.png",
+      "sha256": "c3daa9b6e4062627b96e481499ae2406d0289a477e09137a7f09f6094eea0902"
+    },
+    {
+      "id": "player_1_vitalis_rops",
+      "team": "Vitalis",
+      "source": "/assets/teams/vitalisor/players/rops.png",
+      "destination": "/branding/portraits/portrait-7dc1ad048f489cc1.png",
+      "sha256": "084986701a510495a1f69c9af6dd5b9b4bd8bc3c7abc140a5cde118bc6e48c90"
+    },
+    {
+      "id": "player_1_vitalis_syvoo",
+      "team": "Vitalis",
+      "source": "/assets/teams/vitalisor/players/syvoo.png",
+      "destination": "/branding/portraits/portrait-ddd2c5d8a1034003.png",
+      "sha256": "26fead11a312b97540e0c7f870a87114c0a2ff3eaa646c0c6f36dbdc009bedce"
+    },
+    {
+      "id": "player_2_foria_fxallen",
+      "source": "/assets/teams/furea/players/fxallen.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-14760af3e4395746.png",
+      "sourceSha256": "d59ea337462002ea6e0deefb49b0f34b06b0e8da5654b18aeee6b8a5535cb99c",
+      "sha256": "14760af3e439574627b99f154cb8302993c91387794ac612a6a5f3997a5c7bf0",
+      "team": "Furiax"
+    },
+    {
+      "id": "player_2_foria_czcerato",
+      "team": "Furiax",
+      "source": "/assets/teams/furea/players/czcerato.png",
+      "destination": "/branding/portraits/portrait-e87ff5efec1966a7.png",
+      "sha256": "4e96029f07994b4479f37628ce854853795a0055a4656bf87195a9d3142c1e59"
+    },
+    {
+      "id": "player_2_foria_mzolodoy",
+      "team": "Furiax",
+      "source": "/assets/teams/furea/players/mzolodoy.png",
+      "destination": "/branding/portraits/portrait-9227490bb7984d59.png",
+      "sha256": "e227a4ac8183104fc2a8de84da945cf56923a8a25286b6cbe69dfeef65ae34b3"
+    },
+    {
+      "id": "player_2_foria_yecindar",
+      "team": "Furiax",
+      "source": "/assets/teams/furea/players/yecindar.png",
+      "destination": "/branding/portraits/portrait-210e4adf02b81e8f.png",
+      "sha256": "d06cf34e608f4c645c1a123cdb951c6da49500e73eeeccc84134a03e6111e56c"
+    },
+    {
+      "id": "player_2_foria_yxuurih",
+      "source": "/assets/teams/furea/players/yxuurih.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-6132ccab805005f4.png",
+      "sourceSha256": "b11352e047ff2e4a10e24acada6abfb970c931047a6146b28b0702220e8a5438",
+      "sha256": "6132ccab805005f44874999bb44b11bc00e32a22783ffb091d0da576b7b7faf3",
+      "team": "Furiax"
+    },
+    {
+      "id": "player_3_falconry_cyousuce",
+      "team": "Falcone",
+      "source": "/assets/teams/valcunry/players/cyousuce.png",
+      "destination": "/branding/portraits/portrait-0ed5dff521a9eeef.png",
+      "sha256": "8d1f255b627d1eed188aca853d8744e023f0fc3c8c6126734b7b56b70ac5238f"
+    },
+    {
+      "id": "player_3_falconry_kyxzan",
+      "source": "/assets/teams/valcunry/players/kyxzan.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-93e4786f4255939e.png",
+      "sourceSha256": "9e11e6abc17cd54c5f524fafd806e0630f4420ff92431c8fb662865955f29262",
+      "sha256": "93e4786f4255939e9b2eecf5c588381a7a16fee46ca9231ad857a02bcba3a403",
+      "team": "Falcone"
+    },
+    {
+      "id": "player_3_falconry_m8nesy",
+      "team": "Falcone",
+      "source": "/assets/teams/valcunry/players/m8nesy.png",
+      "destination": "/branding/portraits/portrait-cad03bdf306ac850.png",
+      "sha256": "bc7c372773644704fe0800aefa9642f897c30e60b9f00015d16233dd7853fb5e"
+    },
+    {
+      "id": "player_3_falconry_nico",
+      "team": "Falcone",
+      "source": "/assets/teams/valcunry/players/nico.png",
+      "destination": "/branding/portraits/portrait-61537c8b8ef848fc.png",
+      "sha256": "95024f3ac542574016bd92a169d4ecc9103c9016c444f364f57f8e77bec09f61"
+    },
+    {
+      "id": "player_3_falconry_tesez",
+      "team": "Falcone",
+      "source": "/assets/teams/valcunry/players/tesez.png",
+      "destination": "/branding/portraits/portrait-b6f6c3be24c789da.png",
+      "sha256": "db55f4358eb51af2673061e1e6c06446f9d5247be1ee575d6fe307bef9718c9e"
+    },
+    {
+      "id": "player_4_muxeen_bxrollan",
+      "team": "Mouze",
+      "source": "/assets/teams/moyzenor/players/bxrollan.png",
+      "destination": "/branding/portraits/portrait-8aeabc38535667c4.png",
+      "sha256": "69a2ddfdc109b37b52c13cd4a512eabe715213bae421b3c7e5ec84077603ceb4"
+    },
+    {
+      "id": "player_4_muxeen_jzimpphat",
+      "team": "Mouze",
+      "source": "/assets/teams/moyzenor/players/jzimpphat.png",
+      "destination": "/branding/portraits/portrait-17d6fee344098653.png",
+      "sha256": "9dbf30518701224be210ab20848222b0a400e807e375f9f7e976fc272cf398d5"
+    },
+    {
+      "id": "player_4_muxeen_zpinx",
+      "source": "/assets/teams/moyzenor/players/zpinx.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-07bd90a3c545e72e.png",
+      "sourceSha256": "27bc25185ba144dc07208ccbb03d564ed9f63a3931b2f7568e0ee9a8ca8bfbea",
+      "sha256": "07bd90a3c545e72e6b3fb8a9f57d10b92846556f3728480ec1258b46964344b7",
+      "team": "Mouze"
+    },
+    {
+      "id": "player_4_muxeen_torszi",
+      "team": "Mouze",
+      "source": "/assets/teams/moyzenor/players/torszi.png",
+      "destination": "/branding/portraits/portrait-08552f8d95814d52.png",
+      "sha256": "1712075a8f55bd6e7b1d1ddb8d6464a255590ba1701ef16d3b11fbb7e2a1ba66"
+    },
+    {
+      "id": "player_4_muxeen_xzertion",
+      "team": "Mouze",
+      "source": "/assets/teams/moyzenor/players/xzertion.png",
+      "destination": "/branding/portraits/portrait-263d6c3cdedb6ad8.png",
+      "sha256": "2b365baee51ba451b6c247ca51673e3cbaf7595d11021d0a36bd65891d43fe2f"
+    },
+    {
+      "id": "player_5_phantom_donc",
+      "team": "Spiryt",
+      "source": "/assets/teams/phantum/players/donc.png",
+      "destination": "/branding/portraits/portrait-64dd8cddc1f19c21.png",
+      "sha256": "188b13afb6ae46138326c9fc060b843ef898eb98ee5dd81e89ffb6ed01408977"
+    },
+    {
+      "id": "player_5_phantom_maqixx",
+      "team": "Spiryt",
+      "source": "/assets/teams/phantum/players/maqixx.png",
+      "destination": "/branding/portraits/portrait-7654c4ba94bcb756.png",
+      "sha256": "a70b55aa852d2dcd465d6b8c8730d93e00b7ea11ee2795339fc3acf4c02d0ad4"
+    },
+    {
+      "id": "player_5_phantom_sh7ro",
+      "team": "Spiryt",
+      "source": "/assets/teams/phantum/players/sh7ro.png",
+      "destination": "/branding/portraits/portrait-75a8ae378e1787b1.png",
+      "sha256": "ddab6851cbbf5359d2d096e4ef23eb5267616e9d234f98f6959ceda3253cec3f"
+    },
+    {
+      "id": "player_5_phantom_tn7r",
+      "source": "/assets/teams/phantum/players/tn7r.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-6f4d4acd178ca9db.png",
+      "sourceSha256": "97aea823f1d63826c58abc6feb2f3a293e32c5cf6a987dc7e5fd5012ce53e5cc",
+      "sha256": "6f4d4acd178ca9dbcc0df6515197798d499fb642dc2feef0e375482dade2cdce",
+      "team": "Spiryt"
+    },
+    {
+      "id": "player_5_phantom_zont7x",
+      "team": "Spiryt",
+      "source": "/assets/teams/phantum/players/zont7x.png",
+      "destination": "/branding/portraits/portrait-d528db356a2988f9.png",
+      "sha256": "4c4b18826af0d4edf44692f54ae9686d92f65e5a4b673d589f42d644d43c6cc3"
+    },
+    {
+      "id": "player_6_perivesion_av",
+      "team": "Paravision",
+      "source": "/assets/teams/piriveseon/players/av.png",
+      "destination": "/branding/portraits/portrait-fce8522d40972441.png",
+      "sha256": "344a69b919fcf952a2d478e9edb6ac49017e4e5b1cfc2355eb9700139f7bd68c"
+    },
+    {
+      "id": "player_6_perivesion_belkhonock",
+      "team": "Paravision",
+      "source": "/assets/teams/piriveseon/players/belkhonock.png",
+      "destination": "/branding/portraits/portrait-40116d10b8fa3e1e.png",
+      "sha256": "698a938538b2c2192760e79412fe88b2ba41748aa234fc72188c2686da49b7c2"
+    },
+    {
+      "id": "player_6_perivesion_jzame",
+      "team": "Paravision",
+      "source": "/assets/teams/piriveseon/players/jzame.png",
+      "destination": "/branding/portraits/portrait-d3d54793928c9a8e.png",
+      "sha256": "f6277141fa33d0a8156999363ffc101b025f1ccd0f9deae663e55f87542de868"
+    },
+    {
+      "id": "player_6_perivesion_nxota",
+      "team": "Paravision",
+      "source": "/assets/teams/piriveseon/players/nxota.png",
+      "destination": "/branding/portraits/portrait-883140e697971d4c.png",
+      "sha256": "a72be1773065e7bad4521e2dc3607e6a19c43c820b5a9dd165a9c09925638b28"
+    },
+    {
+      "id": "player_6_perivesion_xzielo",
+      "team": "Paravision",
+      "source": "/assets/teams/piriveseon/players/xzielo.png",
+      "destination": "/branding/portraits/portrait-72a2f96b68b069ed.png",
+      "sha256": "6cede0c21d175c9c738c59592c15e37bd90d1bdb6584170783221113d7b4fbb0"
+    },
+    {
+      "id": "player_6_perivesion_sweih",
+      "source": "/assets/teams/piriveseon/players/sweih.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 502
+      },
+      "destination": "/branding/portraits/face-41834a725458d996.png",
+      "sourceSha256": "fe52dd3996c56367d8ddd138e1888b5245a0c8f45b5e0656a5f4afe720424f46",
+      "sha256": "41834a725458d996a72f82276c807a3ad5609e15b29f3c701cc9fd40055715e3",
+      "team": "Paravision"
+    },
+    {
+      "id": "player_7_phaze_brocy",
+      "team": "Phaze",
+      "source": "/assets/teams/pheze/players/brocy.png",
+      "destination": "/branding/portraits/portrait-e2aa3b632427e1e3.png",
+      "sha256": "11ecd16db7052ac750f14dae4970cf97c5d67656489536e332428d1b49563326"
+    },
+    {
+      "id": "player_7_phaze_frosen",
+      "team": "Phaze",
+      "source": "/assets/teams/pheze/players/frosen.png",
+      "destination": "/branding/portraits/portrait-64ead1ac2869232e.png",
+      "sha256": "0e64d63ebbaaa5d34d6b602a9b893bf54e7705fac7d336b81462c0a11bb250d5"
+    },
+    {
+      "id": "player_7_phaze_jkobbb",
+      "team": "Phaze",
+      "source": "/assets/teams/pheze/players/jkobbb.png",
+      "destination": "/branding/portraits/portrait-0f7891ddecefee21.png",
+      "sha256": "51f3d1bc3075258430339926ab623d3ad868d378d76352307873ceea9097162a"
+    },
+    {
+      "id": "player_7_phaze_carriqan",
+      "team": "Phaze",
+      "source": "/assets/teams/pheze/players/carriqan.png",
+      "destination": "/branding/portraits/portrait-0f305e45fcb2c2d7.png",
+      "sha256": "b42bad50ae86aee615f51a21de65f3781b9eceb67da3cdc76121d8e5ad2d0205"
+    },
+    {
+      "id": "player_7_phaze_tviztzz",
+      "team": "Phaze",
+      "source": "/assets/teams/pheze/players/tviztzz.png",
+      "destination": "/branding/portraits/portrait-506634cbf5f4f364.png",
+      "sha256": "3b529cda23b9d4b6ce98217c95bdcfbefc174fa92942e4cf03a4ac309e96842c"
+    },
+    {
+      "id": "player_8_natoz_aleczib",
+      "team": "Natus Vincera",
+      "source": "/assets/teams/nados_vyncero/players/aleczib.png",
+      "destination": "/branding/portraits/portrait-e4c399ba8cc17ece.png",
+      "sha256": "5b19d6498c919d822b8a926e04923808322aa96d344dc0bb65893739538c1c12"
+    },
+    {
+      "id": "player_8_natoz_b7t",
+      "team": "Natus Vincera",
+      "source": "/assets/teams/nados_vyncero/players/b7t.png",
+      "destination": "/branding/portraits/portrait-588f9137bddf5f6d.png",
+      "sha256": "a06ae894f02ba1533118af3d4ea4952b22e81e3c2160adaf2b6ab8d0742c9b3a"
+    },
+    {
+      "id": "player_8_natoz_ixm",
+      "source": "/assets/teams/nados_vyncero/players/ixm.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-499258aa46c1e795.png",
+      "sourceSha256": "840cd541c6087a2fd90eda82dc5dae00584ba4a99f5dfb8e4a5cdd1699444ac7",
+      "sha256": "499258aa46c1e795cf2eb4bfaee96a6b05cd812eb6c05f3c36ac5249607bcf78",
+      "team": "Natus Vincera"
+    },
+    {
+      "id": "player_8_natoz_macazze",
+      "team": "Natus Vincera",
+      "source": "/assets/teams/nados_vyncero/players/macazze.png",
+      "destination": "/branding/portraits/portrait-1b4a99ff8e628a1f.png",
+      "sha256": "40e806a5ad48aa56297920494d05ee13ca4ef99849841a0b9361881c490d76ad"
+    },
+    {
+      "id": "player_8_natoz_v8nderful",
+      "team": "Natus Vincera",
+      "source": "/assets/teams/nados_vyncero/players/v8nderful.png",
+      "destination": "/branding/portraits/portrait-15caf58083404294.png",
+      "sha256": "5ba0dc15dc6363c14d45201c888f116999ba8d56ccfd0395bba8a9d0d089672d"
+    },
+    {
+      "id": "player_9_g_two_heawyqod",
+      "source": "/assets/teams/k_dwo/players/heawyqod.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-8b00d266f1b61a1e.png",
+      "sourceSha256": "78482a5b5fec04261f7a357ae2ea292dfcc3d4250a03eadc323c1456184548c5",
+      "sha256": "8b00d266f1b61a1edc6d84ac530afa64037497d9067d9028d2dc0f1f6bea3e47",
+      "team": "G3"
+    },
+    {
+      "id": "player_9_g_two_hzunter",
+      "team": "G3",
+      "source": "/assets/teams/k_dwo/players/hzunter.png",
+      "destination": "/branding/portraits/portrait-e7ce2d6ddeb46904.png",
+      "sha256": "eb87a2a812d98a7bcb1420f7cf326282fdef8a017bcf7192da35e2c73f62f367"
+    },
+    {
+      "id": "player_9_g_two_malbzmd",
+      "team": "G3",
+      "source": "/assets/teams/k_dwo/players/malbzmd.png",
+      "destination": "/branding/portraits/portrait-696bb0c38608dff6.png",
+      "sha256": "4b5450b4bddb83f3e1939a35e2947a9f9c47777d5b98cccabad47e61e7c783e1"
+    },
+    {
+      "id": "player_9_g_two_matyz",
+      "team": "G3",
+      "source": "/assets/teams/k_dwo/players/matyz.png",
+      "destination": "/branding/portraits/portrait-7fe633f27e582e78.png",
+      "sha256": "c6ebc8be2f72d8f205efd8350e6711b69fe66cb1d6c1f1391612d88ba2387157"
+    },
+    {
+      "id": "player_9_g_two_sunpayuz",
+      "team": "G3",
+      "source": "/assets/teams/k_dwo/players/sunpayuz.png",
+      "destination": "/branding/portraits/portrait-5f2d0d3df68aecf6.png",
+      "sha256": "d2d988d130fa8107d473073cbd89ba4aa112f4cbaab407ad7a30d4c8e90178db"
+    },
+    {
+      "id": "player_10_tha_978",
+      "team": "The Mongalz",
+      "source": "/assets/teams/thaia_nomads/players/978.png",
+      "destination": "/branding/portraits/portrait-5657f911852ca05b.png",
+      "sha256": "70e4def539b04e81400baf8851f8755f8863071d79204e28bd64fd205875e04e"
+    },
+    {
+      "id": "player_10_tha_blits",
+      "team": "The Mongalz",
+      "source": "/assets/teams/thaia_nomads/players/blits.png",
+      "destination": "/branding/portraits/portrait-e89b948305e87d60.png",
+      "sha256": "04c614c93f6a0f8570cb2f3d32456c95876eafc0b34c3b7fc43d487499a7a71f"
+    },
+    {
+      "id": "player_10_tha_kobrasera",
+      "source": "/assets/teams/thaia_nomads/players/kobrasera.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 512
+      },
+      "destination": "/branding/portraits/face-e5ff8f95841ce8b5.png",
+      "sourceSha256": "333cbc87748b914d97454679c2df678160d1b50a385969f3c795baf5b894143e",
+      "sha256": "e5ff8f95841ce8b53d5dfd11e2e91707d762d4da1388f186e874ffefe16e7d89",
+      "team": "The Mongalz"
+    },
+    {
+      "id": "player_10_tha_msinho",
+      "team": "The Mongalz",
+      "source": "/assets/teams/thaia_nomads/players/msinho.png",
+      "destination": "/branding/portraits/portrait-a77f4a0a060ade29.png",
+      "sha256": "5ad097d5037c68701b364716e00d770fa5e1d85b335c7ad40c8e19b5f78c5f22"
+    },
+    {
+      "id": "player_10_tha_tekhno",
+      "team": "The Mongalz",
+      "source": "/assets/teams/thaia_nomads/players/tekhno.png",
+      "destination": "/branding/portraits/portrait-8fbc57f4927db6e1.png",
+      "sha256": "6903db8eaeed6c72bf7fc92ba15bb1d97ff55ea2bc5f62846ebb9715d64e763e"
+    },
+    {
+      "id": "player_11_eurora_maj9r",
+      "team": "Auroria",
+      "source": "/assets/teams/iurura/players/maj9r.png",
+      "destination": "/branding/portraits/portrait-d8384071152da245.png",
+      "sha256": "7aff591f37a226242b89de23fea39eee48ec18dbcd59afed3015fb066fc3daf1"
+    },
+    {
+      "id": "player_11_eurora_zoulfly",
+      "team": "Auroria",
+      "source": "/assets/teams/iurura/players/zoulfly.png",
+      "destination": "/branding/portraits/portrait-626203023b74e3ee.png",
+      "sha256": "9ef2fa834d0be0580b159d86f111905f47e0f7e80aa6d2cb50fcb26c674a1fbf"
+    },
+    {
+      "id": "player_11_eurora_vikadia",
+      "source": "/assets/teams/iurura/players/vikadia.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-b8ce597ac2409f6d.png",
+      "sourceSha256": "34b185a2a612c4d32782523011f8c901dbaf355e9121462dfe515cd008af5632",
+      "sha256": "b8ce597ac2409f6dfe72e750e02ddd8dd0997eb1797b7eaa7af6919ac7cde862",
+      "team": "Auroria"
+    },
+    {
+      "id": "player_11_eurora_voxik",
+      "team": "Auroria",
+      "source": "/assets/teams/iurura/players/voxik.png",
+      "destination": "/branding/portraits/portrait-4f4218e48280f676.png",
+      "sha256": "db56af6de5753c0c963d623ed851b2d96c40956d142ddd2fe7d12a1694354f8c"
+    },
+    {
+      "id": "player_11_eurora_xantarez",
+      "team": "Auroria",
+      "source": "/assets/teams/iurura/players/xantarez.png",
+      "destination": "/branding/portraits/portrait-7b70a1574b8ff9d8.png",
+      "sha256": "50713a95691f7420002667ace2948b88984143450c1874109334eaf31d67a8de"
+    },
+    {
+      "id": "player_12_astraflux_hzooxi",
+      "team": "Astralys",
+      "source": "/assets/teams/estroflux/players/hzooxi.png",
+      "destination": "/branding/portraits/portrait-a5968c456caece25.png",
+      "sha256": "72a894e177f3f043e82f56f538b563a7ab8e5da5c00d4e6d053714ac6a9f7be0"
+    },
+    {
+      "id": "player_12_astraflux_jxabbi",
+      "team": "Astralys",
+      "source": "/assets/teams/estroflux/players/jxabbi.png",
+      "destination": "/branding/portraits/portrait-575025cdfba33e25.png",
+      "sha256": "ded6be0b6ebd8fa5cf6986c9646734648158b3eebee95d9fdc8e977f9cc8dc88"
+    },
+    {
+      "id": "player_12_astraflux_phsy",
+      "team": "Astralys",
+      "source": "/assets/teams/estroflux/players/phsy.png",
+      "destination": "/branding/portraits/portrait-80b018640acccec6.png",
+      "sha256": "e3c729c50539c92edbf62ab26ea0e6793f2e6215c501e79290572e43fef8d187"
+    },
+    {
+      "id": "player_12_astraflux_rxyu",
+      "team": "Astralys",
+      "source": "/assets/teams/muntegra/players/rxyu.png",
+      "destination": "/branding/portraits/portrait-24fde9320d8876a7.png",
+      "sha256": "e0096b12b2950c717e5b492e651a5719463aa82199b7c1676d4daefdd638156a"
+    },
+    {
+      "id": "player_12_astraflux_ztaehr",
+      "team": "Astralys",
+      "source": "/assets/teams/estroflux/players/ztaehr.png",
+      "destination": "/branding/portraits/portrait-2258a82f5cdbd216.png",
+      "sha256": "7789c62542d4b0d6c7f1daa21d1af8aa2b8aabfda6c5ed00fae109a6171f0e28"
+    },
+    {
+      "id": "player_13_3dmax_bzodyy",
+      "team": "3DMaxx",
+      "source": "/assets/teams/3dmax/players/bzodyy.png",
+      "destination": "/branding/portraits/portrait-ac35c82609faaeea.png",
+      "sha256": "5feec679d6abfa4ea2ec4b2e45b46ce871ba923145357977acb86b75857855f0"
+    },
+    {
+      "id": "player_13_3dmax_ex3rcike",
+      "team": "3DMaxx",
+      "source": "/assets/teams/3dmax/players/ex3rcike.png",
+      "destination": "/branding/portraits/portrait-beb42b2056d27bbc.png",
+      "sha256": "78856e1318cf2f4e11a313cdf34127714b1a71da51d205b7dfebb4a9298458a3"
+    },
+    {
+      "id": "player_13_3dmax_grawiti",
+      "team": "3DMaxx",
+      "source": "/assets/teams/3dmax/players/grawiti.png",
+      "destination": "/branding/portraits/portrait-a6be62fe67f5addc.png",
+      "sha256": "7504b080c6060a803356abe04c784cba9175adadfe3ffaf44b76ed766ec6c5fe"
+    },
+    {
+      "id": "player_13_3dmax_lukcy",
+      "team": "3DMaxx",
+      "source": "/assets/teams/3dmax/players/lukcy.png",
+      "destination": "/branding/portraits/portrait-08de3e10fa32b4ca.png",
+      "sha256": "b765a175564ed6ef288ae8332a11e7b9947d9a06e94043d6467114af67b8d3e3"
+    },
+    {
+      "id": "player_13_3dmax_maca",
+      "team": "3DMaxx",
+      "source": "/assets/teams/3dmax/players/maca.png",
+      "destination": "/branding/portraits/portrait-8421f4a4de3ca73c.png",
+      "sha256": "50418b092b2f082fbcd76ba79c04d9e8510e3354da4fc97e4a89cc9fe223bf23"
+    },
+    {
+      "id": "player_14_fut_kmtry",
+      "team": "Futura",
+      "source": "/assets/teams/fut/players/kmtry.png",
+      "destination": "/branding/portraits/portrait-9aa5c4fd16887ffd.png",
+      "sha256": "4248bfec0afd99eb770f9a3f766cb7f4da1f223029fcdc06f510abe387a22f67"
+    },
+    {
+      "id": "player_14_fut_dem8n",
+      "team": "Futura",
+      "source": "/assets/teams/fut/players/dem8n.png",
+      "destination": "/branding/portraits/portrait-b120c64788d1fcdf.png",
+      "sha256": "60bf55e0447f0965480545d39dc397fd86067192d66c119fa21773dd300d288b"
+    },
+    {
+      "id": "player_14_fut_dsiuqss",
+      "team": "Futura",
+      "source": "/assets/teams/fut/players/dsiuqss.png",
+      "destination": "/branding/portraits/portrait-c13150c47cf7be1d.png",
+      "sha256": "f6f0145de4a5d181a7d23b9cc3569d7e2ebf95873563b8d196ce20766d23eaba"
+    },
+    {
+      "id": "player_14_fut_crabeni",
+      "team": "Futura",
+      "source": "/assets/teams/fut/players/crabeni.png",
+      "destination": "/branding/portraits/portrait-f7c888a738f25cfa.png",
+      "sha256": "8aeb149ef4e70a41acac05db00e9c845f74db1d2a9bacf4d987547130dfc010d"
+    },
+    {
+      "id": "player_14_fut_lxaunx",
+      "team": "Futura",
+      "source": "/assets/teams/fut/players/lxaunx.png",
+      "destination": "/branding/portraits/portrait-10b0401c24d3c8f8.png",
+      "sha256": "5c7fe8d43e5bc055a312c326c11d18da49f4c8ed4a49fc21081c8b8fbf15e206"
+    },
+    {
+      "id": "player_15_100_ag7l",
+      "team": "100 Rogues",
+      "source": "/assets/teams/cantury_rugues/players/ag7l.png",
+      "destination": "/branding/portraits/portrait-63903dbd499db616.png",
+      "sha256": "38f5581c296fb84703e87136acb7c2d50496eb2bd614537dba85ed4d16057013"
+    },
+    {
+      "id": "player_15_100_devike",
+      "source": "/assets/teams/cantury_rugues/players/devike.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 461
+      },
+      "destination": "/branding/portraits/face-c0ff531f2e6a3fad.png",
+      "sourceSha256": "60d6f32c67295d48a10cfa1c0e258a9f6a36f38841e3db79a2076b358c401488",
+      "sha256": "c0ff531f2e6a3fad7e0668429de18acbd35de43507f28b97ed5585f23ca351f7",
+      "team": "100 Rogues"
+    },
+    {
+      "id": "player_15_100_pxoiii",
+      "team": "100 Rogues",
+      "source": "/assets/teams/cantury_rugues/players/pxoiii.png",
+      "destination": "/branding/portraits/portrait-8ff8582ab3d4bd8d.png",
+      "sha256": "90be4a4b5eaa9d5bda7c45315f264af3f360b2488f6e31944130e3da2591ae23"
+    },
+    {
+      "id": "player_15_100_rxain",
+      "source": "/assets/teams/cantury_rugues/players/rxain.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 451
+      },
+      "destination": "/branding/portraits/face-e68125e1d0c50e78.png",
+      "sourceSha256": "07d32ca941bfcedf00f982300828409360d7e99ce22099fd9b0e8bfbce89db62",
+      "sha256": "e68125e1d0c50e78a88b4ffa77469aefba8c907bfebab9dd7bd58fe3d4e49707",
+      "team": "100 Rogues"
+    },
+    {
+      "id": "player_15_100_zirah",
+      "source": "/assets/teams/cantury_rugues/players/zirah.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-d446cc23ede007c6.png",
+      "sourceSha256": "8dacc8f9adbc58b8719e6200a7a096d583863f85cce8fe937ce5c169cc9c8bd6",
+      "sha256": "d446cc23ede007c625b7b981f319b035cb8e9aa433b5bd146f84b6501d8cc9ae",
+      "team": "100 Rogues"
+    },
+    {
+      "id": "player_15_tide_eliqe",
+      "team": "Liquis",
+      "source": "/assets/teams/tide/players/eliqe.png",
+      "destination": "/branding/portraits/portrait-57a65ae2a6c4e184.png",
+      "sha256": "783569d17f5a1541346832c237bdc62a0be8d3f11d932e0b922da3446ada836c"
+    },
+    {
+      "id": "player_15_tide_nzaf",
+      "source": "/assets/teams/tide/players/nzaf.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 553
+      },
+      "destination": "/branding/portraits/face-5cdfac50a74d4572.png",
+      "sourceSha256": "29a96e35632382e3a833e70e09dbd7a72e490534c1fbcaecdf9c12c6bb510b64",
+      "sha256": "5cdfac50a74d4572c58d328d8361c3580d09932e26370175e29581ac6a34c93d",
+      "team": "Liquis"
+    },
+    {
+      "id": "player_15_tide_nerts",
+      "team": "Liquis",
+      "source": "/assets/teams/tide/players/nerts.png",
+      "destination": "/branding/portraits/portrait-50056bdbefff24d1.png",
+      "sha256": "c70a5ae22b4a1f2b6c9467f35c4e580d93ea129259bc7a050e059ed5875cb13c"
+    },
+    {
+      "id": "player_15_tide_ziuhy",
+      "source": "/assets/teams/tide/players/ziuhy.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 553
+      },
+      "destination": "/branding/portraits/face-77a40a28b53f8bf3.png",
+      "sourceSha256": "09b79f8e50e35155dc6d8bff1abfc5b08a021ba68ac75ae4bfb4e6640fbbf3a6",
+      "sha256": "77a40a28b53f8bf37bfc9adddaeea062dbd5cf1ce9e4904f2ed2afb2a44d2eab",
+      "team": "Liquis"
+    },
+    {
+      "id": "player_15_tide_uzltimate",
+      "source": "/assets/teams/tide/players/uzltimate.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 553
+      },
+      "destination": "/branding/portraits/face-ad5e0fb358a790c3.png",
+      "sourceSha256": "6a57f268a8b298ee9ae6227983728cb09de8bc11c2154b7637f520670bd1a27e",
+      "sha256": "ad5e0fb358a790c3cd55afe123dd7da3dfa56923149063358ef1fc292007e782",
+      "team": "Liquis"
+    },
+    {
+      "id": "player_16_b8_axlex666",
+      "team": "B9",
+      "source": "/assets/teams/b8/players/axlex666.png",
+      "destination": "/branding/portraits/portrait-5c9474bb6fe673c6.png",
+      "sha256": "b6b1a656112a912e2a28831e9cf3172750f0f136483f3b324626777519acc3ed"
+    },
+    {
+      "id": "player_16_b8_ezenthial",
+      "team": "B9",
+      "source": "/assets/teams/b8/players/ezenthial.png",
+      "destination": "/branding/portraits/portrait-15595c28df9dc21a.png",
+      "sha256": "e03632199c4b19d64e2e53d2487525ba7ab8b6012b7b39717c166a6b18b7d4d6"
+    },
+    {
+      "id": "player_16_b8_headtr7ck",
+      "source": "/assets/teams/b8/players/headtr7ck.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-a17d46a4fe9ebd4d.png",
+      "sourceSha256": "caeeb47f0f00b28786717707e2c2a2427a40b734d46bf4ff1e39e965b7d78a39",
+      "sha256": "a17d46a4fe9ebd4d94a81224ca6283951d9c9c09bd4421ee7559650e9e450ab1",
+      "team": "B9"
+    },
+    {
+      "id": "player_16_b8_censisor",
+      "team": "B9",
+      "source": "/assets/teams/b8/players/censisor.png",
+      "destination": "/branding/portraits/portrait-3e608266ef858bd2.png",
+      "sha256": "9509acf51e7500921f1229b9011316efca3f49abde5bd35ce1634646c40df3c8"
+    },
+    {
+      "id": "player_16_b8_nxpl",
+      "team": "B9",
+      "source": "/assets/teams/b8/players/nxpl.png",
+      "destination": "/branding/portraits/portrait-876e75e01fe90e1a.png",
+      "sha256": "bc9fbf482b70f8a419d5b6b9e4b36350317f74a9da6f75bc1281808dac0eebbf"
+    },
+    {
+      "id": "player_16_b8_s1zsi",
+      "source": "/assets/teams/b8/players/s1zsi.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-595472fa0ca0decb.png",
+      "sourceSha256": "4f493f8d1ccda582f6b60ddd925a5276eba6ba67311f05f0ef0cd1d05df43497",
+      "sha256": "595472fa0ca0decb719a9bb35e20e4a376eb384043570b86c9a690bc1e9365a8",
+      "team": "B9"
+    },
+    {
+      "id": "player_17_poxsion_qrim",
+      "source": "/assets/teams/pezsyan_aa/players/qrim.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-a715f491dd19fb69.png",
+      "sourceSha256": "8b47aa12c11bcebf9f25d5597b7accfaa74ffb7ef2421cb45c3a340830228d28",
+      "sha256": "a715f491dd19fb69265bc45e433185c8345039ced0b9aac40dc97473864f6dc3",
+      "team": "Pession UA"
+    },
+    {
+      "id": "player_17_poxsion_hallserc",
+      "source": "/assets/teams/pezsyan_aa/players/hallserc.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-8b9343c821fe9424.png",
+      "sourceSha256": "d7ef0e35665d510ebbc12edbb99bd92149099b308287ada458fe496691ac5d1a",
+      "sha256": "8b9343c821fe9424e9c5cca6ba84c3de59513d803fb645eec384826925e423da",
+      "team": "Pession UA"
+    },
+    {
+      "id": "player_17_poxsion_jxt",
+      "source": "/assets/teams/pezsyan_aa/players/jxt.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-63bbb544b7042b43.png",
+      "sourceSha256": "ef50816de6bf22a007df6be61d7617982f0c2508cb0acd56c36dbcafaf5a8279",
+      "sha256": "63bbb544b7042b438a68669beaa6499682c36246fc1fb2687addd7652f639a5e",
+      "team": "Pession UA"
+    },
+    {
+      "id": "player_17_poxsion_cwem",
+      "source": "/assets/teams/pezsyan_aa/players/cwem.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-6b3e6012c1844b18.png",
+      "sourceSha256": "1558500b2b167526ae87d5a299d7a30ed3f3e0c11f870d3922eb16e62e051307",
+      "sha256": "6b3e6012c1844b18c9636dab5419838e9a0fb98a73f6dd2df1a83dfdab5311ea",
+      "team": "Pession UA"
+    },
+    {
+      "id": "player_17_poxsion_nikx",
+      "source": "/assets/teams/pezsyan_aa/players/nikx.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-b8288b5b285bdbd3.png",
+      "sourceSha256": "6239166e43c502e634768c1cc6af77cc595e4a6c5f03deaa417ae01b88160278",
+      "sha256": "b8288b5b285bdbd337509fd74a0b09a49873e1f216ed626983a9b6d703dd93fd",
+      "team": "Pession UA"
+    },
+    {
+      "id": "player_18_sting_bigusera",
+      "team": "payN",
+      "source": "/assets/teams/sdengal/players/bigusera.png",
+      "destination": "/branding/portraits/portrait-5666e2f2bdecf63d.png",
+      "sha256": "6c59122e2d6869eaba883c5c2c81734fd3e93eba13b1714ea2c224849602a566"
+    },
+    {
+      "id": "player_18_sting_ngs",
+      "team": "payN",
+      "source": "/assets/teams/sdengal/players/ngs.png",
+      "destination": "/branding/portraits/portrait-d70dc1479dcffb83.png",
+      "sha256": "4d98423658e56bd6bea1dde68bd3576f2090b12849d406e044a02238a746ccb7"
+    },
+    {
+      "id": "player_18_sting_pziriajr",
+      "source": "/assets/teams/sdengal/players/pziriajr.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-a94282dfbaca2142.png",
+      "sourceSha256": "6e0c5d53d1f535fcc6eb9f7942743d3354f58fce75c167a5dd4f48a754bf4cde",
+      "sha256": "a94282dfbaca2142e0e10176e2fb57249fbdd29876a39a73286a2eec61414bc2",
+      "team": "payN"
+    },
+    {
+      "id": "player_18_sting_snov",
+      "team": "payN",
+      "source": "/assets/teams/sdengal/players/snov.png",
+      "destination": "/branding/portraits/portrait-f568db2f0cfc3e73.png",
+      "sha256": "5678d6bc4702c41540a214d42e752f2b1ebd117b06f3e8b465fc8866ecc09581"
+    },
+    {
+      "id": "player_18_sting_wzm",
+      "source": "/assets/teams/sdengal/players/wzm.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 461
+      },
+      "destination": "/branding/portraits/face-34216dcac956b4c1.png",
+      "sourceSha256": "852dfcf2c84f77c9ad3b2bc95e5afc64f3fb240a3cde38ff8ef4ea8df9615427",
+      "sha256": "34216dcac956b4c1369c5530dbe68b07f51d0c216a0c69d7fe0cfec5c4b9af93",
+      "team": "payN"
+    },
+    {
+      "id": "player_19_nrg_br8",
+      "source": "/assets/teams/nrg/players/br8.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-2d029ac7baa85573.png",
+      "sourceSha256": "f2a129805b1a6802745143bbd7e2719b169e8b566ce1dc3db32504cffac75f55",
+      "sha256": "2d029ac7baa855736188fc20ab73d77d4dc36fde3603e3d4022a82b304a46d8d",
+      "team": "NRGX"
+    },
+    {
+      "id": "player_19_nrg_jeorqe",
+      "team": "NRGX",
+      "source": "/assets/teams/nrg/players/jeorqe.png",
+      "destination": "/branding/portraits/portrait-16a32f308de26286.png",
+      "sha256": "8697bd798af7c8388734dd0f94ea58d07fb78172938864df79289b9661637804"
+    },
+    {
+      "id": "player_19_nrg_nitr8",
+      "source": "/assets/teams/nrg/players/nitr8.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-75b91ad27497f1a3.png",
+      "sourceSha256": "c1c23b70f5e2c7b0efe4aef49e12a5ff4571cce15f24bf0b38f1f3bc422365c0",
+      "sha256": "75b91ad27497f1a3bd9ccb2f3d8b84a71a8f08bd223f1895b51db338032beaad",
+      "team": "NRGX"
+    },
+    {
+      "id": "player_19_nrg_ozee",
+      "team": "NRGX",
+      "source": "/assets/teams/nrg/players/ozee.png",
+      "destination": "/branding/portraits/portrait-48184abe7aeb51f2.png",
+      "sha256": "8dd8f8c09b4d00ddde6f33b75fba34ed9c07e6302eb33653e95fdea29ce5c1fc"
+    },
+    {
+      "id": "player_19_nrg_zonik",
+      "team": "NRGX",
+      "source": "/assets/teams/nrg/players/zonik.png",
+      "destination": "/branding/portraits/portrait-2828ed56a02057fb.png",
+      "sha256": "14c2a9fe42e1b43f37fbc92a8ee816a171f3b06fde3a07e2596c7f68aba07582"
+    },
+    {
+      "id": "player_20_gamer_league_hxypex",
+      "team": "Gamer Legionnaires",
+      "source": "/assets/teams/gamar_laogue/players/hxypex.png",
+      "destination": "/branding/portraits/portrait-a52c8d92ab671114.png",
+      "sha256": "ac2a18882265e5526407660f861987aa46af62b645515bde3bcc37ffa071d2d6"
+    },
+    {
+      "id": "player_20_gamer_league_pxr",
+      "team": "Gamer Legionnaires",
+      "source": "/assets/teams/gamar_laogue/players/pxr.png",
+      "destination": "/branding/portraits/portrait-27828663918f9826.png",
+      "sha256": "e9ae8b6706b80af06b3035eaec10cc0f981825e52d8d038a046fdf0888dda0b9"
+    },
+    {
+      "id": "player_20_gamer_league_res",
+      "team": "Gamer Legionnaires",
+      "source": "/assets/teams/gamar_laogue/players/res.png",
+      "destination": "/branding/portraits/portrait-1fa5cd715cbd9cba.png",
+      "sha256": "7949f5db423763234568cddf4a1f98c3ab584bd5242e11ae671808d0043d5e9a"
+    },
+    {
+      "id": "player_20_gamer_league_znax",
+      "source": "/assets/teams/gamar_laogue/players/znax.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-c7d2e40000cd7b37.png",
+      "sourceSha256": "bc187259ba08a26f449a48d42eda878cbd0fe40f1daa60ced75c995a2c69f1ec",
+      "sha256": "c7d2e40000cd7b37a9d9d3f5cdddbb29ff9e7bd0b05c654f1129b732a1dbebac",
+      "team": "Gamer Legionnaires"
+    },
+    {
+      "id": "player_20_gamer_league_tauzon",
+      "team": "Gamer Legionnaires",
+      "source": "/assets/teams/gamar_laogue/players/tauzon.png",
+      "destination": "/branding/portraits/portrait-9a0745881859efae.png",
+      "sha256": "872cfdb545bf80a2c85bf840a59f4f358026b7ed5d44ccb2f0d8b8fbf2cf31a8"
+    },
+    {
+      "id": "player_21_ninjas_kairne",
+      "source": "/assets/teams/nave_enveders/players/kairne.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-496b691c68aedb09.png",
+      "sourceSha256": "cda24c47ab42693d8d9147e3d1f6cd10cac778d477bb9d959dc12e47105148e4",
+      "sha256": "496b691c68aedb09b1597ee263f912d038b1aef80522873a056c8972a78f8b4b",
+      "team": "Ninjas in Nightwear"
+    },
+    {
+      "id": "player_21_ninjas_r7ncle",
+      "team": "Ninjas in Nightwear",
+      "source": "/assets/teams/nave_enveders/players/r7ncle.png",
+      "destination": "/branding/portraits/portrait-8eb64ad89eccd884.png",
+      "sha256": "0e88c63be58f22db88f2dc62eb698b02b149c55513f1928ab8ffced3a0461f3a"
+    },
+    {
+      "id": "player_21_ninjas_sjuuzh",
+      "team": "Ninjas in Nightwear",
+      "source": "/assets/teams/nave_enveders/players/sjuuzh.png",
+      "destination": "/branding/portraits/portrait-4bfa31d889f26e9e.png",
+      "sha256": "d18491f674f69c5ff6083766dc3899e4a788c5b8c401e9c42f4dd289e6c1d411"
+    },
+    {
+      "id": "player_21_ninjas_znappi",
+      "team": "Ninjas in Nightwear",
+      "source": "/assets/teams/nave_enveders/players/znappi.png",
+      "destination": "/branding/portraits/portrait-400363fbcdd72cf1.png",
+      "sha256": "1fd3f614df149201b6f70cdae44d81eb98a83616df99f30fb93c7a71d690be37"
+    },
+    {
+      "id": "player_21_ninjas_xkacperscy",
+      "team": "Ninjas in Nightwear",
+      "source": "/assets/teams/nave_enveders/players/xkacperscy.png",
+      "destination": "/branding/portraits/portrait-047e014cd6125116.png",
+      "sha256": "e97962c2fb63d90500e097156d9c7ae66442f078b516995334c44e06406fff32"
+    },
+    {
+      "id": "player_22_valiant_alcaren",
+      "team": "Heroiq",
+      "source": "/assets/teams/valyand/players/alcaren.png",
+      "destination": "/branding/portraits/portrait-6cf19e54cfa4e240.png",
+      "sha256": "c4a22ec194abb821f5e0f3336a52bb454897146317ef296af6f1e553bd675da9"
+    },
+    {
+      "id": "player_22_valiant_khr1zn",
+      "team": "Heroiq",
+      "source": "/assets/teams/valyand/players/khr1zn.png",
+      "destination": "/branding/portraits/portrait-8779458e733a69d0.png",
+      "sha256": "8aad6341b738650d91dff06fdb6150e47bb9792691b566757abce416afc75117"
+    },
+    {
+      "id": "player_22_valiant_nxilo",
+      "team": "Heroiq",
+      "source": "/assets/teams/valyand/players/nxilo.png",
+      "destination": "/branding/portraits/portrait-b7fbd0efff939f1d.png",
+      "sha256": "1c13f8119fe1dc4d7414177aa20a5bae00e77ebd4aee2ec232e6ab2c5af0a5c5"
+    },
+    {
+      "id": "player_22_valiant_zusp",
+      "source": "/assets/teams/valyand/players/zusp.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 614
+      },
+      "destination": "/branding/portraits/face-b14d481f86456b6e.png",
+      "sourceSha256": "6ed51d7c492ae6e76794ac0857eb963d22a6e006ab0dad5bdae2715326bdc8c6",
+      "sha256": "b14d481f86456b6e04f2ed7ba863b3110e91d2e0a223935c06230ef38a1097b3",
+      "team": "Heroiq"
+    },
+    {
+      "id": "player_22_valiant_xfl8ud",
+      "source": "/assets/teams/valyand/players/xfl8ud.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-603912cfa1a19524.png",
+      "sourceSha256": "42041c1341578f71397bf127f3ab4c65c7780d9d8bca794c088b0b613404cdd6",
+      "sha256": "603912cfa1a1952464c4b5941a86d6ebe5a0a2bf1b4a7a18d80356395d4a4c2e",
+      "team": "Heroiq"
+    },
+    {
+      "id": "player_22_valiant_yxnqstxr",
+      "team": "Heroiq",
+      "source": "/assets/teams/valyand/players/yxnqstxr.png",
+      "destination": "/branding/portraits/portrait-4dca2407966b6341.png",
+      "sha256": "d311b77c4844cb0385eab625fdcfb505b966b201e6a40771362dedf1d24cf38b"
+    },
+    {
+      "id": "player_22_vyrtusor_b7zt",
+      "team": "Virtus Nova",
+      "source": "/assets/teams/virtosium_nova/players/b7zt.png",
+      "destination": "/branding/portraits/portrait-47f2c5f351ae6f6f.png",
+      "sha256": "4cd59b64a2131e03b183f84d4c5242524e19ffb6b09685e559f3038eb58addda"
+    },
+    {
+      "id": "player_22_vyrtusor_fzame",
+      "team": "Virtus Nova",
+      "source": "/assets/teams/virtosium_nova/players/fzame.png",
+      "destination": "/branding/portraits/portrait-5f3e7eb4f0cd41d8.png",
+      "sha256": "043150b00dadaba1fc77fb17d0fdeb1334ad8a2ca352a5a8513dc81695f03eec"
+    },
+    {
+      "id": "player_22_vyrtusor_fl7t",
+      "team": "Virtus Nova",
+      "source": "/assets/teams/virtosium_nova/players/fl7t.png",
+      "destination": "/branding/portraits/portrait-fa471fe696876ecb.png",
+      "sha256": "d1727e8e1ddbed628ad21ece7c893d8ecb5f7499d88f2af560b26ade66c6ab39"
+    },
+    {
+      "id": "player_22_vyrtusor_perfekto",
+      "team": "Virtus Nova",
+      "source": "/assets/teams/virtosium_nova/players/perfekto.png",
+      "destination": "/branding/portraits/portrait-62e58cebdd9e4b3f.png",
+      "sha256": "216559bbaafb4cd5ab1660d916ee093baae3cb6ea0e2be346b78aed06eb95e6c"
+    },
+    {
+      "id": "player_22_vyrtusor_to8ro",
+      "source": "/assets/teams/virtosium_nova/players/to8ro.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-4d24675643a03c68.png",
+      "sourceSha256": "51d7783c54060409f68ed2cce767e6d5a3de4f7ec4eb3bf7d5f6efe9b8f94410",
+      "sha256": "4d24675643a03c689af54c95010ce24869d8486faa3df7d977c6770bffccb936",
+      "team": "Virtus Nova"
+    },
+    {
+      "id": "player_23_imperius_khelo",
+      "source": "/assets/teams/emperiuz/players/khelo.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-28152c811e615530.png",
+      "sourceSha256": "19b3f717a357160a3f937f7ba8b48205e8abe22fa3e29b2c14307f6c6971cd7e",
+      "sha256": "28152c811e615530c414e13b38cefd6b850c2e929803952d4515f7c954fe05d3",
+      "team": "Imperia"
+    },
+    {
+      "id": "player_23_imperius_novay",
+      "source": "/assets/teams/emperiuz/players/novay.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-7e86ada43ad2e370.png",
+      "sourceSha256": "75c3207357251639db3e456d566505f2480cb61fad6ca4aace8a0f52224f4f6d",
+      "sha256": "7e86ada43ad2e370ecd1235b66f39b2ad69a4cf993cab23682fe02d67614a391",
+      "team": "Imperia"
+    },
+    {
+      "id": "player_23_imperius_zkullz",
+      "source": "/assets/teams/emperiuz/players/zkullz.webp",
+      "crop": {
+        "left": 276,
+        "top": 0,
+        "width": 471,
+        "height": 645
+      },
+      "destination": "/branding/portraits/face-93c9f4fed9db7527.png",
+      "sourceSha256": "e748fd55350ba837d7d1d7f8662c70143bafc52d06ec7aafd2cf1b91aacb7cae",
+      "sha256": "93c9f4fed9db7527da4be2b15c0b411b57cfb8b7644159ef386c0b02ec6ffc98",
+      "team": "Imperia"
+    },
+    {
+      "id": "player_23_imperius_tzry",
+      "team": "Imperia",
+      "source": "/assets/teams/emperiuz/players/tzry.png",
+      "destination": "/branding/portraits/portrait-1d5385544a04c750.png",
+      "sha256": "ee53f64dc3ba30a3eeb1c1934ee8a0d7eb1cf2f83c7cb07b609dd86626eeb354"
+    },
+    {
+      "id": "player_23_imperius_wini",
+      "team": "Imperia",
+      "source": "/assets/teams/emperiuz/players/wini.png",
+      "destination": "/branding/portraits/portrait-e1a81df60ed9db91.png",
+      "sha256": "8eca57c1519104dce99306a6136d9950df87ed56d4b754dd343db6b51a3524e8"
+    }
+  ],
+  "missing": []
+}

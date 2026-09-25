@@ -1,0 +1,191 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Sandstone",
+  "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+  "simulatorSourceSha256": "5c8dfa159a1d67231401e6f8bd3ee7f34318a8560f46fc5d053906802c9cde4b",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 80.03125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 86534,
+      "metrics": {
+        "shots": 80,
+        "damage": 822,
+        "reports": 69,
+        "waits": 1055,
+        "replans": 94,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 3,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 496,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 5088,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 5088,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "33d5bd0bcd248e395404b2c06e4b919970bc3255f3638cb1150f6edcbdbb4621"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 78.59375,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 52098,
+      "metrics": {
+        "shots": 141,
+        "damage": 922,
+        "reports": 101,
+        "waits": 1063,
+        "replans": 91,
+        "minSeparation": 32.000018309828945
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 1,
+      "yields": 2,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "24dbf39626ecf93e93e1864b1609a3939736b547f5b036b5f6ca427f0fa9972c"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 93.1875,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 197298,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 610,
+        "waits": 1821,
+        "replans": 133,
+        "minSeparation": 32.002736484996966
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 9,
+      "routeFailures": [
+        {
+          "tick": 496,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 3488,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 3488,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 5008,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 5232,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 5248,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            -1392.798715546326,
+            2766.2851573231364,
+            17.968310589154065
+          ],
+          "goal": [
+            160.122742,
+            2369.67627,
+            -116.2003286382158
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5248,
+            "type": "route-blocked",
+            "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+            "actor": "CT2",
+            "side": "CT"
+          }
+        },
+        {
+          "id": "CT4",
+          "point": [
+            -1422.9188657538862,
+            2755.118712464507,
+            16.389174032906332
+          ],
+          "goal": [
+            334.368744,
+            2433.733643,
+            -116.83812489570909
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5232,
+            "type": "route-blocked",
+            "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+            "actor": "CT4",
+            "side": "CT"
+          }
+        }
+      ],
+      "outputSha256": "401f0c2eeabd7e944d8a72352117989fabc4564427724bc6ac23df9bdf0540f5"
+    }
+  ]
+}

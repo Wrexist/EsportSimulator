@@ -20,7 +20,7 @@ export const ROUND_START_DELAY_MS = 1500
  * deterministic seeds across reloads.
  */
 export function getNormalizedSeed(rawSeed: unknown, matchId: string): number {
-    if (typeof rawSeed === "number" && Number.isFinite(rawSeed) && rawSeed > 0) {
+    if (typeof rawSeed === "number" && Number.isFinite(rawSeed) && rawSeed >= 0) {
         return Math.floor(rawSeed)
     }
     const fallback = Array.from(matchId).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 0)
@@ -34,8 +34,8 @@ export function getNormalizedSeed(rawSeed: unknown, matchId: string): number {
  */
 export function getActivePlayersByRosterOrder(
     team: { rosterIds?: string[]; roster?: string[] },
-    allPlayers: Array<{ id: string }>,
-    playerMap?: Map<string, { id: string }>
+    allPlayers: Array<{ id: string; isRetired?: boolean }>,
+    playerMap?: Map<string, { id: string; isRetired?: boolean }>
 ): Player[] {
     const rosterIds = Array.isArray(team.rosterIds)
         ? team.rosterIds
@@ -44,7 +44,7 @@ export function getActivePlayersByRosterOrder(
     const resolvedPlayers: Player[] = []
     for (const playerId of activeRosterIds) {
         const player = playerMap?.get(playerId) ?? allPlayers.find(p => p.id === playerId)
-        if (player) resolvedPlayers.push(player as unknown as Player)
+        if (player && !player.isRetired) resolvedPlayers.push(player as unknown as Player)
     }
     return resolvedPlayers
 }
@@ -85,10 +85,13 @@ export function buildCanonicalResultMaps(
     return canonicalMaps.map((mapId, mapIndex) => {
         const existing = sourceMaps[mapIndex]
         if (existing && existing.map === mapId) {
+            // Save-store snapshots may be deeply frozen. The live runner owns and
+            // mutates its map history, so detach every nested value on restore.
+            const restored = structuredClone(existing)
             return {
-                ...existing,
+                ...restored,
                 map: mapId,
-                rounds: Array.isArray(existing.rounds) ? existing.rounds : [],
+                rounds: Array.isArray(restored.rounds) ? restored.rounds : [],
                 homeScore: typeof existing.homeScore === "number" ? existing.homeScore : (existing.finalScore?.team1 ?? 0),
                 awayScore: typeof existing.awayScore === "number" ? existing.awayScore : (existing.finalScore?.team2 ?? 0),
             }

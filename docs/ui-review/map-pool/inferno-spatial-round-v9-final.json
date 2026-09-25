@@ -1,0 +1,284 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Inferno",
+  "fixtureSha256": "78d5ed826836baffc8730648306fffa764ee8dce30c4faae268b91a598e46506",
+  "simulatorSourceSha256": "211c7e18de315f3e49835899a1f54fab4bb026ee5e78e7cfac0ed26c86e33c3d",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 81.25,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 339881,
+      "metrics": {
+        "shots": 95,
+        "damage": 984,
+        "reports": 93,
+        "waits": 639,
+        "replans": 97,
+        "minSeparation": 32.01928200002893
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 2,
+      "yields": 6,
+      "routeFailures": [
+        {
+          "tick": 0,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 64,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1600,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1664,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1728,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "d28990ece4f0e58b30dcd6062e06b0d0176526f980c463119c78af4953b12818"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 56.140625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 86338,
+      "metrics": {
+        "shots": 36,
+        "damage": 600,
+        "reports": 33,
+        "waits": 335,
+        "replans": 109,
+        "minSeparation": 32.07451050133975
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [
+        {
+          "tick": 0,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 64,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1648,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T1",
+          "point": [
+            -1638.196493580413,
+            438.8954314680528,
+            -60.000065
+          ],
+          "goal": [
+            1831.666433333333,
+            374.4997,
+            161.99992000000003
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "575cb8854cbee42ed68c72a589b2217517fdb1b97ea684efc2800dbe9b39c3fe"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 92.328125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 377773,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1176,
+        "waits": 2964,
+        "replans": 144,
+        "minSeparation": 32.01452227646016
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 15,
+      "routeFailures": [
+        {
+          "tick": 0,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 64,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1600,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1664,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1728,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 3264,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 3536,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 4912,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT5",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            462.6222163885366,
+            2604.311038194268,
+            163.99994
+          ],
+          "goal": [
+            2493,
+            2090,
+            139.3110478055898
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "bb6f6b24adfb745fcb2a1486b604dcd08deacc15f823f452d691742aefd23ff6"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "phase": "fresh-process",
+  "electron": "44.3.0",
+  "checks": [
+    {
+      "mode": "local",
+      "passed": true,
+      "checks": [
+        "fresh-process durable reload: week, custom tactic, committed tick, watchlist, live-match checkpoint"
+      ]
+    },
+    {
+      "mode": "idb",
+      "passed": true,
+      "checks": [
+        "fresh-process durable reload: week, custom tactic, committed tick, watchlist, live-match checkpoint"
+      ]
+    },
+    {
+      "mode": "disk",
+      "passed": true,
+      "checks": [
+        "fresh-process durable reload: week, custom tactic, committed tick, watchlist, live-match checkpoint"
+      ]
+    }
+  ],
+  "passed": true
+}

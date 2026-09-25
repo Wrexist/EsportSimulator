@@ -54,7 +54,8 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
         const r = 105 // Label radius
         const x = 100 + r * Math.cos(angle)
         const y = 100 + r * Math.sin(angle)
-        return { x, y, label, align: x < 90 ? 'end' : x > 110 ? 'start' : 'middle' }
+        const align: React.SVGProps<SVGTextElement>['textAnchor'] = x < 90 ? 'end' : x > 110 ? 'start' : 'middle'
+        return { x, y, label, align }
     }), [])
 
     const overallScore = useMemo(() => Math.round(stats.reduce((a, b) => a + b, 0) / 5), [stats])

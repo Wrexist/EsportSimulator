@@ -1,0 +1,92 @@
+[
+  {
+    "size": {
+      "width": 1024,
+      "height": 640
+    },
+    "buttons": [
+      {
+        "bottom": 60,
+        "label": "DAILY",
+        "left": 712.9375,
+        "right": 769.34375,
+        "top": 28
+      },
+      {
+        "bottom": 64,
+        "label": "Next day",
+        "left": 777.34375,
+        "right": 895.5625,
+        "top": 24
+      },
+      {
+        "bottom": 64,
+        "label": "SKIP WEEK",
+        "left": 903.5625,
+        "right": 999,
+        "top": 24
+      }
+    ],
+    "visible": true
+  },
+  {
+    "size": {
+      "width": 1280,
+      "height": 800
+    },
+    "buttons": [
+      {
+        "bottom": 60,
+        "label": "DAILY",
+        "left": 952.9375,
+        "right": 1009.34375,
+        "top": 28
+      },
+      {
+        "bottom": 64,
+        "label": "Next day",
+        "left": 1021.34375,
+        "right": 1139.5625,
+        "top": 24
+      },
+      {
+        "bottom": 64,
+        "label": "SKIP WEEK",
+        "left": 1147.5625,
+        "right": 1243,
+        "top": 24
+      }
+    ],
+    "visible": true
+  },
+  {
+    "size": {
+      "width": 1440,
+      "height": 900
+    },
+    "buttons": [
+      {
+        "bottom": 60,
+        "label": "DAILY",
+        "left": 1112.9375,
+        "right": 1169.34375,
+        "top": 28
+      },
+      {
+        "bottom": 64,
+        "label": "Next day",
+        "left": 1181.34375,
+        "right": 1299.5625,
+        "top": 24
+      },
+      {
+        "bottom": 64,
+        "label": "SKIP WEEK",
+        "left": 1307.5625,
+        "right": 1403,
+        "top": 24
+      }
+    ],
+    "visible": true
+  }
+]

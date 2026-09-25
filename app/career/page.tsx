@@ -197,7 +197,7 @@ export default function CareerPage() {
                         <Briefcase className="h-4 w-4" />
                         <span className="text-xs font-bold uppercase tracking-wider">Manager Profile</span>
                     </div>
-                    <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+                    <h1 className="page-title ">
                         Career Overview
                     </h1>
                     <p className="text-muted-foreground max-w-lg">
@@ -460,7 +460,7 @@ export default function CareerPage() {
                                                     `}>
                                                         {slot.teamLogo ? (
                                                             <TeamLogoImage
-                                                                src={slot.teamLogo}
+                                                                src={slot.teamLogo} team={slot.teamPreview}
                                                                 alt={slot.teamName || "Team"}
                                                                 size={42}
                                                             />
@@ -526,7 +526,7 @@ export default function CareerPage() {
                                                             <div className="relative">
                                                                 <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
                                                                     <PlayerPortrait
-                                                                        src={p.portraitPath}
+                                                                        src={p.portraitPath} seed={p.id}
                                                                         alt={p.nickname}
                                                                         size={40}
                                                                     />

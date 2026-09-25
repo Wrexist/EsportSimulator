@@ -12,8 +12,8 @@
  *      GameSave shape stays in the store.
  *   2. Optional fields are normalized to safe defaults at the boundary
  *      so the worker can assume they exist.
- *   3. Save schema additions force a compile error here rather than
- *      silently shipping `undefined` to the worker.
+ *   3. Required save fields are checked against GameSave. Optional durable
+ *      fields need explicit round-trip coverage when the schema changes.
  *
  * `structuredClone` is applied at the call site so the worker receives
  * a fully detached copy.
@@ -22,17 +22,19 @@
 import type { GameSave } from "@/engine/save-types"
 import { CURRENT_SAVE_VERSION } from "@/engine/save-types"
 import { generateSeed } from "@/engine/rng"
-import { FOUNDING_LEGENDS } from "@/engine"
+import { FOUNDING_LEGENDS } from "@/engine/hall-of-fame-data"
+import type { GameStoreState } from "@/store/game-store"
+
+export type SaveSnapshotState = GameStoreState & { createdAt?: string }
 
 /**
  * Build a plain (un-cloned) snapshot. Callers should pass the result
  * through `structuredClone()` before mutating it to keep store state
  * detached from the snapshot's lifetime.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- store state shape is the full slice union and doesn't import cleanly here
-export function buildSaveSnapshot(state: any): GameSave {
+export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
     return {
-        saveVersion: state.saveVersion || CURRENT_SAVE_VERSION,
+        saveVersion: CURRENT_SAVE_VERSION,
         saveId: state.saveId || `save_recovery_${Date.now()}`,
         saveName: state.saveName || "Unknown",
         createdAt: state.createdAt || state.gameStartDate || new Date().toISOString(),
@@ -52,11 +54,19 @@ export function buildSaveSnapshot(state: any): GameSave {
         nextMarketRefreshWeek: state.nextMarketRefreshWeek,
         scheduledMatches: state.scheduledMatches,
         completedMatches: state.completedMatches,
+        firstSession: state.firstSession,
+        selectedWeeklyActivity: state.selectedWeeklyActivity ?? null,
+        customTactics: state.customTactics,
+        watchlistedPlayerIds: state.watchlistedPlayerIds ?? [],
+        activeMatchId: state.activeMatchId ?? null,
+        activeMatchState: state.activeMatchState ?? null,
+        physicalMatchPreview: state.physicalMatchPreview ? structuredClone(state.physicalMatchPreview) : null,
         scheduledActivities: state.scheduledActivities || [],
         financeLedger: state.financeLedger,
         eventsLog: state.eventsLog,
         acknowledgedEventIds: state.acknowledgedEventIds,
-        lastRngSeed: state.lastRngSeed || generateSeed(),
+        lastRngSeed: state.lastRngSeed ?? generateSeed(),
+        lastCommittedWeekTick: state.lastCommittedWeekTick,
         legendaryPlayers: state.legendaryPlayers || [],
         weekTickState: null,
         scoutedPlayers: state.scoutedPlayers || [],

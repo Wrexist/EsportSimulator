@@ -1,7 +1,9 @@
 "use client"
 
+import { visibleAcademyPotential } from "@/engine/academy-engine"
+
 import React,{ useState, useMemo } from "react"
-import Image from "next/image"
+import { PlayerPortrait } from "@/components/ui/asset-images"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     GraduationCap,
@@ -391,6 +393,7 @@ export function AcademyApp() {
                                     onDayDragOver={handleDayDragOver}
                                     onDayDrop={handleDayDrop}
                                     onRemoveFromDay={handleRemoveFromDay}
+                                    onSetDay={updateAcademySchedule}
                                 />
                             )}
 
@@ -543,7 +546,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                 const ratingB = Math.round((b.player.skill + b.player.rifle + b.player.tactic + b.player.teamwork) / 4)
                 return ratingB - ratingA
             } else {
-                return (b.player.potential || 0) - (a.player.potential || 0)
+                return (visibleAcademyPotential(b.prospect, b.player) ?? -1) - (visibleAcademyPotential(a.prospect, a.player) ?? -1)
             }
         })
 
@@ -580,7 +583,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                         <button onClick={() => onRemoveFromRole(role)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-red-500/50 active:bg-red-500 active:scale-90 flex items-center justify-center transition-all">
                                             <X size={10} />
                                         </button>
-                                        <Image src={prospectData.player.portraitPath || "/player_placeholder.webp"} alt={prospectData.player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover mb-1" unoptimized />
+                                        <PlayerPortrait src={prospectData.player.portraitPath} seed={prospectData.player.id} alt={prospectData.player.nickname} size={40} className="w-10 h-10 rounded-lg object-cover mb-1" />
                                         <div className="text-[10px] font-bold truncate w-full text-center">{prospectData.player.nickname}</div>
                                         <Badge className="text-[8px] h-4 px-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mt-1">{role}</Badge>
                                     </>
@@ -655,8 +658,8 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                             const isAssigned = Object.values(academyRoster).includes(prospect.id)
                             const isDragging = draggedProspect === prospect.id
                             const rating = Math.round((player.skill + player.rifle + player.tactic + player.teamwork) / 4)
-                            const potentialRating = player.potential || 80
-                            const potentialStars = Math.ceil(potentialRating / 20)
+                            const potentialRating = visibleAcademyPotential(prospect, player)
+                            const potentialStars = Math.ceil((potentialRating ?? 0) / 20)
 
                             return (
                                 <div
@@ -681,7 +684,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
 
                                     <div className="flex items-center gap-3">
                                         <GripVertical size={14} className="text-white/20 shrink-0" />
-                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={40} height={40} className="w-10 h-10 rounded-lg object-cover shrink-0" unoptimized />
+                                        <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={40} className="w-10 h-10 rounded-lg object-cover shrink-0" />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5 mb-0.5">
                                                 <span className="font-bold text-sm truncate">{player.nickname}</span>
@@ -699,14 +702,20 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                             <div className="text-[8px] text-white/50 uppercase">OVR</div>
                                         </div>
                                     </div>
+                                    <label className="mt-2 block text-[10px] text-white/60">
+                                        Individual focus
+                                        <select aria-label={`${player.nickname} development focus`} value={prospect.trainingFocus || 'BALANCED'} onChange={event => onSetTraining(prospect.id, event.target.value)} onPointerDown={event => event.stopPropagation()} className="mt-1 w-full rounded border border-white/15 bg-[#151c25] px-2 py-1.5 text-xs text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                            {TRAINING_FOCUS_CONFIG.map(focus => <option key={focus.id} value={focus.id}>{focus.name}</option>)}
+                                        </select>
+                                    </label>
                                     {/* Potential & Progress Row */}
                                     <div className="mt-2 flex flex-col gap-1.5">
                                         <div className="flex items-center gap-2">
                                             <div className="flex items-center gap-0.5 shrink-0">
                                                 {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} size={8} className={i < potentialStars ? "text-amber-400 fill-amber-400" : "text-white/10"} />
+                                                    <Star key={i} size={8} className={prospect.potentialRevealed && i < potentialStars ? "text-amber-400 fill-amber-400" : "text-white/10"} />
                                                 ))}
-                                                <span className="text-[9px] text-amber-400/70 ml-1">{potentialRating}</span>
+                                                <span className="text-[9px] text-amber-400/70 ml-1">{prospect.potentialRevealed ? potentialRating : "Not yet known"}</span>
                                             </div>
                                             <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
                                                 <div className={cn("h-full rounded-full", prospect.readyForPromotion ? "bg-emerald-500" : "bg-cyan-500")} style={{ width: `${prospect.developmentProgress}%` }} />
@@ -792,7 +801,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         return (
                             <div key={player.id} className="p-4 rounded-2xl bg-[#0d0d10] border border-white/10 flex items-center gap-4 group hover:border-emerald-500/30 transition-colors duration-100 ease-out">
                                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0 overflow-hidden">
-                                    <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                    <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={48} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
@@ -818,9 +827,10 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
 
 // ===== TRAINING TAB =====
 
-function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay, onDrillDragStart, onDrillDragEnd, onDayDragOver, onDayDrop, onRemoveFromDay }: any) {
+function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay, onDrillDragStart, onDrillDragEnd, onDayDragOver, onDayDrop, onRemoveFromDay, onSetDay }: any) {
     return (
         <motion.div key="training" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5">
+            <p className="text-xs text-white/60">Drills run Monday to Sunday at the weekly update. Energy changes after each session; below 15 energy, XP falls by 20%. Put recovery before demanding sessions. Facility development bonuses multiply drill XP. Individual focus shifts stat gains toward that specialty without adding XP. The weekly report shows the resulting gains and energy change.</p>
             {/* Weekly Schedule - Drop Zones */}
             <div className="p-4 rounded-xl bg-[#0d0d10] border border-white/10">
                 <div className="flex items-center justify-between mb-2">
@@ -860,6 +870,10 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 className="text-center"
                             >
                                 <div className="text-[9px] text-white/40 uppercase font-bold mb-1.5">{day}</div>
+                                <select aria-label={`${day} academy drill`} value={drill?.id || ''} onChange={event => onSetDay(i, event.target.value || null)} className="w-full mb-2 rounded border border-white/15 bg-[#151c25] px-1 py-1.5 text-[10px] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                    <option value="">No drill</option>
+                                    {ACADEMY_DRILLS.filter(item => item.minLevel <= academyLevel).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+                                </select>
                                 <div
                                     className={cn(
                                         "aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-[border-color,background-color,transform] duration-100 ease-out relative",
@@ -1219,7 +1233,7 @@ function ScoutingTab({
 
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="relative w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
-                                        <Image src={player.portraitPath || "/player_placeholder.webp"} alt={player.nickname} width={48} height={48} className="w-full h-full object-cover" unoptimized />
+                                        <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={48} className="w-full h-full object-cover" />
                                         <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-sm rounded-tl-md">
                                             <div className={cn("w-2.5 h-1.5 rounded-sm", player.nationality === "Sweden" ? "bg-blue-600" : "bg-zinc-600")} />
                                         </div>

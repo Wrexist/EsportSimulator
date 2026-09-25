@@ -1,0 +1,132 @@
+{
+  "passed": true,
+  "scope": "Three age/potential profiles, three plans, 52 academy weeks, exact repeat, weekly save/import and final promotion. Annual lifecycle is tested separately by the ten-season processor soak.",
+  "expanded": [
+    {
+      "age": 17,
+      "potential": 75,
+      "outcomes": {
+        "aim": {
+          "final": {
+            "week": 53,
+            "rifle": 67.87963862680076,
+            "tactic": 62,
+            "grenades": 60,
+            "energy": 25,
+            "xp": 7094.880000000003
+          },
+          "hash": "a9abc3437d10a7a996982f4d7d3d91eb74e7b9c58534116f8167596db038b2c2",
+          "promoted": true
+        },
+        "tactical": {
+          "final": {
+            "week": 53,
+            "rifle": 66,
+            "tactic": 64.13090331655381,
+            "grenades": 61.07545417365442,
+            "energy": 25,
+            "xp": 5442.840000000002
+          },
+          "hash": "51bfe5090d1b5ff41d513fd691f421b6047f31bd209d4db2c3c570f8bf36c431",
+          "promoted": true
+        },
+        "recovery": {
+          "final": {
+            "week": 53,
+            "rifle": 66.36280918762183,
+            "tactic": 62.767711126943404,
+            "grenades": 60.51988812737146,
+            "energy": 100,
+            "xp": 4394
+          },
+          "hash": "8378590a5c3c967ea53cd9b017cc9a24414f9481f622979ec30db530c6ff7b3b",
+          "promoted": true
+        }
+      }
+    },
+    {
+      "age": 19,
+      "potential": 85,
+      "outcomes": {
+        "aim": {
+          "final": {
+            "week": 53,
+            "rifle": 69.96812598991272,
+            "tactic": 62,
+            "grenades": 60,
+            "energy": 25,
+            "xp": 7094.880000000003
+          },
+          "hash": "e5de69e20a13c8e2015d81fca4dae5414421aef2f08fad6f70f140cc150b231a",
+          "promoted": true
+        },
+        "tactical": {
+          "final": {
+            "week": 53,
+            "rifle": 66,
+            "tactic": 65.77005971390291,
+            "grenades": 61.79242362275738,
+            "energy": 25,
+            "xp": 5442.840000000002
+          },
+          "hash": "8ca1011d53f7d36011b929993b0ac5edce7c4f5ab9670c61c145747e46d2103a",
+          "promoted": true
+        },
+        "recovery": {
+          "final": {
+            "week": 53,
+            "rifle": 66.76593050720163,
+            "tactic": 63.3582581476691,
+            "grenades": 60.86648021228581,
+            "energy": 100,
+            "xp": 4394
+          },
+          "hash": "2da5453a5507fa35bc0d77833a63f72d01c806d436ee270617fbb1d87d121f58",
+          "promoted": true
+        }
+      }
+    },
+    {
+      "age": 21,
+      "potential": 95,
+      "outcomes": {
+        "aim": {
+          "final": {
+            "week": 53,
+            "rifle": 72.05661335302466,
+            "tactic": 62,
+            "grenades": 60,
+            "energy": 25,
+            "xp": 7094.880000000003
+          },
+          "hash": "47ec49e2d9b691c9e4fc07e08e5aecbae54f52aaf259e3bdcd35b7ab039d6c11",
+          "promoted": true
+        },
+        "tactical": {
+          "final": {
+            "week": 53,
+            "rifle": 66,
+            "tactic": 67.40921611125201,
+            "grenades": 62.5093930718603,
+            "energy": 25,
+            "xp": 5442.840000000002
+          },
+          "hash": "761963066527d44091331be13ba3a083398bfca140884b871ce05df23ad8054b",
+          "promoted": true
+        },
+        "recovery": {
+          "final": {
+            "week": 53,
+            "rifle": 67.16905182678138,
+            "tactic": 63.948805168394834,
+            "grenades": 61.21307229720015,
+            "energy": 100,
+            "xp": 4394
+          },
+          "hash": "73b599a86e91ea34eb796a4ab9a67031ec7d76cdb84be1f2dffc8b057581707f",
+          "promoted": true
+        }
+      }
+    }
+  ]
+}

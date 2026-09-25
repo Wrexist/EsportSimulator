@@ -8,19 +8,18 @@ import {
     Users,
     Search,
     ArrowRight,
-    DollarSign,
-    UserPlus,
     Activity,
     Clock,
     ShoppingBag,
-    Briefcase,
     AlertCircle,
     X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 // Engine & Components
-import { evaluatePlayer, isPlayerForSale } from "@/engine/player-evaluation"
+import { academyHeldPlayerIds, recruitmentRole } from "@/engine/recruitment"
+import { getVisibleStats, formatScoutedRating, scoutedRatingSortValue } from "@/engine/scouting-system"
+import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
@@ -55,23 +54,20 @@ function calculateTacticalStats(p: any) {
     }
 }
 
-function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
+function MarketAppComponent(_props: MarketAppProps) {
     // Game Store Data (batched with useShallow to minimize re-renders)
-    const { players, teams, playerTeamId, contracts, transferPlayer, currentWeek, startScoutingMission, activeScoutingMission, isPlayerScouted, transferHistory, staff } = useGameStore(useShallow(state => ({
+    const { players, teams, playerTeamId, currentWeek, isPlayerScouted, transferHistory, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
         players: state.players,
+        scoutedPlayers: state.scoutedPlayers,
+        academyPlayers: state.academyPlayers,
+        academyPendingProspects: state.academyPendingProspects,
         teams: state.teams,
         playerTeamId: state.playerTeamId,
-        contracts: state.contracts,
-        transferPlayer: state.transferPlayer,
         currentWeek: state.currentWeek,
-        startScoutingMission: state.startScoutingMission,
-        activeScoutingMission: state.activeScoutingMission,
         isPlayerScouted: state.isPlayerScouted,
         transferHistory: state.transferHistory,
-        staff: state.staff,
     })))
     // Scout Requirement Check
-    const hasScout = staff.some(s => s.role === "scout" && s.teamId === playerTeamId)
 
     const playerTeam = teams.find(t => t.id === playerTeamId)
     const budget = playerTeam?.budget || 0
@@ -90,27 +86,29 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
         const rosterMap = new Map<string, string>() // playerId -> teamId
         teams.forEach(t => t.rosterIds.forEach(pid => rosterMap.set(pid, t.id)))
 
+        const academyIds = academyHeldPlayerIds({ teams, academyPlayers, academyPendingProspects })
         return players
-            .filter(p => !p.isRetired)
+            .filter(p => !p.isRetired && !academyIds.has(p.id))
             .map(p => {
                 const teamId = rosterMap.get(p.id)
                 const team = teamId ? teamById.get(teamId) ?? null : null
-                const evaluation = evaluatePlayer(p)
-                const teamRank = team ? (team.worldRanking || 50) : 50
-                const forSale = team ? isPlayerForSale(p, evaluation, teamRank) : true
+                const evaluation = evaluatePlayer(p, undefined, undefined, currentWeek)
+                const knowledge = getVisibleStats(p, scoutedPlayers, playerTeam?.rosterIds || [], currentWeek)
+                const forSale = !!p.forSale || !team
                 const derivedStats = calculateTacticalStats(p)
 
                 return {
                     ...p,
                     team,
                     evaluation,
+                    knowledge,
                     forSale,
                     isFreeAgent: !team,
                     ...derivedStats
                 }
             })
-            .sort((a, b) => b.evaluation.overallRating - a.evaluation.overallRating)
-    }, [players, teams])
+            .sort((a, b) => scoutedRatingSortValue(b.knowledge.ovrRange) - scoutedRatingSortValue(a.knowledge.ovrRange))
+    }, [players, teams, scoutedPlayers, currentWeek, playerTeam?.rosterIds, academyPlayers, academyPendingProspects])
 
     // Filtered List
     const filteredPlayers = useMemo(() => {
@@ -120,21 +118,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                 p.nickname?.toLowerCase().includes(query) ||
                 p.team?.name.toLowerCase().includes(query)
 
-            const roleMatch = (() => {
-                if (filterRole === "ALL") return true
-                // 1. Explicit Check
-                if (resolvePlayerRole(p).toUpperCase().includes(filterRole)) return true
-                // 2. Stat Check (Smart Filters for capabilities)
-                const s = p as any
-                switch (filterRole) {
-                    case "AWPER": return (s.sniping || s.awp || 0) >= 70
-                    case "IGL": return (s.leader || 0) >= 60
-                    case "ENTRY": return (s.entrying || 0) >= 70
-                    case "SUPPORT": return (s.utility || s.grenades || 0) >= 70
-                    case "RIFLER": return (s.firepower || s.rifle || 0) >= 70
-                    default: return false
-                }
-            })()
+            const roleMatch = filterRole === "ALL" || recruitmentRole(p.role) === recruitmentRole(filterRole)
 
             const statusMatch = filterStatus === "ALL" ||
                 (filterStatus === "FA" && p.isFreeAgent) ||
@@ -146,53 +130,14 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
         }).slice(0, 100)
     }, [marketPlayers, searchQuery, filterRole, filterStatus, playerTeamId])
 
-    // Render Overlay if No Scout
-    const renderNoScoutOverlay = () => {
-        if (activeTab !== "market") return null
-        if (hasScout) return null
-
-        return (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md text-center p-6">
-                <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mb-4">
-                    <Search size={32} className="text-rose-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white uppercase tracking-tight mb-2">Scout Required</h3>
-                <p className="text-white/60 max-w-xs mb-6 text-sm">
-                    You need to hire a Scout to access the Transfer Market and make offers to players.
-                </p>
-            </div>
-        )
-    }
-
     // Signing / Negotiation State
-    const [selectedPlayer, setSelectedPlayer] = useState<typeof marketPlayers[0] | null>(null)
-    const [isSigningFA, setIsSigningFA] = useState(false)
+    const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
+    const selectedPlayer = marketPlayers.find(p => p.id === selectedPlayerId) || null
     const [negotiatingId, setNegotiatingId] = useState<string | null>(null)
 
     // FA Signing Logic
-    const [faOfferSalary, setFaOfferSalary] = useState(500)
-    const [faOfferDuration, setFaOfferDuration] = useState(52)
-    const [signError, setSignError] = useState<string | null>(null)
 
-    const handleSignFA = () => {
-        if (!selectedPlayer || !playerTeam) return
-        const signingBonus = faOfferSalary * 4
-        if (budget < signingBonus) {
-            setSignError("Insufficient budget")
-            return
-        }
-        const result = transferPlayer(selectedPlayer.id, "FA", playerTeam.id, signingBonus, {
-            salaryPerWeek: faOfferSalary, startWeek: currentWeek, endWeek: currentWeek + faOfferDuration, buyout: 0
-        })
-        if (!result.success) {
-            // Surface the engine's rejection (roster full, contract conflict,
-            // etc.) inline rather than silently clearing the modal.
-            setSignError(result.message || "Sign failed")
-            return
-        }
-        setSelectedPlayer(null)
-        setIsSigningFA(false)
-    }
+
 
     const formatMoney = (val: number) => {
         if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`
@@ -262,7 +207,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
 
             {/* Content Container - Flex row layout to prevent detail overlay */}
             <div className="flex-1 flex min-h-0 relative overflow-hidden">
-                {renderNoScoutOverlay()}
+
                 {activeTab === "market" && (
                     <div className="flex-1 flex flex-col min-h-0 min-w-0 transition-all duration-300">
                         {/* Filters */}
@@ -311,9 +256,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                     <div
                                         key={p.id}
                                         onClick={() => {
-                                            setSelectedPlayer(p)
-                                            setIsSigningFA(false)
-                                            setSignError(null)
+                                            setSelectedPlayerId(p.id)
                                         }}
                                         className={cn(
                                             "flex items-center gap-3 p-2 rounded-xl transition-all border border-transparent cursor-pointer group",
@@ -323,7 +266,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                         )}
                                     >
                                         <div className="w-10 h-10 rounded-lg bg-black/20 overflow-hidden flex items-center justify-center shrink-0 border border-white/5 shadow-inner">
-                                            <PlayerPortrait src={p.portraitPath} alt={p.nickname} size={40} variant="card" />
+                                            <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={40} variant="card" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
@@ -345,7 +288,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                         </div>
                                         <div className="text-right shrink-0">
                                             <div className="font-normal text-sm text-white group-hover:text-blue-400 transition-colors">
-                                                {isPlayerScouted(p.id) ? p.evaluation.overallRating : "??"}
+                                                {formatScoutedRating(p.knowledge.ovrRange)}
                                             </div>
                                             <div className="text-[9px] font-bold text-white/30 uppercase">OVR</div>
                                         </div>
@@ -371,14 +314,14 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                         <div className="p-4 border-b border-white/10 flex items-start justify-between bg-gradient-to-br from-white/5 to-transparent">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 shadow-lg">
-                                    <PlayerPortrait src={selectedPlayer.portraitPath} alt={selectedPlayer.nickname} size={48} variant="card" />
+                                    <PlayerPortrait src={selectedPlayer.portraitPath} seed={selectedPlayer.id} alt={selectedPlayer.nickname} size={48} variant="card" />
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-normal text-white leading-none mb-1">{selectedPlayer.nickname}</h2>
                                     <p className="text-xs text-white/50 font-medium">{selectedPlayer.name}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedPlayer(null)} className="text-white/30 hover:text-white hover:bg-white/10 active:bg-white/15 active:scale-90 p-1 rounded-lg transition-all"><X size={16} /></button>
+                            <button onClick={() => setSelectedPlayerId(null)} className="text-white/30 hover:text-white hover:bg-white/10 active:bg-white/15 active:scale-90 p-1 rounded-lg transition-all"><X size={16} /></button>
                         </div>
 
                         <div className={cn("flex-1 overflow-y-auto p-4 space-y-6", scrollbarClass)}>
@@ -386,19 +329,19 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
                                     <div className="text-2xl font-normal text-emerald-400 leading-none mb-1">
-                                        {isPlayerScouted(selectedPlayer.id) ? selectedPlayer.evaluation.overallRating : "??"}
+                                        {formatScoutedRating(selectedPlayer.knowledge.ovrRange)}
                                     </div>
                                     <div className="text-[8px] uppercase tracking-wider text-white/40 font-bold">OVR</div>
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
                                     <div className="text-2xl font-normal text-blue-400 leading-none mb-1">
-                                        {isPlayerScouted(selectedPlayer.id) ? selectedPlayer.evaluation.roleFit : "??"}
+                                        {selectedPlayer.knowledge.scoutingLevel === "ELITE" ? selectedPlayer.evaluation.roleFit : "??"}
                                     </div>
                                     <div className="text-[8px] uppercase tracking-wider text-white/40 font-bold">FIT</div>
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
                                     <div className="text-2xl font-normal text-purple-400 leading-none mb-1">
-                                        {isPlayerScouted(selectedPlayer.id) ? selectedPlayer.evaluation.futureValue : "??"}
+                                        {selectedPlayer.knowledge.scoutingLevel === "ELITE" ? selectedPlayer.evaluation.futureValue : "??"}
                                     </div>
                                     <div className="text-[8px] uppercase tracking-wider text-white/40 font-bold">POT</div>
                                 </div>
@@ -411,7 +354,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                         <span className="text-white/55 font-bold uppercase tracking-widest text-[10px]">Stats Hidden</span>
                                     </div>
                                 )}
-                                <PlayerSpiderChart stats={selectedPlayer as any} size="sm" />
+                                {selectedPlayer.knowledge.scoutingLevel === "ELITE" && <PlayerSpiderChart stats={selectedPlayer as any} size="sm" />}
                             </div>
 
                             <div className="space-y-2 text-xs bg-white/5 rounded-xl p-3 border border-white/5">
@@ -433,79 +376,9 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
 
                             {/* Actions */}
                             <div className="pt-2">
-                                {selectedPlayer.isFreeAgent ? (
-                                    isSigningFA ? (
-                                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 space-y-4 animation-slide-up shadow-lg">
-                                            <h4 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
-                                                <Briefcase size={12} /> Contract Offer
-                                            </h4>
-
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-[10px]">
-                                                    <span className="text-white/60 font-bold">Weekly Salary</span>
-                                                    <span className="text-white font-normal text-xs">${faOfferSalary.toLocaleString()}</span>
-                                                </div>
-                                                <input
-                                                    type="range"
-                                                    min="100"
-                                                    max="20000"
-                                                    step="100"
-                                                    value={faOfferSalary}
-                                                    onChange={e => setFaOfferSalary(+e.target.value)}
-                                                    className="w-full h-1.5 bg-black/40 rounded-full appearance-none cursor-pointer accent-emerald-500"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-[10px]">
-                                                    <span className="text-white/60 font-bold">Duration</span>
-                                                    <span className="text-white font-normal text-xs">{faOfferDuration} Weeks</span>
-                                                </div>
-                                                <div className="flex gap-1">
-                                                    {[26, 52, 104, 156].map(w => (
-                                                        <button
-                                                            key={w}
-                                                            onClick={() => setFaOfferDuration(w)}
-                                                            className={cn(
-                                                                "flex-1 py-1.5 rounded-lg text-[9px] font-bold border transition-all",
-                                                                faOfferDuration === w ? "bg-emerald-500 text-white border-transparent shadow shadow-emerald-500/20" : "bg-white/5 border-white/10 hover:bg-white/10"
-                                                            )}
-                                                        >
-                                                            {(w / 52).toFixed(1)}y
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="text-[10px] bg-black/20 p-2 rounded-lg flex justify-between items-center text-white/50">
-                                                <span>Signing Bonus:</span>
-                                                <span className="font-bold text-white">${(faOfferSalary * 4).toLocaleString()}</span>
-                                            </div>
-
-                                            {signError && (
-                                                <div className="flex items-center gap-1.5 text-red-400 bg-red-500/10 p-2 rounded-lg">
-                                                    <AlertCircle size={12} />
-                                                    <p className="text-[9px] font-bold">{signError}</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2 pt-2">
-                                                <Button size="sm" variant="ghost" className="flex-1 h-8 text-[10px] font-bold hover:bg-white/5" onClick={() => setIsSigningFA(false)}>Cancel</Button>
-                                                <Button size="sm" className="flex-1 h-8 text-[10px] bg-emerald-500 hover:bg-emerald-400 text-white font-bold shadow-lg shadow-emerald-500/20" onClick={handleSignFA}>
-                                                    Sign Deal
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <Button className="w-full h-10 bg-emerald-500 hover:bg-emerald-400 text-white font-normal rounded-xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]" onClick={() => setIsSigningFA(true)}>
-                                            <UserPlus size={16} className="mr-2" /> Sign Free Agent
-                                        </Button>
-                                    )
-                                ) : (
-                                    <Button className="w-full h-10 bg-blue-500 hover:bg-blue-400 text-white font-normal rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02]" onClick={() => setNegotiatingId(selectedPlayer.id)}>
-                                        <DollarSign size={16} className="mr-2" /> Make Transfer Offer
-                                    </Button>
-                                )}
+                                <Button className="w-full h-10" onClick={() => setNegotiatingId(selectedPlayer.id)}>
+                                    {selectedPlayer.isFreeAgent ? "Negotiate free agent contract" : "Make transfer offer"}
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -525,7 +398,7 @@ function MarketAppComponent({ events, onEventClick }: MarketAppProps) {
                                             {/* Player Image */}
                                             <div className="w-10 h-10 rounded-lg bg-black/20 overflow-hidden flex items-center justify-center border border-white/5 shrink-0">
                                                 {player ? (
-                                                    <PlayerPortrait src={player.portraitPath} alt={t.playerName} size={40} />
+                                                    <PlayerPortrait src={player.portraitPath} seed={player.id} alt={t.playerName} size={40} />
                                                 ) : <Users size={20} className="text-white/20" />}
                                             </div>
 

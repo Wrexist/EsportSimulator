@@ -1,0 +1,8 @@
+# Release provenance verifies exact bytes across Windows and Linux checkouts.
+# Do not normalize reviewed asset/data payloads or their evidence records.
+public/** -text
+data/** -text
+build/** -text
+licenses/** -text
+NOTICE.md -text
+docs/launch-readiness/evidence/** -text

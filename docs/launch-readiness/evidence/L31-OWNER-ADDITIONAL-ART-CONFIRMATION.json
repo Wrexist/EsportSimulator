@@ -1,0 +1,572 @@
+{
+  "recordedOn": "2026-09-16",
+  "statement": "Yes, these were created for my project",
+  "scope": "Status badges, merchandise, weapon/grenade icons, and older tournament illustrations.",
+  "limitations": [
+    "Owner-attested creation, not independent license verification.",
+    "Does not cover original real-player photography or original team logos.",
+    "Applies only to the listed exact file hashes."
+  ],
+  "files": [
+    {
+      "path": "public/assets/badges/ct_coin.png",
+      "sha256": "0f253d0b163725d62bfe93acd1770e1daaac5d4592941e0b5c56625e43cdbc99",
+      "bytes": 1732867
+    },
+    {
+      "path": "public/assets/badges/ct_coin.webp",
+      "sha256": "5c241ddb42d31896f8b8cfcb666c2d0c8e7373ae91bc13aa983cb4d88dca5460",
+      "bytes": 141728
+    },
+    {
+      "path": "public/assets/badges/fire.png",
+      "sha256": "3cddaabb59b70fe5303672931530627c1695d062efbaf6cda8dddd393c6666a9",
+      "bytes": 478271
+    },
+    {
+      "path": "public/assets/badges/fire.webp",
+      "sha256": "006063ad77752eeb4a8542287334f656640f5f7c3e905f232970d43c7f9ad9b2",
+      "bytes": 49674
+    },
+    {
+      "path": "public/assets/badges/ice.png",
+      "sha256": "291673144a135c6ac1a7a29556f9d9721f3d52ccdcd7f24c198902384e153eee",
+      "bytes": 869081
+    },
+    {
+      "path": "public/assets/badges/ice.webp",
+      "sha256": "2acedf2c8a23f5eaedba18f1dbfa1cc962104f05f2e52033df13079d4501b5a6",
+      "bytes": 77538
+    },
+    {
+      "path": "public/assets/badges/injury.png",
+      "sha256": "dce563e4b6d54630e08e49084ab95b55f9603add0045f938f6c10770bf6670c7",
+      "bytes": 826270
+    },
+    {
+      "path": "public/assets/badges/injury.webp",
+      "sha256": "b4e8263de3be5384104aa83910465f21f344a688085f3e01f8b75937cc71e78f",
+      "bytes": 88714
+    },
+    {
+      "path": "public/assets/badges/legend.png",
+      "sha256": "c1ca9910f1e40871a5c4980b1b06c11b0eed7dc10941b33c54b81710114f454b",
+      "bytes": 748938
+    },
+    {
+      "path": "public/assets/badges/legend.webp",
+      "sha256": "644c4cf2e7554f99d5a09b531a76c36b83357bd6c79b26c9595803e471370118",
+      "bytes": 88940
+    },
+    {
+      "path": "public/assets/badges/t_coin.png",
+      "sha256": "2770339d6b7037c954c6dde6641c2aef56af43aae66525cba9304c1f66ece16c",
+      "bytes": 1700722
+    },
+    {
+      "path": "public/assets/badges/t_coin.webp",
+      "sha256": "68e14fd1847432734b0b08a351b75331a89ae8cabb0a9b79f971650e0313e39b",
+      "bytes": 127902
+    },
+    {
+      "path": "public/assets/grenades/grenade_flash.png",
+      "sha256": "21cebec16ff62264173fadd033cbaf5b059e265cedc003f7d64a6f0b086dce70",
+      "bytes": 1510265
+    },
+    {
+      "path": "public/assets/grenades/grenade_he.png",
+      "sha256": "ba389e58bcae10ee312eeaf2c4ff9b029a957a431cfd0a8895c3a02d8b6ad467",
+      "bytes": 374229
+    },
+    {
+      "path": "public/assets/grenades/grenade_molotov.png",
+      "sha256": "30e11f1f51a3233fe705dda659f272a0af5eaf542d933f062ee0d979cc62afb1",
+      "bytes": 1531334
+    },
+    {
+      "path": "public/assets/grenades/grenade_smoke.png",
+      "sha256": "1807d56f9e476758f39c26ed6ec0bced4392bc52fe1ca5d8c5b739f1412dc16d",
+      "bytes": 1549046
+    },
+    {
+      "path": "public/assets/merch/hoodie-onyx-red.png",
+      "sha256": "af12e0197146a329c11a2771611c5fd857eebf3a344e4c89d83773535facf599",
+      "bytes": 2324332
+    },
+    {
+      "path": "public/assets/merch/hoodie-onyx-red.webp",
+      "sha256": "ca3c2edafe7b96036d053c26f49b2d2870f848ab97cd1b4b05a298a7079ad76b",
+      "bytes": 224566
+    },
+    {
+      "path": "public/assets/merch/hoodie-onyx-white.png",
+      "sha256": "c0a73c0394872c8c7fd59d92b6da8bff30b64b7e78984645b8a6e9bfc46dadd7",
+      "bytes": 2371773
+    },
+    {
+      "path": "public/assets/merch/hoodie-onyx-white.webp",
+      "sha256": "1461489aea518149147e2637c42f809366fded9498d2d6febd9718f9c1074af8",
+      "bytes": 227732
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-black.png",
+      "sha256": "2884140ec673bed27d5038788e982a067681da5fcd17b70a27a10fc50c853e01",
+      "bytes": 2371940
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-black.webp",
+      "sha256": "64291841818a9ca5c599972d2fde884faf126d2fb3bbc8cb0f7e7516367b24d4",
+      "bytes": 195744
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-red.png",
+      "sha256": "88f996996d0dd2c553b202d25163675dc4ed583b0ba2cd6375e3efe000abfbc2",
+      "bytes": 2242659
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-red.webp",
+      "sha256": "e453fdac3e9cfc0a30f62d0fd78dc9aed3333a3f7afafba6bd5707639d7d59eb",
+      "bytes": 267286
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-white.png",
+      "sha256": "b333ad68ddc0e9046234872d62191bd74c5cdcfb326f063baf90a2fcd1cd3181",
+      "bytes": 2354690
+    },
+    {
+      "path": "public/assets/merch/jersey-pro-white.webp",
+      "sha256": "29de4c425921b9ddb55c6251cfd50a9c33fc9648a63f380cb2a77d3ed581b10a",
+      "bytes": 204570
+    },
+    {
+      "path": "public/assets/tournaments/a_tier_trophy.png",
+      "sha256": "a0e5c49c5e3fdcbc7c42d8a06e241a94892b6a38e36b596623049073c3d1d363",
+      "bytes": 685033
+    },
+    {
+      "path": "public/assets/tournaments/a_tier_trophy.webp",
+      "sha256": "5706434bb105a850589adf84f97335057e817c61c2b764af8e5ef6e9b6a3561c",
+      "bytes": 63078
+    },
+    {
+      "path": "public/assets/tournaments/a_tier_trophy_1.png",
+      "sha256": "98f4c62badbfebbecbc874b5062a2872f0b7bf9fb181a0ebca11cf7bdfb490ee",
+      "bytes": 533015
+    },
+    {
+      "path": "public/assets/tournaments/a_tier_trophy_1.webp",
+      "sha256": "eb13453b2261dbe63c005d6d16cc1b4e4593e82844930c9984d26a3d101e0150",
+      "bytes": 49438
+    },
+    {
+      "path": "public/assets/tournaments/b_tier_trophy.png",
+      "sha256": "6297fe4a9ae8397f75bfe05ff91b088951c55ad8dcb6ac28bdd4400c18603cda",
+      "bytes": 831089
+    },
+    {
+      "path": "public/assets/tournaments/b_tier_trophy.webp",
+      "sha256": "01a523b32543b2d0b80ddd3ea7a6f8391ccc7883befd4397f8c73ebd7fb88ad9",
+      "bytes": 135918
+    },
+    {
+      "path": "public/assets/tournaments/b_tier_trophy_1.png",
+      "sha256": "e9af400995fb95a39e9ded5bde29f1e6b20eb8b2830151c781855f86485e3884",
+      "bytes": 1997445
+    },
+    {
+      "path": "public/assets/tournaments/b_tier_trophy_1.webp",
+      "sha256": "ca21573606431fcae87a114205a69cd77f8d37ff06dcb3855e72b2cc38402578",
+      "bytes": 175432
+    },
+    {
+      "path": "public/assets/tournaments/logo_boombyte_lineage_belgrade.webp",
+      "sha256": "f6d238674bde9d1c736882e00613c4592e1ccc6766f3c7eb49013b4cac6365d5",
+      "bytes": 82146
+    },
+    {
+      "path": "public/assets/tournaments/logo_cct.webp",
+      "sha256": "b7c6df495dd14039f3e63f5511b226f62ff571cd5116d92275f0d17d2047c348",
+      "bytes": 65870
+    },
+    {
+      "path": "public/assets/tournaments/logo_chengdu_masters_2025.webp",
+      "sha256": "5d0317558a839f3243dc85a4e8cee3251c67f750bec1ce76340a277f19df55f7",
+      "bytes": 321962
+    },
+    {
+      "path": "public/assets/tournaments/logo_compass_cup_2025.webp",
+      "sha256": "83ab0f404ba40e537e10710509819d9846f2e75f33aca2e632ece0895959e2ea",
+      "bytes": 367462
+    },
+    {
+      "path": "public/assets/tournaments/logo_copenhagen_major.webp",
+      "sha256": "a797935ccf27ce9d0f9459d66fd2f4b136bcd9af63e1329e70162ed63821647a",
+      "bytes": 35958
+    },
+    {
+      "path": "public/assets/tournaments/logo_dallas_masters_2025.webp",
+      "sha256": "b93b75d1a6cdb18ae33a1d6645ed76fea3a6068ceca9f2d8ee3f474f50da11e2",
+      "bytes": 340922
+    },
+    {
+      "path": "public/assets/tournaments/logo_dream_circuit_open_summer.webp",
+      "sha256": "74b5f5ad3c07fb33434cc7cfcf93c5eed978f2ff4ed0130bc54fd5dbdacd019f",
+      "bytes": 236812
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_2025.png",
+      "sha256": "295e3d840040ab326cf68f0f4fc6d283dae8d8d7980373d21c7706096dee5dc9",
+      "bytes": 2063691
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_americas_rmr.webp",
+      "sha256": "ad6f9c56872bd25aa0d042e57f0b3035a9fc22beaec8cf5311174bc275681f66",
+      "bytes": 254098
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_asia_rmr.webp",
+      "sha256": "a070fb2081ff6e594a07ac8cfadfebfd6331df3b47d9cb6432666a170a220bb5",
+      "bytes": 250032
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_eu_rmr.webp",
+      "sha256": "71ebf85280a030c99c1ac06133f53817d408f19e5ff8a90f0d85e4607a5a929e",
+      "bytes": 204296
+    },
+    {
+      "path": "public/assets/tournaments/logo_electra_masters_espoo_2025.webp",
+      "sha256": "6ebb8146a5a35eec91f8795f7981b7dc1f00da724606a2c7ea840582d6cb92af",
+      "bytes": 460570
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_fall_finals.webp",
+      "sha256": "31c7f0d47ae5560119a0b07f3b0163169d8a57dd4f34d0d95ab2bbfa3f554a22",
+      "bytes": 336142
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_fall_showdown.webp",
+      "sha256": "31c7f0d47ae5560119a0b07f3b0163169d8a57dd4f34d0d95ab2bbfa3f554a22",
+      "bytes": 336142
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_spring_finals.webp",
+      "sha256": "31c7f0d47ae5560119a0b07f3b0163169d8a57dd4f34d0d95ab2bbfa3f554a22",
+      "bytes": 336142
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_spring_showdown.webp",
+      "sha256": "31c7f0d47ae5560119a0b07f3b0163169d8a57dd4f34d0d95ab2bbfa3f554a22",
+      "bytes": 336142
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_world_final_2025.webp",
+      "sha256": "acf86a16ba4caac71a016a928d3d3cbe1cc7edef89f488dff37b0db4de8487be",
+      "bytes": 316786
+    },
+    {
+      "path": "public/assets/tournaments/logo_epic_arena_premier_season_48.webp",
+      "sha256": "9c8a3a4618fa93830841914e3c4ca4c1d187f5da86f07be48d16cf1ed3f5e539",
+      "bytes": 365082
+    },
+    {
+      "path": "public/assets/tournaments/logo_gamers_infinity_riyadh_2025.webp",
+      "sha256": "bb57a56e1076945068fa423e9089076f8849a494d7911dd8a94bb1c0d87837e8",
+      "bytes": 239304
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_challenger_league_season_48.webp",
+      "sha256": "d88febb394e206911c37e40620457b5f0dce9c4605431f684e18e62171c56ca7",
+      "bytes": 82462
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_pro_league_conferance.webp",
+      "sha256": "c0e851396eb93988b45f963e735daff1c8e457983c586b946223c1abf6e66026",
+      "bytes": 449488
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_pro_league_season_21_finals.webp",
+      "sha256": "390902c5cbc4f644e29ac98ec9f00fc58f525074ce18abd37966eeed8531b73c",
+      "bytes": 270404
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_2025.webp",
+      "sha256": "08fc328d54c854a4d61a9d5a41b69d0cfe9bac15cc7c81455bd1f504afd910f1",
+      "bytes": 402760
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_americas_rmr.webp",
+      "sha256": "fe37dc4e313819cbaea803ea91799d8eb97eb435714c5f2963001057915ae389",
+      "bytes": 202740
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_asia_rmr.webp",
+      "sha256": "cfbe636b0137cba192f4f751713790e51fccdcec4e33e483b22dbd0cf67ceb23",
+      "bytes": 281840
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_eu_rmr.webp",
+      "sha256": "96c87f989599afa532b514e86676831c4771edf54bd35f45f26d74214fce2267",
+      "bytes": 208380
+    },
+    {
+      "path": "public/assets/tournaments/logo_perfect_realm_arena_premier_league.webp",
+      "sha256": "90f985234dc662934900fc854e2e8ebf57359f4d34697ef007b0d992ec4af37a",
+      "bytes": 437756
+    },
+    {
+      "path": "public/assets/tournaments/logo_perfect_world.webp",
+      "sha256": "ec7ed9dbea3de2d42e5f3f7385b14474bdecd43257bb6fc4a5c07fc9650e5dac",
+      "bytes": 142362
+    },
+    {
+      "path": "public/assets/tournaments/logo_playon_academy_league.webp",
+      "sha256": "8354c5315158165010efe5099a4cbdc37ecd346aadf39752fd350db29ac3f7a4",
+      "bytes": 263332
+    },
+    {
+      "path": "public/assets/tournaments/logo_rio_masters_2025.webp",
+      "sha256": "3db6cf3a8afd0a8d821721a177749d64669698ac1c957d1762aa5bd06327bcc6",
+      "bytes": 82390
+    },
+    {
+      "path": "public/assets/tournaments/logo_rookbet_cup_2025.webp",
+      "sha256": "990ee4d013a88620fbc5d5f950d57649d2d0ec36db13da3b4adaca4bdafda75d",
+      "bytes": 252856
+    },
+    {
+      "path": "public/assets/tournaments/logo_shanghai_major.webp",
+      "sha256": "7770d88fba6705f5b320f6e64941bb38acff583e824561e952e26552f39d2147",
+      "bytes": 101478
+    },
+    {
+      "path": "public/assets/tournaments/logo_skyevents_championship_2025.webp",
+      "sha256": "398da347f83483bf8ed945e4dcb38c531fc389e8d48a8dd05ddac7a238762180",
+      "bytes": 257622
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_2025.webp",
+      "sha256": "262c1681f136d92d8ec81cdcb8c7da3029a07006a8b1bafb7996f486d938f23f",
+      "bytes": 386836
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_closed_qualifier.webp",
+      "sha256": "00e8ccf4d673f6eb47b9a3488c3bfedf717583dbae595d67b5fce21e6024f90d",
+      "bytes": 228932
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_open_qualifier.webp",
+      "sha256": "51564bf78f515ae9cf3e9dc2d65bfd9d0fed6cf89435cff4eb2779e1bc2eba45",
+      "bytes": 185454
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_closed_qualifier.webp",
+      "sha256": "0dd5452302af7a752d96c179291adab23479ca409812d71dc44d02c9f4a3bc03",
+      "bytes": 200672
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_open_qualifier.webp",
+      "sha256": "f995a46f25c558c93e42a262de0d13308757ff29eeefade78743eac11d818f98",
+      "bytes": 202302
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_world_championship.png",
+      "sha256": "8a20f7e1a248838becd20e49b7ccad9fd241b2606414920c0a25fd2b879b6f25",
+      "bytes": 1908842
+    },
+    {
+      "path": "public/assets/tournaments/logo_wagerway_masters_2025.webp",
+      "sha256": "54636852e2736b000105bfb4eb8281b48b7644d89690c76cad33c6e55a8019fe",
+      "bytes": 397324
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_2025.webp",
+      "sha256": "6d569050b89c0573759d85b5f1fb20715bbf900ca2febb374db4a8990246293a",
+      "bytes": 295456
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_eu_closed_qualifier.webp",
+      "sha256": "e90b8c7d0a2f52678ce88d4b853a28b01b956119ca9182c82c7f8d81d285e7ba",
+      "bytes": 176132
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_open_qualifier.webp",
+      "sha256": "09c36d6b345a28c23704948ad19353db5e888b11069b0e721b40253bcd21e9bd",
+      "bytes": 202728
+    },
+    {
+      "path": "public/assets/tournaments/s_tier_trophy.png",
+      "sha256": "999c5a148c0de1be2648bed3996d39006b74145a3a9d2624be1cd0f32d4efb44",
+      "bytes": 701027
+    },
+    {
+      "path": "public/assets/tournaments/s_tier_trophy.webp",
+      "sha256": "2a69c8a22bb8cec893015ab8f61193a45d918f7a80d70081a7989db174e3e207",
+      "bytes": 92494
+    },
+    {
+      "path": "public/assets/tournaments/s_tier_trophy_1.png",
+      "sha256": "36cfe15ca90668aa2fef55078ec5330dfe3693a029c60265d532a1483088c13c",
+      "bytes": 605215
+    },
+    {
+      "path": "public/assets/tournaments/s_tier_trophy_1.webp",
+      "sha256": "4ae57ee44185d99bb951806e778b17b480d812a6bed44c3c4b269e6736bba97f",
+      "bytes": 82012
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_challenger.png",
+      "sha256": "1f3045f4b0050a74c95e2e8447d40a1f68f50cf6662a313a4b2b83f991d99176",
+      "bytes": 1834617
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_challenger.webp",
+      "sha256": "957a94c1ca86040c7de687e19009cffb8bc8c71373dde9b0b3ec475f4b947767",
+      "bytes": 138610
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_major.png",
+      "sha256": "01b6564978b590763c629d608bd367bf9b37e033aeff41f091f5daf068a29c68",
+      "bytes": 1860638
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_major.webp",
+      "sha256": "487ad5eaefdd76b1757caae19823a64d9b860b36bc235fcb4f08a6c709a9c8e5",
+      "bytes": 153042
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_master.png",
+      "sha256": "9b5cae94e61e0141296e20c594465bad60263fcb3b2d5ac768b928d56d298e20",
+      "bytes": 1777728
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_master.webp",
+      "sha256": "b71972d1b044ab53737936bcce2b33d7bd480526a016c12c8b48519f2fc77a23",
+      "bytes": 128102
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_open.png",
+      "sha256": "a4f851692d17c6c6cba63242a19291798cc24611372ea41e5f45b912bcc0b6c1",
+      "bytes": 1961682
+    },
+    {
+      "path": "public/assets/tournaments/tournament_logo_open.webp",
+      "sha256": "3dba06e77e77b95cdd039457358d8dfd8377bf2308b83ad92fd2d17ed52b74e6",
+      "bytes": 183902
+    },
+    {
+      "path": "public/assets/tournaments/trophy_gold_new.png",
+      "sha256": "36cfe15ca90668aa2fef55078ec5330dfe3693a029c60265d532a1483088c13c",
+      "bytes": 605215
+    },
+    {
+      "path": "public/assets/tournaments/trophy_gold_new.webp",
+      "sha256": "4ae57ee44185d99bb951806e778b17b480d812a6bed44c3c4b269e6736bba97f",
+      "bytes": 82012
+    },
+    {
+      "path": "public/assets/tournaments/trophy_silver_new.png",
+      "sha256": "46073329dea5e30c5502fa111390bb001b7f9b3c9c38e11d8948169f1dd8189b",
+      "bytes": 549986
+    },
+    {
+      "path": "public/assets/tournaments/trophy_silver_new.webp",
+      "sha256": "7b636297bf9ef11818152a3b72ba795196086278b0ce9614c95d2270e4090b26",
+      "bytes": 70488
+    },
+    {
+      "path": "public/assets/weapons/headshot.png",
+      "sha256": "e764a1bf0351d0ff6b073bf2d7ae31d5595dc2482e9776ab247b933fd430c7df",
+      "bytes": 1681763
+    },
+    {
+      "path": "public/assets/weapons/weapon_ak47.png",
+      "sha256": "4e176cada00bccc3629eb16ed104f203307b9c844bb80ef617f24698f71c1d41",
+      "bytes": 1483565
+    },
+    {
+      "path": "public/assets/weapons/weapon_aug.png",
+      "sha256": "b6b35e99fc912fb327d091f7fc238085c0548347621e2e592444e65b5bedb052",
+      "bytes": 273115
+    },
+    {
+      "path": "public/assets/weapons/weapon_awp.png",
+      "sha256": "ee731585f91274fa8d41f3fadb6ea66d5c330c1937619a423fb95a23f38f697d",
+      "bytes": 1428828
+    },
+    {
+      "path": "public/assets/weapons/weapon_deagle.png",
+      "sha256": "ece57ff6dc0ba19acf7fa4d58b30f26da43b5ba109ceebcdee5121be32600e35",
+      "bytes": 230936
+    },
+    {
+      "path": "public/assets/weapons/weapon_famas.png",
+      "sha256": "68ff01076cf4c09bb8cba568dcf76277583b854d165ae34a4463aee8c00c6a87",
+      "bytes": 235859
+    },
+    {
+      "path": "public/assets/weapons/weapon_fiveseven.png",
+      "sha256": "a5e01836b154b6010e53863a77b6bce55a3e7bc6c0133782c3e2dd7b51ef9d6a",
+      "bytes": 337752
+    },
+    {
+      "path": "public/assets/weapons/weapon_galil.png",
+      "sha256": "d81d741cd0ab55a79f99eb6d033f67229fce944f97210e97605493c23cb7ee78",
+      "bytes": 234882
+    },
+    {
+      "path": "public/assets/weapons/weapon_glock.png",
+      "sha256": "9a19ad7d917e888190898bc2da76c2f58849321fae7eef302216d1ab05adf00a",
+      "bytes": 445967
+    },
+    {
+      "path": "public/assets/weapons/weapon_m4a1s.png",
+      "sha256": "2295756c8a2494ac80fe026d6fe03dd77ee84f6beb08d6ab235f578c6ef73b90",
+      "bytes": 185988
+    },
+    {
+      "path": "public/assets/weapons/weapon_m4a4.png",
+      "sha256": "9b9e1ec7131e7dd2a021b9ad7a20f93215e5f329c0cb40e313b93491feb7caba",
+      "bytes": 1473265
+    },
+    {
+      "path": "public/assets/weapons/weapon_mac10.png",
+      "sha256": "16319738ae817ae86684d112a3aacb2be572497bccfd56383466ea8c7596fcf9",
+      "bytes": 307371
+    },
+    {
+      "path": "public/assets/weapons/weapon_mag7.png",
+      "sha256": "4d280c8dda4685fbc91c178c006f825ead6f21e50f2be7df85075b85bef27f56",
+      "bytes": 284520
+    },
+    {
+      "path": "public/assets/weapons/weapon_mp7.png",
+      "sha256": "debb09e9d848fbd02c74130a7b8abb1d176a8ee7bde640a6686b8eba969300dc",
+      "bytes": 240253
+    },
+    {
+      "path": "public/assets/weapons/weapon_mp9.png",
+      "sha256": "6cd31227b28e5a8a97db4a70e5f4bf70a159204aefe745e4215ade8245a170ac",
+      "bytes": 249298
+    },
+    {
+      "path": "public/assets/weapons/weapon_p250.png",
+      "sha256": "b62817e91499b10c7155110ead98dcdc28a7bfdd2cb8f8e6927380bad5cdf26d",
+      "bytes": 297192
+    },
+    {
+      "path": "public/assets/weapons/weapon_p90.png",
+      "sha256": "193157b8b30220a4e0a30acfe395f17767429957c47cb9d5b63073be9cb66ddd",
+      "bytes": 229267
+    },
+    {
+      "path": "public/assets/weapons/weapon_usp.png",
+      "sha256": "1de40e96283482318a3054a99309fc4b64f3be96e72d341073d7249ff9d75778",
+      "bytes": 407879
+    },
+    {
+      "path": "public/assets/weapons/weapon_xm1014.png",
+      "sha256": "ff394c3e5acaccb4872718274e62a529b833d1aa2a2a0c54b223f349bad20fa4",
+      "bytes": 185773
+    }
+  ]
+}

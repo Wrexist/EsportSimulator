@@ -1,26 +1,17 @@
 "use client"
 
-import { useState, useEffect, useMemo, memo } from "react"
+import { useState, useEffect, useMemo, useId, memo } from "react"
 import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
-import { Map, ChevronUp } from "lucide-react"
+import { Map, ChevronUp, Minus, Plus } from "lucide-react"
 import Image from "next/image"
-import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
 import type { Point } from "@/lib/map-radar-data"
+import { useSettingsStore } from "@/lib/settings-store"
+import { useReducedMotion } from "framer-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
-
-// True-3D renderer is dynamically imported (ssr:false) so three.js / R3F only
-// load when the player actually switches to the 3D view — never in the main bundle.
-const MapRadar3D = dynamic(() => import("./MapRadar3D"), {
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-full grid place-items-center text-[10px] font-bold tracking-widest uppercase text-white/30">
-            Loading 3D…
-        </div>
-    ),
-})
+import { layoutRadarLabels } from "@/lib/radar-label-layout"
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -28,11 +19,6 @@ function isFiniteCoord(value: unknown): value is number {
 
 function clampRadarCoord(value: number, min = 0, max = 100): number {
     return Math.max(min, Math.min(max, value))
-}
-
-function shortRadarName(name: string): string {
-    const safe = (name || "PLAYER").toUpperCase()
-    return safe.length <= 6 ? safe : safe.slice(0, 6)
 }
 
 const MAP_RADAR_IMAGES: Record<string, { primary: string; secondary?: string }> = {
@@ -55,26 +41,27 @@ interface MapRadarPanelProps {
     killLines?: RadarKillLine[]
     sitePositions?: { a: Point; b: Point }
     smokes?: RadarSmoke[]
+    referenceImages?: { primary: string; secondary?: string }
+    positionSource?: 'estimated' | 'physical-replay'
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, currentTime, killLines, sitePositions, smokes }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+    const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
+    const [showNames, setShowNames] = useState(true)
+    const [zoom, setZoom] = useState(1)
+    const reducedMotion = useSettingsStore(s => s.reducedMotion)
+    const systemReducedMotion = useReducedMotion()
+    const staticEffects = reducedMotion || systemReducedMotion
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
-    // Radar view mode: flat top-down, CSS 2.5D tilt, or true 3D (WebGL).
-    // 2.5D tips the ground plane back with players as billboarded tokens; 3D
-    // swaps in an orbitable three.js scene (dynamically imported).
-    const [view, setView] = useState<"flat" | "tilt" | "3d">("tilt")
-    const tilt = view === "tilt"
-    const is3D = view === "3d"
-    const TILT_DEG = 49
-
-    const radarImageData = MAP_RADAR_IMAGES[currentMapId]
+    const radarImageData = referenceImages || MAP_RADAR_IMAGES[currentMapId]
     const isDualLevel = !!radarImageData?.secondary
 
     useEffect(() => {
         setManualRadarLevel("upper")
         setRadarLevelMode("auto")
+        setZoom(1)
     }, [currentMapId])
 
     const resolvedRadarLevel = useMemo(() => (
@@ -94,14 +81,12 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         ? radarImageData.secondary
         : radarImageData?.primary
 
-    const DOT_EDGE_PADDING = 2.1
-
     const safeDots = useMemo(() => (radarDots || [])
         .filter(dot => isFiniteCoord(dot.x) && isFiniteCoord(dot.y) && isFiniteCoord(dot.angle))
         .map(dot => ({
             ...dot,
-            x: clampRadarCoord(dot.x, DOT_EDGE_PADDING, 100 - DOT_EDGE_PADDING),
-            y: clampRadarCoord(dot.y, DOT_EDGE_PADDING, 100 - DOT_EDGE_PADDING),
+            x: clampRadarCoord(dot.x),
+            y: clampRadarCoord(dot.y),
             angle: dot.angle,
         })), [radarDots])
 
@@ -110,6 +95,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         if (!isDualLevel || !dot.level) return true
         return dot.level === resolvedRadarLevel
     }), [safeDots, isDualLevel, resolvedRadarLevel])
+    const labels = useMemo(() => layoutRadarLabels(visibleDots), [visibleDots])
 
     const visibleKillLines = useMemo(() => (killLines || [])
         .filter(line => (
@@ -162,6 +148,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         return visibleKillLines
             .map(line => {
                 const elapsed = currentTime - line.time
+                if (elapsed < 0) return null
                 const fadeOpacity = Math.max(0, 1 - elapsed / 2)
                 return fadeOpacity > 0 ? { line, fadeOpacity } : null
             })
@@ -217,6 +204,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         if (bombState?.defused) return { label: "DEFUSED", color: "#5b9bd5" }
         if (bombState?.exploded) return { label: "ELIMINATED", color: "#ef4444" }
         if (bombState?.planted) return { label: "BOMB PLANTED", color: "#ef4444", pulse: true }
+        if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#c4d0e2" }
         if (currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#60a5fa" }
         return { label: "LIVE", color: "#4ade80" }
     })()
@@ -236,188 +224,65 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
     if (!radarImageData || !radarSrc) return null
 
     return (
-        <div className="glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
-            {/* Header */}
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-4 py-2"
-            >
-                <div className="flex items-center gap-2 text-xs font-normal opacity-40 uppercase tracking-widest">
-                    <Map className="w-3 h-3" />
-                    RADAR
-                    {isExpanded && roundPhase && (
-                        <span
-                            className="ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider"
-                            style={{
-                                backgroundColor: `${roundPhase.color}20`,
-                                color: roundPhase.color,
-                                opacity: 1,
-                                animation: roundPhase.pulse ? "pulse 1.5s ease-in-out infinite" : undefined,
-                            }}
-                        >
-                            {roundPhase.label}
-                        </span>
-                    )}
+        <div className="map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3">
+                <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={`${mapName} radar`} aria-expanded={isExpanded} aria-controls={panelId}
+                    className="flex min-h-8 items-center gap-2 text-left text-sm font-medium text-slate-100">
+                    <Map size={16} className="text-sky-200" />
+                    <span>{mapName} <span className="text-slate-400 font-normal">radar</span></span>
+                    <ChevronUp size={14} className={cn("text-slate-400 transition-transform", !isExpanded && "rotate-180")} />
+                </button>
+                {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
+            </div>
+            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/[0.025] px-4 py-2 mb-3">
+                {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
+                    {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
+                        onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}
+                        aria-pressed={level === "auto" ? radarLevelMode === "auto" : radarLevelMode === "manual" && manualRadarLevel === level}
+                        className={cn("min-h-7 rounded-lg px-2 text-xs capitalize", (level === "auto" ? radarLevelMode === "auto" : radarLevelMode === "manual" && manualRadarLevel === level) ? "bg-white/10 text-white" : "text-slate-400 hover:text-white")}>
+                        {level}
+                    </button>)}
+                </div>}
+                {<button type="button" aria-pressed={showNames} onClick={() => setShowNames(value => !value)} className="min-h-7 rounded-lg px-2 text-xs text-slate-300 hover:bg-white/10">Names {showNames ? "on" : "off"}</button>}
+                <div role="group" aria-label="Radar zoom" className="flex items-center gap-1 text-xs text-slate-300">
+                    <button type="button" aria-label="Zoom radar out" disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Minus size={14} /></button>
+                    <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+                    <button type="button" aria-label="Zoom radar in" disabled={zoom >= 2} onClick={() => setZoom(value => Math.min(2, value + .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Plus size={14} /></button>
                 </div>
-                <div className="flex items-center gap-2">
-                    {/* Alive count badges */}
-                    {safeDots.length > 0 && isExpanded && (
-                        <div className="flex items-center gap-2 mr-1">
-                            <div className="flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#5b9bd5]" />
-                                <span className="text-[9px] font-bold text-white/50">{ctAlive}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#e8a838]" />
-                                <span className="text-[9px] font-bold text-white/50">{tAlive}</span>
-                            </div>
-                        </div>
-                    )}
-                    {isDualLevel && isExpanded && (
-                        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                            <button
-                                onClick={() => setRadarLevelMode("auto")}
-                                className={cn(
-                                    "px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border transition-colors",
-                                    radarLevelMode === "auto"
-                                        ? "bg-white/10 text-white border-white/20"
-                                        : "bg-transparent text-white/30 border-white/5 hover:text-white/50"
-                                )}
-                            >
-                                AUTO
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setManualRadarLevel("upper")
-                                    setRadarLevelMode("manual")
-                                }}
-                                className={cn(
-                                    "px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border transition-colors",
-                                    radarLevelMode === "manual" && manualRadarLevel === "upper"
-                                        ? "bg-white/10 text-white border-white/20"
-                                        : "bg-transparent text-white/30 border-white/5 hover:text-white/50"
-                                )}
-                            >
-                                UPPER
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setManualRadarLevel("lower")
-                                    setRadarLevelMode("manual")
-                                }}
-                                className={cn(
-                                    "px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border transition-colors",
-                                    radarLevelMode === "manual" && manualRadarLevel === "lower"
-                                        ? "bg-white/10 text-white border-white/20"
-                                        : "bg-transparent text-white/30 border-white/5 hover:text-white/50"
-                                )}
-                            >
-                                LOWER
-                            </button>
-                        </div>
-                    )}
-                    {isExpanded && (
-                        // Inline elements only — this sits inside the header's collapse
-                        // <button>, and a nested <button>/<div> trips the HTML parser's
-                        // auto-close. Spans with role=button keep the toggles clickable.
-                        <span
-                            className="inline-flex items-center rounded-full border border-white/10 overflow-hidden"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {([["flat", "2D"], ["tilt", "2.5D"], ["3d", "3D"]] as const).map(([mode, label]) => (
-                                <span
-                                    key={mode}
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={e => { e.stopPropagation(); setView(mode) }}
-                                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setView(mode) } }}
-                                    className={cn(
-                                        "px-2 py-0.5 text-[9px] font-bold tracking-wider cursor-pointer select-none transition-colors",
-                                        view === mode
-                                            ? "bg-cyan-400/20 text-cyan-100"
-                                            : "text-white/35 hover:text-white/60"
-                                    )}
-                                    aria-pressed={view === mode}
-                                    title={`${label} radar view`}
-                                >
-                                    {label}
-                                </span>
-                            ))}
-                        </span>
-                    )}
-                    <ChevronUp className={cn("w-3 h-3 text-white/30 transition-transform", !isExpanded && "rotate-180")} />
-                </div>
-            </button>
+            </div>}
 
             {/* Collapsible radar image + overlay */}
             <AnimatePresence initial={false}>
                 {isExpanded && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0 }}
+                        id={panelId}
+                        initial={false}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className="overflow-hidden"
                     >
                         <div className="px-4 pb-3 flex justify-center">
-                            {is3D ? (
-                                <div className="relative aspect-square h-48 w-full max-w-full mx-auto rounded-lg overflow-hidden ring-1 ring-white/10">
-                                    <MapRadar3D
-                                        radarSrc={radarSrc}
-                                        dots={visibleDots}
-                                        killLines={killLineRenderState}
-                                        smokes={smokeRenderState}
-                                        bombPosition={safeBombPosition}
-                                        bombVisible={bombVisibleOnCurrentLevel}
-                                        bombState={bombState}
-                                        currentTime={currentTime}
-                                        onError={() => setView("tilt")}
-                                    />
-                                </div>
-                            ) : (
-                            <div
-                                className="relative aspect-square h-48 max-w-full mx-auto"
-                                style={tilt ? { perspective: "1100px" } : undefined}
-                            >
-                                {/* 2.5D ambient floor glow + soft cast shadow behind the tilted plane —
-                                    gives the board a holographic "floating table" feel. */}
-                                {tilt && (
-                                    <>
-                                        <div
-                                            className="pointer-events-none absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2"
-                                            style={{ width: "120%", height: "120%", background: "radial-gradient(ellipse at center, rgba(34,211,238,0.10), rgba(34,211,238,0) 62%)", filter: "blur(12px)" }}
-                                        />
-                                        <div
-                                            className="pointer-events-none absolute left-1/2 top-[63%] -translate-x-1/2 -translate-y-1/2"
-                                            style={{ width: "82%", height: "44%", background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)", filter: "blur(8px)" }}
-                                        />
-                                    </>
-                                )}
-                                <div
-                                    className="relative w-full h-full transition-transform duration-500 ease-out"
-                                    style={{
-                                        transform: tilt ? `rotateX(${TILT_DEG}deg) scale(1.04)` : "none",
-                                        transformOrigin: "center 50%",
-                                        transformStyle: "preserve-3d",
-                                    }}
-                                >
+                            <div className="radar-canvas-frame relative aspect-square w-full max-w-[520px] mx-auto overflow-auto rounded-lg" role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
+                                <div className="relative" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
                                 {/* Radar background image */}
-                                <AnimatePresence mode="wait">
+                                <AnimatePresence mode="sync">
                                     <motion.div
                                         key={`${currentMapId}-${resolvedRadarLevel}`}
                                         initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.68 }}
+                                        animate={{ opacity: 0.9 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.3 }}
                                         className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
-                                        style={{ filter: "brightness(1.06) contrast(1.16) saturate(1.18)" }}
+                                        style={{ filter: "brightness(1.18) contrast(1.08) saturate(0.65)" }}
                                     >
                                         <Image
                                             src={radarSrc}
                                             alt={`${mapName} radar`}
                                             fill
                                             className="object-contain"
-                                            sizes="300px"
+                                            sizes="(max-height: 800px) 270px, 520px"
+                                            priority
                                             unoptimized
                                         />
                                         {/* inner vignette — sinks the map edges for depth */}
@@ -435,32 +300,10 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                     preserveAspectRatio="xMidYMid meet"
                                 >
                                     <defs>
-                                        <filter id="smokeBlur">
+                                        <filter id={`${panelId}-smoke`}>
                                             <feGaussianBlur stdDeviation="1.2" />
                                         </filter>
-                                        <linearGradient id="radarSweepGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="rgba(0,255,170,0)" />
-                                            <stop offset="65%" stopColor="rgba(0,255,170,0)" />
-                                            <stop offset="100%" stopColor="rgba(0,255,170,0.08)" />
-                                        </linearGradient>
                                     </defs>
-
-                                    {/* Subtle radar sweep — only animates while round is LIVE so the GPU
-                                        isn't drawing rotations during freeze / FINISHED. */}
-                                    {roundPhase?.label === "LIVE" && (
-                                        <g opacity="0.18">
-                                            <line x1="50" y1="50" x2="95" y2="50" stroke="url(#radarSweepGradient)" strokeWidth="1">
-                                                <animateTransform
-                                                    attributeName="transform"
-                                                    type="rotate"
-                                                    from="0 50 50"
-                                                    to="360 50 50"
-                                                    dur="5s"
-                                                    repeatCount="indefinite"
-                                                />
-                                            </line>
-                                        </g>
-                                    )}
 
                                     {/* Site Labels (A / B) — subtle background markers */}
                                     {safeSitePositions && (
@@ -503,7 +346,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                             r={smoke.radius}
                                             fill="rgba(180,180,180,0.6)"
                                             opacity={opacity}
-                                            filter="url(#smokeBlur)"
+                                            filter={`url(#${panelId}-smoke)`}
                                         />
                                     ))}
 
@@ -548,18 +391,18 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                                 r={3}
                                                 fill="rgba(255, 50, 50, 0.4)"
                                             >
-                                                <animate
+                                                {!staticEffects && <animate
                                                     attributeName="r"
                                                     values="2.5;4;2.5"
                                                     dur="1.2s"
                                                     repeatCount="indefinite"
-                                                />
-                                                <animate
+                                                />}
+                                                {!staticEffects && <animate
                                                     attributeName="opacity"
                                                     values="0.4;0.8;0.4"
                                                     dur="1.2s"
                                                     repeatCount="indefinite"
-                                                />
+                                                />}
                                             </circle>
                                             <text
                                                 x={safeBombPosition.x}
@@ -601,18 +444,18 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                             r={6}
                                             fill="rgba(255, 100, 0, 0.5)"
                                         >
-                                            <animate
+                                            {!staticEffects && <animate
                                                 attributeName="r"
                                                 values="3;8;0"
                                                 dur="0.8s"
                                                 fill="freeze"
-                                            />
-                                            <animate
+                                            />}
+                                            {!staticEffects && <animate
                                                 attributeName="opacity"
                                                 values="0.8;0.3;0"
                                                 dur="0.8s"
                                                 fill="freeze"
-                                            />
+                                            />}
                                         </circle>
                                     )}
 
@@ -671,10 +514,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                         const ctColor = "#5b9bd5"
                                         const tColor = "#e8a838"
                                         const color = dot.side === "ct" ? ctColor : tColor
-                                        const labelText = shortRadarName(dot.nickname)
-                                        const labelAnchor: "start" | "end" = dot.x > 90 ? "end" : "start"
-                                        const labelX = dot.x > 90 ? dot.x - 2.4 : dot.x + 2.5
-                                        const labelY = dot.y < 6 ? dot.y + 2 : dot.y + 0.6
+                                        const label = labels.get(dot.playerId)
 
                                         // Dead player X marker
                                         if (!dot.isAlive && isDeadRecently) {
@@ -720,84 +560,39 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                                                     d={`M ${dot.x} ${dot.y} L ${cx1} ${cy1} L ${cx2} ${cy2} Z`}
                                                     fill={color}
                                                     opacity={0.12}
-                                                    style={{ transition: 'd 0.5s ease-out' }}
                                                 />
-                                                {/* Glow */}
-                                                <circle
-                                                    cx={dot.x} cy={dot.y} r={2.5}
-                                                    fill={color} opacity={0.25}
-                                                    style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
-                                                />
-                                                {/* Solid dot + nickname — flat mode only; the 2.5D view
-                                                    renders these as billboarded standing tokens (below). */}
-                                                {!tilt && (
-                                                    <>
                                                         <circle
                                                             cx={dot.x} cy={dot.y} r={1.5}
                                                             fill={color}
                                                             stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                            style={{ transition: 'cx 0.5s ease-out, cy 0.5s ease-out' }}
                                                         />
+                                                        {showNames && label && <g>
+                                                        <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".4" />
+                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".8" fill="#0d1a2d" opacity=".9" />
                                                         <text
-                                                            x={labelX}
-                                                            y={labelY}
-                                                            fontSize="2"
+                                                            x={label.x + .8}
+                                                            y={label.y + 3}
+                                                            fontSize="2.6"
                                                             fill="white"
-                                                            opacity={0.65}
+                                                            stroke="#0b1220" strokeWidth="0.7" paintOrder="stroke"
+                                                            opacity={0.95}
                                                             fontFamily="sans-serif"
                                                             fontWeight="600"
-                                                            textAnchor={labelAnchor}
-                                                            style={{ transition: 'x 0.5s ease-out, y 0.5s ease-out' }}
+                                                            textAnchor="start"
                                                         >
-                                                            {labelText}
-                                                        </text>
-                                                    </>
-                                                )}
+                                                            {label.text}
+                                                        </text></g>}
                                             </g>
                                         )
                                     })}
                                 </svg>
 
-                                    {/* 2.5D depth fog — darkens the far (top) edge for a sense of distance. */}
-                                    {tilt && (
-                                        <div
-                                            className="pointer-events-none absolute inset-0"
-                                            style={{ background: "linear-gradient(to top, rgba(5,7,11,0) 52%, rgba(5,7,11,0.55) 100%)" }}
-                                        />
-                                    )}
-
-                                    {/* 2.5D standing player tokens — billboarded upright on the tilted
-                                        plane, each over a flat ground shadow. (Flat mode uses SVG dots.) */}
-                                    {tilt && (
-                                        <div className="absolute inset-0" style={{ transformStyle: "preserve-3d", pointerEvents: "none" }}>
-                                            {visibleDots.filter(d => d.isAlive).map(dot => {
-                                                const color = dot.side === "ct" ? "#5b9bd5" : "#e8a838"
-                                                const ecoStroke = dot.money != null
-                                                    ? dot.money >= 4500 ? "#ffffff" : dot.money >= 2000 ? "#f59e0b" : "#ef4444"
-                                                    : "#ffffff"
-                                                return (
-                                                    <div
-                                                        key={dot.playerId}
-                                                        className="absolute"
-                                                        style={{ left: `${dot.x}%`, top: `${dot.y}%`, transformStyle: "preserve-3d", transition: "left 0.5s ease-out, top 0.5s ease-out" }}
-                                                    >
-                                                        {/* ground shadow — flat on the plane, beneath the peg */}
-                                                        <div style={{ position: "absolute", width: 8, height: 4.5, borderRadius: "9999px", background: "rgba(0,0,0,0.5)", filter: "blur(2px)", transform: "translate(-50%,-40%)" }} />
-                                                        {/* standing peg — counter-rotated to face the camera, rising from the ground point */}
-                                                        <div style={{ position: "absolute", transformOrigin: "center bottom", transform: `translate(-50%,-100%) rotateX(-${TILT_DEG}deg)`, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                            {/* head — a 3D bead with economy ring + colored glow */}
-                                                            <div style={{ width: 10, height: 10, borderRadius: "9999px", background: `radial-gradient(circle at 35% 30%, #ffffff, ${color} 62%)`, border: `1.5px solid ${ecoStroke}`, boxShadow: `0 0 6px ${color}, 0 1px 3px rgba(0,0,0,0.6)` }} />
-                                                            {/* stem fading into the ground */}
-                                                            <div style={{ width: 2, height: 8, marginTop: -0.5, borderRadius: "2px", background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0))` }} />
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
-                            )}
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
+                            <span className="flex items-center gap-3"><span className="text-sky-300">CT {ctAlive}</span><span className="text-amber-300">T {tAlive}</span><span>alive</span></span>
+                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
                         </div>
                     </motion.div>
                 )}

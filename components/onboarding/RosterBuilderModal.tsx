@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import type { LucideIcon } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -51,7 +52,7 @@ interface RosterBuilderModalProps {
 }
 
 // Role icons mapping
-const ROLE_ICONS: Record<string, React.ElementType> = {
+const ROLE_ICONS: Record<string, LucideIcon> = {
     Entry: Zap,
     ENTRY_FRAGGER: Zap,
     AWP: Target,

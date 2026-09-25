@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-09-12T09:27:51.617Z",
+  "summary": {
+    "BLOCKER": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFO": 3
+  },
+  "findings": [
+    {
+      "check": "A5",
+      "severity": "INFO",
+      "code": "TRADEMARK_SOURCE_ALLOWLIST",
+      "detail": "Skipped 11 file(s) covered by sourceAllowlist / sourceAllowlistGlobs in steam-compliance-policy.json."
+    },
+    {
+      "check": "A7",
+      "severity": "INFO",
+      "code": "NETWORK_CALL_SUMMARY",
+      "detail": "Scanned 425 client TS files; 0 external http(s) call site(s), 2 local fetch() call site(s)."
+    },
+    {
+      "check": "A9",
+      "severity": "INFO",
+      "code": "HYGIENE_SUMMARY",
+      "detail": "0 raw console.* file(s), 0 debugger statement(s)."
+    }
+  ]
+}

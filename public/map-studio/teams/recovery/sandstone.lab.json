@@ -1,0 +1,201 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Sandstone",
+  "sourceVersion": "2000908",
+  "a": null,
+  "b": null,
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": true
+  },
+  "teams": {
+    "version": 1,
+    "seed": 4326170,
+    "seconds": 10,
+    "roundSeconds": 10,
+    "bombSeconds": 5,
+    "plantSeconds": 3,
+    "defuseSeconds": 5,
+    "openingSeconds": 10,
+    "communicationMs": 500,
+    "memorySeconds": 4,
+    "skill": {
+      "T": 0.7,
+      "CT": 0.7
+    },
+    "economy": "balanced",
+    "guns": false,
+    "initialBomb": "dropped",
+    "objective": "A",
+    "carrier": "T1",
+    "sites": {
+      "A": {
+        "area": 1828,
+        "point": [
+          -1522.8482317870216,
+          2440.0659258549504,
+          4.191098339214134
+        ]
+      },
+      "B": {
+        "area": 1943,
+        "point": [
+          -1432.374975,
+          2529.21855,
+          5.89131153337688
+        ]
+      }
+    },
+    "actors": [
+      {
+        "id": "T1",
+        "side": "T",
+        "start": {
+          "area": 1828,
+          "point": [
+            -1459.2086214802323,
+            2376.4263155481613,
+            4.207672373704732
+          ]
+        },
+        "station": {
+          "area": 1828,
+          "point": [
+            -1459.2086214802323,
+            2376.4263155481613,
+            4.207672373704732
+          ]
+        },
+        "role": "entry",
+        "yaw": -152.81888891452277,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T2",
+        "side": "T",
+        "start": {
+          "area": 1943,
+          "point": [
+            -1432.374975,
+            2529.21855,
+            5.89131153337688
+          ]
+        },
+        "station": {
+          "area": 1943,
+          "point": [
+            -1432.374975,
+            2529.21855,
+            5.89131153337688
+          ]
+        },
+        "role": "support",
+        "yaw": -135.1314555202343,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT1",
+        "side": "CT",
+        "start": {
+          "area": 1769,
+          "point": [
+            -1720.838130519255,
+            2242.0760271227173,
+            1.2470363634417188
+          ]
+        },
+        "station": {
+          "area": 1769,
+          "point": [
+            -1720.838130519255,
+            2242.0760271227173,
+            1.2470363634417188
+          ]
+        },
+        "role": "anchor",
+        "yaw": 0,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      }
+    ],
+    "utility": {
+      "version": 1,
+      "ceasefire": true,
+      "restitution": 0.45,
+      "friction": 0.3,
+      "inventory": {
+        "T1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T2": {
+          "smoke": 1,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        }
+      },
+      "throws": [
+        {
+          "id": "sandstone-recovery-smoke",
+          "owner": "T2",
+          "kind": "smoke",
+          "at": 0,
+          "yaw": -135,
+          "pitch": -15,
+          "power": 0.3,
+          "mode": "lob",
+          "tolerance": 4,
+          "bounceTargets": [
+            [
+              -1467.4244377114314,
+              2494.1694176999617,
+              2.017568991471491
+            ],
+            [
+              -1487.8806668785367,
+              2474.59637112091,
+              1.5286925658587307
+            ],
+            [
+              -1494.5639605395597,
+              2468.3501971024125,
+              1.472321430766384
+            ]
+          ],
+          "origin": [
+            -1432.374975,
+            2529.21855,
+            5.89131153337688
+          ],
+          "target": [
+            -1494.5639605395597,
+            2468.3501971024125,
+            1.472321430766384
+          ],
+          "trigger": "recovery"
+        }
+      ]
+    }
+  }
+}

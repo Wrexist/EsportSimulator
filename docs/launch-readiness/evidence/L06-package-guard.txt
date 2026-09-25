@@ -1,0 +1,11 @@
+node : 
+At line:2 char:1
++ node scripts/check-steam-appid.js *> tmp/l06-package-guard.log; Get-C ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[steam-appid] FATAL: steam_appid.txt is missing.
+  Provision it on the build machine with your real Steam App ID before packaging.
+  Without it, Steam features bind to the Spacewar test app (480).
+

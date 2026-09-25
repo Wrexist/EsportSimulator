@@ -3,8 +3,8 @@ import { GameSave, PlayerSaveData } from "../save-types"
 import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
-import { getStaffPassiveBonuses, getPlayerPassiveBonuses } from "../talent-trees"
-import { getSpecializationMultiplier } from "../staff-specialization"
+import { getPlayerPassiveBonuses } from "../talent-trees"
+import { facilityLevel, staffDevelopmentEffects } from "../organization-effects"
 import type { SaveIndexes } from "@/store/indexes"
 
 export class TrainingProcessor {
@@ -19,33 +19,22 @@ export class TrainingProcessor {
 
             // Pre-compute facility and coach lookups once per team
             const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
-            const trainingBonus = 1 + (trainingFacility?.level || 0) * 0.1
+            const trainingBonus = 1 + facilityLevel(trainingFacility?.level || 0) * 0.1
 
             const tacticalFacility = team.facilities?.find(f => f.type === "TACTICAL")
-            const tacticalBonus = 1 + (tacticalFacility?.level || 0) * 0.2
+            const tacticalBonus = 1 + facilityLevel(tacticalFacility?.level || 0) * 0.2
 
             // O(1) team-staff lookup via prebuilt index. Was scanning the full
             // ~50-100 staff array twice per team (coaches filter + teamStaff
             // filter) — O(teams × staff × 2) per week.
             const teamStaff = idx?.staffByTeamId.get(teamId) ?? save.staff.filter(s => s.teamId === teamId)
-            let developmentStatSum = 0
-            let staffTrainingEfficiency = 0
-            let staffTacticMastery = 0
-            for (const s of teamStaff) {
-                // A DEVELOPMENT-focused coach is a "true specialist" (+10%);
-                // off-domain coaches contribute at face value.
-                if (s.role === "coach") developmentStatSum += (s.stats?.development || 50) * getSpecializationMultiplier(s)
-                const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
-                staffTrainingEfficiency += bonuses["training_efficiency"] || 0
-                staffTacticMastery += bonuses["tactic_mastery"] || 0
-            }
-            const coachBonus = 1 + (developmentStatSum / 100) * 0.5
-            const talentTrainingMod = 1 + staffTrainingEfficiency / 100
-            const talentTacticMod = 1 + staffTacticMastery / 100
+            const effects = staffDevelopmentEffects(teamStaff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek))
+            const coachBonus = effects.trainingMultiplier
+            const talentTacticMod = effects.tacticMultiplier
 
             team.rosterIds.forEach(playerId => {
                 const player = idx ? idx.playerIndex.get(playerId) : save.players.find(p => p.id === playerId)
-                if (!player) return
+                if (!player || player.isRetired) return
 
                 // Check if in Role Training
                 const roleTraining = team.activeRoleTraining?.find(rt => rt.playerId === playerId)
@@ -77,13 +66,13 @@ export class TrainingProcessor {
                     if (gain && stat in player) {
                         const current = player[stat as keyof PlayerSaveData] as number
 
-                        let finalGain = gain * trainingBonus * coachBonus * talentTrainingMod
+                        let finalGain = gain * trainingBonus * coachBonus
                         if (['tactic', 'leader', 'teamwork'].includes(stat)) {
                             finalGain *= tacticalBonus * talentTacticMod
                         }
 
                         const newVal = Math.min(
-                            player.potential,
+                            Math.min(100, Math.max(current, player.potential)),
                             Math.min(100, Math.max(0, current + finalGain))
                         )
                         ;(player as unknown as Record<string, unknown>)[stat] = newVal
@@ -111,7 +100,7 @@ export class TrainingProcessor {
 
     static processFatigueRecovery(save: GameSave, rng?: SeededRNG, idx?: SaveIndexes): void {
         // Get current year from game start date + current week
-        const startYear = new Date(save.gameStartDate).getFullYear()
+        const startYear = new Date(save.gameStartDate).getUTCFullYear()
         // Approx 52 weeks per year
         const yearsPassed = Math.floor(save.currentWeek / 52)
         const currentYear = startYear + yearsPassed
@@ -124,23 +113,13 @@ export class TrainingProcessor {
             // Phase 18: Find team and facility for recovery bonus
             const team = playerTeamMap.get(player.id)
             const recoveryFacility = team?.facilities?.find(f => f.type === "RECOVERY")
-            let totalRecoveryBonus = recoveryFacility?.level || 0
+            let totalRecoveryBonus = facilityLevel(recoveryFacility?.level || 0)
 
             // Phase 57: Psychologist Bonus. O(1) team-staff lookup via index;
             // previously this re-scanned the full staff list for every player.
             if (team) {
                 const teamStaff = idx?.staffByTeamId.get(team.id) ?? save.staff.filter(s => s.teamId === team.id)
-                let psychStatSum = 0
-                let psychRecoveryBonus = 0
-                for (const s of teamStaff) {
-                    if (s.role !== "psychologist") continue
-                    // MENTAL-focused psychologist is a "true specialist" (+10%).
-                    psychStatSum += (s.stats?.mentalRecovery || 50) * getSpecializationMultiplier(s)
-                    const bonuses = getStaffPassiveBonuses(s.role, s.unlockedTalentIds || [])
-                    psychRecoveryBonus += bonuses["recovery_amount"] || 0
-                }
-                // Bonus: 100 stat = +10 Recovery
-                totalRecoveryBonus += (psychStatSum / 100) * 10 + psychRecoveryBonus
+                totalRecoveryBonus += staffDevelopmentEffects(teamStaff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)).recovery
             }
 
             // Player talent: "energy_recovery" passive bonus

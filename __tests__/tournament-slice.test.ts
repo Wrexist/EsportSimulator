@@ -161,7 +161,7 @@ describe("awardCircuitPoints", () => {
         expect(news!.title).toContain("win")
     })
 
-    test("subsequent placements accumulate points onto the same circuitPoints entry", () => {
+    test("repeated placements for one event cannot award circuit points twice", () => {
         const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS)
         if (!tournament) return
         const h = makeHarness(makeBaseState())
@@ -172,9 +172,8 @@ describe("awardCircuitPoints", () => {
         const after = h.state().circuitPoints
         // Still exactly 1 circuitPoints entry (accumulator pattern).
         expect(after.length).toBe(1)
-        expect(after[0].points).toBeGreaterThanOrEqual(pointsAfterFirst)
-        // results[] grew to length 2.
-        expect(after[0].results.length).toBe(2)
+        expect(after[0].points).toBe(pointsAfterFirst)
+        expect(after[0].results.length).toBe(1)
     })
 
     test("placement payout of 0 is a silent no-op (no entry, no news)", () => {

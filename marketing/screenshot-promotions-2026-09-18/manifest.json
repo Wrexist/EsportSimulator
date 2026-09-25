@@ -1,0 +1,103 @@
+{
+  "method": "Built-in image_gen; locally resized under existing owner export authorization",
+  "kind": "Screenshot-based promotional composites, not unaltered gameplay screenshots",
+  "uploaded": false,
+  "exports": [
+    {
+      "file": "promotional-1920x1080/01-live-match.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c73ad95ff8cf3d9a17a487a53bbc0883c8036fec9e191a705659544e6e194796"
+    },
+    {
+      "file": "about-800x450/01-live-match.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "29d6b2c273be2d9b4cb97642a2b0cb564c27cebb41c3678049dd4179b67bb647"
+    },
+    {
+      "file": "promotional-1920x1080/02-player-development.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "3a19c8ac590b1efa5e9e1f1bea2cf6222849bacb85fa8699b66082b64f2abe36"
+    },
+    {
+      "file": "about-800x450/02-player-development.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "b1b98cba367617fb9a7948ac34ceea02fbde746938fc749abc8f662fb79e827f"
+    },
+    {
+      "file": "promotional-1920x1080/03-match-analysis.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c0091e1a12a975d30ca59eab98819dca782015af5b6a8464cad08b335648b6be"
+    },
+    {
+      "file": "about-800x450/03-match-analysis.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "6f215c2c300b8132046be58dd4d2f1b87a23e8d2791a2be94b6c27379278e125"
+    },
+    {
+      "file": "promotional-1920x1080/04-scouting.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "43c82a391302a94085de2d755ec85e30918cdf0e4e054b2a4cc05e33b4bbe306"
+    },
+    {
+      "file": "about-800x450/04-scouting.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "ce20d87c5a15f9cf11ad7aef40d6b1c04def2c3991fdf5b0b1426188388e1bc4"
+    },
+    {
+      "file": "promotional-1920x1080/05-build-your-club.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "fa81e88c839c74e817d2025e23779fd20476e510a865c0db9076b08cb4afff84"
+    },
+    {
+      "file": "about-800x450/05-build-your-club.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "f6ecac148f26160f80955e06d656aba3491640d6e7767173b8fff5bff08ac596"
+    },
+    {
+      "file": "promotional-1920x1080/06-equipment.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "d269336e8bc2b6a58b6e685f7a9bd2102907baeeabd66e6d5e3f9e6c58f0000c"
+    },
+    {
+      "file": "about-800x450/06-equipment.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "98a31d45ca6d11c1f6fcffd8b198d3d1eb839a5bd4f6e23c168b7dbeb56285b7"
+    },
+    {
+      "file": "promotional-1920x1080/07-contracts-and-budget.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "ccbdf881040414aa3050d19d23fc8e8a1d6292ce535c67955df86f598bac165b"
+    },
+    {
+      "file": "about-800x450/07-contracts-and-budget.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "aaa97b6af842d48348c4358534838d425c67b0be131e92fe778ab24167c1f181"
+    },
+    {
+      "file": "promotional-1920x1080/08-club-overview.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "e5399fe898b7ee69fa7f5bbf3e8b7c3438747e7bf3e125756656ef5c4cf50424"
+    },
+    {
+      "file": "about-800x450/08-club-overview.png",
+      "width": 800,
+      "height": 450,
+      "sha256": "dd730ad43fab77077f9fe7bf725a192321437fe46a3521174ecc378e6df25b86"
+    }
+  ]
+}

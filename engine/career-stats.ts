@@ -28,8 +28,8 @@ export function getSeasonNumber(week: number): number {
  */
 export function computeSeasonSummary(save: GameSave): SeasonSummary {
   const seasonNumber = getSeasonNumber(save.currentWeek)
-  const seasonStartWeek = (seasonNumber - 1) * WEEKS_PER_SEASON + 1
-  const seasonEndWeek = seasonNumber * WEEKS_PER_SEASON
+  const seasonStartWeek = Math.max((seasonNumber - 1) * WEEKS_PER_SEASON + 1, save.managerDetails?.tenureStartWeek ?? save.managerDetails?.lastJobChangeWeek ?? 1)
+  const seasonEndWeek = Math.min(save.currentWeek, seasonNumber * WEEKS_PER_SEASON)
 
   const playerTeam = save.teams.find(t => t.id === save.playerTeamId)
   if (!playerTeam) {
@@ -79,7 +79,7 @@ export function computeSeasonSummary(save: GameSave): SeasonSummary {
 
   // Find MVP (best avg rating among roster players)
   const rosterPlayers = save.players.filter(p =>
-    playerTeam.rosterIds.includes(p.id)
+    (playerTeam.rosterIds || []).includes(p.id)
   )
   let mvpPlayer = rosterPlayers[0]
   for (const p of rosterPlayers) {
@@ -103,9 +103,10 @@ export function computeSeasonSummary(save: GameSave): SeasonSummary {
     finalElo: playerTeam.elo || 1000,
     leagueTier: playerTeam.leagueTier || "C_TIER",
     totalIncome,
+    prizeMoney: seasonLedger.filter(e => e.type === "INCOME" && e.category === "PRIZE").reduce((sum, e) => sum + e.amount, 0),
     totalExpenses,
     endBudget: playerTeam.budget,
-    rosterSize: playerTeam.rosterIds.length,
+    rosterSize: (playerTeam.rosterIds || []).length,
     mvpPlayerId: mvpPlayer?.id,
     mvpPlayerName: mvpPlayer?.nickname,
   }
@@ -120,7 +121,7 @@ export function updateCareerStats(save: GameSave): CareerStats {
   const seasonSummary = computeSeasonSummary(save)
 
   // Check if this season was already recorded
-  const alreadyRecorded = existing.seasons.some(s => s.seasonNumber === seasonSummary.seasonNumber)
+  const alreadyRecorded = existing.seasons.some(s => s.seasonNumber === seasonSummary.seasonNumber && s.teamId === seasonSummary.teamId && s.startWeek === seasonSummary.startWeek)
   if (alreadyRecorded) {
     return existing
   }
@@ -131,12 +132,12 @@ export function updateCareerStats(save: GameSave): CareerStats {
   const seasons = [...existing.seasons, seasonSummary]
 
   // Update aggregates
-  const totalSeasons = seasons.length
+  const totalSeasons = new Set(seasons.map(s => s.seasonNumber)).size
   const totalMatches = seasons.reduce((s, ss) => s + ss.matches, 0)
   const totalWins = seasons.reduce((s, ss) => s + ss.wins, 0)
   const totalLosses = seasons.reduce((s, ss) => s + ss.losses, 0)
   const totalTournamentWins = seasons.reduce((s, ss) => s + ss.trophiesWon.length, 0)
-  const totalPrizeMoney = seasons.reduce((s, ss) => s + ss.totalIncome, 0)
+  const totalPrizeMoney = seasons.reduce((s, ss) => s + (ss.prizeMoney ?? 0), 0)
 
   // Peak tracking
   const peakWorldRanking = Math.min(
@@ -175,7 +176,7 @@ function createEmptyCareerStats(): CareerStats {
     totalLosses: 0,
     totalTournamentWins: 0,
     totalPrizeMoney: 0,
-    peakWorldRanking: 30,
+    peakWorldRanking: 999,
     peakElo: 1000,
     teamsManaged: [],
     lastUpdatedWeek: 0,

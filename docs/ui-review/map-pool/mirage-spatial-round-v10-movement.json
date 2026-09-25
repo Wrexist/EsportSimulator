@@ -1,0 +1,107 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "c6353468bce904100d5201260b243590e7b6e1c5e78eb6af2331cbde26996d6e",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 57.75,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 46241,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 393,
+        "waits": 546,
+        "replans": 76,
+        "minSeparation": 32.030716085222096
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [
+        {
+          "tick": 0,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 64,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 160,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 288,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1248,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1312,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1376,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "CT3",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T5",
+          "point": [
+            -2054.0314009877593,
+            284.4655735370771,
+            -156
+          ],
+          "goal": [
+            -2077.4621178206517,
+            140.82082765049233,
+            -156
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "86f029fb0a04fc02cf0a235cf21859f800aaecb43edc50979a0e9b512fa2499e"
+    }
+  ]
+}

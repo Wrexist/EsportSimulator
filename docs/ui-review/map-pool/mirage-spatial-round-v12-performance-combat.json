@@ -1,0 +1,83 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "d3a5a9982fd2cc301b6e23fe050605511e87d0ecdeae677842ed24ab6ed7265f",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "3 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 75.03125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 39365,
+      "metrics": {
+        "shots": 65,
+        "damage": 700,
+        "reports": 51,
+        "waits": 1314,
+        "replans": 59,
+        "minSeparation": 32.060494912736445
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "e0e9e1e07d2bbf4e1fb5e46a4910dfed45027e39036245c7fe570bb71d7f1299"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 73.53125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 56042,
+      "metrics": {
+        "shots": 46,
+        "damage": 666,
+        "reports": 52,
+        "waits": 355,
+        "replans": 83,
+        "minSeparation": 32.073655457398
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 2,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "182a7931db75dda8f0f343061a49ea27c097115ec7dac6643d49a3118f854a4c"
+    },
+    {
+      "seed": 4326174,
+      "objective": "A",
+      "guns": true,
+      "seconds": 70.390625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 45006,
+      "metrics": {
+        "shots": 60,
+        "damage": 700,
+        "reports": 55,
+        "waits": 1483,
+        "replans": 50,
+        "minSeparation": 32.060494912736445
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "c70ecda03c4ad2b15c320ceefb2419144befb6c4396a186ddd0a9246fe59ae5b"
+    }
+  ]
+}

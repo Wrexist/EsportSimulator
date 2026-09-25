@@ -13,10 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/lib/toast"
 import {
     modExists,
-    writeModFile,
     clearMod,
     getModPath,
-    validateModPayload,
     workshopAvailable,
     listWorkshopMods,
     getActiveMod,
@@ -24,6 +22,9 @@ import {
     openWorkshop,
 } from "@/engine/mod-loader"
 import type { WorkshopModItem, ActiveModPointer } from "@/types/electron-window"
+
+import { MAX_MOD_BYTES, parseModContent, validateModReferences } from "@/electron/mod-content"
+import { mergeSnapshot } from "@/engine/mod-loader"
 
 type Status = { kind: "ok"; msg: string } | { kind: "err"; msg: string } | null
 
@@ -34,7 +35,9 @@ export default function CommunityImportPage() {
     const [pasted, setPasted] = useState<string>("")
     const [status, setStatus] = useState<Status>(null)
     const [busy, setBusy] = useState<boolean>(false)
-    const [electronAvailable, setElectronAvailable] = useState<boolean>(true)
+    const [electronAvailable, setElectronAvailable] = useState<boolean>(false)
+
+    const [preview, setPreview] = useState<{ text: string; counts: string; author: string } | null>(null)
 
     // Steam Workshop
     const [wsAvailable, setWsAvailable] = useState<boolean>(false)
@@ -58,7 +61,7 @@ export default function CommunityImportPage() {
         let cancelled = false
         ;(async () => {
             const hasElectron =
-                typeof window !== "undefined" && !!(window as any).electron?.mods
+                typeof window !== "undefined" && !!window.electron?.mods
             if (!cancelled) setElectronAvailable(hasElectron)
             if (hasElectron) {
                 const [exists, p] = await Promise.all([modExists(), getModPath()])
@@ -79,7 +82,7 @@ export default function CommunityImportPage() {
         try {
             const ok = await setActiveMod({ source: "workshop", workshopId: id })
             if (ok) {
-                setStatus({ kind: "ok", msg: "Workshop mod activated. Start a new career to apply real teams." })
+                setStatus({ kind: "ok", msg: "Workshop mod activated. Start a new career to use its database." })
                 toast({ title: "Workshop mod activated" })
                 await loadWorkshop()
             } else {
@@ -90,83 +93,64 @@ export default function CommunityImportPage() {
         }
     }
 
-    const switchToCommunitySource = async () => {
+    const switchToCommunitySource = async (source: "community" | "none" = "none") => {
         setWsBusy(true)
         try {
-            const ok = await setActiveMod({ source: "community" })
+            const ok = await setActiveMod({ source })
             if (ok) {
-                setStatus({ kind: "ok", msg: "Switched to your imported database. Start a new career to apply." })
+                setStatus({ kind: "ok", msg: source === "none" ? "Base game selected for new careers. Existing careers are unchanged." : "Imported database selected for new careers." })
                 await loadWorkshop()
-            }
-        } finally {
-            setWsBusy(false)
-        }
+            } else { setStatus({ kind: "err", msg: "Could not change the active database." }) }
+        } catch { setStatus({ kind: "err", msg: "Could not change the active database." }) }
+        finally { setWsBusy(false) }
     }
 
     const applyPayload = async (raw: string) => {
         setStatus(null)
+        setPreview(null)
         setBusy(true)
         try {
-            let parsed: unknown
-            try {
-                parsed = JSON.parse(raw)
-            } catch {
-                setStatus({ kind: "err", msg: "Invalid JSON — paste a valid object." })
-                return
-            }
-            const result = validateModPayload(parsed)
-            if (!result.ok) {
-                setStatus({ kind: "err", msg: result.error })
-                return
-            }
-
-            // Write each section to its own file so mod-loader can cleanly merge.
-            const writes: Array<Promise<boolean>> = []
-            if (result.value.players) {
-                writes.push(writeModFile("players.json", JSON.stringify(result.value.players, null, 2)))
-            }
-            if (result.value.teams) {
-                writes.push(writeModFile("teams.json", JSON.stringify(result.value.teams, null, 2)))
-            }
-            if (result.value.tournaments) {
-                writes.push(writeModFile("tournaments.json", JSON.stringify(result.value.tournaments, null, 2)))
-            }
-            writes.push(
-                writeModFile(
-                    "manifest.json",
-                    JSON.stringify({ importedAt: new Date().toISOString() }, null, 2)
-                )
-            )
-            const results = await Promise.all(writes)
-            if (results.every(Boolean)) {
-                setInstalled(true)
-                // Make the imported db the live source (a previously-activated
-                // Workshop mod would otherwise shadow it). Don't report success if
-                // activation failed, or a stale Workshop mod stays live under a
-                // "community database applied" message.
-                const activated = await setActiveMod({ source: "community" })
-                await loadWorkshop()
-                if (!activated) {
-                    setStatus({ kind: "err", msg: "Database was written, but could not be activated. Try again from the list below." })
-                    return
-                }
-                setStatus({
-                    kind: "ok",
-                    msg: "Community database installed. Start a new career to apply.",
-                })
-                toast({ title: "Community database installed" })
-                setPasted("")
-            } else {
-                setStatus({ kind: "err", msg: "Write failed. Check write permissions on userData." })
-            }
-        } finally {
-            setBusy(false)
-        }
+            const result = parseModContent(raw)
+            if (!result.ok) { setStatus({ kind: "err", msg: result.error }); return }
+            const base = await Promise.all(["players", "teams", "tournaments"].map(async name => {
+                const response = await fetch(`/data/snapshot/${name}.json`)
+                if (!response.ok) throw new Error("Could not load the base database for validation")
+                return response.json()
+            }))
+            const data = result.value
+            const referenceError = validateModReferences(mergeSnapshot(base[0], data.players), mergeSnapshot(base[1], data.teams), mergeSnapshot(base[2], data.tournaments))
+            if (referenceError) { setStatus({ kind: "err", msg: referenceError }); return }
+            setPreview({ text: raw, counts: `${data.players?.length || 0} players / ${data.teams?.length || 0} teams / ${data.tournaments?.length || 0} tournaments`, author: typeof data.manifest?.author === "string" ? data.manifest.author : "Author not supplied" })
+        } catch (error) {
+            setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Could not preview database" })
+        } finally { setBusy(false) }
     }
-
+    const installPreview = async () => {
+        if (!preview) return
+        setBusy(true)
+        try {
+            if (!await window.electron?.mods?.install(preview.text)) throw new Error("Installation failed. The previous database is retained.")
+            setInstalled(true)
+            if (!await setActiveMod({ source: "community" })) throw new Error("Database installed but not activated. Select imported database below.")
+            setPreview(null); setPasted(""); await loadWorkshop()
+            setStatus({ kind: "ok", msg: "Database installed for new careers. A backup of the previous import is available." })
+        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Installation failed" }) }
+        finally { setBusy(false) }
+    }
+    const restorePrevious = async () => {
+        setBusy(true)
+        try {
+            if (!await window.electron?.mods?.restore()) throw new Error("No valid previous import could be restored.")
+            if (!await setActiveMod({ source: "community" })) throw new Error("Restored, but activation failed. Select imported database below.")
+            await loadWorkshop(); setInstalled(await modExists())
+            setStatus({ kind: "ok", msg: "Previous database restored for new careers." })
+        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Restore failed" }) }
+        finally { setBusy(false) }
+    }
     const onFile = async (file: File) => {
-        const txt = await file.text()
-        await applyPayload(txt)
+        if (file.size > MAX_MOD_BYTES) { setPreview(null); setStatus({ kind: "err", msg: "Database exceeds 16 MiB" }); return }
+        try { await applyPayload(await file.text()) }
+        catch { setStatus({ kind: "err", msg: "File could not be read" }) }
     }
 
     const onRemove = async () => {
@@ -205,7 +189,7 @@ export default function CommunityImportPage() {
                     <h1 className="text-2xl font-bold">Import Community Database</h1>
                     {installed && (
                         <Badge variant="secondary" className="ml-2">
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Active
+                            <CheckCircle2 className="h-3 w-3 mr-1" /> Database available
                         </Badge>
                     )}
                 </div>
@@ -247,7 +231,7 @@ export default function CommunityImportPage() {
                                     onClick={() => void loadWorkshop()}>
                                     <RefreshCw className="h-4 w-4 mr-1" /> Refresh
                                 </Button>
-                                <Button variant="outline" size="sm"
+                                <Button variant="outline" size="sm" disabled={!wsAvailable}
                                     onClick={() => void openWorkshop()}>
                                     <ExternalLink className="h-4 w-4 mr-1" /> Browse
                                 </Button>
@@ -269,8 +253,7 @@ export default function CommunityImportPage() {
 
                         {wsAvailable && wsMods.length === 0 && (
                             <p className="text-sm text-muted-foreground">
-                                No subscribed mods found. Click <strong>Browse</strong> to find real-data
-                                mods on the Workshop, subscribe, then hit <strong>Refresh</strong>.
+                                No subscribed mods found. Click <strong>Browse</strong> to view the Workshop, subscribe, then hit <strong>Refresh</strong>.
                             </p>
                         )}
 
@@ -282,7 +265,7 @@ export default function CommunityImportPage() {
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className="font-medium truncate">{m.title}</span>
-                                            {m.isEmMod && <Badge variant="outline">Real data</Badge>}
+                                            {m.isEmMod && <Badge variant="outline">Database schema 1</Badge>}
                                             {isActive && (
                                                 <Badge variant="secondary">
                                                     <CheckCircle2 className="h-3 w-3 mr-1" /> Active
@@ -307,12 +290,16 @@ export default function CommunityImportPage() {
                                     </div>
                                     <div className="shrink-0">
                                         {isActive ? (
-                                            <Button variant="ghost" size="sm" disabled={wsBusy}
-                                                onClick={() => void switchToCommunitySource()}>
-                                                Deactivate
-                                            </Button>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate}
+                                                    onClick={() => void activateWorkshop(m.id)}>
+                                                    Use installed version
+                                                </Button>
+                                                <Button variant="ghost" size="sm" disabled={wsBusy}
+                                                    onClick={() => void switchToCommunitySource()}>Deactivate</Button>
+                                            </div>
                                         ) : (
-                                            <Button size="sm" disabled={wsBusy || !m.installed || !m.isEmMod}
+                                            <Button size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate}
                                                 onClick={() => void activateWorkshop(m.id)}>
                                                 <Download className="h-4 w-4 mr-1" /> Activate
                                             </Button>
@@ -325,6 +312,18 @@ export default function CommunityImportPage() {
                 </Card>
             )}
 
+            {electronAvailable && <Card className="mb-6"><CardHeader>
+                <CardTitle>Import database with images</CardTitle>
+                <CardDescription>Choose the unpacked mod folder. PNG, JPEG and WebP images are retained locally so existing careers keep their portraits when you switch mods.</CardDescription>
+            </CardHeader><CardContent><Button disabled={busy} onClick={async () => {
+                setBusy(true)
+                try {
+                    const text = await window.electron?.mods?.readFolder()
+                    if (text) await applyPayload(text)
+                    else setStatus({ kind: "err", msg: "No valid folder selected. The folder must contain database JSON and all referenced PNG, JPEG or WebP images." })
+                } finally { setBusy(false) }
+            }}>Choose mod folder</Button></CardContent></Card>}
+
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -332,11 +331,12 @@ export default function CommunityImportPage() {
                     </CardTitle>
                     <CardDescription>
                         Accepts a JSON file with optional <code>players</code>,{" "}
-                        <code>teams</code>, and <code>tournaments</code> arrays.
+                        <code>teams</code>, and <code>tournaments</code> arrays. Imported tournament definitions are retained in the database; the career calendar currently uses the built-in competition rules.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <input
+                        aria-label="Select community database JSON"
                         type="file"
                         accept="application/json,.json"
                         disabled={busy || !electronAvailable}
@@ -354,11 +354,13 @@ export default function CommunityImportPage() {
                 <CardHeader>
                     <CardTitle>Paste JSON</CardTitle>
                     <CardDescription>
-                        Paste a JSON object below and click Import.
+                        Paste a JSON object below and preview the changes. Maximum 16 MiB. No ZIP files or scripts.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <Textarea
+                        aria-label="Community database JSON"
+                        maxLength={MAX_MOD_BYTES}
                         value={pasted}
                         onChange={(e) => setPasted(e.target.value)}
                         disabled={busy || !electronAvailable}
@@ -371,7 +373,7 @@ export default function CommunityImportPage() {
                             onClick={() => void applyPayload(pasted)}
                             disabled={busy || !pasted.trim() || !electronAvailable}
                         >
-                            Import
+                            Preview import
                         </Button>
                         {installed && (
                             <Button
@@ -387,6 +389,23 @@ export default function CommunityImportPage() {
                 </CardContent>
             </Card>
 
+            {preview && (
+                <Card className="mb-6">
+                    <CardHeader><CardTitle>Review database</CardTitle><CardDescription>{preview.counts}</CardDescription></CardHeader>
+                    <CardContent className="space-y-3">
+                        <p className="text-sm">{preview.author}</p>
+                        <p className="text-sm text-muted-foreground">Matching IDs replace base entries; new IDs are added. This replaces the entire previous import. Existing careers keep their data. Use the folder import for accompanying images. Referenced mod images are retained in local versioned bundles; JSON alone cannot copy new media.</p>
+                        <Button disabled={busy} onClick={() => void installPreview()}>Install database</Button>{" "}
+                        <Button variant="ghost" disabled={busy} onClick={() => setPreview(null)}>Cancel</Button>
+                    </CardContent>
+                </Card>
+            )}
+            {electronAvailable && <div className="flex flex-wrap gap-2 mb-6">
+                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("none")}>Use base game</Button>
+                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("community")}>Use imported database</Button>
+                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void restorePrevious()}>Restore previous import</Button>
+            </div>}
+
             {status && (
                 <Card
                     className={
@@ -401,7 +420,7 @@ export default function CommunityImportPage() {
                         ) : (
                             <AlertCircle className="h-4 w-4 text-red-600" />
                         )}
-                        <span className="text-sm">{status.msg}</span>
+                        <span role="status" className="text-sm">{status.msg}</span>
                     </CardContent>
                 </Card>
             )}

@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Ancient",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "simulatorSourceSha256": "de33f1d960cf9d2395da50401e74791bade6dbc4a36a339dc78366f715cca080",
+  "fixtureSha256": "855ca4b0895b3e70c2ec8e699eb921f82d973577af02837cb9f4f7506264df28",
+  "attempts": 1,
+  "origin": [
+    671.4997733333335,
+    153.89864666666665,
+    135.66661000000002
+  ],
+  "bomb": [
+    795.6194400664775,
+    153.08631988176873,
+    133.0801410766867
+  ],
+  "threat": [
+    1075.6194400664776,
+    153.08631988176873,
+    132.99997
+  ],
+  "landing": [
+    755.6194400664775,
+    153.08631988176873,
+    131.8044586531998
+  ],
+  "bounces": [
+    [
+      721.0311528530168,
+      153.89845336981136,
+      131.90301893468464
+    ],
+    [
+      747.3584366969199,
+      153.3831423361017,
+      131.82772814840246
+    ],
+    [
+      755.6194400664775,
+      153.08631988176873,
+      131.8044586531998
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 121,
+  "checks": [
+    {
+      "id": "ancient-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 123.84529960165041,
+  "outputSha256": "322ea7350a25bc80beb196770322082bc23014bc94b6d6c04137d6a0c3dd8f39"
+}

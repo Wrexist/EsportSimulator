@@ -1,0 +1,46 @@
+{
+  "localQaOnly": true,
+  "releaseReady": false,
+  "launcherX64": true,
+  "qaMarker": true,
+  "main": "electron/qa-electron-main.cjs",
+  "buildId": "WOMDt4J9XzaXV0mhJvMsO",
+  "originalLogosIncluded": [],
+  "mapAssets": [
+    "/public/maps/WqSceeErZORFGoG8gJ4nLT.webp",
+    "/public/maps/ancient.png",
+    "/public/maps/anubis.png",
+    "/public/maps/de_ancient_radar_psd.png",
+    "/public/maps/de_anubis_radar_psd.png",
+    "/public/maps/de_inferno_radar_psd.png",
+    "/public/maps/de_mirage_radar_psd.png",
+    "/public/maps/de_nuke_lower_radar_psd_2.png",
+    "/public/maps/de_nuke_radar_psd_1.png",
+    "/public/maps/de_overpass_radar_psd.png",
+    "/public/maps/de_sandstone_radar_psd.png",
+    "/public/maps/de_vertigo_lower_radar_psd_2.png",
+    "/public/maps/de_vertigo_radar_psd_1.png",
+    "/public/maps/inferno.png",
+    "/public/maps/mirage.png",
+    "/public/maps/nuke.png",
+    "/public/maps/overpass.png",
+    "/public/maps/sandstone.png",
+    "/public/maps/vertigo.png"
+  ],
+  "marketingAssets": [
+    "/public/assets/Steamworks Bilder",
+    "/public/assets/Steamworks Bilder/Desktop.png",
+    "/public/assets/Steamworks Bilder/Hall Of Fame.png",
+    "/public/assets/Steamworks Bilder/Live match.png",
+    "/public/assets/Steamworks Bilder/Loadout Manager.png",
+    "/public/assets/Steamworks Bilder/Rankings.png",
+    "/public/assets/Steamworks Bilder/Results.png",
+    "/public/assets/Steamworks Bilder/Schedule.png",
+    "/public/assets/Steamworks Bilder/Transfermarket.png",
+    "/public/assets/Steamworks Bilder/Veto.jpg"
+  ],
+  "limitations": [
+    "QA package only; content release gate remains unresolved",
+    "No Steam installation, save/reload, full career, or gallery acceptance"
+  ]
+}

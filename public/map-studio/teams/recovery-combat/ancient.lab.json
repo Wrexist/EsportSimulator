@@ -1,0 +1,425 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Ancient",
+  "sourceVersion": "2000908",
+  "a": null,
+  "b": null,
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": true
+  },
+  "teams": {
+    "version": 1,
+    "seed": 4326170,
+    "seconds": 10,
+    "roundSeconds": 10,
+    "bombSeconds": 5,
+    "plantSeconds": 3,
+    "defuseSeconds": 5,
+    "openingSeconds": 10,
+    "communicationMs": 500,
+    "memorySeconds": 4,
+    "skill": {
+      "T": 0.7,
+      "CT": 0.7
+    },
+    "economy": "balanced",
+    "guns": true,
+    "initialBomb": "dropped",
+    "carrier": "T1",
+    "objective": "A",
+    "sites": {
+      "A": {
+        "area": 256,
+        "point": [
+          795.6194400664775,
+          153.08631988176873,
+          133.0801410766867
+        ]
+      },
+      "B": {
+        "area": 184,
+        "point": [
+          671.4997733333335,
+          153.89864666666665,
+          135.66661000000002
+        ]
+      }
+    },
+    "actors": [
+      {
+        "id": "CT1",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 411,
+          "point": [
+            1075.6194400664776,
+            153.08631988176873,
+            132.99997
+          ]
+        },
+        "station": {
+          "area": 411,
+          "point": [
+            1075.6194400664776,
+            153.08631988176873,
+            132.99997
+          ]
+        },
+        "yaw": 0,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T1",
+        "side": "T",
+        "role": "entry",
+        "start": {
+          "area": 257,
+          "point": [
+            795.6194400664775,
+            243.08631988176873,
+            132.54538356660558
+          ]
+        },
+        "station": {
+          "area": 257,
+          "point": [
+            795.6194400664775,
+            243.08631988176873,
+            132.54538356660558
+          ]
+        },
+        "yaw": -17.818888914522773,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T2",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 184,
+          "point": [
+            671.4997733333335,
+            153.89864666666665,
+            135.66661000000002
+          ]
+        },
+        "station": {
+          "area": 184,
+          "point": [
+            671.4997733333335,
+            153.89864666666665,
+            135.66661000000002
+          ]
+        },
+        "yaw": -0.11517091966848292,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT2",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 970,
+          "point": [
+            -256,
+            1728,
+            30.82570956632528
+          ]
+        },
+        "station": {
+          "area": 256,
+          "point": [
+            805.8747900000001,
+            180.5236475,
+            134.9736445221597
+          ]
+        },
+        "yaw": -90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT3",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 970,
+          "point": [
+            -352,
+            1728,
+            31.49238016354709
+          ]
+        },
+        "station": {
+          "area": 972,
+          "point": [
+            -1326.00025,
+            927.1485700000001,
+            56.99995
+          ]
+        },
+        "yaw": -90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT4",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 970,
+          "point": [
+            -448,
+            1728,
+            31.692779692992396
+          ]
+        },
+        "station": {
+          "area": 227,
+          "point": [
+            708.7497800000001,
+            92.7736375,
+            133.53902983105453
+          ]
+        },
+        "yaw": -90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT5",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1100,
+          "point": [
+            -512,
+            1696,
+            28.418427313689236
+          ]
+        },
+        "station": {
+          "area": 972,
+          "point": [
+            -1360,
+            961.3333333333334,
+            56.99995
+          ]
+        },
+        "yaw": -90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T3",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 1932,
+          "point": [
+            -584,
+            -2288,
+            -160.14880935407152
+          ]
+        },
+        "station": {
+          "area": 1932,
+          "point": [
+            -584,
+            -2288,
+            -160.14880935407152
+          ]
+        },
+        "yaw": 90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T4",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 1817,
+          "point": [
+            -392,
+            -2224,
+            -160.8008799569757
+          ]
+        },
+        "station": {
+          "area": 1817,
+          "point": [
+            -392,
+            -2224,
+            -160.8008799569757
+          ]
+        },
+        "yaw": 90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T5",
+        "side": "T",
+        "role": "lurk",
+        "start": {
+          "area": 1824,
+          "point": [
+            -520,
+            -2224,
+            -158.5458883992274
+          ]
+        },
+        "station": {
+          "area": 1824,
+          "point": [
+            -520,
+            -2224,
+            -158.5458883992274
+          ]
+        },
+        "yaw": 90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      }
+    ],
+    "utility": {
+      "version": 1,
+      "ceasefire": false,
+      "restitution": 0.45,
+      "friction": 0.3,
+      "inventory": {
+        "CT1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T2": {
+          "smoke": 1,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT2": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT3": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT4": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT5": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T3": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T4": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T5": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        }
+      },
+      "throws": [
+        {
+          "id": "ancient-recovery-smoke",
+          "owner": "T2",
+          "kind": "smoke",
+          "at": 0,
+          "yaw": 0,
+          "pitch": -15,
+          "power": 0.3,
+          "mode": "lob",
+          "tolerance": 4,
+          "bounceTargets": [
+            [
+              721.0311528530168,
+              153.89845336981136,
+              131.90301893468464
+            ],
+            [
+              747.3584366969199,
+              153.3831423361017,
+              131.82772814840246
+            ],
+            [
+              755.6194400664775,
+              153.08631988176873,
+              131.8044586531998
+            ]
+          ],
+          "target": [
+            755.6194400664775,
+            153.08631988176873,
+            131.8044586531998
+          ],
+          "trigger": "recovery",
+          "origin": [
+            671.4997733333335,
+            153.89864666666665,
+            135.66661000000002
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -164,7 +164,7 @@ describe("signSponsor", () => {
         // name and payout. signSponsor resolves by id and spreads the trusted
         // pool offer, so the saved sponsor must reflect the pool, not the lie.
         const elite = makeSponsor("MegaCorp", "ELITE", { id: "off_elite_real", weeklyPayout: 20_000 })
-        const h = makeHarness(makeBaseState({ sponsorOffers: [elite] }))
+        const h = makeHarness(makeBaseState({ sponsorOffers: [elite], teams: [makeTeam("player", { worldRanking: 5 })] }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
         const spoofed = makeSponsor("Downgraded", "BASIC", { id: "off_elite_real", weeklyPayout: 1 })
         const res = slice.signSponsor("player", spoofed)
@@ -188,6 +188,7 @@ describe("signSponsor", () => {
 
     test("refuses past MAX_SPONSORS_PER_TEAM (3)", () => {
         const h = makeHarness(makeBaseState({
+            sponsorOffers: [makeSponsor("S4", "BASIC")],
             teams: [makeTeam("player", {
                 sponsors: [
                     makeSponsor("S1", "BASIC"),
@@ -205,6 +206,7 @@ describe("signSponsor", () => {
     test("refuses re-signing a sponsor still in its lapse cooldown", () => {
         const h = makeHarness(makeBaseState({
             currentWeek: 20,
+            sponsorOffers: [makeSponsor("PixelBrand", "BASIC")],
             teams: [makeTeam("player", { sponsorCooldowns: { PixelBrand: 28 } } as never)],
         }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
@@ -224,6 +226,7 @@ describe("signSponsor", () => {
 
     test("refuses duplicate tier", () => {
         const h = makeHarness(makeBaseState({
+            sponsorOffers: [makeSponsor("AnotherBasic", "BASIC")],
             teams: [makeTeam("player", { sponsors: [makeSponsor("Already", "BASIC")] as never })],
         }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)
@@ -234,6 +237,7 @@ describe("signSponsor", () => {
 
     test("refuses PREMIUM sponsor when worldRanking > 30", () => {
         const h = makeHarness(makeBaseState({
+            sponsorOffers: [makeSponsor("EliteBrand", "PREMIUM")],
             teams: [makeTeam("player", { worldRanking: 80 })],
         }))
         const slice = createTeamFacilitiesSlice(h.set, h.get)

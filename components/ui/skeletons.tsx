@@ -21,11 +21,11 @@ export const StatBoxSkeleton = StatTileSkeleton
 /** Full-page placeholder — used by Suspense boundaries on feature screens. */
 export function PageSkeleton({ title }: { title?: string }) {
     return (
-        <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+        <div className="space-y-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
                 <div className="space-y-2">
                     {title ? (
-                        <h1 className="text-4xl font-normal tracking-tighter uppercase text-white/50">
+                        <h1 className="text-3xl font-semibold tracking-tight text-white/70">
                             {title}
                         </h1>
                     ) : (

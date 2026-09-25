@@ -1,0 +1,97 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "created": "2026-09-20",
+  "purpose": "Original project equipment; alpha cutouts; no real product branding",
+  "entries": [
+    {
+      "id": "mouse-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-09bf8dde-0cac-40a1-a41e-113bb034560d.png",
+      "prompt": "Standard charcoal and slate wired mouse, transparent isolated 3D product render; original generation."
+    },
+    {
+      "id": "mouse-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-f57941c5-1310-4372-9736-cade6cd9957c.png",
+      "prompt": "Use case: product-mockup. ONE original production equipment inventory asset for a premium esports management game, photorealistic 3D studio product render. Genuinely transparent alpha background: no backdrop, floor, checkerboard, halo, text, logos or watermark. Single complete item centered, square frame, 12% clear padding. Three-quarter overhead view, soft neutral lighting, crisp silhouette readable on midnight navy. PRO tier wireless gaming mouse: streamlined sculpted graphite shell, silver machined metal wheel and narrow brushed aluminium side inset, restrained cool-white indicator. Clearly premium professional hardware, no cable, no honeycomb, no RGB. Nose lower left. Sophisticated compact low profile."
+    },
+    {
+      "id": "mouse-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-813b4993-e8e4-4689-9e01-63e993994a61.png",
+      "prompt": "Use case: product-mockup. ONE original production equipment inventory asset for a premium esports management game, photorealistic 3D studio product render. Genuinely transparent alpha background: no backdrop, floor, checkerboard, halo, text, logos or watermark. Single complete item centered, square frame, 12% clear padding. Three-quarter overhead view, soft neutral lighting, crisp silhouette readable on midnight navy. ELITE tier tournament mouse: ultralight ivory ceramic-coated magnesium skeletal shell with carefully engineered hex ventilation near rear, carbon-black grips, champagne titanium wheel and tiny amber indicator. Distinct high-end precision engineering, elegant not gaudy. Wireless no cable. Nose lower left."
+    },
+    {
+      "id": "keyboard-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-483e1b81-3e91-4a7b-b6c8-7d745cad77cc.png",
+      "prompt": "Use case: product-mockup. ONE original production equipment inventory asset for a premium esports management game, photorealistic 3D studio product render. Genuinely transparent alpha background: no backdrop, floor, checkerboard, halo, text, logos or watermark. Single complete item centered, square frame, 12% clear padding. Three-quarter overhead view, soft neutral lighting, crisp silhouette readable on midnight navy. STANDARD tier full-size wired mechanical keyboard with number pad, matte charcoal polymer case and keycaps, muted slate-blue escape and enter keys matching entry-level charcoal/slate mouse family. Robust plain construction, no RGB, subtle white key legends, short rear cable. Entire keyboard from front left three-quarter overhead."
+    },
+    {
+      "id": "keyboard-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-b6ad776d-1407-47bd-999c-7cf8859de102.png",
+      "prompt": "Edit this product asset. REMOVE the entire mouse, leaving ONLY the keyboard. Preserve the keyboard's exact design, materials and viewing angle. Center the keyboard in a landscape 4:3 canvas with at least 10% clean transparent padding on EVERY side; no cropped edges. Genuinely transparent alpha background, no floor, no shadows beyond object, no painted checkerboard, no backdrop. Exactly ONE keyboard and nothing else. Clean antialiased edges."
+    },
+    {
+      "id": "keyboard-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-70ae6247-5aa1-48ec-804a-bf013f345d6c.png",
+      "prompt": "Edit this product asset. REMOVE the entire mouse, leaving ONLY the keyboard. Preserve the keyboard's exact design, materials and viewing angle. Center the keyboard in a landscape 4:3 canvas with at least 10% clean transparent padding on EVERY side; no cropped edges. Genuinely transparent alpha background, no floor, no shadows beyond object, no painted checkerboard, no backdrop. Exactly ONE keyboard and nothing else. Clean antialiased edges."
+    },
+    {
+      "id": "headset-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-6856d5ef-fade-43b8-9e27-c316a091b06d.png",
+      "prompt": "Use case: product-mockup. ONE original production equipment asset for esports management game. Photorealistic premium 3D studio render, single complete item, square framing with 12% margin, three-quarter front-left overhead view. Genuinely transparent alpha background; NO backdrop, checkerboard, floor, halo, logos, text overlay or watermark. Soft neutral studio lighting readable on midnight navy. STANDARD tier wired over-ear gaming headset with simple boom microphone. Matte charcoal polymer, muted slate-blue earcup inserts, plain fabric cushions, practical padded headband. Reliable basic construction matching charcoal/slate Standard mouse and keyboard. Short neatly curling cable fully in frame. No LEDs."
+    },
+    {
+      "id": "headset-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-fe95c6a6-e98a-455b-9a7b-969fc547d9bb.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, photorealistic premium 3D studio render, complete single product centered with 12% padding, three-quarter front view. Genuinely transparent alpha background. NO floor, backdrop, checkerboard, halo, typography, branding or other accessories. Soft neutral studio lighting clearly defines silhouette on navy. PRO tier professional wireless broadcast headset. Graphite ear cups with brushed silver metal yokes, suspended padded headband, luxurious charcoal cushions and precise detachable boom microphone. Restrained cool-white indicator. Solid engineered construction, no RGB, no cable, no separate accessories."
+    },
+    {
+      "id": "headset-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-8f4bd372-ad89-4845-8e86-2db00af0c916.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, photorealistic premium 3D studio render, complete single product centered with 12% padding, three-quarter front view. Genuinely transparent alpha background. NO floor, backdrop, checkerboard, halo, typography, branding or other accessories. Soft neutral studio lighting clearly defines silhouette on navy. ELITE tier tournament IN-EAR audio setup: exactly a pair of ivory ceramic in-ear monitors with champagne titanium faceplates and carbon-black eartips, attached fine black braided ear-hook cables neatly curled into compact shape. Extremely premium precision shell detailing and tiny amber accent. Two earpieces are parts of this one product. No over-ear headset, no display stand, no separate carrying case."
+    },
+    {
+      "id": "monitor-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-f1f09e81-3456-4eda-bafd-5a505ac16cc1.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, photorealistic premium 3D studio render, complete single product centered with 12% padding, three-quarter front view. Genuinely transparent alpha background. NO floor, backdrop, checkerboard, halo, typography, branding or other accessories. Soft neutral studio lighting clearly defines silhouette on navy. STANDARD tier 24-inch flat gaming monitor on simple wide black plastic pedestal. Matte charcoal housing, conventional bezel, muted slate-blue inset on stand. Screen is opaque very dark blue with faint abstract geometric grey pattern, no readable interface or text. Reliable entry level. No cables or other products."
+    },
+    {
+      "id": "monitor-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-930bb1b9-22fd-418b-8cd9-67d6d9e04298.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, photorealistic premium 3D studio render, complete single product centered with 12% padding, three-quarter front view. Genuinely transparent alpha background. NO floor, backdrop, checkerboard, halo, typography, branding or other accessories. Soft neutral studio lighting clearly defines silhouette on navy. PRO tier 27-inch professional esports monitor. Flat thin-bezel graphite display with brushed silver adjustable metal stand and compact rectangular weighted base. Screen opaque midnight blue with subtle pale silver abstract diagonal shape, no words or UI. Sophisticated machined joints and cable routing. No desk, cables or other products."
+    },
+    {
+      "id": "monitor-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-b3ed0437-7845-42d5-9371-18951dbadb91.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, realistic high-budget 3D product render. Single complete item isolated centered in square frame, 12% empty margin. Genuinely transparent alpha background; no floor, studio background, checkerboard, shadows outside object, logos, text or extra products. Soft neutral studio light, front-left three-quarter view. ELITE tier flagship tournament monitor: ultrathin flat 27 inch display, ivory ceramic frame with black screen bezel, champagne titanium articulated precision stand and carbon fibre low-profile base. Screen opaque dark graphite with elegant abstract amber diagonal stroke, no content or UI. Clearly luxurious engineered monitor, no external accessories."
+    },
+    {
+      "id": "chair-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-4bad783d-d16c-42be-94d6-66859b050f07.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, realistic high-budget 3D product render. Single complete item isolated centered in square frame, 12% empty margin. Genuinely transparent alpha background; no floor, studio background, checkerboard, shadows outside object, logos, text or extra products. Soft neutral studio light, front-left three-quarter view. STANDARD tier ergonomic gaming desk chair: charcoal woven fabric seat and back, simple comfortable padded upright backrest, muted slate-blue side panels, basic adjustable armrests, black five-caster base. Practical reliable design, no racing logos or exaggerated bucket styling."
+    },
+    {
+      "id": "chair-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-232510dc-4ab6-495d-bd64-ce5c0f4e67dc.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, realistic high-budget 3D product render. Single complete item isolated centered in square frame, 12% empty margin. Genuinely transparent alpha background; no floor, studio background, checkerboard, shadows outside object, logos, text or extra products. Soft neutral studio light, front-left three-quarter view. PRO tier premium ergonomic chair: graphite breathable mesh back with engineered lumbar support, charcoal padded seat, brushed silver frame, articulated padded armrests, adjustable headrest, polished five-caster aluminium base. Refined professional office/esports design."
+    },
+    {
+      "id": "chair-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-bf7b010b-6cae-4aa2-b6bb-22941ab57c2e.png",
+      "prompt": "Use case: product-mockup. ONE original equipment game asset, realistic high-budget 3D product render. Single complete item isolated centered in square frame, 12% empty margin. Genuinely transparent alpha background; no floor, studio background, checkerboard, shadows outside object, logos, text or extra products. Soft neutral studio light, front-left three-quarter view. ELITE tier flagship esports ergonomic chair: sculptural ivory frame, carbon-black breathable technical fabric and luxurious upholstered seat, champagne titanium precision adjustment pivots, floating adjustable armrests, integrated slim headrest, sophisticated five-caster ivory and metal base. Original aspirational high-end product."
+    },
+    {
+      "id": "pc-standard",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-5ce6052d-8d8e-4d09-8aea-43426931c40f.png",
+      "prompt": "Use case: product-mockup. ONE original gaming desktop PC tower game inventory asset, complete product isolated centered square frame 12% padding. Photorealistic premium 3D render, three-quarter front-left view showing front and left side. Genuinely transparent alpha background, no floor, background, checkerboard, shadow halo, logo, writing or accessories. Neutral studio light readable on navy. STANDARD tier compact reliable budget gaming tower. Plain matte charcoal steel case, slate-blue inset front panel, perforated intake grille, modest feet, opaque side panel with discreet vents. Single subtle white power LED, no window, no RGB."
+    },
+    {
+      "id": "pc-pro",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-45ce1179-3e98-4a2f-912d-52772d1bf9a6.png",
+      "prompt": "Use case: product-mockup. ONE original gaming desktop PC tower game inventory asset, complete product isolated centered square frame 12% padding. Photorealistic premium 3D render, three-quarter front-left view showing front and left side. Genuinely transparent alpha background, no floor, background, checkerboard, shadow halo, logo, writing or accessories. Neutral studio light readable on navy. PRO tier professional esports workstation tower. Sophisticated graphite anodized aluminium chassis with brushed silver vertical trim, precisely machined ventilation, tinted side glass reveals neatly routed cables and large air cooler plus powerful graphics card. Restrained white internal lighting, no RGB. Clean professional build."
+    },
+    {
+      "id": "pc-elite",
+      "source": "C:\\Users\\IsacC\\.codex\\generated_images\\01a094ee-aeaa-7462-b061-e94880ebb397\\exec-73ca9a41-e5af-4c11-8bb7-267a032b2dbe.png",
+      "prompt": "Use case: product-mockup. ONE original gaming desktop PC tower game inventory asset, complete product isolated centered square frame 12% padding. Photorealistic premium 3D render, three-quarter front-left view showing front and left side. Genuinely transparent alpha background, no floor, background, checkerboard, shadow halo, logo, writing or accessories. Neutral studio light readable on navy. ELITE tier flagship tournament PC tower. Ivory ceramic-finished aluminium case, thin champagne titanium structural rails, carbon-black internal panels, crystal-clear side window reveals immaculate custom liquid cooling with parallel rigid tubes, massive GPU and elegant radiator fans. Restrained warm-white lighting, no rainbow RGB, no text. Exceptionally refined high-end engineering."
+    }
+  ]
+}

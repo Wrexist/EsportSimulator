@@ -87,7 +87,7 @@ describe("runTeamDrill — slot gate + exhaustion gate", () => {
             players: [makePlayer("p1")],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        const res = slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 1 }], 5)
+        const res = slice.runTeamDrill("recoil_master", [{ stat: "rifle", amount: 1 }], 5)
         expect(res.success).toBe(false)
         expect(res.message).toContain("training limit")
     })
@@ -98,7 +98,7 @@ describe("runTeamDrill — slot gate + exhaustion gate", () => {
             teams: [makeTeam("player", ["p1", "p2"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        const res = slice.runTeamDrill("aim_drill", [], 5)
+        const res = slice.runTeamDrill("recoil_master", [], 5)
         expect(res.success).toBe(false)
         expect(res.message).toContain("p2")
         expect(res.message).toContain("exhausted")
@@ -107,7 +107,7 @@ describe("runTeamDrill — slot gate + exhaustion gate", () => {
     test("happy path: fires drill + consumes one training slot", () => {
         const h = makeHarness(makeBaseState())
         const slice = createTeamDrillsSlice(h.set, h.get)
-        const res = slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 1 }], 5)
+        const res = slice.runTeamDrill("recoil_master", [{ stat: "rifle", amount: 1 }], 5)
         expect(res.success).toBe(true)
         expect(h.state().teams[0].trainingSlotsUsed).toBe(1)
     })
@@ -120,7 +120,7 @@ describe("runTeamDrill — fatigue + Iron Lung talent", () => {
             teams: [makeTeam("player", ["p1", "p2"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [], 15)
+        slice.runTeamDrill("recoil_master", [], 15)
         expect(h.state().players[0].fatigue).toBe(35)
         expect(h.state().players[1].fatigue).toBe(45)
     })
@@ -134,20 +134,20 @@ describe("runTeamDrill — fatigue + Iron Lung talent", () => {
             teams: [makeTeam("player", ["p1", "p2"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [], 10)
-        // p1: 20 + ceil(10 * 0.8) = 20 + 8 = 28
-        // p2: 20 + 10 = 30
-        expect(h.state().players[0].fatigue).toBe(28)
-        expect(h.state().players[1].fatigue).toBe(30)
+        slice.runTeamDrill("recoil_master", [], 10)
+        // Catalog cost 15: 20 + ceil(15 * 0.8) = 32
+        // Same catalog cost without talent: 35
+        expect(h.state().players[0].fatigue).toBe(32)
+        expect(h.state().players[1].fatigue).toBe(35)
     })
 
     test("fatigue clamps at 100", () => {
         const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { fatigue: 80 })],
+            players: [makePlayer("p1", { fatigue: 89 })],
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [], 50)
+        slice.runTeamDrill("recoil_master", [], 50)
         // 80 + 50 = 130 → clamped to 100
         expect(h.state().players[0].fatigue).toBe(100)
     })
@@ -157,7 +157,7 @@ describe("runTeamDrill — XP + level-up", () => {
     test("flat +50 XP per drill", () => {
         const h = makeHarness(makeBaseState())
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [], 5)
+        slice.runTeamDrill("recoil_master", [], 5)
         expect(h.state().players[0].xp).toBe(50)
         expect(h.state().players[1].xp).toBe(50)
     })
@@ -168,7 +168,7 @@ describe("runTeamDrill — XP + level-up", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [], 5)
+        slice.runTeamDrill("recoil_master", [], 5)
         // 990 + 50 = 1040 → level up
         expect(h.state().players[0].level).toBe(4)
         expect(h.state().players[0].talentPoints).toBe(1)
@@ -185,12 +185,12 @@ describe("runTeamDrill — stat gains + mapping", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("agility_drill", [
+        slice.runTeamDrill("surf_utopia", [
             { stat: "agility", amount: 5 },
             { stat: "focus", amount: 3 },
         ], 5)
-        expect(h.state().players[0].reaction).toBe(55)
-        expect(h.state().players[0].stressResistance).toBe(53)
+        expect(h.state().players[0].reaction).toBe(52)
+        expect(h.state().players[0].stressResistance).toBe(52)
     })
 
     test("entry/accuracy/mechanics also map (entry→rifle, mechanics→skill)", () => {
@@ -199,12 +199,12 @@ describe("runTeamDrill — stat gains + mapping", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("multi", [
+        slice.runTeamDrill("recoil_master", [
             { stat: "entry", amount: 2 },
             { stat: "mechanics", amount: 3 },
         ], 5)
-        expect(h.state().players[0].rifle).toBe(62)
-        expect(h.state().players[0].skill).toBe(63)
+        expect(h.state().players[0].rifle).toBe(63)
+        expect(h.state().players[0].skill).toBe(61)
     })
 
     test("stat gains clamp at 100", () => {
@@ -213,18 +213,18 @@ describe("runTeamDrill — stat gains + mapping", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 50 }], 5)
+        slice.runTeamDrill("recoil_master", [{ stat: "rifle", amount: 50 }], 5)
         expect(h.state().players[0].rifle).toBe(100)
     })
 
     test("drill gains respect potential — can't grind a stat past it (G3)", () => {
         const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { rifle: 60, potential: 70 })],
+            players: [makePlayer("p1", { rifle: 69, potential: 70 })],
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 50 }], 5)
-        // 60 + 50 = 110, but capped at potential 70 (not 100).
+        slice.runTeamDrill("recoil_master", [{ stat: "rifle", amount: 50 }], 5)
+        // 69 + catalog gain 3 is capped at potential 70.
         expect(h.state().players[0].rifle).toBe(70)
     })
 
@@ -234,7 +234,7 @@ describe("runTeamDrill — stat gains + mapping", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("aim_drill", [{ stat: "rifle", amount: 5 }], 5)
+        slice.runTeamDrill("recoil_master", [{ stat: "rifle", amount: 5 }], 5)
         // Already above potential — the drill can't push higher, but mustn't drop it.
         expect(h.state().players[0].rifle).toBe(90)
     })
@@ -258,7 +258,7 @@ describe("runTeamDrill — weapon mastery", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("rifle_drill", [{ stat: "RIFLE", amount: 1 }], 5)
+        slice.runTeamDrill("recoil_master", [{ stat: "RIFLE", amount: 1 }], 5)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const wm = (h.state().players[0] as any).weaponMastery
         expect(wm).toBeDefined()
@@ -272,7 +272,7 @@ describe("runTeamDrill — weapon mastery", () => {
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
-        slice.runTeamDrill("focus_drill", [{ stat: "focus", amount: 2 }], 5)
+        slice.runTeamDrill("surf_utopia", [{ stat: "focus", amount: 2 }], 5)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((h.state().players[0] as any).weaponMastery).toBeUndefined()
     })

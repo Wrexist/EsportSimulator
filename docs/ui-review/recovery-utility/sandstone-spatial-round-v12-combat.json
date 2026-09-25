@@ -1,0 +1,40 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Sandstone",
+  "scope": "One seeded 10-second 5v5 recovery with gunfire enabled; requires actual shots and successful screened pickup. Not full-match or real-game lineup certification.",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "fixtureSha256": "06ecdb2eb4b1a3890a72c35cebb5ab6a20a236ac04f52616ac5e8eaaefed9f35",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 121,
+  "shots": 3,
+  "damage": 188,
+  "minSeparation": 32.21700528562483,
+  "checks": [
+    {
+      "id": "sandstone-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "4128fde8e56a3dfc218286a6e9846e845b34046eb0fc2ab757887b229ffb1ea8"
+}

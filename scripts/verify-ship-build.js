@@ -68,6 +68,9 @@ function walkExes(dir, acc = [], unreadable = []) {
 function main() {
     const errors = []
     const warnings = []
+    for (const marker of ['LOCAL-QA-ONLY', 'resources/LOCAL-QA-ONLY']) {
+        if (fs.existsSync(path.join(CONTENT_ROOT, marker))) errors.push('Local QA package cannot be uploaded to Steam.')
+    }
 
     console.log("=== Ship Build Verification ===")
     console.log(`Content root: ${CONTENT_ROOT}`)
@@ -91,6 +94,7 @@ function main() {
         launchIsFile = false
     }
     if (launchIsFile) {
+        if (!isWindowsX64Executable(launchPath)) errors.push(`${LAUNCH_EXE} is not a Windows x64 PE executable.`)
         console.log(green(`  ok  ${LAUNCH_EXE} present at depot root`))
     } else {
         errors.push(
@@ -161,13 +165,38 @@ function main() {
         }
     }
 
+    for (const required of ['resources/app.asar', 'icudtl.dat', 'resources.pak']) {
+        try {
+            if (!fs.statSync(path.join(CONTENT_ROOT, required)).isFile()) throw new Error('not a file')
+        } catch { errors.push(`Missing Electron runtime file: ${required}`) }
+    }
+    try { require('./launch/content-provenance.cjs').check() }
+    catch (error) { errors.push(error.message) }
+    try { require('./launch/content-provenance.cjs').checkPackaged(CONTENT_ROOT) }
+    catch (error) { errors.push(error.message) }
+    try { require('./launch/verify-packaged-artwork.cjs').check(CONTENT_ROOT) }
+    catch (error) { errors.push(error.message) }
     report(errors, warnings)
+}
+
+function isWindowsX64Executable(file) {
+    let fd
+    try {
+        fd = fs.openSync(file, 'r')
+        const dos = Buffer.alloc(64)
+        if (fs.readSync(fd, dos, 0, dos.length, 0) !== 64 || dos.readUInt16LE(0) !== 0x5a4d) return false
+        const offset = dos.readUInt32LE(60)
+        if (offset < 64 || offset + 6 > fs.fstatSync(fd).size) return false
+        const pe = Buffer.alloc(6)
+        return fs.readSync(fd, pe, 0, 6, offset) === 6 && pe.readUInt32LE(0) === 0x4550 && pe.readUInt16LE(4) === 0x8664
+    } catch { return false }
+    finally { if (fd !== undefined) fs.closeSync(fd) }
 }
 
 function report(errors, warnings) {
     for (const w of warnings) console.log(yellow(`  !!  ${w}`))
     if (errors.length === 0) {
-        console.log(green("\nPASS: ship build looks correct. Safe to upload to Steam."))
+        console.log(green("\nPASS: package structure and source content checks passed. Installed-game acceptance remains a separate requirement."))
         process.exit(0)
     }
     console.log(red(`\nFAIL: ${errors.length} blocker(s) — do NOT upload:`))
@@ -175,4 +204,5 @@ function report(errors, warnings) {
     process.exit(1)
 }
 
-main()
+if (require.main === module) main()
+module.exports = { isWindowsX64Executable, walkExes }

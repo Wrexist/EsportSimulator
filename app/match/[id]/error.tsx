@@ -87,7 +87,7 @@ export default function MatchError({
                     <button
                         onClick={reset}
                         disabled={resolving}
-                        className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 premium-white-action disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
                     >
                         <RefreshCw size={14} />
                         Retry

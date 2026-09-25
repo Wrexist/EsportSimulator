@@ -28,6 +28,7 @@ import {
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { generateSeed } from "./rng"
 import { defaultBrandingFor } from "@/lib/branding/fallback"
+import { createDefaultTactics } from "./default-tactics"
 
 /**
  * Migrate legacy save (no saveVersion or saveVersion 0) to v1.
@@ -330,5 +331,12 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 6) migrated = migrateToV6(migrated)
     if (version < 7) migrated = migrateToV7(migrated)
 
-    return migrated as unknown as GameSave
+    return {
+        ...migrated,
+        customTactics: migrated.customTactics ?? createDefaultTactics(),
+        watchlistedPlayerIds: migrated.watchlistedPlayerIds ?? [],
+        activeMatchId: migrated.activeMatchId ?? null,
+        activeMatchState: migrated.activeMatchState ?? null,
+        physicalMatchPreview: migrated.physicalMatchPreview ?? null,
+    } as unknown as GameSave
 }

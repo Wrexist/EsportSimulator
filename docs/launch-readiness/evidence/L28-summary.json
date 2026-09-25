@@ -1,0 +1,413 @@
+{
+  "groups": {
+    "baseline-small": {
+      "runs": 60,
+      "uniqueSeeds": 30,
+      "totalTicks": 503,
+      "completed520": 0,
+      "failureRuns": 60,
+      "terminal": {},
+      "ticks": {
+        "n": 60,
+        "min": 1,
+        "median": 6.0,
+        "max": 41
+      },
+      "matches": 418,
+      "shortageRunCount": 0,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 60,
+        "min": 98380,
+        "median": 597151.5,
+        "max": 2142975
+      }
+    },
+    "baseline-world": {
+      "runs": 6,
+      "uniqueSeeds": 3,
+      "totalTicks": 6,
+      "completed520": 0,
+      "failureRuns": 6,
+      "terminal": {},
+      "ticks": {
+        "n": 6,
+        "min": 1,
+        "median": 1.0,
+        "max": 1
+      },
+      "matches": 0,
+      "shortageRunCount": 0,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 6,
+        "min": 417648,
+        "median": 471073.0,
+        "max": 479635
+      }
+    },
+    "candidate2-small": {
+      "runs": 60,
+      "uniqueSeeds": 30,
+      "totalTicks": 31200,
+      "completed520": 60,
+      "failureRuns": 0,
+      "terminal": {},
+      "ticks": {
+        "n": 60,
+        "min": 520,
+        "median": 520.0,
+        "max": 520
+      },
+      "matches": 23927,
+      "shortageRunCount": 7,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 60,
+        "min": 14422636,
+        "median": 19678413.5,
+        "max": 27524861
+      }
+    },
+    "candidate2-world": {
+      "runs": 6,
+      "uniqueSeeds": 3,
+      "totalTicks": 262,
+      "completed520": 0,
+      "failureRuns": 0,
+      "terminal": {
+        "BANKRUPTCY": 6
+      },
+      "ticks": {
+        "n": 6,
+        "min": 32,
+        "median": 49.0,
+        "max": 50
+      },
+      "matches": 8238,
+      "shortageRunCount": 0,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 6,
+        "min": -229832,
+        "median": -210016.0,
+        "max": 300117
+      }
+    },
+    "natural-world": {
+      "runs": 6,
+      "uniqueSeeds": 3,
+      "totalTicks": 254,
+      "completed520": 0,
+      "failureRuns": 4,
+      "terminal": {
+        "BANKRUPTCY": 2
+      },
+      "ticks": {
+        "n": 6,
+        "min": 25,
+        "median": 51.0,
+        "max": 51
+      },
+      "matches": 7826,
+      "shortageRunCount": 1,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 6,
+        "min": -222481,
+        "median": 1127048.0,
+        "max": 1634836
+      }
+    },
+    "natural-final-world": {
+      "runs": 6,
+      "uniqueSeeds": 3,
+      "totalTicks": 774,
+      "completed520": 0,
+      "failureRuns": 0,
+      "terminal": {
+        "BANKRUPTCY": 2,
+        "SACKED": 4
+      },
+      "ticks": {
+        "n": 6,
+        "min": 25,
+        "median": 155.0,
+        "max": 207
+      },
+      "matches": 23326,
+      "shortageRunCount": 4,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 6,
+        "min": -222481,
+        "median": 3077198.0,
+        "max": 3311099
+      }
+    },
+    "repeat-final-small": {
+      "runs": 2,
+      "uniqueSeeds": 1,
+      "totalTicks": 1040,
+      "completed520": 2,
+      "failureRuns": 0,
+      "terminal": {},
+      "ticks": {
+        "n": 2,
+        "min": 520,
+        "median": 520.0,
+        "max": 520
+      },
+      "matches": 801,
+      "shortageRunCount": 0,
+      "deadSeasonRuns": 0,
+      "managedCash": {
+        "n": 2,
+        "min": 24484092,
+        "median": 24514312.0,
+        "max": 24544532
+      }
+    },
+    "settlement-final-world": {
+      "runs": 6,
+      "uniqueSeeds": 3,
+      "totalTicks": 1238,
+      "completed520": 2,
+      "failureRuns": 0,
+      "terminal": {
+        "BANKRUPTCY": 4
+      },
+      "matches": 37162,
+      "shortageRunCount": 2,
+      "deadSeasonRuns": 0
+    }
+  },
+  "matchedBaselineInputs": true,
+  "pairedTraining": [
+    {
+      "seed": 28001,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -60440,
+      "injuryDifferenceIntensiveMinusLight": -16,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28002,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 125758,
+      "injuryDifferenceIntensiveMinusLight": -4,
+      "matchDifference": 1
+    },
+    {
+      "seed": 28003,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": -385150,
+      "injuryDifferenceIntensiveMinusLight": 1,
+      "matchDifference": -3
+    },
+    {
+      "seed": 28004,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": -384115,
+      "injuryDifferenceIntensiveMinusLight": -5,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28005,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": 764392,
+      "injuryDifferenceIntensiveMinusLight": 9,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28006,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 1495874,
+      "injuryDifferenceIntensiveMinusLight": -13,
+      "matchDifference": 4
+    },
+    {
+      "seed": 28007,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": -334581,
+      "injuryDifferenceIntensiveMinusLight": 3,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28008,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": -57027,
+      "injuryDifferenceIntensiveMinusLight": -3,
+      "matchDifference": 3
+    },
+    {
+      "seed": 28009,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -874305,
+      "injuryDifferenceIntensiveMinusLight": -11,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28010,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 1333700,
+      "injuryDifferenceIntensiveMinusLight": -3,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28011,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": -866648,
+      "injuryDifferenceIntensiveMinusLight": 12,
+      "matchDifference": 2
+    },
+    {
+      "seed": 28012,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": -854181,
+      "injuryDifferenceIntensiveMinusLight": 2,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28013,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -597488,
+      "injuryDifferenceIntensiveMinusLight": -9,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28014,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": -138149,
+      "injuryDifferenceIntensiveMinusLight": -3,
+      "matchDifference": -2
+    },
+    {
+      "seed": 28015,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": -656027,
+      "injuryDifferenceIntensiveMinusLight": -8,
+      "matchDifference": 1
+    },
+    {
+      "seed": 28016,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": 833386,
+      "injuryDifferenceIntensiveMinusLight": 7,
+      "matchDifference": 2
+    },
+    {
+      "seed": 28017,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": 1052944,
+      "injuryDifferenceIntensiveMinusLight": -13,
+      "matchDifference": 3
+    },
+    {
+      "seed": 28018,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 948218,
+      "injuryDifferenceIntensiveMinusLight": -8,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28019,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": 365274,
+      "injuryDifferenceIntensiveMinusLight": -7,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28020,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": 735193,
+      "injuryDifferenceIntensiveMinusLight": -3,
+      "matchDifference": 1
+    },
+    {
+      "seed": 28021,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -113143,
+      "injuryDifferenceIntensiveMinusLight": -6,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28022,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": -661865,
+      "injuryDifferenceIntensiveMinusLight": 7,
+      "matchDifference": -2
+    },
+    {
+      "seed": 28023,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": 920906,
+      "injuryDifferenceIntensiveMinusLight": 10,
+      "matchDifference": 0
+    },
+    {
+      "seed": 28024,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": 465208,
+      "injuryDifferenceIntensiveMinusLight": -5,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28025,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -464023,
+      "injuryDifferenceIntensiveMinusLight": -14,
+      "matchDifference": 2
+    },
+    {
+      "seed": 28026,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 1030149,
+      "injuryDifferenceIntensiveMinusLight": 1,
+      "matchDifference": -2
+    },
+    {
+      "seed": 28027,
+      "difficulty": "hard",
+      "cashDifferenceIntensiveMinusLight": 224554,
+      "injuryDifferenceIntensiveMinusLight": 8,
+      "matchDifference": -1
+    },
+    {
+      "seed": 28028,
+      "difficulty": "impossible",
+      "cashDifferenceIntensiveMinusLight": 1461143,
+      "injuryDifferenceIntensiveMinusLight": -1,
+      "matchDifference": -2
+    },
+    {
+      "seed": 28029,
+      "difficulty": "story",
+      "cashDifferenceIntensiveMinusLight": -625014,
+      "injuryDifferenceIntensiveMinusLight": 28,
+      "matchDifference": 1
+    },
+    {
+      "seed": 28030,
+      "difficulty": "normal",
+      "cashDifferenceIntensiveMinusLight": 699530,
+      "injuryDifferenceIntensiveMinusLight": 2,
+      "matchDifference": 1
+    }
+  ],
+  "cashDifference": {
+    "n": 30,
+    "min": -874305,
+    "median": 34365.5,
+    "max": 1495874
+  },
+  "injuryDifference": {
+    "n": 30,
+    "min": -16,
+    "median": -3.0,
+    "max": 28
+  },
+  "limitation": "Staged evidence: the 30-seed small campaign precedes retirement and end-of-week solvency follow-ups. Post-retirement small repeat and final-code settlement world runs are separate. No final integrated 30-seed ten-season full-world or human acceptance.",
+  "postRetirementSeed28001RepeatOutputEqual": true,
+  "settlementFollowupSameInputs": true
+}

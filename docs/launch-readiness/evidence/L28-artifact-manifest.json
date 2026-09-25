@@ -1,0 +1,52 @@
+[
+  {
+    "path": "tmp/l28-campaign-checkpoints.zip",
+    "bytes": 242280024,
+    "sha256": "436bf3ea9fc661683494d2a989b143c1367dcadaa649b889da9146372fee7284"
+  },
+  {
+    "path": "engine/ai-manager.ts",
+    "bytes": 24046,
+    "sha256": "630f70fd27a7f38127d7307fcb8a63306bfb59798826c068eddeb8474551d9d7"
+  },
+  {
+    "path": "engine/pro-awards-engine.ts",
+    "bytes": 17540,
+    "sha256": "b1a43b416a47f56d3bd9cebd8f30948e63a233767bfa53fb34d58ac941231bcc"
+  },
+  {
+    "path": "engine/atomic-week-processor.ts",
+    "bytes": 75789,
+    "sha256": "7b000536cefe1c3526ab7eea08e5b670e6e8028a47609f051140e2d3ef6cfa5e"
+  },
+  {
+    "path": "engine/processors/finance-processor.ts",
+    "bytes": 20606,
+    "sha256": "46ad7cee5664f19632c92c7bbce80d0e0524f362aae5fbfdf559afe68f1187e3"
+  },
+  {
+    "path": "engine/economy-engine.ts",
+    "bytes": 9819,
+    "sha256": "acf15cdb8c9f32ce9d0e965f9e0c5b04fff1683d07169c2638ff3dae4724f311"
+  },
+  {
+    "path": "scripts/launch/l28-balance-campaign.ts",
+    "bytes": 10701,
+    "sha256": "608e90dc062347accc0460c4f158d05d4d4a2132180385799e651e5c4aa3f236"
+  },
+  {
+    "path": "scripts/launch/balance-metrics.ts",
+    "bytes": 4322,
+    "sha256": "4581f71102e7f7d0adbbf1a52cd020b5ba38b03c8456b604e36445b19632b2f5"
+  },
+  {
+    "path": "scripts/launch/l28-tactical-pairs.ts",
+    "bytes": 2949,
+    "sha256": "240aa2df195ac5a9912b3b2e951cda09a7e2259d467f57308149cfd34bb4d06a"
+  },
+  {
+    "path": "__tests__/l28-balance-contracts.test.ts",
+    "bytes": 6486,
+    "sha256": "3411d31780a4f114238b87b487bd7b64bb8659dae3eaf224de0e6e05c9cabc1f"
+  }
+]

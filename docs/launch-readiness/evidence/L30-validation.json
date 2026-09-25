@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-14",
+  "tests": {
+    "passed": 1650,
+    "suites": 172
+  },
+  "typecheck": "passed",
+  "buildId": "WOMDt4J9XzaXV0mhJvMsO",
+  "worker": "3816.711a4bcdc480627e.js",
+  "nativeIpc": "passed - synthetic Steam services, isolated Electron transport",
+  "actualSteam": "read-only identity/ownership/settings probe; no mutations",
+  "preview": {
+    "port": 3210,
+    "pid": 447176,
+    "http200": [
+      "/main-menu",
+      "/load-game",
+      "/settings/community-import"
+    ],
+    "visualAcceptance": false
+  },
+  "contentUnresolved": 4988,
+  "sourceHashes": {
+    "electron/steam.js": "79c4b11f0bd869ff793511dabaf2913042de820db3567eff11ffbacc3424e7fa",
+    "electron/main.js": "40b243f168e9c4d7a1e034dfe221b509790bfbe3e0a1840e400f8aebdf6b10a4",
+    "electron/preload.js": "5cdc5a50ed270bdf17252dcdd26fa2982cb3ad6aec1acb9429a3547836a4999d",
+    "electron/ipc-policy.js": "d1e83a88cc97b51f08ba8d0f7fc08adfbe34e29692bb94bcc2eaf97a6fca1435",
+    "electron/mod-assets.js": "8956f4a5bfa4d07e5422becbf8b32f102861990e96cd2f31f140f2154353ca1e",
+    "engine/steam-service.ts": "c80937b990e3e5c260f6ebc5d86c1acbfd9322a6c7d5f400449dffac245967b3",
+    "engine/save-manager.ts": "f6d6ab3fc4d25d056281c3e5e057c6aeb86b3cb0fe011c753116daabc8fbbd80",
+    "app/load-game/page.tsx": "f7033d6a35da068079454179afd301651df5b65548494548755adddde1c93ee2",
+    "app/settings/community-import/page.tsx": "6356073e4b33635e4aed6127ddc24bd3a69772cbb15ab9c1a4c2494a1ebd741d",
+    "store/game-store.ts": "378dca839110a779f503e35591b5d0f64292e9f9da297628fad2df77eb70b064",
+    "types/electron-window.d.ts": "6fca53d3dbcd8ccbf42ff00a897235cbd1862c6014dcefd3b8ecfdba28493fb4"
+  },
+  "status": "partial",
+  "next": "L31 Windows shipping artifact"
+}

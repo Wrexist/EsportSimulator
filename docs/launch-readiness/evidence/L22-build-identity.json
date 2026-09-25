@@ -1,0 +1,45 @@
+{
+  "reviewedAt": "2026-09-14",
+  "buildId": "X-YUbkV5tvJuK3DL9cuDK",
+  "worker": "3816.0d3a693d9299321c.js",
+  "workerSha256": "e148aea91db4600cacb9c776739f4960db8a9b7aed42c045f947d1eea739dae6",
+  "sources": {
+    "lib/first-session.ts": "47ba8ed20638b87411c1c0393513184442597d62312bc90c29a49985cb0851b3",
+    "lib/new-career-draft.ts": "8d016a536d024396dc2bfa8b72d22a60ca65e322d9e5053a5fd95ffa2953fd9b",
+    "store/game-store.ts": "24f3a3e2dd8c863cb579f4c1d80eb4b5d568b3a16d391b194de5c040b7f60803",
+    "store/types.ts": "4e0778b199de3f57c656cd28e852b25536fa0e35faea841ba67fd6d690804d04",
+    "store/utils/build-save-snapshot.ts": "7315a54f29c3f1210ce26b4074f85466ae481bdb18b6ed4106229bcc8739bb51",
+    "store/slices/settings-slice.ts": "872014b0df35c87af854d36e7d58646c308add37ad3cfc70618d614bd3f5cc2b",
+    "store/slices/ui-slice.ts": "5ab6dde7998cdccada9ee3028d8b610c6c74f0c3df862e137427a6e6ba7dc1bb",
+    "engine/save-types.ts": "72e62b2ab3a51ac4f8992a23f65a93780440b4bcd295eb609430995c37eff7e2",
+    "engine/save-manager.ts": "a92ae4ee61e32a68881fdf835bc5e05c48c1b368182633cee1ffe37361702f79",
+    "components/dashboard/GettingStartedChecklist.tsx": "94998659a9381cb12f108d74ad411e364fb215d025b9336164387f4a99b0984a",
+    "components/dashboard/WeeklyFocusWidget.tsx": "2f2e5edd90fb1a491df9c122a0da815700b420cee4c30583eda262304bb25118",
+    "components/dashboard/ActionCenter.tsx": "f430ffd0d0b9e6f15a68399bef4ac729d47a6c1e102eb683b774d86dc0bbc31f",
+    "components/ui/TutorialOverlay.tsx": "4e021dcffdd34987f487293ee0f65701799f5cab4e3f41cfa54d3bb91ad07fdd",
+    "components/ui/help-system.tsx": "a7c0e8defcefce90a71d3b4806e2d961ecd77ca73dd43a9879c34ed8ae9756bf",
+    "components/layout/GameShell.tsx": "19c6ee4da9dfe6cca594ddd366c05ee9b712483a515707e08a11632058e1bafd",
+    "app/new-game/page.tsx": "a105df944c6c93a5bf63d43da528ad298e7072f0823e50f8098605f9dd715b49",
+    "app/new-game/create-team/page.tsx": "e232379f4418bd0fba66abb7d5115607d4a7e6c322e97aaf6aa8f9075a783f6e",
+    "app/settings/page.tsx": "a3a629c44a6832b8e0a349e1d765d6e87617de95082d07598e8c8cd0fa25cc44",
+    "__tests__/l22-first-session.test.ts": "d653ba62f79cff8c544274714c90dfc871cba8649285769b9c484805010ef6b5",
+    "__tests__/settings-slice.test.ts": "382034a663827d3221c58b53d725d58aef3897f49552a51acadbf8631db9c60e",
+    "scripts/launch/l22-first-session-browser.ts": "fadc351e7dfaecc40234fb6b96b7b7eb2f759053a6b260c869d25071d789a030",
+    "scripts/launch/build-week-replay-probe.cjs": "17e179664cccd5c8edfbe986fd198c69df4c5cc54ab11f27cfcf4eee9e78d7a3"
+  },
+  "mirageDrafts": {
+    "public/map-studio/drafts/mirage-user-v12-2026-09-13.json": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+    "public/map-studio/drafts/mirage-user-areas-2026-09-13.json": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+  },
+  "previewPid": 398944,
+  "previewPort": 3210,
+  "nativeProfile": "tmp/l04-native/run-wHIpqn",
+  "steamAppId": 4326170,
+  "contentUnresolvedOrChanged": 4975,
+  "browserInventory": {
+    "apps": [],
+    "browsers": []
+  },
+  "ownerCareersOpenedOrAdvanced": false,
+  "freshParticipantsTested": 0
+}

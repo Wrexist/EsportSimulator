@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "electron": "44.3.0",
+  "directory": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l07-native\\run-xbonzl",
+  "checks": [
+    {
+      "name": "Trusted sandboxed main frame + schema rejection + private setting preservation",
+      "passed": true,
+      "results": {
+        "url": "http://localhost:33300/",
+        "nodeExposed": false,
+        "write": true,
+        "read": "synthetic",
+        "badKey": false,
+        "badSize": false,
+        "badMod": false,
+        "mod": true,
+        "clear": true,
+        "popupDenied": true
+      }
+    },
+    {
+      "name": "Renderer navigation prevented and popup denied",
+      "passed": true
+    },
+    {
+      "name": "Different real WebContents denied at same origin",
+      "passed": true,
+      "results": {
+        "url": "http://localhost:33300/",
+        "nodeExposed": false,
+        "write": false,
+        "read": null,
+        "badKey": false,
+        "badSize": false,
+        "badMod": false,
+        "mod": false,
+        "clear": false,
+        "popupDenied": true
+      }
+    },
+    {
+      "name": "Same real WebContents denied after origin changes",
+      "passed": true,
+      "results": {
+        "url": "data:text/html,<p>Untrusted document</p>",
+        "nodeExposed": false,
+        "write": false,
+        "read": null,
+        "badKey": false,
+        "badSize": false,
+        "badMod": false,
+        "mod": false,
+        "clear": false,
+        "popupDenied": true
+      }
+    },
+    {
+      "name": "Unexpected Host rejected by actual loopback listener",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Synthetic storage/Steam SDK; no live Steam calls. Actual main/Steam handlers and real Electron IPC, not a packaged build."
+  ],
+  "port": 33300,
+  "address": "127.0.0.1"
+}

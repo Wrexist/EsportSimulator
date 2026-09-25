@@ -1,0 +1,109 @@
+{
+  "buildId": "HgrJLttZZgAy4aZACqOIU",
+  "steamAppId": 4326170,
+  "previewPid": 568668,
+  "previewPort": 3210,
+  "nativeProfile": "tmp/l04-native/run-Tvr6w8",
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "edc2406738e52daf81c980cb8b4e64408d9c676f1ce4d8585212eee085ad1e57"
+    },
+    {
+      "path": ".next/static/chunks/3816.5880072c3e0fc596.js",
+      "sha256": "3ac5b378fe94e873b1ed5a6b1fca2ea4f557436d3df297c0cf734cb4485e10ae"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    },
+    {
+      "path": "steam_appid.txt",
+      "sha256": "2d41b39e9cf25ff993af921cbf15a13a68fb8dbf32c816fa1e926163117242e3"
+    },
+    {
+      "path": "engine/club-management.ts",
+      "sha256": "7da8114b4f45c057f32eafb905101c48d0dd4210b4617b2af4963b61365a8cef"
+    },
+    {
+      "path": "engine/career-decisions.ts",
+      "sha256": "5636e5cbfc6206fb86b78dfbdf5aba0ca117c82f1c6f296bb406aea1a5a34c96"
+    },
+    {
+      "path": "engine/career-stats.ts",
+      "sha256": "5c3a9bcb382ff35b453419c24251c5066c2ba6d70c50a9e10b86d20816c2a5f8"
+    },
+    {
+      "path": "engine/board-expectations.ts",
+      "sha256": "21f1b2ed2f733ce4890fc2d8c5e894eaec6a84a996ad8ec81043c2dd06528c11"
+    },
+    {
+      "path": "engine/job-offer-generator.ts",
+      "sha256": "72b0ef696fb0a3a14688e79d336f0bee0626e9e3c066b279f2f926f7ebb4ecc3"
+    },
+    {
+      "path": "engine/manager-career-profile.ts",
+      "sha256": "67f687d2e0065f985451872c60e9d4e75c3cd5b6421ec996e09c2492d216e7d5"
+    },
+    {
+      "path": "engine/recruitment.ts",
+      "sha256": "fa94d2f5ee61fe6a95a7dd351585c66a61bf17622bdb21685a123c1db09e4a95"
+    },
+    {
+      "path": "engine/processors/finance-processor.ts",
+      "sha256": "c3973c2532a48cd2afa61d3fe5283d75e2533e63d1e5ac7f064970dacf7e2d85"
+    },
+    {
+      "path": "engine/processors/player-gc.ts",
+      "sha256": "9206bb0605925720cafff4a9f0d2be159a459915b3949944a3353facfee8fe1e"
+    },
+    {
+      "path": "engine/atomic-week-processor.ts",
+      "sha256": "9182288d246cac2a2aac81046a248741575ad228812d5871b99f8d127ecf7665"
+    },
+    {
+      "path": "engine/save-types.ts",
+      "sha256": "49ed3291c4f264923a6c18729fad62af15092637102318a761a1aed959bf9eb8"
+    },
+    {
+      "path": "store/slices/events-slice.ts",
+      "sha256": "7aa9bf774e185eb4550e83172e5a87ac4af6c0119cde2eda1e73b9dfb2eb7a62"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "ce0ffa23ee0db0eb9c800fc072cc8cc15a80c7b36788a69ebc4abf1cc5bf3467"
+    },
+    {
+      "path": "components/dashboard/SeasonObjectives.tsx",
+      "sha256": "8c209262fa82cc45b0514da085a206907127882d2165c61003dacac0859dba16"
+    },
+    {
+      "path": "components/celebration/SeasonRecapModal.tsx",
+      "sha256": "5bcb69504c85e23455b2827b2400ef155dc1486ff6eecfff3cfef631cbda8fef"
+    },
+    {
+      "path": "__tests__/l20-career-boundaries.test.ts",
+      "sha256": "571931a9da9b410846b36cffdf6547bab05253f11bc5a1b32ce9ab0e982e45a2"
+    },
+    {
+      "path": "__tests__/events-slice.test.ts",
+      "sha256": "c1da27f745d556db782fcaae227f71777b07e2cb80da5336b5cd63f8eb6dbf1d"
+    },
+    {
+      "path": "__tests__/manager-career-profile.test.ts",
+      "sha256": "7098887e25c5e171a072ab924fb0ac8c06db875646bb6554b7a8882d95d491d8"
+    },
+    {
+      "path": "scripts/launch/l20-career-audit.ts",
+      "sha256": "cd457e1d93dc9da528d2b0fe087d9b24a76f7f166c5244ea5be16eb31f6138d9"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    }
+  ]
+}

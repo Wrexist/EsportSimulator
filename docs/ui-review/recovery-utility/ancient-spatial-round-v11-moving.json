@@ -1,0 +1,38 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Ancient",
+  "scope": "5v5 moving-squad recovery regression with gunfire disabled; not a combat or real-game lineup certificate.",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "fixtureSha256": "d9282ee2c7e69611c5c137718f42456fd1baec6ac2d0e353d59c5977208cbe85",
+  "passed": true,
+  "held": true,
+  "movedDuringFlight": [
+    "CT2",
+    "CT3",
+    "CT4",
+    "CT5",
+    "T3",
+    "T4",
+    "T5"
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "readyTick": 97,
+  "pickupTick": 121,
+  "minSeparation": 32.316649255912964,
+  "checks": [
+    {
+      "id": "ancient-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "outputSha256": "03e8e011d1ac1c920709d13272204939b8df24189c65a4dd1601a9ed0d87e2e0"
+}

@@ -1,0 +1,507 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Overpass",
+  "fixtureSha256": "6ef33815a7bf927483a568b448c56f232f6d51bb738163d2e354ccbe41bdca33",
+  "simulatorSourceSha256": "11e1c5001b916f3addcaebfbf3b94d67477987a856dedf966c2a8643295e8c2f",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 61.890625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 208313,
+      "metrics": {
+        "shots": 24,
+        "damage": 500,
+        "reports": 19,
+        "waits": 1907,
+        "replans": 127,
+        "minSeparation": 32.003094891935255
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 8,
+      "routeFailures": [
+        {
+          "tick": 272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 992,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1008,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 1056,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1120,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1184,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1248,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1312,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1376,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1440,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1504,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1568,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1632,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1696,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1760,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1824,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1840,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 1888,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2016,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2080,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2144,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2208,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2256,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 2272,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2304,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 3936,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T4",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "b4b557ca28991bc6b41392842bf6b11a1b0e2be4f8bbb190cf02369b3b68cb5c"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 57.53125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 133037,
+      "metrics": {
+        "shots": 64,
+        "damage": 600,
+        "reports": 84,
+        "waits": 1068,
+        "replans": 106,
+        "minSeparation": 32.01272333430907
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 1,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1280,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 1520,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "a5b2219bad72d38c73834e5476e6c1c507ab31588ca60028e31b14f956121cde"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 73.25,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 216234,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 285,
+        "waits": 2238,
+        "replans": 130,
+        "minSeparation": 32.003094891935255
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 6,
+      "routeFailures": [
+        {
+          "tick": 272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT3",
+          "side": "CT"
+        },
+        {
+          "tick": 992,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1008,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 1056,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1120,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1184,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1248,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1312,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1376,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1440,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1504,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1568,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1632,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1696,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1760,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1824,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1840,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 1888,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 1952,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2016,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2080,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2336,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2400,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2464,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2528,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2592,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 2656,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 3792,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T4",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T4",
+          "point": [
+            -852.1908781825965,
+            -74.64335066157115,
+            104.00001
+          ],
+          "goal": [
+            -877.7002559816331,
+            -93.6421702930368,
+            104.00001
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "476fe39f610f463df350983c2902c10824036866c75193f5d096a0301f96f4fe"
+    }
+  ]
+}

@@ -69,7 +69,11 @@ export class SteamService {
     private isInitialized: boolean = false
     private onUnlockCallback?: (achievement: Achievement) => void
     private electronBridge: any = null
-    private readonly cacheKey = "steam_achievements_cache_v1"
+    private readonly cacheKey = "steam_achievements_cache_v2"
+    private accountId: string | null = null
+    private scopeRevision = 0
+    private pendingAchievements = new Set<string>()
+    private unlockFlights = new Map<string, Promise<boolean>>()
     private activeSaveId: string | null = null
 
     private constructor() { }
@@ -85,9 +89,10 @@ export class SteamService {
      * Initialize the Steam SDK via Electron Bridge
      */
     async initialize(onUnlock?: (achievement: Achievement) => void): Promise<boolean> {
+        if (onUnlock) this.onUnlockCallback = onUnlock
         if (this.isInitialized) return true
 
-        if (typeof window !== "undefined") {
+        if (typeof globalThis.window !== "undefined") {
             // Access the bridge exposed in preload.js
             this.electronBridge = (window as ElectronWindow).electron?.steam
 
@@ -112,6 +117,9 @@ export class SteamService {
 
     async setActiveSave(saveId: string | null): Promise<void> {
         this.activeSaveId = saveId
+        this.scopeRevision++
+        this.unlockedAchievements.clear()
+        this.pendingAchievements.clear()
         if (!this.isInitialized) return
         if (this.electronBridge) {
             await this.refreshUnlockedFromSteam()
@@ -123,8 +131,8 @@ export class SteamService {
     // ===== STATS & ACHIEVEMENTS =====
     async setStat(name: string, value: number) {
         if (!this.electronBridge) return
-        await this.electronBridge.setStat(name, value)
-        await this.electronBridge.storeStats()
+        if (!Number.isFinite(value)) return
+        if (await this.electronBridge.setStat(name, Math.max(0, Math.min(2147483647, Math.round(value)))) === true) await this.electronBridge.storeStats()
     }
 
     async updatePlayerStats(stats: {
@@ -147,7 +155,7 @@ export class SteamService {
         if (stats.headshots !== undefined) await this.electronBridge.setStat("stat_total_hs", stats.headshots)
         if (stats.wins !== undefined) await this.electronBridge.setStat("stat_total_wins", stats.wins)
         if (stats.matches !== undefined) await this.electronBridge.setStat("stat_total_matches", stats.matches)
-        if (stats.budget !== undefined) await this.electronBridge.setStat("stat_max_budget", stats.budget)
+        if (stats.budget !== undefined) await this.electronBridge.setStat("stat_max_budget", Math.max(0, Math.min(2147483647, Math.round(stats.budget))))
 
         // Extended stats
         if (stats.tournamentsWon !== undefined) await this.electronBridge.setStat("stat_tournaments_won", stats.tournamentsWon)
@@ -155,7 +163,7 @@ export class SteamService {
         if (stats.matchesLost !== undefined) await this.electronBridge.setStat("stat_matches_lost", stats.matchesLost)
         if (stats.peakRanking !== undefined) await this.electronBridge.setStat("stat_peak_ranking", stats.peakRanking)
         if (stats.playersDeveloped !== undefined) await this.electronBridge.setStat("stat_players_developed", stats.playersDeveloped)
-        if (stats.prizeMoney !== undefined) await this.electronBridge.setStat("stat_prize_money", stats.prizeMoney)
+        if (stats.prizeMoney !== undefined) await this.electronBridge.setStat("stat_prize_money", Math.max(0, Math.min(2147483647, Math.round(stats.prizeMoney))))
 
         await this.electronBridge.storeStats()
     }
@@ -190,45 +198,66 @@ export class SteamService {
     }
 
     async unlockAchievement(achievementId: string): Promise<boolean> {
+        if (!Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId)) return false
+        if (!this.electronBridge) return this.unlockOnce(achievementId)
+        const key = `${this.scopeRevision}:${achievementId}`
+        const current = this.unlockFlights.get(key)
+        if (current) return current
+        const flight = this.unlockOnce(achievementId).finally(() => this.unlockFlights.delete(key))
+        this.unlockFlights.set(key, flight)
+        return flight
+    }
+
+    private async unlockOnce(achievementId: string): Promise<boolean> {
         if (!this.isInitialized) await this.initialize()
-        if (this.unlockedAchievements.has(achievementId)) return true
-
-        const achievement = ACHIEVEMENTS[achievementId]
-        if (!achievement) return false
-
+        if (this.electronBridge?.getSteamId) await this.synchronizeIdentity()
+        const revision = this.scopeRevision
+        if (this.unlockedAchievements.has(achievementId) && !this.pendingAchievements.has(achievementId)) return true
+        const alreadyLocal = this.unlockedAchievements.has(achievementId)
         try {
-            if (this.electronBridge?.isAchievementUnlocked) {
-                const alreadyUnlocked = await this.electronBridge.isAchievementUnlocked(achievementId)
-                if (alreadyUnlocked) {
-                    this.unlockedAchievements.add(achievementId)
-                    this.persistCachedAchievements()
-                    return true
-                }
-            }
-
+            let accepted = !this.electronBridge
             if (this.electronBridge) {
-                await this.electronBridge.setAchievement(achievementId)
-                if (this.electronBridge.isAchievementUnlocked) {
-                    const confirmed = await this.electronBridge.isAchievementUnlocked(achievementId)
-                    if (!confirmed) return false
+                const alreadyRemote = await this.electronBridge.isAchievementUnlocked?.(achievementId)
+                if (revision !== this.scopeRevision) return false
+                if (alreadyRemote === true && !this.pendingAchievements.has(achievementId)) accepted = true
+                else {
+                    accepted = (await this.electronBridge.setAchievement?.(achievementId)) === true
+                    if (accepted && this.electronBridge.isAchievementUnlocked) accepted = (await this.electronBridge.isAchievementUnlocked(achievementId)) === true
                 }
             }
+            if (revision !== this.scopeRevision) return false
             this.unlockedAchievements.add(achievementId)
+            if (accepted) this.pendingAchievements.delete(achievementId)
+            else this.pendingAchievements.add(achievementId)
             this.persistCachedAchievements()
-            debug.log(`[Steam] Achievement Unlocked: ${achievement.name}`)
-
-            if (this.onUnlockCallback) {
-                this.onUnlockCallback({ ...achievement, unlocked: true, unlockedAt: new Date() })
-            }
-            return true
+            if (!alreadyLocal) this.onUnlockCallback?.({ ...ACHIEVEMENTS[achievementId], unlocked: true, unlockedAt: new Date() })
+            return accepted
         } catch (error) {
-            debug.error(`[Steam] Failed to unlock achievement ${achievementId}:`, error)
+            if (revision === this.scopeRevision) {
+                this.pendingAchievements.add(achievementId)
+                this.persistCachedAchievements()
+            }
+            debug.warn(`[Steam] Achievement queued for retry: ${achievementId}`)
             return false
         }
     }
 
+    private async synchronizeIdentity(): Promise<void> {
+        if (!this.electronBridge?.getSteamId) return
+        let id: string | null = null
+        try {
+            const value = await this.electronBridge.getSteamId()
+            if (typeof value === "string" && /^[1-9][0-9]{0,19}$/.test(value)) id = value
+        } catch { return } // A transient transport failure must not merge accounts.
+        if (id !== this.accountId) {
+            this.accountId = id
+            this.scopeRevision++
+            this.loadCachedAchievements()
+        }
+    }
+
     isUnlocked(achievementId: string): boolean {
-        return this.unlockedAchievements.has(achievementId)
+        return Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId) && this.unlockedAchievements.has(achievementId)
     }
 
     getAllAchievements(): Achievement[] {
@@ -259,48 +288,48 @@ export class SteamService {
     }
 
     private getCacheKey(): string {
-        return this.activeSaveId ? `${this.cacheKey}_${this.activeSaveId}` : this.cacheKey
+        return this.accountId ? `${this.cacheKey}_account_${this.accountId}` : `${this.cacheKey}_local_${this.activeSaveId || "menu"}`
     }
 
     private async refreshUnlockedFromSteam(): Promise<void> {
-        if (!this.electronBridge?.isAchievementUnlocked) {
-            this.loadCachedAchievements()
-            return
-        }
-
-        const unlocked = new Set<string>()
+        await this.synchronizeIdentity()
+        this.loadCachedAchievements()
+        if (!this.electronBridge?.isAchievementUnlocked) return
+        const revision = this.scopeRevision
         for (const id of Object.keys(ACHIEVEMENTS)) {
             try {
-                const isUnlocked = await this.electronBridge.isAchievementUnlocked(id)
-                if (isUnlocked) unlocked.add(id)
-            } catch {
-                // Continue; partial Steam outages should not crash initialization.
-            }
+                const remote = await this.electronBridge.isAchievementUnlocked(id)
+                if (revision !== this.scopeRevision) return
+                if (remote === true) this.unlockedAchievements.add(id)
+            } catch { /* Keep cached earned achievements during an outage. */ }
         }
-        this.unlockedAchievements = unlocked
         this.persistCachedAchievements()
+        // Only replay an identified account's queue to that same account.
+        if (this.accountId) for (const id of [...this.pendingAchievements]) {
+            if (revision !== this.scopeRevision) return
+            await this.unlockOnce(id)
+        }
     }
 
     private loadCachedAchievements(): void {
-        if (typeof window === "undefined") return
+        this.unlockedAchievements = new Set()
+        this.pendingAchievements = new Set()
+        if (typeof globalThis.window === "undefined") return
         try {
             const raw = window.localStorage.getItem(this.getCacheKey())
-            if (!raw) return
+            if (!raw || raw.length > 16000) return
             const parsed = JSON.parse(raw)
-            if (!Array.isArray(parsed)) return
-            this.unlockedAchievements = new Set(parsed.filter((v) => typeof v === "string"))
-        } catch {
-            // Ignore cache parse errors and continue with empty set.
-        }
+            const known = (items: unknown) => Array.isArray(items) ? items.filter((id): id is string => typeof id === "string" && Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, id)) : []
+            this.unlockedAchievements = new Set(known(parsed.unlocked))
+            this.pendingAchievements = new Set(known(parsed.pending))
+        } catch { /* Empty or malformed cache cannot inherit another career's progress. */ }
     }
 
     private persistCachedAchievements(): void {
-        if (typeof window === "undefined") return
+        if (typeof globalThis.window === "undefined") return
         try {
-            window.localStorage.setItem(this.getCacheKey(), JSON.stringify(Array.from(this.unlockedAchievements)))
-        } catch {
-            // Ignore storage write failures.
-        }
+            window.localStorage.setItem(this.getCacheKey(), JSON.stringify({ unlocked: [...this.unlockedAchievements], pending: [...this.pendingAchievements] }))
+        } catch { /* Local progression must remain playable with unavailable storage. */ }
     }
 
     // Rich Presence for Steam
@@ -309,7 +338,7 @@ export class SteamService {
         try {
             if (this.electronBridge.setRichPresence) {
                 await this.electronBridge.setRichPresence("status", status)
-                await this.electronBridge.setRichPresence("steam_display", display)
+                await this.electronBridge.setRichPresence("steam_display", "#Status")
             }
         } catch (e) {
             debug.warn("[Steam] Rich presence not available")
@@ -337,19 +366,27 @@ export class SteamService {
             if (tournament) display = `Playing ${tournament}`
 
             await this.electronBridge.setRichPresence("status", status)
-            await this.electronBridge.setRichPresence("steam_display", display)
+            await this.electronBridge.setRichPresence("steam_display", "#Status")
         } catch (e) {
             debug.warn("[Steam] Rich presence update failed")
         }
     }
 
+    async listCloudSaveIds(): Promise<string[]> {
+        if (!this.isInitialized) await this.initialize()
+        try {
+            const files = await this.electronBridge?.listCloudFiles?.()
+            return Array.isArray(files) ? files.filter((file: unknown): file is string => typeof file === "string" && /^save_[a-zA-Z0-9_-]{1,230}\.json$/.test(file)).map(file => file.slice(5, -5)) : []
+        } catch { return [] }
+    }
+
     // Cloud Save support
     async uploadSaveToCloud(saveId: string, data: string): Promise<boolean> {
+        if (!this.isInitialized) await this.initialize()
         if (!this.electronBridge) return false
         try {
             if (this.electronBridge.writeToCloud) {
-                await this.electronBridge.writeToCloud(`save_${saveId}.json`, data)
-                return true
+                return (await this.electronBridge.writeToCloud(`save_${saveId}.json`, data)) === true
             }
         } catch (e) {
             debug.warn("[Steam] Cloud save not available")
@@ -358,6 +395,7 @@ export class SteamService {
     }
 
     async downloadSaveFromCloud(saveId: string): Promise<string | null> {
+        if (!this.isInitialized) await this.initialize()
         if (!this.electronBridge) return null
         try {
             if (this.electronBridge.readFromCloud) {
@@ -373,8 +411,7 @@ export class SteamService {
         if (!this.electronBridge) return false
         try {
             if (this.electronBridge.deleteFromCloud) {
-                await this.electronBridge.deleteFromCloud(filename)
-                return true
+                return (await this.electronBridge.deleteFromCloud(filename)) === true
             }
         } catch (e) {
             debug.warn("[Steam] Cloud delete not available")

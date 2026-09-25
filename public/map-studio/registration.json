@@ -1,0 +1,375 @@
+{
+  "version": 1,
+  "maps": [
+    {
+      "mapId": "Ancient",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_ancient_radar_psd.png",
+        "sourceSha256": "39c40c760f260af35d987c5b5bb215b18881761ee2b1186dbe3d504f53d1f7c6",
+        "targetSha256": "cb6adca45e32ecff0b131f742c129324ba5e2dd695247f61d2d21d85ef2c581c",
+        "sourceVersion": "2000908",
+        "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+        "matrix": [
+          0.9999268127105417,
+          5.5567715744338586e-05,
+          0.003911171744648845,
+          -5.5567715744338586e-05,
+          0.9999268127105417,
+          0.004639329346166698
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "340 SIFT/RANSAC inliers; median 0.447px, p95 1.514px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 340,
+        "medianPixels": 0.4472281038761139,
+        "p95Pixels": 1.51412034034729
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Anubis",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_anubis_radar_psd.png",
+        "sourceSha256": "2cea0b5111b6b942e8ef0549ffd7282eb9880bb71c00ca1a0a04312a83f95c03",
+        "targetSha256": "b8f07c36edb13e34dbfaabf9a74e057961ac4fb29545d98d16ff9b7c4e6d1206",
+        "sourceVersion": "2000908",
+        "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+        "matrix": [
+          1.0001513726687286,
+          -0.00012325426830386634,
+          -0.007927148690763122,
+          0.00012325426830386634,
+          1.0001513726687286,
+          -0.020736370099721523
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "315 SIFT/RANSAC inliers; median 0.603px, p95 1.698px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 315,
+        "medianPixels": 0.6025078296661377,
+        "p95Pixels": 1.6981288194656372
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Inferno",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_inferno_radar_psd.png",
+        "sourceSha256": "74b3722dc370cd86bb7a059ca9cced19ced57a88290ddfdce7372f0ad85c7821",
+        "targetSha256": "53e1d660d5e61a9b876cc56725c2e891c56efcb788657520fa9c10fec321dce3",
+        "sourceVersion": "2000908",
+        "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+        "matrix": [
+          0.9998806048048301,
+          0.00016687198734728726,
+          -0.032072359536340286,
+          -0.00016687198734728726,
+          0.9998806048048301,
+          -0.0024005080933270375
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "139 SIFT/RANSAC inliers; median 0.406px, p95 1.740px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 139,
+        "medianPixels": 0.4061075747013092,
+        "p95Pixels": 1.7399743795394897
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Mirage",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_mirage_radar_psd.png",
+        "sourceSha256": "3c87b10a398b83fd0e84201ddce81b4f2c129a2912acd1718495adc48c209007",
+        "targetSha256": "c8032f6c83ffca63c0a20ebdcc598a0e1aa618efd746e381e2db26f33a4a964f",
+        "sourceVersion": "2000908",
+        "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+        "matrix": [
+          1.0002907878468903,
+          6.868695459696335e-05,
+          -0.01590916006520233,
+          -6.868695459696335e-05,
+          1.0002907878468903,
+          -0.010598675418767002
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "660 SIFT/RANSAC inliers; median 0.250px, p95 1.288px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 660,
+        "medianPixels": 0.2497524917125702,
+        "p95Pixels": 1.288386583328247
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Nuke",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_nuke_radar_psd_1.png",
+        "sourceSha256": "3d0eafacd98b09ef03cf535b2b82dad7d1d70bb8549290998d0a4819f6b8f663",
+        "targetSha256": "21167d05292e80eebe7b068f0bba36a2e3f9116d154d96952a8366cdcc72e6b1",
+        "sourceVersion": "2000908",
+        "meshSha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+        "matrix": [
+          1.0008437472357103,
+          0.00034692876254070515,
+          -0.06236023290339273,
+          -0.00034692876254070515,
+          1.0008437472357103,
+          -0.028899687573339897
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "291 SIFT/RANSAC inliers; median 0.237px, p95 1.326px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 291,
+        "medianPixels": 0.2367945909500122,
+        "p95Pixels": 1.3256642818450928
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Nuke",
+      "floor": "lower",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_nuke_lower_radar_psd_2.png",
+        "sourceSha256": "250f4f8665907d8d1f19a7c26867af0ccdee48dfcb70b2e0be75769cc86ff05d",
+        "targetSha256": "b8c4e659491ba79be60b7d3f9bc78bdaeb808afc2bae14bf3b25b1801220ebe0",
+        "sourceVersion": "2000908",
+        "meshSha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+        "matrix": [
+          1.0003383572803117,
+          -1.7136892214134307e-05,
+          -0.019257544751277108,
+          1.7136892214134307e-05,
+          1.0003383572803117,
+          -0.02244391792029789
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "203 SIFT/RANSAC inliers; median 0.414px, p95 1.274px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 203,
+        "medianPixels": 0.41371721029281616,
+        "p95Pixels": 1.2740634679794312
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Overpass",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_overpass_radar_psd.png",
+        "sourceSha256": "569535b52ccaebf371959ff36b98659f4ed6993addee2d81315cf292d38afb92",
+        "targetSha256": "2a59b62668e80037b5a88e980f56af360269f5ea581d52eb0669d78a981f0d96",
+        "sourceVersion": "2000908",
+        "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+        "matrix": [
+          0.9999005745061016,
+          -0.0002020182347599581,
+          0.011407070145532841,
+          0.0002020182347599581,
+          0.9999005745061016,
+          -0.006862659666804025
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "138 SIFT/RANSAC inliers; median 0.309px, p95 1.619px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 138,
+        "medianPixels": 0.3088989555835724,
+        "p95Pixels": 1.6190518140792847
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Sandstone",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_sandstone_radar_psd.png",
+        "sourceSha256": "47415e8f11566612fb0c71cd4ad7ba475a020956b548fb66390e785786e0ec36",
+        "targetSha256": "0828297130ce26db25a299806ff743df9104de634a3e64b52b358f6f4399354d",
+        "sourceVersion": "2000908",
+        "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+        "matrix": [
+          0.999961282572477,
+          0.00016829470186472312,
+          -0.007091370435449612,
+          -0.00016829470186472312,
+          0.999961282572477,
+          0.012281638524095051
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "247 SIFT/RANSAC inliers; median 0.180px, p95 1.467px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 247,
+        "medianPixels": 0.18009215593338013,
+        "p95Pixels": 1.4672088623046875
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Vertigo",
+      "floor": "upper",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_vertigo_radar_psd_1.png",
+        "sourceSha256": "b148d3a26f3846ce42c80fed1fb5f20c0b24f217e98300449fe49cf7a8afc18c",
+        "targetSha256": "d2e2e18668f951f7d3b7c6a4fe4580632d5de253d0991f4b9639f9eca73264bf",
+        "sourceVersion": "2000908",
+        "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+        "matrix": [
+          1.0001354551552928,
+          -0.00010224969382500926,
+          -0.00220576341508637,
+          0.00010224969382500926,
+          1.0001354551552928,
+          -0.011654712145843772
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "497 SIFT/RANSAC inliers; median 0.212px, p95 1.133px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 497,
+        "medianPixels": 0.21159043908119202,
+        "p95Pixels": 1.1329301595687866
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    },
+    {
+      "mapId": "Vertigo",
+      "floor": "lower",
+      "release": "held",
+      "review": "not-reviewed",
+      "reason": "Requires geometry review and L08 distribution clearance",
+      "registration": {
+        "version": 1,
+        "sourceRadar": "/maps/de_vertigo_lower_radar_psd_2.png",
+        "sourceSha256": "c9b0cfbd6d0f5ca8f8c6ff2e371c450206ab425e14d8f4ad612d9be36f1c91f0",
+        "targetSha256": "61639197f940d9702f6cb5476a38ae932a821170cdb6405f14733a5b83e32723",
+        "sourceVersion": "2000908",
+        "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+        "matrix": [
+          0.9999166834778195,
+          -0.00029860376093804737,
+          0.013450006652029485,
+          0.00029860376093804737,
+          0.9999166834778195,
+          -0.005249165754116094
+        ],
+        "method": "image-features",
+        "confidence": "provisional",
+        "evidence": "221 SIFT/RANSAC inliers; median 0.324px, p95 1.309px. Image alignment only; floors and walls need review."
+      },
+      "imageMetrics": {
+        "inliers": 221,
+        "medianPixels": 0.32368847727775574,
+        "p95Pixels": 1.3094992637634277
+      },
+      "coverage": {
+        "walls": "unreviewed",
+        "spawnAreas": "unreviewed",
+        "plantZones": "unreviewed",
+        "verticalTraversal": "unreviewed"
+      }
+    }
+  ]
+}

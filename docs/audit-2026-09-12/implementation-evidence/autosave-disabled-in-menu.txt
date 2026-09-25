@@ -1,0 +1,108 @@
+Browser tab: 1182233818, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/main-menu".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/main-menu
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/main-menu#main-content
+		3 container
+			4 image Logo
+			5 text ESPORT MANAGER
+			6 button
+			7 text v 1.0.0
+			8 heading ESPORT MANAGER, Value: 1
+				9 text ESPORT MANAGER
+			10 text BUILD YOUR DYNASTY • CONQUER THE WORLD
+			11 button NEW CAREER Choose your team and begin your journey to become the greatest esports manager in history. Build your roster, develop talent, and conquer the world.
+				12 container
+					13 heading NEW CAREER, Value: 2
+						14 text NEW CAREER
+					15 text Choose your team and begin your journey to become the greatest esports manager in history. Build your roster, develop talent, and conquer the world.
+			16 button BUILD YOUR TEAM Start from scratch. Create your own organization, scout unknown talents, and build a dynasty from the ground up.
+				17 container
+					18 heading BUILD YOUR TEAM, Value: 3
+						19 text BUILD YOUR TEAM
+					20 text Start from scratch. Create your own organization, scout unknown talents, and build a dynasty from the ground up.
+			21 text 50+
+			22 text COMPETE GLOBALLY
+			23 text 500+
+			24 text REAL PLAYERS
+			25 text ∞
+			26 text ENDLESS CAREER
+			27 container
+				28 heading CONTINUE, Value: 2
+					29 text CONTINUE
+				30 text 1  saves
+				31 image Pulsar
+				32 heading Pulsar, Value: 3
+					33 text Pulsar
+				34 text Sep 2026 50 % WR
+				35 text 47
+				36 text OVR
+				37 container
+					38 image Zenmir
+					39 text 52
+				40 text Zenmir
+				41 image Russia
+				42 container
+					43 image skydax
+					44 text 49
+				45 text skydax
+				46 image Russia
+				47 container
+					48 image Fryphr9
+					49 text 39
+				50 text Fryphr9
+				51 image Russia
+				52 container
+					53 image dusk6
+					54 text 47
+				55 text dusk6
+				56 image Russia
+				57 container
+					58 image Skyphr
+					59 text 46
+				60 text Skyphr
+				61 image Russia
+				62 text 0
+				63 text 0
+				64 text Budget $ 521 k
+				65 button
+				66 button (disabled) SELECT SAVE
+			67 container
+				68 text ©  2026  ESPORTS MANAGER: FPS • ALL RIGHTS RESERVED
+			69 container Settings
+				70 heading Settings, Value: 2, ID: modal-title-settings
+					71 text Settings
+				72 button
+				73 button Display
+				74 button Audio
+				75 button Game
+				76 button Controls
+				101 text Difficulty
+				102 pop up button (collapsed, settable) Value: Normal, Secondary Actions: Expand
+					103 menu
+						104 Easy
+						105 (selected) Normal
+						106 Hard
+				107 text Balanced AI competition Game Speed
+				108 pop up button (collapsed, settable) Value: Normal, Secondary Actions: Expand
+					109 menu
+						110 (selected) Normal
+						111 Fast
+						112 Very Fast
+				113 text Auto-Save
+				114 button
+				115 text Auto-Save Interval
+				116 pop up button (disabled, collapsed, settable) Value: Every 10 minutes, Secondary Actions: Expand
+					117 menu
+						118 (disabled) Every 5 minutes
+						119 (disabled) Every 10 minutes
+						120 (disabled) Every 30 minutes
+				121 text Notifications
+				122 button
+				123 text Language
+				124 pop up button (collapsed, settable) Value: English, Secondary Actions: Expand
+					125 menu
+						126 (selected) English
+				99 button Cancel
+				100 button Apply
+
+The focused UI element is 75 button Game

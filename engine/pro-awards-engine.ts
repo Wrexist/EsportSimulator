@@ -32,6 +32,7 @@ interface AggregatedStats {
     kills: number; deaths: number; assists: number
     adrTotal: number; kastTotal: number; ratingTotal: number
     matchCount: number; mvpCount: number; mapsPlayed: number
+    recordedRounds: number; killsWithRounds: number
 }
 
 /**
@@ -50,7 +51,7 @@ function aggregatePlayerStatsForYear(save: GameSave, year: number): Map<string, 
             const existing = stats.get(playerId) || {
                 kills: 0, deaths: 0, assists: 0,
                 adrTotal: 0, kastTotal: 0, ratingTotal: 0,
-                matchCount: 0, mvpCount: 0, mapsPlayed: 0
+                matchCount: 0, mvpCount: 0, mapsPlayed: 0, recordedRounds: 0, killsWithRounds: 0
             }
             existing.kills += ps.kills ?? 0
             existing.deaths += ps.deaths ?? 0
@@ -60,6 +61,13 @@ function aggregatePlayerStatsForYear(save: GameSave, year: number): Map<string, 
             existing.ratingTotal += ps.rating ?? 0
             existing.matchCount++
             existing.mapsPlayed += ps.mapsPlayed ?? 1
+            const rounds = (match.result.maps || []).reduce((sum, map) => {
+                const home = map.homeScore ?? map.finalScore?.team1
+                const away = map.awayScore ?? map.finalScore?.team2
+                return sum + (Number.isFinite(home) && Number.isFinite(away) && home! + away! > 0
+                    ? home! + away! : map.rounds?.length || 0)
+            }, 0)
+            if (rounds > 0) { existing.recordedRounds += rounds; existing.killsWithRounds += ps.kills ?? 0 }
             if (match.result.mvpPlayerId === playerId) existing.mvpCount++
             stats.set(playerId, existing)
         }
@@ -68,6 +76,12 @@ function aggregatePlayerStatsForYear(save: GameSave, year: number): Map<string, 
 }
 
 // ===== TYPES =====
+
+// Older/custom IDs can be shorter than the variance slot. Preserve existing
+// long-ID results while making every short/empty-ID slot deterministic and finite.
+function varianceCode(id: string, slot: number): number {
+    return id.charCodeAt(slot % Math.max(1, id.length)) || 1
+}
 
 export interface Top20Player {
     rank: number
@@ -157,7 +171,7 @@ function calculateProRating(player: PlayerSaveData, rngSeed: number): number {
     rating += ((reaction - 70) * 0.002)
 
     // Seeded variance for consistency
-    const variance = (Math.sin(rngSeed * player.id.charCodeAt(0)) * 0.05)
+    const variance = (Math.sin(rngSeed * varianceCode(player.id, 0)) * 0.05)
     rating += variance
 
     // Clamp to realistic Pro range
@@ -188,7 +202,7 @@ function calculateImpactRating(player: PlayerSaveData, rngSeed: number): number 
     }
 
     // Seeded variance
-    const variance = (Math.cos(rngSeed * player.id.charCodeAt(1) * 1.5) * 0.04)
+    const variance = (Math.cos(rngSeed * varianceCode(player.id, 1) * 1.5) * 0.04)
     impact += variance
 
     return Math.max(0.80, Math.min(1.50, parseFloat(impact.toFixed(2))))
@@ -206,7 +220,7 @@ function calculateKAST(player: PlayerSaveData, rngSeed: number): number {
     kast += (teamwork - 50) * 0.15
 
     // Variance
-    const variance = Math.sin(rngSeed * player.id.charCodeAt(2)) * 3
+    const variance = Math.sin(rngSeed * varianceCode(player.id, 2)) * 3
     kast += variance
 
     return Math.max(55, Math.min(85, parseFloat(kast.toFixed(1))))
@@ -224,7 +238,7 @@ function calculateADR(player: PlayerSaveData, rngSeed: number): number {
     adr += (rifle - 50) * 0.2
 
     // Variance
-    const variance = Math.cos(rngSeed * player.id.charCodeAt(3) * 2) * 5
+    const variance = Math.cos(rngSeed * varianceCode(player.id, 3) * 2) * 5
     adr += variance
 
     return Math.max(60, Math.min(110, parseFloat(adr.toFixed(1))))
@@ -240,7 +254,7 @@ function calculateKPR(player: PlayerSaveData, rngSeed: number): number {
     let kpr = 0.55 + (ovr - 50) * 0.008
 
     // Variance
-    const variance = Math.sin(rngSeed * player.id.charCodeAt(4) * 0.7) * 0.05
+    const variance = Math.sin(rngSeed * varianceCode(player.id, 4) * 0.7) * 0.05
     kpr += variance
 
     return Math.max(0.55, Math.min(1.05, parseFloat(kpr.toFixed(2))))
@@ -278,7 +292,7 @@ export function generateAnnualTop20(
             proRating = real.ratingTotal / real.matchCount
             kast = real.kastTotal / real.matchCount
             adr = real.adrTotal / real.matchCount
-            kpr = real.mapsPlayed > 0 ? real.kills / real.mapsPlayed : 0.5
+            kpr = real.recordedRounds > 0 ? real.killsWithRounds / real.recordedRounds : 0.5
             mvpCount = real.mvpCount
             mapsPlayed = real.mapsPlayed
             // Impact has no direct match analog — derive from KPR and clutch contribution
@@ -298,7 +312,7 @@ export function generateAnnualTop20(
         const isTopTeam = teamRank <= 10
         const isElitePlayer = evaluation.overallRating >= 85
 
-        const seedMod = (rngSeed * player.id.charCodeAt(0)) % 100 / 100
+        const seedMod = (rngSeed * varianceCode(player.id, 0)) % 100 / 100
 
         // MVP count: prefer real data, supplement with fabricated for achievements
         if (!real || real.matchCount < 10) {

@@ -1,0 +1,255 @@
+{
+  "commit": "8d9344e8df2713003201ce5c755bf66c079795ad",
+  "sourcePath": "lib/safe-branding/logo-generator.ts",
+  "sourceSha256": "fea03d03cd1c8754e9a27f8ab70ba2c7ad9863344285d426633154a261e89fb2",
+  "method": "Reproduced using inspected project generator from repository history, normalizing CRLF and outer whitespace only; exact original hashes retained.",
+  "matched": [
+    {
+      "path": "public/assets/tournaments/logo_boombyte_lineage_belgrade.svg",
+      "sha256": "ee15fb85aa3ae2794e628eaf9bc55a61ead197b73be5ce65f6f6a570d62143a0",
+      "seed": "tournament_boombyte_lineage_belgrade",
+      "title": "BoomByte Lineage Belgrade"
+    },
+    {
+      "path": "public/assets/tournaments/logo_ccx_online_finals_2025.svg",
+      "sha256": "c79c1d95ba23dd030f895fbbe3068c303e4f26622e3c1dc94595fcf9ac246402",
+      "seed": "tournament_ccx_online_finals_2025",
+      "title": "CCX Online Finals 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_chengdu_masters_2025.svg",
+      "sha256": "e85ba93c11a956a3972fd5d1f4041e34bb87baa2ed7277a155f55881d8d630ce",
+      "seed": "tournament_chengdu_masters_2025",
+      "title": "Chengdu Masters 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_compass_cup_2025.svg",
+      "sha256": "1d140ae3b9d4ec8156bef5547f4af58b1d382fa33ae4ba2f3efbe6254bf5e1d5",
+      "seed": "tournament_compass_cup_2025",
+      "title": "Compass Cup 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_dallas_masters_2025.svg",
+      "sha256": "0f7d4d4b4988202cc499e96c9c35befabcad49794e953d8769eab3105ba99710",
+      "seed": "tournament_dallas_masters_2025",
+      "title": "Dallas Masters 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_dream_circuit_open_summer.svg",
+      "sha256": "3cdd0af7ec02ccbe75a88281114a206a46fd4de34b5f4e4555fc1c66045fa46e",
+      "seed": "tournament_dream_circuit_open_summer",
+      "title": "Dream Circuit Open Summer"
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_2025.svg",
+      "sha256": "6bb0527f23579956107cdf725acac5be5627115b7838b9bafc96914bc2f494d1",
+      "seed": "tournament_eastern_major_2025",
+      "title": "Eastern Major 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_americas_rmr.svg",
+      "sha256": "8a2569881d3981b61aa5eb169d586230a79827a37ae35ada134f88d1d9ad4179",
+      "seed": "tournament_eastern_major_americas_rmr",
+      "title": "Eastern Major Americas RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_asia_rmr.svg",
+      "sha256": "2991f85f3b8e0a4939e03efe4e1a3f5f79df6d250651b2f54f0277be03c8e780",
+      "seed": "tournament_eastern_major_asia_rmr",
+      "title": "Eastern Major Asia RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_eastern_major_eu_rmr.svg",
+      "sha256": "0d2df5c803bfc4fd60f267c6ece18fa31f8dbb2c1eb8235cd5bf12f2cc1a6239",
+      "seed": "tournament_eastern_major_eu_rmr",
+      "title": "Eastern Major EU RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_electra_masters_espoo_2025.svg",
+      "sha256": "8d4e19bad3e746a6634acdeb4d0a3204b11349a101f9f10af0c277e26475d606",
+      "seed": "tournament_electra_masters_espoo_2025",
+      "title": "Electra Masters Espoo 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_fall_finals.svg",
+      "sha256": "cb26de81d999e671132eb64d0079c39b02b2f35c6d2e05e8d697993a193f2d2c",
+      "seed": "tournament_elite_circuit_fall_finals",
+      "title": "Elite Circuit Fall Finals"
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_fall_showdown.svg",
+      "sha256": "718ba803855d69e66a7f7cd3ac453a8df5bd487b3fba039da8f5eb18cc708098",
+      "seed": "tournament_elite_circuit_fall_showdown",
+      "title": "Elite Circuit Fall Showdown"
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_spring_finals.svg",
+      "sha256": "c2504d1b13a56bf8066a687ebf9908c9c13c214eb6c50fffd4dfad72e2276431",
+      "seed": "tournament_elite_circuit_spring_finals",
+      "title": "Elite Circuit Spring Finals"
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_circuit_spring_showdown.svg",
+      "sha256": "4e3d449b5ccc7eb09f7582a252c457958954f359a5ce829731360221df70bb9e",
+      "seed": "tournament_elite_circuit_spring_showdown",
+      "title": "Elite Circuit Spring Showdown"
+    },
+    {
+      "path": "public/assets/tournaments/logo_elite_world_final_2025.svg",
+      "sha256": "6dbb1ec701e790ab11efcf9f64f59dd4d16b96410338141b8ca64f47d55e0ffe",
+      "seed": "tournament_elite_world_final_2025",
+      "title": "Elite World Final 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_epic_arena_premier_season_48.svg",
+      "sha256": "309d3da89dc9a145c5e84fa74f34191e95a3ca7da162fcdd63e08fe073e7ae1c",
+      "seed": "tournament_epic_arena_premier_season_48",
+      "title": "Epic Arena Premier Season 48"
+    },
+    {
+      "path": "public/assets/tournaments/logo_gamers_infinity_riyadh_2025.svg",
+      "sha256": "5de134e5d79b8df9cf71c102f79c9a4dec62c58c6aa8b2392a7aea2489cda8bc",
+      "seed": "tournament_gamers_infinity_riyadh_2025",
+      "title": "Gamers Infinity Riyadh 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_challenger_league_season_48.svg",
+      "sha256": "b4b7ba67c4ae4da40afb6b6b41912ae1099503bdd613c6d96631dae70c93646e",
+      "seed": "tournament_global_challenger_league_season_48",
+      "title": "Global Challenger League Season 48"
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_pro_league_conferance.svg",
+      "sha256": "44842e0e0c2247c9f4c58c37d3afeaec369c960cce292c0c24d05a4b7dd0eac8",
+      "seed": "tournament_global_pro_league_conferance",
+      "title": "Global Pro League ConferANCE"
+    },
+    {
+      "path": "public/assets/tournaments/logo_global_pro_league_season_21_finals.svg",
+      "sha256": "3561beea14ad6b93d6cf7bb0e8f44f7edf68736510fbf0e44114a2e01a3a4b92",
+      "seed": "tournament_global_pro_league_season_21_finals",
+      "title": "Global Pro League Season 21 Finals"
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_2025.svg",
+      "sha256": "9b8a5c2d6df703ad6689477657d4d182a94d745be81e42add9f1e8e02c93e324",
+      "seed": "tournament_northern_major_2025",
+      "title": "Northern Major 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_americas_rmr.svg",
+      "sha256": "413d2447f091bdb12dc6c021c4d4501d4cb02c420b8a17574613e5fda34efee4",
+      "seed": "tournament_northern_major_americas_rmr",
+      "title": "Northern Major Americas RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_asia_rmr.svg",
+      "sha256": "b29a93b5e45167f8e12520726808675932b376df5286256d9f0551b8adb4f183",
+      "seed": "tournament_northern_major_asia_rmr",
+      "title": "Northern Major Asia RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_northern_major_eu_rmr.svg",
+      "sha256": "91d2aed3ce1f1e0a0c1d067ce928b6116ae5478ac972e6c886186e88b4e51dc1",
+      "seed": "tournament_northern_major_eu_rmr",
+      "title": "Northern Major EU RMR"
+    },
+    {
+      "path": "public/assets/tournaments/logo_perfect_realm_arena_premier_league.svg",
+      "sha256": "d1bea958808cf032436d7d601585d9eb34fd0bf0a08d099a67e9b54422a2c97c",
+      "seed": "tournament_perfect_realm_arena_premier_league",
+      "title": "Perfect Realm Arena Premier League"
+    },
+    {
+      "path": "public/assets/tournaments/logo_playon_academy_league.svg",
+      "sha256": "b2426dcde2a742dd22e1c6442d0e568123929a4a59f70792cf3df80e2320c810",
+      "seed": "tournament_playon_academy_league",
+      "title": "PlayOn Academy League"
+    },
+    {
+      "path": "public/assets/tournaments/logo_playon_academy_league_season_5.svg",
+      "sha256": "7ec0dba62d4107be17d7c413c9189fa089c750204fad8713e40d5ffc44fdac72",
+      "seed": "tournament_playon_academy_league_season_5",
+      "title": "PlayOn Academy League Season 5"
+    },
+    {
+      "path": "public/assets/tournaments/logo_rio_masters_2025.svg",
+      "sha256": "9e948a8b9a0a79f22d720e60ff5d898ea5acfa18496aac97091b4c615527c8b1",
+      "seed": "tournament_rio_masters_2025",
+      "title": "Rio Masters 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_rookbet_cup_2025.svg",
+      "sha256": "66b8132812b894ca06c047e027a682b4799e87b2c508dc328583d94f39387576",
+      "seed": "tournament_rookbet_cup_2025",
+      "title": "Rookbet Cup 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_skyevents_championship_2025.svg",
+      "sha256": "cb2d0f3a41582652f9ccfd39a2ed2332dada67f4c9bb7156d7c3905d51c21b10",
+      "seed": "tournament_skyevents_championship_2025",
+      "title": "Skyevents Championship 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_2025.svg",
+      "sha256": "c8378b35b9cf72c659f25e097fb3eba66df2a872116351e7a0327869f480a30f",
+      "seed": "tournament_summer_open_colone_2025",
+      "title": "Summer Open Colone 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_closed_qualifier.svg",
+      "sha256": "4e7a2154c76e1af21d397839ab3c093338dc745f1a3a4ddd50e8220349962ba6",
+      "seed": "tournament_summer_open_colone_closed_qualifier",
+      "title": "Summer Open Colone Closed Qualifier"
+    },
+    {
+      "path": "public/assets/tournaments/logo_summer_open_colone_open_qualifier.svg",
+      "sha256": "b309db56d71d65795e86712ff6e86992b93c1df1c86c0804f3f624a63014e5ee",
+      "seed": "tournament_summer_open_colone_open_qualifier",
+      "title": "Summer Open Colone Open Qualifier"
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_closed_qualifier.svg",
+      "sha256": "8580b8a1b28f4b0cd3d1217205fab8028b53efcd6cadd9a77abaa5604ddba1fe",
+      "seed": "tournament_thunder_cup_closed_qualifier",
+      "title": "Thunder Cup Closed Qualifier"
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_open_qualifier.svg",
+      "sha256": "c2b93b9ed87294054ff08ed0f76df8efe61b49f371b9f8b344425783edc7f654",
+      "seed": "tournament_thunder_cup_open_qualifier",
+      "title": "Thunder Cup Open Qualifier"
+    },
+    {
+      "path": "public/assets/tournaments/logo_thunder_cup_world_championship.svg",
+      "sha256": "80908085bda016ccb8619f1ff0e570c66ab6c1b478b87b1d9104abbe3c1756df",
+      "seed": "tournament_thunder_cup_world_championship",
+      "title": "Thunder Cup World Championship"
+    },
+    {
+      "path": "public/assets/tournaments/logo_wagerway_masters_2025.svg",
+      "sha256": "d64e26e697b8de90d63c6a8142d2927567bba0058ea50123e4e7533d617217dc",
+      "seed": "tournament_wagerway_masters_2025",
+      "title": "Wagerway Masters 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_2025.svg",
+      "sha256": "6e47e3be8723e0940cb5499532eff70167f69c5c2aaf289693c3d528465a49fe",
+      "seed": "tournament_winter_open_katova_2025",
+      "title": "Winter Open Katova 2025"
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_eu_closed_qualifier.svg",
+      "sha256": "9afb73f3d4b704f4e0aac55e9f14c9e9f3bc8d8fdfef298a9b58e54b1716b3d6",
+      "seed": "tournament_winter_open_katova_eu_closed_qualifier",
+      "title": "Winter Open Katova EU Closed Qualifier"
+    },
+    {
+      "path": "public/assets/tournaments/logo_winter_open_katova_open_qualifier.svg",
+      "sha256": "1d53966d229f9b247d596424476d31e07e19a8ac0fa90621674505d24c0edcf8",
+      "seed": "tournament_winter_open_katova_open_qualifier",
+      "title": "Winter Open Katova Open Qualifier"
+    }
+  ],
+  "unmatched": []
+}

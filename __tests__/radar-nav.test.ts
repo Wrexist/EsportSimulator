@@ -1,11 +1,56 @@
 import { MapId } from "@/types"
-import { getRadarNav, isWalkable, projectToWalkable } from "@/lib/radar-nav"
+import { findRadarRoute, getRadarNav, isWalkable, isRadarSegmentWalkable, projectToWalkable } from "@/lib/radar-nav"
+import { MAP_LAYOUTS } from '@/lib/map-radar-data'
 
 function dist(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
 
 describe("radar-nav", () => {
+  it('routes around the Anubis interior instead of steering through it', () => {
+    const layout = MAP_LAYOUTS[MapId.ANUBIS]
+    const from = projectToWalkable(MapId.ANUBIS, 'upper', layout.tSpawn[0])
+    const to = projectToWalkable(MapId.ANUBIS, 'upper', layout.aSite)
+    expect(isRadarSegmentWalkable(MapId.ANUBIS, 'upper', from, to)).toBe(false)
+    const route = findRadarRoute(MapId.ANUBIS, 'upper', from, to)
+    expect(route.length).toBeGreaterThan(1)
+    expect(route.at(-1)).toEqual(to)
+    let previous = from
+    for (const p of route) { expect(isRadarSegmentWalkable(MapId.ANUBIS, 'upper', previous, p)).toBe(true); previous = p }
+    const expected = structuredClone(route)
+    route[0].x = -1; route.shift()
+    expect(findRadarRoute(MapId.ANUBIS, 'upper', from, to)).toEqual(expected)
+    expect(findRadarRoute(MapId.ANUBIS, 'upper', { x: NaN, y: 0 }, to)).toEqual([])
+    expect(findRadarRoute(MapId.ANUBIS, 'upper', { x: 0, y: 0 }, to)).toEqual([])
+  })
+  it("rejects a wall between two clear endpoints in both directions", () => {
+    const nav = getRadarNav(MapId.MIRAGE, "upper")!
+    let checked = false
+    for (let y = 0; y < nav.gridSize && !checked; y++) {
+      let start = -1, crossedWall = false
+      for (let x = 0; x < nav.gridSize; x++) {
+        if (nav.walkableMask[y * nav.gridSize + x]) {
+          if (start >= 0 && crossedWall) {
+            const a = { x: start / (nav.gridSize - 1) * 100, y: y / (nav.gridSize - 1) * 100 }
+            const b = { ...a, x: x / (nav.gridSize - 1) * 100 }
+            expect(isWalkable(MapId.MIRAGE, "upper", a)).toBe(true)
+            expect(isWalkable(MapId.MIRAGE, "upper", b)).toBe(true)
+            expect(isRadarSegmentWalkable(MapId.MIRAGE, "upper", a, b)).toBe(false)
+            expect(isRadarSegmentWalkable(MapId.MIRAGE, "upper", b, a)).toBe(false)
+            expect(isRadarSegmentWalkable(MapId.MIRAGE, "upper", a, a)).toBe(true)
+            checked = true; break
+          }
+          start = x
+        } else if (start >= 0) crossedWall = true
+      }
+    }
+    expect(checked).toBe(true)
+  })
+
+  it("rejects invalid or out-of-map movement instead of clamping it into the map", () => {
+    const p = projectToWalkable(MapId.MIRAGE, "upper", { x: 50, y: 50 })
+    for (const x of [-1, 101, NaN, Infinity]) expect(isRadarSegmentWalkable(MapId.MIRAGE, "upper", p, { x, y: p.y })).toBe(false)
+  })
   it("loads nav data for every active map and level", () => {
     for (const mapId of Object.values(MapId)) {
       const upper = getRadarNav(mapId, "upper")

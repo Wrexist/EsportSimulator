@@ -1,0 +1,1086 @@
+{
+  "engine": "spatial-round-v12",
+  "sourceFiles": [
+    "team-simulation",
+    "navigation",
+    "movement",
+    "geometry",
+    "round-replay",
+    "career-round-journal",
+    "match-lifecycle",
+    "resolve-career-round-preview",
+    "career-loadouts",
+    "round-settlement"
+  ],
+  "sourceSha256": "92c3eafcc9df30ffda62335b5cfa0327e7e77b7ebb8432ea8f15ede4187cbfe0",
+  "passed": true,
+  "scope": "Two mirrored full 5v5 BO3 series on a synthetic open-floor fixture, with real physics, purchases, pending JSON resume, sealed replay settlement, duplicate delivery and map progression. Not real-map or packaged acceptance.",
+  "reports": [
+    {
+      "homeStartsCT": true,
+      "rounds": [
+        {
+          "map": 0,
+          "round": 1,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "0ec3b39b98c7b26a6dac3d0132ed9dfead9a2f54f0b3625a362fbcff4bd0271c"
+        },
+        {
+          "map": 0,
+          "round": 2,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "84e105c32868664acead682a7b7b7b5625e2911dff347311bbc37f077a6394ab"
+        },
+        {
+          "map": 0,
+          "round": 3,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "dc3160893f5932131f32539202c0cef7104d9ea29277d4ae7a8a8971eda946b4"
+        },
+        {
+          "map": 0,
+          "round": 4,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "291aebb3570763382b7db0b7a1c976b42970f887cd85dcd6c7ffaf31beb126fd"
+        },
+        {
+          "map": 0,
+          "round": 5,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "eba5eac0c03207105649fb286c18a4635ecf2a107ca6224189280fd212244665"
+        },
+        {
+          "map": 0,
+          "round": 6,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "08c71f20554351a36ad1d22709532956fbb5f62e71a2e99c790beb159114512c"
+        },
+        {
+          "map": 0,
+          "round": 7,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "fb6719f07cec9a35216fe371f47055e2834df861b086f679289b07b8b53c98bc"
+        },
+        {
+          "map": 0,
+          "round": 8,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "a9804226c4a7d28671ae3ee47ccbdbbfa2a0cf7982e2eada949470e44d09afe6"
+        },
+        {
+          "map": 0,
+          "round": 9,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "36423f98f83533e88e583902a7ffda89165d0ef81cf1aa88ea3c92d54e75d7ad"
+        },
+        {
+          "map": 0,
+          "round": 10,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "e9e1bc052d64ae1f5a545321cc0eadf192f2065f6efb4b50e9eaa801d912e47e"
+        },
+        {
+          "map": 0,
+          "round": 11,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "a81b83de8652eb9fc03767b70949ee081b9ee2f33bfc4507570b06143cc6970e"
+        },
+        {
+          "map": 0,
+          "round": 12,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "9770abf80a243ba1ea6e557d937cee8d891a0c076a9bee606bae75e1ec245748"
+        },
+        {
+          "map": 0,
+          "round": 13,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "bec0083fd2e34faa007edfc8140160c3bd0ce85ecbb37a2c715416b5cb024d9a"
+        },
+        {
+          "map": 0,
+          "round": 14,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "c86e6d456e46f76febcae36788b6b30d1442e62b3d54293d09ef40dcb8faf44d"
+        },
+        {
+          "map": 0,
+          "round": 15,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "b07ccec8158678b55ec212524c5b8546479e2014d992fa5b1c81544ef4e47caf"
+        },
+        {
+          "map": 0,
+          "round": 16,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "babae703589408f2174b1d63b45ab03735e1db650cf0625a4f1c398ed68531aa"
+        },
+        {
+          "map": 0,
+          "round": 17,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "1c0e53ab8d1412f3b219ed027221421cb13de6a0ed1d49b5d4dbb6abb2431d9e"
+        },
+        {
+          "map": 0,
+          "round": 18,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "4acf54512c8af2d67b29ce3dc7eb17c066629de31784261b2de933c68fe635db"
+        },
+        {
+          "map": 0,
+          "round": 19,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "25c4fcff3d7e79768c1ecd0fde42af650f4583889cdb5a284d069bb37d060072"
+        },
+        {
+          "map": 0,
+          "round": 20,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "d06275cf238ddbfac2bc65ff592545e304f3a43ebff6a81b5663c9e3951d002f"
+        },
+        {
+          "map": 1,
+          "round": 1,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "82339f9c9a3511ccf150b8f88185d22a77a982b6b007de34f903dd60dfb9b391"
+        },
+        {
+          "map": 1,
+          "round": 2,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "5500e8ac570d7b2b751c131e99a9bbca6dc7b64c5779b55f055063da47c22816"
+        },
+        {
+          "map": 1,
+          "round": 3,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "a80449f19b6e18545b4e76475eb5e22d53122edc18faf4498a9f281ee209da1e"
+        },
+        {
+          "map": 1,
+          "round": 4,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "e3d51ca82a5ee534d2867dd8aa31cd206458db94e0991331e3aa69c694b7af40"
+        },
+        {
+          "map": 1,
+          "round": 5,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "bc530e915bdb36e3507c5d37b7541f9282f5602c37055fbb914de7c522886622"
+        },
+        {
+          "map": 1,
+          "round": 6,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "0c3d2bf4edd5ee1a2f538cf5e82f3a60098e8e776737d2441918038a6dc8bda6"
+        },
+        {
+          "map": 1,
+          "round": 7,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "be410f0f18b706c0bdaff5da919a77c2eed6dedd28ce43c406e34e67349afc87"
+        },
+        {
+          "map": 1,
+          "round": 8,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "062c97be582d780a24630d1411317614f3ab4144298e60d369acf9806aa00ad2"
+        },
+        {
+          "map": 1,
+          "round": 9,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "2214bd1ae4ae9b6c9d946bca8773ca3436247c661a10730c788dc8353fcbb3ea"
+        },
+        {
+          "map": 1,
+          "round": 10,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "682fa283ea59089526840c294478bb2b1a3b562bf7a90195402154bbd853a0f9"
+        },
+        {
+          "map": 1,
+          "round": 11,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "ab811f1d6bce2553aef0ba5be4b03a1b3d771eed5d16785134955f7bb3450068"
+        },
+        {
+          "map": 1,
+          "round": 12,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "f82b055c60629246500588fb9b85619afbd12df44c2cfa456d59294666556e0e"
+        },
+        {
+          "map": 1,
+          "round": 13,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "921e3388d279372aeac6b55150230c170bb87cea79a0a4c96df9bc359d6fd78b"
+        },
+        {
+          "map": 1,
+          "round": 14,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "865357624b78f4813acd8ec54e3050774e7bdb0c0b8906af3a70c5c79f348671"
+        },
+        {
+          "map": 1,
+          "round": 15,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "9fd3090ff437e16b409d49bd2987be482ba74f87c718bc4bbe5f9d306669d38c"
+        },
+        {
+          "map": 1,
+          "round": 16,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "0983173e58f054dbfb9e32c8d58e3e543de00490e5a49dda2eb54f81a5139b37"
+        },
+        {
+          "map": 1,
+          "round": 17,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "3f60dac57594071dcaabc0b2ed2ddf3e58316e96fdb9521acc48a6eb53179998"
+        },
+        {
+          "map": 1,
+          "round": 18,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "c1de70aa473b0a644578bdf5e595bcfabe15db9cecdf29728dc82604ae8119a7"
+        },
+        {
+          "map": 1,
+          "round": 19,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "53a89aff88be08456573c84fdbb89161c319077c7f2aa9d1d5a6534d2730d3b6"
+        },
+        {
+          "map": 1,
+          "round": 20,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "c32e105bf9572ecd3bf11d237de19875e3356787340ec88bc66c68699e3c4392"
+        },
+        {
+          "map": 1,
+          "round": 21,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "e7317204d314f77b51f2cb65ecc092c32601faf0845bf3e69fd67b00658227bd"
+        },
+        {
+          "map": 1,
+          "round": 22,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "1cdcf6669b8da187a1398481ba1d4c2640b7caa2bd9f7c82c5386dff4b1e76b8"
+        },
+        {
+          "map": 1,
+          "round": 23,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "1f316a6d52cda8d55b2e4b12748931facefc0ffa758d6b1d8978052676596f21"
+        },
+        {
+          "map": 1,
+          "round": 24,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "50c1458b7000ca351e3642ae3849e630dee51520756faa58861c3bdcdfb6061a"
+        },
+        {
+          "map": 1,
+          "round": 25,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "e6f1117e6e56d809bb3a985ae43edc719f1794fc9260db06f43d0889d8546cf2"
+        },
+        {
+          "map": 1,
+          "round": 26,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "cfbcb3bfeaf722d611ef21b3d75200e03aa14e0b67a38b0d35e44f7bad6088b7"
+        },
+        {
+          "map": 1,
+          "round": 27,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "9d332f3c60a2d8f7b05e5efb7acc95e8a704bbb9da2c7ce2a7101a6357e997b1"
+        },
+        {
+          "map": 1,
+          "round": 28,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "a53aa91e9262bb2b99f06aa9642aa0f298f661086f39bc0bcfb4142e8ac653ea"
+        },
+        {
+          "map": 1,
+          "round": 29,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "4f0483bd5c0d967c4d80d3a487a1c3b399015045625e57088f9314877649558d"
+        },
+        {
+          "map": 1,
+          "round": 30,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "fb29b9dd8c56f1db84c441cf453fa71d2d9abf425f701af196e7e53eda58185f"
+        },
+        {
+          "map": 1,
+          "round": 31,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "0a200dac31de49fa1498fb65252ba8a515bf73b133fa0d22d14e98e8ea9d798e"
+        },
+        {
+          "map": 1,
+          "round": 32,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "89787ba5b056f3f46b4ea4d1e2934ac4240b1b02f4a89a83dea610d5549422d6"
+        },
+        {
+          "map": 1,
+          "round": 33,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "31d105e1b7aa4055c890d80c4d9d182e1f485337c763c96536e2928f4924d71e"
+        },
+        {
+          "map": 1,
+          "round": 34,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "222af23a112247209b52a713ad393ad5690b90570e7388f326322b6bc53fab2e"
+        },
+        {
+          "map": 2,
+          "round": 1,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "bbb808492fea1d94ffb312ae4bebf60195916017aaa536bc1a385da21ca7ed85"
+        },
+        {
+          "map": 2,
+          "round": 2,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "11712e6c19f6452f669151bd2f3a8e6876ab4fc664463b0cd5cbc6e5ee58304a"
+        },
+        {
+          "map": 2,
+          "round": 3,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "5bc1198de9725ec0d883ca3368d6eff03e1ab9c62351d924cb20b5cfdad184e5"
+        },
+        {
+          "map": 2,
+          "round": 4,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "893ae6a9fc30ec9cd9900f2b7d3642bddd8535d063768f5a50cbb48ed4ef44dc"
+        },
+        {
+          "map": 2,
+          "round": 5,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "e7a4fa6055a032853d11af58c70db9a5ee5ecf790ef5c51de39c9b1ddc2ebeb1"
+        },
+        {
+          "map": 2,
+          "round": 6,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "291f251a6dedb2f2df1d2f3380cae56ae4ca7f55dbdda67dbeb833965fd620fd"
+        },
+        {
+          "map": 2,
+          "round": 7,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "000c553a603932aa2f1a6e1610e91388d402ada3096bcb10a7e4481c15867a02"
+        },
+        {
+          "map": 2,
+          "round": 8,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "09e1f7f61aa08db9a772d692d95b6835ffb157008080974df4d26b6f1aa6d8db"
+        },
+        {
+          "map": 2,
+          "round": 9,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "a0dc597b4a6db0b91552fc1ee96fdeaaf2faef4ed6f215eb0f8992eb4cdc29de"
+        },
+        {
+          "map": 2,
+          "round": 10,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "e6dd254c2807a28663f2cf96414f30efc9072ba8cfd5163126eef4947fe466f6"
+        },
+        {
+          "map": 2,
+          "round": 11,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "dbc471e459512424a3c621d4ac7d0d550d62c90182e9884746d770ebae8f5097"
+        },
+        {
+          "map": 2,
+          "round": 12,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "a7c1f137035c865a76d2a38dff0201b7f34b0b8bc0453fad6dbe7b93f1d507f5"
+        },
+        {
+          "map": 2,
+          "round": 13,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "6b4a508b4cd07149a9a9d47ba3dd20f56be4d8e1e188d260d9a5befbf07aedd0"
+        },
+        {
+          "map": 2,
+          "round": 14,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "6f521d82f0cc6573d0bdeeb390af81fb4ce027787e1614dec469654ba2bc9c80"
+        },
+        {
+          "map": 2,
+          "round": 15,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "10c4437cb3026953efe5c4aa23e786cc7d487185c974bf54394ed3465f105bc0"
+        },
+        {
+          "map": 2,
+          "round": 16,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "09bc37479729c54e3a2c00c8bc8fedf439bf43923ce644f877132e911f0212a9"
+        },
+        {
+          "map": 2,
+          "round": 17,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "e6dbe8c2dfdf40a122993716d76c2a7dbe8c9c02b3b2aa484ee2b6fecbe130ee"
+        },
+        {
+          "map": 2,
+          "round": 18,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "f32e9f00266bef2a3eda69cb99ec9a0613434c55e82865458352c8370facbf84"
+        },
+        {
+          "map": 2,
+          "round": 19,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "4815f08feafe3d0126a2a46a32121469dc2f1cd5709c296e4f5054308a1c28c7"
+        },
+        {
+          "map": 2,
+          "round": 20,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "aa377ab91ce62cb2021f6bcd2e8a0d174e6675f085b73e764e2dad11f3bb1619"
+        },
+        {
+          "map": 2,
+          "round": 21,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "a328eb61ea89721957ceeae222ea450b7d5bd259816b6e6de2890c7d1b841490"
+        }
+      ],
+      "homeWins": 1,
+      "awayWins": 2,
+      "finalSha256": "2990b5f7b8791f6dc1e7fcd10bdd2aea833a3853d3d789f617844f5d637c08fa"
+    },
+    {
+      "homeStartsCT": false,
+      "rounds": [
+        {
+          "map": 0,
+          "round": 1,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "0ec3b39b98c7b26a6dac3d0132ed9dfead9a2f54f0b3625a362fbcff4bd0271c"
+        },
+        {
+          "map": 0,
+          "round": 2,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "84e105c32868664acead682a7b7b7b5625e2911dff347311bbc37f077a6394ab"
+        },
+        {
+          "map": 0,
+          "round": 3,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "dc3160893f5932131f32539202c0cef7104d9ea29277d4ae7a8a8971eda946b4"
+        },
+        {
+          "map": 0,
+          "round": 4,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "291aebb3570763382b7db0b7a1c976b42970f887cd85dcd6c7ffaf31beb126fd"
+        },
+        {
+          "map": 0,
+          "round": 5,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "eba5eac0c03207105649fb286c18a4635ecf2a107ca6224189280fd212244665"
+        },
+        {
+          "map": 0,
+          "round": 6,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "08c71f20554351a36ad1d22709532956fbb5f62e71a2e99c790beb159114512c"
+        },
+        {
+          "map": 0,
+          "round": 7,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "fb6719f07cec9a35216fe371f47055e2834df861b086f679289b07b8b53c98bc"
+        },
+        {
+          "map": 0,
+          "round": 8,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "a9804226c4a7d28671ae3ee47ccbdbbfa2a0cf7982e2eada949470e44d09afe6"
+        },
+        {
+          "map": 0,
+          "round": 9,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "36423f98f83533e88e583902a7ffda89165d0ef81cf1aa88ea3c92d54e75d7ad"
+        },
+        {
+          "map": 0,
+          "round": 10,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "e9e1bc052d64ae1f5a545321cc0eadf192f2065f6efb4b50e9eaa801d912e47e"
+        },
+        {
+          "map": 0,
+          "round": 11,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "a81b83de8652eb9fc03767b70949ee081b9ee2f33bfc4507570b06143cc6970e"
+        },
+        {
+          "map": 0,
+          "round": 12,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "9770abf80a243ba1ea6e557d937cee8d891a0c076a9bee606bae75e1ec245748"
+        },
+        {
+          "map": 0,
+          "round": 13,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "bec0083fd2e34faa007edfc8140160c3bd0ce85ecbb37a2c715416b5cb024d9a"
+        },
+        {
+          "map": 0,
+          "round": 14,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "c86e6d456e46f76febcae36788b6b30d1442e62b3d54293d09ef40dcb8faf44d"
+        },
+        {
+          "map": 0,
+          "round": 15,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "b07ccec8158678b55ec212524c5b8546479e2014d992fa5b1c81544ef4e47caf"
+        },
+        {
+          "map": 0,
+          "round": 16,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "babae703589408f2174b1d63b45ab03735e1db650cf0625a4f1c398ed68531aa"
+        },
+        {
+          "map": 0,
+          "round": 17,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "1c0e53ab8d1412f3b219ed027221421cb13de6a0ed1d49b5d4dbb6abb2431d9e"
+        },
+        {
+          "map": 0,
+          "round": 18,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "4acf54512c8af2d67b29ce3dc7eb17c066629de31784261b2de933c68fe635db"
+        },
+        {
+          "map": 0,
+          "round": 19,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "25c4fcff3d7e79768c1ecd0fde42af650f4583889cdb5a284d069bb37d060072"
+        },
+        {
+          "map": 0,
+          "round": 20,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "d06275cf238ddbfac2bc65ff592545e304f3a43ebff6a81b5663c9e3951d002f"
+        },
+        {
+          "map": 1,
+          "round": 1,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "82339f9c9a3511ccf150b8f88185d22a77a982b6b007de34f903dd60dfb9b391"
+        },
+        {
+          "map": 1,
+          "round": 2,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "5500e8ac570d7b2b751c131e99a9bbca6dc7b64c5779b55f055063da47c22816"
+        },
+        {
+          "map": 1,
+          "round": 3,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "a80449f19b6e18545b4e76475eb5e22d53122edc18faf4498a9f281ee209da1e"
+        },
+        {
+          "map": 1,
+          "round": 4,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "e3d51ca82a5ee534d2867dd8aa31cd206458db94e0991331e3aa69c694b7af40"
+        },
+        {
+          "map": 1,
+          "round": 5,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "bc530e915bdb36e3507c5d37b7541f9282f5602c37055fbb914de7c522886622"
+        },
+        {
+          "map": 1,
+          "round": 6,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "0c3d2bf4edd5ee1a2f538cf5e82f3a60098e8e776737d2441918038a6dc8bda6"
+        },
+        {
+          "map": 1,
+          "round": 7,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "be410f0f18b706c0bdaff5da919a77c2eed6dedd28ce43c406e34e67349afc87"
+        },
+        {
+          "map": 1,
+          "round": 8,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "062c97be582d780a24630d1411317614f3ab4144298e60d369acf9806aa00ad2"
+        },
+        {
+          "map": 1,
+          "round": 9,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "2214bd1ae4ae9b6c9d946bca8773ca3436247c661a10730c788dc8353fcbb3ea"
+        },
+        {
+          "map": 1,
+          "round": 10,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "682fa283ea59089526840c294478bb2b1a3b562bf7a90195402154bbd853a0f9"
+        },
+        {
+          "map": 1,
+          "round": 11,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "ab811f1d6bce2553aef0ba5be4b03a1b3d771eed5d16785134955f7bb3450068"
+        },
+        {
+          "map": 1,
+          "round": 12,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "f82b055c60629246500588fb9b85619afbd12df44c2cfa456d59294666556e0e"
+        },
+        {
+          "map": 1,
+          "round": 13,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "921e3388d279372aeac6b55150230c170bb87cea79a0a4c96df9bc359d6fd78b"
+        },
+        {
+          "map": 1,
+          "round": 14,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "865357624b78f4813acd8ec54e3050774e7bdb0c0b8906af3a70c5c79f348671"
+        },
+        {
+          "map": 1,
+          "round": 15,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "9fd3090ff437e16b409d49bd2987be482ba74f87c718bc4bbe5f9d306669d38c"
+        },
+        {
+          "map": 1,
+          "round": 16,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "0983173e58f054dbfb9e32c8d58e3e543de00490e5a49dda2eb54f81a5139b37"
+        },
+        {
+          "map": 1,
+          "round": 17,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "3f60dac57594071dcaabc0b2ed2ddf3e58316e96fdb9521acc48a6eb53179998"
+        },
+        {
+          "map": 1,
+          "round": 18,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "c1de70aa473b0a644578bdf5e595bcfabe15db9cecdf29728dc82604ae8119a7"
+        },
+        {
+          "map": 1,
+          "round": 19,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "53a89aff88be08456573c84fdbb89161c319077c7f2aa9d1d5a6534d2730d3b6"
+        },
+        {
+          "map": 1,
+          "round": 20,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "c32e105bf9572ecd3bf11d237de19875e3356787340ec88bc66c68699e3c4392"
+        },
+        {
+          "map": 1,
+          "round": 21,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "e7317204d314f77b51f2cb65ecc092c32601faf0845bf3e69fd67b00658227bd"
+        },
+        {
+          "map": 1,
+          "round": 22,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "1cdcf6669b8da187a1398481ba1d4c2640b7caa2bd9f7c82c5386dff4b1e76b8"
+        },
+        {
+          "map": 1,
+          "round": 23,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "1f316a6d52cda8d55b2e4b12748931facefc0ffa758d6b1d8978052676596f21"
+        },
+        {
+          "map": 1,
+          "round": 24,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "50c1458b7000ca351e3642ae3849e630dee51520756faa58861c3bdcdfb6061a"
+        },
+        {
+          "map": 1,
+          "round": 25,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "e6f1117e6e56d809bb3a985ae43edc719f1794fc9260db06f43d0889d8546cf2"
+        },
+        {
+          "map": 1,
+          "round": 26,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "cfbcb3bfeaf722d611ef21b3d75200e03aa14e0b67a38b0d35e44f7bad6088b7"
+        },
+        {
+          "map": 1,
+          "round": 27,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "9d332f3c60a2d8f7b05e5efb7acc95e8a704bbb9da2c7ce2a7101a6357e997b1"
+        },
+        {
+          "map": 1,
+          "round": 28,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "a53aa91e9262bb2b99f06aa9642aa0f298f661086f39bc0bcfb4142e8ac653ea"
+        },
+        {
+          "map": 1,
+          "round": 29,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "4f0483bd5c0d967c4d80d3a487a1c3b399015045625e57088f9314877649558d"
+        },
+        {
+          "map": 1,
+          "round": 30,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "fb29b9dd8c56f1db84c441cf453fa71d2d9abf425f701af196e7e53eda58185f"
+        },
+        {
+          "map": 1,
+          "round": 31,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "0a200dac31de49fa1498fb65252ba8a515bf73b133fa0d22d14e98e8ea9d798e"
+        },
+        {
+          "map": 1,
+          "round": 32,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "89787ba5b056f3f46b4ea4d1e2934ac4240b1b02f4a89a83dea610d5549422d6"
+        },
+        {
+          "map": 1,
+          "round": 33,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "31d105e1b7aa4055c890d80c4d9d182e1f485337c763c96536e2928f4924d71e"
+        },
+        {
+          "map": 1,
+          "round": 34,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "222af23a112247209b52a713ad393ad5690b90570e7388f326322b6bc53fab2e"
+        },
+        {
+          "map": 2,
+          "round": 1,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "bbb808492fea1d94ffb312ae4bebf60195916017aaa536bc1a385da21ca7ed85"
+        },
+        {
+          "map": 2,
+          "round": 2,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "11712e6c19f6452f669151bd2f3a8e6876ab4fc664463b0cd5cbc6e5ee58304a"
+        },
+        {
+          "map": 2,
+          "round": 3,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "5bc1198de9725ec0d883ca3368d6eff03e1ab9c62351d924cb20b5cfdad184e5"
+        },
+        {
+          "map": 2,
+          "round": 4,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "893ae6a9fc30ec9cd9900f2b7d3642bddd8535d063768f5a50cbb48ed4ef44dc"
+        },
+        {
+          "map": 2,
+          "round": 5,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "e7a4fa6055a032853d11af58c70db9a5ee5ecf790ef5c51de39c9b1ddc2ebeb1"
+        },
+        {
+          "map": 2,
+          "round": 6,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "291f251a6dedb2f2df1d2f3380cae56ae4ca7f55dbdda67dbeb833965fd620fd"
+        },
+        {
+          "map": 2,
+          "round": 7,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "000c553a603932aa2f1a6e1610e91388d402ada3096bcb10a7e4481c15867a02"
+        },
+        {
+          "map": 2,
+          "round": 8,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "09e1f7f61aa08db9a772d692d95b6835ffb157008080974df4d26b6f1aa6d8db"
+        },
+        {
+          "map": 2,
+          "round": 9,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "a0dc597b4a6db0b91552fc1ee96fdeaaf2faef4ed6f215eb0f8992eb4cdc29de"
+        },
+        {
+          "map": 2,
+          "round": 10,
+          "homeSide": "T",
+          "winner": "away",
+          "replaySha256": "e6dd254c2807a28663f2cf96414f30efc9072ba8cfd5163126eef4947fe466f6"
+        },
+        {
+          "map": 2,
+          "round": 11,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "dbc471e459512424a3c621d4ac7d0d550d62c90182e9884746d770ebae8f5097"
+        },
+        {
+          "map": 2,
+          "round": 12,
+          "homeSide": "T",
+          "winner": "home",
+          "replaySha256": "a7c1f137035c865a76d2a38dff0201b7f34b0b8bc0453fad6dbe7b93f1d507f5"
+        },
+        {
+          "map": 2,
+          "round": 13,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "6b4a508b4cd07149a9a9d47ba3dd20f56be4d8e1e188d260d9a5befbf07aedd0"
+        },
+        {
+          "map": 2,
+          "round": 14,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "6f521d82f0cc6573d0bdeeb390af81fb4ce027787e1614dec469654ba2bc9c80"
+        },
+        {
+          "map": 2,
+          "round": 15,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "10c4437cb3026953efe5c4aa23e786cc7d487185c974bf54394ed3465f105bc0"
+        },
+        {
+          "map": 2,
+          "round": 16,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "09bc37479729c54e3a2c00c8bc8fedf439bf43923ce644f877132e911f0212a9"
+        },
+        {
+          "map": 2,
+          "round": 17,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "e6dbe8c2dfdf40a122993716d76c2a7dbe8c9c02b3b2aa484ee2b6fecbe130ee"
+        },
+        {
+          "map": 2,
+          "round": 18,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "f32e9f00266bef2a3eda69cb99ec9a0613434c55e82865458352c8370facbf84"
+        },
+        {
+          "map": 2,
+          "round": 19,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "4815f08feafe3d0126a2a46a32121469dc2f1cd5709c296e4f5054308a1c28c7"
+        },
+        {
+          "map": 2,
+          "round": 20,
+          "homeSide": "CT",
+          "winner": "away",
+          "replaySha256": "aa377ab91ce62cb2021f6bcd2e8a0d174e6675f085b73e764e2dad11f3bb1619"
+        },
+        {
+          "map": 2,
+          "round": 21,
+          "homeSide": "CT",
+          "winner": "home",
+          "replaySha256": "a328eb61ea89721957ceeae222ea450b7d5bd259816b6e6de2890c7d1b841490"
+        }
+      ],
+      "homeWins": 2,
+      "awayWins": 1,
+      "finalSha256": "18bef571ab9cdd616c65bfac0872324e282654da3e75947c670e18b172012f53"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
  * Equipment Manager
  * Equipment Shop system for team gear upgrades
  * 
- * Equipment provides stat bonuses to all players on the team.
+ * Equipment contributes a bounded team-strength modifier during legacy career matches.
  * Higher tier equipment = better bonuses but higher weekly cost.
  */
 
@@ -40,7 +40,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 500,
         weeklyCost: 50,
         icon: "Mouse",
-        imagePath: "/assets/equipment/mouse_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/mouse-standard.webp"
     },
     {
         id: "mouse_t2",
@@ -52,7 +52,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 2000,
         weeklyCost: 250,
         icon: "Mouse",
-        imagePath: "/assets/equipment/mouse_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/mouse-pro.webp"
     },
     {
         id: "mouse_t3",
@@ -64,7 +64,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 5000,
         weeklyCost: 600,
         icon: "Mouse",
-        imagePath: "/assets/equipment/mouse_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/mouse-elite.webp"
     },
 
     // === KEYBOARDS ===
@@ -78,7 +78,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 600,
         weeklyCost: 60,
         icon: "Keyboard",
-        imagePath: "/assets/equipment/keyboard_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/keyboard-standard.webp"
     },
     {
         id: "keyboard_t2",
@@ -90,7 +90,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 2500,
         weeklyCost: 300,
         icon: "Keyboard",
-        imagePath: "/assets/equipment/keyboard_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/keyboard-pro.webp"
     },
     {
         id: "keyboard_t3",
@@ -102,7 +102,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 6000,
         weeklyCost: 750,
         icon: "Keyboard",
-        imagePath: "/assets/equipment/keyboard_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/keyboard-elite.webp"
     },
 
     // === MONITORS ===
@@ -116,7 +116,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 1000,
         weeklyCost: 75,
         icon: "Monitor",
-        imagePath: "/assets/equipment/monitor_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/monitor-standard.webp"
     },
     {
         id: "monitor_t2",
@@ -128,7 +128,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 3000,
         weeklyCost: 400,
         icon: "Monitor",
-        imagePath: "/assets/equipment/monitor_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/monitor-pro.webp"
     },
     {
         id: "monitor_t3",
@@ -140,7 +140,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 8000,
         weeklyCost: 1000,
         icon: "Monitor",
-        imagePath: "/assets/equipment/monitor_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/monitor-elite.webp"
     },
 
     // === HEADSETS ===
@@ -154,7 +154,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 400,
         weeklyCost: 40,
         icon: "Headphones",
-        imagePath: "/assets/equipment/headset_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/headset-standard.webp"
     },
     {
         id: "headset_t2",
@@ -166,7 +166,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 1500,
         weeklyCost: 200,
         icon: "Headphones",
-        imagePath: "/assets/equipment/headset_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/headset-pro.webp"
     },
     {
         id: "headset_t3",
@@ -178,7 +178,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 4000,
         weeklyCost: 550,
         icon: "Headphones",
-        imagePath: "/assets/equipment/headset_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/headset-elite.webp"
     },
 
     // === GAMING CHAIRS ===
@@ -192,7 +192,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 800,
         weeklyCost: 50,
         icon: "Armchair",
-        imagePath: "/assets/equipment/chair_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/chair-standard.webp"
     },
     {
         id: "chair_t2",
@@ -204,7 +204,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 3000,
         weeklyCost: 300,
         icon: "Armchair",
-        imagePath: "/assets/equipment/chair_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/chair-pro.webp"
     },
     {
         id: "chair_t3",
@@ -216,7 +216,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 7000,
         weeklyCost: 850,
         icon: "Armchair",
-        imagePath: "/assets/equipment/chair_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/chair-elite.webp"
     },
 
     // === GAMING PCs ===
@@ -230,7 +230,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 3000,
         weeklyCost: 150,
         icon: "Cpu",
-        imagePath: "/assets/equipment/pc_t1.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/pc-standard.webp"
     },
     {
         id: "pc_t2",
@@ -242,7 +242,7 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 8000,
         weeklyCost: 500,
         icon: "Cpu",
-        imagePath: "/assets/equipment/pc_t2.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/pc-pro.webp"
     },
     {
         id: "pc_t3",
@@ -254,19 +254,19 @@ export const EQUIPMENT_CATALOG: EquipmentCatalogItem[] = [
         purchaseCost: 15000,
         weeklyCost: 1500,
         icon: "Cpu",
-        imagePath: "/assets/equipment/pc_t3.png"
+        imagePath: "/esport-ui-assets/equipment/tiers/pc-elite.webp"
     },
 ]
 
 // ===== EQUIPMENT TYPE DISPLAY =====
 
 export const EQUIPMENT_TYPE_DISPLAY: Record<EquipmentType, { label: string; description: string; icon: string; imagePath: string }> = {
-    MOUSE: { label: "Mouse", description: "Improves reaction time", icon: "Mouse", imagePath: "/assets/equipment/mouse_t3.png" },
-    KEYBOARD: { label: "Keyboard", description: "Enhances clutch potential", icon: "Keyboard", imagePath: "/assets/equipment/keyboard_t3.png" },
-    MONITOR: { label: "Monitor", description: "Sharpens visual precision", icon: "Monitor", imagePath: "/assets/equipment/monitor_t3.png" },
-    HEADSET: { label: "Headset", description: "Boosts tactical hearing", icon: "Headphones", imagePath: "/assets/equipment/headset_t3.png" },
-    CHAIR: { label: "Chair", description: "Improves focus and creativity", icon: "Armchair", imagePath: "/assets/equipment/chair_t3.png" },
-    PC: { label: "Gaming PC", description: "Overall skill boost", icon: "Cpu", imagePath: "/assets/equipment/pc_t3.png" },
+    MOUSE: { label: "Mouse", description: "Improves reaction time", icon: "Mouse", imagePath: "/esport-ui-assets/equipment/tiers/mouse-elite.webp" },
+    KEYBOARD: { label: "Keyboard", description: "Enhances clutch potential", icon: "Keyboard", imagePath: "/esport-ui-assets/equipment/tiers/keyboard-elite.webp" },
+    MONITOR: { label: "Monitor", description: "Sharpens visual precision", icon: "Monitor", imagePath: "/esport-ui-assets/equipment/tiers/monitor-elite.webp" },
+    HEADSET: { label: "Headset", description: "Boosts tactical hearing", icon: "Headphones", imagePath: "/esport-ui-assets/equipment/tiers/headset-elite.webp" },
+    CHAIR: { label: "Chair", description: "Improves focus and creativity", icon: "Armchair", imagePath: "/esport-ui-assets/equipment/tiers/chair-elite.webp" },
+    PC: { label: "Gaming PC", description: "Overall skill boost", icon: "Cpu", imagePath: "/esport-ui-assets/equipment/tiers/pc-elite.webp" },
 }
 
 export const EQUIPMENT_TIER_DISPLAY: Record<EquipmentTier, { label: string; color: string; bgColor: string }> = {
@@ -278,6 +278,23 @@ export const EQUIPMENT_TIER_DISPLAY: Record<EquipmentTier, { label: string; colo
 // ===== EQUIPMENT MANAGER =====
 
 export class EquipmentManager {
+    /** Legacy duplicate slots count once; each rating is bounded by its catalog maximum. */
+    static activeEquipment(team: { equipment?: EquipmentItem[] }): EquipmentItem[] {
+        const seen = new Set<string>()
+        return (team.equipment || []).filter(item => {
+            if (!(item.type in EQUIPMENT_TYPE_DISPLAY) || seen.has(item.type)) return false
+            seen.add(item.type)
+            return true
+        })
+    }
+
+    static strengthBonus(team: { equipment?: EquipmentItem[] }): number {
+        return this.activeEquipment(team).reduce((sum, item) => {
+            const maximum = item.type === 'PC' ? 5 : 8
+            const rating = Number.isFinite(item.bonus?.value) ? Math.max(0, Math.min(maximum, item.bonus.value)) : 0
+            return sum + rating / 80
+        }, 0)
+    }
     /**
      * Get all available equipment for purchase
      */
@@ -314,9 +331,11 @@ export class EquipmentManager {
 
         if (!team.equipment) return bonuses
 
-        team.equipment.forEach(item => {
+        this.activeEquipment(team).forEach(item => {
             const stat = item.bonus.stat
-            bonuses[stat] = (bonuses[stat] || 0) + item.bonus.value
+            const maximum = item.type === 'PC' ? 5 : 8
+            const rating = Number.isFinite(item.bonus.value) ? Math.max(0, Math.min(maximum, item.bonus.value)) : 0
+            bonuses[stat] = (bonuses[stat] || 0) + rating
         })
 
         return bonuses
@@ -327,7 +346,7 @@ export class EquipmentManager {
      */
     static calculateWeeklyCost(team: TeamSaveData): number {
         if (!team.equipment) return 0
-        return team.equipment.reduce((sum, item) => sum + item.weeklyCost, 0)
+        return this.activeEquipment(team).reduce((sum, item) => sum + (Number.isFinite(item.weeklyCost) ? Math.max(0, item.weeklyCost) : 0), 0)
     }
 
     /**
@@ -344,8 +363,11 @@ export class EquipmentManager {
             return { success: false, error: "Equipment not found" }
         }
 
+        if (team.equipment?.some(item => item.id === catalogId)) {
+            return { success: false, error: "This equipment is already installed" }
+        }
         // Check budget
-        if (team.budget < catalogItem.purchaseCost) {
+        if (!Number.isFinite(team.budget) || team.budget < catalogItem.purchaseCost) {
             return { success: false, error: "Insufficient funds" }
         }
 
@@ -363,7 +385,7 @@ export class EquipmentManager {
             type: catalogItem.type,
             tier: catalogItem.tier,
             name: catalogItem.name,
-            bonus: catalogItem.bonus,
+            bonus: { ...catalogItem.bonus },
             weeklyCost: catalogItem.weeklyCost,
             purchasedWeek: currentWeek,
         }

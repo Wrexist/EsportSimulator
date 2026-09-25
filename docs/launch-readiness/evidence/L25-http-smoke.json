@@ -1,0 +1,31 @@
+{
+  "build": "cq8dsNxFQpI_H_o3H8Svp",
+  "pid": 531800,
+  "cases": [
+    {
+      "route": "/main-menu",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/new-game",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/rankings",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/dev/radar-preview",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    }
+  ],
+  "limitation": "HTTP route availability only; no UI acceptance"
+}

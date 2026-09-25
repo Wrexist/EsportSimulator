@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "electron": "44.3.0",
+  "node": "24.20.0",
+  "chrome": "152.0.7977.78",
+  "buildId": "jVCdqGfKQbY4RZYlQsqeT",
+  "steamNativeLoads": true,
+  "localMainMenuStatus": 200,
+  "limitations": [
+    "Source tree, not ASAR package; no Steam initialization/account calls, window, IPC, or offline-disconnected acceptance. No career storage touched."
+  ]
+}

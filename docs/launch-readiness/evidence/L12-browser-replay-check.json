@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "replaySha256": "f1848061b12f2cc40211ea342da020ab1b540ddbf7d6ba8e62cfa0719fa422c1",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "events": 18,
+  "frames": 769,
+  "authoritativeSha256": "67fc31a3e86d4673033c6f5974aaf98ab0843f66236395539b5b8f36fa8ad9f8",
+  "maxPathDelta": 0,
+  "maxCheckpointErrorDelta": 0,
+  "floatToleranceUnits": 1e-8,
+  "checks": [
+    {
+      "id": "test-smoke",
+      "state": "mismatch",
+      "landingError": 0,
+      "bounceErrors": [
+        317.0817923796132,
+        0,
+        0
+      ],
+      "reason": "Landing or bounce target is outside the chosen tolerance."
+    }
+  ],
+  "comparison": "Exact event types/ticks/damage/inventory/knowledge and checkpoint state; geometric path/checkpoint errors compared within the explicitly reported world-unit tolerance."
+}

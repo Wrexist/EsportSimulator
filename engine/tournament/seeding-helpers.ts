@@ -35,8 +35,14 @@ export function resolveCompletedWinner(
     homeTeamId?: string,
     awayTeamId?: string,
 ): string | undefined {
-    if (completed.result?.winnerId) return completed.result.winnerId
-    if (!completed.result) return undefined
+    homeTeamId ??= completed.homeTeamId
+    awayTeamId ??= completed.awayTeamId
+    if (!homeTeamId || !awayTeamId || homeTeamId === awayTeamId) return undefined
+    if (completed.result?.winnerId) {
+        if (![homeTeamId, awayTeamId].includes(completed.result.winnerId)) return undefined
+        return completed.result.winnerId
+    }
+    if (!completed.result || !Number.isFinite(completed.result.homeScore) || !Number.isFinite(completed.result.awayScore)) return undefined
     if (!homeTeamId || !awayTeamId) return undefined
     if (completed.result.homeScore > completed.result.awayScore) return homeTeamId
     if (completed.result.awayScore > completed.result.homeScore) return awayTeamId
@@ -89,7 +95,7 @@ export function getBracketRoundNumber(match: BracketMatchSaveData): number {
     const roundOfMatch = stage.match(/round of (\d+)/i)
     if (roundOfMatch) {
         const size = parseInt(roundOfMatch[1], 10)
-        return Math.log2(size)
+        return 100 - Math.log2(size)
     }
 
     if (stage.includes("quarter")) return 100

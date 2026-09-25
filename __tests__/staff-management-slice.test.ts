@@ -220,6 +220,7 @@ describe("renewStaffContract", () => {
 
     test("happy path: updates salary + contractEndWeek", () => {
         const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { staffIds: ["s1"] })],
             staff: [{
                 ...makeMarketStaff("s1", "coach", 4000),
                 teamId: "player",
@@ -257,4 +258,23 @@ describe("fireStaff", () => {
         expect(news).toBeDefined()
         expect(news!.title).toContain("leaves")
     })
+})
+
+
+test("L15 expired staff and unaffordable raises leave contracts unchanged", () => {
+    const member = { ...makeMarketStaff("s1"), teamId: "player", contractEndWeek: 5 }
+    const h = makeHarness(makeBaseState({ teams: [makeTeam("player", { staffIds: ["s1"], budget: 1 })], staff: [member] }))
+    const slice = createStaffManagementSlice(h.set, h.get)
+    expect(slice.renewStaffContract("s1", 5000, 52).success).toBe(false)
+    h.set(s => { s.staff[0].contractEndWeek = 52 })
+    expect(slice.renewStaffContract("s1", 6000, 52).success).toBe(false)
+    expect(h.state().staff[0].salaryPerWeek).toBe(5000)
+    expect(h.state().financeLedger).toHaveLength(0)
+})
+
+test("L15 the manager cannot dismiss another team's staff", () => {
+    const h = makeHarness(makeBaseState({ staff: [{ ...makeMarketStaff("s1"), teamId: "rival" }] }))
+    const slice = createStaffManagementSlice(h.set, h.get)
+    expect(() => slice.fireStaff("s1")).toThrow(/own staff/)
+    expect(h.state().staff).toHaveLength(1)
 })

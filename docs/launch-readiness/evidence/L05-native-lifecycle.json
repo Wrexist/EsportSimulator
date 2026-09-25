@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "electron": "44.3.0",
+  "checks": [
+    {
+      "stage": "audio",
+      "mutedFirstGesture": true,
+      "studioAndLabSilent": true,
+      "backgroundSilent": true,
+      "sceneRestore": true,
+      "preferencesStored": true
+    },
+    {
+      "stage": "ready"
+    },
+    {
+      "stage": "cancelled",
+      "attempts": 3,
+      "closeCount": 1
+    },
+    {
+      "stage": "autosaved",
+      "attempts": 4
+    },
+    {
+      "stage": "slow-save-still-open",
+      "elapsedMs": 16008
+    },
+    {
+      "stage": "closed-after-durable-save",
+      "phase": "slow",
+      "attempts": 5,
+      "elapsedMs": 17124
+    }
+  ]
+}

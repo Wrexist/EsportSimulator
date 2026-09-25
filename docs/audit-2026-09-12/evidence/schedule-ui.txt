@@ -1,0 +1,152 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/schedule".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/schedule
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/schedule#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 container Pulsar logo
+			144 text 🇷🇺
+			145 heading PULSAR, Value: 2
+				146 text PULSAR
+			147 container
+				148 text CIS  • # 154
+			149 heading SCHEDULE, Value: 1
+				150 text SCHEDULE
+			151 container
+				152 text YEAR  1  | WEEK  1  | WED (DAY 3/7)
+			153 button (disabled) Previous week
+			154 container
+				155 container
+					156 text WEEK  1 Y 1 CURRENT
+				157 container
+					158 text MON 12 TUE 13 WED 14 TODAY
+					159 container
+						160 text SCRIM
+						161 container
+							162 text VS  Iron Warden
+						163 text 13 - 11
+					164 text THU 15
+					165 button ADD EVENT
+					166 text FRI 16
+					167 container
+						168 text SCRIM VS  Sable
+						169 image Locked
+					170 text SAT 17
+					171 button ADD EVENT
+					172 text SUN 18
+					173 button ADD EVENT
+				174 container
+					175 text WEEK  2 Y 1
+				176 container
+					177 text MON 19
+					178 button ADD EVENT
+					179 text TUE 20
+					180 button ADD EVENT
+					181 text WED 21
+					182 container
+						183 text SCRIM VS  Synapse
+						184 container Synapse logo
+					185 text THU 22
+					186 button ADD EVENT
+					187 text FRI 23
+					188 button ADD EVENT
+					189 text SAT 24
+					190 button ADD EVENT
+					191 text SUN 25
+					192 button ADD EVENT
+				193 container
+					194 text WEEK  3 Y 1
+				195 container
+					196 text MON 26
+					197 button ADD EVENT
+					198 text TUE 27
+					199 button ADD EVENT
+					200 text WED 28
+					201 button ADD EVENT
+					202 text THU 29
+					203 button ADD EVENT
+					204 text FRI 30
+					205 button ADD EVENT
+					206 text SAT 1
+					207 button ADD EVENT
+					208 text SUN 2
+					209 button ADD EVENT
+				210 container
+					211 text WEEK  4 Y 1
+				212 container
+					213 text MON 3
+					214 button ADD EVENT
+					215 text TUE 4
+					216 button ADD EVENT
+					217 text WED 5
+					218 button ADD EVENT
+					219 text THU 6
+					220 button ADD EVENT
+					221 text FRI 7
+					222 button ADD EVENT
+					223 text SAT 8
+					224 button ADD EVENT
+					225 text SUN 9
+					226 button ADD EVENT
+				227 container
+					228 text WEEK  5 Y 1
+				229 container
+					230 text MON 10
+					231 button ADD EVENT
+					232 text TUE 11
+					233 button ADD EVENT
+					234 text WED 12
+					235 button ADD EVENT
+					236 text THU 13
+					237 button ADD EVENT
+					238 text FRI 14
+					239 button ADD EVENT
+					240 text SAT 15
+					241 button ADD EVENT
+					242 text SUN 16
+					243 button ADD EVENT
+			244 button Next week
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 10 link Description: Schedule, URL: 127.0.0.1:3210/schedule

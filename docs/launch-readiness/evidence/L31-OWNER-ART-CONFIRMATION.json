@@ -1,0 +1,1312 @@
+{
+  "recordedOn": "2026-09-16",
+  "statement": "Created for my project",
+  "scope": "Fictional player/staff portraits and equipment, facility, trophy and event illustrations, including AI-generated artwork.",
+  "limitations": [
+    "Owner-attested origin, not independent license verification.",
+    "Does not cover original real-player photographs, original team logos, or unrelated assets.",
+    "Applies only to the listed exact file hashes."
+  ],
+  "files": [
+    {
+      "path": "public/assets/equipment/chair_t1.png",
+      "sha256": "f88b1a85dfd286d8a912f4c9c6aa60216490fe07ad6b78f67f8ceb53b0d0eb11",
+      "bytes": 552145
+    },
+    {
+      "path": "public/assets/equipment/chair_t1.webp",
+      "sha256": "a07f5d3bfab5d0aef9ec06edbc538e8c1725307a64a1872dca3e55df969f1fb0",
+      "bytes": 49668
+    },
+    {
+      "path": "public/assets/equipment/chair_t2.png",
+      "sha256": "02a3ae14dcd3d47e763f3e4fa28b53309b43c6c336af3947a675877247986ee3",
+      "bytes": 556757
+    },
+    {
+      "path": "public/assets/equipment/chair_t2.webp",
+      "sha256": "ef5686a969dd543abe0c9ef2afb6888663a847fabf9f0de1f73d698e4664b680",
+      "bytes": 61656
+    },
+    {
+      "path": "public/assets/equipment/chair_t3.png",
+      "sha256": "b15c597a8d044954fe23ee03d930a50e06c366fd25c49433fd0b38e90b6f138e",
+      "bytes": 911638
+    },
+    {
+      "path": "public/assets/equipment/chair_t3.webp",
+      "sha256": "47ea7db595db131b3cd58fa00c4be44946d18f77b15f593358e152460180992f",
+      "bytes": 80674
+    },
+    {
+      "path": "public/assets/equipment/equipment_armor.png",
+      "sha256": "47a6d3607314004955e34f043592023d008ba0f8d4020154cf361dfdd2f755ed",
+      "bytes": 1700660
+    },
+    {
+      "path": "public/assets/equipment/equipment_armor.webp",
+      "sha256": "e3fafaaa74df4a8c56cfb95df2d9a428040a41ffff9a24f0a445e287f2e84e97",
+      "bytes": 140972
+    },
+    {
+      "path": "public/assets/equipment/equipment_armor_kevlar.png",
+      "sha256": "7a0930b57864556f98534a9e5a37b82e9275df63deb17e81896134429c79b9e3",
+      "bytes": 1733126
+    },
+    {
+      "path": "public/assets/equipment/equipment_armor_kevlar.webp",
+      "sha256": "c562ef34a56410332e98b3c751aa55ab2496fe1a4d0f84481ca73c59cb9472a6",
+      "bytes": 148294
+    },
+    {
+      "path": "public/assets/equipment/equipment_defuse.png",
+      "sha256": "0bca1efc7dafab261691fbe488a0a9fae61397f4b08929b4f3597cf0999abeb6",
+      "bytes": 1697561
+    },
+    {
+      "path": "public/assets/equipment/equipment_defuse.webp",
+      "sha256": "eab60efef1dfbd37d04c125f5870058ae8d3066999076303caa4c9867a9e04a1",
+      "bytes": 155562
+    },
+    {
+      "path": "public/assets/equipment/headset_t1.png",
+      "sha256": "3c53a2bf566eee96eb9c433674e688f48b378fd2ae1861901a19ce11ccf8c5d6",
+      "bytes": 610743
+    },
+    {
+      "path": "public/assets/equipment/headset_t1.webp",
+      "sha256": "90afdbe6c4d16392857e3fa82b41a06c558dcc7bf6fd7b498f5ad96ee731f4b9",
+      "bytes": 76732
+    },
+    {
+      "path": "public/assets/equipment/headset_t2.png",
+      "sha256": "230ab8b4074236ea1c3e9acf12a207b627751dc3c30aea8eb52ef7feaa7d4602",
+      "bytes": 752834
+    },
+    {
+      "path": "public/assets/equipment/headset_t2.webp",
+      "sha256": "b2a2ce2d55da171fae9fe4e680fda72d570aecdd884ca4c25b054fe6763e6faa",
+      "bytes": 70668
+    },
+    {
+      "path": "public/assets/equipment/headset_t3.png",
+      "sha256": "9ec43e8c87daec27100b8d64a59a042ed798ffdbd68837b7a1f71cb72b5dd377",
+      "bytes": 771465
+    },
+    {
+      "path": "public/assets/equipment/headset_t3.webp",
+      "sha256": "a2138c9fa218f33e1b95c30f46875d699a1b3763ddf0b39e7dfdd9bcb10e6eca",
+      "bytes": 69468
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t1.png",
+      "sha256": "6cd31780846d2900f929488ff4d0bd8df8796fe20cfc7b59c130cb7a87ae4785",
+      "bytes": 551023
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t1.webp",
+      "sha256": "92343cdb9e3d291c9796ce330cdc1b0f0d43f7bfa3dcef4ef5d9eb6cf23fabca",
+      "bytes": 54344
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t2.png",
+      "sha256": "04a0d30855c5c841c175c1c1734bac9adeb0cfde99586c647e2b741687e7d3e6",
+      "bytes": 717976
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t2.webp",
+      "sha256": "c5e25f87a0ac33c7a7c4fb3e7c5a7ddfaa93d726dc8c4eb5868f4fa86d1ad39e",
+      "bytes": 74634
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t3.png",
+      "sha256": "f75407b755efcf50efb5ea74ef5e61cafddeae630ec79282cde723efd100f062",
+      "bytes": 708750
+    },
+    {
+      "path": "public/assets/equipment/keyboard_t3.webp",
+      "sha256": "c205c21aa8b46f318f6cd697e67fdd25d7929f2b32f1a2b511c59e1c3e7a4b26",
+      "bytes": 74354
+    },
+    {
+      "path": "public/assets/equipment/monitor_t1.png",
+      "sha256": "2f3936196d91679bb9db5ed8ab95e7ea334fe2a3254ad18903ee008a599b44c5",
+      "bytes": 834696
+    },
+    {
+      "path": "public/assets/equipment/monitor_t1.webp",
+      "sha256": "3a1ca468842285f6a6f207c43bf19add203505ddb620efd6d853e3971e902ba6",
+      "bytes": 40342
+    },
+    {
+      "path": "public/assets/equipment/monitor_t2.png",
+      "sha256": "cc9c0a2db72abbf00801e25a34a0f0b88f16ada53fbaea699e7d3e8573c59e5f",
+      "bytes": 737530
+    },
+    {
+      "path": "public/assets/equipment/monitor_t2.webp",
+      "sha256": "b0a448d76e836898e624c3e4e9e9194827ce0d1ee2b9c1ccc3100ab01959be94",
+      "bytes": 60732
+    },
+    {
+      "path": "public/assets/equipment/monitor_t3.png",
+      "sha256": "610bb6d38591e2628a8212ff7e330cedc06f2bcd889380af00fdef8e11cb3b04",
+      "bytes": 1013866
+    },
+    {
+      "path": "public/assets/equipment/monitor_t3.webp",
+      "sha256": "2193285d2b1ccee6f2fa7bbc1522fe122cc4a85c8cdb45bdeccb503b43b24a45",
+      "bytes": 77138
+    },
+    {
+      "path": "public/assets/equipment/mouse_t1.png",
+      "sha256": "d5cb085990503e644d42a3f3a2322bf942197d1c3c243ed702bab6608ec17581",
+      "bytes": 486459
+    },
+    {
+      "path": "public/assets/equipment/mouse_t1.webp",
+      "sha256": "ef5b851ed93fef3ce171edea89fb1dee6b1ec1fab6924227a381cf261216b61b",
+      "bytes": 35126
+    },
+    {
+      "path": "public/assets/equipment/mouse_t2.png",
+      "sha256": "4005d6bb8e77b7e7d7b329e7020f538ee716c7a30fef108ba6da67207ec51bba",
+      "bytes": 531360
+    },
+    {
+      "path": "public/assets/equipment/mouse_t2.webp",
+      "sha256": "fc1b5278228b1b3fe3e7ff5318b578f39d919adbff747206e4290e44fe6f2667",
+      "bytes": 42028
+    },
+    {
+      "path": "public/assets/equipment/mouse_t3.png",
+      "sha256": "c3f3d9f39d7dfda8b02ea1d13a1370c04b441f06741d0882609c699a04d5432e",
+      "bytes": 431704
+    },
+    {
+      "path": "public/assets/equipment/mouse_t3.webp",
+      "sha256": "9298af93e21b1a411721a1eefdebace3513ab0877f8bf2dd987e75b3e18b7f29",
+      "bytes": 34704
+    },
+    {
+      "path": "public/assets/equipment/pc_t1.png",
+      "sha256": "6c0aa5339d445e6acd9d33a554afd956a3c3a8a85ea65f6f9a639d048627de5d",
+      "bytes": 1294490
+    },
+    {
+      "path": "public/assets/equipment/pc_t1.webp",
+      "sha256": "bdf163235c560bf262e244bab735772783fd1ba50c54c044d795bee4f6d317da",
+      "bytes": 136734
+    },
+    {
+      "path": "public/assets/equipment/pc_t2.png",
+      "sha256": "dc6cc7c9cfdba6310f3ecf6e27e307d0b0455e720a8027faad929136f2637282",
+      "bytes": 1305994
+    },
+    {
+      "path": "public/assets/equipment/pc_t2.webp",
+      "sha256": "3733acdbe36774280392c3375a130d1f4f3ccd102e8b10573d1c1e79a427f833",
+      "bytes": 131470
+    },
+    {
+      "path": "public/assets/equipment/pc_t3.png",
+      "sha256": "13625d10a75b43feb4b76d7ff16444de5cf8d2bc8c2c9b221c4a668c724cb257",
+      "bytes": 1216414
+    },
+    {
+      "path": "public/assets/equipment/pc_t3.webp",
+      "sha256": "f956f7b571e2f7309008f397edd2a9124a61a47f3593cff588f292323ea77030",
+      "bytes": 83588
+    },
+    {
+      "path": "public/assets/events/ace.png",
+      "sha256": "50c76a49f99d1a4411fbd28909f6d5010fb0a9ea3f5ecb69424654ab1566896e",
+      "bytes": 1041440
+    },
+    {
+      "path": "public/assets/events/ace.webp",
+      "sha256": "ceb2521cd807d81985cbd072c99e25c03b951be0e6f7c99dcaa55d902805bae7",
+      "bytes": 93640
+    },
+    {
+      "path": "public/assets/events/clutch.png",
+      "sha256": "9b32f93a8339c0d811900dc64d276e49709101747b2ef4e1002988569c397b72",
+      "bytes": 1138838
+    },
+    {
+      "path": "public/assets/events/clutch.webp",
+      "sha256": "6b7a60f5089230fca18bcfe5fa496fb4cc78fc7d10f018d2cb1880345613fd4a",
+      "bytes": 100488
+    },
+    {
+      "path": "public/assets/events/defuse.png",
+      "sha256": "94eddc24e3ae38dbb4e09d42df0b5cb2c524f5ca80ba9a0b98fe7f1850e522e8",
+      "bytes": 784705
+    },
+    {
+      "path": "public/assets/events/defuse.webp",
+      "sha256": "269c97ed8d73b6da872693685971efa92320bdb62300e4603723b4c22c94ea77",
+      "bytes": 85240
+    },
+    {
+      "path": "public/assets/events/headshot.png",
+      "sha256": "3e42f0437c37790f3db522ad19ac3f50c7d0228dbdc5bd70247d36c2aa3f3714",
+      "bytes": 315850
+    },
+    {
+      "path": "public/assets/events/headshot.webp",
+      "sha256": "3c8079d033de4864ce7296a45ddb23f391c147e3497ff41e2155ba72cbc2f7c1",
+      "bytes": 35928
+    },
+    {
+      "path": "public/assets/facilities/fan-zone.png",
+      "sha256": "d0896d54fda0eb0d17edbb068b49223bddc3ee3ae30ee06f2046b811e5e6df31",
+      "bytes": 2395220
+    },
+    {
+      "path": "public/assets/facilities/fan-zone.webp",
+      "sha256": "c33976fdf656982ec5b85f2a7efa604fe8dda6328b13fdcea2430bd9456de2c1",
+      "bytes": 137390
+    },
+    {
+      "path": "public/assets/facilities/hq-overview.png",
+      "sha256": "947d2025925fa7ebcf7fb0cf3290bb507ad5593529f940ffb033a0d2497c5b8f",
+      "bytes": 2464218
+    },
+    {
+      "path": "public/assets/facilities/hq-overview.webp",
+      "sha256": "6b774461271e3ffff75b5e90c42355f94b4be181ad0861ba5d7b5d22ef1989c7",
+      "bytes": 156760
+    },
+    {
+      "path": "public/assets/facilities/recovery-hub.png",
+      "sha256": "3b938e527deacb1662e0270f2b887da8b4f522d55f0f9a2fb6c45b5f0e4cfed6",
+      "bytes": 2262921
+    },
+    {
+      "path": "public/assets/facilities/recovery-hub.webp",
+      "sha256": "57901f11b8463253274754c797c7703a8628b5ffbae0e612690b143f702d850f",
+      "bytes": 115012
+    },
+    {
+      "path": "public/assets/facilities/tactical-suite.png",
+      "sha256": "587206a476c720d81c2d136151c2c1a38d636f2c38e35322608a74fdc008a72b",
+      "bytes": 2194129
+    },
+    {
+      "path": "public/assets/facilities/tactical-suite.webp",
+      "sha256": "83065666c7b7596db84a27013d413a5da92d0ce9e5559ba0fcff01e70f893fff",
+      "bytes": 117730
+    },
+    {
+      "path": "public/assets/facilities/training-room.png",
+      "sha256": "5bf8a157ea9bebc541d65ab4560da66f9527b35fab55afbbaaab6039e672e075",
+      "bytes": 2217370
+    },
+    {
+      "path": "public/assets/facilities/training-room.webp",
+      "sha256": "aee2ba64dcce85159c16c82c49e6189ab8b2e0f4f2ba583a861c99aff25227b0",
+      "bytes": 120950
+    },
+    {
+      "path": "public/assets/staff/analysts/Moses.webp",
+      "sha256": "a109906e847b7260be16fde5d960a99c5c166ee0841e62a240bc7050907857bb",
+      "bytes": 13916
+    },
+    {
+      "path": "public/assets/staff/analysts/SPUNJ.webp",
+      "sha256": "82ad33c04d6e4f9397a17556df4c1cdc19c4aaebbf5c379dbd41ccc53dd6ad5b",
+      "bytes": 14732
+    },
+    {
+      "path": "public/assets/staff/analysts/Semmler.webp",
+      "sha256": "2894b87ed708476ef4229b6b9ad172f19f40822341d66c985849b445ead1871b",
+      "bytes": 18134
+    },
+    {
+      "path": "public/assets/staff/analysts/Thorin.webp",
+      "sha256": "554eb94ad836caaf2f6e3747c9228d9e45b576fb6cc310481b37399624277faa",
+      "bytes": 21666
+    },
+    {
+      "path": "public/assets/staff/analysts/YNk.webp",
+      "sha256": "e24f70b450d3dcc9cfd9fc9f422e530f2557816c286f502d3c31083ccaf2f3bd",
+      "bytes": 20386
+    },
+    {
+      "path": "public/assets/staff/coaches/B1ad3.webp",
+      "sha256": "a224a540aab3f3aaebb916f39f0e707231d1ee43c72df4d2e22115cb6e9f03e3",
+      "bytes": 54610
+    },
+    {
+      "path": "public/assets/staff/coaches/Emir.svg",
+      "sha256": "709261ec111345a6d100cea711394230f1609feb3c24aefe32326e1f785362ad",
+      "bytes": 2989
+    },
+    {
+      "path": "public/assets/staff/coaches/Garrick.svg",
+      "sha256": "233c5f7e638ad46c62ecde239a2c0724e2f4e4fadfbe7983b962cfd0f6fa6206",
+      "bytes": 2336
+    },
+    {
+      "path": "public/assets/staff/coaches/HUNDEN.webp",
+      "sha256": "0aa69ec8c27cc6d2fb68fb702327e5f60219b997e094f441afd3ac2e93269f73",
+      "bytes": 15400
+    },
+    {
+      "path": "public/assets/staff/coaches/Kruzzz.svg",
+      "sha256": "772d955a7d39ceae0c4efa35a3e87923c040f10d537b86abfba96bd0c9c9929e",
+      "bytes": 3023
+    },
+    {
+      "path": "public/assets/staff/coaches/Myther.svg",
+      "sha256": "13ae91f50bdca27edda619d22b940c1246e189bd06344f0f4196f359ffabd2fd",
+      "bytes": 2251
+    },
+    {
+      "path": "public/assets/staff/coaches/Rejin.webp",
+      "sha256": "a190b97bc1e5a69b248c113748d9f2f679935812c116ec1617270d0934571c5d",
+      "bytes": 12334
+    },
+    {
+      "path": "public/assets/staff/coaches/Revin.svg",
+      "sha256": "f5799ef284dca4b5fa3190fb73e32b186aed9bf2666eb1c1daf81f1093435ed9",
+      "bytes": 2358
+    },
+    {
+      "path": "public/assets/staff/coaches/RobbaN.webp",
+      "sha256": "ad262c8d724cb8db94930609f9c1424a3a31fc32438e0e7ee53e1b6d9f483983",
+      "bytes": 20880
+    },
+    {
+      "path": "public/assets/staff/coaches/Ronnik.svg",
+      "sha256": "7e20bc09b92cb4159ef1163712c660d700e5d53a9639c56215a79c99efe5c49d",
+      "bytes": 2119
+    },
+    {
+      "path": "public/assets/staff/coaches/Scythe.svg",
+      "sha256": "27aa762279426eeb85c2945603797b50461d17cbe8d547c9a8d2fd8747b97d03",
+      "bytes": 2548
+    },
+    {
+      "path": "public/assets/staff/coaches/Vigil.svg",
+      "sha256": "794be895b715ff626b2e914c7e5917750840b30676761e5eacad04578580cc7f",
+      "bytes": 1993
+    },
+    {
+      "path": "public/assets/staff/coaches/XTQZZZ.webp",
+      "sha256": "e4c718fc9ec8ef7d78f40fa4059d768884a993cf3a89b884e30c125ddc8b9678",
+      "bytes": 14672
+    },
+    {
+      "path": "public/assets/staff/coaches/Xizt.webp",
+      "sha256": "1e83ec628ade7b801e674b52a7b2a31b4e76890c1f162927fa4076b75e49fd20",
+      "bytes": 14102
+    },
+    {
+      "path": "public/assets/staff/coaches/Xyzt.svg",
+      "sha256": "fd6792a2741b9864ad3a8e7bcc15d55683f17d9a70a8615690588d6ecdd5ac9a",
+      "bytes": 2802
+    },
+    {
+      "path": "public/assets/staff/coaches/Zonix.svg",
+      "sha256": "f2a668b85a3c1a5caeaf388060ddb0ee2ff15df4900b1a5bde9a9f2ae0b9cb4d",
+      "bytes": 2750
+    },
+    {
+      "path": "public/assets/staff/coaches/daps.webp",
+      "sha256": "ddfafef7a9c15426614f92a2ef2944310b59029c7e14b147c100f7c1f01377a3",
+      "bytes": 18274
+    },
+    {
+      "path": "public/assets/staff/coaches/emi.webp",
+      "sha256": "cfa330b43fea989f8fc6b20eb6d2c06a7ae74e6a17f91673786e73cc133c0951",
+      "bytes": 17110
+    },
+    {
+      "path": "public/assets/staff/coaches/kassad.webp",
+      "sha256": "b109663f7201b9ec51e4a153719459b03d4038a54c519619fdfcc1cb0676d669",
+      "bytes": 15100
+    },
+    {
+      "path": "public/assets/staff/coaches/mithR.webp",
+      "sha256": "041d91a768a4257bf27689140da8d2493575249e0d9841dc341571af9b72bf57",
+      "bytes": 14266
+    },
+    {
+      "path": "public/assets/staff/coaches/sAw.webp",
+      "sha256": "55e027ca9560873fd3acf8fad7c7a57ff0472bfadc5d543e7422f19b628cd837",
+      "bytes": 16746
+    },
+    {
+      "path": "public/assets/staff/coaches/zonic.webp",
+      "sha256": "7d1d050339c0f8a531339916e23f4a44995479e545fb1d1480ff248688a29ff6",
+      "bytes": 12048
+    },
+    {
+      "path": "public/assets/trophies/medal_bronze.png",
+      "sha256": "24aef3c0603eba87530d2d064c3be6b03969a787be729df051a300a8e1d4ca1e",
+      "bytes": 733534
+    },
+    {
+      "path": "public/assets/trophies/medal_bronze.webp",
+      "sha256": "efd3223477abb2e6f169c80f601b446406f3948489c99210ff565de0882c8629",
+      "bytes": 82272
+    },
+    {
+      "path": "public/assets/trophies/medal_gold.png",
+      "sha256": "6173d3b27bc3c2e901d0f63205704504be5c2201fa4853d1b852fd8060b51ad8",
+      "bytes": 826121
+    },
+    {
+      "path": "public/assets/trophies/medal_gold.webp",
+      "sha256": "1286c30ab8989914fb15d996a205fe0691b721b075df1efd94b352c9d65fcda8",
+      "bytes": 100194
+    },
+    {
+      "path": "public/assets/trophies/medal_silver.png",
+      "sha256": "9cf8e75c3a15506e638093682822aa1650e563cbe0165e9ef41b67b5f1c54c1f",
+      "bytes": 770450
+    },
+    {
+      "path": "public/assets/trophies/medal_silver.webp",
+      "sha256": "ed6184633494964a4cd4650e2b8b2605657d1397681e477b85dfc154f42b7ad0",
+      "bytes": 101584
+    },
+    {
+      "path": "public/assets/trophies/mvp_star.png",
+      "sha256": "6fa4da71155475d7d9feefefc3ff215265ba0165dc29c707c3bac67c30a9896f",
+      "bytes": 692385
+    },
+    {
+      "path": "public/assets/trophies/mvp_star.webp",
+      "sha256": "214fd64e98cf1a94b82dd42fc57e9909d2a3a9b73984ea847280af55b3a26561",
+      "bytes": 61538
+    },
+    {
+      "path": "public/branding/portraits/portrait-00e632024b9baf98.png",
+      "sha256": "00a0bd8e6c446f1c99fe9f5653fcd430bb472c189aac1068ef7ead66be098fea",
+      "bytes": 584655
+    },
+    {
+      "path": "public/branding/portraits/portrait-023002e02d4ad8d6.png",
+      "sha256": "55f211c0a88090106117f31a564260e5693d46d7a643a9458f58166f8af1fca4",
+      "bytes": 599254
+    },
+    {
+      "path": "public/branding/portraits/portrait-02e9e2dbd22c29a2.png",
+      "sha256": "90c6d26cf2142e7801f7b03c4b79920f93d2f10f01edc86a102ed553e811c7fd",
+      "bytes": 676838
+    },
+    {
+      "path": "public/branding/portraits/portrait-046d9950c5a20a00.png",
+      "sha256": "5722bf490fb702294703103f26dc49f198c450ce58513bf124415c0695e08080",
+      "bytes": 589644
+    },
+    {
+      "path": "public/branding/portraits/portrait-047e014cd6125116.png",
+      "sha256": "e97962c2fb63d90500e097156d9c7ae66442f078b516995334c44e06406fff32",
+      "bytes": 541587
+    },
+    {
+      "path": "public/branding/portraits/portrait-05b3008a925f8532.png",
+      "sha256": "0dc11137cf3df0112b29ae0e09471325b55e9ddc85caa12caae43dbaf8eb0d76",
+      "bytes": 660441
+    },
+    {
+      "path": "public/branding/portraits/portrait-08552f8d95814d52.png",
+      "sha256": "1712075a8f55bd6e7b1d1ddb8d6464a255590ba1701ef16d3b11fbb7e2a1ba66",
+      "bytes": 258637
+    },
+    {
+      "path": "public/branding/portraits/portrait-08de3e10fa32b4ca.png",
+      "sha256": "b765a175564ed6ef288ae8332a11e7b9947d9a06e94043d6467114af67b8d3e3",
+      "bytes": 672134
+    },
+    {
+      "path": "public/branding/portraits/portrait-09c1f014d2562c32.png",
+      "sha256": "b64fa278548da1e2d4d9de505241670616e1475c52e9530c6ac96e930b7e522a",
+      "bytes": 719859
+    },
+    {
+      "path": "public/branding/portraits/portrait-0b0692441af5bb91.png",
+      "sha256": "ce78558d7151299c9609d3fd5e92c7e7254b205537c3cbb9f623756c78176b3f",
+      "bytes": 546127
+    },
+    {
+      "path": "public/branding/portraits/portrait-0ed5dff521a9eeef.png",
+      "sha256": "8d1f255b627d1eed188aca853d8744e023f0fc3c8c6126734b7b56b70ac5238f",
+      "bytes": 232027
+    },
+    {
+      "path": "public/branding/portraits/portrait-0f305e45fcb2c2d7.png",
+      "sha256": "b42bad50ae86aee615f51a21de65f3781b9eceb67da3cdc76121d8e5ad2d0205",
+      "bytes": 610182
+    },
+    {
+      "path": "public/branding/portraits/portrait-0f7891ddecefee21.png",
+      "sha256": "51f3d1bc3075258430339926ab623d3ad868d378d76352307873ceea9097162a",
+      "bytes": 522254
+    },
+    {
+      "path": "public/branding/portraits/portrait-10b0401c24d3c8f8.png",
+      "sha256": "5c7fe8d43e5bc055a312c326c11d18da49f4c8ed4a49fc21081c8b8fbf15e206",
+      "bytes": 514248
+    },
+    {
+      "path": "public/branding/portraits/portrait-151680103dc99cf1.png",
+      "sha256": "a30fc0fa58e03fe5b564aafbb0ea30fb43a2d896df1221facef45db9cd7cd4af",
+      "bytes": 638691
+    },
+    {
+      "path": "public/branding/portraits/portrait-15595c28df9dc21a.png",
+      "sha256": "e03632199c4b19d64e2e53d2487525ba7ab8b6012b7b39717c166a6b18b7d4d6",
+      "bytes": 562562
+    },
+    {
+      "path": "public/branding/portraits/portrait-15caf58083404294.png",
+      "sha256": "5ba0dc15dc6363c14d45201c888f116999ba8d56ccfd0395bba8a9d0d089672d",
+      "bytes": 225334
+    },
+    {
+      "path": "public/branding/portraits/portrait-16a2c091bae04f86.png",
+      "sha256": "01381f8210f04a732aef003d2eef11ed11162aa359d8476b07e5b49ce492ce25",
+      "bytes": 639593
+    },
+    {
+      "path": "public/branding/portraits/portrait-16a32f308de26286.png",
+      "sha256": "8697bd798af7c8388734dd0f94ea58d07fb78172938864df79289b9661637804",
+      "bytes": 571737
+    },
+    {
+      "path": "public/branding/portraits/portrait-17d6fee344098653.png",
+      "sha256": "9dbf30518701224be210ab20848222b0a400e807e375f9f7e976fc272cf398d5",
+      "bytes": 316937
+    },
+    {
+      "path": "public/branding/portraits/portrait-184f8d73aeca88a4.png",
+      "sha256": "5135c93d0c6ddbf08017ae9d824f0a30fdaef346ff1e79d0b1dd6f4aa3a7a2eb",
+      "bytes": 621753
+    },
+    {
+      "path": "public/branding/portraits/portrait-1b4a99ff8e628a1f.png",
+      "sha256": "40e806a5ad48aa56297920494d05ee13ca4ef99849841a0b9361881c490d76ad",
+      "bytes": 575108
+    },
+    {
+      "path": "public/branding/portraits/portrait-1d5385544a04c750.png",
+      "sha256": "ee53f64dc3ba30a3eeb1c1934ee8a0d7eb1cf2f83c7cb07b609dd86626eeb354",
+      "bytes": 636793
+    },
+    {
+      "path": "public/branding/portraits/portrait-1e3f42b032cb9c74.png",
+      "sha256": "2412142ab6080a6783aaff6293b83f0ed3e8577d6da8888513e7cf52b459d21f",
+      "bytes": 640787
+    },
+    {
+      "path": "public/branding/portraits/portrait-1fa5cd715cbd9cba.png",
+      "sha256": "7949f5db423763234568cddf4a1f98c3ab584bd5242e11ae671808d0043d5e9a",
+      "bytes": 540625
+    },
+    {
+      "path": "public/branding/portraits/portrait-210e4adf02b81e8f.png",
+      "sha256": "d06cf34e608f4c645c1a123cdb951c6da49500e73eeeccc84134a03e6111e56c",
+      "bytes": 229574
+    },
+    {
+      "path": "public/branding/portraits/portrait-2258a82f5cdbd216.png",
+      "sha256": "7789c62542d4b0d6c7f1daa21d1af8aa2b8aabfda6c5ed00fae109a6171f0e28",
+      "bytes": 639851
+    },
+    {
+      "path": "public/branding/portraits/portrait-23e2c6a149c7a192.png",
+      "sha256": "a02a4474e9afae4a0e00f1786ad7e43117f3385a890c7d9cd9e901e12b870716",
+      "bytes": 635838
+    },
+    {
+      "path": "public/branding/portraits/portrait-24fde9320d8876a7.png",
+      "sha256": "e0096b12b2950c717e5b492e651a5719463aa82199b7c1676d4daefdd638156a",
+      "bytes": 588720
+    },
+    {
+      "path": "public/branding/portraits/portrait-25969f994366a1b3.png",
+      "sha256": "6dbf4e7619abfd1bf0b6fa70d1b86278b6d645097baaa25485fe7ef44167fdc1",
+      "bytes": 599191
+    },
+    {
+      "path": "public/branding/portraits/portrait-263d6c3cdedb6ad8.png",
+      "sha256": "2b365baee51ba451b6c247ca51673e3cbaf7595d11021d0a36bd65891d43fe2f",
+      "bytes": 250658
+    },
+    {
+      "path": "public/branding/portraits/portrait-26dbe4c9d71f19aa.png",
+      "sha256": "7b8802b050072725b29f2170ea9e4b319da49d59744168defc65e8459f7cefba",
+      "bytes": 560863
+    },
+    {
+      "path": "public/branding/portraits/portrait-27828663918f9826.png",
+      "sha256": "e9ae8b6706b80af06b3035eaec10cc0f981825e52d8d038a046fdf0888dda0b9",
+      "bytes": 638850
+    },
+    {
+      "path": "public/branding/portraits/portrait-2828ed56a02057fb.png",
+      "sha256": "14c2a9fe42e1b43f37fbc92a8ee816a171f3b06fde3a07e2596c7f68aba07582",
+      "bytes": 637265
+    },
+    {
+      "path": "public/branding/portraits/portrait-287543f8668529d8.png",
+      "sha256": "ae06f9a60058b1b3a059744bf8f051cf3312c50119f607c3f49736c05e564a07",
+      "bytes": 577779
+    },
+    {
+      "path": "public/branding/portraits/portrait-2b6fc7290c2d2bb9.png",
+      "sha256": "ecdbacc30101c0fe29df6cc977e78477e14c44661f718c78e86775ab30f8c03d",
+      "bytes": 577824
+    },
+    {
+      "path": "public/branding/portraits/portrait-2cbf4afd3a64edf0.png",
+      "sha256": "c3daa9b6e4062627b96e481499ae2406d0289a477e09137a7f09f6094eea0902",
+      "bytes": 216187
+    },
+    {
+      "path": "public/branding/portraits/portrait-2efb3c6012ffb99b.png",
+      "sha256": "acc4f0f08afe6be86ac10cca6f25a91e26067761a36beaeb9bbc57d33097c81a",
+      "bytes": 639720
+    },
+    {
+      "path": "public/branding/portraits/portrait-3374d5047d08e4d6.png",
+      "sha256": "a380241725dd3899b2642ec765a0167d42f04f699f07de45bed78e62f3eb616f",
+      "bytes": 581061
+    },
+    {
+      "path": "public/branding/portraits/portrait-3e608266ef858bd2.png",
+      "sha256": "9509acf51e7500921f1229b9011316efca3f49abde5bd35ce1634646c40df3c8",
+      "bytes": 609719
+    },
+    {
+      "path": "public/branding/portraits/portrait-400363fbcdd72cf1.png",
+      "sha256": "1fd3f614df149201b6f70cdae44d81eb98a83616df99f30fb93c7a71d690be37",
+      "bytes": 541160
+    },
+    {
+      "path": "public/branding/portraits/portrait-40116d10b8fa3e1e.png",
+      "sha256": "698a938538b2c2192760e79412fe88b2ba41748aa234fc72188c2686da49b7c2",
+      "bytes": 541312
+    },
+    {
+      "path": "public/branding/portraits/portrait-40bc636abe97a0cf.png",
+      "sha256": "ab69cfefdfa74966db071dc15a7337370239d845de49ce19ced751132f81b2a5",
+      "bytes": 585523
+    },
+    {
+      "path": "public/branding/portraits/portrait-42ae744e4c7c59b0.png",
+      "sha256": "5d9f4aeb4bfd6c9d18befadef7e4693a4f6ce94b855e46ac243bb9ca77bb62fc",
+      "bytes": 595352
+    },
+    {
+      "path": "public/branding/portraits/portrait-44f729babfc23509.png",
+      "sha256": "fba6029f097d457174af9032d9ade79e1e42eaaf25bc695fd0ae5ce3d8ffe936",
+      "bytes": 554488
+    },
+    {
+      "path": "public/branding/portraits/portrait-45be125603aafff4.png",
+      "sha256": "0f640a2626ebb54bd433838f5e510c09ba6f0f942e42abac70478064db44f617",
+      "bytes": 538237
+    },
+    {
+      "path": "public/branding/portraits/portrait-47f2c5f351ae6f6f.png",
+      "sha256": "4cd59b64a2131e03b183f84d4c5242524e19ffb6b09685e559f3038eb58addda",
+      "bytes": 563137
+    },
+    {
+      "path": "public/branding/portraits/portrait-48184abe7aeb51f2.png",
+      "sha256": "8dd8f8c09b4d00ddde6f33b75fba34ed9c07e6302eb33653e95fdea29ce5c1fc",
+      "bytes": 260144
+    },
+    {
+      "path": "public/branding/portraits/portrait-4b652775c4881ba9.png",
+      "sha256": "cad86a9f0169027703853a0200e92c7603ae08584858e7169b969e619d30effe",
+      "bytes": 259095
+    },
+    {
+      "path": "public/branding/portraits/portrait-4bfa31d889f26e9e.png",
+      "sha256": "d18491f674f69c5ff6083766dc3899e4a788c5b8c401e9c42f4dd289e6c1d411",
+      "bytes": 564588
+    },
+    {
+      "path": "public/branding/portraits/portrait-4dca2407966b6341.png",
+      "sha256": "d311b77c4844cb0385eab625fdcfb505b966b201e6a40771362dedf1d24cf38b",
+      "bytes": 661882
+    },
+    {
+      "path": "public/branding/portraits/portrait-4e12c329b48ea635.png",
+      "sha256": "46620910df6822d8f7781f35adb21959e5f1623fa9439726b8f7761e4c79ebdf",
+      "bytes": 617655
+    },
+    {
+      "path": "public/branding/portraits/portrait-4f4218e48280f676.png",
+      "sha256": "db56af6de5753c0c963d623ed851b2d96c40956d142ddd2fe7d12a1694354f8c",
+      "bytes": 582385
+    },
+    {
+      "path": "public/branding/portraits/portrait-50056bdbefff24d1.png",
+      "sha256": "c70a5ae22b4a1f2b6c9467f35c4e580d93ea129259bc7a050e059ed5875cb13c",
+      "bytes": 525021
+    },
+    {
+      "path": "public/branding/portraits/portrait-506634cbf5f4f364.png",
+      "sha256": "3b529cda23b9d4b6ce98217c95bdcfbefc174fa92942e4cf03a4ac309e96842c",
+      "bytes": 582922
+    },
+    {
+      "path": "public/branding/portraits/portrait-51f71fa097043a02.png",
+      "sha256": "9178733bf149f489a4df1ba86edef8352641215603d0f932b971bc96e17507fc",
+      "bytes": 582202
+    },
+    {
+      "path": "public/branding/portraits/portrait-5657f911852ca05b.png",
+      "sha256": "70e4def539b04e81400baf8851f8755f8863071d79204e28bd64fd205875e04e",
+      "bytes": 542987
+    },
+    {
+      "path": "public/branding/portraits/portrait-5666e2f2bdecf63d.png",
+      "sha256": "6c59122e2d6869eaba883c5c2c81734fd3e93eba13b1714ea2c224849602a566",
+      "bytes": 601030
+    },
+    {
+      "path": "public/branding/portraits/portrait-575025cdfba33e25.png",
+      "sha256": "ded6be0b6ebd8fa5cf6986c9646734648158b3eebee95d9fdc8e977f9cc8dc88",
+      "bytes": 533728
+    },
+    {
+      "path": "public/branding/portraits/portrait-57a65ae2a6c4e184.png",
+      "sha256": "783569d17f5a1541346832c237bdc62a0be8d3f11d932e0b922da3446ada836c",
+      "bytes": 577707
+    },
+    {
+      "path": "public/branding/portraits/portrait-588f9137bddf5f6d.png",
+      "sha256": "a06ae894f02ba1533118af3d4ea4952b22e81e3c2160adaf2b6ab8d0742c9b3a",
+      "bytes": 677125
+    },
+    {
+      "path": "public/branding/portraits/portrait-5c8f279baef5a1fa.png",
+      "sha256": "23943a31f61941d558e341706bd9a27bd526f7cb4678137dc8f1d96f48e4bd6d",
+      "bytes": 239786
+    },
+    {
+      "path": "public/branding/portraits/portrait-5c9474bb6fe673c6.png",
+      "sha256": "b6b1a656112a912e2a28831e9cf3172750f0f136483f3b324626777519acc3ed",
+      "bytes": 241816
+    },
+    {
+      "path": "public/branding/portraits/portrait-5e72b9982c1b32e9.png",
+      "sha256": "b2eb04599b3bc384fd040c113e2483b15efba52e3a5f36a2a453e312d0a19325",
+      "bytes": 552430
+    },
+    {
+      "path": "public/branding/portraits/portrait-5e8437585b049961.png",
+      "sha256": "43c72939717afa9db580be071523128c9fc3a8a9f63716f09e65d7aee350f82f",
+      "bytes": 606397
+    },
+    {
+      "path": "public/branding/portraits/portrait-5f2d0d3df68aecf6.png",
+      "sha256": "d2d988d130fa8107d473073cbd89ba4aa112f4cbaab407ad7a30d4c8e90178db",
+      "bytes": 610065
+    },
+    {
+      "path": "public/branding/portraits/portrait-5f3e7eb4f0cd41d8.png",
+      "sha256": "043150b00dadaba1fc77fb17d0fdeb1334ad8a2ca352a5a8513dc81695f03eec",
+      "bytes": 531160
+    },
+    {
+      "path": "public/branding/portraits/portrait-61537c8b8ef848fc.png",
+      "sha256": "95024f3ac542574016bd92a169d4ecc9103c9016c444f364f57f8e77bec09f61",
+      "bytes": 248508
+    },
+    {
+      "path": "public/branding/portraits/portrait-626203023b74e3ee.png",
+      "sha256": "9ef2fa834d0be0580b159d86f111905f47e0f7e80aa6d2cb50fcb26c674a1fbf",
+      "bytes": 645238
+    },
+    {
+      "path": "public/branding/portraits/portrait-62e58cebdd9e4b3f.png",
+      "sha256": "216559bbaafb4cd5ab1660d916ee093baae3cb6ea0e2be346b78aed06eb95e6c",
+      "bytes": 636360
+    },
+    {
+      "path": "public/branding/portraits/portrait-63903dbd499db616.png",
+      "sha256": "38f5581c296fb84703e87136acb7c2d50496eb2bd614537dba85ed4d16057013",
+      "bytes": 534089
+    },
+    {
+      "path": "public/branding/portraits/portrait-64dd8cddc1f19c21.png",
+      "sha256": "188b13afb6ae46138326c9fc060b843ef898eb98ee5dd81e89ffb6ed01408977",
+      "bytes": 269858
+    },
+    {
+      "path": "public/branding/portraits/portrait-64ead1ac2869232e.png",
+      "sha256": "0e64d63ebbaaa5d34d6b602a9b893bf54e7705fac7d336b81462c0a11bb250d5",
+      "bytes": 524243
+    },
+    {
+      "path": "public/branding/portraits/portrait-65356369a95161c3.png",
+      "sha256": "b38f47475cdf30b35d5e73bc5d97e2061a12778aca4ae55d87abb1c9cb051b56",
+      "bytes": 590722
+    },
+    {
+      "path": "public/branding/portraits/portrait-66969178651fdc0f.png",
+      "sha256": "0d9a05896a3cd1260111e0e502314178c697f1c656a8fcd36fb863887fcaadcf",
+      "bytes": 584139
+    },
+    {
+      "path": "public/branding/portraits/portrait-66c35f5577468e19.png",
+      "sha256": "5d2e25b32b81b9b9c5b935cf2b825d09a36b5f3089f52f14a4c9ae5ecdf2dcbb",
+      "bytes": 644756
+    },
+    {
+      "path": "public/branding/portraits/portrait-696bb0c38608dff6.png",
+      "sha256": "4b5450b4bddb83f3e1939a35e2947a9f9c47777d5b98cccabad47e61e7c783e1",
+      "bytes": 273917
+    },
+    {
+      "path": "public/branding/portraits/portrait-6cf19e54cfa4e240.png",
+      "sha256": "c4a22ec194abb821f5e0f3336a52bb454897146317ef296af6f1e553bd675da9",
+      "bytes": 571410
+    },
+    {
+      "path": "public/branding/portraits/portrait-70258e102a2da7de.png",
+      "sha256": "32b383bce2d2b51100d39e32216cf895ff3f404ea40abaa228f8eb4c648dacd7",
+      "bytes": 594961
+    },
+    {
+      "path": "public/branding/portraits/portrait-71e39b9b36aa9e74.png",
+      "sha256": "500c145b121b913592f1c9c9993cc1c0cbfca965a8246dd71519b8a9f1cb93bc",
+      "bytes": 530318
+    },
+    {
+      "path": "public/branding/portraits/portrait-72509d9918b822c5.png",
+      "sha256": "d0dd0c3fd7a678230608cfc3cf72e8aed5be689d8917eef77390669047d86e0d",
+      "bytes": 543267
+    },
+    {
+      "path": "public/branding/portraits/portrait-72a2f96b68b069ed.png",
+      "sha256": "6cede0c21d175c9c738c59592c15e37bd90d1bdb6584170783221113d7b4fbb0",
+      "bytes": 580165
+    },
+    {
+      "path": "public/branding/portraits/portrait-72fe7d7b66cef8c4.png",
+      "sha256": "d39f5a224c649a44d817f56fd3b32539bfea79ea63874ed91225aefc3a70d252",
+      "bytes": 550925
+    },
+    {
+      "path": "public/branding/portraits/portrait-73cdd0f2c6f7e759.png",
+      "sha256": "31320435db51ca54d5b39de525bf2ae06e8a0126bf7400c203662444c728f447",
+      "bytes": 641935
+    },
+    {
+      "path": "public/branding/portraits/portrait-75a8ae378e1787b1.png",
+      "sha256": "ddab6851cbbf5359d2d096e4ef23eb5267616e9d234f98f6959ceda3253cec3f",
+      "bytes": 244129
+    },
+    {
+      "path": "public/branding/portraits/portrait-7654c4ba94bcb756.png",
+      "sha256": "a70b55aa852d2dcd465d6b8c8730d93e00b7ea11ee2795339fc3acf4c02d0ad4",
+      "bytes": 248668
+    },
+    {
+      "path": "public/branding/portraits/portrait-7b70a1574b8ff9d8.png",
+      "sha256": "50713a95691f7420002667ace2948b88984143450c1874109334eaf31d67a8de",
+      "bytes": 581496
+    },
+    {
+      "path": "public/branding/portraits/portrait-7dc1ad048f489cc1.png",
+      "sha256": "084986701a510495a1f69c9af6dd5b9b4bd8bc3c7abc140a5cde118bc6e48c90",
+      "bytes": 206008
+    },
+    {
+      "path": "public/branding/portraits/portrait-7fe633f27e582e78.png",
+      "sha256": "c6ebc8be2f72d8f205efd8350e6711b69fe66cb1d6c1f1391612d88ba2387157",
+      "bytes": 551764
+    },
+    {
+      "path": "public/branding/portraits/portrait-8011e3d885dc0971.png",
+      "sha256": "2c7b9c17d0b5e489b529a3323c2a7b7bf7a5d4891dcb2edb77eaac072c8cce70",
+      "bytes": 688153
+    },
+    {
+      "path": "public/branding/portraits/portrait-80b018640acccec6.png",
+      "sha256": "e3c729c50539c92edbf62ab26ea0e6793f2e6215c501e79290572e43fef8d187",
+      "bytes": 543843
+    },
+    {
+      "path": "public/branding/portraits/portrait-832b755af4fd95f1.png",
+      "sha256": "650eac23548ed3d329d1b78c0e659876bf7519a2c698392c32158265a9da9e07",
+      "bytes": 216276
+    },
+    {
+      "path": "public/branding/portraits/portrait-839163d1e17d05c3.png",
+      "sha256": "994b3c2da8475df9e37cef4995fb18baff0d60c2c136f00a1e30d67c3dfb8d01",
+      "bytes": 556106
+    },
+    {
+      "path": "public/branding/portraits/portrait-8421f4a4de3ca73c.png",
+      "sha256": "50418b092b2f082fbcd76ba79c04d9e8510e3354da4fc97e4a89cc9fe223bf23",
+      "bytes": 558938
+    },
+    {
+      "path": "public/branding/portraits/portrait-84836082768d2e91.png",
+      "sha256": "2640958754e2e43fe64140acb193e919fc7dfb39ef6a29ff17924080ef7d5156",
+      "bytes": 553826
+    },
+    {
+      "path": "public/branding/portraits/portrait-8714634897c674a7.png",
+      "sha256": "16b56ee2ffd6ffc81ab9226ce22de83dd8a856f4f79ec7bcdb06664c52597d4a",
+      "bytes": 582905
+    },
+    {
+      "path": "public/branding/portraits/portrait-876e75e01fe90e1a.png",
+      "sha256": "bc9fbf482b70f8a419d5b6b9e4b36350317f74a9da6f75bc1281808dac0eebbf",
+      "bytes": 549191
+    },
+    {
+      "path": "public/branding/portraits/portrait-8779458e733a69d0.png",
+      "sha256": "8aad6341b738650d91dff06fdb6150e47bb9792691b566757abce416afc75117",
+      "bytes": 702777
+    },
+    {
+      "path": "public/branding/portraits/portrait-883140e697971d4c.png",
+      "sha256": "a72be1773065e7bad4521e2dc3607e6a19c43c820b5a9dd165a9c09925638b28",
+      "bytes": 584644
+    },
+    {
+      "path": "public/branding/portraits/portrait-899f793f52fa9dbb.png",
+      "sha256": "95430c542cb0750a1ecaf6c714737f71501958087308919c4342e8f5683e2908",
+      "bytes": 563749
+    },
+    {
+      "path": "public/branding/portraits/portrait-8ab0876b0f780567.png",
+      "sha256": "197e5244dca7a30d652444580c8a460d5b49a495b001811c376852d4e71e2c8d",
+      "bytes": 620987
+    },
+    {
+      "path": "public/branding/portraits/portrait-8aeabc38535667c4.png",
+      "sha256": "69a2ddfdc109b37b52c13cd4a512eabe715213bae421b3c7e5ec84077603ceb4",
+      "bytes": 243549
+    },
+    {
+      "path": "public/branding/portraits/portrait-8cf1323fc76c490f.png",
+      "sha256": "681d60c449d0e3fb05198ca13bae871411b9df97d08be56adfccbf25fb5b19eb",
+      "bytes": 561735
+    },
+    {
+      "path": "public/branding/portraits/portrait-8eb64ad89eccd884.png",
+      "sha256": "0e88c63be58f22db88f2dc62eb698b02b149c55513f1928ab8ffced3a0461f3a",
+      "bytes": 560657
+    },
+    {
+      "path": "public/branding/portraits/portrait-8fbc57f4927db6e1.png",
+      "sha256": "6903db8eaeed6c72bf7fc92ba15bb1d97ff55ea2bc5f62846ebb9715d64e763e",
+      "bytes": 606238
+    },
+    {
+      "path": "public/branding/portraits/portrait-8ff8582ab3d4bd8d.png",
+      "sha256": "90be4a4b5eaa9d5bda7c45315f264af3f360b2488f6e31944130e3da2591ae23",
+      "bytes": 572232
+    },
+    {
+      "path": "public/branding/portraits/portrait-9227490bb7984d59.png",
+      "sha256": "e227a4ac8183104fc2a8de84da945cf56923a8a25286b6cbe69dfeef65ae34b3",
+      "bytes": 220036
+    },
+    {
+      "path": "public/branding/portraits/portrait-9a0745881859efae.png",
+      "sha256": "872cfdb545bf80a2c85bf840a59f4f358026b7ed5d44ccb2f0d8b8fbf2cf31a8",
+      "bytes": 585376
+    },
+    {
+      "path": "public/branding/portraits/portrait-9aa5c4fd16887ffd.png",
+      "sha256": "4248bfec0afd99eb770f9a3f766cb7f4da1f223029fcdc06f510abe387a22f67",
+      "bytes": 528011
+    },
+    {
+      "path": "public/branding/portraits/portrait-9ce7888bb7e678b4.png",
+      "sha256": "82f39e4e85b6db853b4b0221bf155f02769e0f0d64e10d7901be3209a40bba89",
+      "bytes": 583467
+    },
+    {
+      "path": "public/branding/portraits/portrait-9cf1c1953a5578e3.png",
+      "sha256": "ac12ceefaf124e3678b8c3e11ceaf4c81947a1fca7acd7f59106ea8d8bd04adf",
+      "bytes": 597446
+    },
+    {
+      "path": "public/branding/portraits/portrait-a52c8d92ab671114.png",
+      "sha256": "ac2a18882265e5526407660f861987aa46af62b645515bde3bcc37ffa071d2d6",
+      "bytes": 668884
+    },
+    {
+      "path": "public/branding/portraits/portrait-a552734079e4a2c7.png",
+      "sha256": "20013de88141d00eb70d20b332fd83304a0e7c31f4bc8c356e596177ce2655a5",
+      "bytes": 622463
+    },
+    {
+      "path": "public/branding/portraits/portrait-a5968c456caece25.png",
+      "sha256": "72a894e177f3f043e82f56f538b563a7ab8e5da5c00d4e6d053714ac6a9f7be0",
+      "bytes": 612107
+    },
+    {
+      "path": "public/branding/portraits/portrait-a6be62fe67f5addc.png",
+      "sha256": "7504b080c6060a803356abe04c784cba9175adadfe3ffaf44b76ed766ec6c5fe",
+      "bytes": 638754
+    },
+    {
+      "path": "public/branding/portraits/portrait-a77f4a0a060ade29.png",
+      "sha256": "5ad097d5037c68701b364716e00d770fa5e1d85b335c7ad40c8e19b5f78c5f22",
+      "bytes": 596935
+    },
+    {
+      "path": "public/branding/portraits/portrait-a85cb75f6fabe414.png",
+      "sha256": "8944310a1291c9760fa3f56690704d17046c0a0cfe09b76d477941c4b54a48e2",
+      "bytes": 546367
+    },
+    {
+      "path": "public/branding/portraits/portrait-aa4b2c4b43a1d98e.png",
+      "sha256": "828693e9851211222ba15250e2bcf3750ec710a1d54e2a7376ba1b71ca6b66a2",
+      "bytes": 584174
+    },
+    {
+      "path": "public/branding/portraits/portrait-ac35c82609faaeea.png",
+      "sha256": "5feec679d6abfa4ea2ec4b2e45b46ce871ba923145357977acb86b75857855f0",
+      "bytes": 559375
+    },
+    {
+      "path": "public/branding/portraits/portrait-adc92d15c610e58f.png",
+      "sha256": "8f9c53538f33f0c760ab475c680baf82ce303d3e84d7d3c821e9d1d7b869e29e",
+      "bytes": 593665
+    },
+    {
+      "path": "public/branding/portraits/portrait-b10e296662db2d9f.png",
+      "sha256": "a68e63e139b3a1ba7deea5e94011e20da0ee93887fd3d68e3d8392438e3363a8",
+      "bytes": 549877
+    },
+    {
+      "path": "public/branding/portraits/portrait-b120c64788d1fcdf.png",
+      "sha256": "60bf55e0447f0965480545d39dc397fd86067192d66c119fa21773dd300d288b",
+      "bytes": 554234
+    },
+    {
+      "path": "public/branding/portraits/portrait-b6f6c3be24c789da.png",
+      "sha256": "db55f4358eb51af2673061e1e6c06446f9d5247be1ee575d6fe307bef9718c9e",
+      "bytes": 257157
+    },
+    {
+      "path": "public/branding/portraits/portrait-b78fe61c27b70a68.png",
+      "sha256": "f5e39e76531ad754bda43d906e7ddf7cd726d1a7bf1e1492c80b1fc833f98a25",
+      "bytes": 543852
+    },
+    {
+      "path": "public/branding/portraits/portrait-b7fbd0efff939f1d.png",
+      "sha256": "1c13f8119fe1dc4d7414177aa20a5bae00e77ebd4aee2ec232e6ab2c5af0a5c5",
+      "bytes": 523095
+    },
+    {
+      "path": "public/branding/portraits/portrait-bc5a112a6f3d3351.png",
+      "sha256": "66ae51001fe08e60200ed26435ddc3e272bcc5970bf3e5c205776138be8a7ba4",
+      "bytes": 627105
+    },
+    {
+      "path": "public/branding/portraits/portrait-beb42b2056d27bbc.png",
+      "sha256": "78856e1318cf2f4e11a313cdf34127714b1a71da51d205b7dfebb4a9298458a3",
+      "bytes": 631527
+    },
+    {
+      "path": "public/branding/portraits/portrait-c13150c47cf7be1d.png",
+      "sha256": "f6f0145de4a5d181a7d23b9cc3569d7e2ebf95873563b8d196ce20766d23eaba",
+      "bytes": 534705
+    },
+    {
+      "path": "public/branding/portraits/portrait-cad03bdf306ac850.png",
+      "sha256": "bc7c372773644704fe0800aefa9642f897c30e60b9f00015d16233dd7853fb5e",
+      "bytes": 225434
+    },
+    {
+      "path": "public/branding/portraits/portrait-cdd486791d1489ab.png",
+      "sha256": "7496dbc7be7e023475096c623d863847e35da090f8601472458603dda8bba1ac",
+      "bytes": 552555
+    },
+    {
+      "path": "public/branding/portraits/portrait-cdfecfc6c23e67f8.png",
+      "sha256": "8af9a771bda57d9046e051318d75969a7a50b4d765a7045e8e36d2a80d3f22ff",
+      "bytes": 588453
+    },
+    {
+      "path": "public/branding/portraits/portrait-d3d54793928c9a8e.png",
+      "sha256": "f6277141fa33d0a8156999363ffc101b025f1ccd0f9deae663e55f87542de868",
+      "bytes": 582787
+    },
+    {
+      "path": "public/branding/portraits/portrait-d528db356a2988f9.png",
+      "sha256": "4c4b18826af0d4edf44692f54ae9686d92f65e5a4b673d589f42d644d43c6cc3",
+      "bytes": 548922
+    },
+    {
+      "path": "public/branding/portraits/portrait-d63f0dfa6eee96a2.png",
+      "sha256": "fa6c0d062464e177eca4cdafd0a4d0bf1f5a3da6584f0fc4d22de9be1c7624d2",
+      "bytes": 615949
+    },
+    {
+      "path": "public/branding/portraits/portrait-d70dc1479dcffb83.png",
+      "sha256": "4d98423658e56bd6bea1dde68bd3576f2090b12849d406e044a02238a746ccb7",
+      "bytes": 661961
+    },
+    {
+      "path": "public/branding/portraits/portrait-d8384071152da245.png",
+      "sha256": "7aff591f37a226242b89de23fea39eee48ec18dbcd59afed3015fb066fc3daf1",
+      "bytes": 631329
+    },
+    {
+      "path": "public/branding/portraits/portrait-da85e1ce1273d30e.png",
+      "sha256": "18cfcd1424effb6de0378b02993ef11289adc15de615c13c2874bbf4e12338a5",
+      "bytes": 532574
+    },
+    {
+      "path": "public/branding/portraits/portrait-ddd2c5d8a1034003.png",
+      "sha256": "26fead11a312b97540e0c7f870a87114c0a2ff3eaa646c0c6f36dbdc009bedce",
+      "bytes": 648215
+    },
+    {
+      "path": "public/branding/portraits/portrait-e1a81df60ed9db91.png",
+      "sha256": "8eca57c1519104dce99306a6136d9950df87ed56d4b754dd343db6b51a3524e8",
+      "bytes": 520569
+    },
+    {
+      "path": "public/branding/portraits/portrait-e2aa3b632427e1e3.png",
+      "sha256": "11ecd16db7052ac750f14dae4970cf97c5d67656489536e332428d1b49563326",
+      "bytes": 618522
+    },
+    {
+      "path": "public/branding/portraits/portrait-e3d0894992101045.png",
+      "sha256": "aba01ccbb1464645f95cb0284cbf0abbb8d2422b8cf6477ee49d377100d211a4",
+      "bytes": 555800
+    },
+    {
+      "path": "public/branding/portraits/portrait-e448beb9844900af.png",
+      "sha256": "5633c6c7e4aca7758ee323faf144921a551a1000f4373d6d601ac0fe0d0b91ee",
+      "bytes": 238090
+    },
+    {
+      "path": "public/branding/portraits/portrait-e4c399ba8cc17ece.png",
+      "sha256": "5b19d6498c919d822b8a926e04923808322aa96d344dc0bb65893739538c1c12",
+      "bytes": 548302
+    },
+    {
+      "path": "public/branding/portraits/portrait-e5fb58d32e6b993c.png",
+      "sha256": "1416b9b359e9ef95078a4da06787e104ee406da6543b23c918a68ed9f81ae807",
+      "bytes": 581646
+    },
+    {
+      "path": "public/branding/portraits/portrait-e6216f6a217b5ac9.png",
+      "sha256": "d9b682268be92e4a8ab866a4ce1811b72c98be80567f151dd013e9e857e282ca",
+      "bytes": 553675
+    },
+    {
+      "path": "public/branding/portraits/portrait-e7ce2d6ddeb46904.png",
+      "sha256": "eb87a2a812d98a7bcb1420f7cf326282fdef8a017bcf7192da35e2c73f62f367",
+      "bytes": 576771
+    },
+    {
+      "path": "public/branding/portraits/portrait-e87ff5efec1966a7.png",
+      "sha256": "4e96029f07994b4479f37628ce854853795a0055a4656bf87195a9d3142c1e59",
+      "bytes": 204254
+    },
+    {
+      "path": "public/branding/portraits/portrait-e89b948305e87d60.png",
+      "sha256": "04c614c93f6a0f8570cb2f3d32456c95876eafc0b34c3b7fc43d487499a7a71f",
+      "bytes": 643880
+    },
+    {
+      "path": "public/branding/portraits/portrait-ea69db6b531b57c6.png",
+      "sha256": "c51edf364491ea1723def2fac2560c1e627814988102f9d0ddb915675d195425",
+      "bytes": 654243
+    },
+    {
+      "path": "public/branding/portraits/portrait-ebd36871d250dcb7.png",
+      "sha256": "cf824f1c8c951f3af32f0349106a9a78583085c9c21113d0d41b62ef7d2c49b3",
+      "bytes": 559494
+    },
+    {
+      "path": "public/branding/portraits/portrait-f0b2e14c4c44273b.png",
+      "sha256": "451ce09bde45a17923192317d03be8237359ec29b9e4009b575e8fda153e6880",
+      "bytes": 640067
+    },
+    {
+      "path": "public/branding/portraits/portrait-f568db2f0cfc3e73.png",
+      "sha256": "5678d6bc4702c41540a214d42e752f2b1ebd117b06f3e8b465fc8866ecc09581",
+      "bytes": 545243
+    },
+    {
+      "path": "public/branding/portraits/portrait-f7c888a738f25cfa.png",
+      "sha256": "8aeb149ef4e70a41acac05db00e9c845f74db1d2a9bacf4d987547130dfc010d",
+      "bytes": 522773
+    },
+    {
+      "path": "public/branding/portraits/portrait-f86c247f211368a1.png",
+      "sha256": "fb57d68b43088dc87865cb8e3b865fff6cc408a8f21b38f7be82d35cdae7aeae",
+      "bytes": 562834
+    },
+    {
+      "path": "public/branding/portraits/portrait-f880442c1ab1368a.png",
+      "sha256": "5daa39bc507100bc9e922976c04efb8c5b492af637aa3723803dfef331d53255",
+      "bytes": 234252
+    },
+    {
+      "path": "public/branding/portraits/portrait-f97cd98864cf5b95.png",
+      "sha256": "8b8b03e95d9dae3ab89c844e2af00448e207287b4d42b5538ddd452f20acee6e",
+      "bytes": 726229
+    },
+    {
+      "path": "public/branding/portraits/portrait-fa471fe696876ecb.png",
+      "sha256": "d1727e8e1ddbed628ad21ece7c893d8ecb5f7499d88f2af560b26ade66c6ab39",
+      "bytes": 557174
+    },
+    {
+      "path": "public/branding/portraits/portrait-fb342ed095ed2df7.png",
+      "sha256": "8a83be9642d062833e99c4943a44058d62af4d94c6dcdfe009019654d522eb82",
+      "bytes": 244718
+    },
+    {
+      "path": "public/branding/portraits/portrait-fce8522d40972441.png",
+      "sha256": "344a69b919fcf952a2d478e9edb6ac49017e4e5b1cfc2355eb9700139f7bd68c",
+      "bytes": 1068947
+    },
+    {
+      "path": "public/branding/portraits/portrait-fdb22cea07a253ec.png",
+      "sha256": "28b801462aab6abc992cd1e272ea081370967df6bf2751ca03c1d2bf6fcee906",
+      "bytes": 568824
+    },
+    {
+      "path": "public/branding/portraits/portrait-fde0d9c910f9c8e1.png",
+      "sha256": "e0f47e68aab0fcd2262e56e185c35427199624295775cc6f3792a88aae4e5218",
+      "bytes": 566602
+    },
+    {
+      "path": "public/facilities/fanzone.png",
+      "sha256": "5f08ef8717db847e9f2e478ea988811c1ffdc4c5de59f0d14773875e94f31b97",
+      "bytes": 557340
+    },
+    {
+      "path": "public/facilities/recovery.png",
+      "sha256": "593d0fa0fcea70111f251b13a0173aaa2a17db43454c48129180b4f202a08baa",
+      "bytes": 683533
+    },
+    {
+      "path": "public/facilities/tactical.png",
+      "sha256": "7341c2ed7542f2e9a27fb2aff54cbdc14a6b449371f0617d0d80724b14e3dfb3",
+      "bytes": 702685
+    },
+    {
+      "path": "public/facilities/training.png",
+      "sha256": "199409b1ccfb2ca69a5d6b5cd117a9b6f3d4d9c1499f60abf312c8b185b927d5",
+      "bytes": 732408
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "passed": true,
+  "sourceSha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+  "markings": 169,
+  "reviewMarkings": 179,
+  "validation": {
+    "version": 1,
+    "signature": "92940:392abf37:bdd535f3",
+    "errors": 20,
+    "warnings": 87,
+    "state": "blocked"
+  },
+  "replay": [
+    {
+      "id": "ct-to-a",
+      "frames": 585,
+      "seconds": 9.125,
+      "sha256": "6b4752c73b3336f65925b7046d2db6188872a1f755a64683f3a1f617cfe5b670",
+      "motionSha256": "67b170979380d247ef8d7232892de5b0b2ec6d2e68c0923adb4e4e576458d04d",
+      "nodeReplaySha256": "c5cb4cbb4b53d888df6a2001e82eaf56136e54824db1d6e701fc19fdb2c7c84f",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "ct-to-b",
+      "frames": 988,
+      "seconds": 15.421875,
+      "sha256": "1546733fa2dbdc25da1e5af8877fb8f2b6bcdeaecd3e97ca5ef920f92cd7bc08",
+      "motionSha256": "c54c245ae88b3d905f9ef89c68e1175c55b64351658bf9756e5de53c7cc11863",
+      "nodeReplaySha256": "333cf66f6d3a4fed59bcf7a44641989f42b47bc15c51c252c4935d156a44872a",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "t-to-a",
+      "frames": 1227,
+      "seconds": 19.15625,
+      "sha256": "5989f6cc67082eb9eeaa1abcda1f894bf112e4f78a223a07e46a04fb04a938a1",
+      "motionSha256": "6da9bd2154dd85c11dda8bd0cde6e3f19fb8acbf8eaf7ce59e1123ad055763a6",
+      "nodeReplaySha256": "a114255bf417b816cbdb4076ef2aa30911927315d35a64ee19f9bea972cfac92",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "t-to-b",
+      "frames": 1632,
+      "seconds": 25.484375,
+      "sha256": "716ca183102a7716cc839500377009e4333a575be23ec4fde0d45ffc40424c94",
+      "motionSha256": "475d72dc469e8843cb5ca138d0ae0e5fa665302da822748b3dbca8a95e3daa69",
+      "nodeReplaySha256": "c6ae7ce5c97ef2030d75469f821b5911f1f9094c69c75f95a306736cef1413e4",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "a-to-ct",
+      "frames": 585,
+      "seconds": 9.125,
+      "sha256": "fdf61e008cefcff7a92cad3b1e15005ccf4ed2bf6d9cf374a386e4ff85ce5c6b",
+      "motionSha256": "17678b5a7e4e46c7bd81ebacfbfe174a8662257a2a71def23d7750865ca42d01",
+      "nodeReplaySha256": "df7358bffa331c4e15374831d4e5d51f41667c1824a108a256df2b659f85485c",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "a-to-t",
+      "frames": 1227,
+      "seconds": 19.15625,
+      "sha256": "95a3b78ea6928fe14a3c7f76edfead69dcc78968a693a79ce91f5e1114df9f0e",
+      "motionSha256": "7be118ebbc9a7247accd885b83bd35ae7e7f27e7939c68c1c50799207657f15b",
+      "nodeReplaySha256": "295b02c34408c82d7d02b25e1f37a8c68e6d5b52b42545fa16a6cea0831e6473",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "a-to-b",
+      "frames": 1497,
+      "seconds": 23.375,
+      "sha256": "06c4baff470faa90cac6e2d512f34c0e7bec07181d1c46a4991896f7a4eeb361",
+      "motionSha256": "a8e8a6c6a0aa40d57362f4c6c94562226fa80e43e51c8b8f70c63ae0c16b468b",
+      "nodeReplaySha256": "9e104ee925dfbd2107a828964664fa87780047c2109c74536a53440ded859f9a",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "b-to-ct",
+      "frames": 988,
+      "seconds": 15.421875,
+      "sha256": "4e2d397cf52392ac6d6b737f69070c31c33dc25cafbb52b26a8f5ac47314cead",
+      "motionSha256": "335a131ff2b47b7e53fe9da6654fdb398121ee472bde2e24759d911600c9f6ae",
+      "nodeReplaySha256": "b061019ffd9fe33d2d1a12d9627a6f75740020aee5338c0180c56251016eb315",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "b-to-t",
+      "frames": 1632,
+      "seconds": 25.484375,
+      "sha256": "9ab65746ede917cb5d7900e6dfb261f0a97f3d0e245647cca68e450d081cb030",
+      "motionSha256": "3cb9a4aaa35d66ede012f16b4f2f7a2a46b953ae6cd10e34c80499b19a8e19de",
+      "nodeReplaySha256": "a294a44c70c78ec98a1641789525df44f5cb1bd09cf9298680693e4bb275b0d1",
+      "wholeReplayMatchesNode": false
+    },
+    {
+      "id": "b-to-a",
+      "frames": 1497,
+      "seconds": 23.375,
+      "sha256": "cedc37a8f6b8285a2793ed352c819d594ac56331e6f5ae33eda24665863bbf77",
+      "motionSha256": "2e9fc7a1c532d9952c8621dbbd708e3b78b65b949b526fbfb54b81b0db35b68e",
+      "nodeReplaySha256": "cf1d32df2cdd259a7749d9cc4b78043c495790b4e84a7bc0940488b9f68dd7c0",
+      "wholeReplayMatchesNode": false
+    }
+  ],
+  "crossRuntimeWholeReplayMatch": false,
+  "limitations": [
+    "Whole-frame bitwise parity across Node and Chromium remains unverified; display heading drift was observed."
+  ],
+  "checks": [
+    "immutable v12 upload",
+    "all 169 owner markings preserved",
+    "opening conflicts visible to production worker",
+    "10 native routes arrive and repeat with identical full hashes",
+    "route and movement state exactly match Node; visual heading excluded from cross-runtime motion hash",
+    "all lab files round-trip in isolated browser storage",
+    "release remains held"
+  ],
+  "electron": "44.3.0",
+  "buildId": "TOHLRVL-wzKGt4qeOGrk6",
+  "worker": "2063.54ca90839e2b8698.js"
+}

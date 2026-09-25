@@ -41,36 +41,36 @@ function makeAnalyst(level: number): Analyst {
 describe("calculateMapStrengths", () => {
     test("empty roster returns every map at the 50 default", () => {
         const result = calculateMapStrengths([])
-        expect(result.size).toBe(8)
+        expect(result.size).toBe(7)
         for (const value of result.values()) {
             expect(value).toBe(50)
         }
     })
 
-    test("aim-heavy roster scores higher on Sandstone/Mirage than Nuke/Overpass", () => {
+    test("aim-heavy roster scores higher on Sandstone/Mirage than Overpass", () => {
         // High skill, low tactic → aim maps favored.
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 90, tactic: 30 }))
         const result = calculateMapStrengths(players)
 
         const sandstone = result.get(MapId.SANDSTONE)!
-        const nuke = result.get(MapId.NUKE)!
-        expect(sandstone).toBeGreaterThan(nuke)
+        const overpass = result.get(MapId.OVERPASS)!
+        expect(sandstone).toBeGreaterThan(overpass)
     })
 
-    test("tactic-heavy roster scores higher on Nuke/Overpass than Sandstone/Mirage", () => {
+    test("tactic-heavy roster scores higher on Overpass than Sandstone/Mirage", () => {
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 30, tactic: 90 }))
         const result = calculateMapStrengths(players)
 
         const sandstone = result.get(MapId.SANDSTONE)!
-        const nuke = result.get(MapId.NUKE)!
-        expect(nuke).toBeGreaterThan(sandstone)
+        const overpass = result.get(MapId.OVERPASS)!
+        expect(overpass).toBeGreaterThan(sandstone)
     })
 
-    test("balanced roster produces non-degenerate strengths for all 8 maps", () => {
+    test("balanced roster produces non-degenerate strengths for all 7 active maps", () => {
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 65, tactic: 65 }))
         const result = calculateMapStrengths(players)
 
-        expect(result.size).toBe(8)
+        expect(result.size).toBe(7)
         for (const value of result.values()) {
             expect(value).toBeGreaterThan(0)
             expect(value).toBeLessThan(100)

@@ -1,5 +1,7 @@
 "use client"
 
+import { EconomyEngine } from "@/engine/economy-engine"
+
 import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -76,8 +78,7 @@ export default function SponsorshipsPage() {
   // Calculate total weekly sponsor income
   const totalWeeklyIncome = useMemo(() => {
     if (!playerTeam) return 0
-    const repFactor = 0.7 + (playerTeam.reputation / 100) * 0.6
-    return Math.floor(activeSponsors.reduce((sum, s) => sum + s.weeklyPayout * repFactor, 0))
+    return EconomyEngine.calculateSponsorIncome(playerTeam)
   }, [activeSponsors, playerTeam])
 
   // Precompute lock prerequisites once (these don't depend on the offer being
@@ -149,7 +150,7 @@ export default function SponsorshipsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-normal tracking-tight uppercase">
+          <h1 className="page-title ">
             Sponsorship Manager
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -162,6 +163,7 @@ export default function SponsorshipsPage() {
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Weekly Income</p>
               <p className="text-lg font-bold text-green-400">${totalWeeklyIncome.toLocaleString()}</p>
+              <p className="max-w-sm text-xs text-muted-foreground">Includes the reputation income floor and difficulty settings. A small deal may add no cash while the floor is higher. Goal bonuses are separate.</p>
             </div>
           </div>
           <Badge variant="outline" className="h-10 px-3 border-white/10 bg-white/5 text-sm">
@@ -241,6 +243,7 @@ export default function SponsorshipsPage() {
                   <SponsorOfferCard
                     key={offer.id}
                     offer={offer}
+                    weeklyIncomeChange={EconomyEngine.calculateSponsorIncome({ ...playerTeam, sponsors: [...activeSponsors, offer] }) - totalWeeklyIncome}
                     index={i}
                     isLocked={isLocked}
                     lockReason={lockReason}

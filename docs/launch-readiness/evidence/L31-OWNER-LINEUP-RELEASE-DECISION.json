@@ -1,0 +1,115 @@
+{
+  "recordedAt": "2026-09-16T07:05:08.037Z",
+  "statement": "Ship everything",
+  "decision": "ship-with-unverified-source-permission",
+  "context": "Owner was asked whether to keep the imported CS2Nades collection local or wait for permission and explicitly requested inclusion instead.",
+  "limitations": [
+    "This is the owner release decision, not permission from CS2Nades or an independent license verification.",
+    "Source-permission status remains unverified.",
+    "Applies only to listed exact bytes. Original real-player photographs and original team logos remain excluded."
+  ],
+  "files": [
+    {
+      "path": "public/map-studio/drafts/mirage-registered-review.json",
+      "sha256": "acf4b4207e94f9f18a95f41122e1ed17f8176a07085acb7359ccbde4f8e3d9a9",
+      "bytes": 130932
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+      "bytes": 128763
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-draft-2026-09-12.json",
+      "sha256": "a61c264c82cc2e984fdc04dc78b0816d3185f818ac3664692d0f36bf2d936d46",
+      "bytes": 14476
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+      "bytes": 143496
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v12-with-reference-routes.json",
+      "sha256": "3f71f77c982365575bce8770c6e8056f2851808da5623fd556a028b4ed0c0847",
+      "bytes": 217047
+    },
+    {
+      "path": "data/map-studio-library.json",
+      "sha256": "e93709adcbc82e8179f4e7fbc11eaf5711cd3bfa4e6eb503f00b9d1589b1c0f3",
+      "bytes": 444430
+    },
+    {
+      "path": "public/map-studio/drafts/ancient-upper-native.json",
+      "sha256": "c2abe76d24259bcbf47168b0ad22ac4ad40ca2a1bcae523e91906038d88f716f",
+      "bytes": 87447,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/anubis-upper-native.json",
+      "sha256": "3bab2d788a530b13f7e0cd65673ea75aae620ecb0665195a04a0cf2e65ddf0fe",
+      "bytes": 152385,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/inferno-upper-native.json",
+      "sha256": "3dddb2b49d2dd48ed9393c0f4e9b49b1c53dbf04b2082fdcf13c057c3c129eb8",
+      "bytes": 107109,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v13-2026-09-22.json",
+      "sha256": "68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8",
+      "bytes": 131469,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-native-sites.json",
+      "sha256": "ff992bb6fe423ec5067c4d9c50cfa7a32cacff4d733bdf5e561602812b9a25bf",
+      "bytes": 146081,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-repaired.json",
+      "sha256": "0770d50caeb309e5f2b8981fd2877581a1c70f393434e7193ec1fcb4f0809cf9",
+      "bytes": 132803,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-with-reference-routes.json",
+      "sha256": "cc7ed437f183570e2a90634289054c82fb57b99fe5406a8d4906312423ffe559",
+      "bytes": 205500,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/nuke-upper-native.json",
+      "sha256": "525ba9f59518df19b39d3d2779406072b5e32f86fe164c10ea9f31a68e876d5e",
+      "bytes": 77139,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/overpass-upper-native.json",
+      "sha256": "123dfa29e510b90cb57b7368299a62e0a0f0fb2cd6e50785482d6de67561dd33",
+      "bytes": 83245,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/sandstone-upper-native.json",
+      "sha256": "11ea797949d60ec0db165cbe0f358d0834c9b5aece6c8a0301263dd37dd9a2b0",
+      "bytes": 118145,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/drafts/vertigo-upper-native.json",
+      "sha256": "e7bed075f8854c1ca56d7ae8b3d94909f1d4f912f131f8fd96c5ca176a4b144b",
+      "bytes": 78476,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/mirage.lab.json",
+      "sha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+      "bytes": 160727,
+      "derivationEvidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json"
+    }
+  ]
+}

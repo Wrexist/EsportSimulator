@@ -1,0 +1,35 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Anubis",
+  "fixtureSha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77",
+  "simulatorSourceSha256": "bdbfb200f3dfd91746deb33a88de972b0006fdd56b625a2a77580ea803f2a203",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "complete": true,
+  "scope": "0 combat and 1 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 71,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 231451,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 424,
+        "waits": 1139,
+        "replans": 100,
+        "minSeparation": 32.030174680098504
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 6,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "0e447ca7ad595f7f3fae61e5968a3714b3184c0dd0c370613076f8326ae68f4d"
+    }
+  ]
+}

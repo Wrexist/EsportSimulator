@@ -1,0 +1,85 @@
+{
+  "passed": true,
+  "checkedFiles": 18,
+  "checks": [
+    {
+      "file": "upload/store/main_capsule_1232x706.png",
+      "passed": true
+    },
+    {
+      "file": "upload/store/header_capsule_920x430.png",
+      "passed": true
+    },
+    {
+      "file": "upload/store/small_capsule_462x174.png",
+      "passed": true
+    },
+    {
+      "file": "upload/store/vertical_capsule_748x896.png",
+      "passed": true
+    },
+    {
+      "file": "upload/store/page_background_1438x810.png",
+      "passed": true
+    },
+    {
+      "file": "upload/library/library_capsule_600x900.png",
+      "passed": true
+    },
+    {
+      "file": "upload/library/library_header_920x430.png",
+      "passed": true
+    },
+    {
+      "file": "upload/library/library_hero_3840x1240.png",
+      "passed": true
+    },
+    {
+      "file": "upload/library/library_logo_1280x720.png",
+      "passed": true
+    },
+    {
+      "file": "upload/icons/shortcut_icon_256.png",
+      "passed": true
+    },
+    {
+      "file": "upload/icons/shortcut_icon_512.png",
+      "passed": true
+    },
+    {
+      "file": "upload/icons/app_icon_184.jpg",
+      "passed": true
+    },
+    {
+      "file": "upload/about/01_build_your_squad_1460x600.png",
+      "passed": true
+    },
+    {
+      "file": "upload/about/02_run_the_club_1460x600.png",
+      "passed": true
+    },
+    {
+      "file": "upload/about/03_shape_your_season_1460x600.png",
+      "passed": true
+    },
+    {
+      "file": "upload/events/event_cover_800x450.png",
+      "passed": true
+    },
+    {
+      "file": "upload/events/event_header_1920x622.png",
+      "passed": true
+    },
+    {
+      "file": "upload/icons/shortcut_icon.ico",
+      "passed": true
+    }
+  ],
+  "shortDescriptionCharacters": 202,
+  "previewLinks": "all local paths exist",
+  "previewScript": "parses",
+  "logo": "genuine alpha, transparent corners",
+  "ico": "all seven embedded PNG sizes decode",
+  "browserVisualReview": false,
+  "steamUpload": false
+}

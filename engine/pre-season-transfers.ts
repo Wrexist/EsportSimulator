@@ -19,7 +19,8 @@ import {
     TransferRecord,
     GameEventSaveData,
 } from "./save-types"
-import { SeededRNG, generateSeed } from "./rng"
+import { academyHeldPlayerIds, recruitmentBudget, recruitmentSalary } from "./recruitment"
+import { SeededRNG } from "./rng"
 
 export interface PreSeasonTransferResult {
     transfers: TransferRecord[]
@@ -38,7 +39,7 @@ export class PreSeasonTransferProcessor {
      * Spreads signings across weeks 1–5 based on team reputation.
      */
     static processPreSeasonWindow(save: GameSave, playerTeamId: string): PreSeasonTransferResult {
-        const rng = new SeededRNG(save.lastRngSeed || generateSeed())
+        const rng = new SeededRNG(save.lastRngSeed ?? 1)
         const transfers: TransferRecord[] = []
         const events: GameEventSaveData[] = []
         let signings = 0
@@ -60,7 +61,7 @@ export class PreSeasonTransferProcessor {
 
         for (let i = 0; i < teamsNeedingPlayers.length; i++) {
             const team = teamsNeedingPlayers[i]
-            const signingWeek = Math.min(PRE_SEASON_WEEKS, Math.floor(i / batchSize) + 1)
+            const signingWeek = save.currentWeek
 
             const playersNeeded = 5 - team.rosterIds.length
             if (playersNeeded <= 0) continue
@@ -69,7 +70,11 @@ export class PreSeasonTransferProcessor {
 
             for (let p = 0; p < playersNeeded; p++) {
                 const rosteredIds = getRosteredIds()
+                const held = academyHeldPlayerIds(save)
+                const canAfford = recruitmentBudget(save, team)
                 const freeAgents = save.players.filter(pl =>
+                    !held.has(pl.id) && canAfford(recruitmentSalary(pl, save.currentWeek)) &&
+                    !save.contracts.some(c => c.playerId === pl.id && c.endWeek > save.currentWeek) &&
                     !rosteredIds.has(pl.id) &&
                     !pl.isRetired &&
                     pl.tier !== "LEGENDARY" &&
@@ -142,7 +147,7 @@ export class PreSeasonTransferProcessor {
                 week: 1,
                 data: {
                     title: "Pre-Season Transfer Window Open",
-                    message: `The pre-season transfer window is underway. ${signings} signings are expected across ${teamsUpdated} teams over the next ${PRE_SEASON_WEEKS} weeks.`,
+                    message: `The pre-season transfer window is underway. ${signings} signings have been completed across ${teamsUpdated} teams.`,
                     totalSignings: signings,
                     teamsUpdated
                 },
@@ -210,7 +215,7 @@ export class PreSeasonTransferProcessor {
     ): TransferRecord {
         team.rosterIds.push(player.id)
 
-        const salary = Math.max(500, Math.floor(player.skill * 50))
+        const salary = recruitmentSalary(player, save.currentWeek)
 
         const contract: ContractSaveData = {
             playerId: player.id,

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { WEEKLY_ACTIVITIES, WeeklyActivityType, weeklyActivityXpBonus } from '@/types/activities'
 import { Button } from '@/components/ui/button'
 import { HelpCircle, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -13,7 +14,18 @@ interface HelpTopic {
     category: 'gameplay' | 'management' | 'tactics' | 'progression' | 'competition'
 }
 
-const helpTopics: HelpTopic[] = [
+export const helpTopics: HelpTopic[] = [
+    {
+        id: 'reading-stats', title: 'Reading player and match stats',
+        description: 'Ratings, roles and match results', category: 'gameplay',
+        content: <div className="space-y-3">
+            <p><strong>OVR</strong> means overall rating: a summary of player ability. Potential describes room for development, not guaranteed improvement.</p>
+            <p><strong>IGL</strong> means in-game leader. An <strong>AWPer</strong> specializes in the sniper rifle; an entry player takes early fights.</p>
+            <p><strong>K / D / A</strong> means kills, deaths and assists. <strong>ADR</strong> is average damage per round; a match rating is a separate performance measure from OVR.</p>
+            <p><strong>BO1 / BO3 / BO5</strong> means best of one, three or five maps. In a multi-map series, the series score counts maps; each map score counts rounds.</p>
+            <p>Cash is available club money. Market value is an estimate, not an agreed fee. A free agent has no transfer fee but still needs a paid contract.</p>
+        </div>,
+    },
     {
         id: 'team-chemistry',
         title: 'Team Chemistry',
@@ -25,14 +37,14 @@ const helpTopics: HelpTopic[] = [
                 <div className="space-y-2">
                     <h4 className="font-bold">Calculation:</h4>
                     <code className="block p-2 bg-black/40 rounded text-xs">
-                        Chemistry = Average Compatibility × Roster Stability
+                        Review player compatibility, roles and recent roster changes together.
                     </code>
                 </div>
                 <div className="space-y-2">
                     <h4 className="font-bold">Effects:</h4>
                     <ul className="list-disc pl-5 text-sm space-y-1">
                         <li>Higher chemistry = Better team coordination</li>
-                        <li>Affects match outcomes  by up to 15%</li>
+                        <li>Contributes to team strength alongside roles, form and equipment</li>
                         <li>Improves with time playing together</li>
                     </ul>
                 </div>
@@ -48,11 +60,11 @@ const helpTopics: HelpTopic[] = [
             <div className="space-y-3">
                 <p>Players develop based on age, potential, and training.</p>
                 <div className="space-y-2">
-                    <h4 className="font-bold">Peak Age: 22-25 years</h4>
+                    <h4 className="font-bold">Development varies by player</h4>
                     <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Under 22: Rapid improvement</li>
-                        <li>22-25: Peak performance</li>
-                        <li>Over 25: Gradual decline</li>
+                        <li>Younger players with room to reach their potential can improve faster.</li>
+                        <li>Check training progress and recent form before changing your lineup.</li>
+                        <li>Older players can decline; age alone does not decide current performance.</li>
                     </ul>
                 </div>
                 <div className="space-y-2">
@@ -107,12 +119,12 @@ const helpTopics: HelpTopic[] = [
                     <ul className="list-disc pl-5 text-sm space-y-1">
                         <li><strong>Full Buy:</strong> Full rifles, armor, utility</li>
                         <li><strong>Semi-Buy:</strong> SMGs or cheaper rifles</li>
-                        <li><strong>Force Buy:</strong> Pistols + light armor</li>
+                        <li><strong>Force Buy:</strong> Spend limited round cash on the best equipment you can afford</li>
                         <li><strong>Eco:</strong> Save money for next round</li>
                     </ul>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    Tip: Win streaks give bonus money. Losing streaks increase loss bonus.
+                    Round results, kills and objectives determine match cash. Loss bonuses help recovery after consecutive defeats. Club cash pays contracts and preparation.
                 </p>
             </div>
         )
@@ -124,10 +136,10 @@ const helpTopics: HelpTopic[] = [
         category: 'competition',
         content: (
             <div className="space-y-3">
-                <p>Every team carries a hidden <strong>Elo</strong> skill rating. Your <strong>world ranking</strong> is just everyone sorted by Elo.</p>
+                <p><strong>World ranking</strong> orders teams by Elo, with tie-breakers when ratings match. <strong>Circuit points</strong> are separate; check the tournament page for entry rules.</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
                     <li>Win and your Elo rises; beating a <em>stronger</em> team raises it more.</li>
-                    <li>Elo sets match odds and decides tournament seeding.</li>
+                    <li>Opponent strength matters, but roster condition, preparation and tactics also affect matches.</li>
                     <li>Ranking moves week to week as every team&apos;s results come in — judge progress over a season, not a single week.</li>
                 </ul>
             </div>
@@ -142,9 +154,9 @@ const helpTopics: HelpTopic[] = [
             <div className="space-y-3">
                 <p>Placing well at events earns <strong>circuit points</strong> across the season.</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>More points = qualification and better seeding for Majors (S-Tier events).</li>
-                    <li>Points decay over time, so you have to keep performing.</li>
-                    <li>Winning a Major is the peak achievement and the biggest payout.</li>
+                    <li>Circuit points contribute to event qualification. Check the tournament page for the available entry route.</li>
+                    <li>Review your current points and qualification status as the season progresses.</li>
+                    <li>Prize money depends on the event and your final placement.</li>
                 </ul>
             </div>
         )
@@ -183,14 +195,14 @@ const helpTopics: HelpTopic[] = [
     {
         id: 'board',
         title: 'Board Confidence',
-        description: 'Keeping your job and your war-chest',
+        description: 'Understanding expectations and transfer limits',
         category: 'management',
         content: (
             <div className="space-y-3">
                 <p>The board sets a season <strong>expectation</strong> and tracks <strong>confidence</strong> in you.</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
                     <li>Meet or beat expectations and confidence rises (and can pay a capped bonus).</li>
-                    <li>Confidence sets your transfer war-chest — how much of the budget you can spend on one deal.</li>
+                    <li>Confidence affects the board limit shown during transfer negotiations.</li>
                     <li>A bad season puts you <strong>on notice</strong>. Another one with bottomed confidence and you&apos;re sacked — but it&apos;s always telegraphed a season ahead.</li>
                 </ul>
             </div>
@@ -205,9 +217,9 @@ const helpTopics: HelpTopic[] = [
             <div className="space-y-3">
                 <p><strong>Runway</strong> is how many weeks your cash lasts at your current weekly net.</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Positive weekly net = runway grows; negative = it shrinks.</li>
-                    <li>Low runway is your early warning — cut wages, sign a sponsor, or win prize money before you go insolvent.</li>
-                    <li>Eight straight weeks of insolvency disbands the org (game over).</li>
+                    <li>A non-negative weekly net means no current deficit; it does not guarantee future income.</li>
+                    <li>Low runway is an early warning. Reduce recurring costs or secure income; do not rely on uncertain prize money.</li>
+                    <li>Eight consecutive weekly settlements at zero cash or below disband the club. A positive closing balance resets the counter.</li>
                 </ul>
             </div>
         )
@@ -225,9 +237,9 @@ const helpTopics: HelpTopic[] = [
                     <li><strong>Streaming</strong> — earns cash but adds fatigue and dents morale.</li>
                     <li><strong>Team Bonding</strong> — spends cash for morale and chemistry.</li>
                     <li><strong>Media Campaign</strong> — spends cash for reputation and fans.</li>
-                    <li><strong>Bootcamp</strong> — double XP, but heavy fatigue.</li>
+                    <li><strong>Bootcamp</strong> — +{weeklyActivityXpBonus(WEEKLY_ACTIVITIES[WeeklyActivityType.BOOTCAMP])} XP per roster player, with cash cost, fatigue and morale penalties.</li>
                 </ul>
-                <p className="text-xs text-muted-foreground">Set it on the dashboard each week — it resets after every advance.</p>
+                <p className="text-xs text-muted-foreground">Set it on the dashboard. It resets after weekly settlement, not after each day.</p>
             </div>
         )
     },
@@ -240,7 +252,7 @@ const helpTopics: HelpTopic[] = [
             <div className="space-y-3">
                 <p>You earn <strong>XP</strong> every match (win +100, loss +25) and level up as a manager.</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Higher manager level unlocks bigger clubs when you start a new career, plus more training slots and better job offers.</li>
+                    <li>Check the Career page for your level, available clubs and job opportunities.</li>
                     <li>Your peak level and best results persist <em>across</em> campaigns — see the Career page&apos;s Legacy track.</li>
                     <li>Climb the tiers: Newcomer → Contender → Dynasty → Era-Defining → G.O.A.T.</li>
                 </ul>

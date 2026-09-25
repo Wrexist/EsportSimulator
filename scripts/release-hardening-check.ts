@@ -491,11 +491,11 @@ async function main(): Promise<void> {
   await testCrashResumeByStep()
   console.log("PASS: all step crashes resume cleanly without double-week progression")
 
-  console.log("[3/4] 500-week simulation fuzz...")
+  console.log(`[3/4] ${process.env.CI_FUZZ_WEEKS || 500}-week simulation fuzz (in-memory fixtures)...`)
   const fuzz = await testLongRunFuzz500Weeks()
   console.log(`PASS: fuzz ${fuzz.weeks} weeks in ${fuzz.ms}ms`)
 
-  console.log("[4/4] Static image integrity (anti-third-party contamination)...")
+  console.log("[4/4] Static image signatures (not provenance or rights validation)...")
   const imageValidation = testStaticImageIntegrity()
   console.log(`PASS: validated ${imageValidation.scanned} image files in public/assets`)
 

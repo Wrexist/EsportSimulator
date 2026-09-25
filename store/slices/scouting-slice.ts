@@ -13,6 +13,9 @@ import type { ScoutingActions, SliceCreator } from "@/store/types"
 import { getSpecializationMultiplier } from "@/engine/staff-specialization"
 import { nextDeterministicId } from "@/store/utils/helpers"
 
+import { employedScout } from "@/engine/recruitment"
+import { scoutTierFromAccuracy } from "@/engine/scouting-system"
+
 const SCOUTING_COST_BASIC = 3000
 
 export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => ({
@@ -25,21 +28,24 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
             })
             return
         }
-        if (currentState.scoutedPlayers.some(s => s.playerId === playerId)) {
-            get().addToast({ message: "This player has already been scouted.", type: "info" })
-            return
-        }
+        const team = currentState.teams.find(t => t.id === currentState.playerTeamId)
+        const target = currentState.players.find(p => p.id === playerId)
+        const scout = employedScout(currentState.staff, team, currentState.currentWeek)
+        const reject = (message: string) => currentState.addToast({ message, type: "warning" })
+        if (!target || target.isRetired) return reject("This player is no longer available to scout.")
+        if (team?.rosterIds.includes(playerId) || currentState.academyPlayers?.some(p => p.playerId === playerId))
+            return reject("Your own players are already fully known.")
+        if (!scout) return reject("Hire an active scout on your staff before starting a mission.")
+        if (!team || team.budget < SCOUTING_COST_BASIC) return reject("A scouting mission costs $3,000. Your club has insufficient cash.")
+        const report = currentState.scoutedPlayers.find(s => s.playerId === playerId)
+        const ranks = ["BASIC", "ADVANCED", "EXPERT", "ELITE"]
+        const tier = scoutTierFromAccuracy((scout.stats?.accuracy ?? 50) * getSpecializationMultiplier(scout))
+        if (report && ranks.indexOf(report.scoutLevel) >= ranks.indexOf(tier))
+            return reject("Your current report is at least as detailed as this scout can provide. Hire a more accurate scout to improve it.")
         set((state) => {
-            // Prefer the team's own scout, else any scout on the global staff.
-            const scoutStaff = state.staff.find(s =>
-                s.role === "scout" && s.teamId === state.playerTeamId
-            ) || state.staff.find(s => s.role === "scout")
-            const scoutId = scoutStaff?.id || "default_scout"
-
-            const team = state.teams.find(t => t.id === state.playerTeamId)
-            if (!team || team.budget < SCOUTING_COST_BASIC) {
-                return
-            }
+            const scoutStaff = state.staff.find(s => s.id === scout.id)!
+            const scoutId = scoutStaff.id
+            const team = state.teams.find(t => t.id === state.playerTeamId)!
 
             // Scout level sets the base duration (L1=4wk … L4+=1wk); a high
             // scoutingSpeed stat (× specialist bonus) shaves up to 2 more weeks.
@@ -75,11 +81,17 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
         })
     },
 
+    cancelScoutingMission: () => {
+        if (!get().activeScoutingMission) return
+        set({ activeScoutingMission: undefined })
+        get().addToast({ message: "Scouting cancelled. The mission fee paid for work already commissioned and is not refunded.", type: "info" })
+    },
+
     getScoutingLevel: (playerId: string) => {
         const state = get()
         // Own team players are always fully scouted.
         const team = state.teams.find(t => t.id === state.playerTeamId)
-        if (team?.rosterIds.includes(playerId)) return "ELITE"
+        if (team?.rosterIds.includes(playerId) || state.academyPlayers?.some(p => p.playerId === playerId)) return "ELITE"
 
         const entry = state.scoutedPlayers.find(s => s.playerId === playerId)
         return entry?.scoutLevel || "NONE"
@@ -88,7 +100,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
     isPlayerScouted: (playerId: string) => {
         const state = get()
         const team = state.teams.find(t => t.id === state.playerTeamId)
-        if (team?.rosterIds.includes(playerId)) return true
+        if (team?.rosterIds.includes(playerId) || state.academyPlayers?.some(p => p.playerId === playerId)) return true
         return state.scoutedPlayers.some(s => s.playerId === playerId)
     },
 
@@ -97,7 +109,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
         const current = state.watchlistedPlayerIds || []
         if (current.includes(playerId)) {
             set({ watchlistedPlayerIds: current.filter(id => id !== playerId) })
-        } else {
+        } else if (state.players.some(p => p.id === playerId && !p.isRetired) && current.length < 100) {
             set({ watchlistedPlayerIds: [...current, playerId] })
         }
     },

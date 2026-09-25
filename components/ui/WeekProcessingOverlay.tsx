@@ -199,7 +199,7 @@ export function WeekProcessingOverlay() {
           <button
             ref={continueRef}
             onClick={dismissWeekReveal}
-            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
+            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg premium-white-action py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
             style={{ animationDelay: `${continueDelay}s` }}
           >
             Continue

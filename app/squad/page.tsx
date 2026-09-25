@@ -75,6 +75,7 @@ const RosterCard = memo(function RosterCard({
         morale: player.morale,
         form: player.form,
         fatigue: player.fatigue,
+        energy: player.energy,
         salaryPerWeek: salary,
         contractYearsLeft: yearsLeft,
       }}
@@ -86,7 +87,6 @@ const RosterCard = memo(function RosterCard({
       selected={isSelected}
       accent={player.injury ? "danger" : "default"}
       layoutId={`player-${player.id}`}
-      enable3DPortrait={!isBench}
     >
       {player.injury && (
         <div className="absolute top-2 right-12 z-20">
@@ -146,6 +146,7 @@ const RosterCard = memo(function RosterCard({
             variant={isSelected ? "destructive" : "secondary"}
             className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
             onClick={(e) => {
+              e.preventDefault()
               e.stopPropagation()
               if (isSelected) onSwapCancel()
               else onSwapInitiate(index)
@@ -278,7 +279,7 @@ function SquadPageInner() {
               <TeamLogoDisplay team={teamData} size={56} />
             </div>
             <div>
-              <h1 className="text-4xl font-normal tracking-tighter text-white uppercase flex items-center gap-3">
+              <h1 className="page-title flex items-center gap-3">
                 {teamData.name}
               </h1>
               <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
@@ -528,7 +529,7 @@ function SquadPageInner() {
 
                 <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
                   <p className="text-[10px] text-emerald-400/70 font-medium leading-relaxed uppercase tracking-wider text-center">
-                    This player will be moved from the Youth Academy to your professional squad. They will be eligible for all tournaments immediately.
+                    This player will be moved from the Youth Academy to your professional squad. Choose their place in your starting five after promotion. Tournament eligibility is checked separately.
                   </p>
                 </div>
 

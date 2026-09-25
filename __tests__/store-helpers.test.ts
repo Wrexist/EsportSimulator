@@ -146,12 +146,13 @@ describe("ensureDeterministicSeed", () => {
         expect(match.seed).toBe(seed)
     })
 
-    test("generates a new seed when existing seed is non-positive", () => {
+    test("preserves an explicitly saved zero seed without consuming global RNG", () => {
         const s = { lastRngSeed: 100, currentWeek: 1 }
         const match = { seed: 0 }
         const seed = ensureDeterministicSeed(s, match)
-        expect(seed).toBeGreaterThan(0)
-        expect(match.seed).toBe(seed)
+        expect(seed).toBe(0)
+        expect(match.seed).toBe(0)
+        expect(s.lastRngSeed).toBe(100)
     })
 
     test("generated seed is in range [1, 2147483646] (avoids 0 + max-int boundaries)", () => {

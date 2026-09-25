@@ -29,6 +29,7 @@ import {
 } from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
+import { recruitmentBudget, recruitmentSalary } from "./recruitment"
 
 /**
  * AI Manager
@@ -72,12 +73,12 @@ export class AIManager {
      * Process weekly AI decisions for all AI-controlled teams
      */
     static processWeeklyAI(save: GameSave, playerTeamId: string, rng?: SeededRNG, isTransferWindow: boolean = true) {
-        const activeRng = rng ?? new SeededRNG(save.lastRngSeed || generateSeed())
+        const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
 
         aiTeams.forEach(team => {
             this.adaptTeamStrategy(team, save, activeRng)
-            if (isTransferWindow) {
+            if (isTransferWindow || team.rosterIds.length < 5) {
                 this.manageRoster(team, save)
             }
             this.manageFinances(team, save)
@@ -409,8 +410,13 @@ export class AIManager {
             // applyRosterChangePenalty would leave the player + roster id
             // committed but the team chemistry penalty unapplied, putting
             // the save in an inconsistent state.
+            const salary = recruitmentSalary(prospectPlayer, save.currentWeek)
+            if (!recruitmentBudget(save, team)(salary)) return
+            prospectPlayer.salary = salary
             save.players.push(prospectPlayer)
             team.rosterIds.push(playerId)
+            save.contracts.push({ playerId, teamId: team.id, salaryPerWeek: salary,
+                startWeek: save.currentWeek, endWeek: save.currentWeek + 104, buyout: 0 })
         } catch (err) {
             logger.error("[AI] processAcademyScouting failed", err)
             return
@@ -420,6 +426,7 @@ export class AIManager {
         // we still have a consistent (prospect, roster) pair, and the
         // bubble surfaces the real bug instead of silently swallowing it.
         applyRosterChangePenalty(team, save.currentWeek, 1)
+        recalculateTeamSynergy(team, save.players)
     }
 
     static processAITeamLogic(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
@@ -464,6 +471,8 @@ export class AIManager {
                 team.rosterIds = team.rosterIds.filter(id => id !== player.id)
                 applyRosterChangePenalty(team, save.currentWeek, 1)
                 player.isRetired = true
+                player.retirementWeek = save.currentWeek
+                save.contracts = save.contracts.filter(contract => contract.playerId !== player.id)
                 teamRetired = true
             }
             // Every other roster-mutation path (transfers, academy promotion)

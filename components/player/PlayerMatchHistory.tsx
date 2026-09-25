@@ -14,9 +14,10 @@ import Image from "next/image"
 interface PlayerMatchHistoryProps {
     playerId: string
     limit?: number  // Number of matches to show (default 10)
+    compact?: boolean
 }
 
-export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryProps) {
+export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, limit = 10, compact = false }: PlayerMatchHistoryProps) {
     const { completedMatches, teams, getDateForWeek, players } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
@@ -38,6 +39,24 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
 
     const totalMatches = playerMatches.length
     const displayMatches = playerMatches.slice(0, limit)
+
+    if (compact) {
+        // Only show matches with a recorded performance for this player. Current
+        // roster membership alone cannot prove historical participation.
+        const recorded = completedMatches.filter(match => match.result?.playerStats?.[playerId])
+            .sort((a, b) => b.week - a.week).slice(0, limit)
+        return <section className="mt-5 pt-4 border-t border-white/10" aria-label="Last five recorded performances">
+            <h4 className="text-sm font-semibold mb-3">Recent performances</h4>
+            {recorded.length ? <div className="grid grid-cols-5 gap-2">{recorded.map(match => {
+                const stats = match.result.playerStats[playerId]
+                return <Link key={match.id} href={`/match/${match.id}/result`} className="rounded-lg p-2 text-center bg-white/5 hover:bg-white/10 border border-white/10" aria-label={`Week ${match.week}, rating ${stats.rating?.toFixed(2) ?? 'unavailable'}, view result`}>
+                    <span className="block text-xs text-muted-foreground">W{match.week}</span>
+                    <strong className="block text-sm my-1">{stats.rating?.toFixed(2) ?? '—'}</strong>
+                    <span className="block text-xs text-muted-foreground">{stats.kills}/{stats.deaths}</span>
+                </Link>
+            })}</div> : <p className="text-sm text-muted-foreground">Your next match starts this record.</p>}
+        </section>
+    }
 
     if (displayMatches.length === 0) {
         return (

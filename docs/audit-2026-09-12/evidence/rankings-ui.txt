@@ -1,0 +1,279 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/rankings".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/rankings
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/rankings#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading WORLD RANKINGS S1, Value: 1
+				144 text WORLD RANKINGS S
+			145 text ELO-BASED RANKINGS • 52 WEEKS UNTIL SEASON END
+			146 container
+				147 text # 154 B 114 / 158 1250  ELO
+			148 container
+				149 button WORLD
+				150 button S (10)
+					151 text S
+					152 text  (
+					153 text 10
+					154 text )
+				155 button A (30)
+					156 text A
+					157 text  (
+					158 text 30
+					159 text )
+				160 button B (158)
+					161 text B
+					162 text  (
+					163 text 158
+					164 text )
+				165 button C (0)
+					166 text C
+					167 text  (
+					168 text 0
+					169 text )
+				170 button TROPHIES
+				171 button CIRCUIT POINTS
+			172 text field (settable) Search teams
+			173 container
+				174 row
+					175 text RANK
+					176 text TEAM
+					177 text LEAGUE
+					178 text ELO
+					179 button Show stat explanation
+					180 text OVR
+					181 text FORM
+				182 container
+					183 row
+						184 text # 1
+						185 container Team Oblivion logo
+						186 text TEAM OBLIVION
+						187 container EU
+							188 text EU
+						189 text ELITE
+						190 text S-Tier
+						191 text 1600
+						192 text 82
+						193 text --
+					194 row
+						195 text # 2
+						196 container Umbra Esports logo
+						197 text UMBRA ESPORTS
+						198 image br
+						199 text ELITE
+						200 text S-Tier
+						201 text 1594
+						202 text 82
+						203 text --
+					204 row
+						205 text # 3
+						206 image Ironspire logo
+						207 text IRONSPIRE
+						208 container EU
+							209 text EU
+						210 text ELITE
+						211 text S-Tier
+						212 text 1594
+						213 text 83
+						214 text --
+					215 row
+						216 text # 4
+						217 image Warblade logo
+						218 text WARBLADE
+						219 container EU
+							220 text EU
+						221 text ELITE
+						222 text S-Tier
+						223 text 1588
+						224 text 78
+						225 text --
+					226 row
+						227 text # 5
+						228 container Ember Rift logo
+						229 text EMBER RIFT
+						230 container EU
+							231 text EU
+						232 text ELITE
+						233 text S-Tier
+						234 text 1588
+						235 text 84
+						236 text --
+					237 row
+						238 text # 6
+						239 image Skypulse logo
+						240 text SKYPULSE
+						241 container EU
+							242 text EU
+						243 text ELITE
+						244 text S-Tier
+						245 text 1588
+						246 text 82
+						247 text --
+					248 row
+						249 text # 7
+						250 container Violet Lumen logo
+						251 text VIOLET LUMEN
+						252 container EU
+							253 text EU
+						254 text ELITE
+						255 text S-Tier
+						256 text 1582
+						257 text 80
+						258 text --
+					259 row
+						260 text # 8
+						261 container Aegis Esports logo
+						262 text AEGIS ESPORTS
+						263 container EU
+							264 text EU
+						265 text ELITE
+						266 text S-Tier
+						267 text 1582
+						268 text 81
+						269 text --
+					270 row
+						271 text # 9
+						272 container Moonstorm Republic logo
+						273 text MOONSTORM REPUBLIC
+						274 container EU
+							275 text EU
+						276 text ELITE
+						277 text S-Tier
+						278 text 1576
+						279 text 78
+						280 text --
+					281 row
+						282 text # 10
+						283 container Meridian Initiative logo
+						284 text MERIDIAN INITIATIVE
+						285 image cn
+						286 text ELITE
+						287 text S-Tier
+						288 text 1576
+						289 text 79
+						290 text --
+					291 row
+						292 text # 11
+						293 container Zenith logo
+						294 text ZENITH
+						295 container EU
+							296 text EU
+						297 text ELITE
+						298 text A-Tier
+						299 text 1576
+						300 text 70
+						301 text --
+					302 row
+						303 text # 12
+						304 container Odyssey Initiative logo
+						305 text ODYSSEY INITIATIVE
+						306 container EU
+							307 text EU
+						308 text ELITE
+						309 text A-Tier
+						310 text 1570
+						311 text 67
+						312 text --
+					313 row
+						314 text # 13
+						315 container Raven Esports logo
+						316 text RAVEN ESPORTS
+						317 container EU
+							318 text EU
+						319 text ELITE
+						320 text A-Tier
+						321 text 1570
+						322 text 66
+						323 text --
+					324 row
+						325 text # 14
+						326 container Ivory Monolith logo
+						327 text IVORY MONOLITH
+						328 container EU
+							329 text EU
+						330 text ELITE
+						331 text A-Tier
+						332 text 1564
+						333 text 70
+						334 text --
+					335 row
+						336 text # 15
+						337 container Warhowl logo
+						338 text WARHOWL
+						339 container EU
+							340 text EU
+						341 text ELITE
+						342 text A-Tier
+						343 text 1564
+						344 text 65
+						345 text --
+					346 row
+						347 text # 16
+						348 container Team Halcyon logo
+						349 text TEAM HALCYON
+						350 container INT
+							351 text INT
+						352 text ELITE
+						353 text A-Tier
+						354 text 1564
+						355 text 70
+						356 text --
+					357 row
+						358 text # 17
+						359 container Riptide Athletic logo
+						360 text RIPTIDE ATHLETIC
+						361 container EU
+							362 text EU
+						363 text ELITE
+						364 text A-Tier
+						365 text 1564
+						366 text 67
+						367 text --
+			368 container
+				369 heading RANKING SYSTEM, Value: 3
+					370 text RANKING SYSTEM
+				371 text BASED ON TEAM REPUTATION AND TOURNAMENT PERFORMANCE WEEK 1 / 52 TOTAL TEAMS 198
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 23 link Description: Rankings, URL: 127.0.0.1:3210/rankings

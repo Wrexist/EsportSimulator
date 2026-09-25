@@ -1,0 +1,138 @@
+{
+  "scope": "L14 implementation/check inputs only; not a complete shipping manifest",
+  "buildId": "c6WiZjNWoq-AbKYiUY1zh",
+  "files": [
+    {
+      "path": "hooks/useLiveMatch.ts",
+      "sha256": "e5312d74740411a3b0ae40d8a5b0348c41fe7b5c94298018a8498f5012647c84"
+    },
+    {
+      "path": "engine/match/live-checkpoint.ts",
+      "sha256": "e236c69f89df94a326bf18cbdb149eb00938c3f4c0bb4fa6098f40dc5306241d"
+    },
+    {
+      "path": "engine/match-simulation.ts",
+      "sha256": "d1acf2aaac80bafc4dc70f403dbf274e117dec786010a75f1808739a1c7278aa"
+    },
+    {
+      "path": "engine/match-engine.ts",
+      "sha256": "97b225318f1a90e93a4d6ca1d89cc4728dfaac417275ea76082b2daee851bc71"
+    },
+    {
+      "path": "engine/save-types.ts",
+      "sha256": "0cee0f170ab46e5988d5ed9458ca5b29eeccdec760d6675f0d15740c2fef5ab7"
+    },
+    {
+      "path": "engine/spatial/team-simulation.ts",
+      "sha256": "4102133edfb67ddce0af956cd5b72202a80e8e0c9cd9b45de25897c7cc2ddfe4"
+    },
+    {
+      "path": "engine/spatial/lab-teams.ts",
+      "sha256": "2b402b06ce5783ec8daf9de50258e6e2243aaeef884b703ec6a163eda946cbba"
+    },
+    {
+      "path": "engine/spatial/round-replay.ts",
+      "sha256": "3b9aaffc942db96df60b56980c32f0e750131d062dcf66ecda7ab4be5582fab5"
+    },
+    {
+      "path": "engine/spatial/spatial-lab.worker.ts",
+      "sha256": "fc4a91b96216a38a4daa2f9a3178cf5db2b36be3dfe1c4f097ef54fd01e4961d"
+    },
+    {
+      "path": "components/maps/TeamLab.tsx",
+      "sha256": "1a05e2af8761c71c8b86bc447fe399547f749cbeed9b80fc102674a9d19bb05f"
+    },
+    {
+      "path": "lib/live-match-utils.ts",
+      "sha256": "239162be9bc89d10151f18ca31124ce5a48f6de12f4170b3a3dad62d4b889bb1"
+    },
+    {
+      "path": "lib/live-match-builders.ts",
+      "sha256": "f08aad28a877fd8b1585c33398673432b258c7d2b4d6370d01158751fbc3a7bf"
+    },
+    {
+      "path": "store/utils/helpers.ts",
+      "sha256": "c19e699d4a3a54babd7d0cc8d04d4e03c8a35747be38030538aac28932567606"
+    },
+    {
+      "path": "store/slices/match-ui-slice.ts",
+      "sha256": "135902e5512d0cb543e0454bd10e2a0a2cc8769c262747df2a0ab334f580d068"
+    },
+    {
+      "path": "store/slices/match-operations-slice.ts",
+      "sha256": "3a9869ee17c778d274ce684b2143ea19acad6320484ed2d57d9b3f36384cb256"
+    },
+    {
+      "path": "store/slices/match-simulation-slice.ts",
+      "sha256": "39a7b03082dab84071f8d4c7ec83a4a4c56838cf97602a63a48669497ca6b160"
+    },
+    {
+      "path": "types/game.ts",
+      "sha256": "445af7a13bb5ab299f878aa3a2ac657b5e8dbacf78d70c5eb8595288cac5c2a5"
+    },
+    {
+      "path": "types/match.ts",
+      "sha256": "93df5c43c28dff53e73904f6fe7525f9c6bd27138a9b5e441ed8438cd14094a4"
+    },
+    {
+      "path": "__tests__/live-checkpoint.test.ts",
+      "sha256": "b92df3f81c5011fabfdd9aa4a3d00f0539f3a92f7f539d6ac34f1c0dd0a15817"
+    },
+    {
+      "path": "__tests__/spatial-round-replay.test.ts",
+      "sha256": "8f0a578b4c1f3fa250193dfa0c4a6db3f19417e8afb1e1dc4d52ce7a92060433"
+    },
+    {
+      "path": "__tests__/match-result-commit.test.ts",
+      "sha256": "115eb8053f16f24040b9488e8ac9bc8ef4af0302d61580a8409b6f0fbbb577d5"
+    },
+    {
+      "path": "__tests__/match-engine.test.ts",
+      "sha256": "888071d4d14439057057e02285e2e861bb0fe09653bec2c51ca6cafa02edfc97"
+    },
+    {
+      "path": "__tests__/match-ui-slice.test.ts",
+      "sha256": "aed42eca25f7a4baefa4bcb124dbd7172fbc3624b54125bc8b50bb5c5dd7bcd4"
+    },
+    {
+      "path": "__tests__/match-operations-slice.test.ts",
+      "sha256": "0f4af66270431c6b5b37dc038a17d1e413cfd4636cea7897f70296b8efddd4ad"
+    },
+    {
+      "path": "__tests__/live-match-utils.test.ts",
+      "sha256": "f9ccfc000ba3f18b4fc6b32ccef44617e7596d5a02058f5a80759d28351bf826"
+    },
+    {
+      "path": "__tests__/store-helpers.test.ts",
+      "sha256": "8ad24cb0249c97324386a3203a61899babeb96cd61a31c3f63c7c2ed423a702a"
+    },
+    {
+      "path": "scripts/launch/l14-replays.ts",
+      "sha256": "bc2f0067f29c38358ee180b72f808ce2718e89bc055e2c0ec36a9ece37935e21"
+    },
+    {
+      "path": "scripts/launch/l14-browser.ts",
+      "sha256": "091070f4e2fa1d083c5e25c901aa0ffe8f5a69ed00321b610dd4b116adf6fab5"
+    },
+    {
+      "path": "scripts/launch/l14-check-replay.ts",
+      "sha256": "cf11dd15fee767fce0f5f5405384eb0a9a351d5bd3f95fafd140796eacadd280"
+    },
+    {
+      "path": "scripts/launch/l12-mirage-review.ts",
+      "sha256": "714a09158ee25b422942eabc600ee1f29068115cad17c809dc13805f18da6327"
+    },
+    {
+      "path": "scripts/launch/build-spatial-review-probe.cjs",
+      "sha256": "468a0a3f0079dcafff404bb89b0e4c6121956160b888cb2582b74119dfe7a886"
+    },
+    {
+      "path": "scripts/perf-baseline.ts",
+      "sha256": "648aa3631f5613ca2f2ab4fa1cb3cb235d7c0bc834167c5c684efd22a8000b74"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    }
+  ]
+}

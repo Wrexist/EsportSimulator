@@ -1,0 +1,164 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Ancient",
+  "fixtureSha256": "7e1cb2448d246bb26d9b5c936d8569cf8828cd0d879ce5b64d998c88d169775e",
+  "simulatorSourceSha256": "211c7e18de315f3e49835899a1f54fab4bb026ee5e78e7cfac0ed26c86e33c3d",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 61.4375,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 43395,
+      "metrics": {
+        "shots": 57,
+        "damage": 900,
+        "reports": 63,
+        "waits": 1837,
+        "replans": 90,
+        "minSeparation": 32.02758743556926
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 3,
+      "yields": 13,
+      "routeFailures": [
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT5",
+          "side": "CT"
+        },
+        {
+          "tick": 1648,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "de3a2fcefdb03c2ff76b45ba00226c9c2b85a0a6c94837bbc6291829419e97ef"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 65.15625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 136205,
+      "metrics": {
+        "shots": 65,
+        "damage": 888,
+        "reports": 63,
+        "waits": 1765,
+        "replans": 84,
+        "minSeparation": 32.01984140644852
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 10,
+      "routeFailures": [
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT5",
+          "side": "CT"
+        },
+        {
+          "tick": 2416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT3",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "48f416e262517430095904d9c3f5f4db1c5b58072f844d3c80526789ae781dba"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 66.25,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 86631,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1107,
+        "waits": 3135,
+        "replans": 71,
+        "minSeparation": 32.01723850836532
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT1",
+          "side": "CT"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT5",
+          "side": "CT"
+        },
+        {
+          "tick": 1824,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            671.7271271584809,
+            173.58040573255727,
+            135.93936056361886
+          ],
+          "goal": [
+            798.4686938105284,
+            174.41936362830143,
+            134.54527594115217
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "a21fa65dab45fe1c726ea648964467b535e281d65f4890b73ce55b7b526fc874"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Inferno",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "simulatorSourceSha256": "fe5b09d22aaf5ef5c91af32c84d88c5d0260e303ad14f81d847eab88e711273b",
+  "fixtureSha256": "75e19d893f02ec912960036b1525bca896e023edb7feaef77453ea042216ece2",
+  "attempts": 1,
+  "origin": [
+    249.49993333333336,
+    2530.5,
+    163.99994
+  ],
+  "bomb": [
+    249.50004935715418,
+    2652.256390012914,
+    163.99994
+  ],
+  "threat": [
+    249.5000493571542,
+    2932.256390012914,
+    163.99994
+  ],
+  "landing": [
+    249.50004935715418,
+    2612.256390012914,
+    163.55000148047642
+  ],
+  "bounces": [
+    [
+      249.4999333658835,
+      2578.9598528373635,
+      163.5500009479338
+    ],
+    [
+      249.5000160313699,
+      2604.315219200762,
+      163.55000533340325
+    ],
+    [
+      249.50004935715418,
+      2612.256390012914,
+      163.55000148047642
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 131,
+  "checks": [
+    {
+      "id": "inferno-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 97.85975666224553,
+  "outputSha256": "d63b2ca78ea85a968cd19e820e33b475eee125037cafd22717192ed139e02d99"
+}

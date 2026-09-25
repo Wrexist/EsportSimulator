@@ -95,7 +95,7 @@ export function ActionCenter() {
     const promptCount = decisions.length + (offerCount > 0 ? 1 : 0) + (freeTrainingSlots > 0 ? 1 : 0) + (focusNotSet ? 1 : 0)
 
     return (
-        <Card className="glass-panel border-white/5 bg-white/[0.02] backdrop-blur-xl rounded-lg overflow-hidden">
+        <Card className="glass-card border-white/5 bg-white/[0.02] rounded-lg overflow-hidden">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">
@@ -165,7 +165,7 @@ export function ActionCenter() {
                                 <div className="p-2 rounded-lg bg-blue-500/10"><Dumbbell size={14} className="text-blue-400" /></div>
                                 <div className="flex-1">
                                     <p className="text-xs font-bold text-white/90">{freeTrainingSlots} training session{freeTrainingSlots > 1 ? "s" : ""} unused</p>
-                                    <p className="text-[10px] text-white/40">Run drills to develop your roster</p>
+                                    <p className="text-[10px] text-white/40">Choose practice when rested; unused sessions are fine before a match.</p>
                                 </div>
                                 <ArrowRight size={14} className="text-white/30 group-hover:text-white/60 transition-colors" />
                             </Link>

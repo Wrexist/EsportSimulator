@@ -1,0 +1,58 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Ancient",
+  "fixtureSha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed",
+  "simulatorSourceSha256": "c6353468bce904100d5201260b243590e7b6e1c5e78eb6af2331cbde26996d6e",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 66.953125,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 25603,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 506,
+        "waits": 1815,
+        "replans": 88,
+        "minSeparation": 32.02749548265749
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [
+        {
+          "tick": 1728,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            687.0528982428231,
+            149.78254804612214,
+            135.79522467148894
+          ],
+          "goal": [
+            797.0199436066212,
+            175.38519978045565,
+            134.61305356596125
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "c930de7c118e4ea0ebff86a9f7145f33b028e01800300a2fa582034669b3c40e"
+    }
+  ]
+}

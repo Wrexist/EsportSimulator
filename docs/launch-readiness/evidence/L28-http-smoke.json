@@ -1,0 +1,23 @@
+{
+  "build": "EA-MVYDvWDNj7iTVNZQMI",
+  "previewPid": 306488,
+  "routes": [
+    {
+      "path": "/main-menu",
+      "status": 200
+    },
+    {
+      "path": "/transfers",
+      "status": 200
+    },
+    {
+      "path": "/map-editor",
+      "status": 200
+    },
+    {
+      "path": "/dev",
+      "status": 404
+    }
+  ],
+  "scope": "HTTP availability only; no UI or packaged acceptance."
+}

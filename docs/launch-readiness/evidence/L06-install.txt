@@ -1,0 +1,31 @@
+node.exe : npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out
+ lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensiv
+e and powerful.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn deprec...e and powerful.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerab
+ilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exo
+rbitant rates) by contacting i@izs.me
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for mo
+re info.
+npm warn deprecated electron-notarize@1.2.2: Please use @electron/notarize moving forward.  There is no API change, jus
+t a package name change
+npm warn deprecated recharts@2.15.4: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest f
+eatures and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support f
+or other options.
+
+added 1090 packages, and audited 1091 packages in 1m
+
+218 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities

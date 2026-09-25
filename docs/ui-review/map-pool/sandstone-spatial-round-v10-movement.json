@@ -1,0 +1,93 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Sandstone",
+  "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+  "simulatorSourceSha256": "c6353468bce904100d5201260b243590e7b6e1c5e78eb6af2331cbde26996d6e",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 110.390625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 82048,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 420,
+        "waits": 2688,
+        "replans": 93,
+        "minSeparation": 32.01118603592757
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [
+        {
+          "tick": 4592,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 4592,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 6336,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 6336,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            -1393.1880951904243,
+            2766.4876341981294,
+            17.94582377240913
+          ],
+          "goal": [
+            160.122742,
+            2369.67627,
+            -116.2003286382158
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "CT4",
+          "point": [
+            -1423.1307514434848,
+            2754.546621102591,
+            16.417425634757723
+          ],
+          "goal": [
+            334.368744,
+            2433.733643,
+            -116.83812489570909
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "acfea4c31ac35ae390170afd0dd58a86449d3c6db7a7233822dc2ed5e10f2e85"
+    }
+  ]
+}

@@ -7,6 +7,9 @@
  */
 
 import { GameSave, TeamSaveData, GameEventSaveData, TournamentSaveData } from "./save-types"
+import { switchClubManagement } from "./club-management"
+import { ensureBoardState } from "./board-expectations"
+import { updateCareerStats } from "./career-stats"
 import { EventType } from "@/types/enums"
 import { SeededRNG, generateSeed } from "./rng"
 
@@ -38,10 +41,12 @@ export class JobOfferGenerator {
      * Called once per week in the weekly processor
      */
     static processWeeklyJobOffers(save: GameSave, rng?: SeededRNG): void {
-        const activeRng = rng ?? new SeededRNG(save.lastRngSeed || generateSeed())
+        const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
         if (!currentTeam) return
 
+        if (save.gameOverReason || (save.managerDetails.lastJobChangeWeek != null && save.currentWeek - save.managerDetails.lastJobChangeWeek < 12)) return
+        if (save.eventsLog.some(e => e.type === 'JOB_OFFER' && !e.selectedChoiceId && !e.data.isWithdrawn && Number(e.data.deadlineWeek) >= save.currentWeek)) return
         // Calculate offer probability based on performance
         const offerChance = this.calculateOfferChance(save, currentTeam)
 
@@ -67,7 +72,7 @@ export class JobOfferGenerator {
      * Force a job offer generation for testing/debug
      */
     static forceJobOffer(save: GameSave, rng?: SeededRNG): void {
-        const activeRng = rng ?? new SeededRNG(save.lastRngSeed || generateSeed())
+        const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
         if (!currentTeam) return
 
@@ -185,7 +190,7 @@ export class JobOfferGenerator {
         const salaryOffer = this.calculateSalaryOffer(save, offeringTeam)
 
         // Phase 19: World Ranking - Calculate rank if not present
-        const rank = offeringTeam.worldRanking || save.teams.sort((a, b) => b.elo - a.elo).findIndex(t => t.id === offeringTeam.id) + 1
+        const rank = offeringTeam.worldRanking || [...save.teams].sort((a, b) => b.elo - a.elo).findIndex(t => t.id === offeringTeam.id) + 1
 
         const event: GameEventSaveData = {
             id: `job_offer_${save.currentWeek}_${offeringTeam.id}`,
@@ -194,6 +199,7 @@ export class JobOfferGenerator {
             acknowledged: false,
             data: {
                 type: EventType.JOB_OFFER, // This seems redundant with event.type but keeping for consistency if used elsewhere
+                originTeamId: save.playerTeamId,
                 offeringTeamId: offeringTeam.id,
                 offeringTeamName: offeringTeam.name,
                 offeringTeamLogo: offeringTeam.logoPath,
@@ -221,7 +227,16 @@ export class JobOfferGenerator {
             ]
         }
 
-        save.eventsLog.unshift(event)
+        if (!save.eventsLog.some(e => e.id === event.id)) save.eventsLog.unshift(event)
+    }
+
+    private static offerUnavailable(save: GameSave, event: GameEventSaveData): string | undefined {
+        if (save.gameOverReason) return "This career has ended"
+        if (event.selectedChoiceId || event.data.isWithdrawn) return "Offer is no longer available"
+        if (!Number.isFinite(event.data.deadlineWeek) || save.currentWeek > Number(event.data.deadlineWeek)) return "Offer has expired"
+        if (event.data.originTeamId && event.data.originTeamId !== save.playerTeamId) return "Offer belongs to your previous club tenure"
+        if (event.data.offeringTeamId === save.playerTeamId) return "You already manage this club"
+        return undefined
     }
 
     /**
@@ -232,6 +247,9 @@ export class JobOfferGenerator {
         if (!event || event.type !== "JOB_OFFER") {
             return { success: false, message: "Offer not found" }
         }
+
+        const unavailable = this.offerUnavailable(save, event)
+        if (unavailable) return { success: false, message: unavailable }
 
         const data = event.data as {
             deadlineWeek: number
@@ -259,7 +277,7 @@ export class JobOfferGenerator {
         if (managerRep > 50) successChance += 0.2
         if (teamTier === "ELITE") successChance -= 0.1 // Harder to negotiate with elite teams
 
-        const rng = new SeededRNG(save.lastRngSeed || generateSeed())
+        const rng = new SeededRNG(save.lastRngSeed ?? generateSeed())
         const roll = this.roll(rng)
 
         data.negotiationAttempts++
@@ -311,48 +329,38 @@ export class JobOfferGenerator {
             return { success: false, message: "Job offer not found" }
         }
 
-        const offerData = event.data as { offeringTeamId: string; deadlineWeek: number }
-        const newTeam = save.teams.find(t => t.id === offerData.offeringTeamId)
-        if (!newTeam) {
-            return { success: false, message: "Team no longer exists" }
+        const unavailable = this.offerUnavailable(save, event)
+        if (unavailable) return { success: false, message: unavailable }
+        if (save.activeMatchId || save.activeMatchState) return { success: false, message: "Finish the active match before changing clubs" }
+        const lastChange = save.managerDetails.lastJobChangeWeek
+        if (lastChange != null && save.currentWeek - lastChange < 12) return { success: false, message: "You must spend 12 weeks at your current club before moving again" }
+        const newTeam = save.teams.find(t => t.id === event.data.offeringTeamId)
+        if (!newTeam) return { success: false, message: "Team no longer exists" }
+        const salary = Number(event.data.salaryOffer ?? 0)
+        if (!Number.isSafeInteger(salary) || salary < 0 || salary > 100000 || !Number.isFinite(newTeam.budget)) return { success: false, message: "Invalid offer terms" }
+        const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
+        // The move takes effect next week for historical attribution: completed
+        // results in the current week still belong to the departing tenure.
+        save.careerStats = updateCareerStats(save)
+        switchClubManagement(save, oldTeam, newTeam)
+        save.managerDetails.lastJobChangeWeek = save.currentWeek
+        save.managerDetails.tenureStartWeek = save.currentWeek + 1
+        ensureBoardState(save)
+        const signingBonus = salary * 4
+        const ledgerId = `manager_signing_${event.id}`
+        if (signingBonus > 0 && !save.financeLedger.some(e => e.id === ledgerId)) {
+            newTeam.budget += signingBonus
+            save.financeLedger.push({ id: ledgerId, week: save.currentWeek, teamId: newTeam.id, type: 'INCOME', category: 'OTHER', amount: signingBonus, description: `Manager signing bonus - ${newTeam.name}`, balance: newTeam.budget })
         }
-
-        // Check deadline
-        if (save.currentWeek > offerData.deadlineWeek) {
-            return { success: false, message: "Offer has expired" }
+        for (const other of save.eventsLog) {
+            if (other.type === 'JOB_OFFER' && !other.selectedChoiceId) { other.data.isWithdrawn = true; other.choices = [] }
+            if (other.choices?.length && (!other.data.teamId || other.data.teamId === oldTeam?.id) && !other.selectedChoiceId) { other.data.isWithdrawn = true; other.choices = [] }
         }
-
-        // Store old team ID for the transition event
-        const oldTeamId = save.playerTeamId
-        const oldTeam = save.teams.find(t => t.id === oldTeamId)
-
-        // Switch teams
-        save.playerTeamId = newTeam.id
-
-        // Mark event as acknowledged
         event.acknowledged = true
-        event.selectedChoiceId = "ACCEPT"
-
-        // Create a notification event
-        const transitionEvent = {
-            id: `job_transition_${save.currentWeek}_${newTeam.id}`,
-            week: save.currentWeek,
-            type: "MEDIA",
-            data: {
-                type: EventType.MEDIA,
-                subject: `Manager moves to ${newTeam.name}!`,
-                sentiment: "POSITIVE" as const,
-                reputationImpact: 5,
-                fanbaseImpact: -20, // Old fans are disappointed
-            },
-            acknowledged: false,
-        }
-        save.eventsLog.unshift(transitionEvent)
-
-        return {
-            success: true,
-            message: `Welcome to ${newTeam.name}!`
-        }
+        event.selectedChoiceId = 'ACCEPT'
+        const id = `job_transition_${event.id}`
+        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}. Your previous club keeps its academy, scouting reports and plans.` } })
+        return { success: true, message: `Welcome to ${newTeam.name}!` }
     }
 
     /**
@@ -364,6 +372,8 @@ export class JobOfferGenerator {
             return { success: false, message: "Job offer not found" }
         }
 
+        const unavailable = this.offerUnavailable(save, event)
+        if (unavailable) return { success: false, message: unavailable }
         const offerData = event.data as { offeringTeamName: string }
 
         // Mark as declined

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
+import { useEffect, useState, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
@@ -115,6 +116,19 @@ export default function TeamSelectionPage() {
         loadCareerProfile().then(p => setManagerLevel(Math.max(1, p.peakLevel))).catch(() => { })
     }, [])
 
+    const startingRef = useRef(false)
+    const [draftReady, setDraftReady] = useState(false)
+    const [draftSaved, setDraftSaved] = useState(true)
+    const [dataError, setDataError] = useState(false)
+    useEffect(() => {
+        const draft = loadCareerDraft()
+        if (draft) { setManagerName(draft.managerName); setSandboxMode(!!draft.sandbox); if (draft.managerName.trim().length >= 2) setCurrentStep('team-select') }
+        setDraftReady(true)
+    }, [])
+    useEffect(() => {
+        if (draftReady && !isStarting) setDraftSaved(saveCareerDraft({ managerName, sandbox: sandboxMode, ...(selectedTeam ? { teamId: selectedTeam.id } : {}) }))
+    }, [draftReady, managerName, sandboxMode, selectedTeam, isStarting])
+
     // Load snapshot data
     useEffect(() => {
         async function loadData() {
@@ -124,11 +138,14 @@ export default function TeamSelectionPage() {
                     fetch("/data/snapshot/teams.json"),
                     fetch("/data/snapshot/players.json"),
                 ])
+                if (!teamsRes.ok || !playersRes.ok) throw Error('Game data unavailable')
                 const teamsData = await teamsRes.json()
                 const playersData = await playersRes.json()
+                if (!Array.isArray(teamsData) || !Array.isArray(playersData)) throw Error('Invalid game data')
                 setTeams(teamsData)
                 setPlayers(playersData)
             } catch (error) {
+                setDataError(true)
                 debug.error("Failed to load snapshot data:", error)
                 toast.error("Failed to load game data", {
                     description: "Please check your connection and try again."
@@ -286,11 +303,17 @@ export default function TeamSelectionPage() {
     }
 
     const handleStartGame = async () => {
-        if (!selectedTeam || isStarting) return
+        if (!selectedTeam || isStarting || startingRef.current) return
+        if (managerName.trim().length < 2 || (!sandboxMode && !ManagerProgression.isTeamUnlocked(selectedTeam.reputation, managerLevel))) {
+            toast.error('Review your manager name and club eligibility before starting.'); return
+        }
+        startingRef.current = true
         setIsStarting(true)
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
             await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id)
+            if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
+            clearCareerDraft()
             void recordNewCampaign()
             // Use client-side navigation to preserve store state
             router.push("/")
@@ -299,9 +322,17 @@ export default function TeamSelectionPage() {
             toast.error("Failed to start game", {
                 description: "An error occurred while initializing. Please try again."
             })
+            startingRef.current = false
             setIsStarting(false)
         }
     }
+
+    useEffect(() => {
+        const teamId = loadCareerDraft()?.teamId
+        if (teamId && !selectedTeam) setSelectedTeam(rankedTeams.find(t => t.id === teamId) || null)
+    }, [rankedTeams])
+
+    if (dataError) return <div className="mx-auto max-w-lg p-8 text-slate-200"><h1 className="text-xl">Game data could not load</h1><p className="my-3">Your setup draft is kept. Retry loading the local game data.</p><Button onClick={() => window.location.reload()}>Retry</Button></div>
 
     // Loading state
     if (isDataLoading) {
@@ -449,7 +480,7 @@ export default function TeamSelectionPage() {
                                         return
                                     }
                                     // Store manager name in localStorage for the create-team page
-                                    localStorage.setItem("pending_manager_name", managerName.trim())
+                                    saveCareerDraft({ managerName: managerName.trim() })
                                     router.push("/new-game/create-team")
                                 }}
                                 variant="outline"
@@ -533,7 +564,7 @@ export default function TeamSelectionPage() {
                                 Choose Your Team, <span className="text-primary">{managerName}</span>
                             </h1>
                             <p className="text-muted-foreground text-sm">
-                                <span className="text-amber-400 font-bold uppercase">Manager Mode:</span> You must begin with a <span className="text-white font-bold">Semi-Pro</span> team. Win tournaments to increase your Manager Level and unlock Elite organizations!
+                                <span className="text-amber-400 font-bold uppercase">Manager Mode:</span> You must begin with a <span className="text-white font-bold">Amateur</span> team. Build your reputation to unlock higher-tier clubs.
                             </p>
                         </div>
                     </div>
@@ -603,6 +634,7 @@ export default function TeamSelectionPage() {
                 </div>
             </div>
 
+            <p className="mb-3 text-sm text-slate-400">{draftSaved ? 'Setup is saved on this device until you create the career.' : 'Setup could not be saved on this device. Keep this page open until you finish.'} Club access depends on your career level; sandbox unlocks club choice without changing match difficulty.</p>
             {/* Sandbox Mode Toggle */}
             <div className="flex justify-end mb-4">
                 <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
@@ -695,7 +727,7 @@ export default function TeamSelectionPage() {
                                                         title={player?.nickname}
                                                     >
                                                         <PlayerPortrait
-                                                            src={player?.portraitPath}
+                                                            src={player?.portraitPath} seed={player?.id}
                                                             alt={player?.nickname || "Unknown"}
                                                             fill
                                                         />
@@ -800,7 +832,7 @@ export default function TeamSelectionPage() {
                                                 {/* Larger player image */}
                                                 <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
                                                     <PlayerPortrait
-                                                        src={player.portraitPath}
+                                                        src={player.portraitPath} seed={player.id}
                                                         alt={player.nickname}
                                                         size={56}
                                                     />
@@ -832,7 +864,7 @@ export default function TeamSelectionPage() {
                                 {/* Start Button */}
                                 <Button
                                     onClick={handleStartGame}
-                                    disabled={isStarting}
+                                    disabled={isStarting || (!sandboxMode && !ManagerProgression.isTeamUnlocked(selectedTeam.reputation, managerLevel))}
                                     className="w-full h-14 bg-white text-black hover:bg-white/90 font-normal rounded-xl text-lg shadow-[0_10px_30px_rgba(255,255,255,0.15)]"
                                 >
                                     {isStarting ? "INITIALIZING..." : (

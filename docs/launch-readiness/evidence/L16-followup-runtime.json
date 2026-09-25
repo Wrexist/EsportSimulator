@@ -1,0 +1,1594 @@
+{
+  "passed": true,
+  "financialViabilityPassed": true,
+  "limitations": [
+    "Invariants passed; financial viability remains open if any club enters debt. This is not a full-career balance acceptance."
+  ],
+  "node": "v22.18.0",
+  "platform": "win32",
+  "scope": "104 synthetic weekly finance/expiry/AI recruitment cycles with canonical snapshot after every cycle; repeated same seed. No matches, training, full-world season calendar or packaged Steam acceptance.",
+  "browserFixture": {
+    "file": "tmp/l16/recruitment-ui.json",
+    "sha256": "c6946f0b254968377a6492082c5c3ee4b0d6143db84fcbffdf995c877def846e",
+    "seed": 3416
+  },
+  "repeatedExactly": true,
+  "seed": 3416,
+  "weeks": [
+    {
+      "week": 2,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 5,
+          "budget": 514287
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 5,
+          "budget": 514287
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 6,
+          "budget": 515374
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 6,
+          "budget": 525374
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 523361
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 532761
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 527448
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 536348
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 531535
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 539935
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 535622
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 543522
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 539709
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 547109
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 543796
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 550696
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 547883
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 554283
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 551970
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 557870
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 556057
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 561457
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 560144
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 565044
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 564231
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 568631
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 568318
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 572218
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 595779
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 575805
+        }
+      ]
+    },
+    {
+      "week": 17,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 623181
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 579392
+        }
+      ]
+    },
+    {
+      "week": 18,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 650524
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 582979
+        }
+      ]
+    },
+    {
+      "week": 19,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 677808
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 586566
+        }
+      ]
+    },
+    {
+      "week": 20,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 705033
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 590153
+        }
+      ]
+    },
+    {
+      "week": 21,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 732199
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 593740
+        }
+      ]
+    },
+    {
+      "week": 22,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 759307
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 605693
+        }
+      ]
+    },
+    {
+      "week": 23,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 786356
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 617647
+        }
+      ]
+    },
+    {
+      "week": 24,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 813346
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 629601
+        }
+      ]
+    },
+    {
+      "week": 25,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 840277
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 641556
+        }
+      ]
+    },
+    {
+      "week": 26,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 867149
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 653511
+        }
+      ]
+    },
+    {
+      "week": 27,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 893962
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 665467
+        }
+      ]
+    },
+    {
+      "week": 28,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 920716
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 677423
+        }
+      ]
+    },
+    {
+      "week": 29,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 947411
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 689380
+        }
+      ]
+    },
+    {
+      "week": 30,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 974048
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 701337
+        }
+      ]
+    },
+    {
+      "week": 31,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1000626
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 713295
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1027145
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 725253
+        }
+      ]
+    },
+    {
+      "week": 33,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1053605
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 737211
+        }
+      ]
+    },
+    {
+      "week": 34,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1080006
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 749170
+        }
+      ]
+    },
+    {
+      "week": 35,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1106348
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 761129
+        }
+      ]
+    },
+    {
+      "week": 36,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1105485
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 773089
+        }
+      ]
+    },
+    {
+      "week": 37,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1128637
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 785049
+        }
+      ]
+    },
+    {
+      "week": 38,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151730
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 797010
+        }
+      ]
+    },
+    {
+      "week": 39,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151664
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 808971
+        }
+      ]
+    },
+    {
+      "week": 40,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151598
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 820933
+        }
+      ]
+    },
+    {
+      "week": 41,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151532
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 832895
+        }
+      ]
+    },
+    {
+      "week": 42,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151466
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 836491
+        }
+      ]
+    },
+    {
+      "week": 43,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151400
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 840087
+        }
+      ]
+    },
+    {
+      "week": 44,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151334
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 843683
+        }
+      ]
+    },
+    {
+      "week": 45,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151268
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 847279
+        }
+      ]
+    },
+    {
+      "week": 46,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151202
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 850875
+        }
+      ]
+    },
+    {
+      "week": 47,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151136
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 854471
+        }
+      ]
+    },
+    {
+      "week": 48,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151070
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 858067
+        }
+      ]
+    },
+    {
+      "week": 49,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151004
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 861663
+        }
+      ]
+    },
+    {
+      "week": 50,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1150938
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 865259
+        }
+      ]
+    },
+    {
+      "week": 51,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1150872
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 868855
+        }
+      ]
+    },
+    {
+      "week": 52,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1150806
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 872451
+        }
+      ]
+    },
+    {
+      "week": 53,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1150740
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 876047
+        }
+      ]
+    },
+    {
+      "week": 54,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1153874
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 882843
+        }
+      ]
+    },
+    {
+      "week": 55,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1155808
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 889239
+        }
+      ]
+    },
+    {
+      "week": 56,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1157442
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 915372
+        }
+      ]
+    },
+    {
+      "week": 57,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1155176
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 937053
+        }
+      ]
+    },
+    {
+      "week": 58,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1152910
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 958682
+        }
+      ]
+    },
+    {
+      "week": 59,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1150644
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 980258
+        }
+      ]
+    },
+    {
+      "week": 60,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1148378
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1001782
+        }
+      ]
+    },
+    {
+      "week": 61,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1146112
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1023254
+        }
+      ]
+    },
+    {
+      "week": 62,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1143846
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1044673
+        }
+      ]
+    },
+    {
+      "week": 63,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1141580
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1066040
+        }
+      ]
+    },
+    {
+      "week": 64,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1139314
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1087355
+        }
+      ]
+    },
+    {
+      "week": 65,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1137048
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1108617
+        }
+      ]
+    },
+    {
+      "week": 66,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1134782
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1129827
+        }
+      ]
+    },
+    {
+      "week": 67,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1132516
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1150985
+        }
+      ]
+    },
+    {
+      "week": 68,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1130250
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1152496
+        }
+      ]
+    },
+    {
+      "week": 69,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1127984
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1154007
+        }
+      ]
+    },
+    {
+      "week": 70,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1139564
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1155518
+        }
+      ]
+    },
+    {
+      "week": 71,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1151145
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1157029
+        }
+      ]
+    },
+    {
+      "week": 72,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1162726
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1158540
+        }
+      ]
+    },
+    {
+      "week": 73,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1174308
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1160051
+        }
+      ]
+    },
+    {
+      "week": 74,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1185890
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1161562
+        }
+      ]
+    },
+    {
+      "week": 75,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1197473
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1163073
+        }
+      ]
+    },
+    {
+      "week": 76,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1209056
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1164584
+        }
+      ]
+    },
+    {
+      "week": 77,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1220640
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1166095
+        }
+      ]
+    },
+    {
+      "week": 78,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1232224
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1167606
+        }
+      ]
+    },
+    {
+      "week": 79,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1243809
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1169117
+        }
+      ]
+    },
+    {
+      "week": 80,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1255394
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1170628
+        }
+      ]
+    },
+    {
+      "week": 81,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1266979
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1172139
+        }
+      ]
+    },
+    {
+      "week": 82,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1278565
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1173650
+        }
+      ]
+    },
+    {
+      "week": 83,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1290151
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1175161
+        }
+      ]
+    },
+    {
+      "week": 84,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1301738
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1176672
+        }
+      ]
+    },
+    {
+      "week": 85,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1313325
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1178183
+        }
+      ]
+    },
+    {
+      "week": 86,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1324913
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1208794
+        }
+      ]
+    },
+    {
+      "week": 87,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1336501
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1239335
+        }
+      ]
+    },
+    {
+      "week": 88,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1349163
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1269807
+        }
+      ]
+    },
+    {
+      "week": 89,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1361825
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1300209
+        }
+      ]
+    },
+    {
+      "week": 90,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1360641
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1330542
+        }
+      ]
+    },
+    {
+      "week": 91,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1359457
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1360805
+        }
+      ]
+    },
+    {
+      "week": 92,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1358273
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1390999
+        }
+      ]
+    },
+    {
+      "week": 93,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1357089
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1421124
+        }
+      ]
+    },
+    {
+      "week": 94,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1355905
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1451179
+        }
+      ]
+    },
+    {
+      "week": 95,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1354721
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1481165
+        }
+      ]
+    },
+    {
+      "week": 96,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1353537
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1511081
+        }
+      ]
+    },
+    {
+      "week": 97,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1352353
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1540928
+        }
+      ]
+    },
+    {
+      "week": 98,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1351169
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1570705
+        }
+      ]
+    },
+    {
+      "week": 99,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1349985
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1600413
+        }
+      ]
+    },
+    {
+      "week": 100,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1348801
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1630051
+        }
+      ]
+    },
+    {
+      "week": 101,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1347617
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1659620
+        }
+      ]
+    },
+    {
+      "week": 102,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1346433
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1689120
+        }
+      ]
+    },
+    {
+      "week": 103,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1345249
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1718550
+        }
+      ]
+    },
+    {
+      "week": 104,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1344065
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1747911
+        }
+      ]
+    },
+    {
+      "week": 105,
+      "clubs": [
+        {
+          "id": "team_ai_1",
+          "roster": 7,
+          "budget": 1342881
+        },
+        {
+          "id": "team_ai_2",
+          "roster": 7,
+          "budget": 1777202
+        }
+      ]
+    }
+  ],
+  "ownershipChecks": 1970,
+  "transferCount": 12,
+  "aiTradeLedgerRows": 0,
+  "stateSha256": "5a2f2c88ef5eae3f2c82d53c8e449150dad2046700b0a6983b0bd49186062c83",
+  "reportSha256": "4399598e399fab2a9db2ee7556f1aa0288ebb49113cb3826896059beeecc140c",
+  "ownerMaps": [
+    {
+      "file": "mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "file": "mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    }
+  ]
+}

@@ -540,6 +540,7 @@ export interface LogEntry {
 }
 
 export interface ActiveMatchState {
+  playback?: import('../engine/match/live-checkpoint').LivePlaybackCheckpoint
   matchId: string
   gameState: LiveGameState
   simState: SimState

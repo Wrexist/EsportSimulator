@@ -1,0 +1,792 @@
+{
+  "passed": true,
+  "repeatedExactly": true,
+  "seed": 3618,
+  "scope": "Two investment plans through real organization actions, 52 computeWeek ticks each, repeated, weekly production save/load, unique ledger IDs and contract expiry. Three-club fixture; not full-career balance or installed Windows acceptance.",
+  "standard": {
+    "equipmentTier": 1,
+    "facilityLevel": 1,
+    "spent": 48300,
+    "opening": {
+      "income": {
+        "sponsors": 10250,
+        "fanbase": 45,
+        "leagueShare": 15000,
+        "total": 25295
+      },
+      "expenses": {
+        "playerWages": 12500,
+        "staffWages": 1000,
+        "facilities": 2000,
+        "equipment": 425,
+        "academy": 0,
+        "total": 15925
+      },
+      "net": 9370,
+      "newBalance": 161070,
+      "runwayWeeks": 999,
+      "state": "STABLE"
+    },
+    "equipmentStrength": 0.1375,
+    "weeks": [
+      {
+        "week": 2,
+        "cash": 161070,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 3,
+        "cash": 170742,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 4,
+        "cash": 180417,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 5,
+        "cash": 190095,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 6,
+        "cash": 199776,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 7,
+        "cash": 209460,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 8,
+        "cash": 219146,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 9,
+        "cash": 228835,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 10,
+        "cash": 638527,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 11,
+        "cash": 650082,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 12,
+        "cash": 661640,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 13,
+        "cash": 673201,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 14,
+        "cash": 685764,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 15,
+        "cash": 698330,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 16,
+        "cash": 710899,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 17,
+        "cash": 723471,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 18,
+        "cash": 736046,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 19,
+        "cash": 748623,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 20,
+        "cash": 761203,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 21,
+        "cash": 773786,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 22,
+        "cash": 786372,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 23,
+        "cash": 798961,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 24,
+        "cash": 811553,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 25,
+        "cash": 824148,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 26,
+        "cash": 836745,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 27,
+        "cash": 949345,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 28,
+        "cash": 963780,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 29,
+        "cash": 978218,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 30,
+        "cash": 1392659,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 31,
+        "cash": 1408672,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 32,
+        "cash": 1424688,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 33,
+        "cash": 1440707,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 34,
+        "cash": 1456728,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 35,
+        "cash": 1472752,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 36,
+        "cash": 1588779,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 37,
+        "cash": 1606195,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 38,
+        "cash": 1623614,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 39,
+        "cash": 1641036,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 40,
+        "cash": 1658461,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 41,
+        "cash": 1675889,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 42,
+        "cash": 1693320,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 43,
+        "cash": 1710754,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 44,
+        "cash": 1728191,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 45,
+        "cash": 1745631,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 46,
+        "cash": 1763073,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 47,
+        "cash": 1780518,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 48,
+        "cash": 1797966,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 49,
+        "cash": 1815417,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 50,
+        "cash": 1932871,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 51,
+        "cash": 1950364,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 52,
+        "cash": 2085932,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 53,
+        "cash": 2103431,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      }
+    ],
+    "canonicalSha256": "4dda1d4af1ecf241c937b44d8302d9ec8bbf053eaef444af7c24179a40225ebb"
+  },
+  "advanced": {
+    "equipmentTier": 3,
+    "facilityLevel": 2,
+    "spent": 187000,
+    "opening": {
+      "income": {
+        "sponsors": 10250,
+        "fanbase": 52,
+        "leagueShare": 15000,
+        "total": 25302
+      },
+      "expenses": {
+        "playerWages": 12500,
+        "staffWages": 1000,
+        "facilities": 4756,
+        "equipment": 5250,
+        "academy": 0,
+        "total": 23506
+      },
+      "net": 1796,
+      "newBalance": 14796,
+      "runwayWeeks": 999,
+      "state": "STABLE"
+    },
+    "equipmentStrength": 0.5625,
+    "weeks": [
+      {
+        "week": 2,
+        "cash": 14796,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 3,
+        "cash": 16895,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 4,
+        "cash": 18998,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 5,
+        "cash": 21104,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 6,
+        "cash": 23213,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 7,
+        "cash": 25326,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 8,
+        "cash": 27442,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 9,
+        "cash": 29561,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 10,
+        "cash": 431683,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 11,
+        "cash": 435679,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 12,
+        "cash": 439678,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 13,
+        "cash": 443680,
+        "coaches": 1,
+        "sponsorActive": true,
+        "roster": 5
+      },
+      {
+        "week": 14,
+        "cash": 448686,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 15,
+        "cash": 453695,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 16,
+        "cash": 458707,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 17,
+        "cash": 463723,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 18,
+        "cash": 468742,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 19,
+        "cash": 473764,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 20,
+        "cash": 478789,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 21,
+        "cash": 483818,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 22,
+        "cash": 488850,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 23,
+        "cash": 493886,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 24,
+        "cash": 498925,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 25,
+        "cash": 503967,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 26,
+        "cash": 509013,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 27,
+        "cash": 614062,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 28,
+        "cash": 620952,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 29,
+        "cash": 627845,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 30,
+        "cash": 634742,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 31,
+        "cash": 1041642,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 32,
+        "cash": 1050126,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 33,
+        "cash": 1058613,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 34,
+        "cash": 1067103,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 35,
+        "cash": 1075597,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 36,
+        "cash": 1184094,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 37,
+        "cash": 1193987,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 38,
+        "cash": 1203883,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 39,
+        "cash": 1213783,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 40,
+        "cash": 1223686,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 41,
+        "cash": 1233592,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 42,
+        "cash": 1243502,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 43,
+        "cash": 1253415,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 44,
+        "cash": 1263332,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 45,
+        "cash": 1273252,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 46,
+        "cash": 1283176,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 47,
+        "cash": 1293103,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 48,
+        "cash": 1303034,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 49,
+        "cash": 1312968,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 50,
+        "cash": 1422905,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 51,
+        "cash": 1432888,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 52,
+        "cash": 1529446,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      },
+      {
+        "week": 53,
+        "cash": 1539436,
+        "coaches": 0,
+        "sponsorActive": false,
+        "roster": 5
+      }
+    ],
+    "canonicalSha256": "bfa79b9e333c10af44f2436119ddc72e4f18a41b7254418db84d3ba021d87908"
+  }
+}

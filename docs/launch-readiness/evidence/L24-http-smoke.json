@@ -1,0 +1,22 @@
+{
+  "build": "s-yb7lubDHeLiB9Wk6WOV",
+  "checks": [
+    {
+      "route": "/main-menu",
+      "status": 200
+    },
+    {
+      "route": "/map-editor",
+      "status": 200
+    },
+    {
+      "route": "/map-editor/lab",
+      "status": 200
+    },
+    {
+      "route": "/dev",
+      "status": 404
+    }
+  ],
+  "note": "HTTP route availability only; no UI or input acceptance"
+}

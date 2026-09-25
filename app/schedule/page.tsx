@@ -1,5 +1,7 @@
 "use client"
 
+import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
+
 import React, { useState, useEffect, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -149,12 +151,7 @@ export default function SchedulePage() {
   }
 
   const getDateForDay = (week: number, dayIndex: number) => {
-    const start = new Date(gameStartDate)
-    const weekDays = (week - 1) * 7
-    const totalDays = weekDays + dayIndex
-    const date = new Date(start)
-    date.setDate(date.getDate() + totalDays)
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    return formatGameCalendarDate(gameCalendarDate(gameStartDate, week, dayIndex), { month: 'short', day: 'numeric' })
   }
 
   // Get the player's team
@@ -289,7 +286,7 @@ export default function SchedulePage() {
   // Calculate current year/week for display
   const currentYear = Math.ceil(currentWeek / WEEKS_PER_YEAR)
   const currentWeekInYear = (currentWeek - 1) % WEEKS_PER_YEAR + 1
-  const currentDayLabel = DAYS[Math.max(0, Math.min(6, currentDay))] || `DAY ${currentDay + 1}`
+  const currentDayLabel = formatGameCalendarDate(gameCalendarDate(gameStartDate, currentWeek, currentDay), { weekday: "short" }).toUpperCase()
 
 
   return (
@@ -321,7 +318,7 @@ export default function SchedulePage() {
           <div className="h-12 w-px bg-white/10" />
 
           <div>
-            <h1 className="text-4xl font-normal uppercase tracking-tighter liquid-text mb-2 flex items-center gap-3">
+            <h1 className="page-title mb-2 flex items-center gap-3">
               <CalendarIcon className="text-primary" size={32} />
               Schedule
             </h1>
@@ -635,7 +632,7 @@ export default function SchedulePage() {
                         const isBusyDay = isTournamentWeek || weekActivity
 
                         return (
-                          <div key={dayName} className={cn(
+                          <div key={formatGameCalendarDate(gameCalendarDate(gameStartDate, weekNum, dayIndex), { weekday: "short" }).toUpperCase()} className={cn(
                             "border-b border-white/5 flex group/day transition-all",
                             "min-h-[56px]",
                             isPastDayInCurrentWeek && "opacity-70",
@@ -656,7 +653,7 @@ export default function SchedulePage() {
                               <span className={cn(
                                 "text-xs font-semibold uppercase tracking-wider",
                                 hasMatchOrActivity ? "text-white" : "text-muted-foreground"
-                              )}>{dayName}</span>
+                              )}>{formatGameCalendarDate(gameCalendarDate(gameStartDate, weekNum, dayIndex), { weekday: "short" }).toUpperCase()}</span>
                               <span className={cn(
                                 "text-xs tabular-nums mt-0.5",
                                 hasMatchOrActivity ? "text-white/70" : "text-white/30"

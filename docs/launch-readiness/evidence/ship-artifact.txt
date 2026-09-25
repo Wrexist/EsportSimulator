@@ -1,0 +1,10 @@
+
+> esports-manager-sim@1.0.0 ship:verify
+> node scripts/verify-ship-build.js
+
+=== Ship Build Verification ===
+Content root: C:\Users\IsacC\EsportSimulator\dist\win-unpacked
+[31m
+FAIL: 1 blocker(s) — do NOT upload:[0m
+[31m  ✗  Content root does not exist: C:\Users\IsacC\EsportSimulator\dist\win-unpacked
+      Run `npm run dist` first to produce the electron-builder output.[0m

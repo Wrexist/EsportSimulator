@@ -1,0 +1,76 @@
+{
+  "engine": "spatial-round-v7",
+  "replaySha256": "c2e0c9b196c1f409c0544b4336ef08cf822676e9500452346d855723f65e8adb",
+  "sourceSha256": "9ccb1468b261e25f066dab26c147b371b665ec91d9ab0dbb6670a37f325f6f5d",
+  "seed": 4326172,
+  "outcome": "CT",
+  "reason": "Elimination resolved the round objective.",
+  "seconds": 64.671875,
+  "events": [
+    {
+      "tick": 3013,
+      "type": "bomb-dropped",
+      "reason": "Bomb carrier died; teammates must physically recover it.",
+      "side": "T",
+      "actor": "T2",
+      "point": [
+        -1767.9409751689166,
+        391.9457807831387,
+        -165.20807137319682
+      ]
+    },
+    {
+      "tick": 3024,
+      "type": "recovery-assigned",
+      "reason": "One reachable teammate recovers the bomb; the others leave the pickup approach clear.",
+      "actor": "T4",
+      "side": "T"
+    },
+    {
+      "tick": 3980,
+      "type": "bomb-picked-up",
+      "reason": "Teammate reached the dropped bomb.",
+      "side": "T",
+      "actor": "T4"
+    },
+    {
+      "tick": 4033,
+      "type": "bomb-dropped",
+      "reason": "Bomb carrier died; teammates must physically recover it.",
+      "side": "T",
+      "actor": "T4",
+      "point": [
+        -1797.9558532724732,
+        388.21138480220105,
+        -164
+      ]
+    },
+    {
+      "tick": 4048,
+      "type": "recovery-assigned",
+      "reason": "One reachable teammate recovers the bomb; the others leave the pickup approach clear.",
+      "actor": "T5",
+      "side": "T"
+    },
+    {
+      "tick": 4071,
+      "type": "bomb-picked-up",
+      "reason": "Teammate reached the dropped bomb.",
+      "side": "T",
+      "actor": "T5"
+    },
+    {
+      "tick": 4139,
+      "type": "bomb-dropped",
+      "reason": "Bomb carrier died; teammates must physically recover it.",
+      "side": "T",
+      "actor": "T5",
+      "point": [
+        -1800.3207572207357,
+        377.1751624354716,
+        -164
+      ]
+    }
+  ],
+  "careerEligible": false
+}

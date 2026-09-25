@@ -1,0 +1,35 @@
+  console.log
+    [perf] early avg=20.0ms late avg=54.1ms ratio=2.70×
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:146:17)
+
+  console.log
+    [perf] sizes wk1: completed=0 ledger=7 events=0
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:150:17)
+
+  console.log
+    [perf] sizes wk26: completed=100 ledger=351 events=117
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:152:17)
+
+  console.log
+    [perf] sizes wk52: completed=188 ledger=729 events=234
+
+      at Object.<anonymous> (__tests__/week-tick-perf-profile.test.ts:154:17)
+
+node.exe : PASS __tests__/week-tick-perf-profile.test.ts
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\IsacC\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (PASS __tests__/...profile.test.ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  week-tick wall-time profile
+    √ late-season tick should not be wildly slower than early-season tick (2389 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        4.149 s, estimated 6 s
+Ran all test suites matching /__tests__\\week-tick-perf-profile.test.ts/i.

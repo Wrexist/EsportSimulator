@@ -1,0 +1,61 @@
+{
+  "buildId": "xxRdaGdl1-ff-d8WaWmDl",
+  "artifacts": [
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "9cead5de22e9d713b91958ce4ea6ec078a2419a27d87e1f097e0d96e5e358511"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    },
+    {
+      "path": "steam_appid.txt",
+      "sha256": "2d41b39e9cf25ff993af921cbf15a13a68fb8dbf32c816fa1e926163117242e3"
+    },
+    {
+      "path": "tmp/l17/academy-ui.json",
+      "sha256": "c0a671201aecbd3a4b23a3730047f7f2f92ed1a11a9153ae49af99dee5703bd0"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+    },
+    {
+      "path": ".next/static/chunks/8654.8527f432f5c17845.js",
+      "sha256": "3d1ba086a524b5d7f9d83ded6de38d469661d9bf9418cb496c44b97faf607bb7"
+    },
+    {
+      "path": "engine/academy-engine.ts",
+      "sha256": "24f052dc85b99375ab360936807b29016b1670143d1deea31fc32e1dd0ce197c"
+    },
+    {
+      "path": "store/slices/academy-slice.ts",
+      "sha256": "80961f206ff6ee55cf743156a1823745a7c5fb22573ca566719c4b02f44a245c"
+    },
+    {
+      "path": "store/slices/team-drills-slice.ts",
+      "sha256": "fc413db1555abfeed2c3b91ce02fca40e8b4c4a29387f083e65f984b6e08c6d8"
+    },
+    {
+      "path": "components/desktop-apps/AcademyApp.tsx",
+      "sha256": "2b5960d08c98d2e1cfcde6bdf7571ae47b5945c32d00729359e40fcce989320b"
+    },
+    {
+      "path": "scripts/launch/l17-development-audit.ts",
+      "sha256": "9b07b837f2e1162fb542b4fff0c1ba8a73ebb844a71c9cc7c9fdd001d3cfc48e"
+    },
+    {
+      "path": "scripts/launch/l17-ten-season-audit.ts",
+      "sha256": "dfe663d0c47b93bc0cb9e1ac5a4aee4db2f0d44b3a816c91a1259b5c2f7f9932"
+    }
+  ],
+  "steamAppId": 4326170,
+  "preview": "http://127.0.0.1:3210",
+  "browserAcceptance": "Incomplete: cua.getState timed out again after documentation reconnect. No owner career or map mutations.",
+  "workerEvidence": "Compiled worker SHA256 unchanged from L17-build-identity.json; current build smoke passes. Existing native runtime evidence belongs to the earlier build, not a new packaged run."
+}

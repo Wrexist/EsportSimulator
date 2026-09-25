@@ -1,0 +1,192 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/tournaments".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/tournaments
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/tournaments#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading Tournament Hub TOURNAMENT HUB, Value: 1
+				144 image Tournament Hub
+				145 text TOURNAMENT HUB
+			146 container
+				147 text 40  TOURNAMENTS • SEASON  1
+			148 container
+				149 text RANKING # 154 CIRCUIT PTS 0 QUALIFIED 0
+			150 container
+				151 button ALL (40)
+					152 text ALL
+					153 text (
+					154 text 40
+					155 text )
+				156 button S-TIER (6)
+					157 text S-TIER
+					158 text (
+					159 text 6
+					160 text )
+				161 button A-TIER (9)
+					162 text A-TIER
+					163 text (
+					164 text 9
+					165 text )
+				166 button B-TIER (6)
+					167 text B-TIER
+					168 text (
+					169 text 6
+					170 text )
+				171 button C-TIER (7)
+					172 text C-TIER
+					173 text (
+					174 text 7
+					175 text )
+				176 button QUALIFIERS (12)
+					177 text QUALIFIERS
+					178 text (
+					179 text 12
+					180 text )
+				181 button MY TOURNAMENTS (0)
+					182 text MY TOURNAMENTS
+					183 text (
+					184 text 0
+					185 text )
+			186 text field (settable)
+			187 container
+				188 text LOCKED Must be in A_TIER league
+				189 container
+					190 image Global Pro League ConferANCE
+				191 image Logo
+				192 container
+					193 text B-TIER
+					194 container ?
+						195 text ?
+					196 text INTERNATIONAL
+					197 heading Global Pro League ConferANCE, Value: 3
+						198 text Global Pro League ConferANCE
+				199 text ConferANCE stage of Global Pro League. 16 teams compete for playoff spots. $150K 16 W 4 League Qualification In 3 weeks
+			200 container
+				201 image Logo
+				202 container
+					203 text C-TIER
+					204 container NA
+						205 text NA
+					206 text NA
+					207 heading Epic Arena Premier Season 48, Value: 3
+						208 text Epic Arena Premier Season 48
+				209 text North America's premier grassroots competitive league for mid-tier teams. 20 B-Tier league teams compete over 12 weeks in a round-robin format. Matches are best-of-1 during regular season. Top 8 advance to playoffs with best-of-3 matches. The pathway from amateur to professional NA CS. $50K 20 W 6 League Qualification In 5 weeks
+				210 button REGISTER NOW
+			211 container
+				212 image Logo
+				213 container
+					214 text QUALIFIER
+					215 container ?
+						216 text ?
+					217 text INTERNATIONAL
+					218 heading Winter Open Katova Open Qualifier, Value: 3
+						219 text Winter Open Katova Open Qualifier
+				220 text Open qualifier - anyone can enter! 32 teams compete in a single-elimination bracket. Top finishers advance to closed qualifiers. No ranking or league standing required. The purest form of competitive meritocracy in pro FPS esports. Qualification 32 W 6 Open Entry In 5 weeks
+				221 button REGISTER NOW
+			222 container
+				223 text LOCKED Must qualify through qualifier event
+				224 image Logo
+				225 container
+					226 text QUALIFIER
+					227 container EU
+						228 text EU
+					229 text EU
+					230 heading Winter Open Katova EU Closed Qualifier, Value: 3
+						231 text Winter Open Katova EU Closed Qualifier
+				232 text Closed qualifier for Winter Open Katova. 8 teams who survived open qualifiers compete in a double-elimination bracket. Top 2 finishers earn spots at Winter Open Katova main event. High-stakes matches where careers can be made or broken. Qualification 8 W 7 Via Qualifier In 6 weeks
+			233 container
+				234 image Logo
+				235 container
+					236 text C-TIER
+					237 container EU
+						238 text EU
+					239 text EU
+					240 heading PlayOn Academy League, Value: 3
+						241 text PlayOn Academy League
+				242 text Development league for academy and young teams. 16 teams compete in a round-robin format over 8 weeks. Open to any team, making it ideal for rising talent. Features coaching support and broadcast exposure. The ultimate proving ground for tomorrow's stars. $100K 16 W 8 Open Entry In 7 weeks
+				243 button REGISTER NOW
+			244 container
+				245 text INVITE ONLY World Ranking Top 20
+				246 container
+					247 image Winter Open Katova 2025
+				248 image Logo
+				249 container
+					250 text S-TIER
+					251 container ?
+						252 text ?
+					253 text INTERNATIONAL
+					254 heading Winter Open Katova 2025, Value: 3
+						255 text Winter Open Katova 2025
+				256 text The legendary Ice Spire Arena hosts the world's most prestigious non-Major event. 16 elite teams compete in a double-elimination group stage followed by single-elimination playoffs. The roaring Polish crowd creates an unmatched atmosphere. Top 20 ranked teams receive direct invites; 4 spots awarded via closed qualifiers. $1.00M 16 W 9 Invite Only In 8 weeks
+			257 container
+				258 heading SELECT A TOURNAMENT, Value: 3
+					259 text SELECT A TOURNAMENT
+				260 text Click on any tournament to view details
+			261 container
+				262 heading WORLD RANKING LEADERS, Value: 3
+					263 text WORLD RANKING LEADERS
+				264 text 1
+				265 container Team Oblivion logo
+				266 text Team Oblivion # 1 2
+				267 container Umbra Esports logo
+				268 text Umbra Esports # 2 3
+				269 image Ironspire logo
+				270 text Ironspire # 3 4
+				271 image Warblade logo
+				272 text Warblade # 4 5
+				273 container Ember Rift logo
+				274 text Ember Rift # 5 6
+				275 image Skypulse logo
+				276 text Skypulse # 6 7
+				277 container Violet Lumen logo
+				278 text Violet Lumen # 7 8
+				279 container Aegis Esports logo
+				280 text Aegis Esports # 8 9
+				281 container Moonstorm Republic logo
+				282 text Moonstorm Republic # 9 10
+				283 container Meridian Initiative logo
+				284 text Meridian Initiative # 10
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 22 link Description: Tournaments, URL: 127.0.0.1:3210/tournaments

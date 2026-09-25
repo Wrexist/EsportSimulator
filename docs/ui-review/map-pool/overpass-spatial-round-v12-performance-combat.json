@@ -1,0 +1,75 @@
+{
+  "engine": "spatial-round-v12",
+  "mapId": "Overpass",
+  "fixtureSha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a",
+  "simulatorSourceSha256": "d3a5a9982fd2cc301b6e23fe050605511e87d0ecdeae677842ed24ab6ed7265f",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 87.390625,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 35902,
+      "metrics": {
+        "shots": 43,
+        "damage": 800,
+        "reports": 48,
+        "waits": 422,
+        "replans": 82,
+        "minSeparation": 32.04331628284527
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 4,
+      "yields": 6,
+      "routeFailures": [
+        {
+          "tick": 512,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T4",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "7c061ac055b61b08db6a83f1750279bece86e507332f5fddfea56474fd6a23b7"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 73477,
+      "metrics": {
+        "shots": 71,
+        "damage": 400,
+        "reports": 61,
+        "waits": 1180,
+        "replans": 114,
+        "minSeparation": 32.03398162189783
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 8,
+      "routeFailures": [
+        {
+          "tick": 2816,
+          "type": "route-blocked",
+          "reason": "Feet lost floor support. No floor snapping or teleport recovery.",
+          "actor": "T4",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "ed11990d0b9b8e570759818da5a361cc993f88ed1053c059068e9d1ba9c45b5a"
+    }
+  ]
+}

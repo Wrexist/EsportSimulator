@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "label": "baseline",
+  "build": "2GX-oYzTzbaGEiXjb0G1r",
+  "worker": "3816.0d3a693d9299321c.js",
+  "workerHash": "e148aea91db4600cacb9c776739f4960db8a9b7aed42c045f947d1eea739dae6",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "node": "v22.18.0",
+    "platform": "win32"
+  },
+  "startupMs": 2696.6588,
+  "measurements": [
+    {
+      "scenario": "small",
+      "inputHash": "4fc137aa7cc2a9dae8f729539416d7251c53aa717ad90815e8b9249f624267bc",
+      "outputHash": "bbbaf7c2cfd27d610b87be25d438ea2f55ff65fd558b8e1d0d1c9a83c0ba4907",
+      "samplesMs": [
+        1.2039999999997235,
+        1.356199999999717,
+        1.1734000000001288,
+        0.8782999999998538,
+        0.6205999999997402,
+        0.828899999999976
+      ],
+      "medianMs": 1.0258499999999913,
+      "p95Ms": 1.356199999999717
+    },
+    {
+      "scenario": "full-world",
+      "inputHash": "370b05bcfcea2d9fa9eb453aa6776b115426c461291e6bfb52ca53c7721578ea",
+      "outputHash": "3a17b8515a54a756a2b55033a283bcab3e2d3cdceead5f8b63b896ab1015e3be",
+      "samplesMs": [
+        229.29770000000008,
+        225.60559999999987,
+        189.33280000000013,
+        192.94079999999985,
+        194.0691999999999,
+        198.4371000000001
+      ],
+      "medianMs": 196.25315,
+      "p95Ms": 229.29770000000008
+    },
+    {
+      "scenario": "late-history",
+      "inputHash": "95fdcbe4ca49d204777c8a3842b88c27c7da4a3434c4be483730555ff64321b9",
+      "outputHash": "fe54d53f2c5b98cd4a6e936e8893ca0152669957e3d5d556ed0f8ffb65010564",
+      "samplesMs": [
+        5668.081,
+        5759.102500000001,
+        5966.446499999998,
+        6209.543400000002,
+        5761.0669999999955,
+        6201.516100000001
+      ],
+      "medianMs": 5863.756749999997,
+      "p95Ms": 6209.543400000002
+    },
+    {
+      "scenario": "late-active",
+      "inputHash": "089831d9905338a9f508d56359f0dd1ebdf220ff3c08e78263b035fd59bc76e8",
+      "outputHash": "6d5a9c97591c2c555a8bdd3ef1ede72b72d52586d1915c5fb7a29418dcad3fa0",
+      "samplesMs": [
+        206.64080000000104,
+        208.59470000000147,
+        191.56850000000122,
+        210.70150000000285,
+        206.36070000000473,
+        199.08469999999943
+      ],
+      "medianMs": 206.50075000000288,
+      "p95Ms": 210.70150000000285
+    }
+  ],
+  "limitation": "Production bundle executed in Node vm, six samples and one warmup; no actual browser worker scheduling, rendering, disk I/O or packaged Electron acceptance",
+  "summaryRevision": "Medians recomputed from retained raw samples using mean of the two middle observations for even sample counts. Original source hashes and console logs identify the measured harness, which originally reported the upper middle observation. No timing sample changed."
+}

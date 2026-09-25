@@ -1,0 +1,41 @@
+{
+  "reviewedAt": "2026-09-14",
+  "buildId": "w85noNhQbAmNk10nuJvH6",
+  "worker": "3816.a285fccc44f6c408.js",
+  "workerSha256": "5683b226d7b1355541d53424afe48f9ddda84d9d770b94f3c730890a2e3e0392",
+  "sources": {
+    "engine/match/manager-controls.ts": "180d3b5af272aaf111d4551b8eba3e59f828b3e764875bc40723aca904f2e963",
+    "engine/match/live-checkpoint.ts": "ccc48a46084fcccdbac6c5a1db495b19d696a16dd29123ecfa7e7b4f26ca864a",
+    "engine/match-simulation.ts": "e1b9e3f30f3f6b3df38012219a0716152dd5a74a693d0e12e5984f7faadcc2c7",
+    "engine/match/buy-phase.ts": "4f2b80f53e0f6185089e9edf9acd2801766e382abb09a8b3fca5a85587d407a2",
+    "hooks/useLiveMatch.ts": "6c930db1a2867424beeabe3ef1bb55f949f1c526c647a658d753f1fea3a67da6",
+    "lib/live-match-builders.ts": "e9cdc3be5f7c479963e0d24039845339cfab627139305027ec586abb249becd1",
+    "lib/match-followup.ts": "597137cb6014bab91e8b3ada2c1d52966ce6ff5574fc58820f6e98658e434459",
+    "store/slices/match-simulation-slice.ts": "6b8ffef5f141e564fdbb30428f9486760cc36f7e7118cf0bfa100f31c1448bf8",
+    "store/slices/match-operations-slice.ts": "f192c7b38741241e216874b300346d4751d45efb979e8d0ba457ec8545801967",
+    "types/match.ts": "9e7c9c1a32725c4037154e8632a2f2bda6cba434008d233dbdcee86b4d3af531",
+    "app/match/[id]/live/page.tsx": "38dea9400f234eb43dd56f568fc571f3f107932c769c1fb3d74281f239e0a1e5",
+    "app/match/[id]/tactics/page.tsx": "b2aed18af755742a314765a8e99076f40ef3a2b8509b00d959590cb2bebf1e7f",
+    "app/match/[id]/result/page.tsx": "8bb0c3ed8e2a8ec1f0a7ed29de2b25ed84ea99818edd13f64000005b097ab243",
+    "app/page.tsx": "ce0ffa23ee0db0eb9c800fc072cc8cc15a80c7b36788a69ebc4abf1cc5bf3467",
+    "__tests__/match-tactical-timeout.test.ts": "fcce7b55612defa2a625a91839681128abd372195eff36461454688793406483",
+    "__tests__/match-operations-slice.test.ts": "507fc678733594ddeb7daf4f5e01b41ef6a58fb1869360488f4c87a95b4717de",
+    "__tests__/match-result-commit.test.ts": "6da943a97e08706c5033263f5be7ea3d50b05eac0f08b8d8e16ab2b4a251bdf8",
+    "__tests__/l21-match-management.test.ts": "a3603106544280a6be4d5a158478bc34c2f93c7fa0481bb158ce621b4547e90e",
+    "scripts/launch/l21-match-audit.ts": "81415fd7033ace528ad4257f52ab6b43bbae3ebeea4d532aef1203fe113e90d2"
+  },
+  "mirageDrafts": {
+    "public/map-studio/drafts/mirage-user-v12-2026-09-13.json": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+    "public/map-studio/drafts/mirage-user-areas-2026-09-13.json": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+  },
+  "previewPid": 370896,
+  "previewPort": 3210,
+  "nativeProfile": "tmp/l04-native/run-btAkJk",
+  "steamAppId": 4326170,
+  "contentUnresolvedOrChanged": 4973,
+  "browserInventory": {
+    "apps": [],
+    "browsers": []
+  },
+  "ownerCareersOpenedOrAdvanced": false
+}

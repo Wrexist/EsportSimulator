@@ -1,0 +1,46 @@
+{
+  "method": "built-in image_gen",
+  "base": "Create one landscape 16:9 screenshot-based promotional composition, NOT a gameplay screenshot. Image1 is the actual game screenshot: preserve its recognizable interface, existing text, layout and data, no invented widgets. Keep this screenshot large and mostly unobscured, occupying at least 75% of the canvas. Image2 is visual direction reference only: use its restrained dark screenshot-centric editorial style, a black gradient at lower left and bold compact white/yellow headline at lower left. Image3 is the EXACT approved gold trophy game logo: keep its identity and square proportions, small at upper left beside the text ESPORTS MANAGER: FPS; never replace with an invented geometric logo. Image4 is character reference: use one realistic adult coach like the dark-haired man at right, as a cutout portrait overlapping only the rightmost edge and lower-right corner of the screenshot, at most 25% of canvas, looking toward the gameplay, subtle rim lighting. Not cartoon, not a full-screen cinematic scene. Strong clear professional typography, bright yellow accent, subtle cyan section kicker. No new claims, no badges, no review scores. Tiny footer PROMOTIONAL COMPOSITE. Headline verbatim: ",
+  "entries": [
+    [
+      "01-live-match",
+      "Call the buy.\nWin the round.",
+      "01-live-match.png"
+    ],
+    [
+      "02-player-development",
+      "Find talent.\nBuild a star.",
+      "02-player-development.png"
+    ],
+    [
+      "03-match-analysis",
+      "Read the match.\nFind your edge.",
+      "03-match-analysis.png"
+    ],
+    [
+      "04-scouting",
+      "Build a\nsuperteam.",
+      "04-scouting.png"
+    ],
+    [
+      "05-build-your-club",
+      "Build your\nhome advantage.",
+      "05-build-your-club.png"
+    ],
+    [
+      "06-equipment",
+      "Equip your team.\nRaise the standard.",
+      "06-equipment.png"
+    ],
+    [
+      "07-contracts-and-budget",
+      "Run the whole\norganization.",
+      "07-contracts-and-budget.png"
+    ],
+    [
+      "08-club-overview",
+      "Your club.\nYour next move.",
+      "08-club-overview.png"
+    ]
+  ]
+}

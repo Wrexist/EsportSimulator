@@ -1,0 +1,13 @@
+id,scenario,environment,status
+L27-P01,10 cold and warm starts to usable menu,Named minimum Windows hardware,NOT_RUN
+L27-P02,10 cold and warm starts to usable menu,Named recommended Windows hardware,NOT_RUN
+L27-P03,Input and navigation across primary routes,Production browser small career,NOT_RUN
+L27-P04,Input and navigation across primary routes,Packaged Electron late career,NOT_RUN
+L27-P05,Long tasks and truthful tick progress,Real browser worker,NOT_RUN
+L27-P06,Match playback frame-time distribution,Packaged Electron supported display sizes,NOT_RUN
+L27-P07,Map Studio drawing zoom and map switching,Production browser and packaged Electron,NOT_RUN
+L27-P08,Save and backup rotation latency,IndexedDB small and late careers,NOT_RUN
+L27-P09,Save and backup rotation latency,Packaged disk small and late careers,NOT_RUN
+L27-P10,60-minute play session memory and handles,Packaged Electron,NOT_RUN
+L27-P11,50 route and map switches heap listeners timers,Production browser and packaged Electron,NOT_RUN
+L27-P12,Asset transfer decode memory and cache cost,Real packaged release asset set,NOT_RUN

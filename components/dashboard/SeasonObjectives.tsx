@@ -22,6 +22,7 @@ interface SeasonObjectivesProps {
     /** Persisted board expectation tier; derived from stature if absent. */
     boardExpectation?: BoardExpectationTier
     /** Whether the manager is on notice (one bad season from the sack). */
+    boardRankTarget?: number
     boardOnNotice?: boolean
 }
 
@@ -54,7 +55,7 @@ const FAN_LADDER = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000, 2_000_
  * climb the rankings tier by tier, grow the fanbase to the next milestone, win
  * silverware, and keep the books healthy.
  */
-export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, financialState, reputation = 50, boardConfidence, boardExpectation, boardOnNotice }: SeasonObjectivesProps) {
+export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, financialState, reputation = 50, boardConfidence, boardExpectation, boardOnNotice, boardRankTarget }: SeasonObjectivesProps) {
     // Board expectation: prefer the persisted tier; otherwise derive from stature
     // so the panel is meaningful even before the first season has been reviewed.
     const tier = boardExpectation ?? deriveExpectationTier(worldRanking, reputation)
@@ -132,7 +133,7 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
     }, [metSignature, addToast])
 
     return (
-        <Card className="glass-panel border-white/10 rounded-lg overflow-hidden">
+        <Card className="glass-card border-white/10 rounded-lg overflow-hidden">
             <CardHeader className="pb-3">
                 <CardTitle className="flex items-center justify-between text-xs font-normal uppercase tracking-[0.3em] text-white/50">
                     <span>Season Objectives</span>
@@ -151,7 +152,7 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
                         )}
                     </div>
                     <p className="text-sm font-semibold text-white/90 leading-tight">{tierTargets.label}</p>
-                    <p className="text-[10px] text-white/40 leading-snug">{tierTargets.blurb}</p>
+                    <p className="text-[10px] text-white/40 leading-snug">{boardRankTarget ? `The board expects a top-${boardRankTarget} finish and ${tierTargets.trophyTarget} trophies. Reviewed at season end.` : tierTargets.blurb}</p>
                     {confidence < 70 && (
                         <p className="text-[10px] text-amber-400/80 leading-snug">
                             War chest limited: the board sanctions single transfer fees up to {confidence < 25 || boardOnNotice ? 40 : confidence < 40 ? 60 : 80}% of budget.

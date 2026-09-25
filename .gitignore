@@ -120,3 +120,7 @@ scripts/_*.html
 
 # Built real-data mods contain real IP — build locally, upload to Workshop, never commit
 /dist-mod/
+/dist-qa/
+
+# Reproducible upload archives; keep their source assets/manifests in Git.
+/marketing/*.zip

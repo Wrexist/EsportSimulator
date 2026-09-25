@@ -1,0 +1,362 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Overpass",
+  "sourceVersion": "2000908",
+  "a": null,
+  "b": null,
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": false,
+    "jumps": false,
+    "drops": false
+  },
+  "teams": {
+    "version": 1,
+    "seed": 4326170,
+    "seconds": 160,
+    "roundSeconds": 115,
+    "bombSeconds": 40,
+    "plantSeconds": 3.2,
+    "defuseSeconds": 10,
+    "openingSeconds": 2,
+    "communicationMs": 500,
+    "memorySeconds": 4,
+    "skill": {
+      "T": 0.7,
+      "CT": 0.7
+    },
+    "economy": "balanced",
+    "guns": true,
+    "initialBomb": "carried",
+    "carrier": "T2",
+    "objective": "A",
+    "sites": {
+      "A": {
+        "area": 1158,
+        "point": [
+          -1824.5,
+          662.4999133333333,
+          482.66664666666674
+        ]
+      },
+      "B": {
+        "area": 417,
+        "point": [
+          -1013.1252099999999,
+          -20.375195925,
+          104.53516332572329
+        ]
+      }
+    },
+    "actors": [
+      {
+        "id": "CT1",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1581,
+          "point": [
+            -2199,
+            740,
+            479.9999700000001
+          ]
+        },
+        "station": {
+          "area": 1581,
+          "point": [
+            -2216.875,
+            761.8749,
+            479.99996999999996
+          ]
+        },
+        "yaw": 159.99993900000004,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT2",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1675,
+          "point": [
+            -2273,
+            770,
+            479.99997
+          ]
+        },
+        "station": {
+          "area": 555,
+          "point": [
+            -1172.5002,
+            203.1248275,
+            106.00000000000001
+          ]
+        },
+        "yaw": 159.99993900000004,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT3",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1746,
+          "point": [
+            -2343,
+            797,
+            480.1584419045451
+          ]
+        },
+        "station": {
+          "area": 1746,
+          "point": [
+            -2360,
+            801.5,
+            480.71502785275095
+          ]
+        },
+        "yaw": 159.99993900000004,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT4",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1581,
+          "point": [
+            -2190,
+            817,
+            479.99997
+          ]
+        },
+        "station": {
+          "area": 582,
+          "point": [
+            -1215.2502,
+            74.87481799999999,
+            106
+          ]
+        },
+        "yaw": 135,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT5",
+        "side": "CT",
+        "role": "anchor",
+        "start": {
+          "area": 1747,
+          "point": [
+            -2275,
+            842,
+            480.39076169594153
+          ]
+        },
+        "station": {
+          "area": 1746,
+          "point": [
+            -2296,
+            832.5,
+            480.55006538968877
+          ]
+        },
+        "yaw": 116.99996199999998,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T1",
+        "side": "T",
+        "role": "entry",
+        "start": {
+          "area": 2799,
+          "point": [
+            -1331,
+            -3190,
+            264.8945234295483
+          ]
+        },
+        "station": {
+          "area": 2799,
+          "point": [
+            -1331,
+            -3190,
+            264.8945234295483
+          ]
+        },
+        "yaw": 45,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T2",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 2799,
+          "point": [
+            -1448,
+            -3076,
+            265.47038322551975
+          ]
+        },
+        "station": {
+          "area": 2799,
+          "point": [
+            -1448,
+            -3076,
+            265.47038322551975
+          ]
+        },
+        "yaw": 45,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T3",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 2995,
+          "point": [
+            -1271,
+            -3262,
+            266.435388239585
+          ]
+        },
+        "station": {
+          "area": 2995,
+          "point": [
+            -1271,
+            -3262,
+            266.435388239585
+          ]
+        },
+        "yaw": 45,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T4",
+        "side": "T",
+        "role": "support",
+        "start": {
+          "area": 2953,
+          "point": [
+            -1499,
+            -3126,
+            277.0205609602273
+          ]
+        },
+        "station": {
+          "area": 2953,
+          "point": [
+            -1499,
+            -3126,
+            277.0205609602273
+          ]
+        },
+        "yaw": 45,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T5",
+        "side": "T",
+        "role": "lurk",
+        "start": {
+          "area": 2925,
+          "point": [
+            -1510.397949,
+            -3053.881836,
+            283.88854986113563
+          ]
+        },
+        "station": {
+          "area": 2925,
+          "point": [
+            -1510.397949,
+            -3053.881836,
+            283.88854986113563
+          ]
+        },
+        "yaw": 45,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      }
+    ],
+    "plantZones": {
+      "A": {
+        "points": [
+          [
+            -2600,
+            620,
+            536
+          ],
+          [
+            -2064,
+            352,
+            476
+          ],
+          [
+            -1672,
+            596,
+            536
+          ],
+          [
+            -2424,
+            972,
+            536
+          ]
+        ],
+        "zMin": 475.99,
+        "zMax": 536.01
+      },
+      "B": {
+        "points": [
+          [
+            -1248,
+            -96,
+            84
+          ],
+          [
+            -960,
+            -96,
+            84
+          ],
+          [
+            -960,
+            224,
+            84
+          ],
+          [
+            -1248,
+            224,
+            84
+          ]
+        ],
+        "zMin": 83.99,
+        "zMax": 132.01
+      }
+    }
+  }
+}

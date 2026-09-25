@@ -1,0 +1,379 @@
+{
+  "checkedAt": "2026-09-16T05:25:22.281Z",
+  "permissionSource": "https://flagpedia.net/download",
+  "permissionStatement": "Vendor states flags are public domain and free for commercial and non-commercial use.",
+  "importer": "scripts/import-assets-v2.js",
+  "files": [
+    {
+      "path": "public/assets/flags/ar.svg",
+      "source": "https://flagcdn.com/ar.svg",
+      "sha256": "0828d651a95f39cea1e5d9d2ee30ec4dbcf55d70bdea39c89ec80c83226ad86d",
+      "remoteSha256": "0828d651a95f39cea1e5d9d2ee30ec4dbcf55d70bdea39c89ec80c83226ad86d",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/au.svg",
+      "source": "https://flagcdn.com/au.svg",
+      "sha256": "b826e039804d5cf313bd7e22a40ea2239e8e22ddba7c19a8787dfaad1dda71aa",
+      "remoteSha256": "b826e039804d5cf313bd7e22a40ea2239e8e22ddba7c19a8787dfaad1dda71aa",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ba.svg",
+      "source": "https://flagcdn.com/ba.svg",
+      "sha256": "1c83a2cf7e8366afb9d724f896902ec46a722739538349d6f41b0953d47f171f",
+      "remoteSha256": "1c83a2cf7e8366afb9d724f896902ec46a722739538349d6f41b0953d47f171f",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/be.svg",
+      "source": "https://flagcdn.com/be.svg",
+      "sha256": "95933c385c9e72479ec7e63f6cbca50d07695fd2e41fab334ea549c20b234fd1",
+      "remoteSha256": "95933c385c9e72479ec7e63f6cbca50d07695fd2e41fab334ea549c20b234fd1",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/bg.svg",
+      "source": "https://flagcdn.com/bg.svg",
+      "sha256": "829c1f5f6f403632fd4710b8b7f3a313408e5285e4540af97950408ff9a5abfe",
+      "remoteSha256": "829c1f5f6f403632fd4710b8b7f3a313408e5285e4540af97950408ff9a5abfe",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/br.svg",
+      "source": "https://flagcdn.com/br.svg",
+      "sha256": "e0215eff9f53b0236db885963ac45d6baea52e10ce33ceafdbe0eb1820d21160",
+      "remoteSha256": "e0215eff9f53b0236db885963ac45d6baea52e10ce33ceafdbe0eb1820d21160",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/by.svg",
+      "source": "https://flagcdn.com/by.svg",
+      "sha256": "2af1ac1ecbfda4690e8b1b076def28e384aa69cbf5004ee37cef43665fd6e4f6",
+      "remoteSha256": "2af1ac1ecbfda4690e8b1b076def28e384aa69cbf5004ee37cef43665fd6e4f6",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ca.svg",
+      "source": "https://flagcdn.com/ca.svg",
+      "sha256": "3cd6c2b9fe12bc0617ef4374b570ad87920bae757a95b104384fc301352c6942",
+      "remoteSha256": "3cd6c2b9fe12bc0617ef4374b570ad87920bae757a95b104384fc301352c6942",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ch.svg",
+      "source": "https://flagcdn.com/ch.svg",
+      "sha256": "a5ec3bbf0f3e686ea05ae17f51e8f3a287ad332217b679bbd393842b7d427859",
+      "remoteSha256": "a5ec3bbf0f3e686ea05ae17f51e8f3a287ad332217b679bbd393842b7d427859",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/cl.svg",
+      "source": "https://flagcdn.com/cl.svg",
+      "sha256": "ca4d50dcf36926c82f02b895975f351a639b0aa1b91bb6ef776f4f07f225cc34",
+      "remoteSha256": "ca4d50dcf36926c82f02b895975f351a639b0aa1b91bb6ef776f4f07f225cc34",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/cn.svg",
+      "source": "https://flagcdn.com/cn.svg",
+      "sha256": "ce797608958527808601798df00691aced6120bd600c0624161230020229dc99",
+      "remoteSha256": "ce797608958527808601798df00691aced6120bd600c0624161230020229dc99",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/cz.svg",
+      "source": "https://flagcdn.com/cz.svg",
+      "sha256": "5f4ba801f6715e2d29f8b88f785bfc77a0dc1455a0f649626ad9a0cc66cd6df2",
+      "remoteSha256": "5f4ba801f6715e2d29f8b88f785bfc77a0dc1455a0f649626ad9a0cc66cd6df2",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/de.svg",
+      "source": "https://flagcdn.com/de.svg",
+      "sha256": "595d7718f6a22e5ea9de0cbbcabd857ac1892f4a6c81beb1ef936050193d9323",
+      "remoteSha256": "595d7718f6a22e5ea9de0cbbcabd857ac1892f4a6c81beb1ef936050193d9323",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/dk.svg",
+      "source": "https://flagcdn.com/dk.svg",
+      "sha256": "eb4ea9929e6491fd0444ea5da5b9a19dda089a2ac758ad63956cfbcc7fa81cc3",
+      "remoteSha256": "eb4ea9929e6491fd0444ea5da5b9a19dda089a2ac758ad63956cfbcc7fa81cc3",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ee.svg",
+      "source": "https://flagcdn.com/ee.svg",
+      "sha256": "a880630e92f27af0f8f183023a98ed1e9fcee60a9dbcf721d0630fec5189ed36",
+      "remoteSha256": "a880630e92f27af0f8f183023a98ed1e9fcee60a9dbcf721d0630fec5189ed36",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/es.svg",
+      "source": "https://flagcdn.com/es.svg",
+      "sha256": "d672868d51fc5b4f2d76f510c9360a4401bdb3ca805349bd04cb4ba277d5b379",
+      "remoteSha256": "d672868d51fc5b4f2d76f510c9360a4401bdb3ca805349bd04cb4ba277d5b379",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/fi.svg",
+      "source": "https://flagcdn.com/fi.svg",
+      "sha256": "5d1ab833fc8f13fd2474b99286d063f2bcd4332cf859063841788f908656aa14",
+      "remoteSha256": "5d1ab833fc8f13fd2474b99286d063f2bcd4332cf859063841788f908656aa14",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/fr.svg",
+      "source": "https://flagcdn.com/fr.svg",
+      "sha256": "09645c97a47436337d63cd54625200542c65e0e1c83b774a58c9d28d0555b0e7",
+      "remoteSha256": "09645c97a47436337d63cd54625200542c65e0e1c83b774a58c9d28d0555b0e7",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/gb.svg",
+      "source": "https://flagcdn.com/gb.svg",
+      "sha256": "42f04826dd7a76e4ecdc9a55fb4a774a26e03a425ca1363628bb1c6f6ea1a87e",
+      "remoteSha256": "42f04826dd7a76e4ecdc9a55fb4a774a26e03a425ca1363628bb1c6f6ea1a87e",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ge.svg",
+      "source": "https://flagcdn.com/ge.svg",
+      "sha256": "dfba0d29f581ff00c2e46b69cc90e0e9ff6371ab92fbe300664f6622f7ca0355",
+      "remoteSha256": "dfba0d29f581ff00c2e46b69cc90e0e9ff6371ab92fbe300664f6622f7ca0355",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/hk.svg",
+      "source": "https://flagcdn.com/hk.svg",
+      "sha256": "4c7cbced68ee586af8b3d73a8d8a8c404deaa271da7204eb2afe5c1b070972eb",
+      "remoteSha256": "4c7cbced68ee586af8b3d73a8d8a8c404deaa271da7204eb2afe5c1b070972eb",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/hr.svg",
+      "source": "https://flagcdn.com/hr.svg",
+      "sha256": "fa44157809f7739aabca54f3e27dfb1d7409ef17afe6ac18dd39294f124e205a",
+      "remoteSha256": "fa44157809f7739aabca54f3e27dfb1d7409ef17afe6ac18dd39294f124e205a",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/hu.svg",
+      "source": "https://flagcdn.com/hu.svg",
+      "sha256": "2025b7ca34eac130a257abc189273adb73f5749cb0eb7c5c6d865d433d842e0b",
+      "remoteSha256": "2025b7ca34eac130a257abc189273adb73f5749cb0eb7c5c6d865d433d842e0b",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/id.svg",
+      "source": "https://flagcdn.com/id.svg",
+      "sha256": "b9d9dea991a06a1211e93e8fa33adc6035ede25d07dc6e98cf97cc57fd94a340",
+      "remoteSha256": "b9d9dea991a06a1211e93e8fa33adc6035ede25d07dc6e98cf97cc57fd94a340",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/il.svg",
+      "source": "https://flagcdn.com/il.svg",
+      "sha256": "9e884f0c6d1001f8de2b478d3de9582f93fbbd9badcb31e3f52fefa3974ebc75",
+      "remoteSha256": "9e884f0c6d1001f8de2b478d3de9582f93fbbd9badcb31e3f52fefa3974ebc75",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/is.svg",
+      "source": "https://flagcdn.com/is.svg",
+      "sha256": "b14a90783cbe55b65c663efb67e1c235389f46d60d9601d28b36773016d520e2",
+      "remoteSha256": "b14a90783cbe55b65c663efb67e1c235389f46d60d9601d28b36773016d520e2",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/jo.svg",
+      "source": "https://flagcdn.com/jo.svg",
+      "sha256": "fb2b2896420258e37d2e27a1d07c6488b5ff14a587edfbe7c4153f93042b8424",
+      "remoteSha256": "fb2b2896420258e37d2e27a1d07c6488b5ff14a587edfbe7c4153f93042b8424",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/kz.svg",
+      "source": "https://flagcdn.com/kz.svg",
+      "sha256": "71a7d90e17ae74f6bf9572d9560b83d2d6ca047482fe2a229b770c67338f3848",
+      "remoteSha256": "71a7d90e17ae74f6bf9572d9560b83d2d6ca047482fe2a229b770c67338f3848",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/lb.svg",
+      "source": "https://flagcdn.com/lb.svg",
+      "sha256": "2c69b33a241e21c003113bae58fda58a08113e265a94262f6d0de39277876462",
+      "remoteSha256": "2c69b33a241e21c003113bae58fda58a08113e265a94262f6d0de39277876462",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/lt.svg",
+      "source": "https://flagcdn.com/lt.svg",
+      "sha256": "9743f780184a60fc75a312b34151ff1a2699e0bf0d456eb91dcbae0472b4d566",
+      "remoteSha256": "9743f780184a60fc75a312b34151ff1a2699e0bf0d456eb91dcbae0472b4d566",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/lu.svg",
+      "source": "https://flagcdn.com/lu.svg",
+      "sha256": "23c57bfe462e31f5655923c458bc77769dc62679e69750f6bf96371f62287f70",
+      "remoteSha256": "23c57bfe462e31f5655923c458bc77769dc62679e69750f6bf96371f62287f70",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/lv.svg",
+      "source": "https://flagcdn.com/lv.svg",
+      "sha256": "470445d5df6d4ff5e51e0fe120a78ad2e416b86476efdf09cf921d43806fde03",
+      "remoteSha256": "470445d5df6d4ff5e51e0fe120a78ad2e416b86476efdf09cf921d43806fde03",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/mk.svg",
+      "source": "https://flagcdn.com/mk.svg",
+      "sha256": "72a37e581f614d791fa6d88831d06c56a0f757e5a596d8fc1189b0d8147cfda6",
+      "remoteSha256": "72a37e581f614d791fa6d88831d06c56a0f757e5a596d8fc1189b0d8147cfda6",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/mn.svg",
+      "source": "https://flagcdn.com/mn.svg",
+      "sha256": "4f89f928fbfa245916b324dc272363ab12dba689814a9d2112023205e8e69baf",
+      "remoteSha256": "4f89f928fbfa245916b324dc272363ab12dba689814a9d2112023205e8e69baf",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/mx.svg",
+      "source": "https://flagcdn.com/mx.svg",
+      "sha256": "baa6f7163f307c16a5d3e36c83a09fe46adbe16adfa866d4bb2d750a79d96b92",
+      "remoteSha256": "baa6f7163f307c16a5d3e36c83a09fe46adbe16adfa866d4bb2d750a79d96b92",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/nl.svg",
+      "source": "https://flagcdn.com/nl.svg",
+      "sha256": "2f7463573cdc3a0f7760c18459a3280d9272d1e6b2060909f12b95644e4fd545",
+      "remoteSha256": "2f7463573cdc3a0f7760c18459a3280d9272d1e6b2060909f12b95644e4fd545",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/no.svg",
+      "source": "https://flagcdn.com/no.svg",
+      "sha256": "0d4b9a52f0a6bd264258baac791b39910a895bb6ca06f63477fa823a262febdc",
+      "remoteSha256": "0d4b9a52f0a6bd264258baac791b39910a895bb6ca06f63477fa823a262febdc",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/nz.svg",
+      "source": "https://flagcdn.com/nz.svg",
+      "sha256": "aa29843a365d4eb21d35932172232d7d591a35fc51ac95c040c356f0f16c447e",
+      "remoteSha256": "aa29843a365d4eb21d35932172232d7d591a35fc51ac95c040c356f0f16c447e",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ph.svg",
+      "source": "https://flagcdn.com/ph.svg",
+      "sha256": "d554297356ab66a5061df4c73c3bb293381875d86175fa0508f7ac4f035eb721",
+      "remoteSha256": "d554297356ab66a5061df4c73c3bb293381875d86175fa0508f7ac4f035eb721",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/pl.svg",
+      "source": "https://flagcdn.com/pl.svg",
+      "sha256": "da6d9e34f2007194b0082d4caac04d1744b7b27fc40098747d4bc62e0d5a5bb2",
+      "remoteSha256": "da6d9e34f2007194b0082d4caac04d1744b7b27fc40098747d4bc62e0d5a5bb2",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/pt.svg",
+      "source": "https://flagcdn.com/pt.svg",
+      "sha256": "f60337f226fba6b695f54222f63b354920b1ecb4a0ff27f16bd49983f345f4c7",
+      "remoteSha256": "f60337f226fba6b695f54222f63b354920b1ecb4a0ff27f16bd49983f345f4c7",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ro.svg",
+      "source": "https://flagcdn.com/ro.svg",
+      "sha256": "20c8e69585273d35ba38fe2cae0d0201445a3b410c9589f4f7053316662482e3",
+      "remoteSha256": "20c8e69585273d35ba38fe2cae0d0201445a3b410c9589f4f7053316662482e3",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/rs.svg",
+      "source": "https://flagcdn.com/rs.svg",
+      "sha256": "5bc4c8297033b5b31ca9496dd1ad29232aa14389dc8c93db38f99faa707ebba3",
+      "remoteSha256": "5bc4c8297033b5b31ca9496dd1ad29232aa14389dc8c93db38f99faa707ebba3",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ru.svg",
+      "source": "https://flagcdn.com/ru.svg",
+      "sha256": "eb1dbd977fdb824dcae7767ce9ec3a023e41158e81b5f524772609ddcb622025",
+      "remoteSha256": "eb1dbd977fdb824dcae7767ce9ec3a023e41158e81b5f524772609ddcb622025",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/se.svg",
+      "source": "https://flagcdn.com/se.svg",
+      "sha256": "426348d99d9cace2df6eaa6d6766d5a5ac21bb65a504a4ed974486cf96156b8f",
+      "remoteSha256": "426348d99d9cace2df6eaa6d6766d5a5ac21bb65a504a4ed974486cf96156b8f",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/sk.svg",
+      "source": "https://flagcdn.com/sk.svg",
+      "sha256": "e684da4cc4c07969475456c69ba6e9e853360d5522dd5273beec02933c5f5767",
+      "remoteSha256": "e684da4cc4c07969475456c69ba6e9e853360d5522dd5273beec02933c5f5767",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/tr.svg",
+      "source": "https://flagcdn.com/tr.svg",
+      "sha256": "f15da84b4e5b23f54b8177126f5711e6fd0db8d26a1b0d3cf7901d0aa8e6b7b1",
+      "remoteSha256": "f15da84b4e5b23f54b8177126f5711e6fd0db8d26a1b0d3cf7901d0aa8e6b7b1",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/ua.svg",
+      "source": "https://flagcdn.com/ua.svg",
+      "sha256": "542eaacd659923163edf3b1100c43bc137cc1ad9f0e394dee94de37d40ce1fca",
+      "remoteSha256": "542eaacd659923163edf3b1100c43bc137cc1ad9f0e394dee94de37d40ce1fca",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/us.svg",
+      "source": "https://flagcdn.com/us.svg",
+      "sha256": "e1792c011daad918fdbd99a21f7f46fd71018ffd052af5a7d7faf9954d593e31",
+      "remoteSha256": "e1792c011daad918fdbd99a21f7f46fd71018ffd052af5a7d7faf9954d593e31",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/uy.svg",
+      "source": "https://flagcdn.com/uy.svg",
+      "sha256": "856fc0e14ff877b68a68c89144852808e7a17b213d5f1dba4b9d27435c0b2f54",
+      "remoteSha256": "856fc0e14ff877b68a68c89144852808e7a17b213d5f1dba4b9d27435c0b2f54",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/uz.svg",
+      "source": "https://flagcdn.com/uz.svg",
+      "sha256": "f57c945faf4df0178b8484aa3533fdc5d7d730790f0369f8869d48104c999603",
+      "remoteSha256": "7ce6e8b7f4dd2a5bc050f9e538d22fde2fd371df15b751e48a29c1c3cb3df00b",
+      "matched": false
+    },
+    {
+      "path": "public/assets/flags/xk.svg",
+      "source": "https://flagcdn.com/xk.svg",
+      "sha256": "d58ac2f59d0b820c66ff60f80c59d6f61dc08c22a35f181429fe996a2870d4bb",
+      "remoteSha256": "d58ac2f59d0b820c66ff60f80c59d6f61dc08c22a35f181429fe996a2870d4bb",
+      "matched": true
+    },
+    {
+      "path": "public/assets/flags/za.svg",
+      "source": "https://flagcdn.com/za.svg",
+      "sha256": "6fbf0b68db7024ac996c92b1bbc62efe9a3bf12e469efaa29ae4fe0fa5c6da39",
+      "remoteSha256": "6fbf0b68db7024ac996c92b1bbc62efe9a3bf12e469efaa29ae4fe0fa5c6da39",
+      "matched": true
+    }
+  ]
+}

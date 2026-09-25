@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-13",
+  "buildId": "jVCdqGfKQbY4RZYlQsqeT",
+  "lockSha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53",
+  "cleanInstallLockUnchanged": true,
+  "cleanTypes": {
+    "command": "npm exec -- tsc --noEmit --incremental false --pretty false",
+    "exitCode": 0
+  },
+  "build": {
+    "exitCode": 0,
+    "lintErrors": 0,
+    "lintWarnings": 154
+  },
+  "tests": {
+    "suites": 133,
+    "tests": 1311,
+    "exitCode": 0
+  },
+  "releasePackage": "blocked: steam_appid.txt missing"
+}

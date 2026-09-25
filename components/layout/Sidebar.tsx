@@ -1,107 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn, getTeamColors } from "@/lib/utils"
-import {
-    Lock,
-    Home,
-    Users,
-    UserPlus,
-    BarChart3,
-    Dumbbell,
-    Building2,
-    Calendar,
-    Globe,
-    Trophy,
-    Search,
-    DollarSign,
-    Settings,
-    ChevronLeft,
-    ChevronRight,
-    ChevronDown,
-    ClipboardList,
-    Crown,
-    Package,
-    Award,
-    Inbox,
-    Swords,
-    Handshake,
-    GraduationCap,
-    type LucideIcon
-} from "lucide-react"
-import { useState, useMemo, useCallback } from "react"
+import { Lock, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
+import { menuGroups, settingsItem, type MenuItem, type MenuGroup } from "@/lib/navigation"
+import { NavigationSearch } from "./NavigationSearch"
+import { useState, useMemo, useCallback, useTransition } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 
-interface MenuItem {
-    icon: LucideIcon
-    label: string
-    href: string
-}
-
-interface MenuGroup {
-    label: string
-    items: MenuItem[]
-}
-
-const menuGroups: MenuGroup[] = [
-    {
-        label: "Overview",
-        items: [
-            { icon: Home, label: "Home", href: "/" },
-            { icon: Inbox, label: "Inbox", href: "/desktop?app=mail" },
-            { icon: Calendar, label: "Schedule", href: "/schedule" },
-        ]
-    },
-    {
-        label: "Team",
-        items: [
-            { icon: Users, label: "Squad", href: "/squad" },
-            { icon: Dumbbell, label: "Training", href: "/training" },
-            { icon: ClipboardList, label: "Staff", href: "/staff" },
-            { icon: Package, label: "Equipment", href: "/equipment" },
-        ]
-    },
-    {
-        label: "Recruitment",
-        items: [
-            { icon: UserPlus, label: "Transfers", href: "/transfers" },
-            { icon: Search, label: "Scouting", href: "/scouting" },
-            { icon: Building2, label: "Facilities", href: "/basecamp" },
-            { icon: GraduationCap, label: "Academy", href: "/academy" },
-        ]
-    },
-    {
-        label: "Competition",
-        items: [
-            { icon: Trophy, label: "Tournaments", href: "/tournaments" },
-            { icon: Globe, label: "Rankings", href: "/rankings" },
-            { icon: Swords, label: "FPL", href: "/fpl" },
-            { icon: BarChart3, label: "Statistics", href: "/stats" },
-        ]
-    },
-    {
-        label: "Business",
-        items: [
-            { icon: DollarSign, label: "Finances", href: "/finances" },
-            { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
-        ]
-    },
-    {
-        label: "Legacy",
-        items: [
-            { icon: Award, label: "Trophies", href: "/trophies" },
-            { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
-        ]
-    },
-]
-
-const settingsItem: MenuItem = { icon: Settings, label: "Settings & Tools", href: "/settings" }
-
 export function Sidebar() {
     const pathname = usePathname()
+    const router = useRouter()
+    const [isPending, startTransition] = useTransition()
+    const [pendingHref, setPendingHref] = useState<string | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set())
     const { activeMatchId, getPlayerTeam, managerDetails } = useGameStore(useShallow(state => ({
@@ -145,24 +59,38 @@ export function Sidebar() {
     const renderLink = (item: MenuItem) => {
         // Compare against the path portion so query-string hrefs (e.g. the
         // Inbox → /desktop?app=mail entry) still match the active route.
-        const isActive = pathname === item.href.split("?")[0]
+        const isActive = isPending ? pendingHref === item.href : pathname === item.href.split("?")[0]
         return (
             <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
+                title={isCollapsed ? item.label : undefined}
+                aria-current={pathname === item.href.split("?")[0] ? "page" : undefined}
+                aria-disabled={!!isMatchLocked}
+                aria-busy={isPending && pendingHref === item.href}
+                onMouseEnter={() => { if (!isMatchLocked) router.prefetch(item.href) }}
+                onFocus={() => { if (!isMatchLocked) router.prefetch(item.href) }}
+                onClick={(event) => {
+                    if (isMatchLocked) { event.preventDefault(); return }
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                    event.preventDefault()
+                    setPendingHref(item.href)
+                    startTransition(() => router.push(item.href))
+                }}
                 className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-[background-color,color,border-color] duration-75 ease-out group relative border border-transparent active:scale-[0.98] active:duration-0",
+                    "nav-route flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-100 group relative border border-transparent active:scale-[0.98]",
                     isActive
-                        ? "bg-white/[0.06] text-white border-white/[0.1] shadow-glass-soft ring-1 ring-inset ring-cyan-300/15"
-                        : "text-white/50 hover:bg-white/[0.055] hover:text-white/80 hover:border-white/[0.08]",
+                        ? "text-white"
+                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white",
                     isMatchLocked && "opacity-30 pointer-events-none grayscale"
                 )}
             >
                 {isMatchLocked && <Lock size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20" />}
-                <item.icon size={20} className={cn("shrink-0", isActive && "text-primary")} />
+                <item.icon size={18} className={cn("relative z-10 shrink-0", isActive && "text-sky-200")} />
                 <span
                     className={cn(
-                        "font-medium text-sm whitespace-nowrap transition-all duration-200",
+                        "relative z-10 font-medium text-[13px] whitespace-nowrap",
                         isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
                     )}
                 >
@@ -170,9 +98,9 @@ export function Sidebar() {
                 </span>
                 {isActive && (
                     <motion.div
-                        layoutId="active-pill"
-                        transition={{ duration: 0.12, ease: "easeOut" }}
-                        className="absolute left-0 w-1 h-6 bg-cyan-200/90 rounded-r-full"
+                        layoutId="active-navigation-lens"
+                        transition={{ type: "spring", stiffness: 550, damping: 42 }}
+                        className="nav-lens"
                     />
                 )}
             </Link>
@@ -182,9 +110,9 @@ export function Sidebar() {
     return (
         <motion.div
             initial={false}
-            animate={{ width: isCollapsed ? 70 : 240 }}
+            animate={{ width: isCollapsed ? 64 : 208 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="sticky top-0 h-full liquid-chrome border-r border-white/[0.06] flex flex-col pointer-events-auto z-40 backdrop-blur-xl"
+            className="game-sidebar relative flex flex-col pointer-events-auto z-40"
         >
             <div className="p-4 flex items-center justify-between overflow-hidden">
                 <AnimatePresence mode="wait">
@@ -194,7 +122,7 @@ export function Sidebar() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -8 }}
                             transition={{ duration: 0.12, ease: "easeOut" }}
-                            className="font-normal text-lg text-white/90 tracking-tighter uppercase whitespace-nowrap"
+                            className="font-semibold text-sm text-white/90 tracking-tight whitespace-nowrap"
                         >
                             Esports Manager
                         </motion.span>
@@ -210,7 +138,8 @@ export function Sidebar() {
                 </button>
             </div>
 
-            <nav className="flex-1 px-2 py-2 space-y-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar custom-scrollbar">
+            <NavigationSearch collapsed={isCollapsed} disabled={!!isMatchLocked} />
+            <nav aria-label="Main navigation" className="flex-1 px-2 py-2 space-y-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar custom-scrollbar">
                 {menuGroups.map((group, groupIndex) => {
                     const hasActive = groupContainsActive(group)
                     const isGroupCollapsed = collapsedGroups.has(group.label) && !hasActive
@@ -229,7 +158,8 @@ export function Sidebar() {
                             {!isCollapsed && (
                                 <button
                                     onClick={() => toggleGroup(group.label)}
-                                    className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/30 hover:text-white/60 transition-colors"
+                                    aria-expanded={!isGroupCollapsed}
+                                    className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-400 hover:text-slate-200 transition-colors"
                                 >
                                     <span>{group.label}</span>
                                     <ChevronDown
@@ -271,6 +201,8 @@ export function Sidebar() {
             <div className="p-4 border-t liquid-divider">
                 <Link
                     href="/career"
+                    aria-label="Manager profile"
+                    title={isCollapsed ? "Manager profile" : undefined}
                     className={cn(
                         "flex items-center gap-3 overflow-hidden p-2 -m-2 rounded-lg hover:bg-white/[0.055] transition-colors group",
                         isCollapsed && "justify-center"

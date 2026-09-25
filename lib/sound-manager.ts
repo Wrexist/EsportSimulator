@@ -3,16 +3,28 @@
 // Web Audio API Synthesizer for UI Sounds & Procedural Music
 // Generates all audio procedurally to avoid asset dependencies
 
-type SoundType = 'click' | 'hover' | 'success' | 'notification' | 'error' | 'start' | 'victory' | 'defeat' | 'matchStart' | 'roundWin' | 'roundLose' | 'weekAdvance' | 'transfer' | 'achievement' | 'contractSign' | 'facilityUpgrade' | 'tournamentAdvance'
+import { AudioFeedbackGate, type SoundType } from './audio-feedback'
 
-class SoundManager {
+import { useSettingsStore } from './settings-store'
+import { routeMusicScene } from './route-audio'
+
+export class SoundManager {
+    private quietScene = false
+    private foreground = true
     private ctx: AudioContext | null = null
     private enabled: boolean = true
     private masterGain: GainNode | null = null
     private musicGain: GainNode | null = null
     private sfxGain: GainNode | null = null
+    private masterVolume = 80
+    private musicVolume = 70
+    private sfxVolume = 80
+    private pendingMusicScene: 'menu' | 'match' | 'dashboard' | null = null
     private musicPlaying: boolean = false
     private musicOscillators: OscillatorNode[] = []
+    private musicCleanup = new Map<OscillatorNode, () => void>()
+    private activeMusicScene: 'menu' | 'match' | 'dashboard' | null = null
+    private feedbackGate = new AudioFeedbackGate()
     private musicInterval: ReturnType<typeof setInterval> | null = null
     private ambientNoiseNode: AudioBufferSourceNode | null = null
     private activeNodes: { osc: OscillatorNode; gain: GainNode }[] = []
@@ -24,23 +36,29 @@ class SoundManager {
                 window.removeEventListener('click', initAudio)
                 window.removeEventListener('keydown', initAudio)
                 try {
+                    // Read stored preferences at the first gesture, before connecting audio.
+                    const settings = useSettingsStore.getState()
+                    this.setMasterVolume(settings.masterVolume)
+                    this.setMusicVolume(settings.musicVolume)
+                    this.setSfxVolume(settings.sfxVolume)
                     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
                     this.ctx = new AudioContextClass()
 
                     // Master gain → destination
                     this.masterGain = this.ctx.createGain()
-                    this.masterGain.gain.value = 0.24
+                    this.masterGain.gain.value = this.masterVolume / 100 * 0.42
                     this.masterGain.connect(this.ctx.destination)
 
                     // Music sub-bus
                     this.musicGain = this.ctx.createGain()
-                    this.musicGain.gain.value = 0.32
+                    this.musicGain.gain.value = this.musicVolume / 100 * 0.46
                     this.musicGain.connect(this.masterGain)
 
                     // SFX sub-bus
                     this.sfxGain = this.ctx.createGain()
-                    this.sfxGain.gain.value = 0.72
+                    this.sfxGain.gain.value = this.sfxVolume / 100
                     this.sfxGain.connect(this.masterGain)
+                    if (this.pendingMusicScene) this.startMusic(this.pendingMusicScene)
                 } catch (e) {
                     // Silently degrade — all methods check for null ctx
                 }
@@ -59,28 +77,46 @@ class SoundManager {
         }
     }
 
+    public setQuietScene(quiet: boolean) {
+        this.quietScene = quiet
+        if (quiet) { this.stopMusic(); this.stopAllSfx() }
+    }
+
+    public setForeground(foreground: boolean) {
+        if (foreground === this.foreground) return
+        this.foreground = foreground
+        if (!foreground) {
+            const scene = this.pendingMusicScene
+            this.stopMusic(); this.stopAllSfx()
+            this.pendingMusicScene = scene
+            this.ctx?.suspend().catch(() => {})
+        } else if (this.pendingMusicScene) this.startMusic(this.pendingMusicScene)
+    }
+
+    private isQuiet(): boolean {
+        return this.quietScene || !this.foreground || (typeof window !== 'undefined' && routeMusicScene(window.location?.pathname ?? null) === 'silent')
+    }
+
     public setMasterVolume(value: number) {
-        // value: 0-100
-        if (!this.ctx || !this.masterGain) return
-        this.masterGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.42
+        this.masterVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
+        if (this.masterGain) this.masterGain.gain.value = this.masterVolume / 100 * 0.42
     }
 
     public setMusicVolume(value: number) {
-        // value: 0-100
-        if (!this.ctx || !this.musicGain) return
-        this.musicGain.gain.value = Math.max(0, Math.min(1, value / 100)) * 0.46
+        this.musicVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
+        if (this.musicGain) this.musicGain.gain.value = this.musicVolume / 100 * 0.46
     }
 
     public setSfxVolume(value: number) {
-        // value: 0-100
-        if (!this.ctx || !this.sfxGain) return
-        this.sfxGain.gain.value = Math.max(0, Math.min(1, value / 100))
+        this.sfxVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
+        if (this.sfxGain) this.sfxGain.gain.value = this.sfxVolume / 100
     }
 
     // ============ SFX ============
 
     public play(type: SoundType) {
-        if (!this.enabled || !this.ctx || !this.sfxGain) return
+        if (!this.enabled || this.isQuiet() || !this.ctx || !this.sfxGain || this.masterVolume === 0 || this.sfxVolume === 0) return
+        if (!this.feedbackGate.allow(type, this.ctx.currentTime)) return
 
         if (this.ctx.state === 'suspended') {
             this.ctx.resume().catch(() => { })
@@ -133,10 +169,10 @@ class SoundManager {
                 const gain = this.ctx.createGain()
                 osc.connect(gain)
                 gain.connect(this.sfxGain)
-                osc.type = 'sawtooth'
+                osc.type = 'triangle'
                 osc.frequency.setValueAtTime(150, t)
                 osc.frequency.linearRampToValueAtTime(100, t + 0.2)
-                gain.gain.setValueAtTime(0.3, t)
+                gain.gain.setValueAtTime(0.16, t)
                 gain.gain.linearRampToValueAtTime(0, t + 0.2)
                 osc.start(t)
                 osc.stop(t + 0.2)
@@ -231,13 +267,18 @@ class SoundManager {
     // ============ AMBIENT MUSIC ============
 
     public startMusic(scene: 'menu' | 'match' | 'dashboard' = 'menu') {
-        if (!this.enabled || !this.ctx || !this.musicGain || this.musicPlaying) return
+        if (!this.enabled) return
+        if (this.isQuiet()) { if (!this.foreground) this.pendingMusicScene = scene; return }
+        if (this.musicPlaying && this.activeMusicScene !== scene) this.stopMusic()
+        this.pendingMusicScene = scene
+        if (!this.ctx || !this.musicGain || this.musicPlaying) return
 
         if (this.ctx.state === 'suspended') {
             this.ctx.resume().catch(() => { })
         }
 
         this.musicPlaying = true
+        this.activeMusicScene = scene
 
         if (scene === 'match') {
             this.startMatchAmbience()
@@ -247,9 +288,12 @@ class SoundManager {
     }
 
     public stopMusic() {
+        this.pendingMusicScene = null
         this.musicPlaying = false
-        this.musicOscillators.forEach(osc => {
+        this.activeMusicScene = null
+        this.musicOscillators.slice().forEach(osc => {
             try { osc.stop() } catch { }
+            this.musicCleanup.get(osc)?.()
         })
         this.musicOscillators = []
         if (this.musicInterval) {
@@ -263,7 +307,7 @@ class SoundManager {
     }
 
     public stopAllSfx() {
-        for (const entry of this.activeNodes) {
+        for (const entry of this.activeNodes.slice()) {
             try { entry.osc.stop() } catch { /* already stopped */ }
             try { entry.osc.disconnect() } catch { /* already disconnected */ }
             try { entry.gain.disconnect() } catch { /* already disconnected */ }
@@ -309,7 +353,7 @@ class SoundManager {
 
                 osc.start(t)
                 osc.stop(t + 8.5)
-                this.musicOscillators.push(osc)
+                this.trackMusicNode(osc, gain)
             })
 
             chordIdx++
@@ -337,7 +381,7 @@ class SoundManager {
         droneGain.gain.setValueAtTime(0, t)
         droneGain.gain.linearRampToValueAtTime(0.06, t + 2)
         drone.start(t)
-        this.musicOscillators.push(drone)
+        this.trackMusicNode(drone, droneGain)
 
         // Filtered noise for crowd rumble
         const bufferSize = this.ctx.sampleRate * 4
@@ -363,11 +407,25 @@ class SoundManager {
         filter.connect(noiseGain)
         noiseGain.connect(this.musicGain)
         noiseSource.start(t)
+        noiseSource.addEventListener('ended', () => {
+            noiseSource.disconnect(); filter.disconnect(); noiseGain.disconnect()
+        }, { once: true })
         this.ambientNoiseNode = noiseSource
         } catch { /* AudioContext error — silently degrade */ }
     }
 
     // ============ INTERNALS ============
+
+    private trackMusicNode(osc: OscillatorNode, gain: GainNode) {
+        this.musicOscillators.push(osc)
+        const cleanup = () => {
+            try { osc.disconnect(); gain.disconnect() } catch { /* already disconnected */ }
+            this.musicOscillators = this.musicOscillators.filter(node => node !== osc)
+            this.musicCleanup.delete(osc)
+        }
+        this.musicCleanup.set(osc, cleanup)
+        osc.addEventListener('ended', cleanup, { once: true })
+    }
 
     private trackNode(osc: OscillatorNode, gain: GainNode) {
         // Evict oldest node if at capacity

@@ -1,0 +1,36 @@
+export {}
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
+const { spawnSync } = require('node:child_process')
+const { isWindowsX64Executable } = require('../scripts/verify-ship-build.js')
+describe('Windows shipping artifact guard', () => {
+    let dir: string
+    beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'esm-ship-')) })
+    afterEach(() => fs.rmSync(dir, { recursive: true, force: true }))
+    it('rejects renamed text and ARM64 executables, accepts x64 PE headers', () => {
+        const file = path.join(dir, 'EsportsManager.exe')
+        fs.writeFileSync(file, 'not an executable')
+        expect(isWindowsX64Executable(file)).toBe(false)
+        const bytes = Buffer.alloc(134)
+        bytes.writeUInt16LE(0x5a4d, 0); bytes.writeUInt32LE(128, 60)
+        bytes.writeUInt32LE(0x4550, 128); bytes.writeUInt16LE(0xaa64, 132)
+        fs.writeFileSync(file, bytes)
+        expect(isWindowsX64Executable(file)).toBe(false)
+        bytes.writeUInt16LE(0x8664, 132); fs.writeFileSync(file, bytes)
+        expect(isWindowsX64Executable(file)).toBe(true)
+    })
+    it('rejects marked QA artifacts', () => {
+        fs.writeFileSync(path.join(dir, 'LOCAL-QA-ONLY'), 'local diagnostic build')
+        const result = spawnSync(process.execPath, [path.resolve('scripts/verify-ship-build.js'), dir], { encoding: 'utf8' })
+        expect(result.status).toBe(1)
+        expect(result.stdout).toContain('Local QA package cannot be uploaded')
+    })
+    it('keeps Steam offline in a marked local QA package', async () => {
+        fs.writeFileSync(path.join(dir, 'LOCAL-QA-ONLY'), 'local diagnostic build')
+        const { loadHandlers } = require('../scripts/launch/electron-handler-harness.cjs')
+        const harness = loadHandlers({ directory: dir })
+        expect(await harness.invoke('steam-get-id')).toBe(null)
+        expect(await harness.invoke('steam-get-persona-name')).toBe(null)
+    })
+})

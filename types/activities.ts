@@ -15,7 +15,7 @@ export interface WeeklyActivity {
         money?: number // Multiplier or flat
         morale?: number
         fatigue?: number
-        xp?: number // Multiplier
+        xp?: number // Legacy bonus strength; converted to flat XP, not total training multiplication.
         reputation?: number
         fanSupport?: number
         synergy?: number
@@ -67,12 +67,17 @@ export const WEEKLY_ACTIVITIES: Record<WeeklyActivityType, WeeklyActivity> = {
     [WeeklyActivityType.BOOTCAMP]: {
         type: WeeklyActivityType.BOOTCAMP,
         name: "Intensive Bootcamp",
-        description: "Hardcore training regime. Massive XP, massive fatigue.",
+        description: "Extra player XP at the cost of cash, higher fatigue and lower morale.",
         cost: 10000, // Facility rental etc
         effects: {
-            xp: 2.0, // 2x XP multiplier
+            xp: 2.0, // Flat +50 XP through weeklyActivityXpBonus.
             fatigue: 25,
             morale: -10,
         },
     },
+}
+
+/** Same flat award for weekly settlement and its preview. */
+export function weeklyActivityXpBonus(activity: WeeklyActivity): number {
+    return activity.effects.xp && activity.effects.xp > 1 ? Math.floor(50 * (activity.effects.xp - 1)) : 0
 }

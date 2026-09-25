@@ -43,6 +43,7 @@ export type SaveErrorCode =
     | "CORRUPTED"
     | "INTEGRITY_FAILED"
     | "NEWER_VERSION"
+    | "CLOUD_CONFLICT"
     | "WRITE_FAILED"
     | "UNKNOWN"
 
@@ -55,12 +56,15 @@ import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
 import { debug } from "@/lib/debug-logger"
+import { createDefaultTactics } from "./default-tactics"
 
 // ===== SAVE MANAGER =====
 
 export class SaveManager {
     private storage: AsyncStorage
     private integrity: SaveIntegrityManager
+    private saveChain: Promise<unknown> = Promise.resolve()
+    private lastVerifiedPrimary: { key: string; value: string } | null = null
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -191,6 +195,14 @@ export class SaveManager {
         const save: GameSave = {
             // Metadata
             saveVersion: CURRENT_SAVE_VERSION,
+            firstSession: initialData.firstSession,
+            selectedWeeklyActivity: initialData.selectedWeeklyActivity ?? null,
+            customTactics: initialData.customTactics ?? createDefaultTactics(),
+            watchlistedPlayerIds: initialData.watchlistedPlayerIds ?? [],
+            activeMatchId: initialData.activeMatchId ?? null,
+            activeMatchState: initialData.activeMatchState ?? null,
+            // A new slot must never inherit another career's worker ownership.
+            physicalMatchPreview: null,
             saveId,
             saveName: name,
             createdAt: now,
@@ -272,10 +284,16 @@ export class SaveManager {
      * Save game to storage with atomic backup
      */
     async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+        // Capture at invocation, before another caller mutates its working state.
+        const snapshot = structuredClone(save)
+        const operation = this.saveChain.then(() => this.commitSave(snapshot))
+        this.saveChain = operation.catch(() => {})
+        return operation
+    }
+
+    private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         try {
-            // Callers may pass state owned by Immer (frozen); repairSave/updatedAt/
-            // integrityHash all mutate in place. Clone so mutation is safe.
-            save = structuredClone(save)
+            // saveGame captured a detached snapshot before joining the write queue.
 
             // Auto-repair common issues before validation
             const repairs = repairSave(save)
@@ -291,6 +309,8 @@ export class SaveManager {
             }
 
             // Update timestamp
+            const schema = validateSaveSchema(save)
+            if (!schema.ok) return { success: false, error: schema.issues[0] }
             save.updatedAt = new Date().toISOString()
             save.integrityHash = await this.computeIntegrityHash(save as unknown as Record<string, unknown>)
 
@@ -311,13 +331,15 @@ export class SaveManager {
                 this.storage.getItem(backupKey + "_1"),
                 this.storage.getItem(backupKey + "_2"),
             ])
-            if (existing) {
-                const writes: Promise<void>[] = [
-                    this.storage.setItem(backupKey + "_1", existing),
-                ]
-                if (backup1Old) writes.push(this.storage.setItem(backupKey + "_2", backup1Old))
-                if (backup2Old) writes.push(this.storage.setItem(backupKey + "_3", backup2Old))
-                await Promise.all(writes)
+            const knownPrimary = this.lastVerifiedPrimary?.key === key && this.lastVerifiedPrimary.value === existing
+            const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
+            if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
+            if (existing && (knownPrimary || previous?.ok)) {
+                // Oldest first: partial rotation cannot replace every good backup
+                // with a corrupted primary, or overwrite a copy before it is retained.
+                if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
+                if (backup1Old) await this.storage.setItem(backupKey + "_2", backup1Old)
+                await this.storage.setItem(backupKey + "_1", existing)
             }
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
@@ -369,6 +391,7 @@ export class SaveManager {
             await this.storage.removeItem(tmpKey)
 
             // 4. Update current save ID
+            this.lastVerifiedPrimary = { key, value: serialized }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
@@ -437,7 +460,7 @@ export class SaveManager {
      *   NEWER_VERSION → "update the game"
      *   CORRUPTED / INTEGRITY_FAILED → "this save appears corrupted, skip or attempt recovery"
      */
-    async loadGame(saveId: string): Promise<{
+    async loadGame(saveId: string, cloudChoice?: "local" | "cloud"): Promise<{
         save: GameSave | null
         error?: string
         errorCode?: SaveErrorCode
@@ -449,7 +472,9 @@ export class SaveManager {
             let restoredFromBackup = false
 
             // Discard any stale staging file from an interrupted previous write.
-            await this.clearStaleTmp(key)
+            await this.saveChain
+            // Cleanup is optional; a read-only disk must still allow last-good loading.
+            try { await this.clearStaleTmp(key) } catch { /* retry cleanup after the next successful save */ }
 
             // Primary local read and Steam Cloud read are independent — the
             // cloud value is used regardless of whether primary succeeds (for
@@ -459,19 +484,19 @@ export class SaveManager {
                 this.storage.getItem(key),
                 steamService.downloadSaveFromCloud(saveId),
             ])
-            let localData = primaryRead.status === "fulfilled" ? primaryRead.value : null
+            if (primaryRead.status === "rejected") throw primaryRead.reason
+            let localData = primaryRead.value
             let cloudData: string | null = cloudRead.status === "fulfilled" ? cloudRead.value : null
 
             // If primary not found, try rotating backups (newest first).
             // Kept sequential — almost always a no-op on the happy path.
             if (!localData) {
-                for (const suffix of ["_1", "_2", "_3", ""]) {
+                for (const suffix of ["_1", "_2", "_3", "", "_local", "_cloud"]) {
                     const candidate = await this.storage.getItem(backupKey + suffix)
-                    if (candidate) {
+                    if (candidate && (await this.parseAndValidateSaveCandidate(candidate, saveId)).ok) {
                         localData = candidate
                         restoredFromBackup = true
                         debug.warn(`Loaded from backup${suffix || " (legacy)"} - primary save was missing`)
-                        await this.storage.setItem(key, localData)
                         break
                     }
                 }
@@ -479,11 +504,10 @@ export class SaveManager {
 
             if (!localData && cloudData) {
                 debug.warn("Loaded save from Steam Cloud - local save missing")
-                await this.storage.setItem(key, cloudData)
-                localData = cloudData
+                // Validate before promoting any remote bytes into the local primary.
             }
 
-            if (!localData) {
+            if (!localData && !cloudData) {
                 return { save: null, error: "Save not found", errorCode: "NOT_FOUND" }
             }
 
@@ -492,11 +516,16 @@ export class SaveManager {
             // async hash compute, so sequencing them doubled wall time
             // whenever cloud data was present.
             const [localCandidate, cloudCandidate] = await Promise.all([
-                this.parseAndValidateSaveCandidate(localData, saveId),
+                this.parseAndValidateSaveCandidate(localData ?? "", saveId),
                 cloudData
                     ? this.parseAndValidateSaveCandidate(cloudData, saveId)
                     : Promise.resolve(null),
             ])
+
+            // Never downgrade a future-format primary to an older backup or Cloud copy.
+            if (!localCandidate.ok && localCandidate.error === "NEWER_VERSION") {
+                return { save: null, error: localCandidate.message, errorCode: "NEWER_VERSION" }
+            }
 
             // Track the strongest signal across attempted candidates so we can
             // surface a precise error if everything fails.
@@ -522,6 +551,20 @@ export class SaveManager {
                 }
             }
 
+            if (localCandidate.ok && cloudCandidate?.ok) {
+                const comparable = (save: GameSave) => { const { updatedAt, integrityHash, ...data } = save; return JSON.stringify(data) }
+                if (comparable(localCandidate.migrated) !== comparable(cloudCandidate.migrated) && !cloudChoice) {
+                    const describe = (save: GameSave) => `week ${save.currentWeek}, day ${(save.currentDay || 0) + 1} (${save.updatedAt})`
+                    return { save: null, errorCode: "CLOUD_CONFLICT", error: `This PC: ${describe(localCandidate.migrated)}. Steam Cloud: ${describe(cloudCandidate.migrated)}. Choose a copy; both will be retained locally before loading.` }
+                }
+                if (cloudChoice && cloudData && localData) {
+                    await this.storage.setItem(backupKey + "_cloud", cloudData)
+                    await this.storage.setItem(backupKey + "_local", localData)
+                }
+            }
+            if (cloudChoice === "local" && !localCandidate.ok) return { save: null, errorCode: localCandidate.error, error: "The selected local copy is invalid. No other copy was substituted." }
+            if (cloudChoice === "cloud" && !cloudCandidate?.ok) return { save: null, errorCode: cloudCandidate && !cloudCandidate.ok ? cloudCandidate.error : "NOT_FOUND", error: "The selected Cloud copy is unavailable or invalid. No other copy was substituted." }
+
             let selected: { ok: true; migrated: GameSave; updatedAtMs: number } | null = null
             let selectedSource: "local" | "cloud" = "local"
 
@@ -536,7 +579,7 @@ export class SaveManager {
                     if (!selected) {
                         selected = cloudCandidate
                         selectedSource = "cloud"
-                    } else if (this.cloudCandidateSupersedes(cloudCandidate, selected)) {
+                    } else if (cloudChoice === "cloud" || (cloudChoice !== "local" && this.cloudCandidateSupersedes(cloudCandidate, selected))) {
                         selected = cloudCandidate
                         selectedSource = "cloud"
                     }
@@ -547,7 +590,7 @@ export class SaveManager {
 
             // If primary + cloud both failed validation, try backup slots for corruption recovery
             if (!selected) {
-                for (const suffix of ["_1", "_2", "_3", ""]) {
+                for (const suffix of ["_1", "_2", "_3", "", "_local", "_cloud"]) {
                     const backupData = await this.storage.getItem(backupKey + suffix)
                     if (!backupData) continue
                     const backupCandidate = await this.parseAndValidateSaveCandidate(backupData, saveId)
@@ -574,10 +617,12 @@ export class SaveManager {
 
             if (selectedSource === "cloud" && cloudData && cloudData !== localData) {
                 // Preserve local candidate in backup and promote cloud save as source-of-truth.
-                if (localData) {
+                if (localData && localCandidate.ok) {
                     await this.storage.setItem(backupKey, localData)
                 }
                 await this.storage.setItem(key, cloudData)
+            } else if (restoredFromBackup && localCandidate.ok && localData) {
+                await this.storage.setItem(key, localData)
             }
 
             return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined }
@@ -637,7 +682,7 @@ export class SaveManager {
             let bestErrorMessage: string | undefined
 
             // Backups, newest → oldest, then legacy.
-            for (const suffix of ["_1", "_2", "_3", ""]) {
+            for (const suffix of ["_1", "_2", "_3", "", "_local", "_cloud"]) {
                 const data = await this.storage.getItem(backupKey + suffix)
                 if (!data) continue
                 const candidate = await this.parseAndValidateSaveCandidate(data, saveId)
@@ -714,6 +759,8 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + "_1")
             await this.storage.removeItem(backupKey + "_2")
             await this.storage.removeItem(backupKey + "_3")
+            await this.storage.removeItem(backupKey + "_local")
+            await this.storage.removeItem(backupKey + "_cloud")
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
@@ -758,7 +805,7 @@ export class SaveManager {
         const keys = await this.storage.getAllKeys()
 
         for (const key of keys) {
-            if (!key.startsWith(STORAGE_KEYS.SAVE_PREFIX)) continue
+            if (!key.startsWith(STORAGE_KEYS.SAVE_PREFIX) || key.endsWith(TMP_SUFFIX)) continue
 
             try {
                 const data = await this.storage.getItem(key)
@@ -819,6 +866,13 @@ export class SaveManager {
                     currentWeek: parsed.currentWeek,
                     teamName: playerTeam?.name ?? null,
                     teamLogo: playerTeam?.logoPath,
+                    teamPreview: playerTeam ? {
+                        id: playerTeam.id,
+                        name: playerTeam.name,
+                        logoPath: playerTeam.logoPath,
+                        branding: playerTeam.branding,
+                        customTeamData: playerTeam.customTeamData,
+                    } : undefined,
                     updatedAt: parsed.updatedAt,
                     isEmpty: false,
                     stats: parsed.managerDetails ? {
@@ -862,6 +916,10 @@ export class SaveManager {
             }
         }
 
+        const known = new Set(slots.map(slot => slot.saveId))
+        for (const id of await steamService.listCloudSaveIds?.() || []) {
+            if (!known.has(id)) slots.push({ slotId: `cloud:${id}`, saveId: id, saveName: `Steam Cloud career (${id.slice(-8)})`, currentWeek: null, teamName: null, updatedAt: null, isEmpty: false })
+        }
         return slots.sort((a, b) => {
             if (!a.updatedAt) return 1
             if (!b.updatedAt) return -1
@@ -1025,12 +1083,18 @@ export class SaveManager {
         try {
             // Load from backup if available
             const backupKey = STORAGE_KEYS.BACKUP_PREFIX + saveId
-            const backup = await this.storage.getItem(backupKey)
-
-            if (backup) {
-                const key = STORAGE_KEYS.SAVE_PREFIX + saveId
-                await this.storage.setItem(key, backup)
+            let restored = false
+            for (const suffix of ["_1", "_2", "_3", "", "_local", "_cloud"]) {
+                const backup = await this.storage.getItem(backupKey + suffix)
+                if (backup && (await this.parseAndValidateSaveCandidate(backup, saveId)).ok) {
+                    const key = STORAGE_KEYS.SAVE_PREFIX + saveId
+                    await this.storage.setItem(key, backup)
+                    if (await this.storage.getItem(key) !== backup) return { success: false }
+                    restored = true
+                    break
+                }
             }
+            if (!restored) return { success: false }
 
             // Clear transaction state
             await this.completeWeekTick(saveId)

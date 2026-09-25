@@ -1,0 +1,169 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "created": "2026-09-20",
+  "purpose": "Original project equipment; alpha cutouts; no real product branding",
+  "files": [
+    {
+      "id": "mouse-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/mouse-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 28336,
+      "alpha": true,
+      "sha256": "7ab1cbdd3bc01a9ea2dea3bc6e5c79aa70473cf7efd6b5b956c88cced02d3b91"
+    },
+    {
+      "id": "mouse-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/mouse-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 33094,
+      "alpha": true,
+      "sha256": "6fc4b4579a56b9e3f55a9545b72ef4d45086eb3df9f3b7ff2afb4cc0297525be"
+    },
+    {
+      "id": "mouse-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/mouse-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 44510,
+      "alpha": true,
+      "sha256": "068166cdd3a60a7dc94108469709288821f2aad811e3f50cff61a83ff732a6ef"
+    },
+    {
+      "id": "keyboard-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/keyboard-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 33614,
+      "alpha": true,
+      "sha256": "59166e8aebe5599a687d9c6985c69b894c5b5cd4cf66d706b45c82ec5278ea11"
+    },
+    {
+      "id": "keyboard-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/keyboard-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 38012,
+      "alpha": true,
+      "sha256": "bb8d5ff2391e2032c2937335b8efdda0fa15d4f8cf26cb71b285822d40939bf1"
+    },
+    {
+      "id": "keyboard-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/keyboard-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 39592,
+      "alpha": true,
+      "sha256": "bbac0b287860b6a974fa16766ae9d879df21290e749563faaf04f7e1fbe46821"
+    },
+    {
+      "id": "headset-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/headset-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 30784,
+      "alpha": true,
+      "sha256": "b8659cbc2492084726b910d3f3a22eb54b58bc7acdbabd8b5ac4f65801e77688"
+    },
+    {
+      "id": "headset-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/headset-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 38594,
+      "alpha": true,
+      "sha256": "502b1aa83c43f9d1e4ea936ec6e161e28db40c86804ac785d1cd54b082f2c843"
+    },
+    {
+      "id": "headset-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/headset-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 54830,
+      "alpha": true,
+      "sha256": "bec178e60d0d75fba50482b99bc22b1cea2ac22a3545b17769c73307c2b12caa"
+    },
+    {
+      "id": "monitor-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/monitor-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 21620,
+      "alpha": true,
+      "sha256": "4865bb44f54d2bf405dc173be4f33b46af5f774a4b13b1b67c12f333df1e5694"
+    },
+    {
+      "id": "monitor-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/monitor-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 18298,
+      "alpha": true,
+      "sha256": "1d1371600152697258182d5b42d4bc2193f588bcca39b0e9215b3d196b264ab6"
+    },
+    {
+      "id": "monitor-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/monitor-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 23650,
+      "alpha": true,
+      "sha256": "5cb024b471032bec187769aefc8becae73e7d4978ed5e158c1486c209cab2033"
+    },
+    {
+      "id": "chair-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/chair-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 24550,
+      "alpha": true,
+      "sha256": "7b2263d954862eaa6adc04c552ff2429bc72120bcf10bbc1d605254603e1d61b"
+    },
+    {
+      "id": "chair-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/chair-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 30042,
+      "alpha": true,
+      "sha256": "8c6da0fc962046de1525bd34a0429ec547301e8ccea534f53b8ee35081a27afd"
+    },
+    {
+      "id": "chair-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/chair-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 30818,
+      "alpha": true,
+      "sha256": "3ac635f10df94c6d40cf5c620cea6ea65d7c1ec2e2c187b4bda3fe31cb43b4dd"
+    },
+    {
+      "id": "pc-standard",
+      "path": "public/esport-ui-assets/equipment/tiers/pc-standard.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 24324,
+      "alpha": true,
+      "sha256": "9fa474d9bed8d98b5bc69584e3a4c07778d74b25093fe896035cc661b0fab67e"
+    },
+    {
+      "id": "pc-pro",
+      "path": "public/esport-ui-assets/equipment/tiers/pc-pro.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 30772,
+      "alpha": true,
+      "sha256": "d8113cd4e79273e8792babb37440a80015a566cbcb9eefa8bb2ba17afecf8378"
+    },
+    {
+      "id": "pc-elite",
+      "path": "public/esport-ui-assets/equipment/tiers/pc-elite.webp",
+      "width": 640,
+      "height": 480,
+      "bytes": 47824,
+      "alpha": true,
+      "sha256": "de15a9ddc996f8c0834f85dd76036370480e326bfa12f3cb8bb9639097b6367b"
+    }
+  ]
+}

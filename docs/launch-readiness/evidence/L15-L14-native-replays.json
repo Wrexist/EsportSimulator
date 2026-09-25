@@ -1,0 +1,243 @@
+{
+  "passed": true,
+  "scenarios": [
+    {
+      "id": "delayed-radio",
+      "sha256": "93bf97de7299698fa29bf3260f64aed024ef2821115fe3d44b18fbd6c73fa485",
+      "outcome": "unresolved",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        }
+      },
+      "frames": 65,
+      "events": 59
+    },
+    {
+      "id": "execute",
+      "sha256": "f4ad98f23ebf470e5d1c21ef87358c1b4247e6234b7ccad55f362328227d5083",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "frames": 71,
+      "events": 87
+    },
+    {
+      "id": "retake",
+      "sha256": "88db89ca2af1914d28373f8ec646c5637014aba8260d614b0d2c948f71050501",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "frames": 41,
+      "events": 45
+    },
+    {
+      "id": "deadline-save",
+      "sha256": "d57c35f0bf64ca442c5a9a5b532aaff1746597ec6242b083b4a7a985b3c7886f",
+      "outcome": "T",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 1900
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 1900
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        }
+      },
+      "frames": 41,
+      "events": 43
+    },
+    {
+      "id": "support-smoke",
+      "sha256": "7c94e64ce6b0ebeed5b493c1b6f225217897e19c3c3637709c4749ecd5e7b360",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "frames": 71,
+      "events": 64
+    },
+    {
+      "id": "trade-clutch",
+      "sha256": "5c3a912a62c23400d458a7f47bea4bdaf52887bbc5d324e8f4c47687fb6b69ce",
+      "outcome": "T",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 1,
+          "damage": 89,
+          "health": 0,
+          "reward": 1900
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 1,
+          "damage": 0,
+          "health": 0,
+          "reward": 1900
+        },
+        "T1": {
+          "kills": 1,
+          "deaths": 0,
+          "damage": 188,
+          "health": 100,
+          "reward": 3550
+        },
+        "T2": {
+          "kills": 1,
+          "deaths": 0,
+          "damage": 12,
+          "health": 11,
+          "reward": 3550
+        }
+      },
+      "frames": 86,
+      "events": 41
+    }
+  ],
+  "checks": [
+    "compiled production worker",
+    "six SHA-256 input/output envelopes match Node and repeat",
+    "live/instant/skipped projections agree",
+    "isolated localStorage position restore",
+    "foreign checkpoint rejected"
+  ],
+  "limits": [
+    "lab rounds, not career live/instant parity",
+    "not packaged Windows acceptance",
+    "8 Hz recorded positions and 64 Hz event ticks",
+    "purchases/season economy not included"
+  ],
+  "electron": "44.3.0",
+  "buildId": "8oLRlUfW6uZLOeYJf6u2Q",
+  "worker": "2063.dbacc41a85fa0716.js"
+}

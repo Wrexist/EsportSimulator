@@ -1,0 +1,3036 @@
+{
+  "sourceSha256": "68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8",
+  "originalReport": {
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-length",
+        "message": "This opening spans more than 5% of the radar. Check that it marks one opening or cover edge, rather than a whole corridor.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "14fa447e-fab6-44cd-896b-dc9d298e235e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "14fa447e-fab6-44cd-896b-dc9d298e235e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "b4c75b32-3455-4a38-8be1-e722a762927c"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "b4c75b32-3455-4a38-8be1-e722a762927c"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-wall-overlap",
+        "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "3f6eba18-84f3-4355-9bc5-46ca786f9bba"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "3f6eba18-84f3-4355-9bc5-46ca786f9bba"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-wall-overlap",
+        "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "b695d5ea-637d-4315-8fbc-8f65de9f2389"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "b695d5ea-637d-4315-8fbc-8f65de9f2389"
+      },
+      {
+        "severity": "error",
+        "code": "missing-site",
+        "message": "Assign one plant polygon to site A."
+      },
+      {
+        "severity": "error",
+        "code": "missing-site",
+        "message": "Assign one plant polygon to site B."
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "22a5a073-2fe5-4beb-9d67-51f6f5f7ab2d"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "22a5a073-2fe5-4beb-9d67-51f6f5f7ab2d"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "35b51672-bde4-4658-a7d2-d90d87db8ffc"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "35b51672-bde4-4658-a7d2-d90d87db8ffc"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "5989abba-4f28-4121-b47b-3bae070d247c"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "5989abba-4f28-4121-b47b-3bae070d247c"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "12b8d7af-7d75-498d-87c4-69302f849b05"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "12b8d7af-7d75-498d-87c4-69302f849b05"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "be14a967-9e45-40f2-b8c5-d3eb5b5826de"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "be14a967-9e45-40f2-b8c5-d3eb5b5826de"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "8f37606d-5cd1-4430-a2d4-5d3ca38f87fa"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "8f37606d-5cd1-4430-a2d4-5d3ca38f87fa"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "77d36bfc-6833-4f7f-b2ff-bdc29e96e5da"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "77d36bfc-6833-4f7f-b2ff-bdc29e96e5da"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "848ffedb-e9ed-41c9-b59d-63e5ee6b9556"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "848ffedb-e9ed-41c9-b59d-63e5ee6b9556"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "67ca3f41-dda9-4a00-99d1-96f6aab2067b"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "67ca3f41-dda9-4a00-99d1-96f6aab2067b"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "4462234e-4b0e-4378-8f13-474491ec1a2b"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "4462234e-4b0e-4378-8f13-474491ec1a2b"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "1fd15650-1b44-42d3-aa22-767dd21de9f9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "1fd15650-1b44-42d3-aa22-767dd21de9f9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "1f78427c-3cac-4441-acb9-e944521005df"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "1f78427c-3cac-4441-acb9-e944521005df"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "494ac688-27c3-4b77-be17-382cbea069d9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "494ac688-27c3-4b77-be17-382cbea069d9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "36c0b02b-a31d-4a6c-b1ea-47ed7b578d6f"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "36c0b02b-a31d-4a6c-b1ea-47ed7b578d6f"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "error",
+        "code": "spawn-capacity",
+        "message": "Only 0 separated player positions were found in this spawn. Review its floor, boundary and clearance for a full five-player team.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "error",
+        "code": "no-safe-point",
+        "message": "No sampled point has a supported, clear player body on this floor.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "error",
+        "code": "floor-coverage",
+        "message": "99 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "error",
+        "code": "spawn-capacity",
+        "message": "Only 0 separated player positions were found in this spawn. Review its floor, boundary and clearance for a full five-player team.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "128d1d6d-6e1d-4fb0-ab69-c47cba379699"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "128d1d6d-6e1d-4fb0-ab69-c47cba379699"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "34969b36-6b35-45a6-83b5-9889e6211271"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "34969b36-6b35-45a6-83b5-9889e6211271"
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "CT spawn area cannot complete movement to Bombsite B in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "CT spawn area cannot complete movement to Bombsite A in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "T spawn area cannot complete movement to Bombsite B in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "T spawn area cannot complete movement to Bombsite A in the supported route model."
+      },
+      {
+        "severity": "warning",
+        "code": "reference-limits",
+        "message": "Sampled static reference checks are not full collision certification. Release inclusion remains held for review and content clearance."
+      }
+    ],
+    "zones": [
+      {
+        "id": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "kind": "ctspawn",
+        "label": "CT spawn area",
+        "samples": 99,
+        "safe": 0,
+        "unsupported": 99,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2448,
+            "point": [
+              -1844.3035957440713,
+              -1994.9665051508964,
+              -266.5379369680089
+            ]
+          },
+          {
+            "area": 2448,
+            "point": [
+              -1813.4938777998364,
+              -1994.9665051508964,
+              -262.6867222249796
+            ]
+          }
+        ],
+        "point": null,
+        "clearPositions": [],
+        "spawnPositions": []
+      },
+      {
+        "id": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "kind": "tspawn",
+        "label": "T spawn area",
+        "samples": 119,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 757,
+            "point": [
+              1159.6785426371778,
+              -302.53421091686215,
+              -162.4847830588033
+            ]
+          },
+          {
+            "area": 1071,
+            "point": [
+              1414.6623663077855,
+              -212.32471735770875,
+              -149.04110363504603
+            ]
+          }
+        ],
+        "point": null,
+        "clearPositions": [],
+        "spawnPositions": []
+      },
+      {
+        "id": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "kind": "bombsite",
+        "label": "Bombsite B",
+        "samples": 90,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2095,
+            "point": [
+              -2214.4172855809543,
+              209.38871296004086,
+              -156.46059557435063
+            ]
+          }
+        ],
+        "point": null,
+        "clearPositions": []
+      },
+      {
+        "id": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "kind": "bombsite",
+        "label": "Bombsite A",
+        "samples": 66,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2024,
+            "point": [
+              -596.6340431487793,
+              -2318.780449425996,
+              -171.42107214112795
+            ]
+          },
+          {
+            "area": 2102,
+            "point": [
+              -381.00500488099885,
+              -2260.585312593637,
+              -167.4894417431353
+            ]
+          },
+          {
+            "area": 1964,
+            "point": [
+              -350.2008565570302,
+              -2144.1950389289195,
+              -106
+            ]
+          }
+        ],
+        "point": null,
+        "clearPositions": []
+      }
+    ],
+    "routes": [
+      {
+        "from": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "to": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "to": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "to": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "to": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      }
+    ],
+    "wallsUsed": 0,
+    "receipt": {
+      "version": 1,
+      "signature": "86871:f3ec9ec4:60ccb7ea",
+      "errors": 28,
+      "warnings": 37,
+      "state": "blocked"
+    }
+  },
+  "repairs": [
+    {
+      "id": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+      "before": {
+        "floorId": "upper",
+        "zMin": 0,
+        "zMax": 72
+      },
+      "after": {
+        "floorId": "CT spawn sloped ground",
+        "zMin": -312,
+        "zMax": -240
+      }
+    },
+    {
+      "id": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+      "before": null,
+      "after": {
+        "floorId": "T spawn ground",
+        "zMin": -180,
+        "zMax": -145
+      }
+    },
+    {
+      "id": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+      "before": null,
+      "after": {
+        "floorId": "B site ground (exclude crates)",
+        "zMin": -174,
+        "zMax": -140,
+        "site": "B"
+      }
+    },
+    {
+      "id": "34969b36-6b35-45a6-83b5-9889e6211271",
+      "before": null,
+      "after": {
+        "floorId": "A site ground (exclude crates)",
+        "zMin": -190,
+        "zMax": -145,
+        "site": "A"
+      }
+    }
+  ],
+  "markings": 142,
+  "counts": {
+    "wall": 15,
+    "smoke": 72,
+    "flash": 20,
+    "fire": 24,
+    "window": 7,
+    "ctspawn": 1,
+    "tspawn": 1,
+    "bombsite": 2
+  },
+  "delta": {
+    "added": [
+      {
+        "id": "22a5a073-2fe5-4beb-9d67-51f6f5f7ab2d",
+        "kind": "wall"
+      },
+      {
+        "id": "35b51672-bde4-4658-a7d2-d90d87db8ffc",
+        "kind": "wall"
+      },
+      {
+        "id": "5989abba-4f28-4121-b47b-3bae070d247c",
+        "kind": "wall"
+      },
+      {
+        "id": "12b8d7af-7d75-498d-87c4-69302f849b05",
+        "kind": "wall"
+      },
+      {
+        "id": "be14a967-9e45-40f2-b8c5-d3eb5b5826de",
+        "kind": "wall"
+      },
+      {
+        "id": "8f37606d-5cd1-4430-a2d4-5d3ca38f87fa",
+        "kind": "wall"
+      },
+      {
+        "id": "77d36bfc-6833-4f7f-b2ff-bdc29e96e5da",
+        "kind": "wall"
+      },
+      {
+        "id": "848ffedb-e9ed-41c9-b59d-63e5ee6b9556",
+        "kind": "wall"
+      },
+      {
+        "id": "67ca3f41-dda9-4a00-99d1-96f6aab2067b",
+        "kind": "wall"
+      },
+      {
+        "id": "4462234e-4b0e-4378-8f13-474491ec1a2b",
+        "kind": "wall"
+      },
+      {
+        "id": "1fd15650-1b44-42d3-aa22-767dd21de9f9",
+        "kind": "wall"
+      },
+      {
+        "id": "a3d71d5a-80f9-4249-a386-9a5612784a3b",
+        "kind": "window"
+      },
+      {
+        "id": "14fa447e-fab6-44cd-896b-dc9d298e235e",
+        "kind": "window"
+      },
+      {
+        "id": "b4c75b32-3455-4a38-8be1-e722a762927c",
+        "kind": "window"
+      },
+      {
+        "id": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e",
+        "kind": "window"
+      },
+      {
+        "id": "3f6eba18-84f3-4355-9bc5-46ca786f9bba",
+        "kind": "window"
+      },
+      {
+        "id": "84b125c2-c8fc-412f-981d-fade2f8e8896",
+        "kind": "window"
+      },
+      {
+        "id": "b695d5ea-637d-4315-8fbc-8f65de9f2389",
+        "kind": "window"
+      },
+      {
+        "id": "1f78427c-3cac-4441-acb9-e944521005df",
+        "kind": "wall"
+      },
+      {
+        "id": "494ac688-27c3-4b77-be17-382cbea069d9",
+        "kind": "wall"
+      },
+      {
+        "id": "36c0b02b-a31d-4a6c-b1ea-47ed7b578d6f",
+        "kind": "wall"
+      },
+      {
+        "id": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "kind": "ctspawn"
+      },
+      {
+        "id": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "kind": "tspawn"
+      },
+      {
+        "id": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "kind": "bombsite"
+      },
+      {
+        "id": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "kind": "bombsite"
+      }
+    ],
+    "removed": [
+      "9e031950-9176-465d-b858-55629a85fc52",
+      "7a9570ca-72d4-49f9-98c4-8ca869ad0c98",
+      "3ab9374d-0b4a-4e35-80c1-279a00cef173",
+      "6e167c55-b797-4513-b72e-d65a35f84d32",
+      "bde215a4-480e-49c4-b9ea-344115a521ce",
+      "e7000224-c560-4b93-9d64-2459cf57d157",
+      "bed28f21-6d3f-474a-afb6-3de54088e521",
+      "47e5c5ae-b0a1-4379-8d68-1510dbb78871",
+      "f0791d45-7988-4d66-ad67-80f641a525a9",
+      "26cb7ff5-1aac-460d-8138-752576c0c9be",
+      "2737add1-48bd-49f3-8f71-aefdf52320c9",
+      "ed36e494-8758-4206-b04c-8d64288dc70f",
+      "908e3b2c-f94e-429f-a788-7b68853a6491",
+      "9c0839c2-2f6d-447c-aed2-837a36b163de",
+      "67a10260-f8c8-4d9e-9009-d14ee00be3f3",
+      "95187cf4-9e88-4b86-bed2-5c473e680c7b",
+      "4f9fc809-91dc-4a0c-a8f2-2cf5444d08e2",
+      "6cc268ef-feb8-4846-8bf7-0c580f182a4b",
+      "13d9bcb3-6b46-491d-941b-87d2574dce75",
+      "a9c4827a-6078-4fe1-a5d2-5298cc91a1d1",
+      "f02d9baa-f006-4a7f-8181-981f825ceaad",
+      "039da054-317d-4865-909e-bf938f08281f",
+      "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+      "64aa2728-d3ba-4306-8287-83a0b7052483",
+      "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+      "8c9791f2-b3d0-4c10-89a1-250c3e76fb28",
+      "e4b4df85-f252-435c-934c-c11e2a97d2db",
+      "f103aabe-6d13-4012-9ccf-54c689aefef2",
+      "0da8dd31-ef0a-4857-98a2-d11cb217069c",
+      "bf5debe6-6f5b-47d3-af0d-7ad0c6d746a8",
+      "a3bebe3e-7770-477f-9610-fef4a4b35ee8",
+      "f46362e8-cfb6-43a4-997c-abdc805b0afd",
+      "2f856572-c483-4fb4-8c95-713eb8600dcc",
+      "5fd6942b-1c61-4e07-9a64-4b1cb129b6a8",
+      "3cb0bb2a-0d74-476a-b2dc-8a06db07126e",
+      "c8e94615-8e0d-4ffa-802c-e267e8f82aee",
+      "99cb29f0-9a83-447d-852b-64614bfb83b2",
+      "0f714a84-bf2d-4212-a2c8-e60f174b1269",
+      "fbc0a38d-d702-48d9-a1d8-d34c58fded46",
+      "ddfea598-400f-45f5-bcbd-488adae30d6e",
+      "f122aa94-2dcc-4b7e-9bf3-46578d1f1a40",
+      "562b484b-f81b-4670-bae1-05d260f4e178",
+      "cf451d24-d59c-4818-b4dd-dc3a741db62b",
+      "32665513-5010-41df-bb93-dcf38f108df6",
+      "950ac9ae-8d63-422e-88fb-690687226a2d",
+      "461a3100-5da8-494c-9c8c-801be89a7118",
+      "89c7eb72-e4b9-4962-8c58-801f2b341efc",
+      "f1598fea-a05e-40e9-9a5a-97d7c2b8ef01",
+      "570d443f-73ac-4397-a7a9-b83cb21ebe28",
+      "94420399-119a-4a08-86af-d9232ff4797e",
+      "464426c3-0319-459d-bc2f-76dfbb89f51a",
+      "afe5f9f8-a07a-4660-8b8d-238b72816b4b"
+    ],
+    "edited": []
+  },
+  "report": {
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-length",
+        "message": "This opening spans more than 5% of the radar. Check that it marks one opening or cover edge, rather than a whole corridor.",
+        "markId": "a3d71d5a-80f9-4249-a386-9a5612784a3b"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "14fa447e-fab6-44cd-896b-dc9d298e235e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "14fa447e-fab6-44cd-896b-dc9d298e235e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "b4c75b32-3455-4a38-8be1-e722a762927c"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "b4c75b32-3455-4a38-8be1-e722a762927c"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-wall-overlap",
+        "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+        "markId": "9f5f7878-34d6-40f0-9cf8-06e75df2ba3e"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "3f6eba18-84f3-4355-9bc5-46ca786f9bba"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "3f6eba18-84f3-4355-9bc5-46ca786f9bba"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-wall-overlap",
+        "message": "This opening overlaps a red segment in 2D. Review their heights and leave the intended opening clear; green/blue markings do not erase walls.",
+        "markId": "84b125c2-c8fc-412f-981d-fade2f8e8896"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-description",
+        "message": "Name this opening and describe walking, crouching, jumping and shooting. Blue defaults to Window; choose Low cover or Jump / climb when appropriate.",
+        "markId": "b695d5ea-637d-4315-8fbc-8f65de9f2389"
+      },
+      {
+        "severity": "warning",
+        "code": "opening-height",
+        "message": "This opening has no floor / height binding. Its drawing does not create a walkable or shootable opening.",
+        "markId": "b695d5ea-637d-4315-8fbc-8f65de9f2389"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "22a5a073-2fe5-4beb-9d67-51f6f5f7ab2d"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "22a5a073-2fe5-4beb-9d67-51f6f5f7ab2d"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "35b51672-bde4-4658-a7d2-d90d87db8ffc"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "35b51672-bde4-4658-a7d2-d90d87db8ffc"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "5989abba-4f28-4121-b47b-3bae070d247c"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "5989abba-4f28-4121-b47b-3bae070d247c"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "12b8d7af-7d75-498d-87c4-69302f849b05"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "12b8d7af-7d75-498d-87c4-69302f849b05"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "be14a967-9e45-40f2-b8c5-d3eb5b5826de"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "be14a967-9e45-40f2-b8c5-d3eb5b5826de"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "8f37606d-5cd1-4430-a2d4-5d3ca38f87fa"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "8f37606d-5cd1-4430-a2d4-5d3ca38f87fa"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "77d36bfc-6833-4f7f-b2ff-bdc29e96e5da"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "77d36bfc-6833-4f7f-b2ff-bdc29e96e5da"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "848ffedb-e9ed-41c9-b59d-63e5ee6b9556"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "848ffedb-e9ed-41c9-b59d-63e5ee6b9556"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "67ca3f41-dda9-4a00-99d1-96f6aab2067b"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "67ca3f41-dda9-4a00-99d1-96f6aab2067b"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "4462234e-4b0e-4378-8f13-474491ec1a2b"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "4462234e-4b0e-4378-8f13-474491ec1a2b"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "1fd15650-1b44-42d3-aa22-767dd21de9f9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "1fd15650-1b44-42d3-aa22-767dd21de9f9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "1f78427c-3cac-4441-acb9-e944521005df"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "1f78427c-3cac-4441-acb9-e944521005df"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "494ac688-27c3-4b77-be17-382cbea069d9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "494ac688-27c3-4b77-be17-382cbea069d9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "36c0b02b-a31d-4a6c-b1ea-47ed7b578d6f"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "36c0b02b-a31d-4a6c-b1ea-47ed7b578d6f"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "error",
+        "code": "floor-coverage",
+        "message": "3 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "warning",
+        "code": "body-clearance",
+        "message": "33 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+        "markId": "e342d75a-bf88-4f53-9b2d-951129f01df3"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "error",
+        "code": "floor-coverage",
+        "message": "2 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "warning",
+        "code": "body-clearance",
+        "message": "26 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+        "markId": "7e894eb2-6759-4731-82cf-500b7f3ba5cf"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "128d1d6d-6e1d-4fb0-ab69-c47cba379699"
+      },
+      {
+        "severity": "error",
+        "code": "floor-coverage",
+        "message": "20 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+        "markId": "128d1d6d-6e1d-4fb0-ab69-c47cba379699"
+      },
+      {
+        "severity": "warning",
+        "code": "body-clearance",
+        "message": "14 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+        "markId": "128d1d6d-6e1d-4fb0-ab69-c47cba379699"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "34969b36-6b35-45a6-83b5-9889e6211271"
+      },
+      {
+        "severity": "error",
+        "code": "floor-coverage",
+        "message": "9 samples lack this floor; 0 overlap different floors. Refine the polygon or height range.",
+        "markId": "34969b36-6b35-45a6-83b5-9889e6211271"
+      },
+      {
+        "severity": "warning",
+        "code": "body-clearance",
+        "message": "15 samples are too close to an edge or obstruction. Only clear inset points can be used.",
+        "markId": "34969b36-6b35-45a6-83b5-9889e6211271"
+      },
+      {
+        "severity": "warning",
+        "code": "reference-limits",
+        "message": "Sampled static reference checks are not full collision certification. Release inclusion remains held for review and content clearance."
+      }
+    ],
+    "zones": [
+      {
+        "id": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "kind": "ctspawn",
+        "label": "CT spawn area",
+        "samples": 99,
+        "safe": 63,
+        "unsupported": 3,
+        "blocked": 33,
+        "ambiguous": 0,
+        "exits": 3,
+        "candidates": [
+          {
+            "area": 2448,
+            "point": [
+              -1844.3035957440713,
+              -1994.9665051508964,
+              -266.5379369680089
+            ]
+          },
+          {
+            "area": 2448,
+            "point": [
+              -1813.4938777998364,
+              -1994.9665051508964,
+              -262.6867222249796
+            ]
+          }
+        ],
+        "point": {
+          "area": 2352,
+          "point": [
+            -1690.2550060228964,
+            -1875.1694268002066,
+            -263.8524858495273
+          ]
+        },
+        "clearPositions": [
+          {
+            "area": 2352,
+            "point": [
+              -1690.2550060228964,
+              -1875.1694268002066,
+              -263.8524858495273
+            ]
+          },
+          {
+            "area": 2275,
+            "point": [
+              -1567.0161342459564,
+              -1785.3216180371892,
+              -264
+            ]
+          },
+          {
+            "area": 2353,
+            "point": [
+              -1567.0161342459564,
+              -1965.017235563224,
+              -262.59642698918964
+            ]
+          },
+          {
+            "area": 2444,
+            "point": [
+              -1813.4938777998364,
+              -1785.3216180371892,
+              -262.6867222249795
+            ]
+          },
+          {
+            "area": 2448,
+            "point": [
+              -1813.4938777998364,
+              -1965.017235563224,
+              -262.6867222249796
+            ]
+          }
+        ],
+        "spawnPositions": [
+          {
+            "area": 2352,
+            "point": [
+              -1690.2550060228964,
+              -1875.1694268002066,
+              -263.8524858495273
+            ]
+          },
+          {
+            "area": 2275,
+            "point": [
+              -1567.0161342459564,
+              -1785.3216180371892,
+              -264
+            ]
+          },
+          {
+            "area": 2353,
+            "point": [
+              -1567.0161342459564,
+              -1965.017235563224,
+              -262.59642698918964
+            ]
+          },
+          {
+            "area": 2444,
+            "point": [
+              -1813.4938777998364,
+              -1785.3216180371892,
+              -262.6867222249795
+            ]
+          },
+          {
+            "area": 2448,
+            "point": [
+              -1813.4938777998364,
+              -1965.017235563224,
+              -262.6867222249796
+            ]
+          }
+        ]
+      },
+      {
+        "id": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "kind": "tspawn",
+        "label": "T spawn area",
+        "samples": 119,
+        "safe": 91,
+        "unsupported": 2,
+        "blocked": 26,
+        "ambiguous": 0,
+        "exits": 2,
+        "candidates": [
+          {
+            "area": 757,
+            "point": [
+              1159.6785426371778,
+              -302.53421091686215,
+              -162.4847830588033
+            ]
+          },
+          {
+            "area": 1071,
+            "point": [
+              1414.6623663077855,
+              -212.32471735770875,
+              -149.04110363504603
+            ]
+          }
+        ],
+        "point": {
+          "area": 900,
+          "point": [
+            1287.1704544724817,
+            -122.11522379855535,
+            -164
+          ]
+        },
+        "clearPositions": [
+          {
+            "area": 900,
+            "point": [
+              1287.1704544724817,
+              -122.11522379855535,
+              -164
+            ]
+          },
+          {
+            "area": 696,
+            "point": [
+              1191.5515205960037,
+              58.303763319751454,
+              -162.54083406072797
+            ]
+          },
+          {
+            "area": 760,
+            "point": [
+              1191.5515205960037,
+              -302.53421091686215,
+              -162.5944776328928
+            ]
+          },
+          {
+            "area": 933,
+            "point": [
+              1382.7893883489596,
+              -302.53421091686215,
+              -164
+            ]
+          },
+          {
+            "area": 999,
+            "point": [
+              1382.7893883489596,
+              58.303763319751454,
+              -164
+            ]
+          }
+        ],
+        "spawnPositions": [
+          {
+            "area": 900,
+            "point": [
+              1287.1704544724817,
+              -122.11522379855535,
+              -164
+            ]
+          },
+          {
+            "area": 696,
+            "point": [
+              1191.5515205960037,
+              58.303763319751454,
+              -162.54083406072797
+            ]
+          },
+          {
+            "area": 760,
+            "point": [
+              1191.5515205960037,
+              -302.53421091686215,
+              -162.5944776328928
+            ]
+          },
+          {
+            "area": 933,
+            "point": [
+              1382.7893883489596,
+              -302.53421091686215,
+              -164
+            ]
+          },
+          {
+            "area": 999,
+            "point": [
+              1382.7893883489596,
+              58.303763319751454,
+              -164
+            ]
+          }
+        ]
+      },
+      {
+        "id": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "kind": "bombsite",
+        "label": "B plant zone",
+        "samples": 90,
+        "safe": 56,
+        "unsupported": 20,
+        "blocked": 14,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2095,
+            "point": [
+              -2214.4172855809543,
+              209.38871296004086,
+              -156.46059557435063
+            ]
+          }
+        ],
+        "point": {
+          "area": 1838,
+          "point": [
+            -2063.8887079458727,
+            271.6192044880038,
+            -156
+          ]
+        },
+        "clearPositions": [
+          {
+            "area": 1838,
+            "point": [
+              -2063.8887079458727,
+              271.6192044880038,
+              -156
+            ]
+          },
+          {
+            "area": 1987,
+            "point": [
+              -2184.311570053938,
+              116.04297566809652,
+              -156
+            ]
+          },
+          {
+            "area": 1848,
+            "point": [
+              -2033.7829924188563,
+              427.19543330791106,
+              -156
+            ]
+          },
+          {
+            "area": 1655,
+            "point": [
+              -1943.4658458378076,
+              302.7344502519852,
+              -156
+            ]
+          },
+          {
+            "area": 1896,
+            "point": [
+              -2184.311570053938,
+              240.50395872402234,
+              -156
+            ]
+          }
+        ]
+      },
+      {
+        "id": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "kind": "bombsite",
+        "label": "A plant zone",
+        "samples": 66,
+        "safe": 42,
+        "unsupported": 9,
+        "blocked": 15,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2024,
+            "point": [
+              -596.6340431487793,
+              -2318.780449425996,
+              -171.42107214112795
+            ]
+          },
+          {
+            "area": 2102,
+            "point": [
+              -381.00500488099885,
+              -2260.585312593637,
+              -167.4894417431353
+            ]
+          },
+          {
+            "area": 1964,
+            "point": [
+              -350.2008565570302,
+              -2144.1950389289195,
+              -106
+            ]
+          }
+        ],
+        "point": {
+          "area": 2102,
+          "point": [
+            -442.61330152893606,
+            -2202.3901757612784,
+            -174.00948553327922
+          ]
+        },
+        "clearPositions": [
+          {
+            "area": 2102,
+            "point": [
+              -442.61330152893606,
+              -2202.3901757612784,
+              -174.00948553327922
+            ]
+          },
+          {
+            "area": 2024,
+            "point": [
+              -565.8298948248106,
+              -2289.6828810098164,
+              -172.36447800695743
+            ]
+          },
+          {
+            "area": 2078,
+            "point": [
+              -565.8298948248106,
+              -2144.1950389289195,
+              -175.64326747579565
+            ]
+          },
+          {
+            "area": 2046,
+            "point": [
+              -319.39670823306153,
+              -2202.3901757612784,
+              -170.2640048658985
+            ]
+          },
+          {
+            "area": 1994,
+            "point": [
+              -473.4174498529047,
+              -2115.09747051274,
+              -175.99999999999997
+            ]
+          }
+        ]
+      }
+    ],
+    "routes": [
+      {
+        "from": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "to": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "reachable": true,
+        "points": [
+          [
+            -1690.2550060228964,
+            -1875.1694268002066,
+            -263.8524858495273
+          ],
+          [
+            -1655.5001,
+            -1742.4952,
+            -263
+          ],
+          [
+            -1654.0001,
+            -1643.4952,
+            -262
+          ],
+          [
+            -1654.0001,
+            -1599.9952,
+            -262
+          ],
+          [
+            -1654.0001,
+            -1407.9951,
+            -259
+          ],
+          [
+            -1654.0001,
+            -1311.9951,
+            -259
+          ],
+          [
+            -1654.0001,
+            -1215.9951,
+            -256
+          ],
+          [
+            -1654.0001,
+            -1215.9951,
+            -257
+          ],
+          [
+            -1628.5001,
+            -1213.7451,
+            -257
+          ],
+          [
+            -1624.0001,
+            -1210.7451,
+            -257
+          ],
+          [
+            -1622.5001499999998,
+            -1207.7451,
+            -255.99999
+          ],
+          [
+            -1574.5001,
+            -1125.9951,
+            -236.99999
+          ],
+          [
+            -1551.2501,
+            -1098.9951,
+            -229.99999
+          ],
+          [
+            -1545.2501,
+            -1023.9951,
+            -212
+          ],
+          [
+            -1591.7501499999998,
+            -928.7451,
+            -185.99999
+          ],
+          [
+            -1646.5001499999998,
+            -876.2451,
+            -173.99999
+          ],
+          [
+            -1654.7501,
+            -831.9951,
+            -164
+          ],
+          [
+            -1618.7501,
+            -797.4951,
+            -164
+          ],
+          [
+            -1614.2501,
+            -794.4950799999999,
+            -164
+          ],
+          [
+            -1612.7501499999998,
+            -791.4951,
+            -164
+          ],
+          [
+            -1612.7501499999998,
+            -679.7450799999999,
+            -164
+          ],
+          [
+            -1614.2501,
+            -676.74506,
+            -164
+          ],
+          [
+            -1621.0001,
+            -668.49506,
+            -164
+          ],
+          [
+            -1624.0001,
+            -666.99506,
+            -164
+          ],
+          [
+            -1685.5001,
+            -646.74506,
+            -164
+          ],
+          [
+            -1731.2501,
+            -646.74506,
+            -164
+          ],
+          [
+            -1734.2501,
+            -648.24506,
+            -164
+          ],
+          [
+            -1741.0001,
+            -643.74506,
+            -164
+          ],
+          [
+            -1772.5001,
+            -662.49506,
+            -164
+          ],
+          [
+            -1777.0001,
+            -662.49506,
+            -164
+          ],
+          [
+            -1795.0001499999998,
+            -654.24506,
+            -164
+          ],
+          [
+            -1799.41186203966,
+            -655.7450543342776,
+            -164
+          ],
+          [
+            -1878.1619,
+            -645.99506,
+            -164
+          ],
+          [
+            -2176.0002,
+            -642.99506,
+            -164
+          ],
+          [
+            -2214.2502,
+            -642.99506,
+            -164
+          ],
+          [
+            -2265.2502,
+            -560.495045,
+            -164
+          ],
+          [
+            -2300.5002,
+            -561.995045,
+            -164
+          ],
+          [
+            -2307.2502,
+            -489.99503,
+            -164
+          ],
+          [
+            -2309.5002,
+            -488.495045,
+            -164
+          ],
+          [
+            -2327.1252036099772,
+            -491.1200552348336,
+            -164
+          ],
+          [
+            -2333.8752,
+            -445.37003,
+            -164
+          ],
+          [
+            -2327.5002,
+            -301.74503,
+            -164
+          ],
+          [
+            -2327.5002,
+            -294.24503,
+            -164
+          ],
+          [
+            -2327.5002,
+            -288.24503,
+            -164
+          ],
+          [
+            -2327.5002,
+            -275.49503,
+            -164
+          ],
+          [
+            -2327.5002,
+            -255.99503,
+            -164
+          ],
+          [
+            -2327.5002,
+            -248.49516,
+            -164
+          ],
+          [
+            -2332.0002,
+            -201.62016,
+            -161.99999
+          ],
+          [
+            -2332.0002,
+            -154.745146,
+            -164
+          ],
+          [
+            -2329.0002,
+            -153.245146,
+            -164
+          ],
+          [
+            -2327.5002,
+            -150.245146,
+            -164
+          ],
+          [
+            -2233.0002,
+            -200.12016,
+            -165.99999
+          ],
+          [
+            -2176.0002,
+            -200.12016,
+            -164.99999
+          ],
+          [
+            -2176.0002,
+            -200.12016,
+            -162.9999948457308
+          ],
+          [
+            -2132.5002,
+            -147.995141,
+            -164.99999
+          ],
+          [
+            -2112.2502,
+            -105.995141,
+            -164
+          ],
+          [
+            -2109.2502,
+            -104.495141,
+            -164
+          ],
+          [
+            -2106.2502,
+            -102.995141,
+            -164
+          ],
+          [
+            -2056.7502,
+            -20.495131999999998,
+            -163
+          ],
+          [
+            -2077.0002,
+            34.254869,
+            -161.99999
+          ],
+          [
+            -2074.0002,
+            38.754869,
+            -160.99999
+          ],
+          [
+            -2077.00015,
+            40.254869,
+            -160
+          ],
+          [
+            -2080.00015,
+            63.504869,
+            -156
+          ],
+          [
+            -2080.7502,
+            76.25487,
+            -156
+          ],
+          [
+            -2079.357336768206,
+            110.0048440089448,
+            -156
+          ],
+          [
+            -2119.75015,
+            147.504885,
+            -156
+          ],
+          [
+            -2110.00015,
+            224.00487500000003,
+            -156
+          ],
+          [
+            -2110.00015,
+            231.50489,
+            -156
+          ],
+          [
+            -2074.00015,
+            231.50489,
+            -156
+          ],
+          [
+            -2063.8887079458727,
+            271.6192044880038,
+            -156
+          ]
+        ]
+      },
+      {
+        "from": "e342d75a-bf88-4f53-9b2d-951129f01df3",
+        "to": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "reachable": true,
+        "points": [
+          [
+            -1690.2550060228964,
+            -1875.1694268002066,
+            -263.8524858495273
+          ],
+          [
+            -1648.0001,
+            -1887.9952,
+            -265
+          ],
+          [
+            -1600.0001,
+            -1887.9952,
+            -264
+          ],
+          [
+            -1529.5001,
+            -1983.9952,
+            -261
+          ],
+          [
+            -1529.5001,
+            -2135.4954,
+            -250.99998
+          ],
+          [
+            -1504.7501,
+            -2175.9954,
+            -245.99999
+          ],
+          [
+            -1450.00005,
+            -2294.4954,
+            -237.99998
+          ],
+          [
+            -1447.0001,
+            -2386.7454,
+            -232
+          ],
+          [
+            -1408.0001,
+            -2400.2454,
+            -223
+          ],
+          [
+            -1216.0001,
+            -2432.4954,
+            -181.99998
+          ],
+          [
+            -1121.1251,
+            -2448.2452,
+            -165.99999
+          ],
+          [
+            -1025.5001,
+            -2334.2454,
+            -164
+          ],
+          [
+            -1024.0001,
+            -2337.2454,
+            -164
+          ],
+          [
+            -1019.50008,
+            -2340.2454,
+            -164
+          ],
+          [
+            -970.75005,
+            -2347.7452,
+            -164
+          ],
+          [
+            -907.5685882178891,
+            -2402.709118496982,
+            -164.15600443080513
+          ],
+          [
+            -907.5685799999644,
+            -2402.7091499999906,
+            -164.11290000000014
+          ],
+          [
+            -880.56855,
+            -2395.9591499999997,
+            -164.1129
+          ],
+          [
+            -852.25006,
+            -2382.2454,
+            -167
+          ],
+          [
+            -847.75006,
+            -2382.2454,
+            -167.99999
+          ],
+          [
+            -842.50006,
+            -2385.9952,
+            -167.99999
+          ],
+          [
+            -827.50006,
+            -2422.7454,
+            -167.99999
+          ],
+          [
+            -680.4956,
+            -2448.2452,
+            -167
+          ],
+          [
+            -640,
+            -2400.2454,
+            -168.5
+          ],
+          [
+            -640,
+            -2400.2454,
+            -167
+          ],
+          [
+            -604,
+            -2399.4954,
+            -167
+          ],
+          [
+            -572.5,
+            -2374.7454,
+            -167
+          ],
+          [
+            -451,
+            -2265.9952,
+            -170
+          ],
+          [
+            -442.61330152893606,
+            -2202.3901757612784,
+            -174.00948553327922
+          ]
+        ]
+      },
+      {
+        "from": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "to": "128d1d6d-6e1d-4fb0-ab69-c47cba379699",
+        "reachable": true,
+        "points": [
+          [
+            1287.1704544724817,
+            -122.11522379855535,
+            -164
+          ],
+          [
+            1310.375,
+            -65.8701435,
+            -164
+          ],
+          [
+            1341.5,
+            -63.995132,
+            -164
+          ],
+          [
+            1341.5,
+            -63.995132,
+            -163.21153451923078
+          ],
+          [
+            1253.75,
+            25.254869,
+            -163
+          ],
+          [
+            1233.50005,
+            93.50487,
+            -163
+          ],
+          [
+            1235.00005,
+            100.25487000000001,
+            -163
+          ],
+          [
+            1232,
+            104.7548725,
+            -163
+          ],
+          [
+            1318.25,
+            104.7548725,
+            -164
+          ],
+          [
+            1318.25,
+            128.00487,
+            -164
+          ],
+          [
+            1318.25,
+            320.00488,
+            -227.99998
+          ],
+          [
+            1239.5,
+            401.0049,
+            -256.99999
+          ],
+          [
+            1196.75005,
+            447.50491999999997,
+            -256.99999
+          ],
+          [
+            1194.5001,
+            447.50491999999997,
+            -260
+          ],
+          [
+            1166.75005,
+            446.00491999999997,
+            -260
+          ],
+          [
+            1117.25005,
+            419.00491999999997,
+            -259
+          ],
+          [
+            1039.99997,
+            420.50492,
+            -258
+          ],
+          [
+            970.24994,
+            476.00492,
+            -255.99999
+          ],
+          [
+            915.49994,
+            479.00492,
+            -249.99998
+          ],
+          [
+            907.24994,
+            479.00492,
+            -249.99998
+          ],
+          [
+            865.2499700000001,
+            477.50492,
+            -250.99998
+          ],
+          [
+            860.74994,
+            477.50492,
+            -251.99999
+          ],
+          [
+            855.4999700000001,
+            473.00492,
+            -250.99998
+          ],
+          [
+            807.5,
+            473.00492,
+            -253.99998
+          ],
+          [
+            704,
+            470.00492,
+            -251.99998
+          ],
+          [
+            691.25,
+            477.50492,
+            -253.99999
+          ],
+          [
+            595.249985,
+            477.50492,
+            -257
+          ],
+          [
+            511.99997,
+            477.50492,
+            -257
+          ],
+          [
+            505.249955,
+            476.00492,
+            -258
+          ],
+          [
+            445.24994,
+            464.00492,
+            -256.99999
+          ],
+          [
+            435.874955,
+            440.0049,
+            -257.99999
+          ],
+          [
+            402.874955,
+            407.00491999999997,
+            -259
+          ],
+          [
+            364.24994,
+            383.00491999999997,
+            -259
+          ],
+          [
+            352.24994,
+            323.00491,
+            -259
+          ],
+          [
+            350.74994,
+            320.00488,
+            -259
+          ],
+          [
+            350.74994,
+            311.75489000000005,
+            -259
+          ],
+          [
+            352.24994,
+            308.75489000000005,
+            -259
+          ],
+          [
+            358.24994,
+            255.50488,
+            -254.99999
+          ],
+          [
+            358.24994,
+            215.75488,
+            -254.99999
+          ],
+          [
+            358.24994,
+            128.00487,
+            -238.99999
+          ],
+          [
+            358.99994,
+            32.004869000000014,
+            -213.99999
+          ],
+          [
+            358.99994,
+            -126.2451575,
+            -171.99998
+          ],
+          [
+            358.99994,
+            -130.745155,
+            -169.99998
+          ],
+          [
+            319.99994,
+            -207.995095,
+            -164.99999
+          ],
+          [
+            257.74994,
+            -251.49509,
+            -164.99999
+          ],
+          [
+            254.74993999999998,
+            -255.99503,
+            -164.99999
+          ],
+          [
+            247.249945,
+            -259.74503,
+            -164
+          ],
+          [
+            146.749918,
+            -357.995045,
+            -167
+          ],
+          [
+            127.999916,
+            -366.995045,
+            -171.99999
+          ],
+          [
+            101.749916,
+            -465.24506,
+            -173
+          ],
+          [
+            75.874916,
+            -483.99506,
+            -176
+          ],
+          [
+            -20.500089000000003,
+            -482.49505999999997,
+            -169
+          ],
+          [
+            -52.000089,
+            -474.99506,
+            -163
+          ],
+          [
+            -53.500089,
+            -471.99506,
+            -163
+          ],
+          [
+            -58.000089,
+            -468.99506,
+            -163
+          ],
+          [
+            -64.00009,
+            -468.99506,
+            -162
+          ],
+          [
+            -255.99998,
+            -471.24506,
+            -163
+          ],
+          [
+            -434.49998500000004,
+            -417.99503000000004,
+            -162
+          ],
+          [
+            -438.99998500000004,
+            -397.74506,
+            -163
+          ],
+          [
+            -496,
+            -397.74506,
+            -164
+          ],
+          [
+            -568,
+            -397.74506,
+            -161.2499975
+          ],
+          [
+            -640,
+            -397.74506,
+            -161.99999
+          ],
+          [
+            -643.7500299999999,
+            -397.74506,
+            -161.99999
+          ],
+          [
+            -648.25,
+            -394.74503000000004,
+            -160.99999
+          ],
+          [
+            -658.75,
+            -355.37003000000004,
+            -160.99999
+          ],
+          [
+            -671.5,
+            -329.870045,
+            -160.99999
+          ],
+          [
+            -794.5000299999999,
+            -264.62003,
+            -160
+          ],
+          [
+            -802.3750299999999,
+            -248.870095,
+            -160
+          ],
+          [
+            -793.0000299999999,
+            -201.24509,
+            -161.99999
+          ],
+          [
+            -793.0000299999999,
+            -105.24514099999999,
+            -162.99998
+          ],
+          [
+            -793.0000299999999,
+            -100.74514099999999,
+            -163.99999
+          ],
+          [
+            -832.00006,
+            -15.995131999999998,
+            -164.99999
+          ],
+          [
+            -833.50006,
+            28.254868000000002,
+            -164.99999
+          ],
+          [
+            -833.50006,
+            50.004869,
+            -163
+          ],
+          [
+            -833.50006,
+            98.00487000000001,
+            -166
+          ],
+          [
+            -836.5000299999999,
+            102.50487000000001,
+            -166
+          ],
+          [
+            -839.50006,
+            104.00487000000001,
+            -167
+          ],
+          [
+            -882.25006,
+            117.50487000000001,
+            -168.99999
+          ],
+          [
+            -901.0000299999999,
+            200.754885,
+            -166.99998
+          ],
+          [
+            -1032.2501,
+            169.25487500000003,
+            -168.99999
+          ],
+          [
+            -1072.0001,
+            210.50487500000003,
+            -164.99999
+          ],
+          [
+            -1168.0001,
+            200.004875,
+            -163.99999
+          ],
+          [
+            -1216.0001,
+            210.50487500000003,
+            -163.77418468955943
+          ],
+          [
+            -1216.0001,
+            210.50487500000003,
+            -164.99999
+          ],
+          [
+            -1302.2501,
+            204.50487500000003,
+            -165.99999
+          ],
+          [
+            -1398.2501,
+            204.50487500000003,
+            -164
+          ],
+          [
+            -1408.0001,
+            204.50487500000003,
+            -164
+          ],
+          [
+            -1426.7501,
+            192.50487500000003,
+            -164
+          ],
+          [
+            -1561.0001,
+            192.50487500000003,
+            -164.99999
+          ],
+          [
+            -1565.5001,
+            192.50487500000003,
+            -165.99998
+          ],
+          [
+            -1570.00005,
+            195.50487500000003,
+            -165.99998
+          ],
+          [
+            -1600.0001,
+            224.00487500000003,
+            -166.99998
+          ],
+          [
+            -1600.0001,
+            224.00487500000003,
+            -165.61559949330677
+          ],
+          [
+            -1792.0001,
+            416.00491,
+            -165.14968910084025
+          ],
+          [
+            -1792.0001,
+            416.00491,
+            -164
+          ],
+          [
+            -1810.0001,
+            332.00488,
+            -164
+          ],
+          [
+            -1813.0001,
+            327.50489000000005,
+            -164
+          ],
+          [
+            -1816.0001,
+            326.00488,
+            -163
+          ],
+          [
+            -1832.5001,
+            322.25488,
+            -160
+          ],
+          [
+            -1880.5001,
+            322.25488,
+            -156
+          ],
+          [
+            -1981.0001499999998,
+            322.25488,
+            -156
+          ],
+          [
+            -1984.0002,
+            323.75489000000005,
+            -156
+          ],
+          [
+            -2039.5002,
+            323.00491,
+            -156
+          ],
+          [
+            -2063.8887079458727,
+            271.6192044880038,
+            -156
+          ]
+        ]
+      },
+      {
+        "from": "7e894eb2-6759-4731-82cf-500b7f3ba5cf",
+        "to": "34969b36-6b35-45a6-83b5-9889e6211271",
+        "reachable": true,
+        "points": [
+          [
+            1287.1704544724817,
+            -122.11522379855535,
+            -164
+          ],
+          [
+            1280,
+            -159.99508100000003,
+            -164
+          ],
+          [
+            1185.5,
+            -207.24509,
+            -163
+          ],
+          [
+            1193.00005,
+            -244.745095,
+            -163
+          ],
+          [
+            1251.5001,
+            -305.49508000000003,
+            -163
+          ],
+          [
+            1251.5001,
+            -309.995095,
+            -163
+          ],
+          [
+            1251.5001,
+            -321.24503,
+            -163
+          ],
+          [
+            1247.75005,
+            -351.995045,
+            -163
+          ],
+          [
+            1193.00005,
+            -351.995045,
+            -163
+          ],
+          [
+            1159.6250493789314,
+            -434.49502053784255,
+            -164
+          ],
+          [
+            1159.6250499999992,
+            -434.4950149999999,
+            -165.99998999999997
+          ],
+          [
+            1161.12505,
+            -437.495045,
+            -166.99998
+          ],
+          [
+            1200.875025,
+            -441.2450375,
+            -169.5000169805059
+          ],
+          [
+            1240.625,
+            -444.99503000000004,
+            -167
+          ],
+          [
+            1161.875,
+            -447.99506,
+            -170
+          ],
+          [
+            1179.5,
+            -462.245045,
+            -173
+          ],
+          [
+            1179.5,
+            -501.99506,
+            -181.99998
+          ],
+          [
+            1204.25,
+            -567.99506,
+            -197.99998
+          ],
+          [
+            1204.25,
+            -639.99506,
+            -211.99999
+          ],
+          [
+            1179.5,
+            -657.99506,
+            -214.99999
+          ],
+          [
+            1179.5,
+            -746.4951,
+            -233.99999
+          ],
+          [
+            1172,
+            -831.9951,
+            -249.99998
+          ],
+          [
+            1172,
+            -871.7451,
+            -252.99999
+          ],
+          [
+            1172,
+            -915.6201,
+            -257.570311640625
+          ],
+          [
+            1172,
+            -959.4951,
+            -256
+          ],
+          [
+            1125.125,
+            -1018.7450799999999,
+            -258
+          ],
+          [
+            1082.74995,
+            -1023.9951,
+            -258.12389483906213
+          ],
+          [
+            1082.74995,
+            -1023.9951,
+            -258
+          ],
+          [
+            1076,
+            -1029.2451,
+            -259
+          ],
+          [
+            1076,
+            -1107.9951,
+            -260
+          ],
+          [
+            940.24994,
+            -1074.6201,
+            -257.5
+          ],
+          [
+            806.75,
+            -1074.6201,
+            -256.5
+          ],
+          [
+            736.25,
+            -1147.7451,
+            -254.99999
+          ],
+          [
+            730.25,
+            -1200.9951,
+            -258
+          ],
+          [
+            724.25,
+            -1206.9951,
+            -257
+          ],
+          [
+            722.7500299999999,
+            -1209.9951,
+            -255.99999
+          ],
+          [
+            722.7500299999999,
+            -1215.9951,
+            -257
+          ],
+          [
+            722.7500299999999,
+            -1311.9951,
+            -259
+          ],
+          [
+            722.7500299999999,
+            -1407.9951,
+            -260
+          ],
+          [
+            661.2500299999999,
+            -1433.4951,
+            -259
+          ],
+          [
+            642.5,
+            -1529.4951500000002,
+            -259
+          ],
+          [
+            634.9999700000001,
+            -1573.7452,
+            -260
+          ],
+          [
+            631.9999700000001,
+            -1578.2451500000002,
+            -260
+          ],
+          [
+            598.6249700000001,
+            -1636.7451500000002,
+            -259
+          ],
+          [
+            556.2499700000001,
+            -1630.7451,
+            -260
+          ],
+          [
+            532.999985,
+            -1579.7451500000002,
+            -260
+          ],
+          [
+            496.99997,
+            -1579.7451500000002,
+            -259
+          ],
+          [
+            490.99997,
+            -1579.7451500000002,
+            -255.99999
+          ],
+          [
+            486.49997,
+            -1576.7452,
+            -252.99999
+          ],
+          [
+            438.499955,
+            -1576.7452,
+            -234.99998
+          ],
+          [
+            330.499955,
+            -1561.7452,
+            -180.99999
+          ],
+          [
+            319.99994,
+            -1519.7451500000002,
+            -173.99999
+          ],
+          [
+            285.12494,
+            -1547.4951,
+            -171.99998
+          ],
+          [
+            189.87494,
+            -1547.4951,
+            -171.99998
+          ],
+          [
+            159.499928,
+            -1519.7451500000002,
+            -170.99999
+          ],
+          [
+            34.999913,
+            -1562.1202,
+            -164.99999
+          ],
+          [
+            1.9999139999999969,
+            -1533.2452,
+            -167.99999
+          ],
+          [
+            -56.500089,
+            -1668.9951500000002,
+            -164
+          ],
+          [
+            -59.500089,
+            -1670.4952,
+            -164
+          ],
+          [
+            -62.500089,
+            -1674.9952,
+            -164
+          ],
+          [
+            -62.500089,
+            -1791.9952,
+            -164
+          ],
+          [
+            -63.250095,
+            -1842.9952,
+            -164
+          ],
+          [
+            -63.250095,
+            -1852.7452,
+            -164
+          ],
+          [
+            -64.00009,
+            -1887.9952,
+            -164
+          ],
+          [
+            -124.750095,
+            -1797.9951500000002,
+            -164
+          ],
+          [
+            -160.000035,
+            -1887.9952,
+            -164
+          ],
+          [
+            -255.99998,
+            -1887.9952,
+            -164.99999
+          ],
+          [
+            -293.59988999999996,
+            -1983.9952,
+            -169.133305
+          ],
+          [
+            -370,
+            -2019.2451,
+            -174.99999
+          ],
+          [
+            -421,
+            -2023.7451,
+            -176
+          ],
+          [
+            -442.75001499999996,
+            -2036.4951,
+            -176
+          ],
+          [
+            -442,
+            -2058.995,
+            -176
+          ],
+          [
+            -442,
+            -2068.745,
+            -176
+          ],
+          [
+            -441.25,
+            -2082.995,
+            -176
+          ],
+          [
+            -421,
+            -2129.4952,
+            -176
+          ],
+          [
+            -410.49998500000004,
+            -2169.2454,
+            -176
+          ],
+          [
+            -409,
+            -2172.2454,
+            -176
+          ],
+          [
+            -395.49998500000004,
+            -2217.2454,
+            -170.99999
+          ],
+          [
+            -442.61330152893606,
+            -2202.3901757612784,
+            -174.00948553327922
+          ]
+        ]
+      }
+    ],
+    "wallsUsed": 0,
+    "receipt": {
+      "version": 1,
+      "signature": "87904:d78d9f86:4e06f4c",
+      "errors": 19,
+      "warnings": 41,
+      "state": "blocked"
+    }
+  },
+  "generated": [
+    {
+      "id": "ct-to-b",
+      "seconds": 14.921875,
+      "points": 70
+    },
+    {
+      "id": "ct-to-a",
+      "seconds": 8.78125,
+      "points": 29
+    },
+    {
+      "id": "t-to-b",
+      "seconds": 25.46875,
+      "points": 104
+    },
+    {
+      "id": "t-to-a",
+      "seconds": 19.234375,
+      "points": 79
+    },
+    {
+      "id": "b-to-ct",
+      "seconds": 14.921875,
+      "points": 70
+    },
+    {
+      "id": "b-to-t",
+      "seconds": 25.46875,
+      "points": 104
+    },
+    {
+      "id": "b-to-a",
+      "seconds": 23.34375,
+      "points": 97
+    },
+    {
+      "id": "a-to-ct",
+      "seconds": 8.78125,
+      "points": 29
+    },
+    {
+      "id": "a-to-t",
+      "seconds": 19.234375,
+      "points": 79
+    },
+    {
+      "id": "a-to-b",
+      "seconds": 23.34375,
+      "points": 97
+    }
+  ],
+  "rejected": []
+}

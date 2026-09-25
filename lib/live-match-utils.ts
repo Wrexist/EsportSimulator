@@ -1,3 +1,4 @@
+import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { MapId } from "@/types"
 import { EconomyManager, WEAPONS } from "@/engine/economy-manager"
 import { SeededRNG } from "@/engine/rng"
@@ -62,7 +63,7 @@ function normalizeWeaponLookupKey(weaponId: string | undefined): string {
 
 function buildDeterministicMapOrder(seed: number): MapId[] {
   const rng = new SeededRNG(normalizeSeed(seed))
-  const maps = [...MAP_POOL]
+  const maps = [...ACTIVE_MAP_POOL]
   for (let i = maps.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = maps[i]
@@ -108,19 +109,20 @@ export function resolveCanonicalSeriesMaps(options: {
   const selected: MapId[] = []
   const seen = new Set<MapId>()
 
-  const pushMaps = (candidateMaps: unknown[] | undefined) => {
+  const pushMaps = (candidateMaps: unknown[] | undefined, allowRetired = false) => {
     if (!Array.isArray(candidateMaps)) return
     for (const entry of candidateMaps) {
       if (selected.length >= requiredMaps) break
       const normalized = normalizeMapId(entry)
-      if (!normalized || seen.has(normalized)) continue
+      if (!normalized || seen.has(normalized) || (!allowRetired && !ACTIVE_MAP_POOL.includes(normalized))) continue
       seen.add(normalized)
       selected.push(normalized)
     }
   }
 
+  // Persisted veto order is authoritative; URL hints only fill missing maps.
+  pushMaps(options.savedMaps, true)
   pushMaps(options.urlMaps)
-  pushMaps(options.savedMaps)
   pushMaps(options.fallbackMaps)
 
   if (selected.length < requiredMaps) {
@@ -270,8 +272,11 @@ export function applyRoundEconomy(input: {
     const killerState = killerEconomy?.[kill.playerId]
     const key = normalizeWeaponLookupKey(kill.weapon || killerState?.weapon)
     const weapon = WEAPONS[key] || WEAPONS.AK47
+    // Explicit original-game utility policy, preserving the existing $300 fallback.
+    // Physical events must not inherit a purchased sniper/SMG reward for a grenade kill.
+    const killReward = ['HE', 'FIRE', 'MOLOTOV', 'INCENDIARY', 'SMOKE', 'FLASH', 'DECOY'].includes(key) ? 300 : weapon.killReward
     if (killerState) {
-      killerState.cash = clampCash(killerState.cash + weapon.killReward * kill.kills)
+      killerState.cash = clampCash(killerState.cash + killReward * kill.kills)
     }
 
     const killerOnCT = killerIsHome ? input.homeIsCT : !input.homeIsCT

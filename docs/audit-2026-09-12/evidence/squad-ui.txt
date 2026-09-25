@@ -1,0 +1,81 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/squad".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/squad
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/squad#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 container Pulsar logo
+			144 heading PULSAR, Value: 1
+				145 text PULSAR
+			146 text ACTIVE ROSTER SEASON  1 ACTIVE 5 / 5 BENCH 0 RATING 52
+			147 heading STARTING LINEUP, Value: 3
+				148 text STARTING LINEUP
+			149 text TOP 5 PLAYERS
+			150 link Description: Zenmir Zenmir S-PRO IGL Russia $0.3k/wk 3.0y left MORALE 87% FORM 83% ENERGY 80% 52 OVR, Value: 127.0.0.1:3210/player/player_152_wetermelon_due7yant
+			151 link Description: skydax skydax S-PRO RIFLER Russia $0.3k/wk 3.0y left MORALE 85% FORM 83% ENERGY 71% 53 OVR, Value: 127.0.0.1:3210/player/player_152_wetermelon_qleb86ruz
+			152 link Description: Fryphr9 Fryphr9 S-PRO ENTRY Russia $0.3k/wk 2.0y left MORALE 79% FORM 74% ENERGY 73% 50 OVR, Value: 127.0.0.1:3210/player/player_152_wetermelon_laczheri
+			153 link Description: dusk6 dusk6 S-PRO SUPPORT Russia $0.3k/wk 3.0y left MORALE 78% FORM 78% ENERGY 82% 50 OVR, Value: 127.0.0.1:3210/player/player_152_wetermelon_nxeolife
+			154 link Description: Skyphr Skyphr S-PRO AWPER Russia $0.3k/wk 3.0y left MORALE 76% FORM 75% ENERGY 90% 55 OVR, Value: 127.0.0.1:3210/player/player_152_wetermelon_zexyvowa
+			155 heading BENCH & RESERVE, Value: 3
+				156 text BENCH & RESERVE
+			157 heading BENCH IS EMPTY, Value: 3
+				158 text BENCH IS EMPTY
+			159 heading SYNERGY ANALYSIS (ACTIVE), Value: 3
+				160 text SYNERGY ANALYSIS (ACTIVE)
+			161 container
+				162 heading YOUTH ACADEMY, Value: 3
+					163 text YOUTH ACADEMY
+				164 text DEVELOPING THE NEXT GENERATION
+				165 link Description: MANAGE, Value: 127.0.0.1:3210/academy
+				166 heading NO PROSPECTS IN TRAINING, Value: 3
+					167 text NO PROSPECTS IN TRAINING
+				168 link Description: Start Scouting, Value: 127.0.0.1:3210/academy
+			169 heading TROPHY CABINET, Value: 3
+				170 text TROPHY CABINET
+			171 text 0  TROPHIES
+			172 container
+				173 text THE CABINET IS CURRENTLY EMPTY WIN TOURNAMENTS TO DISPLAY YOUR LEGACY
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 12 link Description: Squad, URL: 127.0.0.1:3210/squad

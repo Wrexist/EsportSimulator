@@ -30,6 +30,7 @@
 import type { SliceCreator } from "@/store/types"
 import type { TeamSaveData } from "@/engine/save-types"
 import { checkAchievements } from "@/engine/steam-service"
+import { academyHeldPlayerIds, recruitmentBudget, recruitmentSalary } from "@/engine/recruitment"
 import { soundManager } from "@/lib/sound-manager"
 import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
 import { recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
@@ -79,6 +80,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 const sourceTeam = fromTeamId && fromTeamId !== "FA"
                     ? (state.teams.find(t => t.id === fromTeamId))
                     : state.teams.find(t => t.rosterIds.includes(playerId))
+                if (!sourceTeam?.rosterIds.includes(playerId) || !state.players.some(p => p.id === playerId)) {
+                    result = { success: false, message: "Player is not on the source team's roster." }
+                    return
+                }
                 if (sourceTeam) {
                     sourceTeam.rosterIds = sourceTeam.rosterIds.filter(id => id !== playerId)
                     // Released player can't be in active role training.
@@ -97,10 +102,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     // stability clock (weekly chemistry growth + LOYAL_TEAM).
                     applyRosterChangePenalty(sourceTeam, state.currentWeek, 1)
                 }
-                state.contracts = state.contracts.filter(c => c.playerId !== playerId)
+                state.contracts = state.contracts.filter(c => c.playerId !== playerId || c.teamId !== sourceTeam.id)
                 const releasedPlayer = state.players.find(p => p.id === playerId)
                 if (releasedPlayer) {
                     releasedPlayer.forSale = false
+                    releasedPlayer.transferListingPrice = undefined
+                    releasedPlayer.weeksOnTransferList = undefined
                 }
                 result = { success: true, message: "Player released to free agency" }
                 return
@@ -123,6 +130,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const transferPlayerRecord = state.players.find(p => p.id === playerId)
             if (!transferPlayerRecord) {
                 result = { success: false, message: "Player not found" }
+                return
+            }
+            if (academyHeldPlayerIds(state).has(playerId)) {
+                result = { success: false, message: "This player belongs to an academy. Use academy promotion; they are not a free agent." }
                 return
             }
             if (transferPlayerRecord.isRetired) {
@@ -186,6 +197,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             let normalizedContract: {
                 salaryPerWeek: number; startWeek: number; endWeek: number; buyout: number
             } | undefined
+            if (!newContract) {
+                result = { success: false, message: "Agree a player contract before completing the signing." }
+                return
+            }
             if (newContract) {
                 const salaryValidation = parseBoundedInt(newContract.salaryPerWeek, "Contract salary", 1, MAX_PLAYER_SALARY_PER_WEEK)
                 if (!salaryValidation.ok) { result = { success: false, message: salaryValidation.message }; return }
@@ -205,6 +220,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     return
                 }
 
+                if (startWeekValidation.value !== state.currentWeek || endWeekValidation.value <= state.currentWeek) {
+                    result = { success: false, message: "A new signing must start this week and expire in a future week." }
+                    return
+                }
                 normalizedContract = {
                     salaryPerWeek: salaryValidation.value,
                     startWeek: startWeekValidation.value,
@@ -214,7 +233,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
 
             // Destination must be able to afford the fee.
-            if (toTeam.budget < normalizedFee) {
+            if (!Number.isFinite(toTeam.budget) || toTeam.budget < normalizedFee) {
                 result = { success: false, message: `${toTeam.name} cannot afford this transfer fee.` }
                 return
             }
@@ -268,6 +287,8 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const updatedPlayer = state.players.find(p => p.id === playerId)
             if (updatedPlayer) {
                 updatedPlayer.forSale = false
+                updatedPlayer.transferListingPrice = undefined
+                updatedPlayer.weeksOnTransferList = undefined
             }
 
             // Ledger entries (paired EXPENSE/INCOME on real trades).
@@ -280,7 +301,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     type: "EXPENSE",
                     category: "TRANSFER_OUT",
                     amount: normalizedFee,
-                    description: `Transfer Fee: ${playerName}`,
+                    description: `${fromTeam ? "Transfer Fee" : "Signing Bonus"}: ${playerName}`,
                     balance: toTeam.budget,
                 })
 
@@ -384,10 +405,19 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         const { playerId, teamId, offerAmount } = event.data as any
         const playerTeamId = get().playerTeamId
 
+        const listed = currentState.players.find(p => p.id === playerId)
+        const owner = currentState.teams.find(t => t.rosterIds.includes(playerId))
+        const expiresWeek = Number(event.data.expiresWeek ?? event.week + 2)
+        if (!listed || listed.isRetired || !listed.forSale || owner?.id !== playerTeamId || currentState.currentWeek >= expiresWeek) {
+            set(draft => { const stale = draft.eventsLog.find(e => e.id === eventId); if (stale) { stale.selectedChoiceId = "expired"; stale.acknowledged = true } })
+            get().addToast({ message: "This offer is no longer valid: it expired or the player's listing or ownership changed.", type: "warning" })
+            return
+        }
+
         // Refuse if we have a match this week — we need the roster intact.
         const freshState = get()
         const hasMatchThisWeek = freshState.scheduledMatches.some(m =>
-            m.week === freshState.currentWeek &&
+            m.week === freshState.currentWeek && !m.result &&
             (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
         )
         if (hasMatchThisWeek) {
@@ -406,21 +436,13 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         const buyingTeam = snapshot.teams.find(t => t.id === teamId)
         const currentWeek = snapshot.currentWeek
 
-        const playerOvr = player
-            ? Math.round(
-                ((player.rifle ?? 50) + (player.pistol ?? 50) + (player.awp ?? 50) +
-                 (player.clutch ?? 50) + (player.creativity ?? 50) + (player.tactic ?? 50) +
-                 (player.teamwork ?? 50)) / 7,
-            )
-            : 50
-        const tierMult = buyingTeam?.leagueTier === "S_TIER" ? 1.5
-            : buyingTeam?.leagueTier === "A_TIER" ? 1.2
-            : buyingTeam?.leagueTier === "B_TIER" ? 1.0
-            : 0.8
-        const baseSalary = Math.round((playerOvr / 100) * 2000 * tierMult)
-        const newSalary = Math.max(200, Math.min(baseSalary, (buyingTeam?.budget ?? 50000) / 52))
-        // 2yr / 1.5yr / 1yr based on OVR.
-        const contractLength = playerOvr >= 80 ? 104 : playerOvr >= 60 ? 78 : 52
+        if (!player || !buyingTeam) return
+        const newSalary = recruitmentSalary(player, currentWeek)
+        const contractLength = 52
+        if (!recruitmentBudget(snapshot, buyingTeam)(newSalary, offerAmount)) {
+            get().addToast({ message: "The buying club can no longer afford this fee and the player's wages. Reject the offer or wait for a new bid.", type: "warning" })
+            return
+        }
 
         const transferResult = get().transferPlayer(
             playerId,
@@ -501,9 +523,21 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             // against the *delta* (not the full salary) so renewals aren't
             // gated by absolute wage levels.
             const newSalary = Math.round(contract.salaryPerWeek * RENEWAL_SALARY_MULTIPLIER)
+            if (!team.rosterIds.includes(playerId)) {
+                toastMsg = "Player is no longer on your roster."
+                toastType = "warning"
+                return
+            }
+            if (!Number.isSafeInteger(newSalary) || newSalary < 1 || newSalary > MAX_PLAYER_SALARY_PER_WEEK ||
+                contract.endWeek + RENEWAL_EXTENSION_WEEKS > MAX_FUTURE_WEEK ||
+                contract.endWeek + RENEWAL_EXTENSION_WEEKS - state.currentWeek > MAX_CONTRACT_LENGTH_WEEKS) {
+                toastMsg = "Renewal exceeds the maximum salary or remaining contract length."
+                toastType = "warning"
+                return
+            }
             const weeklyCost = newSalary - contract.salaryPerWeek
             const minBudgetNeeded = weeklyCost * RENEWAL_RUNWAY_WEEKS
-            if (team.budget < minBudgetNeeded) {
+            if (!Number.isFinite(team.budget) || team.budget < minBudgetNeeded) {
                 toastMsg = "Insufficient budget to renew this contract."
                 toastType = "warning"
                 return

@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "reference": "../steam-2026-09-14/main-capsule-master.png",
+  "prompts": [
+    {
+      "key": "store-vertical",
+      "prompt": "Create a professionally recomposed portrait Steam store vertical capsule for the SAME game in the reference image. Reference is the approved visual identity. Aspect ratio 748:896; target 1496x1792 pixels if possible. Retain the same premium cinematic navy/steel and restrained teal style, adult esports manager from behind, seated adult pro players, subtle competition arena and tactical board. Title in top third, very large highly legible stacked white condensed lettering exactly 'ESPORTS' then 'MANAGER', then smaller teal 'FPS' with thin side rules. Recompose the manager and team below title with generous edge margins. Only those title words; absolutely no other lettering, sponsor labels, jersey text, watermarks, real brands or logos. Keep management prominent and tasteful lighting. This is promotional key art, not a UI screenshot. One finished portrait capsule, no mockup frame or collage."
+    },
+    {
+      "key": "library-capsule",
+      "prompt": "Create a tall 2:3 portrait library capsule for the SAME game using approved reference visual identity. Target 1200x1800. Exact only title: 'ESPORTS' / 'MANAGER' / 'FPS'. Huge condensed silver-white main title in upper quarter and teal FPS line below; generous top and side margins, no clipping. Below title, adult manager seen from behind at desk overlooking five adult esports players seated at PCs in a restrained navy/steel arena with teal accents. Elegant cinematic photographic editorial art matching reference. Tall poster composition, clean readable silhouette, no text on chairs or jerseys, no real team logos, no tiny labels or feature slogans. Designed to stay clear at 600x900 and 300x450. One full-bleed finished portrait, no external frame."
+    },
+    {
+      "key": "library-hero",
+      "prompt": "Use approved reference as visual style and scene reference to create TEXT-FREE Steam library hero artwork, ultra-wide 3840x1240 aspect ratio (3.0968:1), target 3840x1240. Same cinematic dark navy/steel esports management world with restrained teal lighting. Adult manager from behind in center, head and shoulders fully in central safe area, team of five adults at PCs extending right, arena depth and subtle tactical diagrams WITHOUT characters or letters. Left quarter dark atmospheric negative space for separate overlaid title; center subject remains legible if sides are cropped. Rich photographic editorial lighting, elegant uncluttered frame. Absolutely NO TEXT anywhere, no logos, no words, no jersey writing, no UI, no frame, no checkerboard. Do not retain the reference's title: this is clean background art only."
+    },
+    {
+      "key": "library-logo",
+      "prompt": "Extract/recreate only the game title logotype from approved reference, as a clean isolated branding asset on a GENUINELY TRANSPARENT alpha background. Exact stacked lettering: ESPORTS on first line, MANAGER on second line, FPS on third line with thin horizontal teal rules to either side. Preserve the reference's bold condensed block silver-white lettering, restrained metallic surface and teal FPS. Straight-on flat wordmark, no perspective, no backdrop, no surroundings, no coach, no glow clouds. All background pixels transparent, not black, white or a painted checkerboard. Balanced centered composition, small transparent outer margins. Artwork roughly 1280 wide by 680 tall, target canvas 1280x720. Crisp readable edges. Only the three correct title words."
+    },
+    {
+      "key": "app-icon",
+      "prompt": "Create a premium square Steam app icon that belongs to the approved ESPORTS MANAGER FPS identity. Target 1024x1024. Very bold clean original 'EM' monogram, condensed geometric silver-white E integrated beside a teal M, centered against solid deep midnight navy. Flat front-facing graphic with subtle refined metallic shading matching reference title, precise edge geometry, robust silhouettes readable at 32px. Monogram occupies 72% of square, ample safe margins. No outer rounded app tile, no bevel frame, no tiny FPS or other words, no logos from other games, no reflections of scenery, no busy detail, no checkerboard. One square full-bleed icon."
+    },
+    {
+      "key": "library-logo-clean",
+      "prompt": "Clean up this transparent game title asset while preserving the exact ESPORTS / MANAGER / FPS wording, layout, silver-white and teal palette and true transparent alpha background. Remove ALL noisy gray/white/cyan halos, speckles, detached pixels and scruffy outlines surrounding the letters and thin rules. Make this a professional smooth typographic wordmark: flat clean silver-white condensed letters with very subtle face shading, teal FPS and horizontal rules, crisp anti-aliased contours, no extruded bevels, no grain, no glow, no irregular border. Transparent letter counters and spaces. Background fully transparent. Do not add any text or scene. Keep the three-line composition and generous small transparent margins. Target width 1280, height up to720."
+    }
+  ],
+  "rejectedCandidates": [
+    "exec-d99fb708-951f-481c-acbf-aef1f883834a.png: actual alpha but noisy fringe",
+    "exec-57331da1-f5bc-4624-b0e5-84d12dd2ddb8.png: RGB checkerboard",
+    "exec-e12b233c-2929-432c-a180-5305b8f104c6.png: RGB checkerboard"
+  ],
+  "finalLibraryLogo": "masters/library-logo.svg, original code-native wordmark rendered locally to PNG"
+}

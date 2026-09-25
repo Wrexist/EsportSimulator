@@ -1,0 +1,133 @@
+{
+  "recordedAt": "2026-09-13T11:53:31.435Z",
+  "packages": [
+    "L04",
+    "L05"
+  ],
+  "status": "partial",
+  "target": "Windows 1.0",
+  "buildId": "hMUQghgW8R_3VLc9MvSG5",
+  "worker": "3444.16ea3d115221e559.js",
+  "regression": {
+    "tests": 1347,
+    "suites": 141,
+    "passed": true
+  },
+  "types": {
+    "errors": 0
+  },
+  "productionBuild": true,
+  "nativeReplay": {
+    "passed": true,
+    "comparisons": 10,
+    "canonicalSha256": "53a39d1a3e72c6979ba970e602cb70b173a32cd35d79bc0f320b66c367fea29c"
+  },
+  "nativeLifecycle": {
+    "passed": true,
+    "electron": "44.3.0",
+    "checks": [
+      {
+        "stage": "audio",
+        "mutedFirstGesture": true,
+        "studioAndLabSilent": true,
+        "backgroundSilent": true,
+        "sceneRestore": true,
+        "preferencesStored": true
+      },
+      {
+        "stage": "ready"
+      },
+      {
+        "stage": "cancelled",
+        "attempts": 3,
+        "closeCount": 1
+      },
+      {
+        "stage": "autosaved",
+        "attempts": 4
+      },
+      {
+        "stage": "slow-save-still-open",
+        "elapsedMs": 16008
+      },
+      {
+        "stage": "closed-after-durable-save",
+        "phase": "slow",
+        "attempts": 5,
+        "elapsedMs": 17124
+      }
+    ]
+  },
+  "nativePreferencesRestart": {
+    "passed": true,
+    "electron": "44.3.0",
+    "checks": [
+      {
+        "stage": "preferences-reloaded",
+        "masterVolume": 0,
+        "uiScale": 110
+      }
+    ]
+  },
+  "preview": {
+    "url": "http://localhost:3210",
+    "pid": 369528,
+    "uiCheck": "Blocked: browser tab selection timed out twice; no visual acceptance claimed"
+  },
+  "preservedMirage": {
+    "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+    "sha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65"
+  },
+  "sourceHashes": {
+    "engine/rng.ts": "9328fdeabde08af409c650931a0464e4002c48511068930b78cfe38b50d1de33",
+    "engine/worker/week-processor-client.ts": "a5b7c06aa85c2ef674f8ba911dc9a13cf30a61f38d880495920d55ca02168edb",
+    "engine/worker/week-replay.ts": "391df3fdf9707cf5d455942ed55ac458cc87b26ea8a52f973fe05edb4478b1d9",
+    "engine/worker/compute-week.ts": "cba125bcc97506c6a65863376e188a696c2bdb95d33e26acefe05cdbf6e69d13",
+    "engine/worker/week-processor.worker.ts": "8de6d6739c14f1772608cecbe0c0f774492f9a33634f37ffd30ca9a16f5ce5f1",
+    "engine/processors/training-processor.ts": "7698a2ed429dd61896b45c952df4cf3c4804aa8b8e5a48c0d5cd63a84022e20c",
+    "engine/ai-manager.ts": "129ae8ccefa10b3467374c4eed578f0101b36bde6e8b70889337974fb307747d",
+    "engine/job-offer-generator.ts": "6ae032b2e9cbf148be0168144cd6f99684c7ed9dd8c929ccc91265286b64de69",
+    "engine/pre-season-transfers.ts": "c1cb6351182984c784a1b76e8aa6981f358d263db44bb0d5ad86eaf8cf2aa9ad",
+    "engine/processors/finance-processor.ts": "087c8fb1489fa1d699b14644c71a75b99d7170c5db32eeb3f6bc6c844fd8cc9a",
+    "engine/processors/standings-processor.ts": "361906677d6c6f5e380d357d51ed1ccd4f9f2cfdde1f8abbaffea88ac121b9a1",
+    "store/game-store.ts": "abd760dd3dbbc8490de9b40638b914dcdc06ffd37085cbb092c2bb7147888672",
+    "store/slices/academy-slice.ts": "74055de649df4f7b328465cb2a56937651ca459e7ebc733cf239f4a9550d474b",
+    "store/slices/debug-slice.ts": "ef28f268b2bd8c91a06fa4e061334486dbd30b0f5db454e8d4fbb13aa301e991",
+    "store/slices/staff-management-slice.ts": "81f829e2ee6e781312ee931cbeb95cebbedda4999503fb293fdf0df6474b0a65",
+    "store/utils/helpers.ts": "bd3514eb0ebc5a3bf5254eb56d84633953ccd036abf6b5fb83c1669cd0899580",
+    "lib/settings-store.ts": "52b567de0fed1736fa5ff0ef1e8533defe16669ec2806878fe0cf99529b3eacd",
+    "lib/sound-manager.ts": "609d96d87fa4a2fa5c3e85154581f1f7471f18bf74879c17a2aefae6ceaa5ff1",
+    "lib/session-persistence.ts": "5004393491865517adf0111d94342068c4b0a48f06e19159cdf9254c2d14109e",
+    "lib/route-audio.ts": "4b19096e1dd762b39169cca3bafdb9e125dca412dff4b229f1455022f7de493d",
+    "components/layout/GameShell.tsx": "8ca78babc792d56661a1e4d6edda5fb5bff7877da12e125caabefedae3128127",
+    "components/settings/SettingsModal.tsx": "337d508c95844e8f128a95e70e52d157f0864f1983a8a14117f363e241dcaf9b",
+    "app/settings/page.tsx": "9624e23b54822b80bc5ea51c3b1d3136aa9cb5233caea746b9c967f830c547aa",
+    "electron/main.js": "5d0f70d14ace8ebada44e6431565031fb4f526b7227754d24d1b6e669ea0410e",
+    "electron/preload.js": "1edaa877785d3d6f466e170daeb553ea1208bd42264228e52e5497e2cbac8ae5",
+    "scripts/verify-worker-build.cjs": "08e29f248615c2c8e96d722aafc25c3e8fab5e13bf84a880d8a7f3dbb2edc939",
+    "scripts/launch/electron-handler-harness.cjs": "6865bb428d9448d82715fbd679a07353ce035f7e05bbe4a541241aa18177a697",
+    "scripts/launch/fixtures.ts": "75e68e1e6f9117f4ec5c7ba70c0592e680457b3e30f0ce2f648b4ac6869eedfa",
+    "scripts/launch/week-replay-browser.ts": "e9d75da1e64d16a7951d6ce4830ab228107b3a13913ee10213e46f3cac1acfc3",
+    "scripts/launch/week-replay-native.cjs": "539de6f234cfad8e5a0ddc3f1430c72e4e3b164c50bb80eb7612195a9d96c87d",
+    "scripts/launch/build-week-replay-probe.cjs": "176b69c94a80f19f9141fa6a4aa2109357da389ae53bdda5eda2561ab1f98157",
+    "scripts/launch/lifecycle-browser.ts": "55be9b23539d8757e6564b1e2bc1b30d983705cd55b30e4a8c81edbbb8844c06",
+    "scripts/launch/lifecycle-native.cjs": "32aa7a00b76a77f7e2f1cec211b0ec766cbdfffb02d3631b09de747323a2e3f8",
+    "scripts/launch/build-lifecycle-probe.cjs": "d9242b73d62c185f38e5c2f990b6f1ad4c7b8c4c28cec9a3b5077584f9e709dd",
+    "__tests__/week-coordinator-replay.test.ts": "becbea323e19b75cec7e5355346adb6f9b46d403b322e686235e4b16f1f4421d",
+    "__tests__/rng-long-replay.test.ts": "e9df1f0a171123b41d04774d4b8507648ca5447b279da622447f5a34532fadcf",
+    "__tests__/week-processor-client.test.ts": "0d1ad1839e028fa092efa948fcbd9d568439014b2bf7a1cccdd20dbc61532faa",
+    "__tests__/week-store-commit.test.ts": "bc5e80172e083ac20b1f4ef9f02cf3b52eb2c86820f05d9f82d5879865580c08",
+    "__tests__/settings-lifecycle.test.ts": "22dfb6d8711bafb94c8773f702a0bdd74ef0fccd19b297bf80506b7802836eee",
+    "__tests__/sound-preferences.test.ts": "83e32d48f89def693d1111e66b35c938c3e8edaa6e84e0c76f67412ca7a79fa7",
+    "__tests__/session-persistence.test.ts": "fbdba2fa62939510302f040071d0f9d6790ab9fe64bc4170885f9a5603fae2b4",
+    "__tests__/week-replay-format.test.ts": "ff33ee8ddf2729c78e9d0e8e7e6c917bc11b627da0ac91b20dc068da4f02201e",
+    "__tests__/training-processor.test.ts": "e9aed175b98db1dd57af396728d253e34d2712f4fba196a2072f43d1e50fc6e6"
+  },
+  "limits": [
+    "L02/L03 prerequisites partial",
+    "Isolated source-native harnesses; no packaged Windows acceptance",
+    "Manual browser settings check blocked by tool timeouts",
+    "No actual OS sleep/minimize/scaling/audio-device acceptance",
+    "Real Steam App ID absent and L08 content distribution holds remain"
+  ]
+}

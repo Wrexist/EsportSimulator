@@ -15,10 +15,7 @@ import { MapId } from "@/types"
 import type { Player, MapVeto, Analyst } from "@/types"
 import type { SeededRNG } from "../rng"
 
-const ACTIVE_MAP_POOL: MapId[] = [
-    MapId.SANDSTONE, MapId.MIRAGE, MapId.INFERNO, MapId.NUKE,
-    MapId.OVERPASS, MapId.VERTIGO, MapId.ANCIENT, MapId.ANUBIS,
-]
+import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 
 /**
  * Compute a 0-100 strength score per map for a roster. Tactical maps
@@ -105,6 +102,7 @@ export function simulateMapVeto(
     awayAnalyst?: Analyst,
     cachedHomeMapStrengths?: Map<MapId, number>,
     cachedAwayMapStrengths?: Map<MapId, number>,
+    format: string = 'BO3',
 ): { veto: MapVeto[]; maps: MapId[] } {
     let availableMaps = [...ACTIVE_MAP_POOL]
     const veto: MapVeto[] = []
@@ -115,6 +113,17 @@ export function simulateMapVeto(
 
     const homeMapStrengths = cachedHomeMapStrengths || calculateMapStrengths(homePlayers)
     const awayMapStrengths = cachedAwayMapStrengths || calculateMapStrengths(awayPlayers)
+
+    if (format === 'BO1') {
+        while (availableMaps.length > 1) {
+            const home = veto.length % 2 === 0
+            const map = selectMapForVeto(rng, availableMaps, home ? awayMapStrengths : homeMapStrengths, 'BAN', home ? homeVetoSkill : awayVetoSkill)
+            veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'BAN', map, order: veto.length + 1 })
+            availableMaps = availableMaps.filter(candidate => candidate !== map)
+        }
+        veto.push({ teamId: 'SYSTEM', action: 'PICK', map: availableMaps[0], order: veto.length + 1 })
+        return { veto, maps: availableMaps }
+    }
 
     // Home bans away's strongest map — precision driven by HOME's own analyst.
     const homeBan = selectMapForVeto(rng, availableMaps, awayMapStrengths, "BAN", homeVetoSkill)
@@ -138,9 +147,18 @@ export function simulateMapVeto(
     selectedMaps.push(awayPick)
     availableMaps = availableMaps.filter(m => m !== awayPick)
 
+    if (format === 'BO5') {
+        for (const home of [true, false]) {
+            const map = selectMapForVeto(rng, availableMaps, home ? homeMapStrengths : awayMapStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
+            veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'PICK', map, order: veto.length + 1 })
+            selectedMaps.push(map)
+            availableMaps = availableMaps.filter(candidate => candidate !== map)
+        }
+    }
+
     // System decider — random from remaining.
     const decider = rng.pick(availableMaps)
-    veto.push({ teamId: "SYSTEM", action: "PICK", map: decider, order: 5 })
+    veto.push({ teamId: "SYSTEM", action: "PICK", map: decider, order: veto.length + 1 })
     selectedMaps.push(decider)
 
     return { veto, maps: selectedMaps }

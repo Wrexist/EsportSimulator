@@ -1,0 +1,57 @@
+{
+  "engine": "spatial-round-v11",
+  "mapId": "Inferno",
+  "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+  "simulatorSourceSha256": "a0bab3c41a7c452018276fd982f745969ea2f7529460a294cf01683893aa621a",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "0 combat and 1 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 108.9375,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 391611,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1680,
+        "waits": 4186,
+        "replans": 141,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 18,
+      "routeFailures": [
+        {
+          "tick": 3104,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 4992,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT4",
+          "side": "CT"
+        },
+        {
+          "tick": 6016,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "CT1",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "499765660020d1368396bd0af42ff0122f6061b56ab0e496c5a9af2767b678ea"
+    }
+  ]
+}

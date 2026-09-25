@@ -308,7 +308,7 @@ export default function StaffMeetingPage() {
                     <ArrowLeft className="text-white" aria-hidden="true" />
                 </Button>
                 <div>
-                    <h1 className="text-4xl font-normal uppercase tracking-tighter liquid-text flex items-center gap-3">
+                    <h1 className="page-title flex items-center gap-3">
                         <Briefcase className="text-blue-400" size={32} />
                         Staff Meeting
                     </h1>

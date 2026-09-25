@@ -1,0 +1,205 @@
+{
+  "buildId": "ukEFQCRmP1t-qPbb2ToF0",
+  "files": [
+    {
+      "path": "engine/economy-engine.ts",
+      "sha256": "e8a1de7d4e2e7676bfe94006ef51d236176ba70873c925708f2229aba76a8351"
+    },
+    {
+      "path": "engine/economy-manager.ts",
+      "sha256": "e2ac17053c1529f45edf916ad429cf922123e5f52d65b9f93da0223a2fca4bf1"
+    },
+    {
+      "path": "engine/finance-forecast.ts",
+      "sha256": "e4c3f840dd18e94e9203e2cc7e1e1f7967ffaa05da9fe85fa410eb53ee243fc2"
+    },
+    {
+      "path": "engine/processors/finance-processor.ts",
+      "sha256": "4d2f9f3abe1201099ae651024c984e0df42f5f51a943880b59db15dbf0218322"
+    },
+    {
+      "path": "engine/processors/weekly-activity-processor.ts",
+      "sha256": "e888001caa3e0fb4a94e8c99408eb897301f6e95b6f8e22e0727bb543b1e8343"
+    },
+    {
+      "path": "engine/processors/player-contract-bonuses.ts",
+      "sha256": "2ab790ddb0acbf35eab898482594ad5ccb92bd56f9bbdbf4420a4faef76c748f"
+    },
+    {
+      "path": "engine/atomic-week-processor.ts",
+      "sha256": "851cb929a8a5d0a56953e8a76f8c4abc8b8d6d6dc2f1bab315ea0d94a056d54f"
+    },
+    {
+      "path": "engine/save-types.ts",
+      "sha256": "5471f364139969866620986c7e8d92472cf113c024f27753d2dcf216a674d441"
+    },
+    {
+      "path": "store/slices/transfer-contract-slice.ts",
+      "sha256": "78bae443d77b2ad64b5ca89bdb7b48d12c68f2c54c5abfc97c40a0cb0de24131"
+    },
+    {
+      "path": "store/slices/staff-management-slice.ts",
+      "sha256": "9e8bfcc2c722658878f669fd94d9f2348f2b648441457efd8e4452abdb898360"
+    },
+    {
+      "path": "store/slices/academy-slice.ts",
+      "sha256": "f23da4cdaeb036658a80b11743f4e62268cfab5e416d3edf75c95a1a66c4044b"
+    },
+    {
+      "path": "store/slices/match-simulation-slice.ts",
+      "sha256": "a710dd72012a32d39fca79185bfad5297fd8aaf5ac2a40b42111dc4dd3527074"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "a6cc3b66a30a0a21a5b858e9bd8f879e1fe714126e9cf0cd60bf008f2a50a8ba"
+    },
+    {
+      "path": "app/finances/page.tsx",
+      "sha256": "08bc878fc0612607f14bafc20a7f0d3a4ed7a8b9956ee0b79d0f9b158e816c15"
+    },
+    {
+      "path": "components/transfer/NegotiationModal.tsx",
+      "sha256": "f21528978fd0cd68ff01c97c8ce266329c62a4799bd95b9eb5d9672f4fc697b7"
+    },
+    {
+      "path": "components/dashboard/WeeklyFocusWidget.tsx",
+      "sha256": "326acbcc554206084a1268f77a6a62d2b81c0a978a36c1d3c2923b3237ae6e6d"
+    },
+    {
+      "path": "scripts/launch/l15-finance-audit.ts",
+      "sha256": "3d6dfd57cb885f390b25c57dda540264db068a97a9597bb4c0ad63b2ffd80e51"
+    },
+    {
+      "path": "scripts/launch/l15-week-browser.ts",
+      "sha256": "afb434e8540be7691ee96d51e1d621c613a3024f788795a56accc4ad36bb61d7"
+    },
+    {
+      "path": "lib/player-portrait-source.ts",
+      "sha256": "a336ee9ff6c3311982c86ae70936808f9c48b4774092bc964c854a390740f1ee"
+    },
+    {
+      "path": "lib/team-emblem-design.ts",
+      "sha256": "546913502a334108315e6ebbbd08540ce1a8404f908a70bd0671ca33920fe9a2"
+    },
+    {
+      "path": "components/ui/TeamEmblem.tsx",
+      "sha256": "6c7186bb69f91ef47dd1491dbf8138eaa12c0554ec760731b94f4d8a4651d9eb"
+    },
+    {
+      "path": "components/ui/TeamLogoDisplay.tsx",
+      "sha256": "51e6f111eea857f2363c921a5da168b8a8461451787e9f35dc0f4f0dab8ff560"
+    },
+    {
+      "path": "components/ui/PlayerCard.tsx",
+      "sha256": "d76a04547623dfab3a9c7325a7b78746678d0057318087deda1bc7b0ea4a657d"
+    },
+    {
+      "path": "components/ui/asset-images.tsx",
+      "sha256": "8845b095ee797f2cdeb96c11c9f954f22342696a241ded705b57c9c930d23b03"
+    },
+    {
+      "path": "components/player/player-detail.tsx",
+      "sha256": "39cc6a5d1ca0dc95f5cb4771067e49f00f5ea730e2a5f8455d356059b7282557"
+    },
+    {
+      "path": "app/main-menu/page.tsx",
+      "sha256": "0b2a2267ab77de91d9fc880b69e7fe4e240cadc5d4d6c28e82e470263d5defe1"
+    },
+    {
+      "path": "app/career/page.tsx",
+      "sha256": "57a6f2f3a15da1d2a721f4e52f33693445300be37d92b304efeab11073dbf1d2"
+    },
+    {
+      "path": "app/squad/page.tsx",
+      "sha256": "ef230376d2ed6b9f1db04f25ef98df8a5f36879dbc09fb0f39e8b68283f77d87"
+    },
+    {
+      "path": "app/fpl/page.tsx",
+      "sha256": "8e195ccaebfd3cbf0e0cbf18d51c46873f046d592b628e89f6df75142ae71f36"
+    },
+    {
+      "path": "app/training/page.tsx",
+      "sha256": "ba2e9594bf4e2f4f8c2187a32d4c4aa9162eb03c1981eca89736c42dd6163ce4"
+    },
+    {
+      "path": "app/rankings/page.tsx",
+      "sha256": "6154ac0970efb47275ce24a950ac9d5e55ad9127c2b76818ddc0679cbf6c0905"
+    },
+    {
+      "path": "app/stats/page.tsx",
+      "sha256": "c93d8c9f70d0cc0e022c54966eeb464538c446495c78a22484498caf2545f1d9"
+    },
+    {
+      "path": "app/desktop/page.tsx",
+      "sha256": "33e91a4ee26c780d21b9153efd3f0f4a54833fc4f9abab94b3547f0a49cc1f44"
+    },
+    {
+      "path": "app/new-game/page.tsx",
+      "sha256": "60e259bd2975458b1a6e89a2b6e90d05cde85c815976a418af22dfd3262a1be0"
+    },
+    {
+      "path": "components/desktop-apps/AcademyApp.tsx",
+      "sha256": "659c33b5ac75cf5c1609e620d5034f250ff95a053b7c221ae17eb9f7801db744"
+    },
+    {
+      "path": "components/desktop-apps/MarketApp.tsx",
+      "sha256": "6487092252e7112e73cd7e63c10c1f366fb780515758e0738ce82c1139561426"
+    },
+    {
+      "path": "components/celebration/ProAwardsModal.tsx",
+      "sha256": "febc5e976d4175b61fc0ba499b910ad7fff1bfa4707e28715fc9f24656baca75"
+    },
+    {
+      "path": "components/player/TransferListingModal.tsx",
+      "sha256": "e67362dfdc606c4c6f09487b29f7ae2ec1c7f927e8910a83783a6776379424c8"
+    },
+    {
+      "path": "components/schedule/TeamMatchPopup.tsx",
+      "sha256": "a85d43729986d78fed2b8b8b2172678b60691715681bb5423c6d43554894255f"
+    },
+    {
+      "path": "components/squad/ChemistryMatrix.tsx",
+      "sha256": "034090b76b01adebfce623b29e4837d041d22d5d24e350923e2a69379b9cd985"
+    },
+    {
+      "path": "components/match/TacticalLoadoutEditor.tsx",
+      "sha256": "46158b16ea29f2ab5ce3b2c6e90f6e82318581b129e8c839d9dfc2e0a9ae3278"
+    },
+    {
+      "path": "app/match/[id]/live/page.tsx",
+      "sha256": "57a0582747a513f272969297e141c9595d4ea960aec049a50d131f1ab2bcd7d3"
+    },
+    {
+      "path": "app/match/[id]/result/page.tsx",
+      "sha256": "ed4247bad7e27e2358b08036116d823bfc2edc9d9bbe6f65472b76b499f061ba"
+    },
+    {
+      "path": "app/match/[id]/tactics/page.tsx",
+      "sha256": "81ec3f9fd03e396e0682bc831a5dae16646829b21bf2fedfd93e76308573d079"
+    },
+    {
+      "path": "engine/save-manager.ts",
+      "sha256": "0523f1af459efb11ffe3142964a598f2a6d7e612300e71ed3bab82276ed10f65"
+    }
+  ],
+  "workerFiles": [
+    "3444.585d050eb3953c88.js",
+    "2063.dbacc41a85fa0716.js"
+  ],
+  "uiFixtures": [
+    {
+      "path": "tmp/l15-ui-fixture.json",
+      "sha256": "61d68cb2fe8b60281f511d91c3360e8f149f6f3964fe21dab97d93bce1efaebc"
+    },
+    {
+      "path": "tmp/l15-signing-fixture.json",
+      "sha256": "20242f15fd241f33527627a289052f28b4b17c38c77bc1b6138ba085a9e9957b"
+    }
+  ],
+  "nativeProbeBuildId": "8oLRlUfW6uZLOeYJf6u2Q",
+  "visualCheckBuilds": [
+    "hm9Bl7O_9fAUgcdn9FRxJ",
+    "_GkNZJeH_Jk1ky88_B354",
+    "ukEFQCRmP1t-qPbb2ToF0"
+  ]
+}

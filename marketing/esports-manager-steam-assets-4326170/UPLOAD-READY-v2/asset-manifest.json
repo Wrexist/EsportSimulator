@@ -1,0 +1,150 @@
+{
+  "appId": 4326170,
+  "assets": [
+    {
+      "file": "01-STORE/main_capsule_1232x706.png",
+      "width": 1232,
+      "height": 706,
+      "format": "png",
+      "field": "Main Capsule",
+      "sha256": "476bc2cdbe7e449c6cd400c40c48aefca5b560fdf8e5de3889211f408d050dd5"
+    },
+    {
+      "file": "01-STORE/header_capsule_920x430.png",
+      "width": 920,
+      "height": 430,
+      "format": "png",
+      "field": "Header Capsule",
+      "sha256": "53bc5b85bcc8aefba6ddd1500093cb157545bbb1e2ccf934162fd9986478497e"
+    },
+    {
+      "file": "01-STORE/small_capsule_462x174.png",
+      "width": 462,
+      "height": 174,
+      "format": "png",
+      "field": "Small Capsule",
+      "sha256": "5fb4bb4881ec1f323667c72d6b316607c1af68e4d106e0fa369c192a51deef86"
+    },
+    {
+      "file": "01-STORE/vertical_capsule_748x896.png",
+      "width": 748,
+      "height": 896,
+      "format": "png",
+      "field": "Vertical Capsule",
+      "sha256": "7f0632a7794d592e1063b4b3e29b726529ae69c8180d2a02850bc09f80cd5685"
+    },
+    {
+      "file": "02-LIBRARY/library_capsule_600x900.png",
+      "width": 600,
+      "height": 900,
+      "format": "png",
+      "field": "Library Capsule",
+      "sha256": "a1f71c3b64cbf055c34cecf33d71acc6e8d4051379ed36f73e59177b31094764"
+    },
+    {
+      "file": "02-LIBRARY/library_header_920x430.png",
+      "width": 920,
+      "height": 430,
+      "format": "png",
+      "field": "Library Header",
+      "sha256": "53bc5b85bcc8aefba6ddd1500093cb157545bbb1e2ccf934162fd9986478497e"
+    },
+    {
+      "file": "02-LIBRARY/library_logo_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "format": "png",
+      "field": "Library Logo",
+      "sha256": "3ae154776250d52bd3367f911d7c114f4a0a6da6141163f3469ac7d7805ff589"
+    },
+    {
+      "file": "01-STORE/page_background_1438x810.png",
+      "width": 1438,
+      "height": 810,
+      "format": "png",
+      "field": "Page Background",
+      "sha256": "8027e1b27befc787c2e030ec9a97ba4d9799d8400dcfa543df2cc72ff35ff561"
+    },
+    {
+      "file": "02-LIBRARY/library_hero_3840x1240.png",
+      "width": 3840,
+      "height": 1240,
+      "format": "png",
+      "field": "Library Hero",
+      "sha256": "b7c735bd016b03f16493b90dc672add794ebf97f401d604238543e2d278f5f60"
+    },
+    {
+      "file": "03-ABOUT-ONLY/01_build_your_squad_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "format": "png",
+      "field": "Description extra image",
+      "sha256": "337655cc566bff12538e518039bb1f8a5acb005e1d005a6f02b6ee36bc43eca4"
+    },
+    {
+      "file": "03-ABOUT-ONLY/02_run_the_club_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "format": "png",
+      "field": "Description extra image",
+      "sha256": "b7095f129b334c97ae23373ce94f86558d2ae4358fc25c521be5e6cdd34f0471"
+    },
+    {
+      "file": "03-ABOUT-ONLY/03_shape_your_season_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "format": "png",
+      "field": "Description extra image",
+      "sha256": "d87f6549b0033e05dde0130fbc19e7ca83bde9f96e993008e0f6797d78e5eeaa"
+    },
+    {
+      "file": "05-EVENTS-ONLY/event_header_1920x622.png",
+      "width": 1920,
+      "height": 622,
+      "format": "png",
+      "field": "Event Header",
+      "sha256": "208935295214a079dccacaaf6fffb4556612ae3a8126a25bbf80ec6614e48108"
+    },
+    {
+      "file": "04-APP-ICONS/shortcut_icon_256.png",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "field": "Shortcut Icon",
+      "sha256": "c1a0282c6f3242b16230809c87f6ad48b43d5b4181cac0679d890a0bc919c3d3"
+    },
+    {
+      "file": "04-APP-ICONS/shortcut_icon_512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "field": "Shortcut Icon",
+      "sha256": "f42d561ab0e9e88c746e07b60fea12e028de02d06a3879a2b9d39f1da3564b61"
+    },
+    {
+      "file": "04-APP-ICONS/app_icon_184.jpg",
+      "width": 184,
+      "height": 184,
+      "format": "jpeg",
+      "field": "App Icon",
+      "sha256": "d036657e9ea7914843c7827d8c6e71e7afd8cbe8ff0eb0e1139df76701a630ba"
+    },
+    {
+      "file": "05-EVENTS-ONLY/event_cover_800x450.png",
+      "width": 800,
+      "height": 450,
+      "format": "png",
+      "field": "Event Cover",
+      "sha256": "8fb4c3dd8ff4715d85768025e5664c3ad3ff13516f1c5334f384516f30dc5def"
+    }
+  ],
+  "icoSizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ]
+}

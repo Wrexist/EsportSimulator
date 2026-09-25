@@ -1,0 +1,65 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Anubis",
+  "scope": "Controlled 2T/1CT recovery smoke against actual reference collision. Original simulator calibration, not a real-game lineup or full 5v5 certification.",
+  "meshSha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+  "simulatorSourceSha256": "de33f1d960cf9d2395da50401e74791bade6dbc4a36a339dc78366f715cca080",
+  "fixtureSha256": "6d9e8b43a735b5547cf9b2a051a311d3788f3d1149f35597562b6255d84d6814",
+  "attempts": 1,
+  "origin": [
+    988.7595799999999,
+    1706.9998333333333,
+    -170.66663999999992
+  ],
+  "bomb": [
+    1116.803315063647,
+    1706.9998333333333,
+    -172.3231884199078
+  ],
+  "threat": [
+    1396.803315063647,
+    1706.9998333333333,
+    -157.40622239257686
+  ],
+  "landing": [
+    1076.803315063647,
+    1706.9998333333333,
+    -181.95
+  ],
+  "bounces": [
+    [
+      1040.625108387826,
+      1706.9998333333333,
+      -181.95
+    ],
+    [
+      1068.2248084455812,
+      1706.9998333333333,
+      -181.95
+    ],
+    [
+      1076.803315063647,
+      1706.9998333333333,
+      -181.95
+    ]
+  ],
+  "waitTick": 0,
+  "burstTick": 96,
+  "screenReadyTick": 97,
+  "pickupTick": 124,
+  "checks": [
+    {
+      "id": "anubis-recovery-smoke",
+      "state": "matches-model",
+      "landingError": 0,
+      "bounceErrors": [
+        0,
+        0,
+        0
+      ],
+      "reason": "Computed trajectory only; real-map lineup review still required."
+    }
+  ],
+  "minSeparation": 133.5470084106048,
+  "outputSha256": "b4fe8bbbd704045926981aeac7289e574be8db39c6144afccc0c13d0e1bef6da"
+}

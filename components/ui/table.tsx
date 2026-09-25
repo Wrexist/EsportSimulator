@@ -4,11 +4,14 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-function Table({ className, ...props }: React.ComponentProps<'table'>) {
+function Table({ className, containerLabel = 'Scrollable table', ...props }: React.ComponentProps<'table'> & { containerLabel?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+      tabIndex={0}
+      role="region"
+      aria-label={containerLabel}
     >
       <table
         data-slot="table"

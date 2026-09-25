@@ -23,7 +23,10 @@ export class SeededRNG {
      * Uses mulberry32 algorithm
      */
     next(): number {
-        let t = (this.state += 0x6d2b79f5)
+        // Keep the accumulator at uint32 precision even in very long careers.
+        // Otherwise repeated draws eventually exceed Number.MAX_SAFE_INTEGER,
+        // and a save/reload (which truncates state) changes the random stream.
+        let t = (this.state = (this.state + 0x6d2b79f5) >>> 0)
         t = Math.imul(t ^ (t >>> 15), t | 1)
         t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296

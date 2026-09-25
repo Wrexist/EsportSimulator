@@ -1,0 +1,82 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/hall-of-fame".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/hall-of-fame
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/hall-of-fame#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading HALL OF FAME LEGENDS, Value: 1
+				144 text HALL OF FAME LEGENDS
+			145 text PLAYERS WHO DEFINED ERAS THROUGH EXCEPTIONAL CAREERS
+			146 container
+				147 heading FOUNDING LEGENDS, Value: 3
+					148 text FOUNDING LEGENDS
+				149 text PLAYERS WHO SHAPED THE EARLY HISTORY OF ESPORTS
+				150 link Value: 127.0.0.1:3210/player/legend_sovran, Description: Sovran RIFLER SE 98 OVR LEGEND 2007–2021 2 21 MVP 1,247 matches Era-Defining Lurker Major Champion Shadow-Play Pioneer
+				151 link Value: 127.0.0.1:3210/player/legend_ironbark, Description: Ironbark RIFLER SE 97 OVR LEGEND 2003–2024 2 18 MVP 1,489 matches Two-Decade Career Major Champion Mechanical Legend
+				152 link Value: 127.0.0.1:3210/player/legend_bastion, Description: Bastion RIFLER PL 88 OVR LEGEND 2004–2019 1 5 MVP 987 matches Major Champion Cultural Icon Polish Dynasty Core
+				153 link Value: 127.0.0.1:3210/player/legend_nocturn, Description: Nocturn AWPER FR 94 OVR LEGEND 2011–2023 1 15 MVP 1,156 matches Major Champion AWP Meta Definer Major MVP
+				154 link Value: 127.0.0.1:3210/player/legend_varden, Description: Varden RIFLER SE 92 OVR LEGEND 2010–2022 2 12 MVP 1,089 matches 2x Major Champion Player of the Year Versatility King
+				155 link Value: 127.0.0.1:3210/player/legend_krolon, Description: Krolon IGL UA 87 OVR LEGEND 2002–2019 1 3 MVP 1,245 matches Major Champion Leadership Icon Eastern Architect
+				156 link Value: 127.0.0.1:3210/player/legend_v4ltz, Description: V4ltz AWPER UA 99 OVR LEGEND 2013–2024 1 28 MVP 1,350 matches Major Champion 4x Player of the Year Generational Talent
+				157 link Value: 127.0.0.1:3210/player/legend_kalvera, Description: Kalvera AWPER DK 96 OVR LEGEND 2013–2023 4 20 MVP 1,280 matches 4x Major Champion Most Consistent AWPer Grand Slam Winner
+				158 link Value: 127.0.0.1:3210/player/legend_niklaus, Description: Niklaus RIFLER BA 98 OVR LEGEND 2012–2024 18 MVP 1,180 matches Multi-Year Top 3 Pure-Aim Legend Superstar
+				159 link Value: 127.0.0.1:3210/player/legend_frosthaven, Description: Frosthaven RIFLER BR 96 OVR LEGEND 2014–2023 2 16 MVP 1,050 matches 2x Major Champion 2x Player of the Year Signature Mid-Air Kill
+				160 link Value: 127.0.0.1:3210/player/legend_pyren, Description: Pyren IGL BR 92 OVR LEGEND 2010–2024 2 10 MVP 1,320 matches 2x Major Champion Southern Scene Godfather Legendary IGL
+				161 link Value: 127.0.0.1:3210/player/legend_sentryx, Description: Sentryx AWPER SK 93 OVR LEGEND 2009–2020 11 MVP 1,150 matches Top 5 Multiple Years Eastern AWP Legend Franchise Icon
+				162 link Value: 127.0.0.1:3210/player/legend_dupren, Description: Dupren ENTRY DK 93 OVR LEGEND 2012–2023 4 12 MVP 1,240 matches 4x Major Champion Best Entry Fragger Northern Core
+				163 link Value: 127.0.0.1:3210/player/legend_cipherx, Description: Cipherx SUPPORT DK 90 OVR LEGEND 2012–2023 4 8 MVP 1,200 matches 4x Major Champion Clutch Specialist Best Support Ever
+				164 link Value: 127.0.0.1:3210/player/legend_shoen, Description: Shoen RIFLER FR 93 OVR LEGEND 2007–2023 1 14 MVP 1,280 matches Major Champion Western Legend Style Icon
+				165 link Description: Mirage RIFLER SE STILL ACTIVE 2012–2023 3x Major Champion Clutch Master Franchise Legend, Value: 127.0.0.1:3210/player/legend_mirage
+			166 container
+				167 heading INDUCTED LEGENDS, Value: 3
+					168 text INDUCTED LEGENDS
+				169 text PLAYERS INDUCTED THROUGH YOUR SIMULATION
+				170 heading NO LEGENDS YET, Value: 3
+					171 text NO LEGENDS YET
+				172 text Players who achieve greatness through Major wins, MVP awards, and exceptional careers will be immortalized here upon retirement.
+			173 container
+				174 text INDUCTION CRITERIA 100+ matches, 2+ major achievements (Major Win, MVP, Top 3 Rank, Longevity) FOUNDING 16 INDUCTED 0
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 31 link Description: Hall of Fame, URL: 127.0.0.1:3210/hall-of-fame

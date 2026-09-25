@@ -46,7 +46,7 @@ For overlay/GPU-diagnostik kan du bygga utan stabilitetslage:
 cross-env ESM_STABILITY_MODE=0 npm run dist
 ```
 
-> `npm run electron:build` gor exakt samma sak. Det spelar ingen roll vilken du kor.
+> Anvand `npm run dist` for releaseflodet. `electron:build` har andra forsteg och ersatter inte slutkontrollerna.
 
 **Tidsatgang:** 5-15 minuter beroende pa dator.
 
@@ -60,7 +60,7 @@ cross-env ESM_STABILITY_MODE=0 npm run dist
 ## Steg 2: Testa lokalt
 
 1. Ga till `dist\win-unpacked\`
-2. Dubbel-klicka pa **Esports Manager.exe**
+2. Dubbel-klicka pa **EsportsManager.exe**
 3. Spelet ska starta
 
 **Testa specifikt:**

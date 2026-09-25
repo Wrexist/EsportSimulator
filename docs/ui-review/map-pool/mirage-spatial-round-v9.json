@@ -1,0 +1,201 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "11e1c5001b916f3addcaebfbf3b94d67477987a856dedf966c2a8643295e8c2f",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 72.125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 184422,
+      "metrics": {
+        "shots": 109,
+        "damage": 666,
+        "reports": 85,
+        "waits": 1183,
+        "replans": 71,
+        "minSeparation": 32.0033366299395
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [
+        {
+          "tick": 304,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 352,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 1632,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1808,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1984,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2272,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "1b096801cb67f1a4420ddd555bc9eada9ba337338290c19a1e8538d693bdec3f"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 54.40625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 203675,
+      "metrics": {
+        "shots": 65,
+        "damage": 522,
+        "reports": 56,
+        "waits": 172,
+        "replans": 76,
+        "minSeparation": 32.38412721058408
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 0,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "3e025814079255ba3fca7b5e7373f2acf1fd1622199a42719e93dce09c7c4614"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 54.25,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 162760,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 590,
+        "waits": 455,
+        "replans": 70,
+        "minSeparation": 32.147547463986584
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [
+        {
+          "tick": 304,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 352,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "81b5cbe499c101f67f59fe4f558892bb90df38d49ecaddd1cd1c07359cf5a16c"
+    },
+    {
+      "seed": 4326174,
+      "objective": "A",
+      "guns": true,
+      "seconds": 71.609375,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 90433,
+      "metrics": {
+        "shots": 58,
+        "damage": 866,
+        "reports": 50,
+        "waits": 530,
+        "replans": 65,
+        "minSeparation": 32.147547463986584
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [
+        {
+          "tick": 304,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 352,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        },
+        {
+          "tick": 624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T2",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "5e361cb377d68a2fa6ae3e669709dff7339b87fb732e6139edad9cbbc9f0726f"
+    }
+  ]
+}

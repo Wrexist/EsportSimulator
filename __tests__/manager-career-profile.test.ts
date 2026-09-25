@@ -17,7 +17,7 @@ function makeSave(overrides: {
             id: "t1",
             name: overrides.teamName ?? "Team A",
             worldRanking: overrides.worldRanking ?? 10,
-            trophies: overrides.trophies ?? [{ tier: "S_TIER" }, { tier: "A_TIER" }],
+            trophies: (overrides.trophies ?? [{ tier: "S_TIER" }, { tier: "A_TIER" }]).map((t, i) => ({ ...t, tournamentId: `event_${i}`, tournamentName: `Event ${i}`, week: i + 1 })),
         }],
         careerStats: { totalSeasons: overrides.totalSeasons ?? 3 },
     } as unknown as GameSave

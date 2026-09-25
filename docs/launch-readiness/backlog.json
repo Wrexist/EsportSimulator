@@ -1,0 +1,2493 @@
+{
+  "format": "esim-launch-backlog",
+  "version": 1,
+  "reviewedAt": "2026-09-14",
+  "target": "Windows 1.0 (owner confirmed)",
+  "status": "NO-GO",
+  "scope": "Current known work, not a claim that all undiscovered defects are known",
+  "packages": [
+    {
+      "id": "L01",
+      "title": "Define the launch promise and management identity",
+      "gate": "required",
+      "status": "verified",
+      "dependsOn": [],
+      "legacyPackages": [
+        2,
+        3,
+        4
+      ],
+      "entryPoints": [
+        "TASK.md",
+        "docs/audit-2026-09-12/PLAN.md",
+        "STEAM_STORE_LISTING.md"
+      ],
+      "tasks": [
+        {
+          "id": "L01.1",
+          "text": "Record the confirmed Windows 1.0 scope, supported inputs/languages and target player; reconcile older Early Access material as historical context.",
+          "done": true
+        },
+        {
+          "id": "L01.2",
+          "text": "Define the decision loop: assess squad and cash, choose a constrained plan, prepare a match, observe consequences, adapt next week.",
+          "done": true
+        },
+        {
+          "id": "L01.3",
+          "text": "Specify shared meanings for OVR, scouting confidence, booked cash versus forecast, dates and training capacity; map each to one source of truth.",
+          "done": true
+        },
+        {
+          "id": "L01.4",
+          "text": "Separate launch commitments from optional ambitions; keep fictional team names, 2D radar, quiet Map Studio and restrained glass styling.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L01.A1",
+          "text": "Every store promise maps to an implemented behavior and an acceptance case.",
+          "done": true
+        },
+        {
+          "id": "L01.A2",
+          "text": "A ten-minute product brief explains three meaningful tradeoffs and why a player would return for another season.",
+          "done": true
+        },
+        {
+          "id": "L01.A3",
+          "text": "Unconfirmed hardware, input/language scope, price and content rights are recorded as decisions, not silently treated as settled.",
+          "done": true
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L01-REPORT.md"
+      ],
+      "prompt": "prompts/L01.md"
+    },
+    {
+      "id": "L02",
+      "title": "Create reproducible careers and evidence fixtures",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L01"
+      ],
+      "legacyPackages": [
+        1,
+        4,
+        55
+      ],
+      "entryPoints": [
+        "__tests__",
+        "store/game-store.ts",
+        "engine/save-types.ts",
+        "docs/audit-2026-09-12/COVERAGE.md"
+      ],
+      "tasks": [
+        {
+          "id": "L02.1",
+          "text": "Create deterministic first-week, weak-club, strong-club, cash-crisis, roster-shortage, season-boundary and late-career fixtures without private user data.",
+          "done": true
+        },
+        {
+          "id": "L02.2",
+          "text": "Record seed, build identity, schema version, scenario steps, expected results and reset procedure for each fixture.",
+          "done": true
+        },
+        {
+          "id": "L02.3",
+          "text": "Maintain real browser acceptance for new career, recruit/train, match, next week, save, close and reload; keep test storage separate.",
+          "done": true
+        },
+        {
+          "id": "L02.4",
+          "text": "Add failure injection at the actual persistence and worker boundaries; preserve historical fixtures as compatibility inputs.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L02.A1",
+          "text": "Fixture setup is repeatable and cannot overwrite a user's career or map draft.",
+          "done": true
+        },
+        {
+          "id": "L02.A2",
+          "text": "The core journey runs through real application actions, not only mocked helpers.",
+          "done": true
+        },
+        {
+          "id": "L02.A3",
+          "text": "Each failed acceptance case produces a reproducible report and retained last-good save.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L02-REPORT.md"
+      ],
+      "prompt": "prompts/L02.md"
+    },
+    {
+      "id": "L03",
+      "title": "Finish save, migration and recovery trust",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L02"
+      ],
+      "legacyPackages": [
+        6,
+        7,
+        8,
+        13
+      ],
+      "entryPoints": [
+        "store/utils/build-save-snapshot.ts",
+        "engine/save-manager.ts",
+        "engine/save-types.ts",
+        "store/game-store.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L03.1",
+          "text": "Inventory every durable field, including custom tactics, pending activities, in-progress matches, board state and newly added simulation data; classify device preferences and transient state separately.",
+          "done": true
+        },
+        {
+          "id": "L03.2",
+          "text": "Complete serializer/default/migration coverage across all supported save versions and career switching; do not assume an optional TypeScript field persists.",
+          "done": false
+        },
+        {
+          "id": "L03.3",
+          "text": "Exercise disk/quota failure, corrupted primary with valid backup, failed migration, interrupted commit, duplicate Save and crash during next week using the actual adapters.",
+          "done": false
+        },
+        {
+          "id": "L03.4",
+          "text": "Keep last-good data and make processing, saving, saved and retry states truthful; ensure ledger, rewards and week completion are applied exactly once.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L03.A1",
+          "text": "Declared durable state round-trips through each real save path and a fresh process.",
+          "done": false
+        },
+        {
+          "id": "L03.A2",
+          "text": "Faults never silently replace a valid save with invalid data or report a failed write as saved.",
+          "done": false
+        },
+        {
+          "id": "L03.A3",
+          "text": "Recovery and older-save behavior are verified in both browser storage and the packaged application.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "../audit-2026-09-12/IMPLEMENTATION.md",
+        "evidence/L03-REPORT.md",
+        "evidence/L03-save-fields.json",
+        "evidence/L03-checks.json",
+        "evidence/L03-native-faults.json",
+        "evidence/L03-native-read.json"
+      ],
+      "prompt": "prompts/L03.md"
+    },
+    {
+      "id": "L04",
+      "title": "Prove deterministic simulation and worker ownership",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L02",
+        "L03"
+      ],
+      "legacyPackages": [
+        5,
+        6,
+        14,
+        43,
+        44
+      ],
+      "entryPoints": [
+        "engine/worker",
+        "engine/atomic-week-processor.ts",
+        "store/game-store.ts",
+        "engine/rng.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L04.1",
+          "text": "Reverify the existing request correlation, timeout termination, captured input/seed and compute-only worker/fallback before changing them.",
+          "done": true
+        },
+        {
+          "id": "L04.2",
+          "text": "Compare repeated runs through the actual application coordinator, including reloads and worker failure, and isolate cosmetic randomness from gameplay RNG.",
+          "done": true
+        },
+        {
+          "id": "L04.3",
+          "text": "Extract orchestration only where it clarifies computation, reconciliation and the single durable commit; retain current working contracts.",
+          "done": true
+        },
+        {
+          "id": "L04.4",
+          "text": "Version deterministic replay inputs and define which metadata timestamps are intentionally excluded from equality checks.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L04.A1",
+          "text": "Worker, fallback and resumed runs agree on canonical match, economy, progression and RNG fields.",
+          "done": false
+        },
+        {
+          "id": "L04.A2",
+          "text": "Late results, concurrent requests and failure after computation cannot double-advance the week.",
+          "done": false
+        },
+        {
+          "id": "L04.A3",
+          "text": "The compiled worker boots without browser globals and cannot initialize durable storage.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L04-REPORT.md",
+        "docs/launch-readiness/evidence/L04-L05-checks.json"
+      ],
+      "prompt": "prompts/L04.md"
+    },
+    {
+      "id": "L05",
+      "title": "Complete preferences, audio, exit and desktop lifecycle",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L03",
+        "L04"
+      ],
+      "legacyPackages": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        39
+      ],
+      "entryPoints": [
+        "components/layout/GameShell.tsx",
+        "lib/session-persistence.ts",
+        "lib/route-audio.ts",
+        "lib/settings-store.ts",
+        "electron/main.js"
+      ],
+      "tasks": [
+        {
+          "id": "L05.1",
+          "text": "Test autosave, manual save, close during a tick, slow disk, retry, cancel, force-close choice and remount with the shared lifecycle.",
+          "done": true
+        },
+        {
+          "id": "L05.2",
+          "text": "Finish preference ownership and migration across all settings surfaces; show reset scope and distinguish career choices from device settings.",
+          "done": true
+        },
+        {
+          "id": "L05.3",
+          "text": "Keep Map Studio and nested lab pages silent, honor stored volume before first interaction, and verify menu/match scene changes and background-window behavior.",
+          "done": false
+        },
+        {
+          "id": "L05.4",
+          "text": "Verify fullscreen, display scaling, window resize, minimize/restore, sleep/resume and single-instance behavior on the supported desktop target.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L05.A1",
+          "text": "Canceling close leaves the app usable and autosave active, with no duplicate timers or handlers.",
+          "done": false
+        },
+        {
+          "id": "L05.A2",
+          "text": "Muted starts and studio clicks stay quiet; settings persist across restart and agree across screens.",
+          "done": false
+        },
+        {
+          "id": "L05.A3",
+          "text": "Native close/cancel/slow-save behavior is exercised in the packaged build, not inferred from helper tests.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L05-REPORT.md",
+        "docs/launch-readiness/evidence/L04-L05-checks.json"
+      ],
+      "prompt": "prompts/L05.md"
+    },
+    {
+      "id": "L06",
+      "title": "Resolve dependency and runtime security findings",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L02"
+      ],
+      "legacyPackages": [
+        40,
+        46
+      ],
+      "entryPoints": [
+        "package.json",
+        "package-lock.json",
+        "next.config.js",
+        "docs/launch-readiness/evidence/dependencies.json"
+      ],
+      "tasks": [
+        {
+          "id": "L06.1",
+          "text": "Triage all 47 recorded advisories and the seven production findings against runtime reachability, build tools and the shipped dependency tree.",
+          "done": false
+        },
+        {
+          "id": "L06.2",
+          "text": "Use primary vendor/advisory sources to select supported versions; upgrade in reviewable groups with migration notes, rather than applying force fixes blindly.",
+          "done": true
+        },
+        {
+          "id": "L06.3",
+          "text": "Recheck Next worker compilation, Electron/native module compatibility, save migration and offline startup after each relevant update.",
+          "done": false
+        },
+        {
+          "id": "L06.4",
+          "text": "Record resolved findings and evidence-backed dispositions; do not suppress scans or claim every transitive advisory is a demonstrated exploit.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L06.A1",
+          "text": "No reachable critical/high release vulnerability remains without a concrete mitigation verified on the candidate.",
+          "done": false
+        },
+        {
+          "id": "L06.A2",
+          "text": "The resolved dependency graph is reproducible from the lockfile and the actual packaged tree is audited.",
+          "done": false
+        },
+        {
+          "id": "L06.A3",
+          "text": "Affected regression suites, clean type checks, production worker and packaged startup pass after upgrades.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/dependencies.json",
+        "evidence/runtime-dependencies.json",
+        "evidence/L06-REPORT.md",
+        "evidence/L06-TRIAGE.json",
+        "evidence/L06-dependencies.json",
+        "evidence/L06-runtime-dependencies.json"
+      ],
+      "prompt": "prompts/L06.md"
+    },
+    {
+      "id": "L07",
+      "title": "Harden Electron, IPC and local boundaries",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L06"
+      ],
+      "legacyPackages": [
+        41,
+        42
+      ],
+      "entryPoints": [
+        "electron/main.js",
+        "electron/preload.js",
+        "electron/steam.js",
+        "__tests__/security-hardening.test.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L07.1",
+          "text": "Inventory every IPC channel, its sender validation, schema, bounds, return contract and filesystem authority, including storage, mods, logs, window and GPU settings.",
+          "done": true
+        },
+        {
+          "id": "L07.2",
+          "text": "Keep context isolation, sandboxing, web security and loopback-only serving; enforce exact trusted origin/frame checks and deny unexpected navigation/new windows.",
+          "done": true
+        },
+        {
+          "id": "L07.3",
+          "text": "Test traversal, symlinks where applicable, malformed payloads, oversized imports, untrusted URLs and renderer-origin requests against actual handlers.",
+          "done": true
+        },
+        {
+          "id": "L07.4",
+          "text": "Review CSP exceptions against the production runtime; remove only exceptions proven unnecessary, retaining working worker and asset loading.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L07.A1",
+          "text": "An untrusted frame cannot read/write saves, clear storage, access arbitrary paths or change privileged settings.",
+          "done": false
+        },
+        {
+          "id": "L07.A2",
+          "text": "Invalid inputs fail safely without crashing or altering unrelated files.",
+          "done": false
+        },
+        {
+          "id": "L07.A3",
+          "text": "A packaged security smoke run documents navigation, IPC and local-port behavior with real Electron.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L07-REPORT.md",
+        "evidence/L07-IPC-INVENTORY.json",
+        "evidence/L07-checks.json",
+        "evidence/L07-native-security.json",
+        "evidence/L07-native-csp.json"
+      ],
+      "prompt": "prompts/L07.md"
+    },
+    {
+      "id": "L08",
+      "title": "Establish content provenance and distribution rights",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L01"
+      ],
+      "legacyPackages": [
+        18,
+        48,
+        49,
+        53
+      ],
+      "entryPoints": [
+        "public",
+        "data/map-studio-library.json",
+        "lib/map-utility-templates.ts",
+        "NOTICE.md",
+        "docs/STEAM_REVIEW_REMEDIATION_PLAN.md"
+      ],
+      "tasks": [
+        {
+          "id": "L08.1",
+          "text": "Inventory every shipped map/radar/mesh, logo, portrait, font, sound, database, text and lineup reference with source, license/permission, attribution, allowed use and release inclusion.",
+          "done": true
+        },
+        {
+          "id": "L08.2",
+          "text": "Review current imported geometry and reference artwork separately from user-authored annotations; public availability and fictional names do not establish distribution rights.",
+          "done": true
+        },
+        {
+          "id": "L08.3",
+          "text": "Reconcile historical Steam feedback with the current build/store evidence; prepare original replacements or explicit distribution permission where needed.",
+          "done": false
+        },
+        {
+          "id": "L08.4",
+          "text": "Resolve the strict scan's source-reference finding accurately and expand review beyond public/assets; never rename files or widen allowlists merely to conceal unresolved ownership.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L08.A1",
+          "text": "Every included asset has a documented release disposition and required attribution is actually packaged.",
+          "done": false
+        },
+        {
+          "id": "L08.A2",
+          "text": "Unresolved third-party content is replaced or deliberately excluded from the shipping artifact while user drafts remain backed up.",
+          "done": false
+        },
+        {
+          "id": "L08.A3",
+          "text": "Store screenshots, trailers and generated player-facing content have the same provenance review as game assets.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/steam-ready.json",
+        "AUDIT-DELTA.md",
+        "evidence/L08-REPORT.md",
+        "evidence/L08-content-inventory.json",
+        "evidence/L08-lineup-inventory.json"
+      ],
+      "prompt": "prompts/L08.md"
+    },
+    {
+      "id": "L09",
+      "title": "Register map annotations, spawns and plant zones",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L02",
+        "L08"
+      ],
+      "legacyPackages": [],
+      "entryPoints": [
+        "engine/spatial",
+        "lib/map-annotations.ts",
+        "lib/spatial-lab-project.ts",
+        "components/maps/MapAnnotationEditor.tsx",
+        "public/map-studio/drafts"
+      ],
+      "tasks": [
+        {
+          "id": "L09.1",
+          "text": "Preserve the 142-mark Mirage upload byte-for-byte; identify A/B plant polygons, spawn areas and unresolved user notes without asserting unreviewed geometry is correct.",
+          "done": true
+        },
+        {
+          "id": "L09.2",
+          "text": "Define versioned coordinate registration between annotation radars and world-space references, including floor/height identity and confidence/provenance.",
+          "done": true
+        },
+        {
+          "id": "L09.3",
+          "text": "Create validation for polygon closure, intersections, blocked spawn points, connected exits and reachable plant zones; add explicit links for reviewable height transitions.",
+          "done": true
+        },
+        {
+          "id": "L09.4",
+          "text": "Make registration, import, correction, undo, backup, export and release inclusion visible in Map Studio, with a clear draft-to-validated workflow.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L09.A1",
+          "text": "Mirage spawn and plant zones align with the reviewed reference and never place a body in a solid or wrong floor.",
+          "done": false
+        },
+        {
+          "id": "L09.A2",
+          "text": "A saved/imported project retains registration and validation status without changing the original attachment.",
+          "done": true
+        },
+        {
+          "id": "L09.A3",
+          "text": "Every supported release map has a coverage sheet, or is explicitly excluded from the launch map pool.",
+          "done": true
+        }
+      ],
+      "evidence": [
+        "evidence/L09-REPORT.md",
+        "../SPATIAL-LAB.md",
+        "evidence/L09-map-coverage.md",
+        "docs/launch-readiness/evidence/MIRAGE-V12-REPORT.md"
+      ],
+      "prompt": "prompts/L09.md"
+    },
+    {
+      "id": "L10",
+      "title": "Implement credible movement and vertical traversal",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L09"
+      ],
+      "legacyPackages": [],
+      "entryPoints": [
+        "engine/spatial/navigation.ts",
+        "engine/spatial/movement.ts",
+        "engine/spatial/geometry.ts",
+        "components/maps/SpatialLab.tsx"
+      ],
+      "tasks": [
+        {
+          "id": "L10.1",
+          "text": "Extend the current fixed-step movement and directed navigation without losing continuous time across tile boundaries or collision stopping.",
+          "done": true
+        },
+        {
+          "id": "L10.2",
+          "text": "Implement supported-body clearance and floor support, turning, acceleration, stopping, crouch clearance, stairs, ramps and validated ladders.",
+          "done": false
+        },
+        {
+          "id": "L10.3",
+          "text": "Add explicit jump/drop arcs, landing validation, one-way edges and blocked-path recovery; do not invent reverse routes or teleport to nearby polygons.",
+          "done": false
+        },
+        {
+          "id": "L10.4",
+          "text": "Add route smoothing constrained to valid surfaces, congestion/teammate avoidance and inspectable reasons for rejected transitions; calibrate provisional values from measured references.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L10.A1",
+          "text": "Accepted route fixtures never cross solids, unsupported gaps or floors; illegal transitions fail with a reason.",
+          "done": false
+        },
+        {
+          "id": "L10.A2",
+          "text": "Every enabled traversal has positive, negative and reverse-direction cases plus deterministic replay.",
+          "done": false
+        },
+        {
+          "id": "L10.A3",
+          "text": "Mirage main rotations and height transitions are manually reviewed before expanding acceptance to the other launch maps.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L10-REPORT.md",
+        "../SPATIAL-LAB.md",
+        "docs/launch-readiness/evidence/MIRAGE-V12-REPORT.md"
+      ],
+      "prompt": "prompts/L10.md"
+    },
+    {
+      "id": "L11",
+      "title": "Make perception and shots cause encounter outcomes",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L10"
+      ],
+      "legacyPackages": [],
+      "entryPoints": [
+        "engine/spatial",
+        "engine/match/round-outcome.ts",
+        "engine/match-simulation.ts",
+        "lib/radar-position-engine.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L11.1",
+          "text": "Build a bounded controlled encounter before changing full-match generation: facing/FOV, occlusion, visible target acquisition, reaction delay and decaying last-known information.",
+          "done": true
+        },
+        {
+          "id": "L11.2",
+          "text": "Separate what the simulator knows from what each player/team knows; hidden positions must not leak into aim, path decisions or target selection.",
+          "done": true
+        },
+        {
+          "id": "L11.3",
+          "text": "Implement aim turning/error, movement accuracy, burst/recoil, ammo, reload, body/head hit volumes, armor and collision-tested damage with explicit units and provisional weapon data.",
+          "done": true
+        },
+        {
+          "id": "L11.4",
+          "text": "Add a reasoned event timeline for sight, reaction, shot, obstruction, damage and death; outcomes must emerge from these events rather than a preselected winner.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L11.A1",
+          "text": "No direct shot damages through opaque geometry or a different floor without a verified penetration rule.",
+          "done": false
+        },
+        {
+          "id": "L11.A2",
+          "text": "A hidden or out-of-FOV enemy cannot trigger an omniscient response; reaction/reload windows are exercised.",
+          "done": false
+        },
+        {
+          "id": "L11.A3",
+          "text": "Seeded duel replays reproduce damage and outcome, including simultaneous-action ordering and interrupted visibility.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L11-REPORT.md",
+        "docs/launch-readiness/evidence/L11-checks.json"
+      ],
+      "prompt": "prompts/L11.md"
+    },
+    {
+      "id": "L12",
+      "title": "Simulate utility, cover and dynamic obstacles",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L10",
+        "L11"
+      ],
+      "legacyPackages": [],
+      "entryPoints": [
+        "engine/spatial",
+        "lib/map-utility-templates.ts",
+        "data/map-studio-library.json",
+        "components/maps/MapAnnotationEditor.tsx"
+      ],
+      "tasks": [
+        {
+          "id": "L12.1",
+          "text": "Model thrown grenade flight, bounce, gravity, fuse, throw mode and landing in world space, retaining source lineup metadata separately from verified trajectories.",
+          "done": true
+        },
+        {
+          "id": "L12.2",
+          "text": "Implement smoke visibility volumes, flash exposure by facing/occlusion, HE cover and distance, fire spread/expiry and meaningful decoys at an explicitly declared fidelity.",
+          "done": true
+        },
+        {
+          "id": "L12.3",
+          "text": "Add dynamic door/breakable state and material thickness/penetration only where supported by reviewed data; do not treat the decimated visibility mesh as complete physical truth.",
+          "done": false
+        },
+        {
+          "id": "L12.4",
+          "text": "Give the lab throw-to-land replay, target tolerance, bounce editing and checked/draft status, with clear diagnostics when a reference cannot be reproduced.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L12.A1",
+          "text": "Effects respect walls, heights, timing, team inventory and visibility rules; smoke cannot magically fill disconnected rooms.",
+          "done": false
+        },
+        {
+          "id": "L12.A2",
+          "text": "A reviewed utility test set covers each enabled grenade and every launch map; imports are never auto-certified.",
+          "done": false
+        },
+        {
+          "id": "L12.A3",
+          "text": "Deterministic validation catches invalid throws, missing geometry, impossible trajectories and expired effects.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "docs/launch-readiness/evidence/L12-REPORT.md",
+        "docs/launch-readiness/evidence/L12-checks.json"
+      ],
+      "prompt": "prompts/L12.md"
+    },
+    {
+      "id": "L13",
+      "title": "Build tactically intelligent teams",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L11",
+        "L12"
+      ],
+      "legacyPackages": [],
+      "entryPoints": [
+        "engine/match",
+        "engine/spatial",
+        "engine/ai-manager.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L13.1",
+          "text": "Implement readable team and role states for default, entry, support, trade, lurk, anchor, rotate, execute, retake, save and clutch.",
+          "done": true
+        },
+        {
+          "id": "L13.2",
+          "text": "Use team knowledge, communication delay and uncertainty instead of hidden enemy coordinates; parameterize skill through consistent decision/execution rules.",
+          "done": true
+        },
+        {
+          "id": "L13.3",
+          "text": "Coordinate spacing, angle coverage, trade timing, utility budgets, bomb carrier, plant/defuse deadlines and economy-driven saves.",
+          "done": false
+        },
+        {
+          "id": "L13.4",
+          "text": "Expose tactical intent and why a plan changed in replay diagnostics; prevent oscillating objectives, crowding, repeated utility waste and stuck loops.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L13.A1",
+          "text": "Teams complete objective scenarios without omniscient rotations, impossible trades or indefinite inactivity.",
+          "done": false
+        },
+        {
+          "id": "L13.A2",
+          "text": "Role and tactical changes measurably alter behavior under controlled scenarios; stronger settings improve distributions without forced wins.",
+          "done": false
+        },
+        {
+          "id": "L13.A3",
+          "text": "Timeouts, bomb deadlines, teammate loss and stale information produce explainable replanning.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L13-REPORT.md",
+        "evidence/L13-checks.json",
+        "evidence/L13-native.json",
+        "evidence/L13-l12-regression-native.json",
+        "evidence/L13-mirage-review.json",
+        "evidence/L13-calibration.json",
+        "evidence/L13-browser-replay-check.json",
+        "evidence/L13-team-lab.png"
+      ],
+      "prompt": "prompts/L13.md"
+    },
+    {
+      "id": "L14",
+      "title": "Connect the spatial engine to authoritative matches",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L03",
+        "L04",
+        "L13"
+      ],
+      "legacyPackages": [
+        34
+      ],
+      "entryPoints": [
+        "engine/match-simulation.ts",
+        "engine/match/round-outcome.ts",
+        "lib/radar-position-engine.ts",
+        "components/match/MapRadarPanel.tsx",
+        "store/game-store.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L14.1",
+          "text": "Replace the winner-first path for the new simulator only after controlled encounters pass, with a versioned compatibility path for existing careers/replays.",
+          "done": false
+        },
+        {
+          "id": "L14.2",
+          "text": "Make the same event stream drive match results, stats, economy, bomb state and 2D radar; never hide an impossible kill line while retaining its damage.",
+          "done": false
+        },
+        {
+          "id": "L14.3",
+          "text": "Preserve map ID, floor, side, roster, seed and tactic choices from veto through live/instant/skip/resume/result/history.",
+          "done": false
+        },
+        {
+          "id": "L14.4",
+          "text": "Keep real-time rendering separate from simulation time so playback speed, pauses or dropped frames cannot change results; profile season simulation cost.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L14.A1",
+          "text": "Live, instant, skipped and resumed versions of the same scenario agree on canonical result and events.",
+          "done": false
+        },
+        {
+          "id": "L14.A2",
+          "text": "Veto-selected maps persist through every match view, fixing any reproduced Sandstone/Nuke mismatch.",
+          "done": false
+        },
+        {
+          "id": "L14.A3",
+          "text": "No match commits duplicate rewards, player stats or results, and old saves remain loadable with explicit engine versioning.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L14-REPORT.md",
+        "evidence/L14-replays.json",
+        "evidence/L14-jest.json",
+        "evidence/L14-season-profile.md",
+        "evidence/L14-mirage-review.json",
+        "evidence/L14-native.json",
+        "evidence/L14-browser-export.json",
+        "evidence/L14-source.json"
+      ],
+      "prompt": "prompts/L14.md"
+    },
+    {
+      "id": "L15",
+      "title": "Unify finances, budgets and contract consequences",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L03",
+        "L04"
+      ],
+      "legacyPackages": [
+        3,
+        15,
+        20,
+        36
+      ],
+      "entryPoints": [
+        "engine/economy-engine.ts",
+        "engine/processors/finance-processor.ts",
+        "app/finances/page.tsx",
+        "store/slices"
+      ],
+      "tasks": [
+        {
+          "id": "L15.1",
+          "text": "Trace all wages, transfers, signing bonuses, prizes, sponsors, loans if present, facilities and equipment through one ledger and forecast contract.",
+          "done": false
+        },
+        {
+          "id": "L15.2",
+          "text": "Show recurring commitments, conditional revenue, one-off costs, affordability and runway consistently before decisions and after settlement.",
+          "done": false
+        },
+        {
+          "id": "L15.3",
+          "text": "Test renewals, releases, cash shortfalls, delayed/conditional payments, replayed transactions and season boundaries.",
+          "done": false
+        },
+        {
+          "id": "L15.4",
+          "text": "Keep risk/reward choices meaningful; remove infinite money loops without punishing ordinary save/reload or adding anti-refund gameplay.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L15.A1",
+          "text": "Every controlled cash delta reconciles to a unique ledger entry and all screens agree on labeled totals.",
+          "done": false
+        },
+        {
+          "id": "L15.A2",
+          "text": "Contracts cannot be signed twice, exceed enforceable constraints silently or charge without delivering the agreed state.",
+          "done": false
+        },
+        {
+          "id": "L15.A3",
+          "text": "Healthy and distressed clubs remain playable or reach clearly telegraphed failure through documented rules.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L15-REPORT.md",
+        "evidence/L15-finance-runtime.json",
+        "evidence/L15-native-week.json",
+        "evidence/L15-L14-native-replays.json",
+        "evidence/L15-jest.json",
+        "evidence/L15-build-receipt.json",
+        "evidence/L15-identity-tests.txt",
+        "evidence/L15-signing-preview.png",
+        "evidence/L15-profile-portrait.png",
+        "evidence/L15-career-portraits.png",
+        "evidence/L15-club-emblems.png"
+      ],
+      "prompt": "prompts/L15.md"
+    },
+    {
+      "id": "L16",
+      "title": "Finish squad, recruitment, scouting and transfer AI",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L15"
+      ],
+      "legacyPackages": [
+        16,
+        19,
+        32
+      ],
+      "entryPoints": [
+        "app/squad/page.tsx",
+        "app/scouting/page.tsx",
+        "app/transfers/page.tsx",
+        "app/player/[id]/page.tsx",
+        "store/slices"
+      ],
+      "tasks": [
+        {
+          "id": "L16.1",
+          "text": "Reconcile OVR and role fit across squad, scouting, comparison, eligibility and negotiation, preserving intentionally hidden information.",
+          "done": false
+        },
+        {
+          "id": "L16.2",
+          "text": "Complete offers, counteroffers, renewals, expiry, poaching, free agents, roster registration, bench/release and cancellation paths already supported by the design.",
+          "done": false
+        },
+        {
+          "id": "L16.3",
+          "text": "Make AI recruitment respond to needs, finances, age, roles, reputation and contract availability under the same constraints as the player.",
+          "done": false
+        },
+        {
+          "id": "L16.4",
+          "text": "Explain uncertainty, wages, buyouts, team fit and competition eligibility before commitment; prevent retired, duplicated or already-owned signings.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L16.A1",
+          "text": "A player can scout, compare, negotiate, sign and field an eligible player through the full UI and after reload.",
+          "done": false
+        },
+        {
+          "id": "L16.A2",
+          "text": "AI teams maintain viable rosters and finances over long careers without magical transfers.",
+          "done": false
+        },
+        {
+          "id": "L16.A3",
+          "text": "Every stale/invalid offer has a recoverable explanation; no hidden-attribute leakage through alternate screens.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L16-REPORT.md",
+        "evidence/L16-jest.json",
+        "evidence/L16-recruitment-runtime.json",
+        "evidence/L16-native-week.json",
+        "evidence/L16-L14-native-replays.json",
+        "evidence/L16-build-identity.json",
+        "evidence/L16-final-regressions.txt",
+        "evidence/L16-match-result-dom.txt",
+        "evidence/L16-followup-runtime.json",
+        "evidence/L16-followup-seed3417.json",
+        "evidence/L16-followup-seed3418.json",
+        "evidence/L17-REPORT.md"
+      ],
+      "prompt": "prompts/L16.md"
+    },
+    {
+      "id": "L17",
+      "title": "Make development, training and academy choices matter",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L16"
+      ],
+      "legacyPackages": [
+        3,
+        33,
+        37
+      ],
+      "entryPoints": [
+        "app/training/page.tsx",
+        "app/academy/page.tsx",
+        "engine/processors",
+        "store/slices"
+      ],
+      "tasks": [
+        {
+          "id": "L17.1",
+          "text": "Audit actual training slots, capacity, daily/weekly timing, fatigue, recovery, morale and staff/facility modifiers against what the UI promises.",
+          "done": false
+        },
+        {
+          "id": "L17.2",
+          "text": "Define age/potential/development/decline and scouting uncertainty so specialists, prospects and veterans create different viable plans.",
+          "done": false
+        },
+        {
+          "id": "L17.3",
+          "text": "Complete academy ownership, prospect recruitment, promotion, loans if supported and long-run player supply without duplicate player records.",
+          "done": false
+        },
+        {
+          "id": "L17.4",
+          "text": "Show projected tradeoffs and weekly evidence of change; avoid unlimited passive stat growth, schedule overlap and misleading empty slots.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L17.A1",
+          "text": "Training effects are reachable through real scheduling actions and match the displayed constraints.",
+          "done": false
+        },
+        {
+          "id": "L17.A2",
+          "text": "Aging, retirement, academy replenishment and promotion stay finite and ownership-safe across ten seasons.",
+          "done": false
+        },
+        {
+          "id": "L17.A3",
+          "text": "At least three distinct training plans produce the intended tradeoffs across a seeded cohort, not just different text.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L17-REPORT.md",
+        "evidence/L17-jest.json",
+        "evidence/L17-cohort.json",
+        "evidence/L17-build-identity.json",
+        "evidence/L17-native-week.json",
+        "evidence/L17-L14-native-replays.json",
+        "evidence/L17-followup-jest.json",
+        "evidence/L17-followup-build-identity.json",
+        "evidence/L17-expanded-cohort.json",
+        "evidence/L17-ten-season.json"
+      ],
+      "prompt": "prompts/L17.md"
+    },
+    {
+      "id": "L18",
+      "title": "Give staff, sponsors, facilities and equipment clear value",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L15",
+        "L17"
+      ],
+      "legacyPackages": [
+        36,
+        37
+      ],
+      "entryPoints": [
+        "app/staff/page.tsx",
+        "app/sponsorships/page.tsx",
+        "app/basecamp/page.tsx",
+        "app/equipment/page.tsx",
+        "store/slices"
+      ],
+      "tasks": [
+        {
+          "id": "L18.1",
+          "text": "Verify each hire, upgrade and sponsorship has an implemented benefit, recurring cost, activation time, capacity and cancellation/expiry rule.",
+          "done": false
+        },
+        {
+          "id": "L18.2",
+          "text": "Connect organizational investments to training, scouting, morale, commercial outcomes or preparation through bounded documented effects.",
+          "done": false
+        },
+        {
+          "id": "L18.3",
+          "text": "Align preview numbers with settlement and performance selectors; expose prerequisites and opportunity costs instead of decorative purchase screens.",
+          "done": false
+        },
+        {
+          "id": "L18.4",
+          "text": "Test repeated purchases, replacement, bankruptcy, contract renewal and unavailable offers; remove or clearly exclude nonfunctional launch options.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L18.A1",
+          "text": "No paid action takes cash without delivering its advertised effect and every ongoing cost is ledgered.",
+          "done": false
+        },
+        {
+          "id": "L18.A2",
+          "text": "A cheaper alternative remains rational for some clubs; stacking cannot produce runaway bonuses.",
+          "done": false
+        },
+        {
+          "id": "L18.A3",
+          "text": "All organization flows save/load correctly and their benefits are visible in a controlled before/after scenario.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L18-REPORT.md",
+        "evidence/L18-jest.json",
+        "evidence/L18-build-identity.json",
+        "evidence/L18-native-week.json",
+        "evidence/L18-runtime.json",
+        "evidence/L18-content-gate.txt"
+      ],
+      "prompt": "prompts/L18.md"
+    },
+    {
+      "id": "L19",
+      "title": "Validate calendar, tournaments, qualification and rankings",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L15"
+      ],
+      "legacyPackages": [
+        17,
+        35,
+        38
+      ],
+      "entryPoints": [
+        "engine/tournament",
+        "data/tournaments.json",
+        "app/schedule/page.tsx",
+        "app/tournaments",
+        "app/rankings/page.tsx"
+      ],
+      "tasks": [
+        {
+          "id": "L19.1",
+          "text": "Verify every declared format and supported field size, byes, tiebreakers, brackets, map series, qualification, seeding and terminal completion.",
+          "done": false
+        },
+        {
+          "id": "L19.2",
+          "text": "Use shared calendar helpers for days, weeks, seasons, contract dates and historical fixtures; resolve overlaps and rollover correctly.",
+          "done": false
+        },
+        {
+          "id": "L19.3",
+          "text": "Award trophies, prize money, circuit points and qualification exactly once, then propagate consistent results to schedule, inbox, rankings and history.",
+          "done": false
+        },
+        {
+          "id": "L19.4",
+          "text": "Ensure AI-only fixtures and unavailable player teams progress the world without softlocks; distinguish implemented formats from labels that fall back.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L19.A1",
+          "text": "All launch tournament formats finish through actual scheduled progression with correct entrants and winners.",
+          "done": false
+        },
+        {
+          "id": "L19.A2",
+          "text": "No team appears twice, receives duplicate byes/rewards or advances from an unresolved result.",
+          "done": false
+        },
+        {
+          "id": "L19.A3",
+          "text": "Multi-season calendars and rankings remain coherent after save/reload, job changes and eliminated player teams.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L19-REPORT.md",
+        "evidence/L19-formats.json",
+        "evidence/L19-jest.json",
+        "evidence/L19-build-identity.json",
+        "evidence/L19-native-week.json"
+      ],
+      "prompt": "prompts/L19.md"
+    },
+    {
+      "id": "L20",
+      "title": "Make long careers coherent and memorable",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L16",
+        "L17",
+        "L18",
+        "L19"
+      ],
+      "legacyPackages": [
+        38,
+        39
+      ],
+      "entryPoints": [
+        "app/career/page.tsx",
+        "app/desktop/page.tsx",
+        "app/hall-of-fame/page.tsx",
+        "app/stats/page.tsx",
+        "engine/processors"
+      ],
+      "tasks": [
+        {
+          "id": "L20.1",
+          "text": "Connect board expectations, manager reputation, morale, chemistry, rivalry, inbox decisions and season recaps to actual outcomes and bounded consequences.",
+          "done": false
+        },
+        {
+          "id": "L20.2",
+          "text": "Verify jobs, club switches, sacking, bankruptcy, recovery/new-career paths and historical records do not leak state between clubs or careers.",
+          "done": false
+        },
+        {
+          "id": "L20.3",
+          "text": "Create a curated set of situation-driven stories with variation, cooldowns and meaningful choices; avoid repetitive inbox spam and cosmetic choices presented as mechanical.",
+          "done": false
+        },
+        {
+          "id": "L20.4",
+          "text": "Maintain records, legends, trophies, FPL and academy histories where shipped, using one authoritative result source and bounded storage.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L20.A1",
+          "text": "A full career can cross promotions, losses, job changes and season reviews without stalled progression or duplicated story rewards.",
+          "done": false
+        },
+        {
+          "id": "L20.A2",
+          "text": "Important consequences are telegraphed and the player can explain why their board, squad or finances changed.",
+          "done": false
+        },
+        {
+          "id": "L20.A3",
+          "text": "Ten-season fixtures preserve coherent rosters, history and manageable notification volume.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L20-REPORT.md",
+        "evidence/L20-career-runtime.json",
+        "evidence/L20-jest.json",
+        "evidence/L20-build-identity.json",
+        "evidence/L20-native-week.json"
+      ],
+      "prompt": "prompts/L20.md"
+    },
+    {
+      "id": "L21",
+      "title": "Make match management offer real agency",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L14",
+        "L16",
+        "L19"
+      ],
+      "legacyPackages": [
+        28,
+        34
+      ],
+      "entryPoints": [
+        "app/match/[id]/tactics/page.tsx",
+        "app/match/[id]/veto/page.tsx",
+        "app/match/[id]/live/page.tsx",
+        "app/match/[id]/result/page.tsx"
+      ],
+      "tasks": [
+        {
+          "id": "L21.1",
+          "text": "Complete the preparation-to-result loop with valid lineup, roles, map veto, economy plan, tactical intentions and clear costs or limits for intervention.",
+          "done": false
+        },
+        {
+          "id": "L21.2",
+          "text": "Make timeouts and mid-match instructions affect simulation decisions through bounded rules with feedback, not an unexplained guaranteed win boost.",
+          "done": false
+        },
+        {
+          "id": "L21.3",
+          "text": "Support watch, pause, speed, skip, interruption and resume consistently; explain momentum, utility, damage and decisive tactical moments at an appropriate level.",
+          "done": false
+        },
+        {
+          "id": "L21.4",
+          "text": "Link post-match analysis to practical next actions in training, recruitment and tactics; make defeat informative without exposing omniscient opponent data.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L21.A1",
+          "text": "A manager has meaningful pre-match and permitted live decisions whose effects are demonstrable in paired scenarios.",
+          "done": false
+        },
+        {
+          "id": "L21.A2",
+          "text": "Every BO1/3/5 path, stale fixture, back navigation and resume preserves map and lineup contracts.",
+          "done": false
+        },
+        {
+          "id": "L21.A3",
+          "text": "Players can identify what happened and choose a relevant response from the result screen.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L21-REPORT.md",
+        "evidence/L21-match-audit.json",
+        "evidence/L21-jest.json",
+        "evidence/L21-build-identity.json",
+        "evidence/L21-native-week.json"
+      ],
+      "prompt": "prompts/L21.md"
+    },
+    {
+      "id": "L22",
+      "title": "Rebuild onboarding and the first session",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L01",
+        "L16",
+        "L17",
+        "L21"
+      ],
+      "legacyPackages": [
+        19,
+        27,
+        30,
+        31
+      ],
+      "entryPoints": [
+        "app/new-game",
+        "components/dashboard",
+        "components/ui/help-system.tsx",
+        "app/main-menu/page.tsx"
+      ],
+      "tasks": [
+        {
+          "id": "L22.1",
+          "text": "Guide new players through a valid club choice, squad assessment, budget constraint, one training/recruitment decision and the first match.",
+          "done": false
+        },
+        {
+          "id": "L22.2",
+          "text": "Reduce front-loaded exposition; reveal useful information when a decision needs it and keep the next action prominent.",
+          "done": false
+        },
+        {
+          "id": "L22.3",
+          "text": "Provide honest difficulty/eligibility explanations, contextual help, skippable/replayable tutorial and recovery from abandoned setup.",
+          "done": false
+        },
+        {
+          "id": "L22.4",
+          "text": "Test with new players using a scripted observation protocol; capture confusion and time-to-first-meaningful-decision rather than relying on developer familiarity.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L22.A1",
+          "text": "At least 10 of 12 proposed fresh-player testers complete the defined first-session objective without facilitator rescue; record actual results before claiming this gate passes.",
+          "done": false
+        },
+        {
+          "id": "L22.A2",
+          "text": "All tutorial steps correspond to reachable controls and can be skipped or replayed without corrupting progress.",
+          "done": false
+        },
+        {
+          "id": "L22.A3",
+          "text": "Dashboard priorities remain useful after onboarding instead of permanently displaying introductory clutter.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L22-REPORT.md",
+        "evidence/L22-jest.json",
+        "evidence/L22-build-identity.json",
+        "evidence/L22-native-first-session.json",
+        "evidence/L22-PLAYER-TEST-PROTOCOL.md",
+        "evidence/L22-player-sessions.csv"
+      ],
+      "prompt": "prompts/L22.md"
+    },
+    {
+      "id": "L23",
+      "title": "Apply one polished interface across all routes",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L05",
+        "L22"
+      ],
+      "legacyPackages": [
+        21,
+        22,
+        23,
+        24,
+        27,
+        28,
+        29,
+        31,
+        45,
+        47
+      ],
+      "entryPoints": [
+        "app",
+        "components/ui",
+        "components/layout",
+        "app/globals.css",
+        "src/design/tokens.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L23.1",
+          "text": "Use the existing glass shell and shared primitives; establish readable type, spacing, density, table, form, modal, loading, empty and error standards.",
+          "done": false
+        },
+        {
+          "id": "L23.2",
+          "text": "Audit every route in ROUTE-MATRIX.md and each important modal/overlay, including map tools, without replacing working domain code for visual reasons.",
+          "done": false
+        },
+        {
+          "id": "L23.3",
+          "text": "Make navigation immediate, preserve relevant filters/scroll, support back/forward and contextual return, and clarify desktop/inbox behavior.",
+          "done": false
+        },
+        {
+          "id": "L23.4",
+          "text": "Split oversized components only along real responsibilities, removing proven duplicate paths and keeping dense data surfaces free of expensive layered blur.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L23.A1",
+          "text": "All required actions are visible and usable at 1024x640, 1280x720 and 1440x900 plus declared OS scaling.",
+          "done": false
+        },
+        {
+          "id": "L23.A2",
+          "text": "Representative dashboard/table/form/modal/match screens pass a consistent visual review with no clipped controls or broken loading/error states.",
+          "done": false
+        },
+        {
+          "id": "L23.A3",
+          "text": "Every claimed launch route has an accepted screenshot and interaction case; development-only pages are explicitly gated.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "../audit-2026-09-12/GLASS-INTERFACE.md",
+        "evidence/L23-REPORT.md",
+        "evidence/L23-ROUTE-REVIEW.md",
+        "evidence/L23-route-inventory.json",
+        "evidence/L23-ui-cases.csv",
+        "evidence/L23-jest.json",
+        "evidence/L23-build.txt",
+        "evidence/L23-http-smoke.json"
+      ],
+      "prompt": "prompts/L23.md"
+    },
+    {
+      "id": "L24",
+      "title": "Finish accessibility, input and localization readiness",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L23"
+      ],
+      "legacyPackages": [
+        25,
+        26,
+        29
+      ],
+      "entryPoints": [
+        "components/ui",
+        "lib/motion.ts",
+        "lib/settings-store.ts",
+        "app"
+      ],
+      "tasks": [
+        {
+          "id": "L24.1",
+          "text": "Complete keyboard-only journeys, semantic labels, focus order, modal Escape/focus return, error announcements and alternatives to pointer-only map interactions.",
+          "done": false
+        },
+        {
+          "id": "L24.2",
+          "text": "Make reduced motion effective in CSS, canvas, SVG and radar playback; ensure colors are reinforced by labels/shapes and zoom/scaling stays usable.",
+          "done": false
+        },
+        {
+          "id": "L24.3",
+          "text": "Define supported keyboard/mouse/controller behavior and test text entry and navigation on each claimed device, including Deck only if promised.",
+          "done": false
+        },
+        {
+          "id": "L24.4",
+          "text": "Audit font glyphs, string extraction, dates/numbers, text expansion and actual language completeness; ship only verified language claims.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L24.A1",
+          "text": "The core career loop and essential map editing/testing actions are operable without precise pointer use.",
+          "done": false
+        },
+        {
+          "id": "L24.A2",
+          "text": "Supported zoom, contrast and reduced-motion configurations retain readable information and functional controls.",
+          "done": false
+        },
+        {
+          "id": "L24.A3",
+          "text": "Every advertised language/input/device has a recorded acceptance pass; controller or Deck badges are not inferred from a browser screenshot.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L24-REPORT.md",
+        "evidence/L24-INPUT-LANGUAGE-SCOPE.md",
+        "evidence/L24-localization-inventory.json",
+        "evidence/L24-acceptance-cases.csv",
+        "evidence/L24-jest.json",
+        "evidence/L24-build.txt"
+      ],
+      "prompt": "prompts/L24.md"
+    },
+    {
+      "id": "L25",
+      "title": "Complete original team identities and asset delivery",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L08",
+        "L23"
+      ],
+      "legacyPackages": [
+        18,
+        48,
+        49
+      ],
+      "entryPoints": [
+        "components/ui/TeamLogoDisplay.tsx",
+        "components/ui/TeamEmblem.tsx",
+        "public/assets",
+        "data"
+      ],
+      "tasks": [
+        {
+          "id": "L25.1",
+          "text": "Retain fictional team names and inventory the 198 identities; recheck the prior three studies and 195 remaining redesigns before claiming counts are current.",
+          "done": true
+        },
+        {
+          "id": "L25.2",
+          "text": "Create a coherent but distinct visual identity per team, informed by permitted references and the user's direction without assuming a close recreation is automatically distributable.",
+          "done": false
+        },
+        {
+          "id": "L25.3",
+          "text": "Validate small crest silhouettes, light/dark contrast, SVG ID isolation, transparent edges, raster fallbacks and custom-upload behavior.",
+          "done": false
+        },
+        {
+          "id": "L25.4",
+          "text": "Package only approved current assets and generate a searchable contact sheet/manifest with version, source, file size and team mapping.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L25.A1",
+          "text": "Every launch team has one approved identity that remains recognizable at table, profile and match sizes.",
+          "done": false
+        },
+        {
+          "id": "L25.A2",
+          "text": "No wrong initials, original-name fallback, duplicate SVG IDs, missing references or source-only alternates appear in the shipped artifact.",
+          "done": false
+        },
+        {
+          "id": "L25.A3",
+          "text": "Asset rights and replacement disposition are resolved under 08 before store/media approval.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L25-REPORT.md",
+        "evidence/L25-assets/index.html",
+        "evidence/L25-assets/manifest.json",
+        "evidence/L25-asset-validation.json",
+        "evidence/L25-tests.json",
+        "evidence/L25-portrait-audit.json"
+      ],
+      "prompt": "prompts/L25.md"
+    },
+    {
+      "id": "L26",
+      "title": "Edit content, terminology, audio and feedback",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L20",
+        "L23",
+        "L25"
+      ],
+      "legacyPackages": [
+        12,
+        18,
+        20,
+        28,
+        53
+      ],
+      "entryPoints": [
+        "app",
+        "data",
+        "lib/sound-manager.ts",
+        "lib/route-audio.ts",
+        "STEAM_STORE_LISTING.md"
+      ],
+      "tasks": [
+        {
+          "id": "L26.1",
+          "text": "Apply shared terminology and formatters for money, attributes, OVR, dates, percentages and match outcomes; remove placeholders, raw IDs and contradictory copy.",
+          "done": false
+        },
+        {
+          "id": "L26.2",
+          "text": "Edit tutorial/help, events, inbox, contracts, error recovery and tool descriptions around concrete player decisions.",
+          "done": false
+        },
+        {
+          "id": "L26.3",
+          "text": "Balance notification density, music transitions, repeated sounds and success/failure feedback through an audible pass; retain quiet map workspaces.",
+          "done": false
+        },
+        {
+          "id": "L26.4",
+          "text": "Maintain an AI-generated player-content inventory for the Steam survey and an editorial review trail; do not equate code-assistance usage with shipped art/audio/narrative.",
+          "done": true
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L26.A1",
+          "text": "Primary journeys contain no misleading numbers, unresolved placeholders or unexplained jargon.",
+          "done": false
+        },
+        {
+          "id": "L26.A2",
+          "text": "Audio respects settings and route ownership across startup, navigation and resume without clipping or repetitive spam.",
+          "done": false
+        },
+        {
+          "id": "L26.A3",
+          "text": "Claims in help, UI and store copy agree with the candidate's implemented behavior.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L26-REPORT.md",
+        "evidence/L26-EDITORIAL.md",
+        "evidence/L26-content-inventory.json",
+        "evidence/L26-tests.json",
+        "evidence/L26-acceptance-cases.csv",
+        "evidence/L26-http-smoke.json"
+      ],
+      "prompt": "prompts/L26.md"
+    },
+    {
+      "id": "L27",
+      "title": "Measure and improve real performance",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L04",
+        "L14",
+        "L23"
+      ],
+      "legacyPackages": [
+        50,
+        51
+      ],
+      "entryPoints": [
+        "scripts/perf-baseline.ts",
+        "engine/worker",
+        "components/match",
+        "components/maps",
+        "lib/radar-position-engine.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L27.1",
+          "text": "Capture startup, navigation latency, long tasks, week-tick duration, match playback, save time, memory and asset cost on named minimum/recommended hardware and seeded small/late careers.",
+          "done": false
+        },
+        {
+          "id": "L27.2",
+          "text": "Profile the real production Electron package and browser worker, distinguishing compute, rendering, storage and asset loading.",
+          "done": false
+        },
+        {
+          "id": "L27.3",
+          "text": "Fix measured hotspots with indexing, bounded logs/caches, memoization, batching and asset loading; avoid speculative rewrites.",
+          "done": true
+        },
+        {
+          "id": "L27.4",
+          "text": "Define an evidence-based budget table and sustained-play regressions; treat suggested input acknowledgement under 100 ms and smooth 60 Hz UI on target hardware as proposed targets, not measured claims.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L27.A1",
+          "text": "Baseline and candidate measurements use the same machine, scenario, build settings and sample method.",
+          "done": false
+        },
+        {
+          "id": "L27.A2",
+          "text": "Accepted budgets are met for ordinary and late-career scenarios; long tasks show truthful progress and do not freeze controls.",
+          "done": false
+        },
+        {
+          "id": "L27.A3",
+          "text": "A sustained session and repeated map/route changes show no unbounded memory, timer or event-listener growth.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L27-REPORT.md",
+        "evidence/L27-comparison.json",
+        "evidence/L27-BUDGETS.md",
+        "evidence/L27-acceptance-cases.csv",
+        "evidence/L27-tests.json"
+      ],
+      "prompt": "prompts/L27.md"
+    },
+    {
+      "id": "L28",
+      "title": "Run a management and simulation balance campaign",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L13",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L27"
+      ],
+      "legacyPackages": [
+        52
+      ],
+      "entryPoints": [
+        "engine",
+        "data",
+        "scripts",
+        "__tests__"
+      ],
+      "tasks": [
+        {
+          "id": "L28.1",
+          "text": "Build a seed-controlled batch campaign spanning club tiers, difficulty, roster styles, tactical approaches and starting finances.",
+          "done": true
+        },
+        {
+          "id": "L28.2",
+          "text": "Evaluate player development/decline, transfer prices, salaries, AI solvency, tournament competitiveness, sponsor scaling, injury/fatigue if enabled and roster replenishment.",
+          "done": false
+        },
+        {
+          "id": "L28.3",
+          "text": "Run paired decision experiments and at least the proposed 30 seeds over ten seasons in the extended campaign; retain failures and intermediate saves rather than averaging them away.",
+          "done": false
+        },
+        {
+          "id": "L28.4",
+          "text": "Combine distributions with human playtest feedback so dominant exploits and tedious optimal play are removed without scripting guaranteed outcomes.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L28.A1",
+          "text": "No NaN/infinite values, dead seasons, impossible ownership or inexhaustible money loops occur in the accepted campaign.",
+          "done": false
+        },
+        {
+          "id": "L28.A2",
+          "text": "Multiple viable organizational and tactical strategies have documented strengths, costs and counterplay.",
+          "done": false
+        },
+        {
+          "id": "L28.A3",
+          "text": "Tuning changes have a before/after distribution report with sample size, uncertainty and stated design targets.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L28-REPORT.md",
+        "evidence/L28-summary.json",
+        "evidence/L28-CAMPAIGN-PROTOCOL.md",
+        "evidence/L28-acceptance-cases.csv",
+        "evidence/L28-tests.json"
+      ],
+      "prompt": "prompts/L28.md"
+    },
+    {
+      "id": "L29",
+      "title": "Finish community imports and optional Workshop",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L03",
+        "L07",
+        "L08"
+      ],
+      "legacyPackages": [
+        42,
+        44,
+        49,
+        39
+      ],
+      "entryPoints": [
+        "app/settings/community-import/page.tsx",
+        "engine/mod-loader.ts",
+        "scripts/build-mod.ts",
+        "scripts/upload-workshop-mod.ts"
+      ],
+      "tasks": [
+        {
+          "id": "L29.1",
+          "text": "Audit the existing community import and Workshop implementation before adding another format; define supported content, schema, versions and limits.",
+          "done": true
+        },
+        {
+          "id": "L29.2",
+          "text": "Validate archive/path/media/data boundaries, compatibility, missing references and safe failure; never execute imported code as part of ordinary content import.",
+          "done": false
+        },
+        {
+          "id": "L29.3",
+          "text": "Provide preview, attribution, backup, rollback, clear precedence and clean unmodded fallback without altering unrelated careers.",
+          "done": false
+        },
+        {
+          "id": "L29.4",
+          "text": "If Workshop is claimed for launch, test subscribe/update/unsubscribe and offline behavior using an authorized Steam test environment; otherwise hide unfinished controls and remove the claim.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L29.A1",
+          "text": "Malformed, oversized or incompatible imports fail without save loss or arbitrary filesystem access.",
+          "done": false
+        },
+        {
+          "id": "L29.A2",
+          "text": "Installing/removing a supported package has a reproducible and reversible outcome.",
+          "done": false
+        },
+        {
+          "id": "L29.A3",
+          "text": "The release explicitly chooses verified Workshop support or exclusion; optional status is not a silent exemption for advertised features.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/L29-REPORT.md",
+        "evidence/L29-tests-final.txt",
+        "evidence/L29-native-ipc.json",
+        "evidence/L29-mod-preflight.txt",
+        "evidence/L30-REPORT.md"
+      ],
+      "prompt": "prompts/L29.md"
+    },
+    {
+      "id": "L30",
+      "title": "Validate Steam identity, Cloud, achievements and stats",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L03",
+        "L05",
+        "L07",
+        "L19",
+        "L20",
+        "L31"
+      ],
+      "legacyPackages": [
+        57
+      ],
+      "entryPoints": [
+        "engine/steam-service.ts",
+        "electron/steam.js",
+        "engine/save-manager.ts",
+        "docs/steam-cloud.md",
+        "docs/STEAMWORKS_SETUP_GUIDE.md"
+      ],
+      "tasks": [
+        {
+          "id": "L30.1",
+          "text": "Confirm the real App ID, app ownership, launch configuration and feature definitions against an authorized Steamworks export; do not infer account settings from local files.",
+          "done": false
+        },
+        {
+          "id": "L30.2",
+          "text": "Test achievement IDs/conditions/idempotency, stats, leaderboards if promised, rich presence, overlay and offline-to-online recovery through the real Steam client.",
+          "done": false
+        },
+        {
+          "id": "L30.3",
+          "text": "Exercise local-only/cloud-only/conflicting/corrupt saves, two devices, different Steam users, clock skew, cloud failure and retry with retained backups.",
+          "done": false
+        },
+        {
+          "id": "L30.4",
+          "text": "Keep local progression functional when Steam is unavailable and ensure account/career scope is correct; use deliberate tested conflict choices instead of silent destructive overwrite.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L30.A1",
+          "text": "Real client tests on the candidate verify every advertised Steam feature and record App ID/build identity.",
+          "done": false
+        },
+        {
+          "id": "L30.A2",
+          "text": "Two-machine cloud scenarios retain a recoverable copy and never leak one user's career into another account.",
+          "done": false
+        },
+        {
+          "id": "L30.A3",
+          "text": "Mock or static parity checks remain clearly separate from real Steam evidence.",
+          "done": true
+        }
+      ],
+      "evidence": [
+        "evidence/L30-REPORT.md",
+        "evidence/L30-steam-readonly.json",
+        "evidence/L30-native-ipc.json",
+        "evidence/L30-tests.json",
+        "evidence/L30-mod-smoke.json"
+      ],
+      "prompt": "prompts/L30.md"
+    },
+    {
+      "id": "L31",
+      "title": "Produce and test the actual Windows shipping artifact",
+      "gate": "required",
+      "status": "failed",
+      "dependsOn": [
+        "L03",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L25"
+      ],
+      "legacyPackages": [
+        49,
+        54,
+        56
+      ],
+      "entryPoints": [
+        "package.json",
+        "scripts/run-dist-builder.js",
+        "scripts/verify-ship-build.js",
+        "deployment",
+        "electron"
+      ],
+      "tasks": [
+        {
+          "id": "L31.1",
+          "text": "Produce a fresh electron-builder artifact with the correct executable, runtime/native dependencies, licensed assets and notices; record source/lockfile/artifact hashes.",
+          "done": false
+        },
+        {
+          "id": "L31.2",
+          "text": "Verify the exact depot content root and launch executable, including the historical wrong-archive/wrong-executable failure class; do not upload source trees.",
+          "done": false
+        },
+        {
+          "id": "L31.3",
+          "text": "Exercise install, first launch, no Node/dev server installed, offline play, clean Windows account, non-ASCII paths, update, uninstall/reinstall and save retention.",
+          "done": false
+        },
+        {
+          "id": "L31.4",
+          "text": "Test all declared OS/GPU/scaling targets and document signing/reputation behavior; omit unverified platforms from release claims.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L31.A1",
+          "text": "The actual artifact passes ship:verify and launches via Steam and directly in the supported offline mode.",
+          "done": false
+        },
+        {
+          "id": "L31.A2",
+          "text": "A clean-machine play/save/restart/update journey succeeds without development dependencies or lost careers.",
+          "done": false
+        },
+        {
+          "id": "L31.A3",
+          "text": "The packaged files and launch configuration are the same candidate later tested and submitted.",
+          "done": false
+        }
+      ],
+      "evidence": [
+        "evidence/ship-artifact.txt"
+      ],
+      "prompt": "prompts/L31.md"
+    },
+    {
+      "id": "L32",
+      "title": "Prepare a truthful Steam store and launch campaign",
+      "gate": "required",
+      "status": "unverified",
+      "dependsOn": [
+        "L01",
+        "L08",
+        "L22",
+        "L25",
+        "L26"
+      ],
+      "legacyPackages": [
+        53,
+        59,
+        60
+      ],
+      "entryPoints": [
+        "STEAM_STORE_LISTING.md",
+        "docs/STEAM_REVIEW_REMEDIATION_PLAN.md",
+        "deployment",
+        "public"
+      ],
+      "tasks": [
+        {
+          "id": "L32.1",
+          "text": "Draft final positioning, short/long description, feature list, screenshots, gameplay trailer, capsules, system requirements and support links from the accepted build.",
+          "done": false
+        },
+        {
+          "id": "L32.2",
+          "text": "Reconcile actual Steamworks feedback with the confirmed Windows 1.0 release; replace outdated Early Access claims in local drafts and record required account-side changes.",
+          "done": false
+        },
+        {
+          "id": "L32.3",
+          "text": "Prepare content/AI disclosures, ratings, languages, pricing/package decisions, release timing and store/build review checklists using current official guidance.",
+          "done": false
+        },
+        {
+          "id": "L32.4",
+          "text": "Create a practical wishlist/playtest/demo/community schedule with measurable learning goals; prepare outreach drafts but send or publish only when authorized.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L32.A1",
+          "text": "Every screenshot/feature/platform/language claim can be demonstrated in the candidate and has approved provenance.",
+          "done": false
+        },
+        {
+          "id": "L32.A2",
+          "text": "Store and build review evidence, timing prerequisites and account-owned decisions are recorded rather than presumed passed.",
+          "done": false
+        },
+        {
+          "id": "L32.A3",
+          "text": "Marketing assets show actual gameplay and the launch calendar includes review/rework time without inventing a guaranteed release date.",
+          "done": false
+        }
+      ],
+      "evidence": [],
+      "prompt": "prompts/L32.md"
+    },
+    {
+      "id": "L33",
+      "title": "Run external playtests and the full acceptance matrix",
+      "gate": "required",
+      "status": "unverified",
+      "dependsOn": [
+        "L22",
+        "L24",
+        "L26",
+        "L27",
+        "L28",
+        "L31",
+        "L30"
+      ],
+      "legacyPackages": [
+        55,
+        56,
+        58
+      ],
+      "entryPoints": [
+        "docs/launch-readiness/ROUTE-MATRIX.md",
+        "docs/audit-2026-09-12/COVERAGE.md",
+        "__tests__"
+      ],
+      "tasks": [
+        {
+          "id": "L33.1",
+          "text": "Run every launch route and overlay through happy, empty, loading, error, stale-data, keyboard, scale and reload cases, with separate developmental-route exclusions.",
+          "done": false
+        },
+        {
+          "id": "L33.2",
+          "text": "Recruit an authorized pilot cohort of management-sim newcomers and experienced players; observe onboarding, meaningful choices, match comprehension and willingness to continue.",
+          "done": false
+        },
+        {
+          "id": "L33.3",
+          "text": "Test multi-hour and multi-season sessions, crashes, bad imports, offline play and low-end hardware using the actual candidate.",
+          "done": false
+        },
+        {
+          "id": "L33.4",
+          "text": "Triage feedback into reproducible defects, balance issues and preferences; fix release blockers and retest the affected journeys.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L33.A1",
+          "text": "No unresolved save-loss, startup, progression, result-integrity or essential-control blocker remains.",
+          "done": false
+        },
+        {
+          "id": "L33.A2",
+          "text": "All launch routes have build-linked evidence; pilot completion/clarity targets are reported with cohort size and actual results.",
+          "done": false
+        },
+        {
+          "id": "L33.A3",
+          "text": "A clean candidate survives a full career loop and representative extended sessions with a tested recovery path.",
+          "done": false
+        }
+      ],
+      "evidence": [],
+      "prompt": "prompts/L33.md"
+    },
+    {
+      "id": "L34",
+      "title": "Make release gates reproducible and honest",
+      "gate": "required",
+      "status": "partial",
+      "dependsOn": [
+        "L02",
+        "L06",
+        "L07"
+      ],
+      "legacyPackages": [
+        2,
+        46,
+        54,
+        55,
+        59
+      ],
+      "entryPoints": [
+        "package.json",
+        "scripts/steam-ready-audit.ts",
+        "scripts/steam-compliance-audit.ts",
+        "scripts/verify-worker-build.cjs",
+        ".github"
+      ],
+      "tasks": [
+        {
+          "id": "L34.1",
+          "text": "Consolidate conflict, type, lint, regression, dependency, hardening, static content, worker, build and shipping checks into an evidence-producing local/CI contract.",
+          "done": true
+        },
+        {
+          "id": "L34.2",
+          "text": "Fix audit coverage gaps: scanner completion must not print as acceptance; include map-studio assets, public/maps, inline art, packaged notices and actual file inclusion where relevant.",
+          "done": false
+        },
+        {
+          "id": "L34.3",
+          "text": "Keep accepted exceptions specific, reviewed and expiring; never refresh baselines simply to make a failing release pass.",
+          "done": false
+        },
+        {
+          "id": "L34.4",
+          "text": "Record exact source snapshot, lockfile, toolchain, environment and artifact identity so results from one build cannot certify another; document expensive extended gates separately.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L34.A1",
+          "text": "The release command fails on any required failing/missing gate and preserves actionable logs.",
+          "done": true
+        },
+        {
+          "id": "L34.A2",
+          "text": "A freshly packaged artifact has a manifest connecting its bytes to the tested source and dependency graph.",
+          "done": false
+        },
+        {
+          "id": "L34.A3",
+          "text": "Static success is explicitly labeled as static coverage and cannot claim live Steam, rights or player acceptance.",
+          "done": true
+        }
+      ],
+      "evidence": [
+        "evidence/steam-ready.json",
+        "evidence/compliance.json",
+        "AUDIT-DELTA.md",
+        "docs/launch-readiness/evidence/L34-REPORT.md"
+      ],
+      "prompt": "prompts/L34.md"
+    },
+    {
+      "id": "L35",
+      "title": "Prepare support, diagnostics and safe updates",
+      "gate": "required",
+      "status": "open",
+      "dependsOn": [
+        "L03",
+        "L30",
+        "L31",
+        "L34"
+      ],
+      "legacyPackages": [
+        59,
+        60
+      ],
+      "entryPoints": [
+        "docs/release-triage.md",
+        "docs/release-audit.md",
+        "lib/logger.ts",
+        "electron/main.js"
+      ],
+      "tasks": [
+        {
+          "id": "L35.1",
+          "text": "Prepare support contact, known issues, troubleshooting, version/build display, safe diagnostic export and save-backup instructions.",
+          "done": false
+        },
+        {
+          "id": "L35.2",
+          "text": "Define severity, reproduction templates and ownership for crashes, save failures, gameplay blockers, balance and ordinary feedback without collecting unnecessary private data.",
+          "done": false
+        },
+        {
+          "id": "L35.3",
+          "text": "Prepare a tested hotfix, rollback and save-compatibility procedure with the previous good depot/artifact retained.",
+          "done": false
+        },
+        {
+          "id": "L35.4",
+          "text": "Draft first-week monitoring and communication schedules, patch notes and incident responses; account for Steam reviews respectfully without manipulating them.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L35.A1",
+          "text": "A tester can produce a useful redacted report with build, scenario and recovery data.",
+          "done": false
+        },
+        {
+          "id": "L35.A2",
+          "text": "A rollback drill restores the intended binary while preserving compatible user saves or explaining a safe migration boundary.",
+          "done": false
+        },
+        {
+          "id": "L35.A3",
+          "text": "Support and update procedures name concrete artifacts, responsible actions and stopping conditions.",
+          "done": false
+        }
+      ],
+      "evidence": [],
+      "prompt": "prompts/L35.md"
+    },
+    {
+      "id": "L36",
+      "title": "Assemble the release decision and owner handoff",
+      "gate": "required",
+      "status": "open",
+      "dependsOn": [
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23",
+        "L24",
+        "L25",
+        "L26",
+        "L27",
+        "L28",
+        "L29",
+        "L30",
+        "L31",
+        "L32",
+        "L33",
+        "L34",
+        "L35"
+      ],
+      "legacyPackages": [
+        60
+      ],
+      "entryPoints": [
+        "docs/launch-readiness",
+        "deployment",
+        "docs/STEAM_LAUNCH_GATE_CHECKLIST.md"
+      ],
+      "tasks": [
+        {
+          "id": "L36.1",
+          "text": "Review every required package against its evidence and every conditional feature against the signed-off scope; do not count a prompt, code file or mock test as completion.",
+          "done": false
+        },
+        {
+          "id": "L36.2",
+          "text": "Freeze the accepted artifact and assemble source/artifact hashes, gate outputs, rights disposition, supported targets, store/build approvals and known issues.",
+          "done": false
+        },
+        {
+          "id": "L36.3",
+          "text": "Resolve all P0/P1 failures and record explicit bounded lower-severity deferrals with player impact and follow-up; do not derive a fake readiness percentage.",
+          "done": false
+        },
+        {
+          "id": "L36.4",
+          "text": "Prepare the concrete release checklist and public communication for the owner; perform external submission/publication only within explicit authorization and applicable tool rules.",
+          "done": false
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "L36.A1",
+          "text": "Every launch claim is supported by the exact candidate and every required gate is passed, not merely scheduled.",
+          "done": false
+        },
+        {
+          "id": "L36.A2",
+          "text": "No missing executable, unresolved distribution rights, data-loss fault or unverified advertised feature is waived as polish.",
+          "done": false
+        },
+        {
+          "id": "L36.A3",
+          "text": "The owner receives a reviewable GO/NO-GO report, exact artifact, rollback plan and the remaining account-side actions.",
+          "done": false
+        }
+      ],
+      "evidence": [],
+      "prompt": "prompts/L36.md"
+    }
+  ]
+}

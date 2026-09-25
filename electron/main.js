@@ -2,6 +2,14 @@ const { app, BrowserWindow, Menu, ipcMain, nativeImage, screen } = require('elec
 const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
+const { createCloseHandshake } = require('./close-handshake');
+const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
+const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
+const { containedPath, readBounded, writeAtomic } = require('./local-files');
+const { isAllowedLocalRequest, listenLoopback } = require('./local-server');
+const { contentPolicy } = require('./content-policy');
+const { secureWebContents } = require('./renderer-security');
+const handleApp = (channel, handler) => registerTrustedHandler(ipcMain, channel, isMainWindowSender, handler);
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
 // (steamworks, next.js) to prevent duplicate windows on alt-tab / re-launch.
@@ -14,7 +22,7 @@ if (!gotTheLock) {
 // Smart GPU acceleration: enable by default, disable only if previous GPU crash detected
 // or if user explicitly sets ESM_STABILITY_MODE=1
 const gpuCrashFlagPath = path.join(app.getPath('userData'), 'gpu-crash-flag');
-const hadGpuCrash = fs.existsSync(gpuCrashFlagPath);
+const hadGpuCrash = (() => { try { return fs.existsSync(containedPath(app.getPath('userData'), 'gpu-crash-flag', true)); } catch (_) { return false; } })();
 const forceStabilityMode = process.env.ESM_STABILITY_MODE === '1';
 const STABILITY_MODE = forceStabilityMode || hadGpuCrash;
 if (STABILITY_MODE) {
@@ -28,16 +36,14 @@ const next = require('next');
 // Diagnostic log — writes to a file in userData so we can debug packaged builds
 const debugLogLines = [];
 const debugLog = (msg) => {
-    const line = `[${new Date().toISOString()}] ${msg}`;
+    const line = `[${new Date().toISOString()}] ${String(msg).slice(0, 16000)}`;
     console.log(line);
     debugLogLines.push(line);
+    if (debugLogLines.length > 2000) debugLogLines.shift();
 };
 const flushDebugLog = () => {
     try {
-        const logDir = path.join(app.getPath('userData'), 'logs');
-        if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-        const logFile = path.join(logDir, 'startup-debug.log');
-        fs.writeFileSync(logFile, debugLogLines.join('\n') + '\n', 'utf8');
+        writeAtomic(app.getPath('userData'), 'logs/startup-debug.log', debugLogLines.join('\n') + '\n');
     } catch (e) { /* best effort */ }
 };
 app.on('child-process-gone', (_event, details) => {
@@ -49,7 +55,7 @@ app.on('child-process-gone', (_event, details) => {
     // If GPU process crashed, flag it so next launch uses software rendering
     if (type === 'GPU' && reason !== 'clean-exit') {
         try {
-            fs.writeFileSync(gpuCrashFlagPath, new Date().toISOString(), 'utf8');
+            writeAtomic(app.getPath('userData'), 'gpu-crash-flag', new Date().toISOString());
             debugLog('[GPU] Crash flag written - next launch will use software rendering');
         } catch (e) { /* best effort */ }
     }
@@ -108,6 +114,7 @@ const startNextJSServer = async () => {
         debugLog('nextApp.prepare() completed successfully');
 
         const server = http.createServer((req, res) => {
+            if (!isAllowedLocalRequest(req, server.address().port)) { res.writeHead(403); res.end('Forbidden'); return; }
             const parsedUrl = parse(req.url, true);
             // Serve the active mod's images (real logos/portraits) from outside
             // the shipped web root before handing off to Next.
@@ -115,37 +122,20 @@ const startNextJSServer = async () => {
             handle(req, res, parsedUrl);
         });
 
-        // Try ports 3000-3009 to handle port conflicts
-        const tryPort = (port) => new Promise((resolve, reject) => {
-            const onError = (err) => {
-                if (err.code === 'EADDRINUSE' && port < 3010) {
-                    debugLog(`Port ${port} in use, trying ${port + 1}...`);
-                    server.removeListener('error', onError);
-                    resolve(tryPort(port + 1));
-                } else {
-                    debugLog('Server listen error: ' + err.message);
-                    flushDebugLog();
-                    reject(err);
-                }
-            };
-            server.on('error', onError);
-            server.listen(port, () => {
-                server.removeListener('error', onError);
-                process.env.NEXT_SERVER_PORT = String(port);
-                debugLog(`Next.js server started on port ${port}`);
-                flushDebugLog();
-                resolve(server);
-            });
-        });
-        return tryPort(3000);
+        await listenLoopback(server);
+        process.env.NEXT_SERVER_PORT = String(server.address().port);
+        debugLog(`Next.js server started on port ${server.address().port}`);
+        flushDebugLog();
+        return server;
     })();
 
     return Promise.race([serverPromise, timeoutPromise]);
 }
 
 const showErrorPage = (window, errorMessage, errorStack) => {
-    const safeMsg = (errorMessage || 'Unknown error').replace(/'/g, "\\'").replace(/\n/g, '\\n');
-    const safeStack = (errorStack || '').replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    const escapeHtml = value => String(value).slice(0, 16000).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const safeMsg = escapeHtml(errorMessage || 'Unknown error');
+    const safeStack = escapeHtml(errorStack || '');
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager - Launch Error</title>
 <style>body{background:#1a1a2e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
 .c{max-width:600px;text-align:center}h1{color:#ff4444;font-size:24px;margin-bottom:8px}h2{color:#999;font-size:16px;font-weight:normal;margin-top:0}
@@ -164,7 +154,27 @@ const showErrorPage = (window, errorMessage, errorStack) => {
 
 let mainWindow;
 let forceQuit = false;
-let closeTimeout = null;
+const closeHandshake = createCloseHandshake(async () => {
+    if (!mainWindow || !closePending) return;
+    try {
+        const { response } = await require('electron').dialog.showMessageBox(mainWindow, {
+            type: 'warning',
+            title: 'Game is not responding',
+            message: 'The game has not acknowledged your exit request.',
+            detail: 'You can keep playing or close without saving your latest progress.',
+            buttons: ['Keep Open', 'Close Without Saving'],
+            defaultId: 0,
+            cancelId: 0,
+            noLink: true,
+        });
+        if (!mainWindow || !closePending) return;
+        closePending = false;
+        if (response === 1) { forceQuit = true; mainWindow.close(); }
+    } catch (error) {
+        closePending = false;
+        debugLog(`[Electron] Close prompt failed: ${error.message || error}`);
+    }
+});
 let closePending = false;
 let store;
 let isCreatingWindow = false;
@@ -181,8 +191,8 @@ const DEFAULT_HEIGHT = 720;
 // resolution changed), fall back to a centered default — prevents the window
 // from restoring offscreen.
 const resolveInitialBounds = (saved) => {
-    const width = Math.max(MIN_WIDTH, Number(saved?.width) || DEFAULT_WIDTH);
-    const height = Math.max(MIN_HEIGHT, Number(saved?.height) || DEFAULT_HEIGHT);
+    const width = Number.isFinite(saved?.width) ? Math.min(16384, Math.max(MIN_WIDTH, Math.floor(saved.width))) : DEFAULT_WIDTH;
+    const height = Number.isFinite(saved?.height) ? Math.min(16384, Math.max(MIN_HEIGHT, Math.floor(saved.height))) : DEFAULT_HEIGHT;
     const x = Number.isFinite(saved?.x) ? Math.floor(saved.x) : null;
     const y = Number.isFinite(saved?.y) ? Math.floor(saved.y) : null;
 
@@ -226,6 +236,7 @@ const initStore = async () => {
     // from ever writing into the install/Resources folder (which is read-only
     // on macOS Steam installs and gets blown away on Windows upgrades).
     const userDataDir = app.getPath('userData');
+    containedPath(userDataDir, 'config.json', true);
     store = new Store({
         cwd: userDataDir,
         defaults: {
@@ -289,15 +300,15 @@ if (!STABILITY_MODE) {
 
 // Boot Steamworks and register all steam-* IPC handlers. Must run before the
 // first BrowserWindow is created so the Steam overlay has a chance to hook.
-// getTrustedWebContentsId returns -1 until mainWindow exists, which safely
+// isMainWindowSender returns false until mainWindow exists, which safely
 // rejects all IPC from the renderer during the brief init window.
 steam.initializeSteam({
-    getTrustedWebContentsId: () => (mainWindow ? mainWindow.webContents.id : -1),
+    isTrustedSender: isMainWindowSender,
     log: debugLog,
 });
 
 // Window Control IPC Handlers
-ipcMain.handle('app-get-user-data-path', () => {
+handleApp('app-get-user-data-path', () => {
     try {
         return app.getPath('userData');
     } catch (e) {
@@ -306,7 +317,7 @@ ipcMain.handle('app-get-user-data-path', () => {
     }
 });
 
-ipcMain.handle('window-set-fullscreen', (event, fullscreen) => {
+handleApp('window-set-fullscreen', (event, fullscreen) => {
     if (!mainWindow) return false;
     try {
         mainWindow.setFullScreen(fullscreen);
@@ -320,7 +331,7 @@ ipcMain.handle('window-set-fullscreen', (event, fullscreen) => {
     }
 });
 
-ipcMain.handle('window-set-size', (event, width, height) => {
+handleApp('window-set-size', (event, width, height) => {
     if (!mainWindow) return false;
     try {
         const w = Math.max(MIN_WIDTH, Number(width) || DEFAULT_WIDTH);
@@ -341,7 +352,7 @@ ipcMain.handle('window-set-size', (event, width, height) => {
     }
 });
 
-ipcMain.handle('window-get-size', (event) => {
+handleApp('window-get-size', (event) => {
     if (!mainWindow) return null;
     try {
         const [width, height] = mainWindow.getSize();
@@ -352,7 +363,7 @@ ipcMain.handle('window-get-size', (event) => {
     }
 });
 
-ipcMain.handle('window-is-fullscreen', (event) => {
+handleApp('window-is-fullscreen', (event) => {
     if (!mainWindow) return false;
     try {
         return mainWindow.isFullScreen();
@@ -363,15 +374,16 @@ ipcMain.handle('window-is-fullscreen', (event) => {
 });
 
 // GPU rendering mode controls
-ipcMain.handle('gpu-get-mode', () => {
+handleApp('gpu-get-mode', () => {
     return STABILITY_MODE ? 'compatibility' : 'performance';
 });
 
-ipcMain.handle('gpu-set-mode', (_event, mode) => {
+handleApp('gpu-set-mode', (_event, mode) => {
     try {
         if (mode === 'compatibility') {
-            fs.writeFileSync(gpuCrashFlagPath, 'user-requested', 'utf8');
+            writeAtomic(app.getPath('userData'), 'gpu-crash-flag', 'user-requested');
         } else if (mode === 'performance') {
+            containedPath(app.getPath('userData'), 'gpu-crash-flag', true);
             if (fs.existsSync(gpuCrashFlagPath)) fs.unlinkSync(gpuCrashFlagPath);
         }
         return true;
@@ -381,8 +393,23 @@ ipcMain.handle('gpu-set-mode', (_event, mode) => {
     }
 });
 
-ipcMain.handle('app-close-confirmed', () => {
-    if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+function isTrustedAppUrl(url) {
+    return isAllowedAppNavigation(url, process.env.NEXT_SERVER_PORT || '3000', app.isPackaged);
+}
+
+function isMainWindowSender(event) {
+    return isTrustedMainFrame(event, mainWindow?.webContents, isTrustedAppUrl);
+}
+
+handleApp('app-close-received', (event) => {
+    if (!isMainWindowSender(event) || !closePending) return false;
+    closeHandshake.acknowledge();
+    return true;
+});
+
+handleApp('app-close-confirmed', (event) => {
+    if (!isMainWindowSender(event) || !closePending) return false;
+    closeHandshake.cancel();
     closePending = false;
     forceQuit = true;
     if (mainWindow) {
@@ -391,22 +418,28 @@ ipcMain.handle('app-close-confirmed', () => {
     return true;
 });
 
-ipcMain.handle('app-close-cancelled', () => {
+handleApp('app-close-cancelled', (event) => {
+    if (!isMainWindowSender(event) || !closePending) return false;
     console.log('[Electron] Close cancelled by user');
-    if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+    closeHandshake.cancel();
     closePending = false;
     return true;
 });
 
+// Bound renderer-driven disk writes without throttling normal save operations.
+let logWindowStart = 0;
+let logWindowCount = 0;
 // Error logging - write crash/error reports to a log file
-ipcMain.handle('log-write-error', (event, report) => {
+handleApp('log-write-error', (event, report) => {
     try {
+        if (Date.now() - logWindowStart > 60000) { logWindowStart = Date.now(); logWindowCount = 0; }
+        if (++logWindowCount > 60) return false;
         if (!report || typeof report !== 'object') return false;
-        const logDir = path.join(app.getPath('userData'), 'logs');
+        const logDir = containedPath(app.getPath('userData'), 'logs', true);
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true });
         }
-        const logFile = path.join(logDir, 'error.log');
+        const logFile = containedPath(logDir, 'error.log', true);
         // Sanitize message and stack to prevent log injection
         const sanitize = (s) => typeof s === 'string' ? s.replace(/[\r\n]+/g, ' | ').substring(0, 8000) : '';
         const level = typeof report.level === 'string' ? report.level.replace(/[^a-zA-Z]/g, '') : 'error';
@@ -437,14 +470,15 @@ ipcMain.handle('log-write-error', (event, report) => {
 });
 
 // Renderer storage bridge - uses electron-store for disk-backed persistence
-ipcMain.handle('storage-get-item', (_event, key) => {
+handleApp('storage-get-item', (_event, key) => {
     try {
         if (!store || typeof key !== 'string' || !key) return null;
-        const value = store.get(key);
+        // Staging uses a literal .tmp key; dot notation would replace the primary.
+        const value = store.store[key];
         return typeof value === 'string' ? value : null;
     } catch (e) {
         console.error('[Electron] Error reading storage key:', e);
-        return null;
+        return { error: 'Disk storage could not be read' };
     }
 });
 
@@ -453,14 +487,15 @@ ipcMain.handle('storage-get-item', (_event, key) => {
 // the user's disk via electron-store.
 const STORAGE_VALUE_MAX_BYTES = 32 * 1024 * 1024;
 
-ipcMain.handle('storage-set-item', (_event, key, value) => {
+handleApp('storage-set-item', (_event, key, value) => {
     try {
         if (!store || typeof key !== 'string' || !key || typeof value !== 'string') return false;
-        if (value.length > STORAGE_VALUE_MAX_BYTES) {
+        if (Buffer.byteLength(value, 'utf8') > STORAGE_VALUE_MAX_BYTES) {
             console.error('[Electron] Rejected oversized storage write for key:', key);
             return false;
         }
-        store.set(key, value);
+        containedPath(app.getPath('userData'), 'config.json', true);
+        store.store = { ...store.store, [key]: value };
         return true;
     } catch (e) {
         console.error('[Electron] Error writing storage key:', e);
@@ -468,10 +503,13 @@ ipcMain.handle('storage-set-item', (_event, key, value) => {
     }
 });
 
-ipcMain.handle('storage-remove-item', (_event, key) => {
+handleApp('storage-remove-item', (_event, key) => {
     try {
         if (!store || typeof key !== 'string' || !key) return false;
-        store.delete(key);
+        containedPath(app.getPath('userData'), 'config.json', true);
+        const next = { ...store.store };
+        delete next[key];
+        store.store = next;
         return true;
     } catch (e) {
         console.error('[Electron] Error removing storage key:', e);
@@ -479,10 +517,11 @@ ipcMain.handle('storage-remove-item', (_event, key) => {
     }
 });
 
-ipcMain.handle('storage-clear', () => {
+handleApp('storage-clear', () => {
     try {
         if (!store) return false;
-        store.clear();
+        containedPath(app.getPath('userData'), 'config.json', true);
+        store.store = Object.fromEntries(Object.entries(store.store ?? {}).filter(([key]) => !storageKey(key)));
         return true;
     } catch (e) {
         console.error('[Electron] Error clearing storage:', e);
@@ -490,13 +529,13 @@ ipcMain.handle('storage-clear', () => {
     }
 });
 
-ipcMain.handle('storage-get-all-keys', () => {
+handleApp('storage-get-all-keys', () => {
     try {
         if (!store) return [];
-        return Object.keys(store.store ?? {});
+        return Object.keys(store.store ?? {}).filter(storageKey);
     } catch (e) {
         console.error('[Electron] Error listing storage keys:', e);
-        return [];
+        return { error: 'Disk storage could not be listed' };
     }
 });
 
@@ -506,9 +545,11 @@ ipcMain.handle('storage-get-all-keys', () => {
 // the shipped bundle. The game reads these at snapshot load time when
 // present.
 // ============================================================
+const { readDatabase, installDatabase, restoreDatabase, clearDatabase } = require('./mod-storage');
+const { pinDatabase, bundleDirectory } = require('./mod-assets');
 const MOD_DIRNAME = 'mods/community';
 function modDir() {
-    return path.join(app.getPath('userData'), MOD_DIRNAME);
+    return containedPath(app.getPath('userData'), MOD_DIRNAME, true);
 }
 
 // The active overlay dir (community import OR a subscribed Workshop item) is
@@ -539,10 +580,13 @@ const MOD_ASSET_TYPES = {
  */
 function serveModAsset(req, res, pathname) {
     if (!pathname || !pathname.startsWith('/mod-assets/')) return false;
+    if (!['GET','HEAD'].includes(req.method)) { res.statusCode = 405; res.end(); return true; }
     try {
-        const baseDir = activeModReadDir();
-        const rel = decodeURIComponent(pathname.slice('/mod-assets/'.length));
-        const target = path.normalize(path.join(baseDir, rel));
+        let rel = decodeURIComponent(pathname.slice('/mod-assets/'.length));
+        const pinned = /^pinned\/([a-f0-9]{64})\/(.+)$/.exec(rel);
+        const baseDir = pinned ? bundleDirectory(app.getPath('userData'), pinned[1]) : activeModReadDir();
+        if (pinned) rel = pinned[2];
+        const target = containedPath(baseDir, rel);
         const baseWithSep = path.normalize(baseDir) + path.sep;
         if (target !== path.normalize(baseDir) && !target.startsWith(baseWithSep)) {
             res.statusCode = 403; res.end('Forbidden'); return true;
@@ -550,7 +594,7 @@ function serveModAsset(req, res, pathname) {
         const ext = path.extname(target).toLowerCase();
         const type = MOD_ASSET_TYPES[ext];
         if (!type) { res.statusCode = 404; res.end('Not found'); return true; }
-        if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+        if (!fs.existsSync(target) || !fs.statSync(target).isFile() || fs.statSync(target).size > 8 * 1024 * 1024) {
             res.statusCode = 404; res.end('Not found'); return true;
         }
         // The lexical check above doesn't catch a symlink/junction inside the mod
@@ -565,10 +609,13 @@ function serveModAsset(req, res, pathname) {
         res.statusCode = 200;
         res.setHeader('Content-Type', type);
         res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+        if (req.method === 'HEAD') { res.end(); return true; }
         fs.createReadStream(realTarget).on('error', () => { try { res.destroy(); } catch (_) { /* noop */ } }).pipe(res);
         return true;
     } catch (e) {
-        try { res.statusCode = 500; res.end('Error'); } catch (_) { /* noop */ }
+        try { res.statusCode = 404; res.end('Not found'); } catch (_) { /* noop */ }
         return true;
     }
 }
@@ -584,40 +631,35 @@ function safeModFilename(name) {
     return name;
 }
 
-ipcMain.handle('mod-exists', () => {
+handleApp('mod-exists', () => {
     try {
         const d = activeModReadDir();
         if (!fs.existsSync(d)) return false;
-        // Any of the three overlays is enough — tournaments-only imports
-        // are a valid use case (e.g. a patch that only rebrands events).
-        return (
-            fs.existsSync(path.join(d, 'teams.json')) ||
-            fs.existsSync(path.join(d, 'players.json')) ||
-            fs.existsSync(path.join(d, 'tournaments.json'))
-        );
+        const data = readDatabase(d);
+        return ['players', 'teams', 'tournaments'].some(key => data[key] !== undefined);
     } catch (e) {
         return false;
     }
 });
 
-ipcMain.handle('mod-read', (_event, filename) => {
+handleApp('mod-read', async (_event, filename) => {
     try {
         const f = safeModFilename(filename);
-        const p = path.join(activeModReadDir(), f);
-        if (!fs.existsSync(p)) return null;
-        return fs.readFileSync(p, 'utf8');
+        const data = await pinDatabase(activeModReadDir(), app.getPath('userData'));
+        const value = data[f.replace('.json', '')];
+        return value === undefined ? null : JSON.stringify(value);
     } catch (e) {
         console.error('[Mod] read failed:', e);
         return null;
     }
 });
 
-ipcMain.handle('mod-write', (_event, filename, contents) => {
+handleApp('mod-write', (_event, filename, contents) => {
     try {
         const f = safeModFilename(filename);
         if (typeof contents !== 'string') return false;
         const d = ensureModDir();
-        fs.writeFileSync(path.join(d, f), contents, 'utf8');
+        writeAtomic(d, f, contents);
         return true;
     } catch (e) {
         console.error('[Mod] write failed:', e);
@@ -625,22 +667,29 @@ ipcMain.handle('mod-write', (_event, filename, contents) => {
     }
 });
 
-ipcMain.handle('mod-clear', () => {
-    try {
-        const d = modDir();
-        if (!fs.existsSync(d)) return true;
-        for (const f of fs.readdirSync(d)) {
-            const full = path.join(d, f);
-            if (fs.statSync(full).isFile()) fs.unlinkSync(full);
-        }
-        return true;
-    } catch (e) {
-        console.error('[Mod] clear failed:', e);
-        return false;
-    }
+handleApp('mod-install', (_event, text) => {
+    const { parseModContent, validateModReferences } = require('./mod-content');
+    const result = parseModContent(text);
+    if (!result.ok) return false;
+    const merged = ['players', 'teams', 'tournaments'].map(section => {
+        const base = JSON.parse(readBounded(path.join(app.getAppPath(), 'public/data/snapshot'), `${section}.json`, MAX_MOD_BYTES));
+        const entries = new Map(base.map(entry => [entry.id, entry]));
+        for (const entry of result.value[section] || []) entries.set(entry.id, entry);
+        return [...entries.values()];
+    });
+    if (validateModReferences(...merged)) return false;
+    return installDatabase(ensureModDir(), text);
 });
+handleApp('mod-read-folder', async () => {
+    const result = await require('electron').dialog.showOpenDialog(mainWindow, { title: 'Choose community database folder', properties: ['openDirectory'] });
+    if (result.canceled || result.filePaths.length !== 1) return null;
+    const database = await pinDatabase(result.filePaths[0], app.getPath('userData'));
+    return JSON.stringify(database);
+});
+handleApp('mod-restore', () => restoreDatabase(ensureModDir()));
+handleApp('mod-clear', () => clearDatabase(ensureModDir()));
 
-ipcMain.handle('mod-path', () => {
+handleApp('mod-path', () => {
     try {
         return modDir();
     } catch (e) {
@@ -691,31 +740,9 @@ async function createWindow() {
             backgroundColor: '#000000',
         });
 
-        // Content Security Policy — the renderer is served from http://localhost:$PORT,
-        // so 'self' already matches every legitimate request. No external domains are
-        // loaded by the game (verified: no external fetch, img, font, or script targets).
-        // 'unsafe-eval' remains because Next.js's production runtime evaluates modules
-        // through Function()/eval; removing it breaks the bundle. 'unsafe-inline' for
-        // style-src is required by React's inline style prop.
         mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-            callback({
-                responseHeaders: {
-                    ...details.responseHeaders,
-                    'Content-Security-Policy': [
-                        "default-src 'self'; " +
-                        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-                        "style-src 'self' 'unsafe-inline'; " +
-                        "img-src 'self' data: blob:; " +
-                        "media-src 'self' data: blob:; " +
-                        "connect-src 'self'; " +
-                        "font-src 'self' data:; " +
-                        "object-src 'none'; " +
-                        "base-uri 'self'; " +
-                        "form-action 'self'; " +
-                        "frame-ancestors 'none';"
-                    ]
-                }
-            });
+            const headers = Object.fromEntries(Object.entries(details.responseHeaders || {}).filter(([key]) => key.toLowerCase() !== 'content-security-policy'));
+            callback({responseHeaders: {...headers, 'Content-Security-Policy': [contentPolicy(details.url, !app.isPackaged)], 'X-Content-Type-Options': ['nosniff']}});
         });
 
         // Deny every permission request (geolocation, notifications, media, midi,
@@ -738,24 +765,14 @@ async function createWindow() {
         // Block full-page navigation to anything outside the local Next.js server.
         // In-app SPA routing uses history.pushState and does not trigger this event.
         mainWindow.webContents.on('will-navigate', (navEvent, navigationUrl) => {
-            let allowed = false;
-            try {
-                const parsed = new URL(navigationUrl);
-                allowed = parsed.protocol === 'http:' &&
-                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
-            } catch (_) { /* malformed URL — stays disallowed */ }
+            const allowed = isTrustedAppUrl(navigationUrl);
             if (!allowed) {
                 debugLog(`[Security] Blocked navigation to ${navigationUrl}`);
                 navEvent.preventDefault();
             }
         });
         mainWindow.webContents.on('will-redirect', (redirectEvent, redirectUrl) => {
-            let allowed = false;
-            try {
-                const parsed = new URL(redirectUrl);
-                allowed = parsed.protocol === 'http:' &&
-                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
-            } catch (_) { /* malformed URL — stays disallowed */ }
+            const allowed = isTrustedAppUrl(redirectUrl);
             if (!allowed) {
                 debugLog(`[Security] Blocked redirect to ${redirectUrl}`);
                 redirectEvent.preventDefault();
@@ -817,12 +834,6 @@ async function createWindow() {
 
         const BOOT_TIMEOUT_MS = app.isPackaged ? 30000 : 45000;
         const POST_DOM_READY_GRACE_MS = app.isPackaged ? 15000 : 20000;
-        const serverPort = process.env.NEXT_SERVER_PORT || '3000';
-        const packagedUrl = `http://localhost:${serverPort}/main-menu`;
-        const candidateUrls = app.isPackaged
-            ? [packagedUrl]
-            : [`http://localhost:${serverPort}/main-menu`, 'http://localhost:3001/main-menu'];
-        let currentUrlIndex = 0;
         let loadAttempt = 0;
         let bootDeadlineAt = 0;
         let bootWatchdog = null;
@@ -896,13 +907,8 @@ async function createWindow() {
             rendererReachedDomReady = false;
             armBootWatchdog(BOOT_TIMEOUT_MS);
         };
-        const getCurrentUrl = () => candidateUrls[Math.min(currentUrlIndex, candidateUrls.length - 1)];
-        const isSuccessfulRendererUrl = (url) => {
-            if (typeof url !== 'string' || !url) return false;
-            if (url.startsWith('data:text/html')) return false;
-            if (app.isPackaged) return url.startsWith(`http://localhost:${serverPort}/`);
-            return url.startsWith(`http://localhost:${serverPort}/`) || url.startsWith('http://localhost:3001/');
-        };
+        const getCurrentUrl = () => `http://localhost:${process.env.NEXT_SERVER_PORT || '3000'}/main-menu`;
+        const isSuccessfulRendererUrl = isTrustedAppUrl;
         const scheduleRetry = (reason) => {
             if (bootCompleted || bootFailed) return;
             if (bootDeadlineAt && Date.now() >= bootDeadlineAt) {
@@ -929,11 +935,7 @@ async function createWindow() {
                 lastBootError = `loadURL rejected for ${appUrl}: ${errMsg}`;
                 debugLog(`[Renderer] loadURL rejection on attempt ${loadAttempt}: ${errMsg}`);
                 flushDebugLog();
-                if (!app.isPackaged && currentUrlIndex < candidateUrls.length - 1) {
-                    currentUrlIndex += 1;
-                    debugLog(`[Renderer] Switching fallback URL to ${getCurrentUrl()}`);
-                    flushDebugLog();
-                }
+
                 scheduleRetry('loadURL rejection');
             });
         };
@@ -1037,15 +1039,8 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
             e.preventDefault();
             if (closePending) return;
             closePending = true;
+            closeHandshake.request();
             mainWindow.webContents.send('app-close-intent');
-            // Safety timeout: force close if renderer doesn't respond within 15s
-            closeTimeout = setTimeout(() => {
-                debugLog('[Electron] Close handler timed out after 15s, force-closing');
-                flushDebugLog();
-                forceQuit = true;
-                closePending = false;
-                if (mainWindow) mainWindow.close();
-            }, 15000);
         });
 
         // Override beforeunload prevention when force-quit has been confirmed
@@ -1066,7 +1061,7 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
                 failBoot('Renderer process crashed', lastBootError);
                 return;
             }
-            if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+            closeHandshake.cancel();
             forceQuit = true;
             closePending = false;
             if (mainWindow) mainWindow.close();
@@ -1075,7 +1070,7 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
         mainWindow.on('closed', () => {
             clearBootWatchdog();
             clearLoadRetry();
-            if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+            closeHandshake.cancel();
             forceQuit = false;
             closePending = false;
             mainWindow = null;
@@ -1093,17 +1088,7 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
 // Defense-in-depth: apply the same navigation / popup / webview restrictions to
 // any webContents that might be created outside of the main BrowserWindow flow.
 app.on('web-contents-created', (_event, contents) => {
-    contents.setWindowOpenHandler(() => ({ action: 'deny' }));
-    contents.on('will-navigate', (navEvent, navigationUrl) => {
-        let allowed = false;
-        try {
-            const parsed = new URL(navigationUrl);
-            allowed = parsed.protocol === 'http:' &&
-                (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
-        } catch (_) { /* malformed URL — stays disallowed */ }
-        if (!allowed) navEvent.preventDefault();
-    });
-    contents.on('will-attach-webview', (attachEvent) => attachEvent.preventDefault());
+    secureWebContents(contents, isTrustedAppUrl);
 });
 
 app.on('second-instance', () => {

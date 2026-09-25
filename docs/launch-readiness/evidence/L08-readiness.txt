@@ -1,0 +1,27 @@
+
+> esports-manager-sim@1.0.0 audit:steam-ready:strict
+> tsx scripts/steam-ready-audit.ts --strict
+
+=== Steam-Ready Master Audit ===
+  PASS A1 project sanity (0 findings; static scan only)
+  PASS A2 steam SDK integration (0 findings; static scan only)
+  PASS A3 achievement parity (0 findings; static scan only)
+  PASS A4 save schema integrity (0 findings; static scan only)
+  FAIL A5 trademark source scan (2 findings; static scan only)
+  PASS A6 legal documents (0 findings; static scan only)
+  INFO A7 network call posture (1 findings; static scan only)
+  PASS A8 steam deck readiness (0 findings; static scan only)
+  INFO A9 production hygiene (1 findings; static scan only)
+  PASS A10 secrets hygiene (0 findings; static scan only)
+  PASS A11 steam build files (0 findings; static scan only)
+  PASS A12 achievement unlock sites (0 findings; static scan only)
+  PASS A13 oss license disclosure (0 findings; static scan only)
+  PASS A14 branding consistency (0 findings; static scan only)
+  WARN A15 valve map names (1 findings; static scan only)
+  PASS A16 trademark asset exclusions (0 findings; static scan only)
+
+Findings: BLOCKER=0 HIGH=1 MEDIUM=1 LOW=0 INFO=3
+Report:   tmp/steam-ready-report.md, tmp/steam-ready-report.json
+Time:     1375ms
+
+FAIL: blocker findings present (or --strict and HIGH findings).

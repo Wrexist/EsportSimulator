@@ -12,7 +12,7 @@ import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TournamentSaveData } from "@/engine/save-types"
 
 function makeSave(): GameSave {
-    return { scheduledMatches: [] } as unknown as GameSave
+    return { scheduledMatches: [], completedMatches: [], tournaments: [], currentWeek: 1, currentDay: 0, timeMode: "WEEKLY" } as unknown as GameSave
 }
 
 function makeTournament(startWeek: number, endWeek: number): TournamentSaveData {

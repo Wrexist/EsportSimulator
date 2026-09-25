@@ -1,0 +1,338 @@
+{
+  "recordedOn": "2026-09-16",
+  "confirmedBy": "Project owner, in this conversation",
+  "statement": "For the maps they are verified as fine to use",
+  "reviewBasis": "Owner confirmation of permitted use in the Steam build; not independently verified by the assistant.",
+  "limitations": [
+    "No agreement text or named license was supplied.",
+    "This does not assert Valve endorsement or change ownership of the assets.",
+    "Applies only to the listed map-image, geometry and navigation bytes.",
+    "Does not cover photography, logos, external lineup collections or mixed drafts."
+  ],
+  "files": [
+    {
+      "path": "public/map-studio/spatial/Ancient-upper.png",
+      "sha256": "cb6adca45e32ecff0b131f742c129324ba5e2dd695247f61d2d21d85ef2c581c",
+      "bytes": 89550,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Ancient.json",
+      "sha256": "d9478943106a04913d8ac36c76be5c104a8060386095da39b9448762b0551f3f",
+      "bytes": 637950,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Ancient.mesh",
+      "sha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+      "bytes": 7803196,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Anubis-upper.png",
+      "sha256": "b8f07c36edb13e34dbfaabf9a74e057961ac4fb29545d98d16ff9b7c4e6d1206",
+      "bytes": 218922,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Anubis.json",
+      "sha256": "3e8861404040ef4d3984960fe585f40cb11dbf86c012c2b4d7933f2c991497b5",
+      "bytes": 850867,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Anubis.mesh",
+      "sha256": "685fae82a5d01cc9faf312d91670e18ea0ded07f9e171fe9449e6f7a15992b49",
+      "bytes": 6853012,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Inferno-upper.png",
+      "sha256": "53e1d660d5e61a9b876cc56725c2e891c56efcb788657520fa9c10fec321dce3",
+      "bytes": 136914,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Inferno.json",
+      "sha256": "ff17b25726788f8b6f7e929b6a2d34c0c7785fc27c4a7896f4a387d83d9d6057",
+      "bytes": 858680,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Inferno.mesh",
+      "sha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+      "bytes": 10004548,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Mirage-upper.png",
+      "sha256": "c8032f6c83ffca63c0a20ebdcc598a0e1aa618efd746e381e2db26f33a4a964f",
+      "bytes": 143685,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Mirage.json",
+      "sha256": "9d90c791096263d4b07fbfe5843a098215c24a4a1023fb73f6d4f7801224c61b",
+      "bytes": 790509,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Mirage.mesh",
+      "sha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+      "bytes": 1409332,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Nuke-lower.png",
+      "sha256": "b8c4e659491ba79be60b7d3f9bc78bdaeb808afc2bae14bf3b25b1801220ebe0",
+      "bytes": 96487,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Nuke-upper.png",
+      "sha256": "21167d05292e80eebe7b068f0bba36a2e3f9116d154d96952a8366cdcc72e6b1",
+      "bytes": 96995,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Nuke.json",
+      "sha256": "8bf49057d7bbaa5b0c043e216e4e906231a495f4a77bd1d559b52134bda1e49b",
+      "bytes": 947807,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Nuke.mesh",
+      "sha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+      "bytes": 1626880,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Overpass-upper.png",
+      "sha256": "2a59b62668e80037b5a88e980f56af360269f5ea581d52eb0669d78a981f0d96",
+      "bytes": 290940,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Overpass.json",
+      "sha256": "a5f4c41f69476a6a4c4b121fe61d307d2593f6cc7822af0396c792fbd4908ce9",
+      "bytes": 1188831,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Overpass.mesh",
+      "sha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+      "bytes": 4522648,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Sandstone-upper.png",
+      "sha256": "0828297130ce26db25a299806ff743df9104de634a3e64b52b358f6f4399354d",
+      "bytes": 175761,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Sandstone.json",
+      "sha256": "7599e2c6300520b26dab228a3eb0bbc4a0f8b2861a6f3126b426234044d70c5a",
+      "bytes": 717723,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Sandstone.mesh",
+      "sha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+      "bytes": 4344292,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Vertigo-lower.png",
+      "sha256": "61639197f940d9702f6cb5476a38ae932a821170cdb6405f14733a5b83e32723",
+      "bytes": 123826,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Vertigo-upper.png",
+      "sha256": "d2e2e18668f951f7d3b7c6a4fe4580632d5de253d0991f4b9639f9eca73264bf",
+      "bytes": 97762,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Vertigo.json",
+      "sha256": "2ac24e9945352468a8c52d0051724522bbd42bcee1fcc7d57132eb2bf66b9b28",
+      "bytes": 630088,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/map-studio/spatial/Vertigo.mesh",
+      "sha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+      "bytes": 1285516,
+      "source": "https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908"
+    },
+    {
+      "path": "public/maps/WqSceeErZORFGoG8gJ4nLT.webp",
+      "sha256": "0517d61d2bf73926e6815c05260c8abd0a662c1863eb798e0a95fb711de9c125",
+      "bytes": 772,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/ancient.png",
+      "sha256": "446da27ed4cd17e94c8bf59a99f52e43ee13817cc01eb3895800b1846061b00d",
+      "bytes": 1031773,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/anubis.png",
+      "sha256": "68df9e419baabcd02f9ee8671096a51a20f8731aa61749bc08161fd45278cfcf",
+      "bytes": 910398,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_ancient_radar_psd.png",
+      "sha256": "39c40c760f260af35d987c5b5bb215b18881761ee2b1186dbe3d504f53d1f7c6",
+      "bytes": 25068,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_anubis_radar_psd.png",
+      "sha256": "2cea0b5111b6b942e8ef0549ffd7282eb9880bb71c00ca1a0a04312a83f95c03",
+      "bytes": 40594,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_inferno_radar_psd.png",
+      "sha256": "74b3722dc370cd86bb7a059ca9cced19ced57a88290ddfdce7372f0ad85c7821",
+      "bytes": 27748,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_mirage_radar_psd.png",
+      "sha256": "3c87b10a398b83fd0e84201ddce81b4f2c129a2912acd1718495adc48c209007",
+      "bytes": 32590,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_nuke_lower_radar_psd_2.png",
+      "sha256": "250f4f8665907d8d1f19a7c26867af0ccdee48dfcb70b2e0be75769cc86ff05d",
+      "bytes": 19310,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_nuke_radar_psd_1.png",
+      "sha256": "3d0eafacd98b09ef03cf535b2b82dad7d1d70bb8549290998d0a4819f6b8f663",
+      "bytes": 24062,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_overpass_radar_psd.png",
+      "sha256": "569535b52ccaebf371959ff36b98659f4ed6993addee2d81315cf292d38afb92",
+      "bytes": 60462,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_sandstone_radar_psd.png",
+      "sha256": "47415e8f11566612fb0c71cd4ad7ba475a020956b548fb66390e785786e0ec36",
+      "bytes": 29662,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_vertigo_lower_radar_psd_2.png",
+      "sha256": "c9b0cfbd6d0f5ca8f8c6ff2e371c450206ab425e14d8f4ad612d9be36f1c91f0",
+      "bytes": 32572,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/de_vertigo_radar_psd_1.png",
+      "sha256": "b148d3a26f3846ce42c80fed1fb5f20c0b24f217e98300449fe49cf7a8afc18c",
+      "bytes": 25138,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/inferno.png",
+      "sha256": "2ac3be079bfccbb60e4453bf0f41a8c9428458fa70debc21f4c5b8bde2611613",
+      "bytes": 1011889,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/mirage.png",
+      "sha256": "4a3fd2fc8499bcc76df60bfe398f8fadc9cb81f1d3c3f47da0e02b5ccc68de9a",
+      "bytes": 839631,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/nuke.png",
+      "sha256": "b4018f0b618414355777f0d29adc39b1c4ed294baf9dc5905145a87dc1896f90",
+      "bytes": 764168,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/overpass.png",
+      "sha256": "2f7546eab3f6a978d6477fc5231f3cdc2b1efe13244d593a6602e31da75816dd",
+      "bytes": 1135908,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/sandstone.png",
+      "sha256": "bed41d6c0a2545901cd8e3c8a0af06984cba44932881682e005fa9c669301b77",
+      "bytes": 885916,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "public/maps/vertigo.png",
+      "sha256": "f273ce0db2593ce9cd371956d58eda54e3c98b5c7cb30ceb1a794e9a9e6ebef6",
+      "bytes": 886803,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/ancient.json",
+      "sha256": "ade35a1ae388240f2165ea0a2cfb40619dcd80f331f5d06545f2026fb22ac8cb",
+      "bytes": 2087,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/anubis.json",
+      "sha256": "67fec1e77734fd026afa3ee3367aa08d5f938444b55bc8496ada0e42a8b13414",
+      "bytes": 2085,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/inferno.json",
+      "sha256": "66c0d0704f53cd49231a9fe70a8f78970f4b18af1fe80004f2b3143c67f3b355",
+      "bytes": 2082,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/mirage.json",
+      "sha256": "8ec67eb659ddaf92bd4c33a792e2157b14bf1d38b12bc095381d8a2836593c0e",
+      "bytes": 2040,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/nuke.json",
+      "sha256": "c010658307d65e7c38fe5b47e356057b9972061451dceaae66611da30951857c",
+      "bytes": 2151,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/overpass.json",
+      "sha256": "5d0aabd0c2cfa03e09fc598d57bf4bb4520b280d3702fc6f872fe4efd9e18f9f",
+      "bytes": 2090,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/sandstone.json",
+      "sha256": "c4789759847c46911aefe0b51ca69fe76ad2499cb90fb7bfc642078c0dbba8f1",
+      "bytes": 2088,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/map-layouts/vertigo.json",
+      "sha256": "0e23e70baed71b1e5bdca5a7811004a30a8989fa6e32dbe120c8a0a6cd45424f",
+      "bytes": 2162,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    },
+    {
+      "path": "data/radar-nav-data.json",
+      "sha256": "776d05f6e68cd18beb1cf0328c88b46fa16a3251ae9a9fe738b778ef239a223d",
+      "bytes": 4986116,
+      "source": "Imported or derived map reference; exact upstream permission unresolved"
+    }
+  ]
+}

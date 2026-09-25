@@ -66,8 +66,9 @@ describe("settings — tutorial / onboarding flags", () => {
         expect(h.state().tutorialCompleted).toBe(true)
     })
 
-    test("triggerTutorial resets tutorial flags + bumps manualTutorialTrigger", () => {
+    test("triggerTutorial restarts the career guide without changing the new-game preference", () => {
         const h = makeHarness(makeBaseState({
+            isInitialized: true, playerTeamId: "qa",
             tutorialCompleted: true,
             onboardingCompleted: true,
             showTutorialOnNewGame: false,
@@ -77,8 +78,9 @@ describe("settings — tutorial / onboarding flags", () => {
         slice.triggerTutorial()
         expect(h.state().tutorialCompleted).toBe(false)
         expect(h.state().onboardingCompleted).toBe(false)
-        expect(h.state().showTutorialOnNewGame).toBe(true)
-        expect(h.state().manualTutorialTrigger).toBeGreaterThan(0)
+        expect(h.state().showTutorialOnNewGame).toBe(false)
+        expect(h.state().manualTutorialTrigger).toBe(0)
+        expect(h.state().firstSession).toEqual({ version: 1, status: "active", reviewed: [] })
     })
 
     test("setShowTutorialOnNewGame respects the boolean passed in", () => {

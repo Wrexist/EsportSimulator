@@ -8,6 +8,9 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Dev compiler workers reload this file independently of a custom server's
+    // `conf` option. Keep review builds isolated in those workers as well.
+    distDir: process.env.ESIM_ISOLATED_REVIEW === '1' ? 'tmp/anubis-radar-dev-build' : '.next',
     env: {
         NEXT_PUBLIC_GAME_VERSION: (() => { try { return require('./package.json').version; } catch { return '1.0.0'; } })(),
     },

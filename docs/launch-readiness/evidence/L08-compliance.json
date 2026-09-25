@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-09-13T11:05:18.264Z",
+  "scope": "All public files: filename keywords and raster signatures only. Does not verify inline artwork, provenance, licenses or packaged inclusion.",
+  "grouped": {
+    "high": 0,
+    "medium": 1,
+    "low": 0
+  },
+  "findings": [
+    {
+      "level": "MEDIUM",
+      "code": "TRADEMARK_KEYWORD_PATH",
+      "file": "public/hltvrankiing",
+      "detail": "Path contains keyword 'hltv' that may require licensing verification."
+    }
+  ]
+}

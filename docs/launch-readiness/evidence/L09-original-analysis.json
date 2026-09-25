@@ -1,0 +1,467 @@
+{
+  "originalSha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+  "report": {
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "alignment-review",
+        "message": "Image alignment is provisional. Compare landmarks before marking it reviewed."
+      },
+      {
+        "severity": "error",
+        "code": "missing-site",
+        "message": "Assign one plant polygon to site A."
+      },
+      {
+        "severity": "error",
+        "code": "missing-site",
+        "message": "Assign one plant polygon to site B."
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "outline:Mirage:upper:0"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "9e031950-9176-465d-b858-55629a85fc52"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "9e031950-9176-465d-b858-55629a85fc52"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "7a9570ca-72d4-49f9-98c4-8ca869ad0c98"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "7a9570ca-72d4-49f9-98c4-8ca869ad0c98"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "3ab9374d-0b4a-4e35-80c1-279a00cef173"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "3ab9374d-0b4a-4e35-80c1-279a00cef173"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "6e167c55-b797-4513-b72e-d65a35f84d32"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "6e167c55-b797-4513-b72e-d65a35f84d32"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "bde215a4-480e-49c4-b9ea-344115a521ce"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "bde215a4-480e-49c4-b9ea-344115a521ce"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "e7000224-c560-4b93-9d64-2459cf57d157"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "e7000224-c560-4b93-9d64-2459cf57d157"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "bed28f21-6d3f-474a-afb6-3de54088e521"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "bed28f21-6d3f-474a-afb6-3de54088e521"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "47e5c5ae-b0a1-4379-8d68-1510dbb78871"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "47e5c5ae-b0a1-4379-8d68-1510dbb78871"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "f0791d45-7988-4d66-ad67-80f641a525a9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "f0791d45-7988-4d66-ad67-80f641a525a9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "26cb7ff5-1aac-460d-8138-752576c0c9be"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "26cb7ff5-1aac-460d-8138-752576c0c9be"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "2737add1-48bd-49f3-8f71-aefdf52320c9"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "2737add1-48bd-49f3-8f71-aefdf52320c9"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "ed36e494-8758-4206-b04c-8d64288dc70f"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "ed36e494-8758-4206-b04c-8d64288dc70f"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "908e3b2c-f94e-429f-a788-7b68853a6491"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "908e3b2c-f94e-429f-a788-7b68853a6491"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "9c0839c2-2f6d-447c-aed2-837a36b163de"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "9c0839c2-2f6d-447c-aed2-837a36b163de"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "039da054-317d-4865-909e-bf938f08281f"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "039da054-317d-4865-909e-bf938f08281f"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "d279ad51-a4b3-4d81-8860-067c3ad072c0"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "d279ad51-a4b3-4d81-8860-067c3ad072c0"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "64aa2728-d3ba-4306-8287-83a0b7052483"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "64aa2728-d3ba-4306-8287-83a0b7052483"
+      },
+      {
+        "severity": "warning",
+        "code": "draft",
+        "message": "This geometry has not been checked by its author.",
+        "markId": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d"
+      },
+      {
+        "severity": "error",
+        "code": "unbound-height",
+        "message": "Choose the floor and height range for this marking.",
+        "markId": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d"
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "CT spawn area cannot complete movement to Bombsite area in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "CT spawn area cannot complete movement to Bombsite area in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "T spawn area cannot complete movement to Bombsite area in the supported route model."
+      },
+      {
+        "severity": "error",
+        "code": "unreachable-site",
+        "message": "T spawn area cannot complete movement to Bombsite area in the supported route model."
+      },
+      {
+        "severity": "warning",
+        "code": "reference-limits",
+        "message": "Sampled static reference checks are not full collision certification. Release inclusion remains held for review and content clearance."
+      }
+    ],
+    "zones": [
+      {
+        "id": "039da054-317d-4865-909e-bf938f08281f",
+        "kind": "ctspawn",
+        "label": "CT spawn area",
+        "samples": 113,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2529,
+            "point": [
+              -2009.215981217983,
+              -2009.403610922732,
+              -295.76400926428016
+            ]
+          },
+          {
+            "area": 2505,
+            "point": [
+              -2009.215981217983,
+              -1819.6552472235146,
+              -296.37186079084665
+            ]
+          },
+          {
+            "area": 2474,
+            "point": [
+              -1917.1963200051584,
+              -2009.403610922732,
+              -277.4742855485864
+            ]
+          },
+          {
+            "area": 2448,
+            "point": [
+              -1794.503438388059,
+              -2009.403610922732,
+              -260.3129172985074
+            ]
+          }
+        ],
+        "point": null
+      },
+      {
+        "id": "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+        "kind": "tspawn",
+        "label": "T spawn area",
+        "samples": 121,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 758,
+            "point": [
+              1163.32759734899,
+              -332.32267219960085,
+              -162.81048184735937
+            ]
+          }
+        ],
+        "point": null
+      },
+      {
+        "id": "64aa2728-d3ba-4306-8287-83a0b7052483",
+        "kind": "bombsite",
+        "label": "Bombsite area",
+        "samples": 88,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2024,
+            "point": [
+              -601.399436430131,
+              -2290.6290529394173,
+              -171.73167345218934
+            ]
+          },
+          {
+            "area": 1978,
+            "point": [
+              -601.399436430131,
+              -2110.0817529980077,
+              -49.99998
+            ]
+          },
+          {
+            "area": 1956,
+            "point": [
+              -541.0787023612012,
+              -2079.990536341106,
+              -106
+            ]
+          },
+          {
+            "area": 2102,
+            "point": [
+              -420.43723422334136,
+              -2320.7202695963188,
+              -165.1703908248726
+            ]
+          },
+          {
+            "area": 2241,
+            "point": [
+              -360.1165001544114,
+              -2320.7202695963188,
+              -95.1865439753357
+            ]
+          }
+        ],
+        "point": null
+      },
+      {
+        "id": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+        "kind": "bombsite",
+        "label": "Bombsite area",
+        "samples": 88,
+        "safe": 0,
+        "unsupported": 0,
+        "blocked": 0,
+        "ambiguous": 0,
+        "exits": 0,
+        "candidates": [
+          {
+            "area": 2076,
+            "point": [
+              -2205.3560907960873,
+              205.72929709560282,
+              -156
+            ]
+          },
+          {
+            "area": 1739,
+            "point": [
+              -1949.5681448452162,
+              363.4581234828266,
+              -85.999985
+            ]
+          }
+        ],
+        "point": null
+      }
+    ],
+    "routes": [
+      {
+        "from": "039da054-317d-4865-909e-bf938f08281f",
+        "to": "64aa2728-d3ba-4306-8287-83a0b7052483",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "039da054-317d-4865-909e-bf938f08281f",
+        "to": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+        "to": "64aa2728-d3ba-4306-8287-83a0b7052483",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      },
+      {
+        "from": "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+        "to": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+        "reachable": false,
+        "reason": "Bind both zones to clear surfaces first.",
+        "points": []
+      }
+    ],
+    "wallsUsed": 0,
+    "receipt": {
+      "version": 1,
+      "signature": "85944:f11fe05e:9db657cc",
+      "errors": 25,
+      "warnings": 21,
+      "state": "blocked"
+    }
+  }
+}

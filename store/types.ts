@@ -36,6 +36,8 @@ import type { FPLSaveData } from "@/types/fpl"
 import type { CustomTeamData } from "@/types/team-creator"
 import type { MatchResult } from "@/types"
 
+import type { PhysicalPreviewActions } from './slices/physical-preview-slice'
+
 // ===== SLICE STATE INTERFACES =====
 
 export interface CoreGameState {
@@ -71,6 +73,7 @@ export interface MatchState {
   scheduledActivities: ActivitySaveData[]
   activeMatchId: string | null
   activeMatchState: ActiveMatchState | null
+  physicalMatchPreview?: import('@/engine/spatial/career-round-journal').PhysicalCareerJournal | null
   customTactics: CustomTactics
 }
 
@@ -144,6 +147,7 @@ export interface UIState {
 }
 
 export interface SettingsState {
+  firstSession?: import('@/lib/first-session').FirstSessionState
   onboardingCompleted: boolean
   tutorialCompleted: boolean
   showTutorialOnNewGame: boolean
@@ -219,7 +223,7 @@ export interface EntitiesActions {
   treatInjury: (playerId: string) => void
 }
 
-export interface MatchActions {
+export interface MatchActions extends PhysicalPreviewActions {
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
@@ -257,6 +261,7 @@ export interface EventsActions {
 
 export interface ScoutingActions {
   startScoutingMission: (playerId: string) => void
+  cancelScoutingMission: () => void
   getScoutingLevel: (playerId: string) => string
   isPlayerScouted: (playerId: string) => boolean
   toggleWatchlistPlayer: (playerId: string) => void
@@ -298,6 +303,7 @@ export interface UIActions {
 }
 
 export interface SettingsActions {
+  reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
   completeOnboarding: () => void
   completeTutorial: () => void
   triggerTutorial: () => void

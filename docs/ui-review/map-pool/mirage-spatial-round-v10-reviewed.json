@@ -1,0 +1,145 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "5c8dfa159a1d67231401e6f8bd3ee7f34318a8560f46fc5d053906802c9cde4b",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 61.4375,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 152389,
+      "metrics": {
+        "shots": 61,
+        "damage": 766,
+        "reports": 45,
+        "waits": 443,
+        "replans": 71,
+        "minSeparation": 32.074096083356565
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "bdfd62d68d72bcf62977cb4823af49d592edf93ba07771f2f2f4402f1ade0345"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 72.171875,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 228395,
+      "metrics": {
+        "shots": 54,
+        "damage": 788,
+        "reports": 55,
+        "waits": 274,
+        "replans": 87,
+        "minSeparation": 32.11650006544002
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "4aba52820b96e9398f8d465516282e16808818cd9297a2d359864b14e10df717"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 47.75,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 163084,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 228,
+        "waits": 952,
+        "replans": 69,
+        "minSeparation": 32.00737971212168
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2528,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "aa3cfb5a5844e9cfe8285b25f6d2423edd7861cf0791cf39ef60c9b520d39d8a"
+    },
+    {
+      "seed": 4326174,
+      "objective": "A",
+      "guns": true,
+      "seconds": 66.515625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 129414,
+      "metrics": {
+        "shots": 65,
+        "damage": 788,
+        "reports": 50,
+        "waits": 558,
+        "replans": 66,
+        "minSeparation": 32.074096083356565
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 416,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 4240,
+          "type": "route-blocked",
+          "reason": "The direct segment lacks supported floor or body clearance.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "08fe7aa2ebd431205215357af0d68bb3290eb1a68f9784f82141c570bc6f7634"
+    }
+  ]
+}

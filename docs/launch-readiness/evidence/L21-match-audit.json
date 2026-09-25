@@ -1,0 +1,56 @@
+{
+  "seed": 3921,
+  "pairedRounds": {
+    "noStreakChanges": 0,
+    "baselineWins": 176,
+    "regroupWins": 205,
+    "awayBaselineWins": 146,
+    "awayRegroupWins": 169,
+    "seeds": 400
+  },
+  "purchases": {
+    "ecoSpent": 0,
+    "fullSpent": 23350,
+    "opponentUnchanged": true
+  },
+  "series": [
+    {
+      "format": "BO1",
+      "maps": [
+        "Nuke"
+      ],
+      "score": [
+        1,
+        0
+      ],
+      "hash": "31980a76c28f2a4f6e8c6309d4a4cf1e8a1a8fdde8d79441bcb6d7a41f609a53"
+    },
+    {
+      "format": "BO3",
+      "maps": [
+        "Nuke",
+        "Mirage"
+      ],
+      "score": [
+        2,
+        0
+      ],
+      "hash": "e9e2614b0b68130e70ac38e4001659cbd4eef901571b147c571beec7bed15821"
+    },
+    {
+      "format": "BO5",
+      "maps": [
+        "Nuke",
+        "Mirage",
+        "Inferno"
+      ],
+      "score": [
+        3,
+        0
+      ],
+      "hash": "9e0bd450588d4a8ded5c32edbd79810284e046af76a5853b27af9e0e98e68f0d"
+    }
+  ],
+  "canonicalSaveRoundtrip": true,
+  "inputUnchanged": true
+}

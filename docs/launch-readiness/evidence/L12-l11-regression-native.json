@@ -1,0 +1,130 @@
+{
+  "passed": true,
+  "scenarios": [
+    {
+      "id": "clear-duel",
+      "outcome": "A",
+      "events": 11,
+      "frames": 24,
+      "fullSha256": "73440b9248698cb8c9977eecd1f99f19124efc23b06c0c5f144fe510c4fa0462",
+      "fullMatchesNode": false,
+      "discreteSha256": "2883b512a7c3b6bf6a44b7759594f44c1174362b67485cc0f256336b9faf8cb4"
+    },
+    {
+      "id": "opaque-wall",
+      "outcome": "timeout",
+      "events": 0,
+      "frames": 513,
+      "fullSha256": "e84ea8e53f3d281476be984db353773e50ecf8d90bae4453860850389ba8213b",
+      "fullMatchesNode": true,
+      "discreteSha256": "ed43bb5594f13352d648ba1c017c84db1db169d450f9cdc69a30d78325cc6a23"
+    },
+    {
+      "id": "facing-away",
+      "outcome": "timeout",
+      "events": 0,
+      "frames": 513,
+      "fullSha256": "57b49efcb9054be08353c0f2afaf958cce67aa8fe436f60d43ac9c66f5726bd9",
+      "fullMatchesNode": true,
+      "discreteSha256": "ed43bb5594f13352d648ba1c017c84db1db169d450f9cdc69a30d78325cc6a23"
+    },
+    {
+      "id": "empty-magazine",
+      "outcome": "A",
+      "events": 9,
+      "frames": 152,
+      "fullSha256": "4988a7a45516d0bb44e4322161b7836a7034c74db09ba5eea1d38b1a642f6c4f",
+      "fullMatchesNode": false,
+      "discreteSha256": "fbdff512651083a51d772ad7e87ef9e9b3fdc96b8e7a069e2e6ada3f2f3801a1"
+    },
+    {
+      "id": "simultaneous-trade",
+      "outcome": "trade",
+      "events": 10,
+      "frames": 17,
+      "fullSha256": "49380f7dd51097683703f9e6744e46a6e6157686f8f576f3989030facbe75d66",
+      "fullMatchesNode": false,
+      "discreteSha256": "20cbd861062efe5a35449f6180123f78601f92da2754285be4698c6500304203"
+    }
+  ],
+  "seedBatch": [
+    {
+      "seed": 0,
+      "outcome": "A",
+      "sha256": "b3f40f2a2f734119f008bb13b73644ada6081b7ca52bc24d665e916ea18bbf1f"
+    },
+    {
+      "seed": 1,
+      "outcome": "A",
+      "sha256": "1cef6f7db69e8387e69dca21769528609a9cc1cbb19bb4de53f55d04291d4ef6"
+    },
+    {
+      "seed": 2,
+      "outcome": "A",
+      "sha256": "166d6e30d155753988f2beb033d63d5e39c39f500d012d43944cda1410889add"
+    },
+    {
+      "seed": 3,
+      "outcome": "A",
+      "sha256": "9c508ccb485ad146c1aac26630187c14a85cf1dc3beba777e2710f7700b45f65"
+    },
+    {
+      "seed": 7,
+      "outcome": "A",
+      "sha256": "5a0e3ab9580a8cc22299ad0f07be33dfdac09c62fee2f694da77f41b7f24161b"
+    },
+    {
+      "seed": 11,
+      "outcome": "A",
+      "sha256": "73440b9248698cb8c9977eecd1f99f19124efc23b06c0c5f144fe510c4fa0462"
+    },
+    {
+      "seed": 42,
+      "outcome": "A",
+      "sha256": "27878bbb7c073b0e18ba9bdecc4969a226e38dba60846bbe63ee85ae0a16fa8c"
+    },
+    {
+      "seed": 99,
+      "outcome": "A",
+      "sha256": "d9988b9b3e4a0849ec5ab2337f4bd3b06b946108b274ccffb516c453195c3f16"
+    },
+    {
+      "seed": 1024,
+      "outcome": "A",
+      "sha256": "dc96437411d75d00cd6a15bc89bf99204204f3e9472ecd83d5015cae1455b5f5"
+    },
+    {
+      "seed": 65535,
+      "outcome": "A",
+      "sha256": "1ccb1d71adc21dafb80715244b0c99c486c06df03584be21d87ed52c8bef8528"
+    },
+    {
+      "seed": 2147483647,
+      "outcome": "A",
+      "sha256": "53fc4b6c258494e3cb3d65ee050f9779d6b36afa97fe6d2a1b17a245fc18f2c4"
+    },
+    {
+      "seed": 4294967295,
+      "outcome": "A",
+      "sha256": "ec45787b6489b2f266fe31140617044a5adca0fb9b92c10388e9c4d1ef82181a"
+    }
+  ],
+  "checks": [
+    "real compiled worker transport",
+    "all scenario full replays repeat in Chromium",
+    "12 additional seed replays including zero and uint32 max",
+    "Node/native discrete event, damage, ammo and outcome equality",
+    "isolated storage serializer round-trip",
+    "invalid input rejected"
+  ],
+  "limits": [
+    "not a packaged Windows release",
+    "ray/angle cross-runtime full equality separately reported",
+    "provisional weapon tuning; live match integration remains future work"
+  ],
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "electron": "44.3.0",
+  "buildId": "arZ0usroZzZJOgoAAO4tB",
+  "worker": "2063.e012be0b7cc0bb5f.js"
+}

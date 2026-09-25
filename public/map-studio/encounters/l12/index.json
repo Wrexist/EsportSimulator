@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "mapId": "Mirage",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "release": "held",
+  "tuning": {
+    "id": "lab-utility-v1",
+    "gravity": 320,
+    "radius": 2,
+    "speed": 500,
+    "fuse": 1.5,
+    "maxFlight": 6,
+    "smokeRadius": 120,
+    "smokeHeight": 128,
+    "smokeSeconds": 8,
+    "flashRange": 1500,
+    "flashTicks": 160,
+    "heRange": 350,
+    "heDamage": 98,
+    "fireRadius": 100,
+    "fireSeconds": 6,
+    "decoyRange": 1200,
+    "decoySeconds": 8
+  },
+  "coverage": "Five original near-feet diagnostic throws; not reviewed competitive lineups or every launch map.",
+  "scenarios": [
+    {
+      "id": "utility-smoke",
+      "lab": "/map-studio/encounters/l12/utility-smoke.lab.json",
+      "expected": "lost",
+      "outcome": "timeout",
+      "events": 18,
+      "frames": 769,
+      "effects": [
+        {
+          "kind": "smoke",
+          "start": 128,
+          "end": 640,
+          "cells": 32
+        }
+      ],
+      "fullSha256": "b66c9ba118c36fc3d27bb15e40e616e10e404823013744c29e1afd883a162ef4",
+      "discreteSha256": "13287381291a64bddf1cdd79d3c03a872f89c149ae890c240b0a9492da7ab559",
+      "projectSha256": "af42af59c4beeedaabe3f57a2bbf0055e278c2d6f35960af63d83d343ad50fe5"
+    },
+    {
+      "id": "utility-flash",
+      "lab": "/map-studio/encounters/l12/utility-flash.lab.json",
+      "expected": "flash",
+      "outcome": "timeout",
+      "events": 18,
+      "frames": 769,
+      "effects": [
+        {
+          "kind": "flash",
+          "start": 128,
+          "end": 128
+        }
+      ],
+      "fullSha256": "239e025a9e814ee987fcf929a54bf00decb837c947de32a3ebaa2eef4412eb6d",
+      "discreteSha256": "334828d7df368b6d0a18454d2d653ea3f993b0dc6025fc58b8dbf1576afbe085",
+      "projectSha256": "8142632c86d19fcea417783587923ed6607200ff93fd81b2a04a0fec06806b7c"
+    },
+    {
+      "id": "utility-he",
+      "lab": "/map-studio/encounters/l12/utility-he.lab.json",
+      "expected": "blast-damage",
+      "outcome": "timeout",
+      "events": 11,
+      "frames": 769,
+      "effects": [
+        {
+          "kind": "he",
+          "start": 128,
+          "end": 128
+        }
+      ],
+      "fullSha256": "daed894cebf09e6e7a22d84703b4e7c5d47fce7ee018e5c90ecdb44c1a17d36a",
+      "discreteSha256": "f9b51dd07c71988b9653a21164f9241756896290cb40340ba02c29cf0c442473",
+      "projectSha256": "18f6d4aef4c8c00d62a5c180600d01142609ae2a1cc9927217c248b4af3ea5a5"
+    },
+    {
+      "id": "utility-fire",
+      "lab": "/map-studio/encounters/l12/utility-fire.lab.json",
+      "expected": "fire-damage",
+      "outcome": "B",
+      "events": 28,
+      "frames": 769,
+      "effects": [
+        {
+          "kind": "fire",
+          "start": 67,
+          "end": 451,
+          "cells": 12
+        }
+      ],
+      "fullSha256": "f834d292ccd31da16487196da71f564ad169b87b62a6804c5210fa10c4b7775a",
+      "discreteSha256": "743ddd43fa8244dcb4a02a16e46d642b14e6ddcc0034bc7e5d3036c17c88167f",
+      "projectSha256": "008127573219205467754027a48134dfba33a59dd22dc7c837ff1c83a03b93fa"
+    },
+    {
+      "id": "utility-decoy",
+      "lab": "/map-studio/encounters/l12/utility-decoy.lab.json",
+      "expected": "decoy-heard",
+      "outcome": "timeout",
+      "events": 26,
+      "frames": 769,
+      "effects": [
+        {
+          "kind": "decoy",
+          "start": 128,
+          "end": 640
+        }
+      ],
+      "fullSha256": "662406a9200f3db99d408d6bdd12aceb9c77beb2b84f9f4b01baa5daef205f01",
+      "discreteSha256": "34834c93e3a0f600f712b70509bf91d1dcc48eaca52a58d0debf05ae8767c968",
+      "projectSha256": "297901551782f7e67cf2990d6690300f11dc02afcd0ebe5355b387bc2f1e68d4"
+    }
+  ]
+}

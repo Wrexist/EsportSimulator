@@ -25,6 +25,7 @@ const TIER_STYLES = {
 
 interface SponsorOfferCardProps {
   offer: SponsorSaveData
+  weeklyIncomeChange?: number
   index: number
   isLocked: boolean
   lockReason: string
@@ -33,8 +34,8 @@ interface SponsorOfferCardProps {
   onDecline: () => void
 }
 
-function SponsorOfferCardImpl({ offer, index, isLocked, lockReason, sponsorSlotsFull, onAccept, onDecline }: SponsorOfferCardProps) {
-  const style = TIER_STYLES[offer.tier]
+function SponsorOfferCardImpl({ offer, weeklyIncomeChange, index, isLocked, lockReason, sponsorSlotsFull, onAccept, onDecline }: SponsorOfferCardProps) {
+  const style = TIER_STYLES[offer.tier] || TIER_STYLES.STANDARD
   const disabled = isLocked || sponsorSlotsFull
 
   return (
@@ -69,7 +70,8 @@ function SponsorOfferCardImpl({ offer, index, isLocked, lockReason, sponsorSlots
               <DollarSign size={16} />
               {offer.weeklyPayout.toLocaleString()}
             </div>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">per week</span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">base payout / week</span>
+            {weeklyIncomeChange !== undefined && <p className="mt-1 text-xs text-white/70">Projected income change: +${weeklyIncomeChange.toLocaleString()}/wk</p>}
           </div>
         </div>
 

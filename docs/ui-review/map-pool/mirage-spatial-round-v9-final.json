@@ -1,0 +1,195 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Mirage",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "simulatorSourceSha256": "211c7e18de315f3e49835899a1f54fab4bb026ee5e78e7cfac0ed26c86e33c3d",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 42.640625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 59727,
+      "metrics": {
+        "shots": 48,
+        "damage": 588,
+        "reports": 34,
+        "waits": 538,
+        "replans": 71,
+        "minSeparation": 32.03650386617602
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 2,
+      "routeFailures": [
+        {
+          "tick": 384,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "ede21f189570bdf00f0a7a5caf3ebe7644c8dbdedb0193620b2901cc615a6f3f"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 74.03125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 301297,
+      "metrics": {
+        "shots": 69,
+        "damage": 722,
+        "reports": 65,
+        "waits": 923,
+        "replans": 95,
+        "minSeparation": 32.0414703687764
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 6,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "407d2326aef6d41e3e16e7da39115c2fb14749f64722b7f5a3e8d9bf3fc83712"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 53.5,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 243550,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 417,
+        "waits": 1436,
+        "replans": 92,
+        "minSeparation": 32.030620529515296
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 3,
+      "routeFailures": [
+        {
+          "tick": 384,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT3",
+          "point": [
+            -581.6479838656036,
+            -2274.4983718886833,
+            -172.53110282101986
+          ],
+          "goal": [
+            -2077.4621178206517,
+            140.82082765049233,
+            -156
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        },
+        {
+          "id": "T3",
+          "point": [
+            -596.8424734736172,
+            -2246.3010646226026,
+            -173.02000992882853
+          ],
+          "goal": [
+            -2077.4621178206517,
+            76.82082765049233,
+            -156
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "0186697ee88e39cd08b7fc0f2ebda94a749c983add0b7a000b9893689d2737d5"
+    },
+    {
+      "seed": 4326174,
+      "objective": "A",
+      "guns": true,
+      "seconds": 86.328125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 276893,
+      "metrics": {
+        "shots": 63,
+        "damage": 766,
+        "reports": 64,
+        "waits": 1012,
+        "replans": 82,
+        "minSeparation": 32.068164505287996
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 5,
+      "routeFailures": [
+        {
+          "tick": 384,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 608,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2848,
+          "type": "route-blocked",
+          "reason": "The collision reference blocks the direct movement segment.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 2864,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "9b4529612c3e89211f2f69bba2ac2884cda69bb51d54ceae9fbcffde8adf4450"
+    }
+  ]
+}

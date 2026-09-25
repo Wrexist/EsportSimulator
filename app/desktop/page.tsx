@@ -577,7 +577,7 @@ function DesktopContent() {
               return (
                 <div key={pid} className="flex flex-col items-center gap-1.5 group cursor-default">
                   <div className="w-10 h-10 rounded-lg bg-black/40 overflow-hidden border border-white/10 relative group-hover:border-white/30 transition-colors shadow-sm">
-                    <PlayerPortrait src={p.portraitPath} alt={p.nickname} className="w-full h-full object-cover" />
+                    <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col items-center gap-0.5 w-full">
                     <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -695,7 +695,7 @@ function DesktopContent() {
                 {/* Player Image */}
                 <div className="w-12 h-12 rounded-lg bg-black/40 overflow-hidden shrink-0 border border-white/5 relative">
                   <PlayerPortrait
-                    src={fullPlayer?.portraitPath}
+                    src={fullPlayer?.portraitPath} seed={fullPlayer?.id}
                     alt={player.playerName}
                     className="w-full h-full object-cover object-top scale-110 translate-y-1"
                   />
@@ -819,7 +819,7 @@ function DesktopContent() {
     const iconMap: Record<string, React.ReactNode> = {
       "YOUR TEAM": playerTeam?.logoPath ? (
         <div className="w-full h-full flex items-center justify-center p-0.5">
-          <TeamLogoImage src={playerTeam.logoPath} alt="Team" className="w-full h-full object-contain" />
+          <TeamLogoImage team={playerTeam} src={playerTeam.logoPath} alt={playerTeam.name} className="w-full h-full object-contain" />
         </div>
       ) : <Users size={18} className="text-emerald-400" />,
       "FIRST STEPS": <ClipboardList size={18} className="text-blue-400" />,
@@ -900,7 +900,7 @@ function DesktopContent() {
         {/* Patient Card */}
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center border border-red-500/30 overflow-hidden shrink-0 relative">
-            <PlayerPortrait src={player.portraitPath} alt={player.nickname} className="w-full h-full object-cover scale-110 translate-y-1 grayscale-[0.3]" />
+            <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} className="w-full h-full object-cover scale-110 translate-y-1 grayscale-[0.3]" />
             <div className="absolute inset-0 bg-red-500/10 mix-blend-overlay" />
           </div>
           <div>
@@ -985,7 +985,7 @@ function DesktopContent() {
               { id: "facilities" as AppId, icon: <Building2 size={24} />, label: "Facilities", route: "/basecamp" },
               { id: "finance" as AppId, icon: <DollarSign size={24} />, label: "Finance", route: "/finances" },
               { id: "academy" as AppId, icon: <GraduationCap size={24} />, label: "Academy", route: "/academy" },
-            ] as { id: AppId; icon: JSX.Element; label: string; route?: string }[]).map(app => (
+            ] as { id: AppId; icon: React.JSX.Element; label: string; route?: string }[]).map(app => (
               <motion.button
                 key={app.id}
                 whileHover={{ scale: 1.05 }}

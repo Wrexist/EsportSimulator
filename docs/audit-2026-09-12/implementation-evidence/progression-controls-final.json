@@ -1,0 +1,92 @@
+[
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 640
+    },
+    "buttons": [
+      {
+        "height": 32,
+        "text": "DAILY",
+        "width": 61.203125,
+        "x": 431.5,
+        "y": 60
+      },
+      {
+        "height": 40,
+        "text": "NEXT DAY",
+        "width": 137.125,
+        "x": 500.703125,
+        "y": 56
+      },
+      {
+        "height": 40,
+        "text": "SKIP WEEK",
+        "width": 108,
+        "x": 645.828125,
+        "y": 56
+      }
+    ],
+    "allVisible": true
+  },
+  {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "buttons": [
+      {
+        "height": 32,
+        "text": "DAILY",
+        "width": 61.203125,
+        "x": 929.671875,
+        "y": 15.5
+      },
+      {
+        "height": 40,
+        "text": "NEXT DAY",
+        "width": 137.125,
+        "x": 1002.875,
+        "y": 11.5
+      },
+      {
+        "height": 40,
+        "text": "SKIP WEEK",
+        "width": 108,
+        "x": 1148,
+        "y": 11.5
+      }
+    ],
+    "allVisible": true
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "buttons": [
+      {
+        "height": 32,
+        "text": "DAILY",
+        "width": 61.203125,
+        "x": 1089.671875,
+        "y": 15.5
+      },
+      {
+        "height": 40,
+        "text": "NEXT DAY",
+        "width": 137.125,
+        "x": 1162.875,
+        "y": 11.5
+      },
+      {
+        "height": 40,
+        "text": "SKIP WEEK",
+        "width": 108,
+        "x": 1308,
+        "y": 11.5
+      }
+    ],
+    "allVisible": true
+  }
+]

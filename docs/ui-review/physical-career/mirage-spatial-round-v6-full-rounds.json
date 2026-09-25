@@ -1,0 +1,675 @@
+{
+  "engine": "spatial-round-v6",
+  "scope": "Three 115-second combat rounds plus a movement-only round, with up to 40 seconds post-plant and a 160-second observation horizon. Provisional fixture, not balance certification.",
+  "simulatorSourceSha256": "47e4128df731344ec5057e8cae2956d89ae3999e86a2364a1675258b387f0afa",
+  "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "rows": [
+    {
+      "seed": 4326170,
+      "guns": true,
+      "seconds": 160,
+      "roundSeconds": 115,
+      "bombSeconds": 40,
+      "elapsedMs": 39238,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "metrics": {
+        "shots": 144,
+        "damage": 900,
+        "reports": 122,
+        "waits": 395,
+        "replans": 70,
+        "minSeparation": 32.07110418722034
+      },
+      "ticks": 4239,
+      "defuses": 0,
+      "recoveries": 2,
+      "recoveryAssignments": 3,
+      "eliminations": 9,
+      "plants": 0,
+      "movementObstructions": {
+        "Body T1 occupies the swept path.": 2,
+        "Body T2 occupies the swept path.": 8,
+        "Body T4 occupies the swept path.": 1,
+        "Body T5 occupies the swept path.": 6
+      },
+      "routeFailures": {
+        "An endpoint has insufficient body or head clearance.": 5
+      },
+      "actors": [
+        {
+          "id": "CT1",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -428.3345217587187,
+            -2217.31644486878,
+            -172.36922777414264
+          ],
+          "distanceFromSpawn": 1439,
+          "shots": 14,
+          "retries": 0
+        },
+        {
+          "id": "CT2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -2075.6570239939933,
+            249.36404116996195,
+            -156
+          ],
+          "distanceFromSpawn": 2264,
+          "shots": 17,
+          "retries": 0
+        },
+        {
+          "id": "CT3",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -581.6343463063638,
+            -2274.5195059962834,
+            -172.53072891112492
+          ],
+          "distanceFromSpawn": 1126,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT4",
+          "health": 100,
+          "intent": "clutch",
+          "position": [
+            -2156.2135189401756,
+            104.30366120970183,
+            -156
+          ],
+          "distanceFromSpawn": 1935,
+          "shots": 12,
+          "retries": 0
+        },
+        {
+          "id": "CT5",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -535.221896675346,
+            -2128.1432366057807,
+            -175.61971560101668
+          ],
+          "distanceFromSpawn": 1267,
+          "shots": 8,
+          "retries": 0
+        },
+        {
+          "id": "T1",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1801.8512525910864,
+            370.03284815634004,
+            -164
+          ],
+          "distanceFromSpawn": 3129,
+          "shots": 17,
+          "retries": 1
+        },
+        {
+          "id": "T2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1159.4479869542236,
+            200.94026236438182,
+            -164.08907451089348
+          ],
+          "distanceFromSpawn": 2388,
+          "shots": 15,
+          "retries": 0
+        },
+        {
+          "id": "T3",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1797.694741574194,
+            389.4299064960234,
+            -164
+          ],
+          "distanceFromSpawn": 3071,
+          "shots": 46,
+          "retries": 0
+        },
+        {
+          "id": "T4",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1773.3073695052417,
+            397.31217609771284,
+            -165.19504919147093
+          ],
+          "distanceFromSpawn": 3233,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T5",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1138.1984482358112,
+            203.26443066170822,
+            -164.3104238725436
+          ],
+          "distanceFromSpawn": 2496,
+          "shots": 15,
+          "retries": 0
+        }
+      ],
+      "outputSha256": "8bd736ab48bd348aad7e4670cd998d6143aaeefa72f8035500704d3640da0dad"
+    },
+    {
+      "seed": 4326171,
+      "guns": true,
+      "seconds": 160,
+      "roundSeconds": 115,
+      "bombSeconds": 40,
+      "elapsedMs": 94530,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "metrics": {
+        "shots": 148,
+        "damage": 766,
+        "reports": 127,
+        "waits": 578,
+        "replans": 67,
+        "minSeparation": 32.07193130739158
+      },
+      "ticks": 6790,
+      "defuses": 1,
+      "recoveries": 0,
+      "recoveryAssignments": 0,
+      "eliminations": 7,
+      "plants": 1,
+      "movementObstructions": {
+        "Body CT3 occupies the swept path.": 5,
+        "Body CT5 occupies the swept path.": 8,
+        "Body T1 occupies the swept path.": 3,
+        "Body T2 occupies the swept path.": 9,
+        "Body T4 occupies the swept path.": 1,
+        "Body T5 occupies the swept path.": 7
+      },
+      "routeFailures": {
+        "An endpoint has insufficient body or head clearance.": 6
+      },
+      "actors": [
+        {
+          "id": "CT1",
+          "health": 100,
+          "intent": "retake",
+          "position": [
+            -2079.254029569903,
+            57.72243566675053,
+            -156.99482724012896
+          ],
+          "distanceFromSpawn": 1960,
+          "shots": 85,
+          "retries": 0
+        },
+        {
+          "id": "CT2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -2075.6570239939933,
+            249.36404116996195,
+            -156
+          ],
+          "distanceFromSpawn": 2264,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT3",
+          "health": 100,
+          "intent": "defuse",
+          "position": [
+            -2110.9055421722182,
+            216.90102965427852,
+            -156
+          ],
+          "distanceFromSpawn": 2272,
+          "shots": 5,
+          "retries": 0
+        },
+        {
+          "id": "CT4",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -2156.2135189401756,
+            104.30366120970183,
+            -156
+          ],
+          "distanceFromSpawn": 1935,
+          "shots": 4,
+          "retries": 0
+        },
+        {
+          "id": "CT5",
+          "health": 34,
+          "intent": "retake",
+          "position": [
+            -2095.188733831721,
+            143.6227011812392,
+            -156
+          ],
+          "distanceFromSpawn": 1906,
+          "shots": 18,
+          "retries": 0
+        },
+        {
+          "id": "T1",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -881.8853021616864,
+            203.24811145422635,
+            -167.2770079318323
+          ],
+          "distanceFromSpawn": 2195,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -2068.386876821265,
+            381.24842965331794,
+            -156
+          ],
+          "distanceFromSpawn": 3307,
+          "shots": 9,
+          "retries": 1
+        },
+        {
+          "id": "T3",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            242.9282723209115,
+            -1547.4951,
+            -171.99998
+          ],
+          "distanceFromSpawn": 1568,
+          "shots": 15,
+          "retries": 0
+        },
+        {
+          "id": "T4",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1877.2749268376951,
+            284.83995839835706,
+            -156.24907402891117
+          ],
+          "distanceFromSpawn": 3313,
+          "shots": 3,
+          "retries": 0
+        },
+        {
+          "id": "T5",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1801.4780697968897,
+            371.7743684845629,
+            -164
+          ],
+          "distanceFromSpawn": 3171,
+          "shots": 9,
+          "retries": 0
+        }
+      ],
+      "outputSha256": "a6266ae673c5fa362dd88745594d4b2063d8a98c4f0d844d9ebe20b20b40ca1e"
+    },
+    {
+      "seed": 4326172,
+      "guns": true,
+      "seconds": 160,
+      "roundSeconds": 115,
+      "bombSeconds": 40,
+      "elapsedMs": 29675,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "metrics": {
+        "shots": 107,
+        "damage": 642,
+        "reports": 96,
+        "waits": 551,
+        "replans": 61,
+        "minSeparation": 32.03523731761706
+      },
+      "ticks": 7360,
+      "defuses": 0,
+      "recoveries": 0,
+      "recoveryAssignments": 1,
+      "eliminations": 6,
+      "plants": 0,
+      "movementObstructions": {
+        "Body T1 occupies the swept path.": 2,
+        "Body T2 occupies the swept path.": 9,
+        "Body T4 occupies the swept path.": 1,
+        "Body T5 occupies the swept path.": 12
+      },
+      "routeFailures": {
+        "An endpoint has insufficient body or head clearance.": 6
+      },
+      "actors": [
+        {
+          "id": "CT1",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -428.3345217587187,
+            -2217.31644486878,
+            -172.36922777414264
+          ],
+          "distanceFromSpawn": 1439,
+          "shots": 27,
+          "retries": 0
+        },
+        {
+          "id": "CT2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -2075.6570239939933,
+            249.36404116996195,
+            -156
+          ],
+          "distanceFromSpawn": 2264,
+          "shots": 7,
+          "retries": 0
+        },
+        {
+          "id": "CT3",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -581.6343463063638,
+            -2274.5195059962834,
+            -172.53072891112492
+          ],
+          "distanceFromSpawn": 1126,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT4",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -2156.2135189401756,
+            104.30366120970183,
+            -156
+          ],
+          "distanceFromSpawn": 1935,
+          "shots": 13,
+          "retries": 0
+        },
+        {
+          "id": "CT5",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -535.221896675346,
+            -2128.1432366057807,
+            -175.61971560101668
+          ],
+          "distanceFromSpawn": 1267,
+          "shots": 8,
+          "retries": 0
+        },
+        {
+          "id": "T1",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1872.5313607714666,
+            282.50489,
+            -156.60156160237776
+          ],
+          "distanceFromSpawn": 3187,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T2",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -1767.9409751689166,
+            391.9457807831387,
+            -165.20807137319682
+          ],
+          "distanceFromSpawn": 3009,
+          "shots": 17,
+          "retries": 0
+        },
+        {
+          "id": "T3",
+          "health": 0,
+          "intent": "dead",
+          "position": [
+            -425.66958453931005,
+            -1727.4952,
+            -169.07909489015273
+          ],
+          "distanceFromSpawn": 2158,
+          "shots": 17,
+          "retries": 0
+        },
+        {
+          "id": "T4",
+          "health": 100,
+          "intent": "support",
+          "position": [
+            -1707.6776587364286,
+            331.6824533651501,
+            -165.0011949643167
+          ],
+          "distanceFromSpawn": 3155,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T5",
+          "health": 58,
+          "intent": "support",
+          "position": [
+            -1771.8563884547991,
+            503.03030820183034,
+            -165.28789235533603
+          ],
+          "distanceFromSpawn": 3159,
+          "shots": 18,
+          "retries": 1
+        }
+      ],
+      "outputSha256": "fb1038c3244010a2c10f9e77433723d40a97f0170a1ee79531c259e22dc6c34c"
+    },
+    {
+      "seed": 4326170,
+      "guns": false,
+      "seconds": 160,
+      "roundSeconds": 115,
+      "bombSeconds": 40,
+      "elapsedMs": 81926,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 431,
+        "waits": 393,
+        "replans": 77,
+        "minSeparation": 32.07193130739158
+      },
+      "ticks": 3424,
+      "defuses": 1,
+      "recoveries": 0,
+      "recoveryAssignments": 0,
+      "eliminations": 0,
+      "plants": 1,
+      "movementObstructions": {
+        "Body T1 occupies the swept path.": 2,
+        "Body T2 occupies the swept path.": 7,
+        "Body T4 occupies the swept path.": 1,
+        "Body T5 occupies the swept path.": 5
+      },
+      "routeFailures": {
+        "An endpoint has insufficient body or head clearance.": 4
+      },
+      "actors": [
+        {
+          "id": "CT1",
+          "health": 100,
+          "intent": "retake",
+          "position": [
+            -1654.0001,
+            -1545.9561732857326,
+            -261.15564064736014
+          ],
+          "distanceFromSpawn": 378,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT2",
+          "health": 100,
+          "intent": "defuse",
+          "position": [
+            -2075.6570239939933,
+            249.36404116996195,
+            -156
+          ],
+          "distanceFromSpawn": 2264,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT3",
+          "health": 100,
+          "intent": "retake",
+          "position": [
+            -1654.0001,
+            -1397.2045240603213,
+            -259
+          ],
+          "distanceFromSpawn": 612,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT4",
+          "health": 100,
+          "intent": "retake",
+          "position": [
+            -2153.349575886375,
+            168.96979644040505,
+            -156
+          ],
+          "distanceFromSpawn": 1999,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "CT5",
+          "health": 100,
+          "intent": "retake",
+          "position": [
+            -1654.0001,
+            -1501.2897383110346,
+            -260.45772796437666
+          ],
+          "distanceFromSpawn": 237,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T1",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -1944.4434978229797,
+            287.90223626068644,
+            -156
+          ],
+          "distanceFromSpawn": 3259,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T2",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -2068.4064740153444,
+            381.2820568931733,
+            -156
+          ],
+          "distanceFromSpawn": 3307,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T3",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -1191.6470665449956,
+            159.36164878756279,
+            -164.87403345830523
+          ],
+          "distanceFromSpawn": 2431,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T4",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -705.8088449210838,
+            -311.6696214250349,
+            -160.7210591588235
+          ],
+          "distanceFromSpawn": 2089,
+          "shots": 0,
+          "retries": 0
+        },
+        {
+          "id": "T5",
+          "health": 100,
+          "intent": "anchor",
+          "position": [
+            -1873.1523356546454,
+            282.50489,
+            -156.5498136954462
+          ],
+          "distanceFromSpawn": 3235,
+          "shots": 0,
+          "retries": 0
+        }
+      ],
+      "outputSha256": "e4272663cfb107be2efd6e3b00f174f01ea26446521d4d105aba3c3a9049d491"
+    }
+  ]
+}

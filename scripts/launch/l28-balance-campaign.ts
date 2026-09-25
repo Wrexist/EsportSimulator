@@ -1,0 +1,133 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import crypto from 'node:crypto'
+import zlib from 'node:zlib'
+import { produce, enableMapSet } from 'immer'
+import { createLaunchFixture } from './fixtures'
+import { computeWeek } from '../../engine/worker/compute-week'
+import { canonicalWeekState } from '../../engine/worker/week-replay'
+import { buildSaveSnapshot, type SaveSnapshotState } from '../../store/utils/build-save-snapshot'
+import { createTransferContractSlice } from '../../store/slices/transfer-contract-slice'
+import { academyHeldPlayerIds, recruitmentSalary } from '../../engine/recruitment'
+import { SnapshotLoader } from '../../data/snapshot-loader'
+import { AIManager } from '../../engine/ai-manager'
+import { DIFFICULTY_SETTINGS } from '../../types/team-creator'
+import { TrainingFocus } from '../../types'
+import type { GameSave } from '../../engine/save-types'
+import type { StoreState } from '../../store/types'
+import { balanceIssues, balanceSnapshot, nonfinitePaths } from './balance-metrics'
+
+enableMapSet()
+const arg = (key: string, fallback: string) => process.argv.find(a => a.startsWith(`--${key}=`))?.split('=')[1] || fallback
+const label = arg('label', 'baseline'), scale = arg('scale', 'small'), seeds = Number(arg('seeds', '30')), weeks = Number(arg('weeks', '520'))
+const finance = arg('finance', 'fixture')
+if (!['fixture', 'snapshot'].includes(finance) || finance === 'snapshot' && scale !== 'world') throw Error('Snapshot finances require world scale')
+if (!/^[a-z0-9-]+$/.test(label) || !['small', 'world'].includes(scale) || !Number.isInteger(seeds) || seeds < 1 || seeds > 100 || !Number.isInteger(weeks) || weeks < 1 || weeks > 520) throw Error('Invalid campaign options')
+const root = process.cwd(), folder = path.join(root, `tmp/l28-${label}-${scale}`)
+const hash = (value: string | Buffer) => crypto.createHash('sha256').update(value).digest('hex')
+const encode = (value: unknown) => JSON.stringify(value, (_key, v) => typeof v === 'number' && !Number.isFinite(v) ? `NONFINITE:${v}` : v)
+const checkpoint = (name: string, save: GameSave) => fs.writeFileSync(path.join(folder, `${name}.json.gz`), zlib.gzipSync(encode(save)))
+const snapshot = (state: GameSave) => buildSaveSnapshot(state as unknown as SaveSnapshotState)
+
+async function worldTemplate(): Promise<GameSave | null> {
+    if (scale === 'small') return null
+    const file = path.join(root, 'tmp/l28-world-template.json')
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'))
+    const loader = new SnapshotLoader(path.join(root, 'public/data/snapshot'))
+    const loaded = await loader.loadSnapshot()
+    if (!loaded.success) throw Error(loaded.error)
+    const save = loader.createCareerFromSnapshot('L28 isolated campaign', loader.getSnapshot()!.teams[0].id, 1)!
+    AIManager.initializeTeamData(save)
+    fs.writeFileSync(file, JSON.stringify(save))
+    return save
+}
+
+async function run(index: number, intensity: number, template: GameSave | null) {
+    const seed = 28001 + index, name = `${seed}-intensity-${intensity}`
+    let state = template ? structuredClone(template) : createLaunchFixture('first-week', seed)
+    if (finance === 'snapshot') state.playerTeamId = state.teams[[0, 30, 120][index % 3] % state.teams.length].id
+    const difficulty = (['story', 'normal', 'hard', 'impossible'] as const)[index % 4]
+    const tier = ['B_TIER', 'A_TIER', 'S_TIER'][index % 3]
+    const style = ['youth', 'mixed', 'veteran'][Math.floor(index / 3) % 3]
+    const settings = DIFFICULTY_SETTINGS[difficulty], team = state.teams.find(t => t.id === state.playerTeamId)!
+    state.saveId = `qa_l28_${scale}_${seed}`; state.lastRngSeed = seed
+    state.createdAt = '2025-01-01T00:00:00.000Z'; state.updatedAt = state.createdAt; state.lastPlayedAt = state.createdAt
+    if (finance === 'fixture') {
+        team.budget = settings.startingBudget * (index % 3 + 1)
+        team.difficultySettings = { incomeMultiplier: settings.incomeMultiplier, fansMultiplier: settings.fansMultiplier, tournamentPrizeMultiplier: settings.tournamentPrizeMultiplier }
+    }
+    if (!template) {
+        team.tier = tier; team.leagueTier = tier as typeof team.leagueTier
+        team.elo = [1100, 1500, 1900][index % 3]
+        for (const player of state.players.filter(p => team.rosterIds.includes(p.id))) {
+            player.age = style === 'youth' ? 18 : style === 'veteran' ? 33 : 25
+        }
+        // A real expiry horizon, unlike the legacy fixture's 5,000-week contracts.
+        state.contracts.forEach(c => { c.endWeek = 105 })
+    }
+    const startingCash = team.budget
+    const inputHash = hash(canonicalWeekState(state))
+    checkpoint(`${name}-initial`, state)
+    const initialPlayers = new Map(state.players.map(p => [p.id, { age: p.age, skill: p.skill }]))
+    const set = (fn: any) => { state = produce(state, fn) }
+    const transfers = createTransferContractSlice(set, () => state as unknown as StoreState)
+    let ticks = 0, matches = 0, yearMatches = 0, injuries = 0, signings = 0
+    const seasons: unknown[] = [], failures: unknown[] = [], shortages: unknown[] = [], deadSeasons: number[] = []
+    const initialIssues = balanceIssues(state)
+    if (initialIssues.length) failures.push({ week: state.currentWeek, phase: 'input', issues: initialIssues })
+    while (ticks < weeks && !state.gameOverReason && failures.length === 0) {
+        const before = snapshot(state)
+        try {
+            const result = await computeWeek(structuredClone(before), { playerTeamId: state.playerTeamId, trainingFocus: new Map([[state.playerTeamId, { focus: TrainingFocus.TACTICS, intensity }]]) }, state.lastRngSeed)
+            state = { ...result.save, lastRngSeed: result.rngState }
+            if (!result.result.success) throw Error(result.result.error)
+            ticks++; matches += result.result.matchesPlayed; yearMatches += result.result.matchesPlayed; injuries += result.result.injuriesOccurred
+            if (!state.gameOverReason) {
+                const managed = state.teams.find(t => t.id === state.playerTeamId)!
+                const held = academyHeldPlayerIds(state), owned = new Set(state.teams.flatMap(t => t.rosterIds))
+                const free = managed.rosterIds.length >= 5 ? [] : state.players.filter(p => !p.isRetired && !held.has(p.id) && !owned.has(p.id) && !state.contracts.some(c => c.playerId === p.id && c.endWeek > state.currentWeek))
+                    .map(p => ({ p, wage: recruitmentSalary(p, state.currentWeek) })).sort((a, b) => a.wage - b.wage || a.p.id.localeCompare(b.p.id))
+                for (const { p, wage } of free) {
+                    if (state.teams.find(t => t.id === managed.id)!.rosterIds.length >= 5) break
+                    if (transfers.transferPlayer(p.id, null, managed.id, 0, { salaryPerWeek: wage, startWeek: state.currentWeek, endWeek: state.currentWeek + 104, buyout: 0 }).success) signings++
+                }
+            }
+            const issues = balanceIssues(state)
+            if (state.currentWeek % 52 === 0 || ticks === weeks || state.gameOverReason) issues.push(...nonfinitePaths(state))
+            if (issues.length) { checkpoint(`${name}-before-failure`, before); checkpoint(`${name}-failure`, state); failures.push({ week: state.currentWeek, issues }) }
+            const short = state.teams.filter(t => t.rosterIds.length < 5)
+            if (short.length) shortages.push({ week: state.currentWeek, teams: short.map(t => t.id) })
+            if (ticks % 52 === 0 || state.gameOverReason || failures.length) {
+                if (ticks % 52 === 0 && !yearMatches) deadSeasons.push(ticks / 52)
+                const metrics = { ...balanceSnapshot(state), tick: ticks, matches: yearMatches,
+                    cohort: [...initialPlayers].map(([id, opening]) => { const p = state.players.find(p => p.id === id); return { id, opening, age: p?.age, skill: p?.skill, retired: p?.isRetired || false } }),
+                    completedTournaments: state.tournaments.filter(t => t.isCompleted).map(t => ({ id: t.id, winner: t.winnerId, prize: t.prizePool })),
+                    transfers: state.transferHistory?.filter(t => t.week > state.currentWeek - 52) || [],
+                }
+                seasons.push(metrics); checkpoint(`${name}-week-${state.currentWeek}`, snapshot(state)); yearMatches = 0
+            }
+        } catch (error) {
+            checkpoint(`${name}-before-failure`, before); checkpoint(`${name}-failure`, state)
+            failures.push({ week: state.currentWeek, error: String(error instanceof Error ? error.stack : error) })
+        }
+    }
+    checkpoint(`${name}-final`, snapshot(state))
+    const result = { seed, scale, difficulty: finance === 'snapshot' ? 'snapshot' : difficulty, finance, managedTeamId: team.id, tier: team.tier, rosterStyle: template ? 'snapshot' : style, intensity, startingCash, inputHash,
+        ticks, requestedWeeks: weeks, matches, injuries, signings, terminal: state.gameOverReason || null, terminalWeek: state.gameOverWeek,
+        failures, shortages, deadSeasons, seasons, final: balanceSnapshot(state), outputHash: hash(failures.length ? encode(snapshot(state)) : canonicalWeekState(snapshot(state))),
+        limitation: 'Real compute core plus human free-agent vacancy filling. Player matches use the missed-match autosimulation on the following tick. No live tactical actions, academy post-week coordinator, UI, durable storage or human playtest; terminal careers stop.' }
+    fs.writeFileSync(path.join(folder, `${name}-result.json`), JSON.stringify(result, null, 2))
+    console.log(JSON.stringify({ seed, scale, intensity, ticks, terminal: result.terminal, failures: failures.length, matches }))
+    return result
+}
+
+async function main() {
+    fs.mkdirSync(folder, { recursive: true })
+    const sourceFiles = ['scripts/launch/l28-balance-campaign.ts', 'scripts/launch/balance-metrics.ts', 'engine/processors/training-processor.ts', 'engine/economy-engine.ts', 'engine/ai-manager.ts', 'engine/player-lifecycle.ts', 'engine/pro-awards-engine.ts', 'package-lock.json']
+    const sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, hash(fs.readFileSync(path.join(root, file)))]))
+    const template = await worldTemplate(), results = []
+    for (let index = 0; index < seeds; index++) for (const intensity of [1, 5]) results.push(await run(index, intensity, template))
+    fs.writeFileSync(path.join(root, `docs/launch-readiness/evidence/L28-${label}-${scale}.json`), JSON.stringify({ label, scale, seeds, requestedWeeks: weeks, templateHash: template ? hash(JSON.stringify(template)) : null,
+        sourceHashes, results }, null, 2))
+}
+main().catch(error => { console.error(error); process.exitCode = 1 })

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "direct": [
+    {
+      "scenario": "small",
+      "beforeMs": 1.0317999999999188,
+      "afterMs": 1.1740499999999656,
+      "changePercent": 13.786586547786195,
+      "outputEqual": true
+    },
+    {
+      "scenario": "full-world",
+      "beforeMs": 144.5231,
+      "afterMs": 111.21619999999984,
+      "changePercent": -23.04607360345865,
+      "outputEqual": true
+    },
+    {
+      "scenario": "late-history",
+      "beforeMs": 1658.2973999999995,
+      "afterMs": 654.2037,
+      "changePercent": -60.54967583016169,
+      "outputEqual": true
+    },
+    {
+      "scenario": "late-active",
+      "beforeMs": 114.51074999999946,
+      "afterMs": 98.5885500000004,
+      "changePercent": -13.904546079734125,
+      "outputEqual": true
+    }
+  ],
+  "bundle": [
+    {
+      "scenario": "small",
+      "beforeMs": 0.9768999999999934,
+      "afterMs": 1.1005499999999913,
+      "changePercent": 12.65738560753389,
+      "outputEqual": true
+    },
+    {
+      "scenario": "full-world",
+      "beforeMs": 211.94565,
+      "afterMs": 195.85930000000008,
+      "changePercent": -7.589846736651551,
+      "outputEqual": true
+    },
+    {
+      "scenario": "late-history",
+      "beforeMs": 6048.4421999999995,
+      "afterMs": 2088.3321499999997,
+      "changePercent": -65.47322300608246,
+      "outputEqual": true
+    },
+    {
+      "scenario": "late-active",
+      "beforeMs": 231.28464999999778,
+      "afterMs": 208.74959999999737,
+      "changePercent": -9.743426552518997,
+      "outputEqual": true
+    }
+  ],
+  "baselineBuild": "2GX-oYzTzbaGEiXjb0G1r",
+  "candidateBuild": "cAVrB5l32x2qQWbl99c0j",
+  "limitation": "Local measurements only. Eight direct and six bundled samples per scenario; Node vm is not a real browser worker. No UI, storage-device or packaged acceptance."
+}

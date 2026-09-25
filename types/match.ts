@@ -29,6 +29,8 @@ export type MatchEventType = "KILL" | "PLANT" | "DEFUSE" | "ROUND_END" | "SAVE" 
  * Match model with complete simulation data
  */
 export interface Match {
+    engineVersion?: 'legacy-v2'
+    mapStartingSides?: Record<string, string>
     id: string
     homeTeamId: string
     awayTeamId: string
@@ -151,6 +153,9 @@ export interface RoundResult {
  * Overall match result
  */
 export interface MatchResult {
+    /** Match-time participants, so later transfers do not rewrite the report. */
+    lineups?: Record<string, string[]>
+    engineVersion?: 'legacy-v2' | 'spatial-round-v1'
     winnerId: string | null // ID of the winning team
     homeScore: number // Maps won by home team
     awayScore: number // Maps won by away team

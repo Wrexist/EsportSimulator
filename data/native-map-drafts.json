@@ -1,0 +1,74 @@
+[
+  {
+    "mapId": "Ancient",
+    "floor": "upper",
+    "project": "/map-studio/drafts/ancient-upper-native.json",
+    "audit": "/map-studio/reviews/native/Ancient/audit.json",
+    "spawns": 24,
+    "sitePieces": 3
+  },
+  {
+    "mapId": "Anubis",
+    "floor": "upper",
+    "project": "/map-studio/drafts/anubis-upper-native.json",
+    "audit": "/map-studio/reviews/native/Anubis/audit.json",
+    "spawns": 32,
+    "sitePieces": 2
+  },
+  {
+    "mapId": "Inferno",
+    "floor": "upper",
+    "project": "/map-studio/drafts/inferno-upper-native.json",
+    "audit": "/map-studio/reviews/native/Inferno/audit.json",
+    "spawns": 32,
+    "sitePieces": 5
+  },
+  {
+    "mapId": "Nuke",
+    "floor": "upper",
+    "project": "/map-studio/drafts/nuke-upper-native.json",
+    "audit": "/map-studio/reviews/native/Nuke/audit.json",
+    "spawns": 32,
+    "sitePieces": 1
+  },
+  {
+    "mapId": "Nuke",
+    "floor": "lower",
+    "project": "/map-studio/drafts/nuke-lower-native.json",
+    "audit": "/map-studio/reviews/native/Nuke/audit.json",
+    "spawns": 0,
+    "sitePieces": 6
+  },
+  {
+    "mapId": "Overpass",
+    "floor": "upper",
+    "project": "/map-studio/drafts/overpass-upper-native.json",
+    "audit": "/map-studio/reviews/native/Overpass/audit.json",
+    "spawns": 36,
+    "sitePieces": 2
+  },
+  {
+    "mapId": "Sandstone",
+    "floor": "upper",
+    "project": "/map-studio/drafts/sandstone-upper-native.json",
+    "audit": "/map-studio/reviews/native/Sandstone/audit.json",
+    "spawns": 30,
+    "sitePieces": 3
+  },
+  {
+    "mapId": "Vertigo",
+    "floor": "upper",
+    "project": "/map-studio/drafts/vertigo-upper-native.json",
+    "audit": "/map-studio/reviews/native/Vertigo/audit.json",
+    "spawns": 15,
+    "sitePieces": 2
+  },
+  {
+    "mapId": "Vertigo",
+    "floor": "lower",
+    "project": "/map-studio/drafts/vertigo-lower-native.json",
+    "audit": "/map-studio/reviews/native/Vertigo/audit.json",
+    "spawns": 15,
+    "sitePieces": 0
+  }
+]

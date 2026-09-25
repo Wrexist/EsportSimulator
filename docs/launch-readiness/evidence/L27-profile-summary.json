@@ -1,0 +1,161 @@
+[
+  {
+    "profile": "tmp\\l27-profile\\CPU.20260914.183057.312344.0.001.cpuprofile",
+    "top": [
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "calculateRoleFit",
+        "line": 2,
+        "selfMs": 4695.171000000002
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "evaluatePlayer",
+        "line": 2,
+        "selfMs": 2057.027999999998
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/ai/roster-management.ts",
+        "function": "signFreeAgent",
+        "line": 2,
+        "selfMs": 1878.9870000000003
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "calculateBaseSkill",
+        "line": 2,
+        "selfMs": 1753.398999999999
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "calculateMarketValue",
+        "line": 2,
+        "selfMs": 884.9039999999997
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/recruitment.ts",
+        "function": "recruitmentRole",
+        "line": 2,
+        "selfMs": 742.4730000000005
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/ai/roster-management.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 553.2169999999995
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/recruitment.ts",
+        "function": "recruitmentSalary",
+        "line": 2,
+        "selfMs": 547.2610000000002
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 485.0880000000001
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/worker/week-replay.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 483.3640000000002
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/ai/roster-management.ts",
+        "function": "manageRoster",
+        "line": 2,
+        "selfMs": 251.97299999999996
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/save-manager.ts",
+        "function": "commitSave",
+        "line": 2,
+        "selfMs": 181.84499999999997
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "calculateContextModifier",
+        "line": 2,
+        "selfMs": 170.728
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/save-integrity.ts",
+        "function": "serializeForIntegrity",
+        "line": 2,
+        "selfMs": 167.18099999999995
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/ai-manager.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 158.90700000000004
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/recruitment.ts",
+        "function": "get",
+        "line": 2,
+        "selfMs": 135.06100000000004
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/match/match-stats.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 118.62299999999998
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/processors/team-synergy-recalc.ts",
+        "function": "recalculateTeamSynergy",
+        "line": 2,
+        "selfMs": 118.02300000000001
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/worker/week-replay.ts",
+        "function": "canonicalWeekState",
+        "line": 2,
+        "selfMs": 114.751
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/match-simulation.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 102.56300000000003
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/player-evaluation.ts",
+        "function": "calculateProReputationScore",
+        "line": 2,
+        "selfMs": 97.49099999999999
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/processors/team-synergy-recalc.ts",
+        "function": "",
+        "line": 2,
+        "selfMs": 96.697
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/match/round-outcome.ts",
+        "function": "generateRoundStats",
+        "line": 2,
+        "selfMs": 96.67000000000002
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/engine/synergy-calculator.ts",
+        "function": "calculateTeamMatrix",
+        "line": 2,
+        "selfMs": 87.89099999999998
+      },
+      {
+        "file": "file:///C:/Users/IsacC/EsportSimulator/store/indexes.ts",
+        "function": "buildSaveIndexes",
+        "line": 2,
+        "selfMs": 80.90899999999999
+      }
+    ]
+  },
+  {
+    "profile": "tmp\\l27-profile\\CPU.20260914.183057.312344.1.002.cpuprofile",
+    "top": []
+  }
+]

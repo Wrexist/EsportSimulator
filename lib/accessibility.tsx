@@ -5,7 +5,8 @@
  * ARIA labels, keyboard navigation, and screen reader support
  */
 
-import { useEffect } from 'react'
+import { focusCycleTarget } from './focus-cycle'
+import { useEffect, useRef } from 'react'
 
 /**
  * Screen reader only text
@@ -25,7 +26,8 @@ export function SkipToContent() {
     return (
         <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded"
+            onClick={event => { const main = document.getElementById("main-content"); if (main) { event.preventDefault(); main.focus(); main.scrollTop = 0 } }}
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded"
         >
             Skip to main content
         </a>
@@ -57,40 +59,49 @@ export function useAnnounce() {
 /**
  * Focus trap for modals
  */
-export function useFocusTrap(enabled: boolean) {
+const modalScopes: HTMLElement[] = []
+export function useFocusTrap(enabled: boolean, onEscape?: () => void) {
+    const ref = useRef<HTMLDivElement>(null)
+    const escapeRef = useRef(onEscape)
+    escapeRef.current = onEscape
     useEffect(() => {
-        if (!enabled) return
-
-        const focusableElements = document.querySelectorAll(
-            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-        )
-
-        const firstElement = focusableElements[0] as HTMLElement
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
-
-        const handleTab = (e: KeyboardEvent) => {
-            if (e.key !== 'Tab') return
-
-            if (e.shiftKey) {
-                if (document.activeElement === firstElement) {
-                    e.preventDefault()
-                    lastElement?.focus()
-                }
-            } else {
-                if (document.activeElement === lastElement) {
-                    e.preventDefault()
-                    firstElement?.focus()
-                }
+        const root = ref.current
+        if (!enabled || !root) return
+        const previous = document.activeElement as HTMLElement | null
+        modalScopes.push(root)
+        const isTop = () => modalScopes.at(-1) === root
+        const candidates = () => Array.from(root.querySelectorAll<HTMLElement>(
+            'a[href],button,input,textarea,select,[tabindex]'
+        )).filter(element => element.tabIndex >= 0 && !element.matches(':disabled,[aria-disabled="true"]') && !element.closest('[hidden],[inert]') && element.getClientRects().length > 0)
+        const focus = (element: HTMLElement) => element.focus({ preventScroll: true })
+        const keydown = (event: KeyboardEvent) => {
+            if (!isTop()) return
+            if (event.key === 'Escape' && escapeRef.current) {
+                event.preventDefault(); event.stopPropagation(); escapeRef.current(); return
+            }
+            if (event.key !== 'Tab') return
+            const elements = candidates()
+            const index = elements.indexOf(document.activeElement as HTMLElement)
+            const target = focusCycleTarget(elements.length, index, event.shiftKey)
+            if (target !== null) { event.preventDefault(); focus(target < 0 ? root : elements[target]) }
+        }
+        const focusin = (event: FocusEvent) => { if (isTop() && !root.contains(event.target as Node)) focus(root) }
+        document.addEventListener('keydown', keydown, true)
+        document.addEventListener('focusin', focusin)
+        // Start on the summary, never on a potentially irreversible primary action.
+        focus(root)
+        return () => {
+            const wasTop = isTop()
+            modalScopes.splice(modalScopes.indexOf(root), 1)
+            document.removeEventListener('keydown', keydown, true)
+            document.removeEventListener('focusin', focusin)
+            if (wasTop) {
+                const target = previous?.isConnected ? previous : modalScopes.at(-1) || document.getElementById('main-content')
+                if (target) focus(target)
             }
         }
-
-        document.addEventListener('keydown', handleTab)
-        firstElement?.focus()
-
-        return () => {
-            document.removeEventListener('keydown', handleTab)
-        }
     }, [enabled])
+    return ref
 }
 
 /**

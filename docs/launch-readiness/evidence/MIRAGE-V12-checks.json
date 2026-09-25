@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-13",
+  "scope": "Mirage v12 audit and separate reference-route review",
+  "release": "held",
+  "buildId": "TOHLRVL-wzKGt4qeOGrk6",
+  "spatialWorker": "2063.54ca90839e2b8698.js",
+  "sourceSha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+  "externalBackupVerified": true,
+  "earlierOwnerUploadUnchanged": true,
+  "targetedTests": {
+    "passed": 90,
+    "suites": 5,
+    "fullSuiteRerun": false
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed with existing lint warnings",
+  "nativeRoutes": 10,
+  "nativeQueries": 20,
+  "crossRuntimeMotionEquality": "exact; excludes only display heading",
+  "crossRuntimeWholeReplayMatch": false,
+  "browser": {
+    "verified": [
+      "built-in 179-mark import with backup/undo acknowledgment",
+      "10 route guides listed",
+      "20 errors / 87 notes displayed",
+      "named issue focuses blue 146 and closes validation",
+      "blue 146 visually inspected"
+    ],
+    "finalReconnect": "Debugger unattached; final reload/overview recheck not completed"
+  },
+  "acceptance": "L09/L10 remain partial; packaged Windows, real Steam App ID and content clearance remain open",
+  "sha256": {
+    "engine/spatial/annotations.ts": "c2065c503d736990df85242adf667d7de5caab942ca171e27921141a5c94dcf2",
+    "components/maps/MapAnnotationEditor.tsx": "02f3a127b05a53d57dda2ce6cad736744252add50e63253a27bee5e51c91387c",
+    "components/maps/MapValidationPanel.tsx": "aea6c8ef9d9d3cec86225305b4fa37136c16c21dddcf8effa6c13c442b783469",
+    "scripts/launch/review-mirage-v12.ts": "5fb03d15490bf01d4bc2dbefc2b910489e5a69c2fc8c2d243cac678d3559f81f",
+    "scripts/launch/mirage-v12-browser.ts": "a98e4c476cce9a559a4c078ae21921b6b2380370c4799f4ca0d0b9f8ce11f764",
+    "scripts/launch/build-spatial-review-probe.cjs": "4b8af676a00022a270511b3302f089b6830bf2349c2d0ccdf1905f837a6c95dc",
+    "__tests__/mirage-v12-review.test.ts": "752554fd8cd498cac76958e65e63de1eff9ce78a8043a6548ee75a5a3450efb8",
+    "public/map-studio/drafts/mirage-user-v12-2026-09-13.json": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+    "public/map-studio/drafts/mirage-v12-with-reference-routes.json": "3f71f77c982365575bce8770c6e8056f2851808da5623fd556a028b4ed0c0847",
+    "public/map-studio/reviews/mirage-v12/a-to-b.lab.json": "5b45ad9f1d22e91002c5b78916c8f37eced8f7a605e5735cca53ddaaef65a3d8",
+    "public/map-studio/reviews/mirage-v12/a-to-ct.lab.json": "da5d860e07fb05b5e90c66a98f4044472847f5a32e8e1bfc0373b550c59d9865",
+    "public/map-studio/reviews/mirage-v12/a-to-t.lab.json": "f1316f15e35296e6ecbc970a9949c6844a754ac896be213476d1951e4f0f4225",
+    "public/map-studio/reviews/mirage-v12/audit.json": "df7c1ed63f4d147b6ff6e89c9880693556d3bc4e5afe866b326fb3ea639c5ff4",
+    "public/map-studio/reviews/mirage-v12/b-to-a.lab.json": "148bfb4c2ec2ff17bc60c04424f5018a32a65628e1bf0d1dbc8f08d9f46d41ec",
+    "public/map-studio/reviews/mirage-v12/b-to-ct.lab.json": "67989a73a2ef7aa275b8d9bacb191bd70663cd1bf0159c4ddce332304768c927",
+    "public/map-studio/reviews/mirage-v12/b-to-t.lab.json": "b2e84b4f9988734e3f3809c48e4930fe4af003b5177749768a3a2e28fe0ed2c3",
+    "public/map-studio/reviews/mirage-v12/ct-to-a.lab.json": "b7af129f8081307e9b52f3c987eb0308f9a3063dbf15cf935a31016c6128bcd2",
+    "public/map-studio/reviews/mirage-v12/ct-to-b.lab.json": "a3399bdc5413f1b580279a668e19572ee0dcc2cd4fca463e4d7431403471ee35",
+    "public/map-studio/reviews/mirage-v12/routes.json": "3d485469b3520e975513d229554281ceaf941c84edb11392895111505db5c231",
+    "public/map-studio/reviews/mirage-v12/t-to-a.lab.json": "d5917d30c3dd1d805992769af0b16b95579506270218db29f65b98e28ded7b50",
+    "public/map-studio/reviews/mirage-v12/t-to-b.lab.json": "132b2b217e9e88cd9c87d1f6b9b2d48ba5d3115203d925cbbb332df88dba3d4a"
+  }
+}

@@ -1,5 +1,6 @@
 "use client"
 
+import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import React, { useMemo, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useGameStore } from "@/store/game-store"
@@ -37,7 +38,7 @@ import {
     ChevronRight,
     ChevronDown
 } from "lucide-react"
-import { PlayerImage } from "@/components/ui/asset-images"
+import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import {
     GlassTable,
@@ -245,11 +246,11 @@ export default function StatsPage() {
 
     return (
         <ErrorBoundary section="Statistics">
-        <div className="p-8 space-y-8 max-w-7xl mx-auto pb-20">
+        <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2">Team Stats</h1>
+                    <h1 className="page-title mb-2">Team Stats</h1>
                     <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Analytics, results, trophies, and rivalries</p>
                 </div>
 
@@ -406,13 +407,8 @@ export default function StatsPage() {
                                             <GlassTableCell>
                                                 <div className="flex items-center gap-4">
                                                     <div className="relative">
-                                                        <PlayerImage
-                                                            playerName={player.nickname}
-                                                            teamName={playerTeam?.name || "Team"}
-                                                            country={player.nationality}
-                                                            size={40}
-                                                            className="border-2 border-white/10"
-                                                        />
+                                                        <PlayerPortrait src={player.portraitPath} seed={player.id}
+                                                            alt={player.nickname} size={40} className="border-2 border-white/10" />
                                                         <div className="absolute -bottom-1 -right-1 shadow-md">
                                                             <CountryFlag country={player.nationality} size={16} />
                                                         </div>
@@ -799,17 +795,7 @@ export default function StatsPage() {
                                         className="glass-panel p-4 flex items-center gap-4"
                                     >
                                         <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-                                            {(rivalry.opponentTeam as any)?.logoPath ? (
-                                                <Image
-                                                    src={(rivalry.opponentTeam as any).logoPath}
-                                                    alt={rivalry.opponentTeam?.name || ""}
-                                                    width={40}
-                                                    height={40}
-                                                    className="object-contain"
-                                                />
-                                            ) : (
-                                                <Swords size={20} className="text-white/30" />
-                                            )}
+                                            <TeamLogoDisplay team={rivalry.opponentTeam} size={40} />
                                         </div>
 
                                         <div className="flex-1 min-w-0">

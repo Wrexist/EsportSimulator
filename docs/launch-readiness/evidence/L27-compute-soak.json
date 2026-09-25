@@ -1,0 +1,530 @@
+{
+  "version": 1,
+  "weeks": 52,
+  "forcedGc": true,
+  "inputHash": "370b05bcfcea2d9fa9eb453aa6776b115426c461291e6bfb52ca53c7721578ea",
+  "outputHash": "db54a766d3d0ac09e6a87353a9175d4a83e2ac3aa30c53ba14de9ba1ccf3dfb9",
+  "rows": [
+    {
+      "week": 2,
+      "ms": 208.33820000000003,
+      "matches": 98,
+      "heapBytes": 30316472,
+      "players": 1403,
+      "events": 2,
+      "completedMatches": 98,
+      "ledger": 39
+    },
+    {
+      "week": 3,
+      "ms": 41.06960000000004,
+      "matches": 1,
+      "heapBytes": 30520400,
+      "players": 1414,
+      "events": 3,
+      "completedMatches": 99,
+      "ledger": 105
+    },
+    {
+      "week": 4,
+      "ms": 62.87239999999997,
+      "matches": 8,
+      "heapBytes": 30831280,
+      "players": 1418,
+      "events": 5,
+      "completedMatches": 107,
+      "ledger": 196
+    },
+    {
+      "week": 5,
+      "ms": 61.58860000000004,
+      "matches": 8,
+      "heapBytes": 31167024,
+      "players": 1423,
+      "events": 9,
+      "completedMatches": 115,
+      "ledger": 321
+    },
+    {
+      "week": 6,
+      "ms": 127.03340000000003,
+      "matches": 34,
+      "heapBytes": 31519272,
+      "players": 1431,
+      "events": 9,
+      "completedMatches": 149,
+      "ledger": 471
+    },
+    {
+      "week": 7,
+      "ms": 99.3764000000001,
+      "matches": 30,
+      "heapBytes": 31769672,
+      "players": 1442,
+      "events": 11,
+      "completedMatches": 179,
+      "ledger": 645
+    },
+    {
+      "week": 8,
+      "ms": 97.9523999999999,
+      "matches": 32,
+      "heapBytes": 32211176,
+      "players": 1458,
+      "events": 13,
+      "completedMatches": 211,
+      "ledger": 853
+    },
+    {
+      "week": 9,
+      "ms": 98.58069999999998,
+      "matches": 37,
+      "heapBytes": 32443912,
+      "players": 1465,
+      "events": 86,
+      "completedMatches": 248,
+      "ledger": 1089
+    },
+    {
+      "week": 10,
+      "ms": 90.74980000000005,
+      "matches": 32,
+      "heapBytes": 33040032,
+      "players": 1478,
+      "events": 159,
+      "completedMatches": 280,
+      "ledger": 1348
+    },
+    {
+      "week": 11,
+      "ms": 117.2781,
+      "matches": 48,
+      "heapBytes": 33619624,
+      "players": 1484,
+      "events": 195,
+      "completedMatches": 328,
+      "ledger": 1602
+    },
+    {
+      "week": 12,
+      "ms": 106.32349999999997,
+      "matches": 49,
+      "heapBytes": 33974864,
+      "players": 1498,
+      "events": 222,
+      "completedMatches": 377,
+      "ledger": 1855
+    },
+    {
+      "week": 13,
+      "ms": 121.7978999999998,
+      "matches": 48,
+      "heapBytes": 34491176,
+      "players": 1509,
+      "events": 267,
+      "completedMatches": 425,
+      "ledger": 2000
+    },
+    {
+      "week": 14,
+      "ms": 111.49079999999981,
+      "matches": 40,
+      "heapBytes": 34737696,
+      "players": 1519,
+      "events": 290,
+      "completedMatches": 465,
+      "ledger": 2000
+    },
+    {
+      "week": 15,
+      "ms": 119.58480000000009,
+      "matches": 44,
+      "heapBytes": 34864320,
+      "players": 1526,
+      "events": 319,
+      "completedMatches": 509,
+      "ledger": 2000
+    },
+    {
+      "week": 16,
+      "ms": 107.08889999999974,
+      "matches": 46,
+      "heapBytes": 35150728,
+      "players": 1531,
+      "events": 358,
+      "completedMatches": 555,
+      "ledger": 2000
+    },
+    {
+      "week": 17,
+      "ms": 117.18299999999999,
+      "matches": 42,
+      "heapBytes": 35182224,
+      "players": 1538,
+      "events": 369,
+      "completedMatches": 597,
+      "ledger": 2000
+    },
+    {
+      "week": 18,
+      "ms": 135.9984999999997,
+      "matches": 43,
+      "heapBytes": 35242952,
+      "players": 1541,
+      "events": 410,
+      "completedMatches": 640,
+      "ledger": 2000
+    },
+    {
+      "week": 19,
+      "ms": 87.71839999999975,
+      "matches": 28,
+      "heapBytes": 35396624,
+      "players": 1545,
+      "events": 431,
+      "completedMatches": 668,
+      "ledger": 2000
+    },
+    {
+      "week": 20,
+      "ms": 116.43139999999994,
+      "matches": 36,
+      "heapBytes": 35666120,
+      "players": 1551,
+      "events": 455,
+      "completedMatches": 704,
+      "ledger": 2000
+    },
+    {
+      "week": 21,
+      "ms": 103.87940000000026,
+      "matches": 34,
+      "heapBytes": 35827376,
+      "players": 1555,
+      "events": 494,
+      "completedMatches": 738,
+      "ledger": 2000
+    },
+    {
+      "week": 22,
+      "ms": 100.63009999999986,
+      "matches": 38,
+      "heapBytes": 35936480,
+      "players": 1559,
+      "events": 500,
+      "completedMatches": 776,
+      "ledger": 2000
+    },
+    {
+      "week": 23,
+      "ms": 90.97260000000006,
+      "matches": 26,
+      "heapBytes": 36219360,
+      "players": 1561,
+      "events": 500,
+      "completedMatches": 802,
+      "ledger": 2000
+    },
+    {
+      "week": 24,
+      "ms": 100.9074999999998,
+      "matches": 32,
+      "heapBytes": 36221120,
+      "players": 1566,
+      "events": 500,
+      "completedMatches": 834,
+      "ledger": 2000
+    },
+    {
+      "week": 25,
+      "ms": 102.72719999999981,
+      "matches": 26,
+      "heapBytes": 36522792,
+      "players": 1569,
+      "events": 500,
+      "completedMatches": 860,
+      "ledger": 2000
+    },
+    {
+      "week": 26,
+      "ms": 168.38799999999992,
+      "matches": 45,
+      "heapBytes": 36571096,
+      "players": 1576,
+      "events": 500,
+      "completedMatches": 905,
+      "ledger": 2000
+    },
+    {
+      "week": 27,
+      "ms": 148.43870000000015,
+      "matches": 42,
+      "heapBytes": 37009120,
+      "players": 1584,
+      "events": 500,
+      "completedMatches": 947,
+      "ledger": 2000
+    },
+    {
+      "week": 28,
+      "ms": 129.7123999999999,
+      "matches": 30,
+      "heapBytes": 37164760,
+      "players": 1588,
+      "events": 500,
+      "completedMatches": 977,
+      "ledger": 2000
+    },
+    {
+      "week": 29,
+      "ms": 139.54870000000028,
+      "matches": 34,
+      "heapBytes": 37181072,
+      "players": 1591,
+      "events": 500,
+      "completedMatches": 1011,
+      "ledger": 2000
+    },
+    {
+      "week": 30,
+      "ms": 138.5920000000001,
+      "matches": 28,
+      "heapBytes": 37439704,
+      "players": 1594,
+      "events": 500,
+      "completedMatches": 1039,
+      "ledger": 2000
+    },
+    {
+      "week": 31,
+      "ms": 116.73039999999992,
+      "matches": 26,
+      "heapBytes": 37549896,
+      "players": 1601,
+      "events": 500,
+      "completedMatches": 1065,
+      "ledger": 2000
+    },
+    {
+      "week": 32,
+      "ms": 121.84630000000016,
+      "matches": 29,
+      "heapBytes": 38086632,
+      "players": 1606,
+      "events": 500,
+      "completedMatches": 1094,
+      "ledger": 2000
+    },
+    {
+      "week": 33,
+      "ms": 127.97190000000046,
+      "matches": 30,
+      "heapBytes": 38370328,
+      "players": 1614,
+      "events": 500,
+      "completedMatches": 1124,
+      "ledger": 2000
+    },
+    {
+      "week": 34,
+      "ms": 146.40239999999994,
+      "matches": 62,
+      "heapBytes": 38456512,
+      "players": 1618,
+      "events": 500,
+      "completedMatches": 1186,
+      "ledger": 2000
+    },
+    {
+      "week": 35,
+      "ms": 168.88600000000042,
+      "matches": 66,
+      "heapBytes": 38603632,
+      "players": 1619,
+      "events": 500,
+      "completedMatches": 1252,
+      "ledger": 2000
+    },
+    {
+      "week": 36,
+      "ms": 177.39180000000033,
+      "matches": 60,
+      "heapBytes": 38872392,
+      "players": 1621,
+      "events": 500,
+      "completedMatches": 1312,
+      "ledger": 2000
+    },
+    {
+      "week": 37,
+      "ms": 179.2511999999997,
+      "matches": 53,
+      "heapBytes": 38991672,
+      "players": 1623,
+      "events": 500,
+      "completedMatches": 1365,
+      "ledger": 2000
+    },
+    {
+      "week": 38,
+      "ms": 195.1297999999997,
+      "matches": 55,
+      "heapBytes": 39236040,
+      "players": 1628,
+      "events": 500,
+      "completedMatches": 1420,
+      "ledger": 2000
+    },
+    {
+      "week": 39,
+      "ms": 138.10759999999937,
+      "matches": 37,
+      "heapBytes": 39544512,
+      "players": 1629,
+      "events": 500,
+      "completedMatches": 1457,
+      "ledger": 2000
+    },
+    {
+      "week": 40,
+      "ms": 124.48700000000008,
+      "matches": 38,
+      "heapBytes": 39727144,
+      "players": 1632,
+      "events": 500,
+      "completedMatches": 1495,
+      "ledger": 2000
+    },
+    {
+      "week": 41,
+      "ms": 139.2510000000002,
+      "matches": 45,
+      "heapBytes": 39694432,
+      "players": 1640,
+      "events": 500,
+      "completedMatches": 1540,
+      "ledger": 2000
+    },
+    {
+      "week": 42,
+      "ms": 120.42029999999977,
+      "matches": 37,
+      "heapBytes": 39799816,
+      "players": 1643,
+      "events": 500,
+      "completedMatches": 1577,
+      "ledger": 2000
+    },
+    {
+      "week": 43,
+      "ms": 98.8753999999999,
+      "matches": 14,
+      "heapBytes": 39725664,
+      "players": 1643,
+      "events": 500,
+      "completedMatches": 1591,
+      "ledger": 2000
+    },
+    {
+      "week": 44,
+      "ms": 97.89440000000013,
+      "matches": 14,
+      "heapBytes": 39788928,
+      "players": 1647,
+      "events": 500,
+      "completedMatches": 1605,
+      "ledger": 2000
+    },
+    {
+      "week": 45,
+      "ms": 86.63700000000063,
+      "matches": 10,
+      "heapBytes": 39900576,
+      "players": 1649,
+      "events": 500,
+      "completedMatches": 1615,
+      "ledger": 2000
+    },
+    {
+      "week": 46,
+      "ms": 69.65030000000024,
+      "matches": 4,
+      "heapBytes": 39925280,
+      "players": 1652,
+      "events": 500,
+      "completedMatches": 1619,
+      "ledger": 2000
+    },
+    {
+      "week": 47,
+      "ms": 86.78720000000067,
+      "matches": 6,
+      "heapBytes": 39962576,
+      "players": 1657,
+      "events": 500,
+      "completedMatches": 1625,
+      "ledger": 2000
+    },
+    {
+      "week": 48,
+      "ms": 65.96410000000014,
+      "matches": 2,
+      "heapBytes": 40080952,
+      "players": 1658,
+      "events": 500,
+      "completedMatches": 1627,
+      "ledger": 2000
+    },
+    {
+      "week": 49,
+      "ms": 88.98509999999987,
+      "matches": 9,
+      "heapBytes": 40043568,
+      "players": 1660,
+      "events": 500,
+      "completedMatches": 1636,
+      "ledger": 2000
+    },
+    {
+      "week": 50,
+      "ms": 77.73599999999988,
+      "matches": 4,
+      "heapBytes": 40242880,
+      "players": 1660,
+      "events": 500,
+      "completedMatches": 1640,
+      "ledger": 2000
+    },
+    {
+      "week": 51,
+      "ms": 65.01820000000043,
+      "matches": 2,
+      "heapBytes": 40260160,
+      "players": 1662,
+      "events": 500,
+      "completedMatches": 1642,
+      "ledger": 2000
+    },
+    {
+      "week": 52,
+      "ms": 71.08950000000004,
+      "matches": 1,
+      "heapBytes": 40307544,
+      "players": 1662,
+      "events": 500,
+      "completedMatches": 1643,
+      "ledger": 2000
+    },
+    {
+      "week": 53,
+      "ms": 125.03250000000025,
+      "matches": 2,
+      "heapBytes": 40396368,
+      "players": 1665,
+      "events": 500,
+      "completedMatches": 1645,
+      "ledger": 2000
+    }
+  ],
+  "limitation": "Direct computeWeek soak on isolated full-world fixture. Excludes application post-week coordination, actual worker transport, browser/native memory, rendering and durable storage. Does not establish a 60-minute UI soak or long-career balance."
+}

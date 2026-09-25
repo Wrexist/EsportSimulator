@@ -1,3 +1,4 @@
+import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 /**
  * FPL Engine
  * Simulates the Faceit Pro League individual player ranking system
@@ -496,7 +497,7 @@ function simulateFPLMatch(
     const mvpStats = allPlayerStats.find(s => s.playerId === mvpId)
     if (mvpStats) mvpStats.mvp = true
 
-    const maps = ["Mirage", "Inferno", "Sandstone", "Ancient", "Nuke", "Anubis", "Vertigo"]
+    const maps = ACTIVE_MAP_POOL
 
     return {
         // Deterministic ID — this record is persisted in fplData.matchHistory,

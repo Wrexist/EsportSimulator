@@ -1,5 +1,6 @@
 "use client"
 
+import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -558,7 +559,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                             match.team1?.id === playerTeamId && "border-primary/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                                         )}>
                                                             {match.team1?.logo ? (
-                                                                <Image src={match.team1.logo} alt="" width={20} height={20} className="w-5 h-5 object-contain drop-shadow-md" unoptimized />
+                                                                <TeamLogoImage src={match.team1.logo} alt={match.team1.name} size={20} />
                                                             ) : (
                                                                 <span className="text-xs font-bold text-white/20">{match.team1?.name === "TBD" ? "?" : match.team1?.name[0]}</span>
                                                             )}
@@ -612,7 +613,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                             match.team2?.id === playerTeamId && "border-primary/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                                         )}>
                                                             {match.team2?.logo ? (
-                                                                <Image src={match.team2.logo} alt="" width={20} height={20} className="w-5 h-5 object-contain drop-shadow-md" unoptimized />
+                                                                <TeamLogoImage src={match.team2.logo} alt={match.team2.name} size={20} />
                                                             ) : (
                                                                 <span className="text-xs font-bold text-white/20">{match.team2?.name === "TBD" ? "?" : match.team2?.name[0]}</span>
                                                             )}

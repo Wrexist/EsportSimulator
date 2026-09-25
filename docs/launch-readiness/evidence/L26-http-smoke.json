@@ -1,0 +1,37 @@
+{
+  "build": "2GX-oYzTzbaGEiXjb0G1r",
+  "pid": 491460,
+  "cases": [
+    {
+      "route": "/main-menu",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/finances",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/map-editor",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/map-editor/lab",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "route": "/dev/radar-preview",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    }
+  ],
+  "limitation": "Route availability only; not UI, audio or packaged acceptance"
+}

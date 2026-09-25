@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect, useMemo } from "react"
-import { format } from "date-fns"
+import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { spinTransition } from "@/lib/motion"
@@ -63,7 +63,7 @@ export function TopBar() {
         const weekStart = getDateForWeek(currentWeek)
         const date = new Date(weekStart)
         const dayOffset = timeMode === "HYBRID_DAILY" ? currentDay : 0
-        date.setDate(date.getDate() + dayOffset)
+        date.setUTCDate(date.getUTCDate() + dayOffset)
         return date
     }, [getDateForWeek, currentWeek, currentDay, timeMode])
     const playerTeam = useCurrentTeam()
@@ -92,10 +92,10 @@ export function TopBar() {
     }, [])
 
     return (
-        <header className="h-16 border-b border-white/[0.06] liquid-chrome px-6 flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl">
-            <div className="flex items-center gap-8">
+        <header className="game-topbar min-h-16 shrink-0 px-3 py-2 xl:px-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sticky top-0 z-40">
+            <div className="flex min-w-0 items-center gap-3 xl:gap-5">
                 {/* Team Identity */}
-                <div className="flex items-center gap-3 min-w-[170px]">
+                <div className="flex items-center gap-3 topbar-club min-w-[150px]">
                     {/* Team Logo */}
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
                         {isMounted ? (
@@ -106,7 +106,7 @@ export function TopBar() {
                     </div>
 
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold whitespace-nowrap leading-none mb-1">Current Team</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold whitespace-nowrap leading-none mb-1">Your club</span>
                         <div className="flex items-center gap-1.5">
                             {/* Region Flag */}
                             {isMounted ? (
@@ -117,7 +117,7 @@ export function TopBar() {
                             ) : (
                                 <div className="w-[14px] h-[11px] bg-white/10 rounded-sm animate-pulse" />
                             )}
-                            <span className="text-sm font-semibold text-white truncate max-w-[180px]" title={playerTeam?.name}>
+                            <span className="topbar-club-name text-sm font-semibold text-white truncate max-w-[180px]" title={playerTeam?.name}>
                                 {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
                             </span>
                         </div>
@@ -132,18 +132,18 @@ export function TopBar() {
                     {isMounted ? (
                         <AnimatedNumber
                             value={budget}
-                            format={(n) => `$${Math.round(n).toLocaleString()}`}
+                            format={(n) => `$${Math.round(n).toLocaleString("en-US")}`}
                             className="text-sm font-medium text-emerald-400"
                         />
                     ) : (
                         <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
-                            ${budget.toLocaleString()}
+                            ${budget.toLocaleString("en-US")}
                         </span>
                     )}
                 </div>
 
                 {/* World Ranking */}
-                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
+                <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
                     <div className="p-1 rounded-md bg-cyan-400/[0.14] text-cyan-300">
                         <Trophy size={14} />
                     </div>
@@ -157,18 +157,18 @@ export function TopBar() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex max-w-full flex-wrap items-center gap-2 xl:gap-3">
                 {/* Date / Time */}
-                <div className="flex items-center gap-3 text-right">
+                <div className="flex items-center gap-2 text-right">
                     <div className="flex flex-col">
-                        <span suppressHydrationWarning className="text-sm font-bold text-white uppercase tracking-tight whitespace-nowrap">
-                            {format(currentDate, "EEE, dd MMM yyyy")}
+                        <span suppressHydrationWarning className="topbar-date text-sm font-medium text-white tracking-tight whitespace-nowrap">
+                            {formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
                         </span>
                         <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
                             WEEK {currentWeek} {timeMode === "HYBRID_DAILY" ? `• DAY ${currentDay + 1}` : ""}
                         </span>
                     </div>
-                    <div className="p-2 rounded-lg liquid-button text-white/60">
+                    <div className="hidden 2xl:block p-2 rounded-lg liquid-button text-white/60">
                         <Clock size={16} />
                     </div>
                 </div>
@@ -202,9 +202,9 @@ export function TopBar() {
                                 variant="play"
                                 onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
                                 disabled={isLoading}
-                                className="h-10 px-6"
+                                className="h-10 px-3 xl:px-6 shrink-0"
                             >
-                                <span className="tracking-wide">PLAY MATCH</span>
+                                <span className="tracking-wide">Play match</span>
                                 <Swords size={16} />
                             </Button>
                         )
@@ -231,7 +231,7 @@ export function TopBar() {
                                         </motion.div>
                                     ) : (
                                         <div className="flex items-center gap-2">
-                                            <span className="tracking-wide">NEXT DAY</span>
+                                            <span className="tracking-wide">Next day</span>
                                             <Play size={16} fill="currentColor" />
                                         </div>
                                     )}
@@ -256,7 +256,7 @@ export function TopBar() {
                                 advanceWeek()
                             }}
                             disabled={isLoading}
-                            className="h-10 px-6"
+                            className="h-10 px-3 xl:px-6 shrink-0"
                         >
                             {isLoading ? (
                                 <motion.div

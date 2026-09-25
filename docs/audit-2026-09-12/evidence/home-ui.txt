@@ -1,0 +1,148 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 text ORGANIZATION DASHBOARD
+			144 heading MANAGER DASHBOARD, Value: 1
+				145 text MANAGER  DASHBOARD
+			146 container
+				147 container Pulsar logo
+				148 heading PULSAR, Value: 3
+					149 text PULSAR
+				150 text WEEK  1  • DAY 3 $500K
+				151 container Average roster skill
+					152 text OVR  44
+			153 container
+				154 text UPCOMING MATCH
+				155 text NEXT GAME
+				156 container Pulsar logo
+				157 text PULSAR
+				158 container
+					159 text VS
+				160 text BO1
+				161 container Sable logo
+				162 text SABLE
+				163 container
+					164 text MATCH STARTS WEEK  1  • DAY 5
+				165 text ADVANCE 2 DAYS TO PLAY
+			166 container
+				167 text SEASON PROGRESS 2 % WEEK  1  / 52
+			168 container
+				169 text RECENT FORM W ?
+			170 container
+				171 text FINANCIAL HUB STABLE AVAILABLE FUNDS $0.50M WEEKLY INCOME +$ 22.9 k WEEKLY NET + $ 20.6 k SALARIES -$ 1.3 k FACILITIES -$ 1.0 k
+				172 link Description: VIEW LEDGER, Value: 127.0.0.1:3210/finances
+			173 container
+				174 text GETTING STARTED 1 / 4
+				175 button Dismiss getting started
+				176 link Description: Set this week's focus, Value: 127.0.0.1:3210/
+				177 link Description: Review your roster, Value: 127.0.0.1:3210/squad
+				178 link Description: Scout the transfer market, Value: 127.0.0.1:3210/transfers
+				179 link Description: Play your first match, Value: 127.0.0.1:3210/schedule
+			180 container
+				181 text THIS WEEK 2  to do
+				182 link Description: 3 training sessions unused Run drills to develop your roster, Value: 127.0.0.1:3210/training
+				183 text Set this week's focus Choose a weekly activity below
+			184 text WEEKLY FOCUS
+			185 container
+				186 button Stream Marathon +$2,500/p Players stream ranked games. Earns cash but fatigues players. -5 Morale +15 Fatigue
+					187 text Stream Marathon
+					188 text +$
+					189 text 2,500
+					190 text /p
+					191 text Players stream ranked games. Earns cash but fatigues players.
+					192 text -5
+					193 text  Morale
+					194 text +
+					195 text 15
+					196 text  Fatigue
+				197 button Team Bonding -$1,500 Dinner and fun activities to boost morale and synergy. +15 Morale -5 Fatigue
+					198 text Team Bonding
+					199 text -$
+					200 text 1,500
+					201 text Dinner and fun activities to boost morale and synergy.
+					202 text +
+					203 text 15
+					204 text  Morale
+					205 text -5
+					206 text  Fatigue
+				207 button Media Campaign -$5,000 Interviews and content creation to grow the brand. +5 Fatigue
+					208 text Media Campaign
+					209 text -$
+					210 text 5,000
+					211 text Interviews and content creation to grow the brand.
+					212 text +
+					213 text 5
+					214 text  Fatigue
+				215 button Intensive Bootcamp -$10,000 Hardcore training regime. Massive XP, massive fatigue. -10 Morale +25 Fatigue 2x XP
+					216 text Intensive Bootcamp
+					217 text -$
+					218 text 10,000
+					219 text Hardcore training regime. Massive XP, massive fatigue.
+					220 text -10
+					221 text  Morale
+					222 text +
+					223 text 25
+					224 text  Fatigue
+					225 text 2
+					226 text x XP
+			227 container
+				228 text SEASON OBJECTIVES 1 / 4 BOARD EXPECTS Build the project The board expects you to keep the club competitive and developing. War chest limited: the board sanctions single transfer fees up to  80 % of budget. CONFIDENCE
+				229 button Show stat explanation
+				230 text 60 Win a trophy this season None yet Break into the top 16 World #154 Reach 10k fans 0 fans Keep the club financially healthy —
+			231 heading INTELLIGENCE FEED, Value: 3
+				232 text INTELLIGENCE FEED
+			233 text LIVE
+			234 container
+				235 container Pulsar logo
+				236 text MATCH SEP 12
+				237 heading Pulsar defeat Iron Warden 1-0, Value: 4
+					238 text Pulsar defeat Iron Warden 1-0
+				239 text PULSAR
+				240 text Pulsar secured a 1-0 victory against Iron Warden.
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 8 link Description: Home, URL: 127.0.0.1:3210/

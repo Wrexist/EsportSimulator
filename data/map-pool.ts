@@ -2,12 +2,12 @@ import { MapId } from "@/types/enums"
 
 /**
  * Active competitive map pool.
+ * Nuke remains supported for saved matches and Map Studio, but is retired from new play.
  * Edit this array to add/remove maps without touching engine code.
  */
 export const ACTIVE_MAP_POOL: MapId[] = [
     MapId.MIRAGE,
     MapId.INFERNO,
-    MapId.NUKE,
     MapId.OVERPASS,
     MapId.VERTIGO,
     MapId.ANCIENT,
@@ -20,7 +20,7 @@ export const ACTIVE_MAP_POOL: MapId[] = [
  * in saves from older versions.
  */
 export const MAP_NAMES: Record<string, string> = {
-    [MapId.SANDSTONE]: "Dust II",
+    [MapId.SANDSTONE]: "Sandstone",
     [MapId.MIRAGE]: "Mirage",
     [MapId.INFERNO]: "Inferno",
     [MapId.NUKE]: "Nuke",

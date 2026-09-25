@@ -1,23 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { getPlayerImageUrl, getFlagUrl, PLACEHOLDERS } from "@/lib/asset-utils";
 import { cn } from "@/lib/utils";
+import { findTeamIdentity } from "@/lib/team-identity"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
 import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";
-import { pickPooledPortrait } from "@/lib/safe-branding/portrait-pool";
-
-/**
- * A "photo-less" source is one that should be replaced by a baked portrait:
- * the static placeholder, or a flat procedural SVG (legends ship
- * `/assets/legends/*.svg`). Real player photos are always `.png`.
- */
-function isPhotoless(src?: string | null): boolean {
-    if (!src) return true;
-    if (src === PLACEHOLDERS.player) return true;
-    return src.endsWith(".svg") || src.includes("/legends/");
-}
+import { playerPortraitSource } from "@/lib/player-portrait-source";
 
 interface PlayerImageProps {
     playerName: string;
@@ -42,7 +32,7 @@ export function PlayerImage({
     const [imgError, setImgError] = useState(false);
     const imageSrc = imgError
         ? PLACEHOLDERS.player
-        : getPlayerImageUrl(playerName, teamName);
+        : playerPortraitSource(getPlayerImageUrl(playerName, teamName), `${teamName}:${playerName}`)!;
     const flagUrl = country ? getFlagUrl(country) : null;
 
     return (
@@ -84,28 +74,7 @@ export function TeamLogo({
     size = 32,
     className,
 }: TeamLogoProps) {
-    const [imgError, setImgError] = useState(false);
-
-    // Try different extensions
-    const sanitize = (name: string) =>
-        name.toLowerCase().replace(/[^a-z0-9\-_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-
-    const teamSlug = sanitize(teamName);
-    const logoPath = imgError
-        ? PLACEHOLDERS.logo
-        : `/assets/teams/${teamSlug}/logo.webp`;
-
-    return (
-        <Image
-            src={logoPath}
-            alt={teamName}
-            width={size}
-            height={size}
-            className={cn("object-contain", className)}
-            onError={() => setImgError(true)}
-            unoptimized
-        />
-    );
+    return <TeamLogoDisplay team={findTeamIdentity(teamName) || { name: teamName }} size={size} className={className} />;
 }
 
 interface TeamLogoImageProps {
@@ -145,27 +114,8 @@ export function TeamLogoImage({
     className,
     team,
 }: TeamLogoImageProps) {
-    const [imgError, setImgError] = useState(false);
-
-    // If we have enough to render the live 3D emblem (branding or custom colors),
-    // delegate to TeamLogoDisplay so generated teams stop showing the flat .svg.
-    if (team && (team.customTeamData || team.branding)) {
-        return <TeamLogoDisplay team={team} size={size} className={className} />;
-    }
-
-    const imageSrc = (!src || imgError) ? PLACEHOLDERS.logo : src;
-
-    return (
-        <Image
-            src={imageSrc}
-            alt={alt}
-            width={size}
-            height={size}
-            className={cn("object-contain", className)}
-            onError={() => setImgError(true)}
-            unoptimized
-        />
-    );
+    const identity = team || findTeamIdentity(alt) || { name: alt };
+    return <TeamLogoDisplay team={team || { ...identity, ...(src ? { logoPath: src } : {}) }} size={size} className={className} />;
 }
 
 interface CountryFlagProps {
@@ -215,8 +165,8 @@ interface PlayerPortraitProps {
     /**
      * Stable per-player key (use `player.id`). When the portrait would
      * otherwise fall back to the generic placeholder silhouette — i.e. the
-     * player has no real photo — a deterministic procedural face is generated
-     * from this seed instead. Matches the face the 3D portrait would render.
+     * player has no real photo — a baked portrait is selected
+     * from this seed instead. Every player screen must pass the same player ID.
      * Omit it to keep the plain placeholder behaviour.
      */
     seed?: string;
@@ -241,24 +191,10 @@ export function PlayerPortrait({
     imageClassName,
     seed,
 }: PlayerPortraitProps) {
-    // A real baked .png can still fail to load (404/network); on error, drop to
-    // the pooled baked portrait (if we have a seed) rather than a bare silhouette.
-    const [stage, setStage] = useState<"primary" | "placeholder">("primary");
-
-    // Treat placeholder/legend-svg sources as photo-less up front so they never
-    // render the old flat 2D avatar.
-    const photoless = isPhotoless(src) || stage === "placeholder";
-
-    const onError = () => setStage("placeholder");
-
-    // Pooled baked portrait (same family real players use), chosen deterministically
-    // from the seed. Replaces the retired 2D procedural SVG.
-    const pooledSrc = useMemo(
-        () => (photoless && seed ? pickPooledPortrait(seed) : null),
-        [photoless, seed],
-    );
-
-    const resolvedSrc = photoless ? (pooledSrc ?? PLACEHOLDERS.player) : (src as string);
+    const [failedSource, setFailedSource] = useState<string | null>(null);
+    const resolvedSrc = playerPortraitSource(src, seed, failedSource);
+    const onError = () => setFailedSource(resolvedSrc);
+    const usingOriginal = !!resolvedSrc && resolvedSrc !== failedSource;
 
     if (fill) {
         const fillSrc = resolvedSrc || PLACEHOLDERS.player;
@@ -269,13 +205,13 @@ export function PlayerPortrait({
                 alt={alt}
                 fill
                 className={cn("object-cover", className)}
-                onError={photoless ? undefined : onError}
+                onError={usingOriginal ? onError : undefined}
                 unoptimized
             />
         );
     }
 
-    const framedSrc = photoless ? pooledSrc : (src as string);
+    const framedSrc = resolvedSrc;
 
     return (
         <PlayerPortraitFrame
@@ -287,7 +223,7 @@ export function PlayerPortrait({
             teamColor={teamColor}
             className={className}
             imageClassName={imageClassName}
-            onImageError={photoless ? undefined : onError}
+            onImageError={usingOriginal ? onError : undefined}
         />
     );
 }

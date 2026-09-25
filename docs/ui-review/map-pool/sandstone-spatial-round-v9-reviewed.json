@@ -1,0 +1,206 @@
+{
+  "engine": "spatial-round-v9",
+  "mapId": "Sandstone",
+  "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+  "simulatorSourceSha256": "405d200104882a5d3062758a17f837840f34d8227256de984a9329d198e3ee19",
+  "meshSha256": "a21f26cb5df390dd03e10a8b43da8c89781b5f5c7cf1216a31748fd23a341766",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 82.40625,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 219943,
+      "metrics": {
+        "shots": 24,
+        "damage": 405,
+        "reports": 21,
+        "waits": 1011,
+        "replans": 105,
+        "minSeparation": 32.002903318513745
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 7,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 368,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1184,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "80dbf121398de35883cf4293a4bba9e774f441d13271359812f34e97bf59d3e8"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 149.203125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 115818,
+      "metrics": {
+        "shots": 96,
+        "damage": 500,
+        "reports": 98,
+        "waits": 1312,
+        "replans": 170,
+        "minSeparation": 32.00894379456773
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 1,
+      "yields": 10,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 1184,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1360,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        },
+        {
+          "tick": 1824,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 7168,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 7184,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "85029b3db3fd5c6f7da9a946dc091907987d3c3a939db736fcb756b7959d5138"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 94.21875,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 85126,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1141,
+        "waits": 1530,
+        "replans": 136,
+        "minSeparation": 32.002903318513745
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 10,
+      "routeFailures": [
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T3",
+          "side": "T"
+        },
+        {
+          "tick": 128,
+          "type": "route-blocked",
+          "reason": "The direct segment leaves its supported floor.",
+          "actor": "T4",
+          "side": "T"
+        },
+        {
+          "tick": 368,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 1184,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "CT2",
+          "side": "CT"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "CT2",
+          "point": [
+            -1544.5338362437328,
+            2602.061466483814,
+            6.247040982338773
+          ],
+          "goal": [
+            160.122742,
+            2369.67627,
+            -116.2003286382158
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes."
+        }
+      ],
+      "outputSha256": "1d2a56b51616644a1882ad2bc90acbbe56d403dd71adb468cbfd952aaef3da20"
+    }
+  ]
+}

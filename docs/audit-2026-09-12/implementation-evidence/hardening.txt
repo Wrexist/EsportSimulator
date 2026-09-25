@@ -1,0 +1,14 @@
+
+> esports-manager-sim@1.0.0 release:hardening
+> tsx scripts/release-hardening-check.ts
+
+=== Steam Release Hardening Checks ===
+[1/4] Save tamper integrity check...
+PASS: tamper detection rejects edited saves
+[2/4] Crash-resume exact-once by transaction step...
+PASS: all step crashes resume cleanly without double-week progression
+[3/4] 500-week simulation fuzz...
+PASS: fuzz 500 weeks in 47334ms
+[4/4] Static image integrity (anti-third-party contamination)...
+PASS: validated 2202 image files in public/assets
+=== All hardening checks passed in 50919ms ===

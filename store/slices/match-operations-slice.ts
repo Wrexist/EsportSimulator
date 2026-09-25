@@ -17,7 +17,7 @@
  * ARCHITECTURE.md on the index-vs-array draft propagation bug.
  */
 
-import type { SliceCreator } from "@/store/types"
+import type { SliceCreator, StoreState } from "@/store/types"
 import type { MatchSaveData } from "@/engine/save-types"
 import {
     nextDeterministicId,
@@ -33,12 +33,21 @@ export interface MatchOperationsActions {
     performMentalReset: (matchId?: string) => void
 }
 
+function canPrepare(state: StoreState, match: MatchSaveData): boolean {
+    return [match.homeTeamId, match.awayTeamId].includes(state.playerTeamId || '')
+        && !match.result && !state.completedMatches?.some(m => m.id === match.id)
+        && state.activeMatchId !== match.id && state.activeMatchState?.matchId !== match.id
+        && match.week >= state.currentWeek
+        && !(state.timeMode === 'HYBRID_DAILY' && match.week === state.currentWeek && (match.day ?? 6) < state.currentDay)
+}
+
 export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = (set) => ({
     updateScheduledMatch: (matchId, updates) => {
         set((state) => {
             const match = state.scheduledMatches.find(m => m.id === matchId)
-            if (!match) return
+            if (!match || !canPrepare(state, match)) return
 
+            if (state.activeMatchId === matchId || state.activeMatchState?.matchId === matchId) return
             const sanitizedUpdates: Partial<MatchSaveData> = {}
 
             if (typeof updates.vetoComplete === "boolean") {
@@ -77,22 +86,20 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
                 sanitizedUpdates.mapStartingSides = sanitizedSides
             }
 
-            if (typeof updates.vodReviewed === "boolean") {
-                sanitizedUpdates.vodReviewed = updates.vodReviewed
-            }
-            if (typeof updates.mentalPrep === "boolean") {
-                sanitizedUpdates.mentalPrep = updates.mentalPrep
-            }
-
-            // Never mark veto complete without a resolved map pool —
-            // would let the engine pick from an empty array later.
-            if (sanitizedUpdates.vetoComplete) {
+            // Paid preparation flags are owned exclusively by purchase actions.
+            // Changing a sealed pool must also preserve the full BO1/3/5 contract.
+            if (sanitizedUpdates.vetoComplete || match.vetoComplete) {
                 const mapsForVeto = Array.isArray(sanitizedUpdates.maps)
                     ? sanitizedUpdates.maps
                     : (Array.isArray(match.maps) ? match.maps : [])
-                if (mapsForVeto.length === 0) {
-                    delete sanitizedUpdates.vetoComplete
+                const required = match.format === 'BO1' ? 1 : match.format === 'BO5' ? 5 : 3
+                if (mapsForVeto.length !== required) {
+                    sanitizedUpdates.vetoComplete = false
                 }
+            }
+            if (sanitizedUpdates.maps) {
+                sanitizedUpdates.mapStartingSides = Object.fromEntries(Object.entries(sanitizedUpdates.mapStartingSides ?? match.mapStartingSides ?? {})
+                    .filter(([map, team]) => sanitizedUpdates.maps!.includes(map) && [match.homeTeamId, match.awayTeamId].includes(team)))
             }
 
             if (Object.keys(sanitizedUpdates).length > 0) {
@@ -104,7 +111,7 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
     performVODReview: (matchId) => {
         set((state) => {
             const match = state.scheduledMatches.find(m => m.id === matchId)
-            if (!match) return
+            if (!match || !canPrepare(state, match)) return
             if (match.vodReviewed) return
             if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
             if (match.week < state.currentWeek) return
@@ -136,11 +143,13 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
 
             if (matchId) {
                 const match = state.scheduledMatches.find(m => m.id === matchId)
-                if (!match) return
+                if (!match || !canPrepare(state, match)) return
                 if (state.playerTeamId !== match.homeTeamId && state.playerTeamId !== match.awayTeamId) return
                 if (match.week < state.currentWeek || match.mentalPrep) return
                 match.mentalPrep = true
                 match.mentalPrepTeamId = state.playerTeamId!
+            } else if (state.financeLedger.some(e => e.teamId === team.id && e.week === state.currentWeek && e.description === 'Mental Reset Session')) {
+                return
             }
 
             team.budget -= MENTAL_RESET_COST
@@ -160,7 +169,7 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
             team.rosterIds.forEach(pid => {
                 const player = state.players.find(p => p.id === pid)
                 if (player) {
-                    player.morale = Math.min(100, (player.morale || 70) + 15)
+                    player.morale = Math.min(100, (player.morale ?? 70) + 15)
                 }
             })
         })

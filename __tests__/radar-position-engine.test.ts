@@ -1,6 +1,6 @@
 import { MapId, MatchEvent } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
-import { isWalkable } from "@/lib/radar-nav"
+import { isWalkable, isRadarSegmentWalkable } from "@/lib/radar-nav"
 
 function buildPlayers(prefix: string, count: number) {
   return Array.from({ length: count }, (_, idx) => ({
@@ -12,6 +12,37 @@ function buildPlayers(prefix: string, count: number) {
 }
 
 describe("radar-position-engine", () => {
+  it('holds the actual spawn positions throughout freeze time', () => {
+    const sample = (t: number) => computeRadarPositions(MapId.ANUBIS, t, [], buildPlayers('h', 5), buildPlayers('a', 5), true, 1, 42).dots.map(d => [d.playerId, d.x, d.y])
+    expect(sample(1.4)).toEqual(sample(0))
+    expect(sample(3)).toEqual(sample(0))
+    expect(sample(15)).not.toEqual(sample(0))
+  })
+  it('does not draw estimated shot links through radar voids', () => {
+    const events: MatchEvent[] = Array.from({ length: 5 }, (_, i) => ({ type: 'KILL', time: 15 + i * 5, killerId: `h${i + 1}`, victimId: `a${i + 1}`, weapon: 'awp' }))
+    for (const event of events) {
+      const result = computeRadarPositions(MapId.ANUBIS, event.time + 0.1, events, buildPlayers('h', 5), buildPlayers('a', 5), true, 1, 42)
+      for (const line of result.killLines) expect(isRadarSegmentWalkable(MapId.ANUBIS, line.level || 'upper', { x: line.fromX, y: line.fromY }, { x: line.toX, y: line.toY })).toBe(true)
+    }
+  })
+  it("does not invent utility or reveal a successful defuse before its event", () => {
+    const result = computeRadarPositions(MapId.MIRAGE, 38, [
+      { type: 'PLANT', time: 25 }, { type: 'DEFUSE', time: 40 },
+    ], buildPlayers('h', 5), buildPlayers('a', 5), true, 6, 42)
+    expect(result.smokes).toEqual([])
+    expect(result.bomb.planted).toBe(true)
+    expect(result.bomb.defused).toBe(false)
+    expect(result.bomb.defuseProgress).toBeUndefined()
+  })
+
+  it("uses the actual fractional timestep rather than taking a full step at time zero", () => {
+    const sample = (time: number) => computeRadarPositions(MapId.MIRAGE, time, [], buildPlayers('h', 5), buildPlayers('a', 5), true, 1, 42)
+    const zero = sample(0), tiny = sample(0.001)
+    for (const dot of zero.dots) {
+      const next = tiny.dots.find(d => d.playerId === dot.playerId)!
+      expect(Math.hypot(dot.x - next.x, dot.y - next.y)).toBeLessThan(0.001)
+    }
+  })
   const activeMaps: MapId[] = [
     MapId.SANDSTONE,
     MapId.MIRAGE,

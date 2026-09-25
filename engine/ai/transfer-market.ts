@@ -35,6 +35,11 @@ import type { EventType } from "../../types"
 import { getPlayerIndex } from "./player-index"
 import { aiRoll } from "./rng-helpers"
 
+import { recruitmentBudget, recruitmentRole, recruitmentSalary } from "../recruitment"
+import { evaluatePlayer } from "../player-evaluation"
+import { applyRosterChangePenalty } from "../chemistry-engine"
+import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
+
 const MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
 const MAX_AI_TRANSFERS_PER_WEEK = 3
 const POACHER_MIN_BUDGET = 50_000
@@ -126,7 +131,7 @@ export function processAITransferMarket(
     const playerIndex = getPlayerIndex(save)
     const userPlayersForSale = playerTeam.rosterIds
         .map(id => playerIndex.get(id))
-        .filter((p): p is PlayerSaveData => !!p && !!p.forSale)
+        .filter((p): p is PlayerSaveData => !!p && !!p.forSale && !p.isRetired)
 
     if (userPlayersForSale.length === 0) return
 
@@ -138,6 +143,14 @@ export function processAITransferMarket(
     // re-offering for the same player. Scoping this to the current week let a
     // fresh offer pile up every week for a left-listed player, growing the
     // inbox/save unbounded.
+    for (const event of save.eventsLog) {
+        if (event.type === "TRANSFER_OFFER" && !event.selectedChoiceId
+            && Number(event.data?.expiresWeek ?? event.week + 2) <= save.currentWeek) {
+            event.selectedChoiceId = "expired"
+            event.acknowledged = true
+            event.data.message = "This transfer offer expired. The club can submit a new bid if it remains interested."
+        }
+    }
     const existingOfferKeys = new Set<string>()
     for (const e of save.eventsLog) {
         if (e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
@@ -146,14 +159,15 @@ export function processAITransferMarket(
     }
 
     aiTeams.forEach(aiTeam => {
-        if (aiTeam.budget < POACHER_MIN_BUDGET) return
+        if (aiTeam.budget < POACHER_MIN_BUDGET || aiTeam.rosterIds.length >= MAX_ROSTER_SIZE) return
+        const canAfford = recruitmentBudget(save, aiTeam)
         let offersMade = 0
 
         // Pre-compute the AI team's role coverage once for role-fit weighting.
         const aiRoles = new Set<string>()
         for (const id of aiTeam.rosterIds) {
             const p = playerIndex.get(id)
-            if (p?.role) aiRoles.add(p.role.toString().toUpperCase())
+            if (p?.role) aiRoles.add(recruitmentRole(p.role))
         }
 
         userPlayersForSale.forEach(player => {
@@ -163,15 +177,16 @@ export function processAITransferMarket(
             if (existingOffer) return
 
             // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).
-            const { baseValue, potentialMultiplier, overpayBuffer } = aiMarketValuation(
+            const { potentialMultiplier, overpayBuffer } = aiMarketValuation(
                 player.skill, player.potential, player.tier,
             )
 
+            const baseValue = evaluatePlayer(player, undefined, undefined, save.currentWeek).transferValue
             const listingPrice = player.transferListingPrice || baseValue
             const priceRatio = listingPrice / baseValue
 
             // Role-fit: missing role = +40% interest; saturated role = -15%.
-            const playerRole = (player.role ?? "RIFLER").toString().toUpperCase()
+            const playerRole = recruitmentRole(player.role)
             const roleFitMultiplier = !aiRoles.has(playerRole) ? 1.4
                 : aiRoles.size <= 4 ? 1.0
                 : 0.85
@@ -189,7 +204,7 @@ export function processAITransferMarket(
 
             const offerAmount = Math.round(anchoredValue * (0.85 + aiRoll(rng) * 0.3))
 
-            if (offerAmount > aiTeam.budget) return
+            if (!canAfford(recruitmentSalary(player, save.currentWeek), offerAmount)) return
 
             const eventId = `offer_${save.currentWeek}_${aiTeam.id}_${player.id}_${offerAmount}`
 
@@ -203,6 +218,8 @@ export function processAITransferMarket(
                     playerId: player.id,
                     playerName: player.nickname,
                     offerAmount: offerAmount,
+                    expiresWeek: save.currentWeek + 2,
+                    salaryPerWeek: recruitmentSalary(player, save.currentWeek),
                     message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`,
                 },
                 acknowledged: false,
@@ -270,22 +287,17 @@ export function processAIToAITransfers(
         if (transferCount >= MAX_AI_TRANSFERS_PER_WEEK) break
         if (rng.next() > 0.05) continue // 5% per team per week
 
-        const candidate = availablePlayers
-            .filter(ap => ap.team.id !== buyer.id)
-            .sort((a, b) => (b.player.skill ?? 0) - (a.player.skill ?? 0))[0]
-        if (!candidate) continue
-
-        // Fee is anchored to the seller's actual contract buyout when present
-        // (so buyout clauses mean something in AI↔AI trades), falling back to a
-        // skill-based estimate for contract-less/ghost players.
-        const sellerContract = save.contracts.find(
-            c => c.playerId === candidate.player.id && c.teamId === candidate.team.id
-        )
-        const fee = (sellerContract?.buyout && sellerContract.buyout > 0)
-            ? sellerContract.buyout
-            : (candidate.player.skill ?? 50) * 2000
-        const weeklySalary = (candidate.player.skill ?? 50) * 50
-        if (buyer.budget < fee + weeklySalary * 26) continue
+        const canAfford = recruitmentBudget(save, buyer)
+        const candidates = availablePlayers.filter(ap => ap.team.id !== buyer.id && ap.team.rosterIds.length > 5
+            && ap.team.rosterIds.includes(ap.player.id) && !ap.player.isRetired)
+            .map(ap => {
+                const contract = save.contracts.find(c => c.playerId === ap.player.id && c.teamId === ap.team.id && c.endWeek > save.currentWeek)
+                const fee = Math.round(contract?.buyout || evaluatePlayer(ap.player, undefined, undefined, save.currentWeek).transferValue)
+                return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek) }
+            }).filter(c => canAfford(c.salary, c.fee))
+            .sort((a, b) => (b.ap.player.skill ?? 0) - (a.ap.player.skill ?? 0) || a.ap.player.id.localeCompare(b.ap.player.id))
+        if (!candidates.length) continue
+        const { ap: candidate, fee, salary: weeklySalary } = candidates[0]
         // Re-assert the hard roster cap immediately before the push (the buyer
         // filter only checks <= BUYER_MAX_ROSTER at selection time).
         if (buyer.rosterIds.length >= MAX_ROSTER_SIZE) continue
@@ -298,6 +310,18 @@ export function processAIToAITransfers(
         }
         buyer.budget -= fee
         candidate.team.budget += fee
+        save.financeLedger ??= []
+        for (const [team, type] of [[buyer, "EXPENSE"], [candidate.team, "INCOME"]] as const) {
+            save.financeLedger.push({ id: `fin_ai_transfer_${save.currentWeek}_${candidate.player.id}_${team.id}`, week: save.currentWeek,
+                teamId: team.id, type, category: type === "EXPENSE" ? "TRANSFER_OUT" : "TRANSFER_IN", amount: fee, description: `Transfer: ${candidate.player.nickname}`, balance: team.budget })
+            applyRosterChangePenalty(team, save.currentWeek, 1)
+        }
+        if (candidate.team.activeRoleTraining) {
+            candidate.team.activeRoleTraining = candidate.team.activeRoleTraining.filter(t => t.playerId !== candidate.player.id)
+            candidate.team.trainingSlotsUsed = candidate.team.activeRoleTraining.length
+        }
+        recalculateTeamSynergy(candidate.team, save.players)
+        recalculateTeamSynergy(buyer, save.players)
         // Clear listing flags so the new owner doesn't immediately re-receive
         // a market offer for the same player.
         candidate.player.forSale = false

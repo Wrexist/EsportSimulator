@@ -1,5 +1,6 @@
 "use client"
 
+import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -21,7 +22,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { simulationEngineV2, SeededRNG } from "@/engine"
 import { MapId } from "@/types/enums"
 import { Player } from "@/types"
-import { getMapAssetName } from "@/data/map-pool"
+import { getMapAssetName, ACTIVE_MAP_POOL } from "@/data/map-pool"
 // If MAP_WALLPAPERS is missing, I'll fallback gracefully or use string paths
 
 
@@ -139,7 +140,7 @@ export default function TacticalHQPage() {
                 match.awayTeamId
             )
         )
-        const availableMaps = Object.values(MapId)
+        const availableMaps = [...ACTIVE_MAP_POOL]
 
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
@@ -266,8 +267,8 @@ export default function TacticalHQPage() {
         // instead of routing to a live screen that would just bounce back.
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
-        const homeActive = (homeTeam?.rosterIds || []).map(pid => playersById.get(pid)).filter(Boolean).length
-        const awayActive = (awayTeam?.rosterIds || []).map(pid => playersById.get(pid)).filter(Boolean).length
+        const homeActive = getActivePlayersByRosterOrder(homeTeam || {}, players, playersById).length
+        const awayActive = getActivePlayersByRosterOrder(awayTeam || {}, players, playersById).length
         if (homeActive < 5 || awayActive < 5) {
             const shorthanded = homeActive < 5 ? homeTeam : awayTeam
             addToast({
@@ -316,7 +317,7 @@ export default function TacticalHQPage() {
     const isPast = match.week < currentWeek
 
     return (
-        <div className="min-h-screen bg-[#0e1217] text-white p-6 relative overflow-hidden font-sans selection:bg-emerald-500/30">
+        <div className="premium-route text-white p-0 relative overflow-hidden font-sans selection:bg-emerald-500/30">
             {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none" />
             <div className="absolute -top-20 -right-20 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
@@ -754,7 +755,7 @@ export default function TacticalHQPage() {
                                         >
                                             <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/40 border border-white/5 shrink-0 relative">
                                                 <PlayerPortrait
-                                                    src={player.portraitPath}
+                                                    src={player.portraitPath} seed={player.id}
                                                     alt={player.nickname}
                                                     className="w-full h-full object-cover object-top scale-110 translate-y-1"
                                                 />

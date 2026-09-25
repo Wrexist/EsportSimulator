@@ -1,0 +1,8 @@
+node : Content release blocked: 4906 unresolved/changed items. See docs/launch-readiness/evidence/L08-content-inventory
+.json. No files were removed.
+At line:2 char:1
++ node scripts/launch/content-provenance.cjs *> tmp/l08-content-gate.lo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Content release...s were removed.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

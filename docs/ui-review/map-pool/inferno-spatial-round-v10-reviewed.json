@@ -1,0 +1,247 @@
+{
+  "engine": "spatial-round-v10",
+  "mapId": "Inferno",
+  "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+  "simulatorSourceSha256": "5c8dfa159a1d67231401e6f8bd3ee7f34318a8560f46fc5d053906802c9cde4b",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "Two opposing objective seeds and a no-gun movement/objective run; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 44.28125,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 128666,
+      "metrics": {
+        "shots": 29,
+        "damage": 500,
+        "reports": 22,
+        "waits": 417,
+        "replans": 79,
+        "minSeparation": 32.17620286426214
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 2,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "27054e9115b822b32035e229e1c09123bd7fc1cb42bb7b9732ad6c1e1f7ed52c"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 45.890625,
+      "outcome": "T",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 83020,
+      "metrics": {
+        "shots": 26,
+        "damage": 522,
+        "reports": 22,
+        "waits": 505,
+        "replans": 79,
+        "minSeparation": 32.04439889785871
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [],
+      "outputSha256": "87b1c9206a6dfdad56c5c045d5a76339e87c6ba80b5211e738127a5933db6260"
+    },
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 122619,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1643,
+        "waits": 4044,
+        "replans": 133,
+        "minSeparation": 32.007373857528506
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 19,
+      "routeFailures": [
+        {
+          "tick": 224,
+          "type": "route-blocked",
+          "reason": "No supported route connects these surfaces with the current obstacles and stance. Try crouching or inspect the connections.",
+          "actor": "T1",
+          "side": "T"
+        },
+        {
+          "tick": 4576,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 4832,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 5088,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 5344,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 5600,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 5856,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 6112,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 6368,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 6624,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 6880,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        },
+        {
+          "tick": 7136,
+          "type": "route-blocked",
+          "reason": "An endpoint has insufficient body or head clearance.",
+          "actor": "T5",
+          "side": "T"
+        }
+      ],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            2127.3741866240503,
+            610.3097804142913,
+            163.99994
+          ],
+          "goal": [
+            234.49993333333336,
+            2560,
+            163.99994
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 1937,
+            "type": "spacing-wait",
+            "reason": "Body CT5 occupies the swept path.",
+            "actor": "T2",
+            "side": "T",
+            "from": [
+              2127.3741866240503,
+              610.3097804142913,
+              163.99994
+            ],
+            "point": [
+              2127.5126707266636,
+              610.7268430023947,
+              163.99994
+            ]
+          }
+        },
+        {
+          "id": "T4",
+          "point": [
+            609.4617628935991,
+            2672.9356870371334,
+            155.8418454998199
+          ],
+          "goal": [
+            368.8469194977021,
+            2563.1157455373987,
+            163.99994000000004
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 4272,
+            "type": "spacing-wait",
+            "reason": "Body T5 occupies the swept path.",
+            "actor": "T4",
+            "side": "T",
+            "from": [
+              609.4617628935991,
+              2672.9356870371334,
+              155.8418454998199
+            ],
+            "point": [
+              609.3214149084856,
+              2672.768107353416,
+              155.86418951350882
+            ]
+          }
+        }
+      ],
+      "outputSha256": "8973e132d78a1d29986df82377b89aeba4a03ff1d9efa51454a84497d0716976"
+    }
+  ]
+}

@@ -46,18 +46,15 @@ describe("getTacticalBonus — analyst contribution", () => {
         expect(getTacticalBonus(staff, "balanced", "balanced")).toBeCloseTo(2.5, 5)
     })
 
-    test("stats.analysis = 0 falls back to default 50 (|| operator semantics)", () => {
-        // Important contract: the code uses `s.stats?.analysis || 50` so
-        // an explicit 0 still triggers the fallback. Pin this so future
-        // refactor doesn't switch to ?? and silently change behavior.
+    test("zero analysis contributes zero instead of inventing skill", () => {
         const staff = [makeStaff("analyst", 0)]
-        expect(getTacticalBonus(staff, "balanced", "balanced")).toBeCloseTo(2.5, 5)
+        expect(getTacticalBonus(staff, "balanced", "balanced")).toBeCloseTo(0, 5)
     })
 
-    test("two analysts stack their analysis contributions", () => {
+    test("legacy extra analysts stay within the one-specialist contribution cap", () => {
         const staff = [makeStaff("analyst", 100, "a1"), makeStaff("analyst", 60, "a2")]
-        // (100 + 60) / 100 * 5 = 8
-        expect(getTacticalBonus(staff, "balanced", "balanced")).toBe(8)
+        // Legacy extra staff cannot exceed the bounded specialist contribution.
+        expect(getTacticalBonus(staff, "balanced", "balanced")).toBe(5.5)
     })
 
     test("mixed roster: only analysts count; coaches/psych ignored", () => {
@@ -134,10 +131,10 @@ describe("getTacticalBonus — composition (analyst + RPS)", () => {
         expect(getTacticalBonus(staff, "aggressive", "structured")).toBe(10)
     })
 
-    test("max-realistic scenario: 2 elite analysts + winning RPS", () => {
+    test("legacy duplicate analysts remain capped while the style bonus applies", () => {
         const staff = [makeStaff("analyst", 100, "a1"), makeStaff("analyst", 100, "a2")]
-        // (200/100)*5 = 10 analyst + 5 RPS = 15.
-        expect(getTacticalBonus(staff, "structured", "balanced")).toBe(15)
+        // Capped analyst contribution 5.5 + style counter 5.
+        expect(getTacticalBonus(staff, "structured", "balanced")).toBe(10.5)
     })
 
     test("result is always finite (no NaN under any input combo)", () => {

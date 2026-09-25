@@ -19,7 +19,7 @@
  */
 
 import type { StaffSaveData } from "../save-types"
-import { getSpecializationMultiplier } from "../staff-specialization"
+import { staffDevelopmentEffects } from "../organization-effects"
 
 export function getTacticalBonus(
     teamStaff: StaffSaveData[] | undefined,
@@ -31,13 +31,7 @@ export function getTacticalBonus(
     // 1. Analyst stats — each analyst contributes (stats.analysis ?? 50),
     //    scaled by their specialization (a TACTICAL-focused analyst is a "true
     //    specialist" → +10%; off-domain analysts contribute at face value).
-    let statSum = 0
-    if (teamStaff) {
-        for (const s of teamStaff) {
-            if (s.role === "analyst") statSum += (s.stats?.analysis || 50) * getSpecializationMultiplier(s)
-        }
-    }
-    bonus += (statSum / 100) * 5
+    bonus += staffDevelopmentEffects(teamStaff || []).tactical
 
     // 2. Strategy triangle. Normalize "default"/empty to "balanced".
     const normalize = (s: string | undefined | null) => (!s || s === "default") ? "balanced" : s

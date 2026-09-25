@@ -1,11 +1,9 @@
 import { TacticalStrategy } from "@/types"
 import { SeededRNG } from "./rng"
-import type { TeamSaveData, SponsorSaveData, FacilitySaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "./save-types"
+import { EconomyEngine } from "./economy-engine"
+import type { TeamSaveData, SponsorSaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "./save-types"
 import {
     MATCH_CONSTANTS,
-    ECONOMY_CONSTANTS,
-    FACILITY_CONSTANTS,
-    COST_CONSTANTS,
     getLossBonus,
 } from "../lib/constants"
 
@@ -232,75 +230,27 @@ export class EconomyManager {
     team: TeamSaveData,
     players: PlayerSaveData[] = [],
     staff: StaffSaveData[] = [],
-    contracts: ContractSaveData[] = []
+    contracts: ContractSaveData[] = [],
+    settlementWeek?: number,
+    academyProspectCount = 0,
   ) {
-    // `team.fanbase` can be undefined on older AI teams / partial saves;
-    // without the ?? 0 the multiplication yields NaN and the whole financial
-    // report renders as "$NaN".
-    const followers = team.followers || ((team.fanbase ?? 0) * 7)
-    const merchLevel = team.merchStoreLevel || 1
-    const hypeMultiplier = (team.merchHype || 10) / 10
-
-    // Sponsor Income (includes reputation factor)
-    const repFactor = ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE
-      + (team.reputation / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
-    const sponsors = (team.sponsors || []).reduce((sum: number, s: SponsorSaveData) => sum + (s.weeklyPayout * repFactor), 0)
-
-    // Fan/Merch Income
-    const fanZoneFacility = team.facilities?.find((f: FacilitySaveData) => f.type === "FANZONE")
-    const fanZoneMultiplier = 1 + (fanZoneFacility?.level || 0) * ECONOMY_CONSTANTS.FANZONE_LEVEL_RATE
-    const effectiveRate = ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN
-    const levelMultiplier = 1 + (merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE
-    const fanbaseBonus = Math.floor(followers * effectiveRate * levelMultiplier * hypeMultiplier * fanZoneMultiplier)
-
-    // League Revenue Share (Stability)
-    const leagueShare = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
-
-    // Expenses: Real Salaries — pre-index contracts/staff so two reduces
-    // over the roster don't each scan O(contracts)/O(staff).
-    const contractByPlayer = new Map<string, ContractSaveData>()
-    for (const c of contracts) contractByPlayer.set(c.playerId, c)
-    const staffById = new Map<string, StaffSaveData>()
-    for (const s of staff) staffById.set(s.id, s)
-
-    const playerWages = (team.rosterIds || []).reduce((sum: number, rid: string) => {
-      const contract = contractByPlayer.get(rid)
-      return sum + (contract?.salaryPerWeek || 0)
-    }, 0)
-
-    const staffWages = (team.staffIds || []).reduce((sum: number, sid: string) => {
-      const member = staffById.get(sid)
-      return sum + (member?.salaryPerWeek || 0)
-    }, 0)
-
-    // Expenses: Facilities Upkeep (Exponential scale)
-    const facilityUpkeep = (team.facilities || []).reduce((sum: number, f: FacilitySaveData) => {
-      return sum + Math.floor(Math.pow(f.level, FACILITY_CONSTANTS.COST_EXPONENT) * ECONOMY_CONSTANTS.FACILITY_BASE_COST)
-    }, 0)
-
-    // Training costs: Active role training sessions
-    const trainingCost = ((team.activeRoleTraining || []).length) * COST_CONSTANTS.TRAINING_MISSION_COST
-
-    const weeklyIncomeTotal = Math.floor(sponsors + fanbaseBonus + leagueShare)
-    const weeklyExpensesTotal = playerWages + staffWages + facilityUpkeep + trainingCost
-
+    const report = EconomyEngine.processWeeklyFinances(team, players, contracts, staff, settlementWeek, academyProspectCount)
     return {
       weeklyIncome: {
-        sponsors: Math.floor(sponsors),
-        fanbaseBonus,
-        leagueShare,
-        total: weeklyIncomeTotal
+        sponsors: report.income.sponsors,
+        fanbaseBonus: report.income.fanbase,
+        leagueShare: report.income.leagueShare,
+        total: report.income.total,
       },
       weeklyExpenses: {
-        playerSalaries: playerWages + staffWages, // Combined for overview
-        facilities: facilityUpkeep,
-        training: trainingCost,
-        total: weeklyExpensesTotal
+        playerSalaries: report.expenses.playerWages + report.expenses.staffWages,
+        facilities: report.expenses.facilities,
+        equipment: report.expenses.equipment,
+        academy: report.expenses.academy,
+        total: report.expenses.total,
       },
-      netCashflow: weeklyIncomeTotal - weeklyExpensesTotal,
-      merchandiseSales: {
-        hypeMultiplier: hypeMultiplier
-      }
+      netCashflow: report.net,
+      merchandiseSales: { hypeMultiplier: Math.max(0, Math.min(100, team.merchHype || 10)) / 10 },
     }
   }
 }

@@ -1,0 +1,441 @@
+{
+  "engine": "spatial-round-v5",
+  "replaySha256": "de213572c9ba17bfc2ff971f1e784e14a682202123500be6d1985661a7c27d3f",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "careerEligible": false,
+  "elapsedMs": 29547,
+  "outcome": "CT",
+  "reason": "Round time expired without a completed plant.",
+  "ticks": 2880,
+  "frames": 361,
+  "events": 495,
+  "metrics": {
+    "shots": 132,
+    "damage": 666,
+    "reports": 112,
+    "waits": 395,
+    "replans": 57,
+    "minSeparation": 32.07110418722034
+  },
+  "routeFailures": [
+    {
+      "tick": 304,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T1",
+      "side": "T"
+    },
+    {
+      "tick": 352,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T2",
+      "side": "T"
+    },
+    {
+      "tick": 352,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T4",
+      "side": "T"
+    },
+    {
+      "tick": 720,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T5",
+      "side": "T"
+    },
+    {
+      "tick": 2096,
+      "type": "route-blocked",
+      "reason": "An endpoint has insufficient body or head clearance.",
+      "actor": "T1",
+      "side": "T"
+    }
+  ],
+  "finalActors": [
+    {
+      "id": "CT1",
+      "position": [
+        -428.3345217587187,
+        -2217.31644486878,
+        -172.36922777414264
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "CT2",
+      "position": [
+        -2075.6570239939933,
+        249.36404116996195,
+        -156
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "CT3",
+      "position": [
+        -581.6343463063638,
+        -2274.5195059962834,
+        -172.53072891112492
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "CT4",
+      "position": [
+        -2156.2135189401756,
+        104.30366120970183,
+        -156
+      ],
+      "intent": "clutch",
+      "reason": "Last teammate alive; continue the objective using available evidence."
+    },
+    {
+      "id": "CT5",
+      "position": [
+        -535.221896675346,
+        -2128.1432366057807,
+        -175.61971560101668
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "T1",
+      "position": [
+        -1011.1503440216145,
+        174.31881534164472,
+        -168.6784684727785
+      ],
+      "intent": "support",
+      "reason": "Recover the dropped team bomb before executing."
+    },
+    {
+      "id": "T2",
+      "position": [
+        -1159.4479869542236,
+        200.94026236438182,
+        -164.08907451089348
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    },
+    {
+      "id": "T3",
+      "position": [
+        -645.0879887487437,
+        -990.6094285584252,
+        -215.01790625784366
+      ],
+      "intent": "support",
+      "reason": "Recover the dropped team bomb before executing."
+    },
+    {
+      "id": "T4",
+      "position": [
+        -162.9135195186842,
+        -470.1542024162641,
+        -162.51517440722867
+      ],
+      "intent": "support",
+      "reason": "Recover the dropped team bomb before executing."
+    },
+    {
+      "id": "T5",
+      "position": [
+        -1138.1984482358112,
+        203.26443066170822,
+        -164.3104238725436
+      ],
+      "intent": "dead",
+      "reason": "Resolved health reached zero; actions stop."
+    }
+  ],
+  "blockedActors": [],
+  "preview": {
+    "format": "esim-career-round-preview",
+    "version": 1,
+    "careerEligible": false,
+    "replaySha256": "de213572c9ba17bfc2ff971f1e784e14a682202123500be6d1985661a7c27d3f",
+    "binding": {
+      "matchId": "mirage-integration-review",
+      "mapId": "Mirage",
+      "roundNumber": 1,
+      "homeTeamId": "review-home",
+      "awayTeamId": "review-away",
+      "homeSide": "T",
+      "players": [
+        {
+          "actorId": "CT1",
+          "playerId": "review:CT1",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT2",
+          "playerId": "review:CT2",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT3",
+          "playerId": "review:CT3",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT4",
+          "playerId": "review:CT4",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "CT5",
+          "playerId": "review:CT5",
+          "teamId": "review-away"
+        },
+        {
+          "actorId": "T1",
+          "playerId": "review:T1",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T2",
+          "playerId": "review:T2",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T3",
+          "playerId": "review:T3",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T4",
+          "playerId": "review:T4",
+          "teamId": "review-home"
+        },
+        {
+          "actorId": "T5",
+          "playerId": "review:T5",
+          "teamId": "review-home"
+        }
+      ]
+    },
+    "round": {
+      "roundNumber": 1,
+      "winner": "ct",
+      "winType": "TIME",
+      "ctTeam": "review-away",
+      "tTeam": "review-home",
+      "winningTeamId": "review-away",
+      "kills": [
+        {
+          "playerId": "review:T3",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        },
+        {
+          "playerId": "review:T3",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        },
+        {
+          "playerId": "review:T3",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        },
+        {
+          "playerId": "review:CT2",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        },
+        {
+          "playerId": "review:CT2",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        },
+        {
+          "playerId": "review:T1",
+          "kills": 1,
+          "weapon": "LAB_RIFLE"
+        }
+      ],
+      "deaths": [
+        {
+          "playerId": "review:CT1",
+          "deaths": 1
+        },
+        {
+          "playerId": "review:CT2",
+          "deaths": 1
+        },
+        {
+          "playerId": "review:CT3",
+          "deaths": 1
+        },
+        {
+          "playerId": "review:CT5",
+          "deaths": 1
+        },
+        {
+          "playerId": "review:T2",
+          "deaths": 1
+        },
+        {
+          "playerId": "review:T5",
+          "deaths": 1
+        }
+      ],
+      "events": [
+        {
+          "type": "KILL",
+          "time": 15.71875,
+          "killerId": "review:T3",
+          "victimId": "review:CT5",
+          "playerId": "review:T3",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "KILL",
+          "time": 28.453125,
+          "killerId": "review:T3",
+          "victimId": "review:CT3",
+          "playerId": "review:T3",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "KILL",
+          "time": 36.171875,
+          "killerId": "review:T3",
+          "victimId": "review:CT1",
+          "playerId": "review:T3",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "KILL",
+          "time": 39.734375,
+          "killerId": "review:CT2",
+          "victimId": "review:T5",
+          "playerId": "review:CT2",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "KILL",
+          "time": 40.0625,
+          "killerId": "review:CT2",
+          "victimId": "review:T2",
+          "playerId": "review:CT2",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "KILL",
+          "time": 43.6875,
+          "killerId": "review:T1",
+          "victimId": "review:CT2",
+          "playerId": "review:T1",
+          "weapon": "LAB_RIFLE",
+          "isUtility": false,
+          "isHeadshot": true
+        },
+        {
+          "type": "ROUND_END",
+          "time": 45,
+          "side": "ct",
+          "details": "Round time expired without a completed plant."
+        }
+      ]
+    },
+    "players": [
+      {
+        "playerId": "review:CT1",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 21,
+        "health": 0
+      },
+      {
+        "playerId": "review:CT2",
+        "kills": 2,
+        "deaths": 1,
+        "damage": 245,
+        "health": 0
+      },
+      {
+        "playerId": "review:CT3",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 0,
+        "health": 0
+      },
+      {
+        "playerId": "review:CT4",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:CT5",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 0,
+        "health": 0
+      },
+      {
+        "playerId": "review:T1",
+        "kills": 1,
+        "deaths": 0,
+        "damage": 100,
+        "health": 34
+      },
+      {
+        "playerId": "review:T2",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 42,
+        "health": 0
+      },
+      {
+        "playerId": "review:T3",
+        "kills": 3,
+        "deaths": 0,
+        "damage": 237,
+        "health": 100
+      },
+      {
+        "playerId": "review:T4",
+        "kills": 0,
+        "deaths": 0,
+        "damage": 0,
+        "health": 100
+      },
+      {
+        "playerId": "review:T5",
+        "kills": 0,
+        "deaths": 1,
+        "damage": 21,
+        "health": 0
+      }
+    ],
+    "blockers": [
+      "Career loadouts and attributes are not bound for every actor.",
+      "Physical weapon and tactical calibration remains provisional.",
+      "Plant polygons are not bound.",
+      "Spawn/plant geometry and traversal still require review.",
+      "Production career result activation remains disabled; round ownership currently covers saved rehearsals."
+    ]
+  },
+  "note": "One seed, provisional lab rules and unreviewed annotations. This is an integration smoke check, not balance or geometry certification."
+}

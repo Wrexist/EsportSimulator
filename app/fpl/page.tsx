@@ -240,7 +240,7 @@ export default function FPLPage() {
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                                             <PlayerPortrait
-                                                src={entry.player.portraitPath}
+                                                src={entry.player.portraitPath} seed={entry.player.id}
                                                 alt={entry.player.nickname}
                                                 size={40}
                                             />
@@ -308,7 +308,7 @@ export default function FPLPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-4xl font-normal tracking-tighter uppercase liquid-text mb-2 flex items-center gap-3">
+                    <h1 className="page-title mb-2 flex items-center gap-3">
                         <Swords className="text-amber-400" size={36} />
                         FPL Leagues
                     </h1>
@@ -378,7 +378,7 @@ export default function FPLPage() {
                                     <div className="relative">
                                         <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
                                             <PlayerPortrait
-                                                src={entry.player.portraitPath}
+                                                src={entry.player.portraitPath} seed={entry.player.id}
                                                 alt={entry.player.nickname}
                                                 size={40}
                                             />
@@ -580,7 +580,7 @@ export default function FPLPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10">
                                                     <PlayerPortrait
-                                                        src={entry.player.portraitPath}
+                                                        src={entry.player.portraitPath} seed={entry.player.id}
                                                         alt={entry.player.nickname}
                                                         size={32}
                                                     />
@@ -627,7 +627,7 @@ export default function FPLPage() {
                                             idx === 0 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/[0.02] border-white/10"
                                         )}>
                                             <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 mx-auto mb-2">
-                                                <PlayerPortrait src={entry.player.portraitPath} alt={entry.player.nickname} size={48} />
+                                                <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={48} />
                                             </div>
                                             <p className={cn("font-bold text-sm", idx === 0 ? "text-amber-400" : "text-white")}>
                                                 {entry.player.nickname}
@@ -712,7 +712,7 @@ export default function FPLPage() {
                                                         </div>
                                                         <div className="w-10 h-10 rounded-lg overflow-hidden border border-amber-500/30">
                                                             <PlayerPortrait
-                                                                src={champion.portraitPath}
+                                                                src={champion.portraitPath} seed={champion.id}
                                                                 alt={champion.nickname}
                                                                 size={40}
                                                             />
@@ -767,7 +767,7 @@ export default function FPLPage() {
                                                                                 <Link href={`/player/${p.id}`}>
                                                                                     <div className="flex items-center gap-2">
                                                                                         <div className="w-7 h-7 rounded-md overflow-hidden border border-white/10">
-                                                                                            <PlayerPortrait src={p.portraitPath} alt={p.nickname} size={28} />
+                                                                                            <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={28} />
                                                                                         </div>
                                                                                         <span className={cn("font-bold text-sm", isChampion ? "text-amber-400" : "text-white")}>
                                                                                             {p.nickname}

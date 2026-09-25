@@ -31,17 +31,17 @@ const BINARY_IMAGE_PREFIXES = [
 
 function loadPolicy(): CompliancePolicy {
   const policyPath = path.join(process.cwd(), "config", "steam-compliance-policy.json")
-  const fallback: CompliancePolicy = { trademarkKeywords: [], legacyContaminatedAllowlist: [] }
-  if (!fs.existsSync(policyPath)) return fallback
+  if (!fs.existsSync(policyPath)) throw new Error("Required compliance policy is missing")
 
   try {
     const parsed = JSON.parse(fs.readFileSync(policyPath, "utf8")) as CompliancePolicy
+    if (!Array.isArray(parsed.trademarkKeywords) || !parsed.trademarkKeywords.every(k => typeof k === "string" && k.length > 0) || !Array.isArray(parsed.legacyContaminatedAllowlist)) throw new Error("Invalid compliance policy")
     return {
       trademarkKeywords: Array.isArray(parsed.trademarkKeywords) ? parsed.trademarkKeywords : [],
       legacyContaminatedAllowlist: Array.isArray(parsed.legacyContaminatedAllowlist) ? parsed.legacyContaminatedAllowlist : [],
     }
   } catch {
-    return fallback
+    throw new Error("Required compliance policy could not be validated")
   }
 }
 
@@ -87,10 +87,11 @@ function walk(root: string): string[] {
 function runAudit(policy: CompliancePolicy): Finding[] {
   const findings: Finding[] = []
   const repoRoot = process.cwd()
+  if (!fs.existsSync(path.join(repoRoot, "public"))) throw new Error("Required public asset directory is missing")
   const legacyAllowlist = new Set(policy.legacyContaminatedAllowlist)
 
-  for (const fullPath of walk(path.join(repoRoot, "public", "assets"))) {
-    const rel = path.relative(repoRoot, fullPath)
+  for (const fullPath of walk(path.join(repoRoot, "public"))) {
+    const rel = path.relative(repoRoot, fullPath).replaceAll("\\", "/")
     const ext = path.extname(fullPath).toLowerCase()
 
     if (IMAGE_EXTENSIONS.has(ext)) {
@@ -123,15 +124,15 @@ function runAudit(policy: CompliancePolicy): Finding[] {
   const listingPath = path.join(repoRoot, "STEAM_STORE_LISTING.md")
   if (fs.existsSync(listingPath)) {
     const text = fs.readFileSync(listingPath, "utf8")
-    const hasEarlyAccessState = /current state of the early access/i.test(text)
+    const hasLaunchScope = /Windows 1\.0/i.test(text)
     const mentionsGameplay = /gameplay|manage|recruit|tournament|match/i.test(text)
 
-    if (!hasEarlyAccessState || !mentionsGameplay) {
+    if (!hasLaunchScope || !mentionsGameplay) {
       findings.push({
         level: "HIGH",
-        code: "EARLY_ACCESS_STATE_MISSING",
+        code: "LAUNCH_SCOPE_MISSING",
         file: "STEAM_STORE_LISTING.md",
-        detail: "Early Access current-state gameplay description appears incomplete.",
+        detail: "Windows 1.0 scope or gameplay description is missing from the store draft.",
       })
     }
   } else {
@@ -159,7 +160,7 @@ function main(): void {
   const outDir = path.join(process.cwd(), "tmp")
   fs.mkdirSync(outDir, { recursive: true })
   const reportPath = path.join(outDir, "steam-compliance-report.json")
-  fs.writeFileSync(reportPath, JSON.stringify({ generatedAt: new Date().toISOString(), grouped, findings }, null, 2))
+  fs.writeFileSync(reportPath, JSON.stringify({ generatedAt: new Date().toISOString(), scope: "All public files: filename keywords and raster signatures only. Does not verify inline artwork, provenance, licenses or packaged inclusion.", grouped, findings }, null, 2))
 
   console.log("=== Steam Compliance Audit ===")
   console.log(`Report: ${path.relative(process.cwd(), reportPath)}`)
@@ -175,16 +176,14 @@ function main(): void {
   const strictMedium = process.argv.includes("--strict-medium")
   const writeBaseline = process.argv.includes("--write-baseline")
 
-  const acceptedMedium = new Set(baseline.acceptedMediumFindings)
+  // Historical bulk baselines are retained as compatibility inputs, never release approval.
+  const acceptedMedium = new Set<string>()
+  console.log(`Historical baseline entries ignored for release: ${baseline.acceptedMediumFindings.length}`)
   const newMediumFindings = findings.filter(f => f.level === "MEDIUM" && !acceptedMedium.has(`${f.code}|${f.file}`))
 
   if (writeBaseline) {
-    const baselinePath = path.join(process.cwd(), "config", "steam-compliance-baseline.json")
-    const updated: ComplianceBaseline = {
-      acceptedMediumFindings: findings.filter(f => f.level === "MEDIUM").map(f => `${f.code}|${f.file}`).sort(),
-    }
-    fs.writeFileSync(baselinePath, JSON.stringify(updated, null, 2) + "\n")
-    console.log(`Baseline written: ${path.relative(process.cwd(), baselinePath)} (${updated.acceptedMediumFindings.length} medium findings)`)
+    console.error("Bulk acceptance is disabled. Findings need individual review, evidence and expiry in L08; no files were changed.")
+    process.exitCode = 1
   }
 
   if (strictMedium) {

@@ -1,0 +1,675 @@
+{
+  "date": "2026-09-25",
+  "files": [
+    {
+      "path": "public/map-studio/drafts/ancient-upper-native.json",
+      "sha256": "c2abe76d24259bcbf47168b0ad22ac4ad40ca2a1bcae523e91906038d88f716f",
+      "bytes": 87447,
+      "unchangedLineupMarks": 76,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/anubis-upper-native.json",
+      "sha256": "3bab2d788a530b13f7e0cd65673ea75aae620ecb0665195a04a0cf2e65ddf0fe",
+      "bytes": 152385,
+      "unchangedLineupMarks": 63,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/inferno-upper-native.json",
+      "sha256": "3dddb2b49d2dd48ed9393c0f4e9b49b1c53dbf04b2082fdcf13c057c3c129eb8",
+      "bytes": 107109,
+      "unchangedLineupMarks": 87,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v13-2026-09-22.json",
+      "sha256": "68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8",
+      "bytes": 131469,
+      "unchangedLineupMarks": 116,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-native-sites.json",
+      "sha256": "ff992bb6fe423ec5067c4d9c50cfa7a32cacff4d733bdf5e561602812b9a25bf",
+      "bytes": 146081,
+      "unchangedLineupMarks": 116,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-repaired.json",
+      "sha256": "0770d50caeb309e5f2b8981fd2877581a1c70f393434e7193ec1fcb4f0809cf9",
+      "bytes": 132803,
+      "unchangedLineupMarks": 116,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-with-reference-routes.json",
+      "sha256": "cc7ed437f183570e2a90634289054c82fb57b99fe5406a8d4906312423ffe559",
+      "bytes": 205500,
+      "unchangedLineupMarks": 116,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/nuke-lower-native.json",
+      "sha256": "54b3aa9d3a9c4acd065441ede0477eeb7dba3232240dae6b3556031e949e3da5",
+      "bytes": 11317,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/drafts/nuke-upper-native.json",
+      "sha256": "525ba9f59518df19b39d3d2779406072b5e32f86fe164c10ea9f31a68e876d5e",
+      "bytes": 77139,
+      "unchangedLineupMarks": 60,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/overpass-upper-native.json",
+      "sha256": "123dfa29e510b90cb57b7368299a62e0a0f0fb2cd6e50785482d6de67561dd33",
+      "bytes": 83245,
+      "unchangedLineupMarks": 61,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/sandstone-upper-native.json",
+      "sha256": "11ea797949d60ec0db165cbe0f358d0834c9b5aece6c8a0301263dd37dd9a2b0",
+      "bytes": 118145,
+      "unchangedLineupMarks": 108,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/drafts/vertigo-lower-native.json",
+      "sha256": "c38e4f5d34c6292f6acdda5b4834f1c43204c29dca3f86e4bac03e9ad63c2271",
+      "bytes": 22305,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/drafts/vertigo-upper-native.json",
+      "sha256": "e7bed075f8854c1ca56d7ae8b3d94909f1d4f912f131f8fd96c5ca176a4b144b",
+      "bytes": 78476,
+      "unchangedLineupMarks": 57,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-native/audit.json",
+      "sha256": "404cec73ed014688fb3c86971057801f89dedac7c9b99b69291d8f40208ab0b5",
+      "bytes": 15103,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/a-to-b.lab.json",
+      "sha256": "07161e648f966a104cebf3e70e3a4bf774cd56d247533c17baaa3f15fa9718ad",
+      "bytes": 36768,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/a-to-ct.lab.json",
+      "sha256": "3d912172697c1c3b0d545d76adc00187a9157e9f1b6ca5349b2303b25fbb8dfb",
+      "bytes": 36784,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/a-to-t.lab.json",
+      "sha256": "8a67a888c0eeb5425bbd0d6eaa8d321b041fcf89833dc20cd74da51ac0f397df",
+      "bytes": 36768,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/audit.json",
+      "sha256": "fc11724cdb7f62659a79b6db7e3360c3206955b13032214fe3dae0ed0125e787",
+      "bytes": 77181,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/b-to-a.lab.json",
+      "sha256": "e59ad3fffd09386e9da919acd8c9852815e7a2711621ece7da3505012d742b2a",
+      "bytes": 36768,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/b-to-ct.lab.json",
+      "sha256": "3449c6b589c86d01877e19c6bd8000f45ef5728189445577be6f8036be643d67",
+      "bytes": 36767,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/b-to-t.lab.json",
+      "sha256": "244086e07d18eb9004696f18f1757577008d391c6d3919e867efee40cecaa801",
+      "bytes": 36751,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/ct-to-a.lab.json",
+      "sha256": "52201915d094ceb84577b11137cac61741b071e3539fe58d48444bec0d2b9ef3",
+      "bytes": 36784,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/ct-to-b.lab.json",
+      "sha256": "2c898ca682e07ccfe3b3befeddf8cb18f6076d23edbaf135418c273e736d2b6a",
+      "bytes": 36767,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/review.html",
+      "sha256": "675b32ab762d9e87ccfa8743789ddec8d7d87ecc38752ffb79ce2e2f59315c76",
+      "bytes": 62419,
+      "unchangedLineupMarks": 0,
+      "embedded": [
+        {
+          "source": "public/maps/de_mirage_radar_psd.png",
+          "sha256": "3c87b10a398b83fd0e84201ddce81b4f2c129a2912acd1718495adc48c209007"
+        }
+      ],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/routes.json",
+      "sha256": "d0ff513efbf69d3cad1b0c85bcda4dc3ad603f0fc5712d471db49f1f42ce4706",
+      "bytes": 107044,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/t-to-a.lab.json",
+      "sha256": "6473abd1e4bf219069c965a7b9043a4bd143dae6e9bc3f296b8a59bd23880b90",
+      "bytes": 36768,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/mirage-v13/t-to-b.lab.json",
+      "sha256": "a4711735d2b606a8ee0cbe7771f36adc65feb8695434aa32cb5bac29d7746b68",
+      "bytes": 36751,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Ancient/audit.json",
+      "sha256": "27f9a708174f939203284423624ffd5b26d6301098376a48d6406dea28bd7f63",
+      "bytes": 19561,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Anubis/audit.json",
+      "sha256": "24bb9dfb94e7a1c70435795c00d461a7bfa94f5dbd4558dcb37b4e9da1e521b7",
+      "bytes": 28166,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Anubis/interior-audit.json",
+      "sha256": "fec3cd109b10427c4c09f899d5f0c056ad477236dacaa07c8d2c3070adbbadf8",
+      "bytes": 6004,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Inferno/audit.json",
+      "sha256": "ef8683db8cf35976a8c5c6994a21c488bcf5038b87e6eacf21ea141e09ac8bc4",
+      "bytes": 29798,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Nuke/audit.json",
+      "sha256": "1a20b211ed5f71849f1db5e6f36f324d8f572868f6b2dcfb4082f54efa5c77a8",
+      "bytes": 32787,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Overpass/audit.json",
+      "sha256": "bc3e8d941f15de1b56f212dabd1d83fccc285d7efe2f7c330549afcf393b8eb7",
+      "bytes": 27820,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Sandstone/audit.json",
+      "sha256": "9918a59e7c442b88a5672117400f7f8f5cb53c247cd195470b29343fc16f4dc7",
+      "bytes": 21845,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/reviews/native/Vertigo/audit.json",
+      "sha256": "cb1a47b2dbe3f5d6ac4f980dfdf40c9f990869340c6bfd171ef4966a8b82a170",
+      "bytes": 22734,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/ancient.lab.json",
+      "sha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed",
+      "bytes": 7271,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/anubis.lab.json",
+      "sha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77",
+      "bytes": 8919,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/inferno.lab.json",
+      "sha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+      "bytes": 8488,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/mirage.lab.json",
+      "sha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+      "bytes": 160727,
+      "unchangedLineupMarks": 116,
+      "embedded": [],
+      "basis": "Identical retained lineup marks inside owner/project map derivatives; original owner-directed inclusion remains unverified upstream."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/overpass.lab.json",
+      "sha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a",
+      "bytes": 6779,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/sandstone.lab.json",
+      "sha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012",
+      "bytes": 7499,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/vertigo.lab.json",
+      "sha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc",
+      "bytes": 7027,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/ancient.lab.json",
+      "sha256": "855ca4b0895b3e70c2ec8e699eb921f82d973577af02837cb9f4f7506264df28",
+      "bytes": 4164,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/anubis.lab.json",
+      "sha256": "6d9e8b43a735b5547cf9b2a051a311d3788f3d1149f35597562b6255d84d6814",
+      "bytes": 4117,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/inferno.lab.json",
+      "sha256": "75e19d893f02ec912960036b1525bca896e023edb7feaef77453ea042216ece2",
+      "bytes": 4059,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/mirage.lab.json",
+      "sha256": "8f8917ecbb682babf7c25a3d67d82ec790de6c9d637c431e1d62ace27c7eed51",
+      "bytes": 4052,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/overpass.lab.json",
+      "sha256": "cfd8cb3ab1c39213436d6d95c0dc3128ab4999370f323e3d860d6ea1109f5129",
+      "bytes": 4111,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/sandstone.lab.json",
+      "sha256": "19d0a76b791a9f5e97f38f66d6d6d1898d4bdd3abab246590aa96723a2e27f1a",
+      "bytes": 4145,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery/vertigo.lab.json",
+      "sha256": "e41caadf6495ea001051de4d0d9a2a1a6c7492743945d20f6b1f5623d3fc233e",
+      "bytes": 4069,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/ancient.lab.json",
+      "sha256": "7ce65a98b09f7b52949784406befce077226897ff43fb7bd8aacd8a46029602e",
+      "bytes": 8494,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/anubis.lab.json",
+      "sha256": "7742511cef2f3fb282b35da844a56332107dd3f63f6c7b2ec57a5e64576d5449",
+      "bytes": 8441,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/inferno.lab.json",
+      "sha256": "7adc054998ce80df9e3f5fd2b842934726e2e9cfa2c018cc8be2f7ff3c8ca046",
+      "bytes": 8456,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/mirage.lab.json",
+      "sha256": "1a15bf7b6e0d5e4b5a08c94c232df50f45f2d298e299f82e54012864fe47f25c",
+      "bytes": 8655,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/overpass.lab.json",
+      "sha256": "c8ce1d2d695f762a41ac21ab735d2f6f95ba63df8fa89cf81ed7715a8ed35cb2",
+      "bytes": 8469,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/sandstone.lab.json",
+      "sha256": "06ecdb2eb4b1a3890a72c35cebb5ab6a20a236ac04f52616ac5e8eaaefed9f35",
+      "bytes": 8672,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-combat/vertigo.lab.json",
+      "sha256": "05470c14a091de6054d65fb225dd8bac379d119a52df03014a459e803ba3ded9",
+      "bytes": 8506,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/ancient.lab.json",
+      "sha256": "d9282ee2c7e69611c5c137718f42456fd1baec6ac2d0e353d59c5977208cbe85",
+      "bytes": 8494,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/anubis.lab.json",
+      "sha256": "19a4105b569d14237939b7ec2afe5022376574d7a6248b3637a74b5421653bca",
+      "bytes": 8441,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/inferno.lab.json",
+      "sha256": "6107306270b85abd39b9abcd571c58dce29f35ceb159b50203f4704360bcd436",
+      "bytes": 8456,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/mirage.lab.json",
+      "sha256": "762efb66cd28e2c5b4c80b9c65fcc075edea1383f93c068471efd4aa4cfa737b",
+      "bytes": 8655,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/overpass.lab.json",
+      "sha256": "5403bd0a6d83c8b4c6b74029fc3cc0f5f68f4a015baa6b1531d75783d7d7a2df",
+      "bytes": 8469,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/sandstone.lab.json",
+      "sha256": "40c1c7adf2bc3c24ef9f5cbdd971d380abf1285f2ab0e201e63a8d6ae5738780",
+      "bytes": 8672,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "public/map-studio/teams/recovery-squad/vertigo.lab.json",
+      "sha256": "f038e58eed73d549684a3652ebfd5ba464ae61f755fffd42d0a7f274cf4e7afb",
+      "bytes": 8506,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "data/map-interior-boundaries.json",
+      "sha256": "d86ca638d0c16e9fbceba2830c80c7ef7b021ddb280eefcebf422427a920b31f",
+      "bytes": 88513,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "data/map-pool.ts",
+      "sha256": "a5492809f5ae23a13f9ee0625fc44c7c9e19b9aa224e8ffec962cfda04fd9ab2",
+      "bytes": 2010,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "data/native-map-drafts.json",
+      "sha256": "277cd6b70cd74cdcfbcde6f3138f97629e3a12eb79baaa2fbfe80d51c28789f9",
+      "bytes": 1952,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    },
+    {
+      "path": "data/physical-map-scenarios.json",
+      "sha256": "eca23b9a0cb1845d8884ce494c0006e1d3e0299cb239f4ae2eb75e816c414f93",
+      "bytes": 797,
+      "unchangedLineupMarks": 0,
+      "embedded": [],
+      "basis": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request."
+    }
+  ],
+  "nativeEvidence": [
+    {
+      "path": "public/map-studio/reviews/native/Ancient/audit.json",
+      "sha256": "27f9a708174f939203284423624ffd5b26d6301098376a48d6406dea28bd7f63",
+      "extraction": {
+        "vpk": "de_ancient.vpk",
+        "vpkSha256": "db67fb7c45e4a92a87473dc8d9dae0b5ead6887e282ecd7d98076f5c01af0d26",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "967c483c0e2e4471834a9e0ba80432c8e9a8114e61ff5a6fb08c32b7331fc6d4",
+        "physics": "5da0d5a674379cb9373d01afa3e447b8ee53cd04016ba4cdceda4df10b3373b2",
+        "entities": {
+          "default_ents.vents_c": "c6f2d28b7dcc6ff1ec8f0e70871cdaaed596173957049e0fcccdc1be19fc823d"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Anubis/audit.json",
+      "sha256": "24bb9dfb94e7a1c70435795c00d461a7bfa94f5dbd4558dcb37b4e9da1e521b7",
+      "extraction": {
+        "vpk": "de_anubis.vpk",
+        "vpkSha256": "bca91cee11592c65c2869c599769232f29335458376ed90431a013b58c938e07",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "5d492f867497cc47a6072fc803fb7b0fcf8f1b99030590e3fbff627c9cba7eeb",
+        "physics": "45dd920caa17b2d46796f10afb6bc6fe774ea1d26bb0968c9091d2385758d95c",
+        "entities": {
+          "default_ents.vents_c": "0bec69113fd5ca9a7366f0ebd05523d4c0ffebcaf759cd52fdd010e222352f66"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Inferno/audit.json",
+      "sha256": "ef8683db8cf35976a8c5c6994a21c488bcf5038b87e6eacf21ea141e09ac8bc4",
+      "extraction": {
+        "vpk": "de_inferno.vpk",
+        "vpkSha256": "bfe3d8a996feb43962b11a51acd76068fd001f793fa750f7df5cf7d9d23a9d89",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "8d312122a9758a1b64b397f0e02b16e18e9432f738ab7308d0b73cb7df118111",
+        "physics": "b721f2085f61331939a315f24f61b8a1037f123d16213deecaa4dbfc6b99f22f",
+        "entities": {
+          "default_ents.vents_c": "e497d347ee4dbabf3c453d938fb6c45a529c444b4aef93d415dea279b621997c"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Nuke/audit.json",
+      "sha256": "1a20b211ed5f71849f1db5e6f36f324d8f572868f6b2dcfb4082f54efa5c77a8",
+      "extraction": {
+        "vpk": "de_nuke.vpk",
+        "vpkSha256": "616286bdfba283f8026cb719321e4c2d0986f04ce925cb13b0ff7ff913c33007",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "58a9ef6b9ba7f471fcfc1e399f28c638b4a56b5609e4920e4b5e8f4f5aeb1c56",
+        "physics": "0e88f75d64f7379fe18d72a0b279a240b2d6148b7743830823fecf43e2c2002a",
+        "entities": {
+          "default_ents.vents_c": "557075dbbde5509280347b1dede63ad91e02fbe0d5f41f902579efc786a80780"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Overpass/audit.json",
+      "sha256": "bc3e8d941f15de1b56f212dabd1d83fccc285d7efe2f7c330549afcf393b8eb7",
+      "extraction": {
+        "vpk": "de_overpass.vpk",
+        "vpkSha256": "9eb4de2b94747d9b8f0409a0d6a8e645c352702d40fc085b7672088c1e7f24b3",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "8ca1049396331fab2fe2b00ef13ec7d3532af35d48d1a5d562f616c149a6ad8f",
+        "physics": "331f42d56afd961f79645575528f13274a98d29e207641445b997e0f328ac2ad",
+        "entities": {
+          "default_ents.vents_c": "a12a4466c4f6fd0f16d81d50dc44bb4c22bcbd05a03ce81c719584763611c7aa"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Sandstone/audit.json",
+      "sha256": "9918a59e7c442b88a5672117400f7f8f5cb53c247cd195470b29343fc16f4dc7",
+      "extraction": {
+        "vpk": "de_dust2.vpk",
+        "vpkSha256": "51d6bb432b6553bfae6c38219a527c5de2464a2b107080f2b8be7d8427ebb885",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "64bbc202edae8a92d432368e86948bbee3af9c56555e190dda251d28c64e1ea7",
+        "physics": "d31ef6c5ae4c60d1b2d242ecb9e938b7bad5ab72015c6523109f697f2c6abd41",
+        "entities": {
+          "default_ents.vents_c": "515efdfc1e452b3d7052c5ffb1801a05e23b2395fb90586ff2dc9d14ae7ef80a"
+        }
+      }
+    },
+    {
+      "path": "public/map-studio/reviews/native/Vertigo/audit.json",
+      "sha256": "cb1a47b2dbe3f5d6ac4f980dfdf40c9f990869340c6bfd171ef4966a8b82a170",
+      "extraction": {
+        "vpk": "de_vertigo.vpk",
+        "vpkSha256": "77b0afd6d2f3332255cc5bceb9377e6ce8413ae0955106242ee2927e734cdac4",
+        "tool": "Source 2 Viewer CLI",
+        "toolSha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+      },
+      "sourceHashes": {
+        "nav": "efca544d49be608d6017908ef083be1e11ec8a5e819da40808210268da9d6890",
+        "physics": "586a8e610cbe78e2e124385c2a3febf2c7a5d2b4c068dacf29a83b97ff8e8648",
+        "entities": {
+          "2_28160#entitylumpname.vents_c": "63c3df06ea66a846bf0dac9c2873c845fc3f171eb50b4b87bb53fe16c37ca9ff",
+          "default_ents.vents_c": "008043b4db040403698f25a4eeb251a5d478d2159b0797569c2e7fdf6f8d5a37"
+        }
+      }
+    }
+  ],
+  "basis": "Existing owner map-use confirmation, supplied v13 drawing, explicit installed-map extraction/integration requests and prior Ship everything decision for the unchanged lineup collection.",
+  "limitations": [
+    "No new agreement, upstream permission or Valve endorsement is asserted.",
+    "Lineup source permission remains unverified; owner-directed inclusion is recorded separately.",
+    "This is exact-byte source reconciliation, not geometry acceptance or final packaged inventory.",
+    "Original real-player photos and team logos remain excluded."
+  ]
+}

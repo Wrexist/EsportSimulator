@@ -26,6 +26,7 @@
  */
 
 import type { SliceCreator } from "@/store/types"
+import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import type {
     CompletedMatchSaveData,
     TeamSaveData,
@@ -38,6 +39,7 @@ import {
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { applyPreMatchTalents } from "@/engine/match/apply-talents"
 import { checkAchievements } from "@/engine/steam-service"
 import {
@@ -66,10 +68,14 @@ export interface MatchSimulationActions {
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
     saveMatchResult: (matchId, result) => {
         set((state) => {
+            if (state.completedMatches.some(m => m.id === matchId)) return
+            if (!result || result.engineVersion && result.engineVersion !== 'legacy-v2') return
             const matchIndex = state.scheduledMatches.findIndex(m => m.id === matchId)
             if (matchIndex === -1) return
 
             const match = state.scheduledMatches[matchIndex]
+            // Reject contradictory map identity; never relabel events from a different map.
+            if (Array.isArray(result.maps) && result.maps.some((m: { map?: string }, i: number) => match.maps?.[i] && m?.map && match.maps[i] !== m.map)) return
             const matchSeed = ensureDeterministicSeed(state, match)
             const matchRng = new SeededRNG(matchSeed)
 
@@ -81,7 +87,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             if (!isPlayerMatch) return
             if (match.week > state.currentWeek) return
 
-            const rosterIds = [...new Set([...homeTeam.rosterIds, ...awayTeam.rosterIds])]
+            const rosterIds = [...new Set([...homeTeam.rosterIds.slice(0, 5), ...awayTeam.rosterIds.slice(0, 5)])]
             if (rosterIds.length === 0) return
             const rosterSet = new Set(rosterIds)
 
@@ -206,13 +212,17 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 mvpPlayerId: fallbackMvp,
                 playerStats: sanitizedPlayerStats,
             }
-            const completedMatch: CompletedMatchSaveData = { ...match, result }
+            result.engineVersion = 'legacy-v2'
+            result.lineups = { [homeTeam.id]: getActivePlayersByRosterOrder(homeTeam, state.players).map(p => p.id), [awayTeam.id]: getActivePlayersByRosterOrder(awayTeam, state.players).map(p => p.id) }
+            const completedMatch: CompletedMatchSaveData = { ...match, engineVersion: 'legacy-v2', result }
 
             // Remove from scheduled list — match is committed below.
             state.scheduledMatches.splice(matchIndex, 1)
 
             const homeWon = result.homeScore > result.awayScore
             const isDraw = result.homeScore === result.awayScore
+            settlePlayerContractBonuses(state, matchId, homeTeam.id, !isDraw && homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId)
+            settlePlayerContractBonuses(state, matchId, awayTeam.id, !isDraw && !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId)
 
             // Recent form: keep last 5 results for the form widget.
             const updateForm = (team: TeamSaveData, formResult: "W" | "L" | "D") => {
@@ -532,6 +542,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         const match = state.scheduledMatches.find(m => m.id === matchId)
         if (!match) return
         if (!state.playerTeamId) return
+        if (state.activeMatchId || state.activeMatchState) {
+            get().addToast({ message: 'Resume your active match to keep its recorded rounds and lineup.', type: 'warning' })
+            return
+        }
 
         const isPlayerMatch = match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId
         if (!isPlayerMatch) return
@@ -546,12 +560,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         const aTeam = state.teams.find(t => t.id === match.awayTeamId)
         if (!hTeam || !aTeam) return
 
-        const hPlayers = hTeam.rosterIds
-            .map(id => state.players.find(p => p.id === id))
-            .filter(Boolean) as unknown as Player[]
-        const aPlayers = aTeam.rosterIds
-            .map(id => state.players.find(p => p.id === id))
-            .filter(Boolean) as unknown as Player[]
+        const hPlayers = getActivePlayersByRosterOrder(hTeam, state.players).map(p => structuredClone(p))
+        const aPlayers = getActivePlayersByRosterOrder(aTeam, state.players).map(p => structuredClone(p))
 
         // The week-tick auto-sim forfeits depleted rosters (match-forfeit.ts);
         // this path silently played 3v5 instead. Refuse the player's own
@@ -574,8 +584,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             return
         }
 
-        const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id))
-        const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id))
+        const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id)).map(s => structuredClone(s))
+        const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id)).map(s => structuredClone(s))
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapStaff = (sData: any[]) => ({
@@ -613,30 +623,23 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const runtimeMatch: any = {
             ...match,
-            seed: (typeof match.seed === "number" && match.seed > 0) ? match.seed : fallbackSeed,
+            seed: (typeof match.seed === "number" && Number.isFinite(match.seed) && match.seed >= 0) ? match.seed : fallbackSeed,
             bestOf,
         }
 
-        // B4 differential: a one-click dashboard Quick-Sim skips the match-day
-        // prep flow, so the player's team forgoes a small edge. Applied to a
-        // transient copy only (never persisted); opponents and prepared players
-        // (tactics-page "simulate instead", which passes no flag) are untouched.
-        const QUICK_SIM_PREP_PENALTY = 0.04
-        const withPrepPenalty = (team: typeof hTeam) =>
-            opts.skippedPrep && team.id === state.playerTeamId
-                ? { ...team, prepPenalty: QUICK_SIM_PREP_PENALTY }
-                : team
-
         const result = simulationEngineV2.simulateMatch(
             runtimeMatch,
-            withPrepPenalty(hTeam) as unknown as Team,
-            withPrepPenalty(aTeam) as unknown as Team,
+            hTeam as unknown as Team,
+            aTeam as unknown as Team,
             hPlayers,
             aPlayers,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             hStaff as any,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             aStaff as any,
+            undefined,
+            state.customTactics,
+            state.playerTeamId ?? undefined,
         )
 
         // Cross-slice RPC — works because saveMatchResult is in the same

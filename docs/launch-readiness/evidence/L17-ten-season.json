@@ -1,0 +1,898 @@
+{
+  "passed": true,
+  "repeatedExactly": true,
+  "scope": "520 real computeWeek ticks with academy post-processing, scripted human recruitment, actual generated matches/annual aging/retirement/intake, weekly normal save/load. Three-club fixture and one paid fixed-term scout; terminal careers are recorded and continued only as a lifecycle soak, not playable-career acceptance.",
+  "seed": 3517,
+  "weeks": 520,
+  "matches": 401,
+  "promotions": 8,
+  "intakes": 11,
+  "retirements": 10,
+  "maxPlayers": 53,
+  "seasons": [
+    {
+      "week": 52,
+      "players": 21,
+      "budgets": [
+        1914309,
+        5427951,
+        3666353
+      ],
+      "ages": [
+        19,
+        24,
+        30,
+        35,
+        38
+      ],
+      "retired": 3,
+      "promotions": 0,
+      "intakes": 3,
+      "gameOverReason": null
+    },
+    {
+      "week": 104,
+      "players": 22,
+      "budgets": [
+        3310756,
+        10408664,
+        13498797
+      ],
+      "ages": [
+        20,
+        25,
+        31,
+        35,
+        38
+      ],
+      "retired": 4,
+      "promotions": 0,
+      "intakes": 3,
+      "gameOverReason": null
+    },
+    {
+      "week": 156,
+      "players": 25,
+      "budgets": [
+        4801283,
+        26271584,
+        39741142
+      ],
+      "ages": [
+        21,
+        26,
+        32,
+        35,
+        38
+      ],
+      "retired": 4,
+      "promotions": 3,
+      "intakes": 5,
+      "gameOverReason": null
+    },
+    {
+      "week": 208,
+      "players": 27,
+      "budgets": [
+        6584076,
+        65813057,
+        82853844
+      ],
+      "ages": [
+        22,
+        27,
+        32,
+        35,
+        38
+      ],
+      "retired": 6,
+      "promotions": 3,
+      "intakes": 6,
+      "gameOverReason": null
+    },
+    {
+      "week": 260,
+      "players": 30,
+      "budgets": [
+        7822541,
+        82287211,
+        122531601
+      ],
+      "ages": [
+        23,
+        28,
+        32,
+        35,
+        38
+      ],
+      "retired": 8,
+      "promotions": 4,
+      "intakes": 6,
+      "gameOverReason": null
+    },
+    {
+      "week": 312,
+      "players": 35,
+      "budgets": [
+        9714426,
+        102297342,
+        167479544
+      ],
+      "ages": [
+        24,
+        29,
+        32,
+        35,
+        38
+      ],
+      "retired": 8,
+      "promotions": 6,
+      "intakes": 9,
+      "gameOverReason": null
+    },
+    {
+      "week": 364,
+      "players": 38,
+      "budgets": [
+        11705718,
+        110662599,
+        211814841
+      ],
+      "ages": [
+        25,
+        30,
+        32,
+        35,
+        38
+      ],
+      "retired": 8,
+      "promotions": 6,
+      "intakes": 9,
+      "gameOverReason": null
+    },
+    {
+      "week": 416,
+      "players": 43,
+      "budgets": [
+        13619352,
+        127180639,
+        247721072
+      ],
+      "ages": [
+        26,
+        31,
+        32,
+        35,
+        38
+      ],
+      "retired": 8,
+      "promotions": 8,
+      "intakes": 10,
+      "gameOverReason": null
+    },
+    {
+      "week": 468,
+      "players": 48,
+      "budgets": [
+        15628843,
+        127730091,
+        299612623
+      ],
+      "ages": [
+        27,
+        32,
+        32,
+        35,
+        38
+      ],
+      "retired": 9,
+      "promotions": 8,
+      "intakes": 11,
+      "gameOverReason": null
+    },
+    {
+      "week": 520,
+      "players": 53,
+      "budgets": [
+        17867395,
+        128545011,
+        334314364
+      ],
+      "ages": [
+        28,
+        33,
+        32,
+        35,
+        38
+      ],
+      "retired": 10,
+      "promotions": 8,
+      "intakes": 11,
+      "gameOverReason": null
+    }
+  ],
+  "shortages": [
+    {
+      "week": 52,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 53,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 54,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 55,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 56,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 57,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 58,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 59,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 60,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 61,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 62,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 63,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 64,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 65,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 66,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 67,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 68,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 69,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 70,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 71,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 72,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 73,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 74,
+      "rosters": [
+        4,
+        6,
+        6
+      ]
+    },
+    {
+      "week": 75,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 76,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 77,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 78,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 79,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 80,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 81,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 82,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 83,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 84,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 85,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 86,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 87,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 88,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 89,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 90,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 91,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 92,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 93,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 94,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 95,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 96,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 97,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 98,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 99,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 100,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 101,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 102,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 103,
+      "rosters": [
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 104,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 105,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 106,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 107,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 108,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 109,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 110,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 111,
+      "rosters": [
+        3,
+        6,
+        7
+      ]
+    },
+    {
+      "week": 112,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 113,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 114,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 115,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 116,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 117,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 118,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 119,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 120,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 121,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 122,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 123,
+      "rosters": [
+        3,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 124,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 125,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 126,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 127,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 128,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 129,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 130,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 131,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 132,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 133,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 134,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 135,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    },
+    {
+      "week": 136,
+      "rosters": [
+        4,
+        7,
+        7
+      ]
+    }
+  ],
+  "terminalCareer": null,
+  "canonicalSha256": "0c60ab514bb04a1c9e6e3eb44fe0feb1e2c264d888506f47bb4ec73b9fa2e6d8"
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "mapId": "Mirage",
+    "project": "/map-studio/teams/map-pool/mirage.lab.json",
+    "ready": false
+  },
+  {
+    "mapId": "Inferno",
+    "project": "/map-studio/teams/map-pool/inferno.lab.json",
+    "ready": true
+  },
+  {
+    "mapId": "Overpass",
+    "project": "/map-studio/teams/map-pool/overpass.lab.json",
+    "ready": true
+  },
+  {
+    "mapId": "Vertigo",
+    "project": "/map-studio/teams/map-pool/vertigo.lab.json",
+    "ready": true
+  },
+  {
+    "mapId": "Ancient",
+    "project": "/map-studio/teams/map-pool/ancient.lab.json",
+    "ready": true
+  },
+  {
+    "mapId": "Anubis",
+    "project": "/map-studio/teams/map-pool/anubis.lab.json",
+    "ready": true
+  },
+  {
+    "mapId": "Sandstone",
+    "project": "/map-studio/teams/map-pool/sandstone.lab.json",
+    "ready": true
+  }
+]

@@ -1,0 +1,3 @@
+import type { EncounterResult } from '../../engine/spatial/encounter'
+/** Cross-runtime acceptance still compares every event/tick and authoritative state; only float geometry is omitted. */
+export const discreteUtilityReplay = (r: EncounterResult) => ({ outcome: r.outcome, events: r.events.map(({ from, to, ...e }) => e), frames: r.frames.map(f => ({ tick: f.tick, actors: f.actors.map(a => ({ id: a.id, health: a.health, armor: a.armor, ammo: a.ammo, reserve: a.reserve, state: a.state, visible: a.knowledge?.visible ?? false, seenTick: a.knowledge?.seenTick ?? null, utility: a.utility })), grenades: f.grenades?.map(({ point, ...g }) => g) })), effects: r.utility?.effects.map(({ point, cells, ...e }) => ({ ...e, cells: cells?.length })), checks: r.utility?.checks })

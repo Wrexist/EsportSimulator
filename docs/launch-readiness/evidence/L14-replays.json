@@ -1,0 +1,267 @@
+{
+  "engine": "spatial-round-v1",
+  "passed": true,
+  "node": "v22.18.0",
+  "sourceVersion": "2000908",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "scenarios": [
+    {
+      "id": "delayed-radio",
+      "lab": "/map-studio/teams/l13/delayed-radio.lab.json",
+      "sha256": "93bf97de7299698fa29bf3260f64aed024ef2821115fe3d44b18fbd6c73fa485",
+      "outcome": "unresolved",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 0
+        }
+      },
+      "events": 59,
+      "frames": 65,
+      "ticks": 512,
+      "bytes": 221319,
+      "simulationMs": 88.68870000000004,
+      "projectionMs": 4.182000000000016
+    },
+    {
+      "id": "execute",
+      "lab": "/map-studio/teams/l13/execute.lab.json",
+      "sha256": "f4ad98f23ebf470e5d1c21ef87358c1b4247e6234b7ccad55f362328227d5083",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "events": 87,
+      "frames": 71,
+      "ticks": 559,
+      "bytes": 257503,
+      "simulationMs": 180.46810000000005,
+      "projectionMs": 4.182999999999993
+    },
+    {
+      "id": "retake",
+      "lab": "/map-studio/teams/l13/retake.lab.json",
+      "sha256": "88db89ca2af1914d28373f8ec646c5637014aba8260d614b0d2c948f71050501",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "events": 45,
+      "frames": 41,
+      "ticks": 320,
+      "bytes": 142518,
+      "simulationMs": 132.92129999999997,
+      "projectionMs": 4.060699999999997
+    },
+    {
+      "id": "deadline-save",
+      "lab": "/map-studio/teams/l13/deadline-save.lab.json",
+      "sha256": "d57c35f0bf64ca442c5a9a5b532aaff1746597ec6242b083b4a7a985b3c7886f",
+      "outcome": "T",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 1900
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 1900
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        }
+      },
+      "events": 43,
+      "frames": 41,
+      "ticks": 320,
+      "bytes": 145383,
+      "simulationMs": 149.27559999999994,
+      "projectionMs": 2.3278999999999996
+    },
+    {
+      "id": "support-smoke",
+      "lab": "/map-studio/teams/l13/support-smoke.lab.json",
+      "sha256": "7c94e64ce6b0ebeed5b493c1b6f225217897e19c3c3637709c4749ecd5e7b360",
+      "outcome": "CT",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 3500
+        },
+        "T1": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        },
+        "T2": {
+          "kills": 0,
+          "deaths": 0,
+          "damage": 0,
+          "health": 100,
+          "reward": 2700
+        }
+      },
+      "events": 64,
+      "frames": 71,
+      "ticks": 559,
+      "bytes": 241431,
+      "simulationMs": 326.7649000000001,
+      "projectionMs": 3.1875
+    },
+    {
+      "id": "trade-clutch",
+      "lab": "/map-studio/teams/l13/trade-clutch.lab.json",
+      "sha256": "5c3a912a62c23400d458a7f47bea4bdaf52887bbc5d324e8f4c47687fb6b69ce",
+      "outcome": "T",
+      "players": {
+        "CT1": {
+          "kills": 0,
+          "deaths": 1,
+          "damage": 89,
+          "health": 0,
+          "reward": 1900
+        },
+        "CT2": {
+          "kills": 0,
+          "deaths": 1,
+          "damage": 0,
+          "health": 0,
+          "reward": 1900
+        },
+        "T1": {
+          "kills": 1,
+          "deaths": 0,
+          "damage": 188,
+          "health": 100,
+          "reward": 3550
+        },
+        "T2": {
+          "kills": 1,
+          "deaths": 0,
+          "damage": 12,
+          "health": 11,
+          "reward": 3550
+        }
+      },
+      "events": 41,
+      "frames": 86,
+      "ticks": 675,
+      "bytes": 228894,
+      "simulationMs": 52.62560000000008,
+      "projectionMs": 3.5102999999999156
+    }
+  ],
+  "limits": [
+    "Six controlled lab rounds, not full career matches.",
+    "Timing is host-specific; spatial season cost remains unproven.",
+    "Recorded positions/bomb at 8 Hz; physical event ticks at 64 Hz.",
+    "Reward deltas use existing economy rules with zero initial cash and loss streak."
+  ]
+}

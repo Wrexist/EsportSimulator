@@ -1,0 +1,201 @@
+{
+  "format": "esim-spatial-lab",
+  "version": 1,
+  "mapId": "Mirage",
+  "sourceVersion": "2000908",
+  "a": null,
+  "b": null,
+  "blocked": [],
+  "links": [],
+  "settings": {
+    "height": 72,
+    "speed": 220,
+    "ladders": true
+  },
+  "teams": {
+    "version": 1,
+    "seed": 4326170,
+    "seconds": 10,
+    "roundSeconds": 10,
+    "bombSeconds": 5,
+    "plantSeconds": 3,
+    "defuseSeconds": 5,
+    "openingSeconds": 10,
+    "communicationMs": 500,
+    "memorySeconds": 4,
+    "skill": {
+      "T": 0.7,
+      "CT": 0.7
+    },
+    "economy": "balanced",
+    "guns": false,
+    "initialBomb": "dropped",
+    "objective": "A",
+    "carrier": "T1",
+    "sites": {
+      "A": {
+        "area": 1897,
+        "point": [
+          -2056.7501749999997,
+          154.566358930167,
+          -156
+        ]
+      },
+      "B": {
+        "area": 1838,
+        "point": [
+          -2056.7501749999997,
+          277.25489999999996,
+          -156
+        ]
+      }
+    },
+    "actors": [
+      {
+        "id": "T1",
+        "side": "T",
+        "start": {
+          "area": 1896,
+          "point": [
+            -2146.7501749999997,
+            154.566358930167,
+            -156
+          ]
+        },
+        "station": {
+          "area": 1896,
+          "point": [
+            -2146.7501749999997,
+            154.566358930167,
+            -156
+          ]
+        },
+        "role": "entry",
+        "yaw": -72.18111108547721,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "T2",
+        "side": "T",
+        "start": {
+          "area": 1838,
+          "point": [
+            -2056.7501749999997,
+            277.25489999999996,
+            -156
+          ]
+        },
+        "station": {
+          "area": 1838,
+          "point": [
+            -2056.7501749999997,
+            277.25489999999996,
+            -156
+          ]
+        },
+        "role": "support",
+        "yaw": -90,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      },
+      {
+        "id": "CT1",
+        "side": "CT",
+        "start": {
+          "area": 1787,
+          "point": [
+            -2056.7501749999997,
+            -125.43364106983299,
+            -163.29917591575702
+          ]
+        },
+        "station": {
+          "area": 1787,
+          "point": [
+            -2056.7501749999997,
+            -125.43364106983299,
+            -163.29917591575702
+          ]
+        },
+        "role": "anchor",
+        "yaw": 0,
+        "health": 100,
+        "armor": 100,
+        "ammo": 30
+      }
+    ],
+    "utility": {
+      "version": 1,
+      "ceasefire": true,
+      "restitution": 0.45,
+      "friction": 0.3,
+      "inventory": {
+        "T1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "T2": {
+          "smoke": 1,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        },
+        "CT1": {
+          "smoke": 0,
+          "flash": 0,
+          "he": 0,
+          "fire": 0,
+          "decoy": 0
+        }
+      },
+      "throws": [
+        {
+          "id": "mirage-recovery-smoke",
+          "owner": "T2",
+          "kind": "smoke",
+          "at": 0,
+          "yaw": -90,
+          "pitch": -15,
+          "power": 0.3,
+          "mode": "lob",
+          "tolerance": 4,
+          "bounceTargets": [
+            [
+              -2056.7501749999997,
+              228.30665366806076,
+              -157.95
+            ],
+            [
+              -2056.7501749999997,
+              202.63047180087463,
+              -157.95
+            ],
+            [
+              -2056.7501749999997,
+              194.566358930167,
+              -157.95
+            ]
+          ],
+          "origin": [
+            -2056.7501749999997,
+            277.25489999999996,
+            -156
+          ],
+          "target": [
+            -2056.7501749999997,
+            194.566358930167,
+            -157.95
+          ],
+          "trigger": "recovery"
+        }
+      ]
+    }
+  }
+}

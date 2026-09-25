@@ -1,0 +1,235 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/equipment".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/equipment
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/equipment#main-content
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop?app=mail
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 container
+				144 text LOGISTICS CENTER
+				145 heading EQUIPMENT, Value: 1
+					146 text EQUIPMENT
+				147 text Upgrade your facility with professional-grade hardware. Better equipment directly impacts player performance, reaction times, and development speed.
+				148 container
+					149 text BUDGET $ 500.0 k
+				150 container
+					151 text UPKEEP -$ 0
+			152 container
+				153 text LOADOUT COMPLETENESS 0 % Equip every slot for maximum gains
+			154 container
+				155 text AVERAGE TIER 0.0 / 3.0
+			156 container
+				157 text ACTIVE BONUSES No equipment bonuses yet — purchase gear below.
+			158 container
+				159 button ALL
+				160 button Mouse
+				161 button Keyboard
+				162 button Monitor
+				163 button Headset
+				164 button Chair
+				165 button Gaming PC
+			166 container
+				167 image Standard Gaming Mouse
+				168 container
+					169 text TIER  1  •  Standard
+				170 heading STANDARD GAMING MOUSE, Value: 3
+					171 text STANDARD GAMING MOUSE
+				172 text UPGRADE + 2 reaction
+				173 container
+					174 text $ 500
+			175 container
+				176 image Pro Wireless Mouse
+				177 container
+					178 text TIER  2  •  Pro
+				179 heading PRO WIRELESS MOUSE, Value: 3
+					180 text PRO WIRELESS MOUSE
+				181 text UPGRADE + 5 reaction
+				182 container
+					183 text $ 2,000
+			184 container
+				185 image Elite Tournament Mouse
+				186 container
+					187 text TIER  3  •  Elite
+				188 heading ELITE TOURNAMENT MOUSE, Value: 3
+					189 text ELITE TOURNAMENT MOUSE
+				190 text UPGRADE + 8 reaction
+				191 container
+					192 text $ 5,000
+			193 container
+				194 image Mechanical Keyboard
+				195 container
+					196 text TIER  1  •  Standard
+				197 heading MECHANICAL KEYBOARD, Value: 3
+					198 text MECHANICAL KEYBOARD
+				199 text UPGRADE + 2 clutch
+				200 container
+					201 text $ 600
+			202 container
+				203 image Pro Tournament Keyboard
+				204 container
+					205 text TIER  2  •  Pro
+				206 heading PRO TOURNAMENT KEYBOARD, Value: 3
+					207 text PRO TOURNAMENT KEYBOARD
+				208 text UPGRADE + 5 clutch
+				209 container
+					210 text $ 2,500
+			211 container
+				212 image Elite Custom Keyboard
+				213 container
+					214 text TIER  3  •  Elite
+				215 heading ELITE CUSTOM KEYBOARD, Value: 3
+					216 text ELITE CUSTOM KEYBOARD
+				217 text UPGRADE + 8 clutch
+				218 container
+					219 text $ 6,000
+			220 container
+				221 image 144Hz Gaming Monitor
+				222 container
+					223 text TIER  1  •  Standard
+				224 heading 144HZ GAMING MONITOR, Value: 3
+					225 text 144HZ GAMING MONITOR
+				226 text UPGRADE + 2 rifle
+				227 container
+					228 text $ 1,000
+			229 container
+				230 image 240Hz Pro Monitor
+				231 container
+					232 text TIER  2  •  Pro
+				233 heading 240HZ PRO MONITOR, Value: 3
+					234 text 240HZ PRO MONITOR
+				235 text UPGRADE + 5 rifle
+				236 container
+					237 text $ 3,000
+			238 container
+				239 image 360Hz Tournament Display
+				240 container
+					241 text TIER  3  •  Elite
+				242 heading 360HZ TOURNAMENT DISPLAY, Value: 3
+					243 text 360HZ TOURNAMENT DISPLAY
+				244 text UPGRADE + 8 rifle
+				245 container
+					246 text $ 8,000
+			247 container
+				248 image Gaming Headset
+				249 container
+					250 text TIER  1  •  Standard
+				251 heading GAMING HEADSET, Value: 3
+					252 text GAMING HEADSET
+				253 text UPGRADE + 2 tactic
+				254 container
+					255 text $ 400
+			256 container
+				257 image Pro Audio System
+				258 container
+					259 text TIER  2  •  Pro
+				260 heading PRO AUDIO SYSTEM, Value: 3
+					261 text PRO AUDIO SYSTEM
+				262 text UPGRADE + 5 tactic
+				263 container
+					264 text $ 1,500
+			265 container
+				266 image Elite In-Ear Setup
+				267 container
+					268 text TIER  3  •  Elite
+				269 heading ELITE IN-EAR SETUP, Value: 3
+					270 text ELITE IN-EAR SETUP
+				271 text UPGRADE + 8 tactic
+				272 container
+					273 text $ 4,000
+			274 container
+				275 image Gaming Chair
+				276 container
+					277 text TIER  1  •  Standard
+				278 heading GAMING CHAIR, Value: 3
+					279 text GAMING CHAIR
+				280 text UPGRADE + 2 creativity
+				281 container
+					282 text $ 800
+			283 container
+				284 image Pro Ergonomic Chair
+				285 container
+					286 text TIER  2  •  Pro
+				287 heading PRO ERGONOMIC CHAIR, Value: 3
+					288 text PRO ERGONOMIC CHAIR
+				289 text UPGRADE + 5 creativity
+				290 container
+					291 text $ 3,000
+			292 container
+				293 image Elite Player Station
+				294 container
+					295 text TIER  3  •  Elite
+				296 heading ELITE PLAYER STATION, Value: 3
+					297 text ELITE PLAYER STATION
+				298 text UPGRADE + 8 creativity
+				299 container
+					300 text $ 7,000
+			301 container
+				302 image Gaming PC
+				303 container
+					304 text TIER  1  •  Standard
+				305 heading GAMING PC, Value: 3
+					306 text GAMING PC
+				307 text UPGRADE + 1 skill
+				308 container
+					309 text $ 3,000
+			310 container
+				311 image Pro Workstation
+				312 container
+					313 text TIER  2  •  Pro
+				314 heading PRO WORKSTATION, Value: 3
+					315 text PRO WORKSTATION
+				316 text UPGRADE + 3 skill
+				317 container
+					318 text $ 8,000
+			319 container
+				320 image Elite Tournament Rig
+				321 container
+					322 text TIER  3  •  Elite
+				323 heading ELITE TOURNAMENT RIG, Value: 3
+					324 text ELITE TOURNAMENT RIG
+				325 text UPGRADE + 5 skill
+				326 container
+					327 text $ 15,000
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 15 link Description: Equipment, URL: 127.0.0.1:3210/equipment

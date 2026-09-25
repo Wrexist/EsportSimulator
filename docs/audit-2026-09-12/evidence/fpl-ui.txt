@@ -1,0 +1,1328 @@
+Browser tab: 1182233814, Title: "Esports Manager: FPS", URL: "http://127.0.0.1:3210/fpl".
+0 AXWebArea Esports Manager: FPS, URL: 127.0.0.1:3210/fpl
+	1 container
+		2 link Description: Skip to main content, Value: 127.0.0.1:3210/fpl
+		3 container
+			4 text ESPORTS MANAGER
+			5 button (expanded) Description: Toggle sidebar, Secondary Actions: Collapse
+		6 container
+			7 button OVERVIEW
+			8 link Description: Home, Value: 127.0.0.1:3210/
+			9 link Description: Inbox, Value: 127.0.0.1:3210/desktop
+			10 link Description: Schedule, Value: 127.0.0.1:3210/schedule
+			11 button TEAM
+			12 link Description: Squad, Value: 127.0.0.1:3210/squad
+			13 link Description: Training, Value: 127.0.0.1:3210/training
+			14 link Description: Staff, Value: 127.0.0.1:3210/staff
+			15 link Description: Equipment, Value: 127.0.0.1:3210/equipment
+			16 button RECRUITMENT
+			17 link Description: Transfers, Value: 127.0.0.1:3210/transfers
+			18 link Description: Scouting, Value: 127.0.0.1:3210/scouting
+			19 link Description: Facilities, Value: 127.0.0.1:3210/basecamp
+			20 link Description: Academy, Value: 127.0.0.1:3210/academy
+			21 button COMPETITION
+			22 link Description: Tournaments, Value: 127.0.0.1:3210/tournaments
+			23 link Description: Rankings, Value: 127.0.0.1:3210/rankings
+			24 link Description: FPL, Value: 127.0.0.1:3210/fpl
+			25 link Description: Statistics, Value: 127.0.0.1:3210/stats
+			26 button BUSINESS
+			27 link Description: Finances, Value: 127.0.0.1:3210/finances
+			28 link Description: Sponsors, Value: 127.0.0.1:3210/sponsorships
+			29 button LEGACY
+			30 link Description: Trophies, Value: 127.0.0.1:3210/trophies
+			31 link Description: Hall of Fame, Value: 127.0.0.1:3210/hall-of-fame
+			32 link Description: Settings & Tools, Value: 127.0.0.1:3210/settings
+		33 link Description: AM Audit Manager Career MANAGER PROFILE, Value: 127.0.0.1:3210/career
+		34 container
+			35 container Pulsar logo
+			36 text CURRENT TEAM
+			37 image ru
+			38 text Pulsar $500,000 #154 World MON, 14 SEP 2026 WEEK  1 • DAY 3
+			39 button Switch to Onyx theme
+			40 button DAILY
+			140 button NEXT DAY
+			141 button SKIP WEEK
+		142 container main-content
+			143 heading FPL LEAGUES, Value: 1
+				144 text FPL LEAGUES
+			145 container
+				146 text INDIVIDUAL PLAYER RANKINGS • SEASON  1
+			147 container
+				148 text FPL $ 10,000 PRIZE POOL FPL-C $ 3,000 PRIZE POOL 12 WEEKS LEFT
+			149 text WHAT IS FPL?
+			150 text The Fantasy Player League ranks every pro by individual performance across the season — it runs automatically alongside your matches, no management needed. Your players climb by playing well, building their reputation and value. The top performers in FPL-C earn promotion to the elite FPL.
+			151 container
+				152 text Promotion Zone Top  3  from FPL-C get promoted to FPL
+			153 container
+				154 text Relegation Zone Bottom  3  non-pros from FPL get relegated
+			155 tab group
+				156 tab (selected, settable, boolean) FPL Pro, Value: 1, ID: radix-:r6k:-trigger-fpl
+				157 tab (selectable, settable, boolean) FPL Challenger, Value: 0, ID: radix-:r6k:-trigger-fpl-c
+				158 tab (selectable, settable, boolean) Season, Value: 0, ID: radix-:r6k:-trigger-season
+				159 tab (selectable, settable, boolean) History, Value: 0, ID: radix-:r6k:-trigger-history
+			160 text field (settable)
+			161 container Description: FPL Pro, ID: radix-:r6k:-content-fpl
+				162 container
+					163 heading FPL Pro League, Value: 3
+						164 text FPL Pro League
+					165 text 83  Players The elite tier of competitive FPL. Bottom  3  non-pro players get relegated to FPL Challenger at season end.
+					166 table
+						167 row
+							168 cell
+								169 text #
+							170 cell
+								171 text PLAYER
+							172 cell
+								173 text TEAM
+							174 cell
+								175 text POINTS
+							176 cell
+								177 text W/L
+							178 cell
+								179 text RATING
+							180 cell
+								181 text ELO
+						182 row
+							183 cell
+								184 link Description: Iriz0r Iriz0r Portugal, Value: 127.0.0.1:3210/player/player_…
+							185 cell
+								186 text Scarlet Halcyon
+							187 cell
+								188 text 0
+							189 cell
+								190 text 0 / 0
+							191 cell
+								192 text 1.00
+							193 cell
+								194 text 2496
+						195 row
+							196 cell
+								197 link Description: FELI Austria Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							198 cell
+								199 text Free Agent
+							200 cell
+								201 text 0
+							202 cell
+								203 text 0 / 0
+							204 cell
+								205 text 1.00
+							206 cell
+								207 text 2376
+						208 row
+							209 cell
+								210 link Description: flor Germany Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							211 cell
+								212 text Free Agent
+							213 cell
+								214 text 0
+							215 cell
+								216 text 0 / 0
+							217 cell
+								218 text 1.00
+							219 cell
+								220 text 2373
+						221 row
+							222 cell
+								223 text 4
+							224 cell
+								225 link Description: d1ni Poland Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							226 cell
+								227 text Free Agent
+							228 cell
+								229 text 0
+							230 cell
+								231 text 0 / 0
+							232 cell
+								233 text 1.00
+							234 cell
+								235 text 2367
+						236 row
+							237 cell
+								238 text 5
+							239 cell
+								240 link Description: 4lek Poland Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							241 cell
+								242 text Free Agent
+							243 cell
+								244 text 0
+							245 cell
+								246 text 0 / 0
+							247 cell
+								248 text 1.00
+							249 cell
+								250 text 2365
+						251 row
+							252 cell
+								253 text 6
+							254 cell
+								255 link Description: HAO China Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							256 cell
+								257 text Free Agent
+							258 cell
+								259 text 0
+							260 cell
+								261 text 0 / 0
+							262 cell
+								263 text 1.00
+							264 cell
+								265 text 2345
+						266 row
+							267 cell
+								268 text 7
+							269 cell
+								270 link Description: YT_hugo Austria Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							271 cell
+								272 text Free Agent
+							273 cell
+								274 text 0
+							275 cell
+								276 text 0 / 0
+							277 cell
+								278 text 1.00
+							279 cell
+								280 text 2335
+						281 row
+							282 cell
+								283 text 8
+							284 cell
+								285 link Description: can Turkey Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							286 cell
+								287 text Free Agent
+							288 cell
+								289 text 0
+							290 cell
+								291 text 0 / 0
+							292 cell
+								293 text 1.00
+							294 cell
+								295 text 2333
+						296 row
+							297 cell
+								298 text 9
+							299 cell
+								300 link Description: FrostEagle Poland Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							301 cell
+								302 text Free Agent
+							303 cell
+								304 text 0
+							305 cell
+								306 text 0 / 0
+							307 cell
+								308 text 1.00
+							309 cell
+								310 text 2328
+						311 row
+							312 cell
+								313 text 10
+							314 cell
+								315 link Description: fox Czech Republic Grinder, Value: 127.0.0.1:3210/player/fpl_non…
+							316 cell
+								317 text Free Agent
+							318 cell
+								319 text 0
+							320 cell
+								321 text 0 / 0
+							322 cell
+								323 text 1.00
+							324 cell
+								325 text 2326
+						326 row
+							327 cell
+								328 text 11
+							329 cell
+								330 link Description: CyberPhoenix Brazil Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							331 cell
+								332 text Free Agent
+							333 cell
+								334 text 0
+							335 cell
+								336 text 0 / 0
+							337 cell
+								338 text 1.00
+							339 cell
+								340 text 2322
+						341 row
+							342 cell
+								343 text 12
+							344 cell
+								345 link Description: GhostPhoenix Czech Republic Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							346 cell
+								347 text Free Agent
+							348 cell
+								349 text 0
+							350 cell
+								351 text 0 / 0
+							352 cell
+								353 text 1.00
+							354 cell
+								355 text 2318
+						356 row
+							357 cell
+								358 text 13
+							359 cell
+								360 link Description: ShadowAce France Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							361 cell
+								362 text Free Agent
+							363 cell
+								364 text 0
+							365 cell
+								366 text 0 / 0
+							367 cell
+								368 text 1.00
+							369 cell
+								370 text 2316
+						371 row
+							372 cell
+								373 text 14
+							374 cell
+								375 link Description: FireStar Germany Ex-Academy, Value: 127.0.0.1:3210/player/fpl_non…
+							376 cell
+								377 text Free Agent
+							378 cell
+								379 text 0
+							380 cell
+								381 text 0 / 0
+							382 cell
+								383 text 1.00
+							384 cell
+								385 text 2315
+						386 row
+							387 cell
+								388 text 15
+							389 cell
+								390 link Description: itsluka Netherlands Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							391 cell
+								392 text Free Agent
+							393 cell
+								394 text 0
+							395 cell
+								396 text 0 / 0
+							397 cell
+								398 text 1.00
+							399 cell
+								400 text 2314
+						401 row
+							402 cell
+								403 text 16
+							404 cell
+								405 link Description: vl1d Russia Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							406 cell
+								407 text Free Agent
+							408 cell
+								409 text 0
+							410 cell
+								411 text 0 / 0
+							412 cell
+								413 text 1.00
+							414 cell
+								415 text 2309
+						416 row
+							417 cell
+								418 text 17
+							419 cell
+								420 link Description: nEdge ? Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							421 cell
+								422 text Free Agent
+							423 cell
+								424 text 0
+							425 cell
+								426 text 0 / 0
+							427 cell
+								428 text 1.00
+							429 cell
+								430 text 2309
+						431 row
+							432 cell
+								433 text 18
+							434 cell
+								435 link Description: NovaHunter Serbia Ex-Academy, Value: 127.0.0.1:3210/player/fpl_non…
+							436 cell
+								437 text Free Agent
+							438 cell
+								439 text 0
+							440 cell
+								441 text 0 / 0
+							442 cell
+								443 text 1.00
+							444 cell
+								445 text 2309
+						446 row
+							447 cell
+								448 text 19
+							449 cell
+								450 link Description: nStrike United Kingdom Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							451 cell
+								452 text Free Agent
+							453 cell
+								454 text 0
+							455 cell
+								456 text 0 / 0
+							457 cell
+								458 text 1.00
+							459 cell
+								460 text 2301
+						461 row
+							462 cell
+								463 text 20
+							464 cell
+								465 link Description: fred Sweden Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							466 cell
+								467 text Free Agent
+							468 cell
+								469 text 0
+							470 cell
+								471 text 0 / 0
+							472 cell
+								473 text 1.00
+							474 cell
+								475 text 2294
+						476 row
+							477 cell
+								478 text 21
+							479 cell
+								480 link Description: Qu4ke5 Qu4ke5 ?, Value: 127.0.0.1:3210/player/player_…
+							481 cell
+								482 text Cobra
+							483 cell
+								484 text 0
+							485 cell
+								486 text 0 / 0
+							487 cell
+								488 text 1.00
+							489 cell
+								490 text 2292
+						491 row
+							492 cell
+								493 text 22
+							494 cell
+								495 link Description: BlazeBear Argentina Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							496 cell
+								497 text Free Agent
+							498 cell
+								499 text 0
+							500 cell
+								501 text 0 / 0
+							502 cell
+								503 text 1.00
+							504 cell
+								505 text 2285
+						506 row
+							507 cell
+								508 text 23
+							509 cell
+								510 link Description: CyberTiger ? Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							511 cell
+								512 text Free Agent
+							513 cell
+								514 text 0
+							515 cell
+								516 text 0 / 0
+							517 cell
+								518 text 1.00
+							519 cell
+								520 text 2284
+						521 row
+							522 cell
+								523 text 24
+							524 cell
+								525 link Description: IceBear Canada Ex-Academy, Value: 127.0.0.1:3210/player/fpl_non…
+							526 cell
+								527 text Free Agent
+							528 cell
+								529 text 0
+							530 cell
+								531 text 0 / 0
+							532 cell
+								533 text 1.00
+							534 cell
+								535 text 2277
+						536 row
+							537 cell
+								538 text 25
+							539 cell
+								540 link Description: zStorm Belgium Grinder, Value: 127.0.0.1:3210/player/fpl_non…
+							541 cell
+								542 text Free Agent
+							543 cell
+								544 text 0
+							545 cell
+								546 text 0 / 0
+							547 cell
+								548 text 1.00
+							549 cell
+								550 text 2277
+						551 row
+							552 cell
+								553 text 26
+							554 cell
+								555 link Description: kAngel Norway Ex-Academy, Value: 127.0.0.1:3210/player/fpl_non…
+							556 cell
+								557 text Free Agent
+							558 cell
+								559 text 0
+							560 cell
+								561 text 0 / 0
+							562 cell
+								563 text 1.00
+							564 cell
+								565 text 2271
+						566 row
+							567 cell
+								568 text 27
+							569 cell
+								570 link Description: sEdge Russia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							571 cell
+								572 text Free Agent
+							573 cell
+								574 text 0
+							575 cell
+								576 text 0 / 0
+							577 cell
+								578 text 1.00
+							579 cell
+								580 text 2271
+						581 row
+							582 cell
+								583 text 28
+							584 cell
+								585 link Description: StormFox ? Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							586 cell
+								587 text Free Agent
+							588 cell
+								589 text 0
+							590 cell
+								591 text 0 / 0
+							592 cell
+								593 text 1.00
+							594 cell
+								595 text 2268
+						596 row
+							597 cell
+								598 text 29
+							599 cell
+								600 link Description: knight Switzerland Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							601 cell
+								602 text Free Agent
+							603 cell
+								604 text 0
+							605 cell
+								606 text 0 / 0
+							607 cell
+								608 text 1.00
+							609 cell
+								610 text 2258
+						611 row
+							612 cell
+								613 text 30
+							614 cell
+								615 link Description: MegaEdge Ukraine Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							616 cell
+								617 text Free Agent
+							618 cell
+								619 text 0
+							620 cell
+								621 text 0 / 0
+							622 cell
+								623 text 1.00
+							624 cell
+								625 text 2255
+						626 row
+							627 cell
+								628 text 31
+							629 cell
+								630 link Description: edge1 Sweden Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							631 cell
+								632 text Free Agent
+							633 cell
+								634 text 0
+							635 cell
+								636 text 0 / 0
+							637 cell
+								638 text 1.00
+							639 cell
+								640 text 2253
+						641 row
+							642 cell
+								643 text 32
+							644 cell
+								645 link Description: vLord ? Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							646 cell
+								647 text Free Agent
+							648 cell
+								649 text 0
+							650 cell
+								651 text 0 / 0
+							652 cell
+								653 text 1.00
+							654 cell
+								655 text 2251
+						656 row
+							657 cell
+								658 text 33
+							659 cell
+								660 link Description: ColdReaper Netherlands Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							661 cell
+								662 text Free Agent
+							663 cell
+								664 text 0
+							665 cell
+								666 text 0 / 0
+							667 cell
+								668 text 1.00
+							669 cell
+								670 text 2223
+						671 row
+							672 cell
+								673 text 34
+							674 cell
+								675 link Description: IceCobra United Kingdom Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							676 cell
+								677 text Free Agent
+							678 cell
+								679 text 0
+							680 cell
+								681 text 0 / 0
+							682 cell
+								683 text 1.00
+							684 cell
+								685 text 2220
+						686 row
+							687 cell
+								688 text 35
+							689 cell
+								690 link Description: reaper Norway Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							691 cell
+								692 text Free Agent
+							693 cell
+								694 text 0
+							695 cell
+								696 text 0 / 0
+							697 cell
+								698 text 1.00
+							699 cell
+								700 text 2216
+						701 row
+							702 cell
+								703 text 36
+							704 cell
+								705 link Description: NovaBlade Ukraine Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							706 cell
+								707 text Free Agent
+							708 cell
+								709 text 0
+							710 cell
+								711 text 0 / 0
+							712 cell
+								713 text 1.00
+							714 cell
+								715 text 2210
+						716 row
+							717 cell
+								718 text 37
+							719 cell
+								720 link Description: UltraViper Germany Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							721 cell
+								722 text Free Agent
+							723 cell
+								724 text 0
+							725 cell
+								726 text 0 / 0
+							727 cell
+								728 text 1.00
+							729 cell
+								730 text 2207
+						731 row
+							732 cell
+								733 text 38
+							734 cell
+								735 link Description: matt United Kingdom Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							736 cell
+								737 text Free Agent
+							738 cell
+								739 text 0
+							740 cell
+								741 text 0 / 0
+							742 cell
+								743 text 1.00
+							744 cell
+								745 text 2199
+						746 row
+							747 cell
+								748 text 39
+							749 cell
+								750 link Description: itsstan Slovakia Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							751 cell
+								752 text Free Agent
+							753 cell
+								754 text 0
+							755 cell
+								756 text 0 / 0
+							757 cell
+								758 text 1.00
+							759 cell
+								760 text 2188
+						761 row
+							762 cell
+								763 text 40
+							764 cell
+								765 link Description: zhi6 ? Rising Star, Value: 127.0.0.1:3210/player/fpl_non…
+							766 cell
+								767 text Free Agent
+							768 cell
+								769 text 0
+							770 cell
+								771 text 0 / 0
+							772 cell
+								773 text 1.00
+							774 cell
+								775 text 2181
+						776 row
+							777 cell
+								778 text 41
+							779 cell
+								780 link Description: GhostStorm Turkey Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							781 cell
+								782 text Free Agent
+							783 cell
+								784 text 0
+							785 cell
+								786 text 0 / 0
+							787 cell
+								788 text 1.00
+							789 cell
+								790 text 2171
+						791 row
+							792 cell
+								793 text 42
+							794 cell
+								795 link Description: rasm Norway Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							796 cell
+								797 text Free Agent
+							798 cell
+								799 text 0
+							800 cell
+								801 text 0 / 0
+							802 cell
+								803 text 1.00
+							804 cell
+								805 text 2167
+						806 row
+							807 cell
+								808 text 43
+							809 cell
+								810 link Description: YT_gabr Brazil Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							811 cell
+								812 text Free Agent
+							813 cell
+								814 text 0
+							815 cell
+								816 text 0 / 0
+							817 cell
+								818 text 1.00
+							819 cell
+								820 text 2166
+						821 row
+							822 cell
+								823 text 44
+							824 cell
+								825 link Description: FatalViper Turkey Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							826 cell
+								827 text Free Agent
+							828 cell
+								829 text 0
+							830 cell
+								831 text 0 / 0
+							832 cell
+								833 text 1.00
+							834 cell
+								835 text 2165
+						836 row
+							837 cell
+								838 text 45
+							839 cell
+								840 link Description: viper2 Belgium Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							841 cell
+								842 text Free Agent
+							843 cell
+								844 text 0
+							845 cell
+								846 text 0 / 0
+							847 cell
+								848 text 1.00
+							849 cell
+								850 text 2158
+						851 row
+							852 cell
+								853 text 46
+							854 cell
+								855 link Description: phoenixo Germany Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							856 cell
+								857 text Free Agent
+							858 cell
+								859 text 0
+							860 cell
+								861 text 0 / 0
+							862 cell
+								863 text 1.00
+							864 cell
+								865 text 2149
+						866 row
+							867 cell
+								868 text 47
+							869 cell
+								870 link Description: VIKT Norway Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							871 cell
+								872 text Free Agent
+							873 cell
+								874 text 0
+							875 cell
+								876 text 0 / 0
+							877 cell
+								878 text 1.00
+							879 cell
+								880 text 2147
+						881 row
+							882 cell
+								883 text 48
+							884 cell
+								885 link Description: stary ? Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							886 cell
+								887 text Free Agent
+							888 cell
+								889 text 0
+							890 cell
+								891 text 0 / 0
+							892 cell
+								893 text 1.00
+							894 cell
+								895 text 2147
+						896 row
+							897 cell
+								898 text 49
+							899 cell
+								900 link Description: FlashWolf Denmark Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							901 cell
+								902 text Free Agent
+							903 cell
+								904 text 0
+							905 cell
+								906 text 0 / 0
+							907 cell
+								908 text 1.00
+							909 cell
+								910 text 2145
+						911 row
+							912 cell
+								913 text 50
+							914 cell
+								915 link Description: ThunderKiller Australia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							916 cell
+								917 text Free Agent
+							918 cell
+								919 text 0
+							920 cell
+								921 text 0 / 0
+							922 cell
+								923 text 1.00
+							924 cell
+								925 text 2137
+						926 row
+							927 cell
+								928 text 51
+							929 cell
+								930 link Description: SilentPhoenix Sweden Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							931 cell
+								932 text Free Agent
+							933 cell
+								934 text 0
+							935 cell
+								936 text 0 / 0
+							937 cell
+								938 text 1.00
+							939 cell
+								940 text 2130
+						941 row
+							942 cell
+								943 text 52
+							944 cell
+								945 link Description: sShot Croatia Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							946 cell
+								947 text Free Agent
+							948 cell
+								949 text 0
+							950 cell
+								951 text 0 / 0
+							952 cell
+								953 text 1.00
+							954 cell
+								955 text 2129
+						956 row
+							957 cell
+								958 text 53
+							959 cell
+								960 link Description: FlashEdge Russia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							961 cell
+								962 text Free Agent
+							963 cell
+								964 text 0
+							965 cell
+								966 text 0 / 0
+							967 cell
+								968 text 1.00
+							969 cell
+								970 text 2127
+						971 row
+							972 cell
+								973 text 54
+							974 cell
+								975 link Description: dViper Slovakia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							976 cell
+								977 text Free Agent
+							978 cell
+								979 text 0
+							980 cell
+								981 text 0 / 0
+							982 cell
+								983 text 1.00
+							984 cell
+								985 text 2108
+						986 row
+							987 cell
+								988 text 55
+							989 cell
+								990 link Description: edge01 Finland Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							991 cell
+								992 text Free Agent
+							993 cell
+								994 text 0
+							995 cell
+								996 text 0 / 0
+							997 cell
+								998 text 1.00
+							999 cell
+								1000 text 2107
+						1001 row
+							1002 cell
+								1003 text 56
+							1004 cell
+								1005 link Description: LUKA Norway Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1006 cell
+								1007 text Free Agent
+							1008 cell
+								1009 text 0
+							1010 cell
+								1011 text 0 / 0
+							1012 cell
+								1013 text 1.00
+							1014 cell
+								1015 text 2106
+						1016 row
+							1017 cell
+								1018 text 57
+							1019 cell
+								1020 link Description: flame13 Finland Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1021 cell
+								1022 text Free Agent
+							1023 cell
+								1024 text 0
+							1025 cell
+								1026 text 0 / 0
+							1027 cell
+								1028 text 1.00
+							1029 cell
+								1030 text 2101
+						1031 row
+							1032 cell
+								1033 text 58
+							1034 cell
+								1035 link Description: strike7 Poland Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1036 cell
+								1037 text Free Agent
+							1038 cell
+								1039 text 0
+							1040 cell
+								1041 text 0 / 0
+							1042 cell
+								1043 text 1.00
+							1044 cell
+								1045 text 2092
+						1046 row
+							1047 cell
+								1048 text 59
+							1049 cell
+								1050 link Description: kevi3 Germany Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1051 cell
+								1052 text Free Agent
+							1053 cell
+								1054 text 0
+							1055 cell
+								1056 text 0 / 0
+							1057 cell
+								1058 text 1.00
+							1059 cell
+								1060 text 2091
+						1061 row
+							1062 cell
+								1063 text 60
+							1064 cell
+								1065 link Description: flamex United Kingdom Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1066 cell
+								1067 text Free Agent
+							1068 cell
+								1069 text 0
+							1070 cell
+								1071 text 0 / 0
+							1072 cell
+								1073 text 1.00
+							1074 cell
+								1075 text 2085
+						1076 row
+							1077 cell
+								1078 text 61
+							1079 cell
+								1080 link Description: ShadowStar Belgium Ex-Academy, Value: 127.0.0.1:3210/player/fpl_non…
+							1081 cell
+								1082 text Free Agent
+							1083 cell
+								1084 text 0
+							1085 cell
+								1086 text 0 / 0
+							1087 cell
+								1088 text 1.00
+							1089 cell
+								1090 text 2082
+						1091 row
+							1092 cell
+								1093 text 62
+							1094 cell
+								1095 link Description: viper00 ? Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1096 cell
+								1097 text Free Agent
+							1098 cell
+								1099 text 0
+							1100 cell
+								1101 text 0 / 0
+							1102 cell
+								1103 text 1.00
+							1104 cell
+								1105 text 2075
+						1106 row
+							1107 cell
+								1108 text 63
+							1109 cell
+								1110 link Description: ColdNinja Finland Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1111 cell
+								1112 text Free Agent
+							1113 cell
+								1114 text 0
+							1115 cell
+								1116 text 0 / 0
+							1117 cell
+								1118 text 1.00
+							1119 cell
+								1120 text 2063
+						1121 row
+							1122 cell
+								1123 text 64
+							1124 cell
+								1125 link Description: gabr Brazil Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1126 cell
+								1127 text Free Agent
+							1128 cell
+								1129 text 0
+							1130 cell
+								1131 text 0 / 0
+							1132 cell
+								1133 text 1.00
+							1134 cell
+								1135 text 2056
+						1136 row
+							1137 cell
+								1138 text 65
+							1139 cell
+								1140 link Description: fox01 Russia Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1141 cell
+								1142 text Free Agent
+							1143 cell
+								1144 text 0
+							1145 cell
+								1146 text 0 / 0
+							1147 cell
+								1148 text 1.00
+							1149 cell
+								1150 text 2053
+						1151 row
+							1152 cell
+								1153 text 66
+							1154 cell
+								1155 link Description: Realivan Czech Republic Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1156 cell
+								1157 text Free Agent
+							1158 cell
+								1159 text 0
+							1160 cell
+								1161 text 0 / 0
+							1162 cell
+								1163 text 1.00
+							1164 cell
+								1165 text 2047
+						1166 row
+							1167 cell
+								1168 text 67
+							1169 cell
+								1170 link Description: ninjaz Russia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1171 cell
+								1172 text Free Agent
+							1173 cell
+								1174 text 0
+							1175 cell
+								1176 text 0 / 0
+							1177 cell
+								1178 text 1.00
+							1179 cell
+								1180 text 2042
+						1181 row
+							1182 cell
+								1183 text 68
+							1184 cell
+								1185 link Description: ninja7 Finland Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1186 cell
+								1187 text Free Agent
+							1188 cell
+								1189 text 0
+							1190 cell
+								1191 text 0 / 0
+							1192 cell
+								1193 text 1.00
+							1194 cell
+								1195 text 2041
+						1196 row
+							1197 cell
+								1198 text 69
+							1199 cell
+								1200 link Description: Thehenr Sweden Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1201 cell
+								1202 text Free Agent
+							1203 cell
+								1204 text 0
+							1205 cell
+								1206 text 0 / 0
+							1207 cell
+								1208 text 1.00
+							1209 cell
+								1210 text 2040
+						1211 row
+							1212 cell
+								1213 text 70
+							1214 cell
+								1215 link Description: ColdStorm ? Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1216 cell
+								1217 text Free Agent
+							1218 cell
+								1219 text 0
+							1220 cell
+								1221 text 0 / 0
+							1222 cell
+								1223 text 1.00
+							1224 cell
+								1225 text 2039
+						1226 row
+							1227 cell
+								1228 text 71
+							1229 cell
+								1230 link Description: zAngel Turkey Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1231 cell
+								1232 text Free Agent
+							1233 cell
+								1234 text 0
+							1235 cell
+								1236 text 0 / 0
+							1237 cell
+								1238 text 1.00
+							1239 cell
+								1240 text 2038
+						1241 row
+							1242 cell
+								1243 text 72
+							1244 cell
+								1245 link Description: VASI Russia Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1246 cell
+								1247 text Free Agent
+							1248 cell
+								1249 text 0
+							1250 cell
+								1251 text 0 / 0
+							1252 cell
+								1253 text 1.00
+							1254 cell
+								1255 text 2036
+						1256 row
+							1257 cell
+								1258 text 73
+							1259 cell
+								1260 link Description: ALEX Sweden Rising Star, Value: 127.0.0.1:3210/player/fpl_non…
+							1261 cell
+								1262 text Free Agent
+							1263 cell
+								1264 text 0
+							1265 cell
+								1266 text 0 / 0
+							1267 cell
+								1268 text 1.00
+							1269 cell
+								1270 text 2033
+						1271 row
+							1272 cell
+								1273 text 74
+							1274 cell
+								1275 link Description: QuickStar Poland Rising Star, Value: 127.0.0.1:3210/player/fpl_non…
+							1276 cell
+								1277 text Free Agent
+							1278 cell
+								1279 text 0
+							1280 cell
+								1281 text 0 / 0
+							1282 cell
+								1283 text 1.00
+							1284 cell
+								1285 text 2033
+						1286 row
+							1287 cell
+								1288 text 75
+							1289 cell
+								1290 link Description: SteelKnight Poland Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1291 cell
+								1292 text Free Agent
+							1293 cell
+								1294 text 0
+							1295 cell
+								1296 text 0 / 0
+							1297 cell
+								1298 text 1.00
+							1299 cell
+								1300 text 2032
+						1301 row
+							1302 cell
+								1303 text 76
+							1304 cell
+								1305 link Description: IronLord Ukraine Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1306 cell
+								1307 text Free Agent
+							1308 cell
+								1309 text 0
+							1310 cell
+								1311 text 0 / 0
+							1312 cell
+								1313 text 1.00
+							1314 cell
+								1315 text 2028
+						1316 row
+							1317 cell
+								1318 text 77
+							1319 cell
+								1320 link Description: 3mil Denmark Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1321 cell
+								1322 text Free Agent
+							1323 cell
+								1324 text 0
+							1325 cell
+								1326 text 0 / 0
+							1327 cell
+								1328 text 1.00
+							1329 cell
+								1330 text 2027
+						1331 row
+							1332 cell
+								1333 text 78
+							1334 cell
+								1335 link Description: rDemon ? Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1336 cell
+								1337 text Free Agent
+							1338 cell
+								1339 text 0
+							1340 cell
+								1341 text 0 / 0
+							1342 cell
+								1343 text 1.00
+							1344 cell
+								1345 text 2025
+						1346 row
+							1347 cell
+								1348 text 79
+							1349 cell
+								1350 link Description: DarkEagle Ukraine Former Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1351 cell
+								1352 text Free Agent
+							1353 cell
+								1354 text 0
+							1355 cell
+								1356 text 0 / 0
+							1357 cell
+								1358 text 1.00
+							1359 cell
+								1360 text 2023
+						1361 row
+							1362 cell
+								1363 text 80
+							1364 cell
+								1365 link Description: UROŠ Kosovo Semi-Pro, Value: 127.0.0.1:3210/player/fpl_non…
+							1366 cell
+								1367 text Free Agent
+							1368 cell
+								1369 text 0
+							1370 cell
+								1371 text 0 / 0
+							1372 cell
+								1373 text 1.00
+							1374 cell
+								1375 text 2021
+						1376 row
+							1377 cell
+								1378 text 81 RELEG
+							1379 cell
+								1380 link Description: Phiqel Phiqel Portugal, Value: 127.0.0.1:3210/player/player_…
+							1381 cell
+								1382 text Meridian Collective
+							1383 cell
+								1384 text 0
+							1385 cell
+								1386 text 0 / 0
+							1387 cell
+								1388 text 1.00
+							1389 cell
+								1390 text 2020
+						1391 row
+							1392 cell
+								1393 text 82 RELEG
+							1394 cell
+								1395 link Description: tTV_feli Switzerland Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1396 cell
+								1397 text Free Agent
+							1398 cell
+								1399 text 0
+							1400 cell
+								1401 text 0 / 0
+							1402 cell
+								1403 text 1.00
+							1404 cell
+								1405 text 2020
+						1406 row
+							1407 cell
+								1408 text 83 RELEG
+							1409 cell
+								1410 link Description: Realjona Sweden Streamer, Value: 127.0.0.1:3210/player/fpl_non…
+							1411 cell
+								1412 text Free Agent
+							1413 cell
+								1414 text 0
+							1415 cell
+								1416 text 0 / 0
+							1417 cell
+								1418 text 1.00
+							1419 cell
+								1420 text 2007
+		137 button Report a Bug
+			138 text Report a Bug
+		139 button Description: Open help, Help: Help & Game Guide
+
+The focused UI element is 24 link Description: FPL, URL: 127.0.0.1:3210/fpl

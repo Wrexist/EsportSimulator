@@ -1,0 +1,529 @@
+Browser tab: 1182234450, Title: "Esports Manager: FPS", URL: "http://localhost:3210/map-editor/lab#team-lab".
+1 AXWebArea Esports Manager: FPS, URL: localhost:3210/map-editor/lab#team-lab
+	2 container
+		3 link Description: Skip to main content, Value: localhost:3210/map-editor/lab#main-content
+		4 container main-content
+			5 container
+				6 link Description: Back to Map Studio, Value: localhost:3210/map-editor
+				7 heading Simulation lab MAP STUDIO, Value: 1
+					8 text Simulation lab  MAP STUDIO
+				9 text Real surfaces. Connected movement. Inspectable sight lines.
+				10 link Description: Encounter lab, Value: localhost:3210/map-editor/lab#controlled-encounter
+				11 link Description: Team lab, Value: localhost:3210/map-editor/lab#team-lab
+				12 button Open test
+				13 button Save test
+			14 container
+				15 text Map
+				16 pop up button (collapsed, settable) Map, Value: Mirage, Secondary Actions: Expand
+					17 menu
+						18 Sandstone
+						19 (selected) Mirage
+						20 Inferno
+						21 Anubis
+						22 Ancient
+						23 Overpass
+						24 Nuke
+						25 Vertigo
+				26 text PLACE TEST PLAYERS
+				27 checkbox A · Move from, Value: 1
+				28 checkbox B · Destination, Value: 0
+				29 text Click a walking surface. Drag either marker to reposition it. At overlapping floors, choose the height below. Player  A  surface
+				30 pop up button (collapsed, settable) Description: Player A surface, Value: Height -167 · surface 1, Secondary Actions: Expand
+					31 menu
+						32 (disabled) Place on map
+						297 (disabled) Height -167 · surface 1
+				33 text Player  B  surface
+				34 pop up button (collapsed, settable) Description: Player B surface, Value: Height -167 · surface 1, Secondary Actions: Expand
+					35 menu
+						36 (disabled) Place on map
+						298 (disabled) Height -167 · surface 1
+				37 text MOVEMENT Stance
+				38 pop up button (collapsed, settable) Description: Movement stance, Value: Standing, Secondary Actions: Expand
+					39 menu
+						40 (disabled) Standing
+						41 (disabled) Crouching
+				42 text Pace
+				43 pop up button (collapsed, settable) Pace, Value: Run · 220 units/s, Secondary Actions: Expand
+					44 menu
+						45 (disabled) Run · 220 units/s
+						46 (disabled) Walk · 130 units/s
+				47 checkbox (settable, integer) Description: Allow connected ladders, Value: 1
+				48 text Movement accelerates and brakes. Body checks stop blocked routes. Optional jump and drop tests are in Edit test connections; boosts are not implemented.
+				49 button (collapsed) Edit test connections, Secondary Actions: Expand
+					50 text Edit test connections
+			51 container
+				52 text Mirage REFERENCE  2000908
+				53 checkbox Pan, Value: 0
+				54 button (disabled) Zoom out
+				55 button Fit map
+					56 text 100
+					57 text %
+				58 button Zoom in
+				299 image Mirage spatial test map
+					300 text A
+					301 text B
+				60 button Play movement
+				61 button Restart movement
+				62 slider (settable, integer) Description: Movement timeline, Value: 0
+				63 text 0.0 s /  0.8 s Checks complete moving · height -167
+			64 container
+				65 heading Map Studio geometry, Value: 2
+					66 text Map Studio geometry
+				67 text Preview registered drawings here. Solid red walls have height bindings; dotted walls are drawings only. Release inclusion remains held.
+				68 button Load Studio geometry
+				69 text INSPECTION
+				70 heading Route, Value: 2
+					71 text Route
+				72 text 143 units 1 connected surfaces. 0 transitions rejected by movement checks.
+				73 heading Eye-to-eye visibility, Value: 2
+					74 text Eye-to-eye visibility
+				75 text Clear in this reference The test includes height, floors and ceilings.  Static line of sight only; smoke, facing and breakable state are not included. VIEW & HEIGHT
+				76 checkbox (settable, integer) Description: Walking surfaces, Value: 1
+				77 checkbox (settable, integer) Description: Sight line, Value: 1
+				78 text Show elevations
+				79 pop up button (collapsed, settable) Show elevations, Value: All elevations, Secondary Actions: Expand
+					80 menu
+						81 (selected) All elevations
+						82 Near player A
+						83 Below player A
+						84 Above player A
+				85 text 2,544  surfaces ·  2  ladders 73,286  collision triangles.  817  ambiguous edge portals excluded.
+				86 link Description: View reference source ↗, Value: github.com/pnxenopoulos/awpy-data/releases/tag/2000908
+				87 text Approximate static mesh, pinned to one map version. This lab does not yet determine live match results. Your existing Map Studio drawings remain saved separately.
+			88 container Description: Controlled encounter, ID: controlled-encounter
+				89 text CONTROLLED ENCOUNTER · L11 / L12
+				90 heading See. React. Resolve., Value: 2
+					91 text See. React. Resolve.
+				92 text Test perception, shots and utility against the map geometry. Replay the result, tick by tick.
+				93 button Run encounter
+				94 container
+					95 text Mirage example
+					96 pop up button (collapsed, settable) Description: Mirage encounter example, Value: Clear sight · reaction duel, Secondary Actions: Expand
+						97 menu
+							98 (disabled) Clear sight · reaction duel
+							99 (disabled) Opaque geometry · no contact
+							100 (disabled) Both players face away
+							101 (disabled) A must reload
+							102 (disabled) Equal reaction · trade
+							103 container Utility · original test fixtures
+								104 (disabled) smoke · trajectory and effect
+								105 (disabled) flash · trajectory and effect
+								106 (disabled) he · trajectory and effect
+								107 (disabled) fire · trajectory and effect
+								108 (disabled) decoy · trajectory and effect
+					109 button Open encounter example
+					110 text Opening an example downloads your current lab test as a backup. Map Studio drawings stay separate. Save test above also saves encounter settings. Seed
+					111 stepper (settable, integer) Description: Encounter seed, Value: 11
+					112 text Duration
+					113 pop up button (collapsed, settable) Duration, Value: 8 seconds, Secondary Actions: Expand
+						114 menu
+							115 4 seconds
+							116 (selected) 8 seconds
+							117 12 seconds
+							118 20 seconds
+					119 button Face each other
+					120 button A faces away
+					121 text These buttons set the scenario's initial view directions. Players do not automatically turn when you move a marker.
+					122 container Utility test · L12
+						123 text Utility test · L12
+						124 text Schedule up to eight throws. Equip the grenades, set the release direction, then run the encounter. Save test keeps all settings.
+						125 button Add throw
+					126 container Player A
+						127 container
+							128 text Player  A
+						129 container
+							130 text Facing ·  0 °
+							131 slider (settable, integer) Description: Player A facing, Value: 0
+						132 container
+							133 text Pitch ·  0 °
+							134 slider (settable, integer) Description: Player A pitch, Value: 0
+						135 container
+							136 text Reaction
+							137 pop up button (collapsed, settable) Description: Player A reaction, Value: 250 ms, Secondary Actions: Expand
+								138 menu
+									139 0 ms
+									140 150 ms
+									141 (selected) 250 ms
+									142 300 ms
+									143 500 ms
+									144 1000 ms
+									145 2000 ms
+						146 container
+							147 text Aim error
+							148 pop up button (collapsed, settable) Description: Player A aim error, Value: 0.35°, Secondary Actions: Expand
+								149 menu
+									150 0°
+									151 (selected) 0.35°
+									152 0.5°
+									153 1°
+									154 3°
+									155 5°
+						156 container
+							157 text Magazine
+							158 pop up button (collapsed, settable) Description: Player A ammo, Value: 30 rounds, Secondary Actions: Expand
+								159 menu
+									160 0 rounds
+									161 1 rounds
+									162 5 rounds
+									163 (selected) 30 rounds
+						164 container
+							165 text Armor
+							166 pop up button (collapsed, settable) Description: Player A armor, Value: 100, Secondary Actions: Expand
+								167 menu
+									168 0
+									169 50
+									170 (selected) 100
+						171 checkbox (settable, integer) Description: Helmet, Value: 1
+					172 container Player B
+						173 container
+							174 text Player  B
+						175 container
+							176 text Facing ·  180 °
+							177 slider (settable, integer) Description: Player B facing, Value: 180
+						178 container
+							179 text Pitch ·  0 °
+							180 slider (settable, integer) Description: Player B pitch, Value: 0
+						181 container
+							182 text Reaction
+							183 pop up button (collapsed, settable) Description: Player B reaction, Value: 300 ms, Secondary Actions: Expand
+								184 menu
+									185 0 ms
+									186 150 ms
+									187 250 ms
+									188 (selected) 300 ms
+									189 500 ms
+									190 1000 ms
+									191 2000 ms
+						192 container
+							193 text Aim error
+							194 pop up button (collapsed, settable) Description: Player B aim error, Value: 0.5°, Secondary Actions: Expand
+								195 menu
+									196 0°
+									197 0.35°
+									198 (selected) 0.5°
+									199 1°
+									200 3°
+									201 5°
+						202 container
+							203 text Magazine
+							204 pop up button (collapsed, settable) Description: Player B ammo, Value: 30 rounds, Secondary Actions: Expand
+								205 menu
+									206 0 rounds
+									207 1 rounds
+									208 5 rounds
+									209 (selected) 30 rounds
+						210 container
+							211 text Armor
+							212 pop up button (collapsed, settable) Description: Player B armor, Value: 100, Secondary Actions: Expand
+								213 menu
+									214 0
+									215 50
+									216 (selected) 100
+						217 checkbox (settable, integer) Description: Helmet, Value: 1
+					218 text Field of view ·  110 °
+					219 slider (settable, integer) Description: Encounter field of view, Value: 110
+					220 checkbox (settable, integer) Description: A follows an approach route, Value: 0
+					221 text Scripted movement uses the lab's stance, pace and geometry checks. It stops short of B. This is a controlled movement test, not autonomous pursuit.
+					222 button (collapsed) Model and units, Secondary Actions: Expand
+						223 text Model and units
+				224 container
+					225 text Inspection view
+					226 pop up button (collapsed, settable) Description: Encounter inspection view, Value: Player A knowledge, Secondary Actions: Expand
+						227 menu
+							228 (selected) Player A knowledge
+							229 Player B knowledge
+							230 World truth · observer
+				231 button (disabled) Export replay
+				232 checkbox Show full map, Value: 1
+				302 image Encounter replay map
+				233 button (disabled) Play
+				234 button (disabled) Restart
+				235 button (disabled) Step
+				236 text 0.000 s
+				237 container
+					238 text Playback speed
+					239 pop up button (collapsed, settable) Description: Encounter playback speed, Value: 0.25× · slow motion, Secondary Actions: Expand
+						240 menu
+							241 (selected) 0.25× · slow motion
+							242 0.5×
+							243 1× · real time
+				244 slider (disabled, settable, integer) Description: Encounter timeline, Value: 0
+				245 text Setup changed. Run an encounter to inspect the new result.
+				246 heading Utility diagnostics, Value: 3
+					247 text Utility diagnostics
+				248 text Add a throw or open a utility example to inspect flight and effects.
+				249 heading Why it happened, Value: 3
+					250 text Why it happened
+				251 text Only player A's own events and remembered observations are shown. Hidden enemy positions and ammo are withheld.
+			252 container Description: Team coordination lab, ID: team-lab
+				253 text TEAM COORDINATION · L13
+				254 heading Read the round., Value: 2
+					255 text Read the round.
+				256 text Inspect what a team knows, where it moves and why its plan changes.
+				257 button Run team scenario
+				303 container
+					304 text Mirage team example
+					305 pop up button (collapsed, settable) Description: Mirage team example, Value: Support utility budget, Secondary Actions: Expand
+						306 menu
+							307 Delayed reports · 2v2
+							308 Entry, support and plant
+							309 Retake and defuse
+							310 Impossible deadline · save
+							311 (selected) Support utility budget
+							312 Reaction, trade and clutch
+					313 button Open team example
+					314 text Your current lab test downloads as a backup. Map Studio drawings stay separate. Save test above includes team settings.
+					315 container Round setup
+						316 text Round setup
+						317 container
+							318 text Seed
+							319 stepper (settable, integer) Description: Team seed, Value: 13
+						320 container
+							321 text Duration
+							322 pop up button (collapsed, settable) Duration, Value: 25s, Secondary Actions: Expand
+								323 menu
+									324 8s
+									325 12s
+									326 (selected) 25s
+									327 35s
+									328 60s
+									329 90s
+						330 container
+							331 text Communication delay
+							332 pop up button (collapsed, settable) Description: Team communication delay, Value: 500 ms, Secondary Actions: Expand
+								333 menu
+									334 0 ms
+									335 250 ms
+									336 (selected) 500 ms
+									337 1000 ms
+									338 2000 ms
+						339 container
+							340 text Report memory
+							341 pop up button (collapsed, settable) Report memory, Value: 4s, Secondary Actions: Expand
+								342 menu
+									343 1s
+									344 2s
+									345 (selected) 4s
+									346 8s
+						347 container
+							348 text Economy policy
+							349 pop up button (collapsed, settable) Economy policy, Value: Balanced, Secondary Actions: Expand
+								350 menu
+									351 Protect equipment
+									352 (selected) Balanced
+									353 Commit to objective
+						354 container
+							355 text T  execution skill ·  70 %
+							356 slider (settable, float) Description: T execution skill, Value: 0.699999988079071, Details: 0.7
+						357 container
+							358 text CT  execution skill ·  70 %
+							359 slider (settable, float) Description: CT execution skill, Value: 0.699999988079071, Details: 0.7
+						360 checkbox (settable, integer) Description: Enable live fire, Value: 0
+						361 container
+							362 text Initial bomb
+							363 pop up button (collapsed, settable) Initial bomb, Value: carried, Secondary Actions: Expand
+								364 menu
+									365 (selected) carried
+									366 planted
+									367 dropped
+						368 container
+							369 text Round clock
+							370 stepper (settable, integer) Round clock, Value: 20
+						371 container
+							372 text Bomb clock
+							373 stepper (settable, integer) Bomb clock, Value: 12
+						374 container
+							375 text Plant seconds
+							376 stepper (settable, integer) Plant seconds, Value: 3
+						377 container
+							378 text Defuse seconds
+							379 stepper (settable, integer) Defuse seconds, Value: 5
+						380 container
+							381 text Opening seconds
+							382 stepper (settable, integer) Opening seconds, Value: 0
+						383 container
+							384 text Starting objective
+							385 pop up button (collapsed, settable) Starting objective, Value: A, Secondary Actions: Expand
+								386 menu
+									387 (selected) A
+									388 B
+						389 container
+							390 text Bomb carrier
+							391 pop up button (collapsed, settable) Bomb carrier, Value: T1, Secondary Actions: Expand
+								392 menu
+									393 (selected) T1
+									394 T2
+					395 container Player assignments
+						396 text Player assignments
+						397 container
+							398 text Selected player
+							399 pop up button (collapsed, settable) Selected player, Value: T1, Secondary Actions: Expand
+								400 menu
+									401 CT1
+									402 CT2
+									403 (selected) T1
+									404 T2
+						405 container
+							406 text Role
+							407 pop up button (collapsed, settable) Role, Value: entry, Secondary Actions: Expand
+								408 menu
+									409 (selected) entry
+									410 support
+									411 lurk
+									412 anchor
+						413 container
+							414 text Starting facing ·  63 °
+							415 slider (settable, integer) Starting facing · 63°, Value: 63
+						416 text Place markers A and B on supported ground in the map above, then assign them below.
+						417 button A → player start
+						418 button B → hold angle
+						419 button A → test site A
+						420 button B → test site B
+					428 text Authored utility:  1  throw(s). Each waits for an execute or evidence trigger near the objective. Saving preserves unused grenades. Full trajectory settings are in the exported test.
+					421 button (collapsed) Model and review limits, Secondary Actions: Expand
+						422 text Model and review limits
+				272 container
+					273 text Knowledge view
+					274 pop up button (collapsed, settable) Description: Team knowledge view, Value: Observer · world truth, Secondary Actions: Expand
+						275 menu
+							276 T · shared knowledge
+							277 CT · shared knowledge
+							278 (selected) Observer · world truth
+				279 button Export team replay
+				280 checkbox Show full map, Value: 1
+				423 image Team replay map
+					424 container
+						425 text Test  A
+					426 container
+						427 text Test  B
+					429 container Observer utility trajectories and effects
+						453 text smoke
+					430 text CT1
+					431 text CT2
+					432 text T1
+					433 text T2
+				281 button Play teams
+				282 button Restart teams
+				283 button Step teams
+				284 text 3.000 s · tick  192
+				285 container
+					286 text Playback speed
+					287 pop up button (collapsed, settable) Playback speed, Value: 0.5×, Secondary Actions: Expand
+						288 menu
+							289 0.25×
+							290 (selected) 0.5×
+							291 1×
+							292 2×
+				293 slider (settable, integer) Description: Team replay timeline, Value: 24
+				294 text Replay ready. Team views show delivered reports; observer view shows physical truth.
+				434 container
+					435 text T  ·  execute  ·  A . Opening interval complete; entry advances with support and bomb carrier.
+				436 container
+					437 text CT  ·  rotate  ·  A . A delivered enemy report permits a support rotation; anchors retain their assigned angle.
+				438 container
+					439 text Bomb:  carried  · T1 action 2.53s
+				440 container
+					441 text CT1  ·  anchor
+				442 text 100  HP ·  30  rounds  · 0 grenades Hold the assigned opening angle.
+				443 container
+					444 text CT2  ·  rotate
+				445 text 100  HP ·  30  rounds  · 0 grenades Approach the last communicated area, not a hidden live position.
+				446 container
+					447 text T1  ·  plant
+				448 text 100  HP ·  30  rounds  · 0 grenades Hold position to complete the objective action.
+				449 container
+					450 text T2  ·  blocked
+				451 text 100  HP ·  30  rounds  · 0 grenades Repeated movement attempts failed; hold until the team objective changes.
+				295 heading Decision timeline, Value: 3
+					296 text Decision timeline
+				452 content list
+					454 container
+						455 text 3.000 s T2  ·  intent Repeated movement attempts failed; hold until the team objective changes.
+					456 container
+						457 text 2.766 s CT2  ·  spacing-wait Body sweep or teammate spacing prevents this movement; wait without overlap.
+					458 container
+						459 text 2.500 s T  ·  report  → CT1 Radio report delivered from T1; position is an observation, not a live track.
+					460 container
+						461 text 2.500 s CT  ·  report  → T2 Radio report delivered from CT1; position is an observation, not a live track.
+					462 container
+						463 text 2.500 s CT  ·  report  → T1 Radio report delivered from CT1; position is an observation, not a live track.
+					464 container
+						465 text 2.016 s T2  ·  lost  → CT1 Line of sight interrupted; freeze the last observed position.
+					466 container
+						467 text 2.016 s T1  ·  lost  → CT1 Line of sight interrupted; freeze the last observed position.
+					468 container
+						469 text 2.016 s CT1  ·  lost  → T2 Line of sight interrupted; freeze the last observed position.
+					470 container
+						471 text 2.016 s CT1  ·  lost  → T1 Line of sight interrupted; freeze the last observed position.
+					472 container
+						473 text 2.000 s T2  ·  grenade-detonate smoke active for 8 seconds.
+					474 container
+						475 text 2.000 s T2  ·  route-blocked The collision reference blocks the direct movement segment.
+					476 container
+						477 text 2.000 s T  ·  report  → CT1 Radio report delivered from T1; position is an observation, not a live track.
+					478 container
+						479 text 2.000 s CT  ·  report  → T2 Radio report delivered from CT1; position is an observation, not a live track.
+					480 container
+						481 text 2.000 s CT  ·  report  → T1 Radio report delivered from CT1; position is an observation, not a live track.
+					482 container
+						483 text 1.703 s T2  ·  grenade-bounce Bounce 3 against a resolved surface normal.
+					484 container
+						485 text 1.672 s CT2  ·  spacing-wait Body sweep or teammate spacing prevents this movement; wait without overlap.
+					486 container
+						487 text 1.500 s T  ·  report  → CT1 Radio report delivered from T1; position is an observation, not a live track.
+					488 container
+						489 text 1.500 s CT  ·  report  → T2 Radio report delivered from CT1; position is an observation, not a live track.
+					490 container
+						491 text 1.500 s CT  ·  report  → T1 Radio report delivered from CT1; position is an observation, not a live track.
+					492 container
+						493 text 1.484 s T2  ·  grenade-bounce Bounce 2 against a resolved surface normal.
+					494 container
+						495 text 1.000 s T  ·  report  → CT1 Radio report delivered from T1; position is an observation, not a live track.
+					496 container
+						497 text 1.000 s CT  ·  report  → T2 Radio report delivered from CT1; position is an observation, not a live track.
+					498 container
+						499 text 1.000 s CT  ·  report  → T1 Radio report delivered from CT1; position is an observation, not a live track.
+					500 container
+						501 text 0.984 s T2  ·  grenade-bounce Bounce 1 against a resolved surface normal.
+					502 container
+						503 text 0.859 s T2  ·  spacing-wait Body sweep or teammate spacing prevents this movement; wait without overlap.
+					504 container
+						505 text 0.500 s T2  ·  grenade-throw smoke released; one equipped grenade consumed.
+					506 container
+						507 text 0.500 s T2  ·  utility-commit Authored throw released after evidence/execute trigger and objective proximity; inventory is spent by flight resolution.
+					508 container
+						509 text 0.500 s T2  ·  intent Opening interval complete; entry advances with support and bomb carrier.
+					510 container
+						511 text 0.500 s CT2  ·  intent Approach the last communicated area, not a hidden live position.
+					512 container
+						513 text 0.500 s CT  ·  plan A delivered enemy report permits a support rotation; anchors retain their assigned angle.
+					514 container
+						515 text 0.500 s T  ·  report  → CT1 Radio report delivered from T1; position is an observation, not a live track.
+					516 container
+						517 text 0.500 s CT  ·  report  → T2 Radio report delivered from CT1; position is an observation, not a live track.
+					518 container
+						519 text 0.500 s CT  ·  report  → T1 Radio report delivered from CT1; position is an observation, not a live track.
+					520 container
+						521 text 0.469 s T1  ·  intent Hold position to complete the objective action.
+					522 container
+						523 text 0.469 s T1  ·  plant-start Begin an uninterrupted objective action within the declared test radius.
+					524 container
+						525 text 0.000 s T2  ·  intent Follow the entry with a 72-unit spacing buffer.
+					526 container
+						527 text 0.000 s T1  ·  intent Opening interval complete; entry advances with support and bomb carrier.
+					528 container
+						529 text 0.000 s CT2  ·  intent Hold the assigned opening angle.
+					530 container
+						531 text 0.000 s CT1  ·  intent Hold the assigned opening angle.
+					532 container
+						533 text 0.000 s T  ·  plan Opening interval complete; entry advances with support and bomb carrier.
+					534 container
+						535 text 0.000 s T2  ·  sight  → CT1 Direct body sample visible inside field of view.
+					536 container
+						537 text 0.000 s T1  ·  sight  → CT1 Direct body sample visible inside field of view.
+					538 container
+						539 text 0.000 s CT1  ·  sight  → T2 Direct body sample visible inside field of view.
+					540 container
+						541 text 0.000 s CT1  ·  sight  → T1 Direct body sample visible inside field of view.
+
+The focused UI element is 279 button Export team replay

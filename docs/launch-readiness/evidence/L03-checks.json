@@ -1,0 +1,77 @@
+{
+  "recordedAt": "2026-09-13T11:08:56.297Z",
+  "buildId": "sM39X8hf-46Fi6mXKkvy8",
+  "tests": "1331 passed, 1331 total",
+  "suites": "137 passed, 137 total",
+  "nativeDir": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l03-native\\run-u5Oe9T",
+  "checks": {
+    "productionBuild": "pass",
+    "productionWorker": "pass",
+    "types": "pass",
+    "realAdapters": "pass",
+    "freshProcess": "pass",
+    "packagedAcceptance": "missing"
+  },
+  "source": [
+    {
+      "path": "engine/storage-adapter.ts",
+      "sha256": "c5883b6b8b1f19f10cdb65c17654642e9831214d114f30b5b10e47081d11545d"
+    },
+    {
+      "path": "engine/save-manager.ts",
+      "sha256": "facfd9c86b38f5a66e1cc721dbc1d32f263208aa64a217eb17cd3438c47f02a4"
+    },
+    {
+      "path": "engine/save-types.ts",
+      "sha256": "a3efd597bb60416915a58b223ccd02e2f7fa33aff7bb5d99904814b0c8fcc356"
+    },
+    {
+      "path": "engine/save-schema.ts",
+      "sha256": "64a3aa19273af56d6d8bfabd881d3ce512be311e6384e1adf6c165ff30248684"
+    },
+    {
+      "path": "engine/save-migrations.ts",
+      "sha256": "0a61e4062aea7a600cf26bb95042c5e18ea17141dde3ba149c5925a3af6a0a29"
+    },
+    {
+      "path": "engine/default-tactics.ts",
+      "sha256": "ae0571be5083972edc8b36ca6f0ea6d95d91d36997be67aa1de99bca4aff8767"
+    },
+    {
+      "path": "store/game-store.ts",
+      "sha256": "d60278b3ec70a59c67d2f62160289af33cde78f8264f0939b758162626077b55"
+    },
+    {
+      "path": "store/utils/build-save-snapshot.ts",
+      "sha256": "8c9c7eae587b03c0e6b4c60ef3a9d2d6cef4c077c509232b33885a74c4a6900c"
+    },
+    {
+      "path": "electron/main.js",
+      "sha256": "5d0f70d14ace8ebada44e6431565031fb4f526b7227754d24d1b6e669ea0410e"
+    },
+    {
+      "path": "electron/ipc-policy.js",
+      "sha256": "5ba8f7d6dfc72d4e8516d48c1ecb2d559f1a69dabfbe7fbca40a0d89d4531200"
+    },
+    {
+      "path": "scripts/launch/save-recovery-browser.ts",
+      "sha256": "9626e2c05edfd01ff5f197491442d7f3691c6f02a93ef61601a6be32116e40e7"
+    },
+    {
+      "path": "scripts/launch/save-recovery-native.cjs",
+      "sha256": "7f429db76366123e74c717ee4ef920162d3be1fb11dd66c68fcc66296c4ccd87"
+    },
+    {
+      "path": "scripts/launch/content-provenance.cjs",
+      "sha256": "6112ddd607107ae31f1e0bc93286c772dd32474b1fbe335e1f07bb75b48b65a1"
+    },
+    {
+      "path": "package.json",
+      "sha256": "5bc7fd301ca0602d023b57f5955058e1a6df1addc80e1244ff51bab6dac7a4d4"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "10626679cab13836cc81a9db8c8ff48de6d71f756bcaf7362fb25e5ba8ff2b53"
+    }
+  ]
+}

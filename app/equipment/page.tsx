@@ -1,6 +1,9 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
+import { equipmentArtwork } from "@/lib/ui-assets"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import {
@@ -12,7 +15,6 @@ import {
     Cpu,
     Check,
     ArrowUpCircle,
-    X,
     Gauge,
     Sparkles,
     TrendingUp
@@ -46,6 +48,7 @@ export default function EquipmentPage() {
     })))
     const [selectedType, setSelectedType] = useState<EquipmentType | "ALL">("ALL")
     const [selectedItem, setSelectedItem] = useState<EquipmentCatalogItem | null>(null)
+    const comparisonTriggerRef = useRef<HTMLDivElement | null>(null)
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
@@ -84,7 +87,7 @@ export default function EquipmentPage() {
         const result = purchaseEquipment(item.id)
         if (result.success) {
             toast.success(`Purchased ${item.name}!`, {
-                description: `+${item.bonus.value} ${item.bonus.stat} bonus applied`,
+                description: `Installed immediately. Weekly upkeep: $${item.weeklyCost}.`,
             })
             setSelectedItem(null)
         } else {
@@ -99,9 +102,10 @@ export default function EquipmentPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0a0a] to-black pb-20">
+        <div className="equipment-page">
+            <nav aria-label="Club campus sections" className="mb-5 flex gap-2"><Button asChild variant="outline"><Link href="/basecamp">Club campus</Link></Button><Button asChild variant="secondary"><Link href="/equipment" aria-current="page">Equipment</Link></Button></nav>
             {/* Header / Hero Section */}
-            <div className="relative pt-12 pb-12 px-8 overflow-hidden">
+            <div className="relative pt-2 pb-6 px-0 overflow-hidden">
                 <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:32px]" />
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none" />
 
@@ -117,12 +121,12 @@ export default function EquipmentPage() {
                             </Badge>
                             <div className="h-px w-20 bg-gradient-to-r from-white/20 to-transparent" />
                         </motion.div>
-                        <h1 className="text-6xl font-normal tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40 mb-4">
-                            EQUIPMENT
+                        <h1 className="page-title mb-4">
+                            Equipment
                         </h1>
-                        <p className="max-w-xl text-lg text-muted-foreground font-light leading-relaxed">
+                        <p className="max-w-xl text-sm text-muted-foreground leading-relaxed">
                             Upgrade your facility with professional-grade hardware.
-                            Better equipment directly impacts player performance, reaction times, and development speed.
+                            Gear improves team strength in career match simulation. It does not permanently increase player attributes or training speed.
                         </p>
                     </div>
 
@@ -183,7 +187,7 @@ export default function EquipmentPage() {
                     {/* Active stat bonuses */}
                     <div className="glass-panel p-5 border-white/10 bg-white/[0.03]">
                         <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 mb-3">
-                            <Sparkles size={12} /> Active Bonuses
+                            <Sparkles size={12} /> Installed gear ratings
                         </p>
                         {Object.keys(bonuses || {}).length === 0 ? (
                             <p className="text-[11px] text-muted-foreground italic">No equipment bonuses yet — purchase gear below.</p>
@@ -220,7 +224,7 @@ export default function EquipmentPage() {
                                 className={cn(
                                     "rounded-xl h-10 gap-2 font-bold tracking-wide transition-all",
                                     selectedType === type
-                                        ? "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                        ? "bg-white text-black hover:bg-white/90 shadow-sm"
                                         : "text-muted-foreground hover:text-white hover:bg-white/5"
                                 )}
                             >
@@ -232,7 +236,7 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* Main Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="equipment-grid">
                     <AnimatePresence mode="popLayout">
                         {displayItems.map((item, idx) => {
                             const typeDisplay = EQUIPMENT_TYPE_DISPLAY[item.type]
@@ -248,9 +252,13 @@ export default function EquipmentPage() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ delay: idx * 0.05 }}
-                                    onClick={() => setSelectedItem(item)}
+                                    onClick={(event) => { comparisonTriggerRef.current = event.currentTarget; setSelectedItem(item) }}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Compare ${item.name}`}
+                                    onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); comparisonTriggerRef.current = event.currentTarget; setSelectedItem(item) } }}
                                     className={cn(
-                                        "group relative h-[380px] rounded-3xl overflow-hidden cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out",
+                                        "equipment-tile glass-card group relative h-[330px] rounded-2xl overflow-hidden cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out",
                                         "border border-white/5 hover:border-white/20 hover:shadow-2xl hover:-translate-y-1",
                                         owned ? "bg-emerald-950/20" : "bg-white/[0.02]"
                                     )}
@@ -259,19 +267,20 @@ export default function EquipmentPage() {
                                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent" />
 
                                     {/* Use the new realistic image */}
-                                    <div className="absolute inset-x-0 top-0 h-[240px] flex items-center justify-center p-8 transition-transform duration-300 ease-out group-hover:scale-105">
+                                    <div className="absolute inset-x-0 top-0 h-[190px] flex items-center justify-center p-4 transition-transform duration-200 ease-out group-hover:scale-[1.02]">
                                         <div className="relative w-full h-full">
                                             <Image
-                                                src={item.imagePath || typeDisplay.imagePath}
+                                                src={equipmentArtwork(item.type, item.tier, item.imagePath || typeDisplay.imagePath)}
                                                 alt={item.name}
                                                 fill
+                                                sizes="(max-width: 1350px) 300px, 450px"
                                                 className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Content Overlay */}
-                                    <div className="absolute inset-x-0 bottom-0 min-h-[140px] p-6 bg-gradient-to-t from-black via-black/90 to-transparent flex flex-col justify-end">
+                                    <div className="absolute inset-x-0 bottom-0 min-h-[140px] p-5 bg-gradient-to-t from-[#112139] via-[#112139]/95 to-transparent flex flex-col justify-end">
                                         <div className="flex items-start justify-between mb-2">
                                             <div>
                                                 <Badge variant="outline" className={cn("mb-2 border-none bg-white/5 backdrop-blur-sm", tierDisplay.color)}>
@@ -311,33 +320,12 @@ export default function EquipmentPage() {
             </div>
 
             {/* Detail Modal */}
-            <AnimatePresence>
+            <Dialog open={!!selectedItem} onOpenChange={(open) => { if (!open) setSelectedItem(null) }}>
                 {selectedItem && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedItem(null)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
-                        />
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-4xl bg-[#0f0f0f] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
-                        >
-                            <button
-                                onClick={() => setSelectedItem(null)}
-                                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white hover:text-black transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
+                    <DialogContent className="equipment-comparison sm:max-w-4xl p-0 gap-0 flex flex-col md:flex-row" onCloseAutoFocus={(event) => { event.preventDefault(); comparisonTriggerRef.current?.focus() }}>
 
                             {/* Left: Visual */}
-                            <div className="w-full md:w-1/2 bg-gradient-to-br from-white/[0.03] to-transparent relative min-h-[300px] flex items-center justify-center p-12">
-                                <div className="absolute inset-0 bg-[url('/assets/grid.svg')] opacity-20" />
+                            <div className="w-full md:w-1/2 bg-gradient-to-br from-white/[0.03] to-transparent relative min-h-[240px] flex items-center justify-center p-8">
                                 <motion.div
                                     className="relative w-full aspect-square"
                                     initial={{ y: 20, opacity: 0 }}
@@ -345,7 +333,7 @@ export default function EquipmentPage() {
                                     transition={{ delay: 0.2 }}
                                 >
                                     <Image
-                                        src={selectedItem.imagePath || EQUIPMENT_TYPE_DISPLAY[selectedItem.type].imagePath}
+                                        src={equipmentArtwork(selectedItem.type, selectedItem.tier, selectedItem.imagePath || EQUIPMENT_TYPE_DISPLAY[selectedItem.type].imagePath)}
                                         alt={selectedItem.name}
                                         fill
                                         className="object-contain drop-shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
@@ -354,7 +342,7 @@ export default function EquipmentPage() {
                             </div>
 
                             {/* Right: Info */}
-                            <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col">
+                            <div className="w-full md:w-1/2 p-6 flex flex-col">
                                 <div className="mb-auto">
                                     <div className="flex items-center gap-3 mb-4">
                                         <Badge className={cn("px-3 py-1 text-xs", EQUIPMENT_TIER_DISPLAY[selectedItem.tier].bgColor, EQUIPMENT_TIER_DISPLAY[selectedItem.tier].color)}>
@@ -365,17 +353,17 @@ export default function EquipmentPage() {
                                         </span>
                                     </div>
 
-                                    <h2 className="text-4xl font-normal text-white uppercase tracking-tighter mb-4 leading-none">
+                                    <DialogTitle className="text-2xl font-semibold text-white tracking-tight mb-3 pr-6">
                                         {selectedItem.name}
-                                    </h2>
-                                    <p className="text-muted-foreground leading-relaxed mb-8">
-                                        {selectedItem.description}. Designed to provide maximum competitive advantage in high-stakes matches.
-                                    </p>
+                                    </DialogTitle>
+                                    <DialogDescription className="leading-relaxed mb-5">
+                                        {selectedItem.description}.
+                                    </DialogDescription>
 
-                                    <div className="grid grid-cols-2 gap-4 mb-8">
+                                    <div className="grid grid-cols-2 gap-3 mb-5">
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Performance Boost</p>
-                                            <p className="text-2xl font-normal text-emerald-400">+{selectedItem.bonus.value} {selectedItem.bonus.stat}</p>
+                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Gear rating</p>
+                                            <p className="text-2xl font-normal text-emerald-400">+{selectedItem.bonus.value} {selectedItem.bonus.stat} rating</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                                             <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Weekly Maintenance</p>
@@ -384,7 +372,9 @@ export default function EquipmentPage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-8 border-t border-white/10">
+                                <div className="pt-5 border-t border-white/10">
+                                    <p className="mb-4 text-sm text-muted-foreground">Replaces the current item in this slot immediately, with no trade-in refund. Upkeep replaces the old item’s cost at the next settlement. A cheaper replacement lowers ongoing costs.</p>
+                                    <p className="mb-4 text-sm text-muted-foreground">Team gear strength: +{(selectedItem.bonus.value / 80 * 100).toFixed(2)}% from this slot. Weekly upkeep change: ${selectedItem.weeklyCost - (equippedByType.get(selectedItem.type)?.weeklyCost || 0)}.</p>
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
                                             <p className="text-xs font-bold text-muted-foreground uppercase">Price</p>
@@ -413,10 +403,9 @@ export default function EquipmentPage() {
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
-                    </div>
+                    </DialogContent>
                 )}
-            </AnimatePresence>
+            </Dialog>
         </div>
     )
 }

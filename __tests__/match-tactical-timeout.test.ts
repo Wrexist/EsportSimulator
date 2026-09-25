@@ -1,10 +1,4 @@
-/**
- * AUDIT_UX_2026-06 B5 — live-match Tactical Timeout. The new homeTacticalBoost
- * param on simulateRound must (a) be determinism-neutral at boost 0 (same seed →
- * identical result, so quick-sim/orchestrator stay byte-identical) and (b) shift
- * the home side's round-win odds upward when positive.
- */
-
+import { regroupLossStreak, restoreTimeoutState, spendTimeout } from '@/engine/match/manager-controls'
 import { simulationEngineV2 } from "@/engine/match-simulation"
 import { SeededRNG } from "@/engine/rng"
 import type { Player } from "@/types"
@@ -19,14 +13,14 @@ function mk(prefix: string): Player[] {
     } as unknown as Player))
 }
 
-function runRound(seed: number, boost: number) {
+function runRound(seed: number, active: boolean, lossStreak = 5) {
     const rng = new SeededRNG(seed)
     return simulationEngineV2.simulateRound(
         rng, mk("h"), mk("a"),
         50, 50,            // base strengths (equal)
         50, 50,            // map strengths
         true,              // homeIsCT
-        0, 0, 0, 0,        // streaks
+        0, 0, regroupLossStreak(lossStreak, active), 0, // own tilt only
         5,                 // roundNum
         {}, {},            // economies
         "FULL", "FULL",    // strategies
@@ -39,25 +33,35 @@ function runRound(seed: number, boost: number) {
         undefined,                        // mapId
         undefined,                        // matchStage
         undefined, undefined, undefined,  // cached stress ×2 + player map
-        boost,                            // homeTacticalBoost
     )
 }
 
-describe("tactical timeout boost", () => {
-    it("is determinism-neutral at boost 0 (same seed → identical winner)", () => {
-        for (const seed of [1, 42, 777, 9001]) {
-            expect(runRound(seed, 0).winner).toBe(runRound(seed, 0).winner)
-        }
-    })
 
-    it("shifts the home side's round-win rate upward when positive", () => {
-        let zeroWins = 0
-        let boostedWins = 0
-        const N = 80
-        for (let seed = 1; seed <= N; seed++) {
-            if (runRound(seed, 0).winner === "HOME") zeroWins++
-            if (runRound(seed, 0.3).winner === "HOME") boostedWins++
-        }
-        expect(boostedWins).toBeGreaterThan(zeroWins)
-    })
+test('timeout has no effect without losing-streak pressure, including the complete event stream', () => {
+    for (const seed of [1, 42, 777, 9001]) expect(runRound(seed, false, 0)).toEqual(runRound(seed, true, 0))
+})
+
+test('regroup relieves tilt in paired actual round simulations without guaranteeing a win', () => {
+    let baseline = 0, regroup = 0
+    for (let seed = 1; seed <= 400; seed++) {
+        baseline += Number(runRound(seed, false).winner === 'HOME')
+        regroup += Number(runRound(seed, true).winner === 'HOME')
+    }
+    expect(regroup).toBeGreaterThan(baseline)
+    expect(regroup - baseline).toBeLessThan(60)
+    expect(regroup).toBeLessThan(400)
+})
+
+test('timeout charges are limited, between rounds only, and survive reload', () => {
+    let state = restoreTimeoutState()
+    expect(spendTimeout(state, false, 'IN_PROGRESS')).toBeNull()
+    expect(spendTimeout(state, true, 'FINISHED')).toBeNull()
+    state = spendTimeout(state, true, 'IN_PROGRESS')!
+    expect(state).toEqual({ remaining: 1, rounds: 2 })
+    expect(spendTimeout(state, true, 'IN_PROGRESS')).toBeNull()
+    const restored = JSON.parse(JSON.stringify(state))
+    expect(restoreTimeoutState(restored.remaining, restored.rounds)).toEqual(state)
+    state = spendTimeout({ ...state, rounds: 0 }, true, 'IN_PROGRESS')!
+    expect(spendTimeout({ ...state, rounds: 0 }, true, 'IN_PROGRESS')).toBeNull()
+    for (const value of [-1, 3, NaN, 0.5]) expect(() => restoreTimeoutState(value, 0)).toThrow()
 })

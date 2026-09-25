@@ -23,6 +23,7 @@ import {
     normalizeQualificationStatus,
     resolveTournamentIdentity,
 } from "@/engine/circuit-engine"
+import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
@@ -49,6 +50,14 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
         }
 
         const instanceId = buildInstanceId(baseId, seasonNumber)
+
+        const team = state.teams.find(t => t.id === state.playerTeamId)
+        if (!team) return { success: false, message: "Team not found" }
+        const rosterCheck = seniorRosterEligibility(state, team)
+        if (!rosterCheck.eligible) return { success: false, message: rosterCheck.reason }
+        const entryCheck = QualificationEngine.checkEligibility({ ...definition, id: instanceId }, team, team.worldRanking ?? 999, state.circuitPoints, state.tournamentQualifications)
+        if (!entryCheck.canRegister) return { success: false, message: entryCheck.reason }
+        if ((seasonNumber - 1) * 52 + definition.startWeek < state.currentWeek) return { success: false, message: "Registration for this tournament has closed" }
 
         // Already registered for this exact instance?
         const existing = state.tournamentQualifications.find(
@@ -130,8 +139,12 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
 
         const myTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (!myTeam) return { eligible: false, reason: "Team not found" }
+        const rosterCheck = seniorRosterEligibility(state, myTeam)
+        if (!rosterCheck.eligible) return rosterCheck
 
-        const seasonNumber = getSeasonFromTournamentId(tournamentId) ?? getSeasonFromWeek(state.currentWeek)
+        let seasonNumber = getSeasonFromTournamentId(tournamentId) ?? getSeasonFromWeek(state.currentWeek)
+        if (!getSeasonFromTournamentId(tournamentId) && (seasonNumber - 1) * 52 + tournament.startWeek < state.currentWeek) seasonNumber++
+        if ((seasonNumber - 1) * 52 + tournament.startWeek < state.currentWeek) return { eligible: false, reason: "Registration for this tournament has closed" }
 
         if (tournament.qualifierFor) {
             const mainTournamentId = buildInstanceId(tournament.qualifierFor, seasonNumber)
@@ -150,7 +163,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
         }
 
         const eligibility = QualificationEngine.checkEligibility(
-            tournament,
+            { ...tournament, id: buildInstanceId(tournament.id, seasonNumber) },
             myTeam,
             myTeam.worldRanking || 999,
             state.circuitPoints,
@@ -186,8 +199,10 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
 
     awardCircuitPoints: (teamId: string, tournamentId: string, placement: number) => {
         set(state => {
-            // Canonical circuit points table, keyed by tournament tier.
-            const tournamentDef = FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)
+            const identity = resolveTournamentIdentity(tournamentId, state.currentWeek)
+            tournamentId = identity.instanceId
+            if (state.circuitPoints.some(entry => entry.teamId === teamId && entry.results.some(result => result.tournamentId === tournamentId))) return
+            const tournamentDef = FULL_TOURNAMENT_CALENDAR.find(t => t.id === identity.seriesId)
             const tier = (tournamentDef?.tier || "C_TIER") as keyof typeof CIRCUIT_POINTS
             const tierPoints = CIRCUIT_POINTS[tier] || CIRCUIT_POINTS.C_TIER
             const points = (tierPoints as Record<number, number>)[placement] || 0
@@ -199,7 +214,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 entry.points += points
                 entry.results.push({
                     tournamentId,
-                    tournamentName: FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.name || "Unknown Tournament",
+                    tournamentName: tournamentDef?.name || "Unknown Tournament",
                     placement,
                     points,
                     week: state.currentWeek,
@@ -210,7 +225,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                     points,
                     results: [{
                         tournamentId,
-                        tournamentName: FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.name || "Unknown Tournament",
+                        tournamentName: tournamentDef?.name || "Unknown Tournament",
                         placement,
                         points,
                         week: state.currentWeek,
@@ -221,10 +236,10 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
             // Tournament-win narrative news + Major tracking.
             if (placement === 1) {
                 const team = state.teams.find(t => t.id === teamId)
-                const tournamentName = FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.name || "The Tournament"
+                const tournamentName = tournamentDef?.name || "The Tournament"
 
                 if (teamId === state.playerTeamId) {
-                    const isMajor = FULL_TOURNAMENT_CALENDAR.find((t: any) => t.id === tournamentId)?.tier === "S_TIER"
+                    const isMajor = tournamentDef?.tier === "S_TIER"
                     if (isMajor) {
                         state.managerDetails.championships = (state.managerDetails.championships || 0) + 1
                         steamAchievements.pushLeaderboardStats({ majorWins: state.managerDetails.championships })

@@ -1,0 +1,47 @@
+{
+  "engine": "spatial-round-v9",
+  "simulatorSourceSha256": "405d200104882a5d3062758a17f837840f34d8227256de984a9329d198e3ee19",
+  "maps": 7,
+  "rounds": 22,
+  "combatRounds": 15,
+  "combatFinalBlocked": 0,
+  "minimumSeparation": 32.00144883740766,
+  "scope": "Rehearsal regression campaign. No map certification or authoritative career adoption. No-gun crowd failures remain open.",
+  "reports": [
+    {
+      "mapId": "Ancient",
+      "path": "ancient-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed"
+    },
+    {
+      "mapId": "Anubis",
+      "path": "anubis-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "534778729657cec2d5a190d4959e14a388e6a2c84b35ad062a8d8399c261af77"
+    },
+    {
+      "mapId": "Inferno",
+      "path": "inferno-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3"
+    },
+    {
+      "mapId": "Mirage",
+      "path": "mirage-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19"
+    },
+    {
+      "mapId": "Overpass",
+      "path": "overpass-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a"
+    },
+    {
+      "mapId": "Sandstone",
+      "path": "sandstone-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "70bea405d93608b60641128dc077328e9e28685f380ba37656d928435d43e012"
+    },
+    {
+      "mapId": "Vertigo",
+      "path": "vertigo-spatial-round-v9-reviewed.json",
+      "fixtureSha256": "eee260de08d920db8cb8cc3d35ef24e604f11f4fbacce0619bbb75a52769a9cc"
+    }
+  ]
+}

@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { WEEKLY_ACTIVITIES, WeeklyActivityType } from "@/types"
+import { weeklyActivityXpBonus } from "@/types/activities"
 import { cn } from "@/lib/utils"
 import { PlayCircle, Users, BarChart, Sword, CalendarClock } from "lucide-react"
 
 export function WeeklyFocusWidget() {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
+    const budget = useGameStore(state => state.teams.find(t => t.id === state.playerTeamId)?.budget ?? 0)
     const isPlaying = useGameStore(state => state.scheduledMatches.length > 0) // rough check if mid-week? actually we set it before advancing week.
 
     const currentSelection = selectedActivity ? WEEKLY_ACTIVITIES[selectedActivity] : WEEKLY_ACTIVITIES[WeeklyActivityType.TRAINING_ONLY]
@@ -29,7 +31,7 @@ export function WeeklyFocusWidget() {
     }
 
     return (
-        <Card className="h-full bg-[#111111] border-white/5 flex flex-col">
+        <Card id="weekly-focus" className="scroll-mt-24 h-full bg-[#111111] border-white/5 flex flex-col">
             <CardHeader className="pb-3 border-b border-white/5">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
@@ -43,18 +45,21 @@ export function WeeklyFocusWidget() {
                 </div>
             </CardHeader>
 
+            <p className="px-6 pt-3 text-xs text-slate-400">Choose one plan for the next weekly settlement. Paid plans require enough cash; check finances before committing.</p>
             <CardContent className="flex-1 p-3 overflow-y-auto space-y-3 custom-scrollbar">
                 {Object.values(WEEKLY_ACTIVITIES).map((activity) => {
-                    if (activity.type === "TRAINING_ONLY" && !selectedActivity) return null // Hide default if nothing selected? Actually show it as "Reset" option
 
-                    const isSelected = selectedActivity === activity.type || (!selectedActivity && activity.type === "TRAINING_ONLY")
+                    const isSelected = selectedActivity === activity.type
 
                     return (
                         <button
                             key={activity.type}
                             onClick={() => handleSelect(activity.type)}
+                            disabled={activity.cost > 0 && activity.cost > budget}
+                            title={activity.cost > 0 && activity.cost > budget ? "Not enough cash for this plan" : "Applies at the next weekly settlement"}
+                            aria-pressed={isSelected}
                             className={cn(
-                                "w-full text-left p-3 rounded-lg border transition-[border-color,background-color,box-shadow] duration-100 ease-out relative group select-none touch-manipulation will-change-transform active:scale-[0.99] active:duration-0",
+                                "disabled:opacity-40 disabled:cursor-not-allowed w-full text-left p-3 rounded-lg border transition-[border-color,background-color,box-shadow] duration-100 ease-out relative group select-none touch-manipulation active:scale-[0.99] active:duration-0",
                                 isSelected
                                     ? "bg-white/5 border-primary/50 shadow-[0_0_15px_rgba(34,211,238,0.1)]"
                                     : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/10"
@@ -71,12 +76,12 @@ export function WeeklyFocusWidget() {
                                 {activity.effects.money && (
                                     <span className="text-xs font-mono text-green-400">
                                         +${activity.effects.money.toLocaleString('en-US')}
-                                        <span className="text-gray-500">/p</span>
+                                        <span className="text-gray-500">/week</span>
                                     </span>
                                 )}
                             </div>
 
-                            <p className="text-xs text-gray-500 line-clamp-2">{activity.description}</p>
+                            <p className="text-xs text-slate-400 line-clamp-2">{activity.description}</p>
 
                             {/* Effects Badges */}
                             <div className="flex flex-wrap gap-1 mt-2">
@@ -92,7 +97,7 @@ export function WeeklyFocusWidget() {
                                 )}
                                 {activity.effects.xp !== undefined && (
                                     <span className="text-[10px] px-1 rounded bg-white/5 text-yellow-400">
-                                        {activity.effects.xp}x XP
+                                        +{weeklyActivityXpBonus(activity)} XP per player
                                     </span>
                                 )}
                             </div>

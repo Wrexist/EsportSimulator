@@ -1,0 +1,8 @@
+
+> esports-manager-sim@1.0.0 compliance:steam:strict
+> tsx scripts/steam-compliance-audit.ts --strict-medium
+
+=== Steam Compliance Audit ===
+Report: tmp\steam-compliance-report.json
+High: 0 | Medium: 0 | Low: 0
+Strict mode medium delta: 0 new / 0 total
