@@ -1,0 +1,6 @@
+{
+  "event": "Code-mode host closed during oversized submission; old cells stale",
+  "completedBeforeRecovery": 63,
+  "integratedBeforeRecovery": 316,
+  "method": "Use durable result records; do not infer unrecorded image identity. Resume with bounded concurrency."
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "player_99_cph_b7elany",
+    "nickname": "b1ilany",
+    "source": "public/assets/teams/cph_wolves/players/b1elany.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_99_cph_jorco",
+    "nickname": "Jurko",
+    "source": "public/assets/teams/cph_wolves/players/jorko.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_99_cph_matheoz",
+    "nickname": "Metheos",
+    "source": "public/assets/teams/cph_wolves/players/matheos.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_99_cph_n7xen",
+    "nickname": "n1Xin2",
+    "source": "public/assets/teams/cph_wolves/players/n1xen.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_99_cph_tapevaare",
+    "nickname": "Tepewaare",
+    "source": "public/assets/teams/cph_wolves/players/tapewaare.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_102_mevrik_brawkkzz",
+    "nickname": "brewckzz",
+    "source": "public/assets/teams/mavrek/players/brawckzz.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_102_mevrik_jakhro",
+    "nickname": "Jechro",
+    "source": "public/assets/teams/mavrek/players/jachro.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_102_mevrik_kyrix",
+    "nickname": "Cyryx",
+    "source": "public/assets/teams/mavrek/players/cyrix.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_102_mevrik_toazty",
+    "nickname": "tuasty",
+    "source": "public/assets/teams/mavrek/players/toasty.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_102_mevrik_zharpie",
+    "nickname": "Sherpie",
+    "source": "public/assets/teams/mavrek/players/sharpie.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_112_impulsa_zprayy",
+    "nickname": "Spreyy",
+    "source": "public/assets/teams/impulse_gw/players/sprayy.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_122_calaoskurnos_cunana",
+    "nickname": "Konana",
+    "source": "public/assets/teams/calaoscornos/players/kunana.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_129_9buomprara_ax7le",
+    "nickname": "Ex1Le",
+    "source": "public/assets/teams/9boompro/players/ax1le.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_129_9buomprara_sorte",
+    "nickname": "zurte",
+    "source": "public/assets/teams/9boompro/players/zorte.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_129_9buomprara_zhalfey",
+    "nickname": "shelfey",
+    "source": "public/assets/teams/9boompro/players/shalfey.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_132_enfuryty_nolw7n",
+    "nickname": "Nulv1n",
+    "source": "public/assets/teams/infurity/players/nolv1n.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_134_xpurtsbetexpert_rekk",
+    "nickname": "rick",
+    "source": "public/assets/teams/sportsbetexpert/players/reck.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_139_vuejo_alennnkar",
+    "nickname": "ELENNNCAR2",
+    "source": "public/assets/teams/fuego/players/alennncar.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_139_vuejo_lucita",
+    "nickname": "Lokita",
+    "source": "public/assets/teams/fuego/players/lukita.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_139_vuejo_vsn",
+    "nickname": "vznx",
+    "source": "public/assets/teams/fuego/players/vzn.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_139_vuejo_zakamoto",
+    "nickname": "sekamoto2",
+    "source": "public/assets/teams/fuego/players/sakamoto.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_168_exzod_blase",
+    "nickname": "bleze",
+    "source": "public/assets/teams/exsad/players/blaze.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_168_exzod_jerk8z",
+    "nickname": "jIRK0z",
+    "source": "public/assets/teams/exsad/players/jerk0z.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_168_exzod_morets",
+    "nickname": "Muretz",
+    "source": "public/assets/teams/exsad/players/moretz.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_168_exzod_txuxa",
+    "nickname": "toxa",
+    "source": "public/assets/teams/exsad/players/tuxa.webp",
+    "status": "own-source-needs-review"
+  }
+]

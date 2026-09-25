@@ -1,0 +1,252 @@
+{
+  "appId": 4326170,
+  "date": "2026-09-25",
+  "uploaded": false,
+  "ownerLogoSha256": "bea0e7e9a5a7029067139f3a4a72309f801737ff74b81bc34308ca09f8577f49",
+  "assets": [
+    {
+      "file": "01-STORE/header_920x430.png",
+      "width": 920,
+      "height": 430,
+      "destination": "Store Assets",
+      "kind": "promotional illustration",
+      "sha256": "401dbc58dbc7b2f1f219edcf121dfd0eafdd5cd1a2e2fcf479b7584ad3170625",
+      "alpha": true
+    },
+    {
+      "file": "01-STORE/main_1232x706.png",
+      "width": 1232,
+      "height": 706,
+      "destination": "Store Assets",
+      "kind": "promotional illustration",
+      "sha256": "42a081bd6602b1999999385750ddc7ace582fc847bf1513731ac78a6025bd6f1",
+      "alpha": true
+    },
+    {
+      "file": "01-STORE/small_462x174.png",
+      "width": 462,
+      "height": 174,
+      "destination": "Store Assets",
+      "kind": "promotional illustration",
+      "sha256": "d347e9e1f265797e3ef5ea2d2d7722776864d9e1fd4b72fdd9dd5ee441331a93",
+      "alpha": true
+    },
+    {
+      "file": "01-STORE/vertical_748x896.png",
+      "width": 748,
+      "height": 896,
+      "destination": "Store Assets",
+      "kind": "promotional illustration",
+      "sha256": "a0b3391165964118ee0bfe3dbb06eceb20305f3e2f4fbc1e47eb50a83ba1ec11",
+      "alpha": true
+    },
+    {
+      "file": "01-STORE/background_1438x810.png",
+      "width": 1438,
+      "height": 810,
+      "destination": "Store Assets / Page Background",
+      "kind": "decorative background",
+      "sha256": "0c5f3acdaff4ec6236342ad44958718cdb03a38581bfda78951df01bb97ca6d3",
+      "alpha": false
+    },
+    {
+      "file": "02-LIBRARY/capsule_600x900.png",
+      "width": 600,
+      "height": 900,
+      "destination": "Library Assets",
+      "kind": "promotional illustration",
+      "sha256": "460bc1fdb8ae5b0948897878cbdcec847ecfe759a771ad653938e1fa22729929",
+      "alpha": true
+    },
+    {
+      "file": "02-LIBRARY/header_920x430.png",
+      "width": 920,
+      "height": 430,
+      "destination": "Library Assets",
+      "kind": "promotional illustration",
+      "sha256": "401dbc58dbc7b2f1f219edcf121dfd0eafdd5cd1a2e2fcf479b7584ad3170625",
+      "alpha": true
+    },
+    {
+      "file": "02-LIBRARY/hero_3840x1240.png",
+      "width": 3840,
+      "height": 1240,
+      "destination": "Library Assets / Hero",
+      "kind": "unbranded background; separate logo overlay",
+      "sha256": "afb8461ae26842ce2e2942f0288931a9646ef3e9d2a7237525fcfad52f61ac7d",
+      "alpha": false
+    },
+    {
+      "file": "02-LIBRARY/logo_1280x300.png",
+      "width": 1280,
+      "height": 300,
+      "destination": "Library Assets / Logo",
+      "kind": "transparent exact-owner-logo lockup",
+      "sha256": "2492f8784f6c92d68c801ce012467a00a5dd7b8bad45e9b060124c679ecc47ec",
+      "alpha": true
+    },
+    {
+      "file": "03-ABOUT-ONLY/01-build-your-team_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "destination": "Description / About This Game",
+      "kind": "promotional illustration",
+      "sha256": "7d7c85ecdb1fadefbfb55ef92f85fd46ea06bfda4769b42840561aa757cef5b0",
+      "alpha": true
+    },
+    {
+      "file": "03-ABOUT-ONLY/02-run-your-club_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "destination": "Description / About This Game",
+      "kind": "promotional illustration",
+      "sha256": "17da24ef444f79a975b0897d6b1ab5974d07111ee93a762e131a3fa7034e59f5",
+      "alpha": true
+    },
+    {
+      "file": "03-ABOUT-ONLY/03-shape-your-season_1460x600.png",
+      "width": 1460,
+      "height": 600,
+      "destination": "Description / About This Game",
+      "kind": "promotional illustration",
+      "sha256": "11bf57bf630c0c330730c8114f6dd69c131775f21c2e4daf04360262e6205d40",
+      "alpha": true
+    },
+    {
+      "file": "04-SCREENSHOTS/01-club-overview.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "cc345b6e3b6b978385b027d071b9cc9e5b8ec2cc1efc33d40c2e90971772726f",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/02-live-match.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "e23d27430c90aca0632c59429e4f6cf8f76bd4a57d1b703a37394262989646a3",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/03-scouting.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "eb35f2dfbc9be2ebacfac09be0b90dd9aaa9305c5b8194f8db3dc451226101e3",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/04-player-development.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "26c0f4bd2395292d4b1cd7f3291bff28c080a2358be29b8c62c80643379e86dc",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/05-build-your-club.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "7d73e77669595f0267928abdabc991ba2da17be4315e21e1c230ad96a087c9e9",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/06-equipment.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "285fc16031af1b1e374217c76f5bc094d1f6bb75e64c091d7744d52e3e015416",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/07-match-analysis.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "2d6b3be35c82f9516b1a1a83cb453618073c438c5a79d798bd856547c44f3ea2",
+      "alpha": false
+    },
+    {
+      "file": "04-SCREENSHOTS/08-contracts-and-budget.png",
+      "width": 1920,
+      "height": 1080,
+      "destination": "Screenshot Assets",
+      "kind": "unaltered archived gameplay capture; refresh against release build before publication",
+      "sha256": "15757929fa4c333ab13171c00325fc347b07141d662b199a4bc07a3bb079265d",
+      "alpha": false
+    },
+    {
+      "file": "05-ICONS/shortcut_256.png",
+      "width": 256,
+      "height": 256,
+      "destination": "App Admin / Shortcut Icon",
+      "kind": "exact owner logo",
+      "sha256": "7ef9d22e2ddb73ba799f87ffaeb51e2958a5ca90119fbf975d75aa259a8f303b",
+      "alpha": true
+    },
+    {
+      "file": "05-ICONS/shortcut_512.png",
+      "width": 512,
+      "height": 512,
+      "destination": "App Admin / Shortcut Icon",
+      "kind": "exact owner logo",
+      "sha256": "c24c6782708ccf79219d6766d05243973e471f6b9813380c64b361b90f52ccd4",
+      "alpha": true
+    },
+    {
+      "file": "05-ICONS/shortcut.ico",
+      "destination": "App Admin / Client Images",
+      "sha256": "d3350e3c6a36307db398a798c29fd4ed6b833520568f9ec2db8a8b7d40d8a7d7"
+    },
+    {
+      "file": "05-ICONS/app_184.jpg",
+      "destination": "App Admin / Client Images",
+      "sha256": "02765fd4f2573b6277da00ea0ebfd9970d51393797e2f476822673509d3d69b1"
+    },
+    {
+      "file": "06-EVENTS/cover_800x450.png",
+      "width": 800,
+      "height": 450,
+      "destination": "Store Assets",
+      "kind": "promotional illustration",
+      "sha256": "78547af90255dbbb91506ae519df2cce010b7fa68669fa6583abe181119095ed",
+      "alpha": true
+    },
+    {
+      "file": "06-EVENTS/header_1920x622.png",
+      "width": 1920,
+      "height": 622,
+      "destination": "Event / announcement header",
+      "kind": "promotional illustration",
+      "sha256": "1bb187b4ace2d65a8c297616218fb69b1317435eedb09c60032afa633f9f3d97",
+      "alpha": true
+    },
+    {
+      "file": "07-BROADCAST/left_199x433.png",
+      "width": 199,
+      "height": 433,
+      "destination": "Broadcast Assets / left panel",
+      "kind": "promotional illustration",
+      "sha256": "ce1da1825e93788396426fcfea451d978e12a788c357dfeef430f56206a7e567",
+      "alpha": true
+    },
+    {
+      "file": "07-BROADCAST/right_199x433.png",
+      "width": 199,
+      "height": 433,
+      "destination": "Broadcast Assets / right panel",
+      "kind": "promotional illustration",
+      "sha256": "5c15864cd0ee5874f9fa5a512e4124519dd70dc40ad7180e3669e941e866a5bc",
+      "alpha": true
+    }
+  ]
+}

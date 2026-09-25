@@ -124,3 +124,6 @@ scripts/_*.html
 
 # Reproducible upload archives; keep their source assets/manifests in Git.
 /marketing/*.zip
+
+# Isolated screenshot test careers (local state, never release assets)
+/marketing/**/*session.local.json

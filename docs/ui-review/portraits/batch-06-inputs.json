@@ -1,0 +1,188 @@
+[
+  {
+    "id": "player_20_gamer_league_hxypex",
+    "nickname": "hypix",
+    "source": "raw-data/teams/gamerlegion/players/hypex.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_20_gamer_league_pxr",
+    "nickname": "PRx",
+    "source": "raw-data/teams/gamerlegion/players/pr.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_20_gamer_league_res",
+    "nickname": "RIZ",
+    "source": "raw-data/teams/gamerlegion/players/rez.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_20_gamer_league_znax",
+    "nickname": "Snaxx",
+    "source": "raw-data/teams/gamerlegion/players/snax.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_20_gamer_league_tauzon",
+    "nickname": "Teuson",
+    "source": "raw-data/teams/gamerlegion/players/tauson.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_alcaren",
+    "nickname": "Elkaren",
+    "source": "raw-data/teams/heroic/players/alkaren.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_khr1zn",
+    "nickname": "Chr1zNx",
+    "source": "raw-data/teams/heroic/players/chr1zn.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_nxilo",
+    "nickname": "nylo",
+    "source": "raw-data/teams/heroic/players/nilo.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_zusp",
+    "nickname": "sosp",
+    "source": "raw-data/teams/heroic/players/susp.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_xfl8ud",
+    "nickname": "xfl0od",
+    "source": "raw-data/teams/heroic/players/xfl0ud.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_valiant_yxnqstxr",
+    "nickname": "yxngstxrx",
+    "source": "raw-data/teams/heroic/players/yxngstxr.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_23_imperius_khelo",
+    "nickname": "chilo",
+    "source": "raw-data/teams/imperial/players/chelo.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_23_imperius_novay",
+    "nickname": "nuway",
+    "source": "raw-data/teams/imperial/players/noway.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_23_imperius_zkullz",
+    "nickname": "skollz",
+    "source": "raw-data/teams/imperial/players/skullz.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_23_imperius_tzry",
+    "nickname": "tryx",
+    "source": "raw-data/teams/imperial/players/try.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_23_imperius_wini",
+    "nickname": "VYNI",
+    "source": "raw-data/teams/imperial/players/vini.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_21_ninjas_kairne",
+    "nickname": "ceirne2",
+    "source": "raw-data/teams/ninjas_in_pyjamas/players/cairne.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_21_ninjas_r7ncle",
+    "nickname": "r1nkli",
+    "source": "raw-data/teams/ninjas_in_pyjamas/players/r1nkle.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_21_ninjas_sjuuzh",
+    "nickname": "sjoush",
+    "source": "raw-data/teams/ninjas_in_pyjamas/players/sjuush.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_21_ninjas_znappi",
+    "nickname": "Sneppi",
+    "source": "raw-data/teams/ninjas_in_pyjamas/players/snappi.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_21_ninjas_xkacperscy",
+    "nickname": "xKecpersky",
+    "source": "raw-data/teams/ninjas_in_pyjamas/players/xkacpersky.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_19_nrg_br8",
+    "nickname": "br0x",
+    "source": "public/assets/teams/nrg/players/br0.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_19_nrg_jeorqe",
+    "nickname": "Jiorge",
+    "source": "public/assets/teams/nrg/players/jeorge.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_19_nrg_nitr8",
+    "nickname": "nytr0",
+    "source": "public/assets/teams/nrg/players/nitr0.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_19_nrg_ozee",
+    "nickname": "uSee",
+    "source": "public/assets/teams/nrg/players/osee.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_19_nrg_zonik",
+    "nickname": "Sunic",
+    "source": "public/assets/teams/nrg/players/sonic.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_vyrtusor_b7zt",
+    "nickname": "b1stx",
+    "source": "raw-data/teams/virtus_pro/players/b1st.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_vyrtusor_fzame",
+    "nickname": "feme",
+    "source": "raw-data/teams/virtus_pro/players/fame.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_vyrtusor_fl7t",
+    "nickname": "FL1Tx",
+    "source": "raw-data/teams/virtus_pro/players/fl1t.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_vyrtusor_perfekto",
+    "nickname": "Pirfecto",
+    "source": "raw-data/teams/virtus_pro/players/perfecto.png",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_22_vyrtusor_to8ro",
+    "nickname": "tU0RO",
+    "source": "raw-data/teams/virtus_pro/players/to0ro.png",
+    "status": "own-source-needs-review"
+  }
+]

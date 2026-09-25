@@ -1,0 +1,122 @@
+{
+  "player_1_vitalis_axpex": {
+    "input": [
+      "axpex",
+      "png",
+      "exec-175bb769-dc4f-4e41-b993-64eaf140168e.png",
+      "vitality",
+      "player_1_vitalis",
+      "apex",
+      "raw-data/teams/vitality/players/apex.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_1_vitalis_axpex-v3.png"
+  },
+  "player_1_vitalis_flames": {
+    "input": [
+      "flames",
+      "png",
+      "exec-09537a29-7dd8-4cda-b65d-6615435da228.png",
+      "vitality",
+      "player_1_vitalis",
+      "flamez",
+      "raw-data/teams/vitality/players/flamez.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_1_vitalis_flames-v3.png"
+  },
+  "player_1_vitalis_mesii": {
+    "input": [
+      "mesii",
+      "png",
+      "exec-e9e82e46-28a7-4adf-836f-d57fcd0b20ba.png",
+      "vitality",
+      "player_1_vitalis",
+      "mezii",
+      "raw-data/teams/vitality/players/mezii.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_1_vitalis_mesii-v3.png"
+  },
+  "player_1_vitalis_rops": {
+    "input": [
+      "rops",
+      "png",
+      "exec-a85c22e8-ecba-4006-977c-c43d56cb99e6.png",
+      "vitality",
+      "player_1_vitalis",
+      "ropz",
+      "raw-data/teams/vitality/players/ropz.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_1_vitalis_rops-v3.png"
+  },
+  "player_1_vitalis_syvoo": {
+    "input": [
+      "syvoo",
+      "png",
+      "exec-b432b8f2-b3e1-4ae2-abe1-cb3d243e8875.png",
+      "vitality",
+      "player_1_vitalis",
+      "zywoo",
+      "raw-data/teams/vitality/players/zywoo.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_1_vitalis_syvoo-v3.png"
+  },
+  "player_2_foria_fxallen": {
+    "input": [
+      "fxallen",
+      "png",
+      "exec-b0a6275d-155b-4f66-b440-c17b03d16675.png",
+      "furia",
+      "player_2_foria",
+      "fallen",
+      "raw-data/teams/furia/players/fallen.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_2_foria_fxallen-v3.png"
+  },
+  "player_2_foria_czcerato": {
+    "input": [
+      "czcerato",
+      "png",
+      "exec-bdd40930-19ca-4a1f-a85b-f47a147d5a12.png",
+      "furia",
+      "player_2_foria",
+      "kscerato",
+      "raw-data/teams/furia/players/kscerato.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_2_foria_czcerato-v3.png"
+  },
+  "player_2_foria_mzolodoy": {
+    "input": [
+      "mzolodoy",
+      "png",
+      "exec-b9f49cbd-62b0-4949-979b-0af699a2118d.png",
+      "furia",
+      "player_2_foria",
+      "molodoy",
+      "raw-data/teams/furia/players/molodoy.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_2_foria_mzolodoy-v3.png"
+  },
+  "player_2_foria_yecindar": {
+    "input": [
+      "yecindar",
+      "png",
+      "exec-ca01bddf-04f2-41ba-a4e0-2673b8870f20.png",
+      "furia",
+      "player_2_foria",
+      "yekindar",
+      "raw-data/teams/furia/players/yekindar.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_2_foria_yecindar-v3.png"
+  },
+  "player_2_foria_yxuurih": {
+    "input": [
+      "yxuurih",
+      "png",
+      "exec-bf9f4043-c50c-445a-975a-e60598374743.png",
+      "furia",
+      "player_2_foria",
+      "yuurih",
+      "raw-data/teams/furia/players/yuurih.png"
+    ],
+    "master": "docs/ui-review/portraits/masters/player_2_foria_yxuurih-v3.png"
+  }
+}

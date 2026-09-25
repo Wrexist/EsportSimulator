@@ -1,0 +1,1202 @@
+{
+  "mode": "built-in imagegen; user explicitly declined API on 2026-09-25",
+  "total": 1368,
+  "delivered": 1170,
+  "remaining": 198,
+  "sourceStatusCounts": {
+    "no-real-photo-in-audited-candidates": 191,
+    "alternate-source-identity-review": 1,
+    "no-local-source": 6
+  },
+  "note": "Approved personal-photo sources are distinguished from unverified candidates and placeholders. Generated images are not delivered until exported, visually reviewed and synced. Built-in tool orchestration runs only in the active agent session; no API background service.",
+  "queue": [
+    {
+      "id": "player_226_8sins_txornex",
+      "nickname": "TurNEX",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_131_aedhar_z9rum",
+      "nickname": "s3rom",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_131_aedhar_zeb",
+      "nickname": "Sib",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_221_akymbuyx_lxittlebeer",
+      "nickname": "LyttleBEER",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_221_akymbuyx_tzripp",
+      "nickname": "trypp",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_218_altoyro_surgexnoc",
+      "nickname": "furzenok",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_231_excendium_fzix",
+      "nickname": "fyx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_231_excendium_kr8wa",
+      "nickname": "kr0we",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_231_excendium_lucibezten",
+      "nickname": "locibesten",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_231_excendium_ninjat7",
+      "nickname": "NynjaT1",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_16_b8_s1zsi",
+      "nickname": "s1zzy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_192_bad_alennnkar",
+      "nickname": "ELENNNCAR",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_192_bad_zakamoto",
+      "nickname": "sekamoto",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_192_bad_zpace",
+      "nickname": "spece",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_192_bad_talksyn",
+      "nickname": "telkzyn",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_147_bazamentor_facerealityy",
+      "nickname": "fekerealityy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_209_bayond_beaztman",
+      "nickname": "Biastman",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_209_bayond_dens",
+      "nickname": "dinz",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_209_bayond_fxlixxy",
+      "nickname": "flyxxy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_209_bayond_pr8mize",
+      "nickname": "Pr0myse",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_81_big_kings_dxoni",
+      "nickname": "duni",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_81_big_kings_tripex77",
+      "nickname": "trypex17",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_178_bruti_kad7m",
+      "nickname": "KED1M",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_159_byshedo_dxarendeli",
+      "nickname": "Derendeli",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_159_byshedo_wej",
+      "nickname": "Vij",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_122_calaoskurnos_cunana",
+      "nickname": "Konana",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_249_charrodos_pzrotado",
+      "nickname": "prutado",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_249_charrodos_rodfpz",
+      "nickname": "RuDfps",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_249_charrodos_z7lent",
+      "nickname": "s1lint",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_83_qhinggix_tikuac",
+      "nickname": "tykuak",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_99_cph_jorco",
+      "nickname": "Jurko",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_99_cph_matheoz",
+      "nickname": "Metheos",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_99_cph_tapevaare",
+      "nickname": "Tepewaare",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_217_croshers_lakerda",
+      "nickname": "Lecerda",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_217_croshers_makhado",
+      "nickname": "Mechado",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_179_csdiylyt_mzelty",
+      "nickname": "milty",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_220_diamend_deztroyd",
+      "nickname": "Distro_YD",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_220_diamend_jxernejj",
+      "nickname": "jirnejj",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_220_diamend_jun7",
+      "nickname": "JoN1",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_220_diamend_lzibraa",
+      "nickname": "Lybraa",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_240_dxa_k4put",
+      "nickname": "c4pot",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_240_dxa_jxlb",
+      "nickname": "JLBx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_240_dxa_superz",
+      "nickname": "Sopers",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_240_dxa_zakheraay",
+      "nickname": "Zecheraay",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_240_dxa_soot",
+      "nickname": "Zuot",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_166_ikoisto_havachi",
+      "nickname": "hewachi",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_166_ikoisto_jaw7ko",
+      "nickname": "jew1ko",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_166_ikoisto_zkhwarzkopf",
+      "nickname": "Schwerzkopf",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_166_ikoisto_zh1seido",
+      "nickname": "sh1siido",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_166_ikoisto_zlazh",
+      "nickname": "slesh",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_170_ilidenergy_finv",
+      "nickname": "fynW",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_170_ilidenergy_qooddeph",
+      "nickname": "guoddeph",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_170_ilidenergy_c1zlll",
+      "nickname": "k1slllx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_170_ilidenergy_ceeqan",
+      "nickname": "kiegaN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_95_iroptionra_wizcera",
+      "nickname": "vyscera",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_188_ex_jonk_semix",
+      "nickname": "zimix",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_188_ex_jonk_zer8uky",
+      "nickname": "zir0UKY",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_57_ix_rubyel_yumzan",
+      "nickname": "YomsaN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_167_f5_kmrn",
+      "nickname": "cmrnx",
+      "source": null,
+      "status": "alternate-source-identity-review"
+    },
+    {
+      "id": "player_167_f5_neiqht",
+      "nickname": "niight",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_167_f5_ziqnal",
+      "nickname": "Sygnal",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_156_fengdoal_zalmon",
+      "nickname": "selmon",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_156_fengdoal_trazh",
+      "nickname": "Tresh",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_203_vakusia_ariant8",
+      "nickname": "Eriant0",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_190_voorro_klon1",
+      "nickname": "clun7",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_139_vuejo_alennnkar",
+      "nickname": "ELENNNCAR2",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_139_vuejo_lucita",
+      "nickname": "Lokita",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_139_vuejo_zakamoto",
+      "nickname": "sekamoto2",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_139_vuejo_vsn",
+      "nickname": "vznx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_84_g_two_jxunyme",
+      "nickname": "Jonyme",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_84_g_two_yczjupe",
+      "nickname": "yksjope",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_224_hindxijht_mxadam",
+      "nickname": "Medam",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_224_hindxijht_miceri",
+      "nickname": "mykeri",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_112_impulsa_zprayy",
+      "nickname": "Spreyy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_214_encontrol_jzfeltner",
+      "nickname": "jsfiltner",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_214_encontrol_scorkhyy",
+      "nickname": "Scurchyy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_214_encontrol_txyra",
+      "nickname": "TyRe",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_132_enfuryty_nolw7n",
+      "nickname": "Nulv1n",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_132_enfuryty_ozontoma",
+      "nickname": "uontoma",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_132_enfuryty_rxinji",
+      "nickname": "rynji",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_132_enfuryty_zirius",
+      "nickname": "syrius",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_125_jumboex_pxroper",
+      "nickname": "Pruper",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_171_jyxt_zator7",
+      "nickname": "sETOR1",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_171_jyxt_zcrr",
+      "nickname": "skrrx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_182_lastium_mziami",
+      "nickname": "Myami",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_182_lastium_rxoninbaby",
+      "nickname": "Runinbaby",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_200_ligianal_bzloody",
+      "nickname": "Bluody",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_200_ligianal_hsi",
+      "nickname": "HZY",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_200_ligianal_pawazt4r",
+      "nickname": "pevast4r",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_89_loxrix_azdrien",
+      "nickname": "EdrieN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_207_mokicos_ghozt1",
+      "nickname": "ghusT1",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_207_mokicos_lks",
+      "nickname": "Lcsx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_207_mokicos_rxxq",
+      "nickname": "rxx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_207_mokicos_snov",
+      "nickname": "snuw",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_102_mevrik_brawkkzz",
+      "nickname": "brewckzz",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_102_mevrik_kyrix",
+      "nickname": "Cyryx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_102_mevrik_jakhro",
+      "nickname": "Jechro",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_102_mevrik_zharpie",
+      "nickname": "Sherpie",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_102_mevrik_toazty",
+      "nickname": "tuasty",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_193_mazroea_baqel",
+      "nickname": "BEGEL",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_193_mazroea_k8c0",
+      "nickname": "C0C0x",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_193_mazroea_no7nx",
+      "nickname": "nu1nx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_193_mazroea_tvigs",
+      "nickname": "twygs",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_115_mekushort_mogw",
+      "nickname": "mugv",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_115_mekushort_tituluz",
+      "nickname": "tytulus",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_133_mindfraak_dxpr",
+      "nickname": "dprx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_133_mindfraak_zwersien",
+      "nickname": "swirzieN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_133_mindfraak_sune",
+      "nickname": "zone",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_82_marnengstar_expzaziki",
+      "nickname": "ixpSasiKi",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_82_marnengstar_raqe",
+      "nickname": "rege",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_82_marnengstar_rxuben",
+      "nickname": "robeN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_82_marnengstar_zuci",
+      "nickname": "soki",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_191_myertaex_lxumier",
+      "nickname": "lOMiER",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_191_myertaex_semzys",
+      "nickname": "SIMSYS",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_45_nimeses_kruc1al",
+      "nickname": "CROC1AL",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_45_nimeses_n8te",
+      "nickname": "n0ti",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_45_nimeses_nexiuz",
+      "nickname": "Nixius",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_45_nimeses_txein",
+      "nickname": "tiin",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_45_nimeses_thomaz",
+      "nickname": "Thumas",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_74_naxvaid_diezen",
+      "nickname": "Dyesen",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_74_naxvaid_okeana",
+      "nickname": "UCEANA",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_213_nomadx_hzenx",
+      "nickname": "HinX",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_213_nomadx_hoolig6n",
+      "nickname": "huolig4n",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_222_overcneght_6taylor",
+      "nickname": "4TEYLOR",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_222_overcneght_amk",
+      "nickname": "EMC",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_222_overcneght_b7",
+      "nickname": "b1x",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_222_overcneght_majestikzz",
+      "nickname": "Mejesticzz",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_228_piexaboo_hicomi",
+      "nickname": "Hykomi",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_223_pijaonsor_vieenn",
+      "nickname": "wyeenN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_149_prezdigeel_folce",
+      "nickname": "Fulke",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_149_prezdigeel_misi",
+      "nickname": "Myzi",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_189_prysan_r9ct",
+      "nickname": "r3ktx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_208_qyezar_7zs",
+      "nickname": "1zzx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_208_qyezar_ne7xxx",
+      "nickname": "Ni1XXX",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_208_qyezar_nevt",
+      "nickname": "niwt",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_158_qwintry_axbiraju",
+      "nickname": "ebiraju",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_158_qwintry_pzychodoctor",
+      "nickname": "PsychuDoctor",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_158_qwintry_zlaxejeszz",
+      "nickname": "slexejezzz",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_212_red_edw",
+      "nickname": "idv",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_212_red_qtw",
+      "nickname": "gtwx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_212_red_n8paqe",
+      "nickname": "n0pege",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_212_red_nc",
+      "nickname": "Nkx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_212_red_zanc",
+      "nickname": "senc",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_153_rigaenro_dvrc",
+      "nickname": "dvrkx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_153_rigaenro_marekiev",
+      "nickname": "merekiew",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_153_rigaenro_zazha",
+      "nickname": "sesha",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_153_rigaenro_zukar",
+      "nickname": "Zocar",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_148_raoxter_adc",
+      "nickname": "EDK",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_148_raoxter_ju7kes",
+      "nickname": "jo1ces",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_148_raoxter_txerryyy",
+      "nickname": "Tirryyy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_91_ruby_maguein",
+      "nickname": "meQuein",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_98_ryxtecrix_jakeces",
+      "nickname": "jekekeS",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_227_sakurayx_alikeravr",
+      "nickname": "elicerawr",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_235_sidaqoest_qun",
+      "nickname": "gon",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_235_sidaqoest_larzecdahl",
+      "nickname": "LersEkdahl",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_235_sidaqoest_lzur",
+      "nickname": "Lor",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_235_sidaqoest_probl99m",
+      "nickname": "Prubl33m",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_235_sidaqoest_xtsy",
+      "nickname": "xtzyx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_110_phantom_ciryazoo",
+      "nickname": "Kyryasoo",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_110_phantom_kurosze",
+      "nickname": "korosse",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_110_phantom_zyph0",
+      "nickname": "syph0x2",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_134_xpurtsbetexpert_zml",
+      "nickname": "smlx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_216_tymiwaves_kamille",
+      "nickname": "cemille",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_216_tymiwaves_hxarbor",
+      "nickname": "Herbor",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_216_tymiwaves_cezza",
+      "nickname": "Kizza",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_216_tymiwaves_lavlcay",
+      "nickname": "lewlkay",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_201_tnk_ezlem",
+      "nickname": "ilem",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_164_trukk_mil6nnn",
+      "nickname": "myL4nNN",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_164_trukk_nzaiter",
+      "nickname": "Neiter",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_164_trukk_obsvard",
+      "nickname": "ubsward",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_180_undergroond_jzynx",
+      "nickname": "Jynxx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_180_undergroond_n7qhtraid",
+      "nickname": "N1ghtreid",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_236_vantaga_arktik",
+      "nickname": "Erctic",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_236_vantaga_nxeo",
+      "nickname": "nio",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_236_vantaga_txidy",
+      "nickname": "tydy",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_246_wahweh_bxullet",
+      "nickname": "BolleT",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_246_wahweh_exekutor",
+      "nickname": "Ixecutor3",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_246_wahweh_inzmutje",
+      "nickname": "ynsmutje",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_246_wahweh_ocay",
+      "nickname": "UKay",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_210_wonted_jdubz",
+      "nickname": "JDobs",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_199_weshengton_bewwe",
+      "nickname": "bivve",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_152_wetermelon_qleb86ruz",
+      "nickname": "glib86rus",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_152_wetermelon_laczheri",
+      "nickname": "LEKSHERi",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_152_wetermelon_zexyvowa",
+      "nickname": "SIXYVOVA",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_198_wildrix_ztrong9r",
+      "nickname": "strung3r",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_135_wild_ace_dxoni",
+      "nickname": "duni2",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_135_wild_ace_zsen",
+      "nickname": "sSin2",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_135_wild_ace_tripex77",
+      "nickname": "trypex172",
+      "source": null,
+      "status": "no-local-source"
+    },
+    {
+      "id": "player_232_wenners_patootic",
+      "nickname": "petootik",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_232_wenners_t8mmyyy",
+      "nickname": "t0mmyyyx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_232_wenners_ualiqod",
+      "nickname": "oaligod",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_113_ww_ct8m",
+      "nickname": "ct0mx",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_113_ww_m3vsu",
+      "nickname": "m3wso",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_205_xdm_darcc",
+      "nickname": "derkk",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_205_xdm_cunqao",
+      "nickname": "Kongao",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_205_xdm_r1verlace",
+      "nickname": "r1virLaKe",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_205_xdm_shad8w",
+      "nickname": "Shed0w",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    },
+    {
+      "id": "player_205_xdm_txaidao",
+      "nickname": "teidao",
+      "source": null,
+      "status": "no-real-photo-in-audited-candidates"
+    }
+  ]
+}

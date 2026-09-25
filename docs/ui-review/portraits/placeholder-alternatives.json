@@ -1,0 +1,987 @@
+[
+  {
+    "id": "player_226_8sins_txornex",
+    "alternates": [
+      "raw-data/teams/8sins/players/tornex.png"
+    ]
+  },
+  {
+    "id": "player_131_aedhar_z9rum",
+    "alternates": [
+      "raw-data/teams/aether/players/s3rum.png"
+    ]
+  },
+  {
+    "id": "player_131_aedhar_zeb",
+    "alternates": [
+      "raw-data/teams/aether/players/seb.png"
+    ]
+  },
+  {
+    "id": "player_221_akymbuyx_lxittlebeer",
+    "alternates": [
+      "raw-data/teams/akimbo/players/littlebeer.png"
+    ]
+  },
+  {
+    "id": "player_221_akymbuyx_tzripp",
+    "alternates": [
+      "raw-data/teams/akimbo/players/tripp.png"
+    ]
+  },
+  {
+    "id": "player_218_altoyro_surgexnoc",
+    "alternates": []
+  },
+  {
+    "id": "player_231_excendium_fzix",
+    "alternates": [
+      "raw-data/teams/ascend/players/fix.png"
+    ]
+  },
+  {
+    "id": "player_231_excendium_kr8wa",
+    "alternates": [
+      "raw-data/teams/ascend/players/kr0wa.png"
+    ]
+  },
+  {
+    "id": "player_231_excendium_lucibezten",
+    "alternates": [
+      "raw-data/teams/ascend/players/lucibesten.png"
+    ]
+  },
+  {
+    "id": "player_231_excendium_ninjat7",
+    "alternates": [
+      "raw-data/teams/ascend/players/ninjat1.png"
+    ]
+  },
+  {
+    "id": "player_16_b8_s1zsi",
+    "alternates": [
+      "public/assets/teams/b8/players/s1zsi.webp"
+    ]
+  },
+  {
+    "id": "player_192_bad_alennnkar",
+    "alternates": [
+      "raw-data/teams/bad_luck/players/alennncar.png"
+    ]
+  },
+  {
+    "id": "player_192_bad_zakamoto",
+    "alternates": [
+      "raw-data/teams/bad_luck/players/sakamoto.png"
+    ]
+  },
+  {
+    "id": "player_192_bad_zpace",
+    "alternates": [
+      "raw-data/teams/bad_luck/players/space.png"
+    ]
+  },
+  {
+    "id": "player_192_bad_talksyn",
+    "alternates": [
+      "raw-data/teams/bad_luck/players/talkzyn.png"
+    ]
+  },
+  {
+    "id": "player_147_bazamentor_facerealityy",
+    "alternates": [
+      "raw-data/teams/basement_boys/players/fakerealityy.png"
+    ]
+  },
+  {
+    "id": "player_209_bayond_beaztman",
+    "alternates": [
+      "raw-data/teams/beyond_limits/players/beastman.png"
+    ]
+  },
+  {
+    "id": "player_209_bayond_dens",
+    "alternates": [
+      "raw-data/teams/beyond_limits/players/denz.png"
+    ]
+  },
+  {
+    "id": "player_209_bayond_fxlixxy",
+    "alternates": [
+      "raw-data/teams/beyond_limits/players/flixxy.png"
+    ]
+  },
+  {
+    "id": "player_209_bayond_pr8mize",
+    "alternates": [
+      "raw-data/teams/beyond_limits/players/pr0mise.png"
+    ]
+  },
+  {
+    "id": "player_81_big_kings_dxoni",
+    "alternates": [
+      "raw-data/teams/big_academy/players/doni.png"
+    ]
+  },
+  {
+    "id": "player_81_big_kings_tripex77",
+    "alternates": [
+      "raw-data/teams/big_academy/players/tripex17.png"
+    ]
+  },
+  {
+    "id": "player_178_bruti_kad7m",
+    "alternates": [
+      "raw-data/teams/brute/players/kad1m.png"
+    ]
+  },
+  {
+    "id": "player_159_byshedo_dxarendeli",
+    "alternates": [
+      "raw-data/teams/bushido_wildcats/players/darendeli.png"
+    ]
+  },
+  {
+    "id": "player_159_byshedo_wej",
+    "alternates": [
+      "raw-data/teams/bushido_wildcats/players/vej.png"
+    ]
+  },
+  {
+    "id": "player_249_charrodos_pzrotado",
+    "alternates": [
+      "raw-data/teams/charrados/players/protado.png"
+    ]
+  },
+  {
+    "id": "player_249_charrodos_rodfpz",
+    "alternates": [
+      "raw-data/teams/charrados/players/rodfps.png"
+    ]
+  },
+  {
+    "id": "player_249_charrodos_z7lent",
+    "alternates": [
+      "raw-data/teams/charrados/players/s1lent.png"
+    ]
+  },
+  {
+    "id": "player_217_croshers_lakerda",
+    "alternates": [
+      "raw-data/teams/crashers/players/lacerda.png"
+    ]
+  },
+  {
+    "id": "player_217_croshers_makhado",
+    "alternates": [
+      "raw-data/teams/crashers/players/machado.png"
+    ]
+  },
+  {
+    "id": "player_179_csdiylyt_mzelty",
+    "alternates": [
+      "raw-data/teams/csdiilit/players/melty.png"
+    ]
+  },
+  {
+    "id": "player_220_diamend_deztroyd",
+    "alternates": [
+      "raw-data/teams/diamant/players/destro_yd.png"
+    ]
+  },
+  {
+    "id": "player_220_diamend_jxernejj",
+    "alternates": [
+      "raw-data/teams/diamant/players/jernejj.png"
+    ]
+  },
+  {
+    "id": "player_220_diamend_jun7",
+    "alternates": [
+      "raw-data/teams/diamant/players/jun1.png",
+      "public/assets/teams/boring_players/players/jun7.webp"
+    ]
+  },
+  {
+    "id": "player_220_diamend_lzibraa",
+    "alternates": [
+      "raw-data/teams/diamant/players/libraa.png"
+    ]
+  },
+  {
+    "id": "player_240_dxa_k4put",
+    "alternates": [
+      "raw-data/teams/dxa/players/c4put.png"
+    ]
+  },
+  {
+    "id": "player_240_dxa_jxlb",
+    "alternates": [
+      "raw-data/teams/dxa/players/jlb.png"
+    ]
+  },
+  {
+    "id": "player_240_dxa_superz",
+    "alternates": [
+      "raw-data/teams/dxa/players/supers.png"
+    ]
+  },
+  {
+    "id": "player_240_dxa_zakheraay",
+    "alternates": [
+      "raw-data/teams/dxa/players/zacheraay.png"
+    ]
+  },
+  {
+    "id": "player_240_dxa_soot",
+    "alternates": [
+      "raw-data/teams/dxa/players/zoot.png"
+    ]
+  },
+  {
+    "id": "player_166_ikoisto_havachi",
+    "alternates": [
+      "raw-data/teams/egoisto/players/hawachi.png"
+    ]
+  },
+  {
+    "id": "player_166_ikoisto_jaw7ko",
+    "alternates": [
+      "raw-data/teams/egoisto/players/jaw1ko.png"
+    ]
+  },
+  {
+    "id": "player_166_ikoisto_zkhwarzkopf",
+    "alternates": [
+      "raw-data/teams/egoisto/players/schwarzkopf.png"
+    ]
+  },
+  {
+    "id": "player_166_ikoisto_zh1seido",
+    "alternates": [
+      "raw-data/teams/egoisto/players/sh1seido.png"
+    ]
+  },
+  {
+    "id": "player_166_ikoisto_zlazh",
+    "alternates": [
+      "raw-data/teams/egoisto/players/slash.png"
+    ]
+  },
+  {
+    "id": "player_170_ilidenergy_finv",
+    "alternates": [
+      "raw-data/teams/elitenergy/players/finw.png"
+    ]
+  },
+  {
+    "id": "player_170_ilidenergy_qooddeph",
+    "alternates": [
+      "raw-data/teams/elitenergy/players/gooddeph.png"
+    ]
+  },
+  {
+    "id": "player_170_ilidenergy_c1zlll",
+    "alternates": [
+      "raw-data/teams/elitenergy/players/k1slll.png"
+    ]
+  },
+  {
+    "id": "player_170_ilidenergy_ceeqan",
+    "alternates": [
+      "raw-data/teams/elitenergy/players/keegan.png"
+    ]
+  },
+  {
+    "id": "player_188_ex_jonk_semix",
+    "alternates": [
+      "raw-data/teams/ex-gank/players/zemix.png"
+    ]
+  },
+  {
+    "id": "player_188_ex_jonk_zer8uky",
+    "alternates": [
+      "raw-data/teams/ex-gank/players/zer0uky.png"
+    ]
+  },
+  {
+    "id": "player_57_ix_rubyel_yumzan",
+    "alternates": [
+      "raw-data/teams/ex-ruby/players/yumsan.png"
+    ]
+  },
+  {
+    "id": "player_167_f5_kmrn",
+    "alternates": [
+      "raw-data/teams/f5/players/cmrn.png",
+      "public/assets/teams/lag/players/kmrn.webp"
+    ]
+  },
+  {
+    "id": "player_167_f5_neiqht",
+    "alternates": [
+      "raw-data/teams/f5/players/neight.png"
+    ]
+  },
+  {
+    "id": "player_167_f5_ziqnal",
+    "alternates": [
+      "raw-data/teams/f5/players/signal.png"
+    ]
+  },
+  {
+    "id": "player_156_fengdoal_zalmon",
+    "alternates": [
+      "raw-data/teams/fengda/players/salmon.png"
+    ]
+  },
+  {
+    "id": "player_156_fengdoal_trazh",
+    "alternates": [
+      "raw-data/teams/fengda/players/trash.png"
+    ]
+  },
+  {
+    "id": "player_203_vakusia_ariant8",
+    "alternates": [
+      "raw-data/teams/fokus/players/ariant0.png"
+    ]
+  },
+  {
+    "id": "player_190_voorro_klon1",
+    "alternates": [
+      "raw-data/teams/four_magic/players/clon7.png"
+    ]
+  },
+  {
+    "id": "player_84_g_two_jxunyme",
+    "alternates": []
+  },
+  {
+    "id": "player_84_g_two_yczjupe",
+    "alternates": []
+  },
+  {
+    "id": "player_224_hindxijht_mxadam",
+    "alternates": [
+      "raw-data/teams/hindsight/players/madam.png"
+    ]
+  },
+  {
+    "id": "player_224_hindxijht_miceri",
+    "alternates": [
+      "raw-data/teams/hindsight/players/mikeri.png"
+    ]
+  },
+  {
+    "id": "player_214_encontrol_jzfeltner",
+    "alternates": [
+      "raw-data/teams/incontrol/players/jsfeltner.png"
+    ]
+  },
+  {
+    "id": "player_214_encontrol_scorkhyy",
+    "alternates": [
+      "raw-data/teams/incontrol/players/scorchyy.png"
+    ]
+  },
+  {
+    "id": "player_214_encontrol_txyra",
+    "alternates": [
+      "raw-data/teams/incontrol/players/tyra.png"
+    ]
+  },
+  {
+    "id": "player_132_enfuryty_ozontoma",
+    "alternates": [
+      "raw-data/teams/infurity/players/oontoma.png"
+    ]
+  },
+  {
+    "id": "player_132_enfuryty_rxinji",
+    "alternates": [
+      "raw-data/teams/infurity/players/rinji.png"
+    ]
+  },
+  {
+    "id": "player_132_enfuryty_zirius",
+    "alternates": [
+      "raw-data/teams/infurity/players/sirius.png"
+    ]
+  },
+  {
+    "id": "player_125_jumboex_pxroper",
+    "alternates": [
+      "raw-data/teams/jumbo/players/proper.png"
+    ]
+  },
+  {
+    "id": "player_171_jyxt_zator7",
+    "alternates": [
+      "raw-data/teams/just_swing/players/sator1.png"
+    ]
+  },
+  {
+    "id": "player_171_jyxt_zcrr",
+    "alternates": [
+      "raw-data/teams/just_swing/players/skrr.png"
+    ]
+  },
+  {
+    "id": "player_182_lastium_mziami",
+    "alternates": [
+      "raw-data/teams/last_bullet/players/miami.png"
+    ]
+  },
+  {
+    "id": "player_182_lastium_rxoninbaby",
+    "alternates": [
+      "raw-data/teams/last_bullet/players/roninbaby.png"
+    ]
+  },
+  {
+    "id": "player_200_ligianal_bzloody",
+    "alternates": [
+      "raw-data/teams/legion/players/bloody.png"
+    ]
+  },
+  {
+    "id": "player_200_ligianal_hsi",
+    "alternates": [
+      "raw-data/teams/legion/players/hzi.png"
+    ]
+  },
+  {
+    "id": "player_200_ligianal_pawazt4r",
+    "alternates": [
+      "raw-data/teams/legion/players/pavast4r.png"
+    ]
+  },
+  {
+    "id": "player_89_loxrix_azdrien",
+    "alternates": [
+      "raw-data/teams/los_kogutos/players/adrien.png"
+    ]
+  },
+  {
+    "id": "player_207_mokicos_ghozt1",
+    "alternates": [
+      "raw-data/teams/magicos/players/ghost1.png"
+    ]
+  },
+  {
+    "id": "player_207_mokicos_lks",
+    "alternates": [
+      "raw-data/teams/magicos/players/lcs.png",
+      "public/assets/teams/infinite/players/lks.webp"
+    ]
+  },
+  {
+    "id": "player_207_mokicos_rxxq",
+    "alternates": [
+      "raw-data/teams/magicos/players/rx.png"
+    ]
+  },
+  {
+    "id": "player_207_mokicos_snov",
+    "alternates": [
+      "raw-data/teams/magicos/players/snow.png",
+      "public/assets/teams/sdengal/players/snov.png",
+      "public/assets/teams/sdengal/players/snov.webp"
+    ]
+  },
+  {
+    "id": "player_193_mazroea_baqel",
+    "alternates": [
+      "raw-data/teams/mazraea/players/bagel.png"
+    ]
+  },
+  {
+    "id": "player_193_mazroea_k8c0",
+    "alternates": [
+      "raw-data/teams/mazraea/players/c0c0.png"
+    ]
+  },
+  {
+    "id": "player_193_mazroea_no7nx",
+    "alternates": [
+      "raw-data/teams/mazraea/players/no1nx.png"
+    ]
+  },
+  {
+    "id": "player_193_mazroea_tvigs",
+    "alternates": [
+      "raw-data/teams/mazraea/players/twigs.png"
+    ]
+  },
+  {
+    "id": "player_115_mekushort_mogw",
+    "alternates": [
+      "raw-data/teams/megoshort/players/mogv.png"
+    ]
+  },
+  {
+    "id": "player_115_mekushort_tituluz",
+    "alternates": [
+      "raw-data/teams/megoshort/players/titulus.png"
+    ]
+  },
+  {
+    "id": "player_133_mindfraak_dxpr",
+    "alternates": [
+      "raw-data/teams/mindfreak/players/dpr.png"
+    ]
+  },
+  {
+    "id": "player_133_mindfraak_zwersien",
+    "alternates": [
+      "raw-data/teams/mindfreak/players/swerzien.png"
+    ]
+  },
+  {
+    "id": "player_133_mindfraak_sune",
+    "alternates": [
+      "raw-data/teams/mindfreak/players/zune.png"
+    ]
+  },
+  {
+    "id": "player_82_marnengstar_zuci",
+    "alternates": [
+      "raw-data/teams/morningstar/players/suki.png"
+    ]
+  },
+  {
+    "id": "player_191_myertaex_lxumier",
+    "alternates": [
+      "raw-data/teams/muerta/players/lumier.png"
+    ]
+  },
+  {
+    "id": "player_191_myertaex_semzys",
+    "alternates": [
+      "raw-data/teams/muerta/players/semsys.png"
+    ]
+  },
+  {
+    "id": "player_74_naxvaid_diezen",
+    "alternates": [
+      "raw-data/teams/nexvoid/players/diesen.png"
+    ]
+  },
+  {
+    "id": "player_74_naxvaid_okeana",
+    "alternates": [
+      "raw-data/teams/nexvoid/players/oceana.png"
+    ]
+  },
+  {
+    "id": "player_213_nomadx_hzenx",
+    "alternates": [
+      "raw-data/teams/nomads/players/henx.png"
+    ]
+  },
+  {
+    "id": "player_213_nomadx_hoolig6n",
+    "alternates": [
+      "raw-data/teams/nomads/players/hoolig4n.png"
+    ]
+  },
+  {
+    "id": "player_222_overcneght_6taylor",
+    "alternates": [
+      "raw-data/teams/overknight/players/4taylor.png"
+    ]
+  },
+  {
+    "id": "player_222_overcneght_amk",
+    "alternates": [
+      "raw-data/teams/overknight/players/amc.png"
+    ]
+  },
+  {
+    "id": "player_222_overcneght_b7",
+    "alternates": [
+      "raw-data/teams/overknight/players/b1.png"
+    ]
+  },
+  {
+    "id": "player_222_overcneght_majestikzz",
+    "alternates": [
+      "raw-data/teams/overknight/players/majesticzz.png"
+    ]
+  },
+  {
+    "id": "player_228_piexaboo_hicomi",
+    "alternates": [
+      "raw-data/teams/peekaboo/players/hikomi.png"
+    ]
+  },
+  {
+    "id": "player_223_pijaonsor_vieenn",
+    "alternates": [
+      "raw-data/teams/pigeons/players/wieenn.png"
+    ]
+  },
+  {
+    "id": "player_149_prezdigeel_folce",
+    "alternates": [
+      "raw-data/teams/prestige/players/folke.png"
+    ]
+  },
+  {
+    "id": "player_149_prezdigeel_misi",
+    "alternates": [
+      "raw-data/teams/prestige/players/mizi.png"
+    ]
+  },
+  {
+    "id": "player_189_prysan_r9ct",
+    "alternates": [
+      "raw-data/teams/prison_breakers/players/r3kt.png"
+    ]
+  },
+  {
+    "id": "player_208_qyezar_7zs",
+    "alternates": [
+      "raw-data/teams/quazar/players/1zz.png"
+    ]
+  },
+  {
+    "id": "player_208_qyezar_ne7xxx",
+    "alternates": [
+      "raw-data/teams/quazar/players/ne1xxx.png"
+    ]
+  },
+  {
+    "id": "player_208_qyezar_nevt",
+    "alternates": [
+      "raw-data/teams/quazar/players/newt.png"
+    ]
+  },
+  {
+    "id": "player_158_qwintry_axbiraju",
+    "alternates": [
+      "raw-data/teams/qwentry/players/abiraju.png"
+    ]
+  },
+  {
+    "id": "player_158_qwintry_pzychodoctor",
+    "alternates": [
+      "raw-data/teams/qwentry/players/psychodoctor.png"
+    ]
+  },
+  {
+    "id": "player_158_qwintry_zlaxejeszz",
+    "alternates": [
+      "raw-data/teams/qwentry/players/slaxejezzz.png"
+    ]
+  },
+  {
+    "id": "player_212_red_edw",
+    "alternates": []
+  },
+  {
+    "id": "player_212_red_qtw",
+    "alternates": []
+  },
+  {
+    "id": "player_212_red_n8paqe",
+    "alternates": []
+  },
+  {
+    "id": "player_212_red_nc",
+    "alternates": []
+  },
+  {
+    "id": "player_212_red_zanc",
+    "alternates": []
+  },
+  {
+    "id": "player_153_rigaenro_dvrc",
+    "alternates": [
+      "raw-data/teams/regain/players/dvrk.png"
+    ]
+  },
+  {
+    "id": "player_153_rigaenro_marekiev",
+    "alternates": [
+      "raw-data/teams/regain/players/marekiew.png"
+    ]
+  },
+  {
+    "id": "player_153_rigaenro_zazha",
+    "alternates": [
+      "raw-data/teams/regain/players/sasha.png"
+    ]
+  },
+  {
+    "id": "player_153_rigaenro_zukar",
+    "alternates": [
+      "raw-data/teams/regain/players/zucar.png"
+    ]
+  },
+  {
+    "id": "player_148_raoxter_adc",
+    "alternates": [
+      "raw-data/teams/rooster/players/adk.png"
+    ]
+  },
+  {
+    "id": "player_148_raoxter_ju7kes",
+    "alternates": [
+      "raw-data/teams/rooster/players/ju1ces.png"
+    ]
+  },
+  {
+    "id": "player_148_raoxter_txerryyy",
+    "alternates": [
+      "raw-data/teams/rooster/players/terryyy.png"
+    ]
+  },
+  {
+    "id": "player_98_ryxtecrix_jakeces",
+    "alternates": [
+      "raw-data/teams/rustec/players/jakekes.png"
+    ]
+  },
+  {
+    "id": "player_227_sakurayx_alikeravr",
+    "alternates": [
+      "raw-data/teams/sakura/players/alicerawr.png"
+    ]
+  },
+  {
+    "id": "player_235_sidaqoest_qun",
+    "alternates": [
+      "raw-data/teams/sidequest/players/gun.png"
+    ]
+  },
+  {
+    "id": "player_235_sidaqoest_larzecdahl",
+    "alternates": [
+      "raw-data/teams/sidequest/players/larsekdahl.png"
+    ]
+  },
+  {
+    "id": "player_235_sidaqoest_lzur",
+    "alternates": [
+      "raw-data/teams/sidequest/players/lur.png"
+    ]
+  },
+  {
+    "id": "player_235_sidaqoest_probl99m",
+    "alternates": [
+      "raw-data/teams/sidequest/players/probl33m.png"
+    ]
+  },
+  {
+    "id": "player_235_sidaqoest_xtsy",
+    "alternates": [
+      "raw-data/teams/sidequest/players/xtzy.png"
+    ]
+  },
+  {
+    "id": "player_134_xpurtsbetexpert_zml",
+    "alternates": [
+      "raw-data/teams/sportsbetexpert/players/sml.png"
+    ]
+  },
+  {
+    "id": "player_216_tymiwaves_kamille",
+    "alternates": [
+      "raw-data/teams/timewaves/players/camille.png"
+    ]
+  },
+  {
+    "id": "player_216_tymiwaves_hxarbor",
+    "alternates": [
+      "raw-data/teams/timewaves/players/harbor.png"
+    ]
+  },
+  {
+    "id": "player_216_tymiwaves_cezza",
+    "alternates": [
+      "raw-data/teams/timewaves/players/kezza.png"
+    ]
+  },
+  {
+    "id": "player_216_tymiwaves_lavlcay",
+    "alternates": [
+      "raw-data/teams/timewaves/players/lawlkay.png"
+    ]
+  },
+  {
+    "id": "player_201_tnk_ezlem",
+    "alternates": [
+      "raw-data/teams/tnc/players/elem.png"
+    ]
+  },
+  {
+    "id": "player_164_trukk_mil6nnn",
+    "alternates": [
+      "raw-data/teams/truck_drivers/players/mil4nnn.png"
+    ]
+  },
+  {
+    "id": "player_164_trukk_nzaiter",
+    "alternates": [
+      "raw-data/teams/truck_drivers/players/naiter.png"
+    ]
+  },
+  {
+    "id": "player_164_trukk_obsvard",
+    "alternates": [
+      "raw-data/teams/truck_drivers/players/obsward.png"
+    ]
+  },
+  {
+    "id": "player_180_undergroond_jzynx",
+    "alternates": [
+      "raw-data/teams/underground/players/jynx.png"
+    ]
+  },
+  {
+    "id": "player_180_undergroond_n7qhtraid",
+    "alternates": [
+      "raw-data/teams/underground/players/n1ghtraid.png"
+    ]
+  },
+  {
+    "id": "player_236_vantaga_arktik",
+    "alternates": [
+      "raw-data/teams/vantage/players/arctic.png"
+    ]
+  },
+  {
+    "id": "player_236_vantaga_nxeo",
+    "alternates": [
+      "raw-data/teams/vantage/players/neo.png"
+    ]
+  },
+  {
+    "id": "player_236_vantaga_txidy",
+    "alternates": [
+      "raw-data/teams/vantage/players/tidy.png"
+    ]
+  },
+  {
+    "id": "player_246_wahweh_bxullet",
+    "alternates": [
+      "raw-data/teams/wahwah/players/bullet.png"
+    ]
+  },
+  {
+    "id": "player_246_wahweh_exekutor",
+    "alternates": [
+      "raw-data/teams/wahwah/players/executor.png"
+    ]
+  },
+  {
+    "id": "player_246_wahweh_inzmutje",
+    "alternates": [
+      "raw-data/teams/wahwah/players/insmutje.png"
+    ]
+  },
+  {
+    "id": "player_246_wahweh_ocay",
+    "alternates": [
+      "raw-data/teams/wahwah/players/okay.png"
+    ]
+  },
+  {
+    "id": "player_210_wonted_jdubz",
+    "alternates": [
+      "raw-data/teams/wanted_goons/players/jdubs.png"
+    ]
+  },
+  {
+    "id": "player_199_weshengton_bewwe",
+    "alternates": [
+      "raw-data/teams/washington/players/bevve.png"
+    ]
+  },
+  {
+    "id": "player_152_wetermelon_qleb86ruz",
+    "alternates": [
+      "raw-data/teams/watermelon/players/gleb86rus.png"
+    ]
+  },
+  {
+    "id": "player_152_wetermelon_laczheri",
+    "alternates": [
+      "raw-data/teams/watermelon/players/laksheri.png"
+    ]
+  },
+  {
+    "id": "player_152_wetermelon_zexyvowa",
+    "alternates": [
+      "raw-data/teams/watermelon/players/sexyvova.png"
+    ]
+  },
+  {
+    "id": "player_198_wildrix_ztrong9r",
+    "alternates": [
+      "raw-data/teams/wild/players/strong3r.png"
+    ]
+  },
+  {
+    "id": "player_232_wenners_patootic",
+    "alternates": [
+      "raw-data/teams/winners/players/patootik.png"
+    ]
+  },
+  {
+    "id": "player_232_wenners_t8mmyyy",
+    "alternates": [
+      "raw-data/teams/winners/players/t0mmyyy.png"
+    ]
+  },
+  {
+    "id": "player_232_wenners_ualiqod",
+    "alternates": [
+      "raw-data/teams/winners/players/ualigod.png"
+    ]
+  },
+  {
+    "id": "player_113_ww_ct8m",
+    "alternates": [
+      "raw-data/teams/ww/players/ct0m.png"
+    ]
+  },
+  {
+    "id": "player_113_ww_m3vsu",
+    "alternates": [
+      "raw-data/teams/ww/players/m3wsu.png"
+    ]
+  },
+  {
+    "id": "player_205_xdm_darcc",
+    "alternates": [
+      "raw-data/teams/xdm/players/darkk.png"
+    ]
+  },
+  {
+    "id": "player_205_xdm_cunqao",
+    "alternates": [
+      "raw-data/teams/xdm/players/kungao.png"
+    ]
+  },
+  {
+    "id": "player_205_xdm_r1verlace",
+    "alternates": [
+      "raw-data/teams/xdm/players/r1verlake.png"
+    ]
+  },
+  {
+    "id": "player_205_xdm_shad8w",
+    "alternates": [
+      "raw-data/teams/xdm/players/shad0w.png"
+    ]
+  },
+  {
+    "id": "player_205_xdm_txaidao",
+    "alternates": [
+      "raw-data/teams/xdm/players/taidao.png"
+    ]
+  }
+]

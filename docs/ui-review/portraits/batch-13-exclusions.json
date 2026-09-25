@@ -1,0 +1,62 @@
+[
+  {
+    "id": "player_82_marnengstar_expzaziki",
+    "nickname": "ixpSasiKi",
+    "source": "public/assets/teams/morningstar/players/expsasiki.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_82_marnengstar_raqe",
+    "nickname": "rege",
+    "source": "public/assets/teams/morningstar/players/rage.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_82_marnengstar_rxuben",
+    "nickname": "robeN",
+    "source": "public/assets/teams/morningstar/players/ruben.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_83_qhinggix_tikuac",
+    "nickname": "tykuak",
+    "source": "public/assets/teams/chinggis_warriors/players/tikuak.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_91_ruby_caide",
+    "nickname": "Keide2",
+    "source": "public/assets/teams/ruby/players/kaide.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_91_ruby_fosil",
+    "nickname": "fuzil2",
+    "source": "public/assets/teams/ruby/players/fozil.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_91_ruby_h4san6tor",
+    "nickname": "H4SEN4TOR2",
+    "source": "public/assets/teams/ruby/players/h4san4tor.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_91_ruby_maguein",
+    "nickname": "meQuein",
+    "source": "public/assets/teams/ruby/players/maquein.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_91_ruby_sh7nejezzz",
+    "nickname": "sh1nijezzz2",
+    "source": "public/assets/teams/ruby/players/sh1nejezzz.webp",
+    "status": "own-source-needs-review"
+  },
+  {
+    "id": "player_95_iroptionra_wizcera",
+    "nickname": "vyscera",
+    "source": "public/assets/teams/eruption/players/viscera.webp",
+    "status": "own-source-needs-review"
+  }
+]

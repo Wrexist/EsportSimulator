@@ -1,0 +1,50 @@
+[
+  {
+    "name": "01-live-match.png",
+    "source": "10-live-match.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "02-club-campus.png",
+    "source": "05-club-campus.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "03-player-profile.png",
+    "source": "03-player-profile.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "04-squad.png",
+    "source": "02-squad.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "05-scouting.png",
+    "source": "04-scouting.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "06-equipment.png",
+    "source": "06-equipment.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "07-training.png",
+    "source": "08-training.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "08-club-overview.png",
+    "source": "01-club-overview.png",
+    "width": 1920,
+    "height": 1080
+  }
+]

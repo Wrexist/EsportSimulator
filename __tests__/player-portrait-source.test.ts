@@ -5,6 +5,7 @@ import path from "node:path"
 import { playerPortraitSource } from "@/lib/player-portrait-source"
 import aliases from "@/data/portrait-asset-aliases.json"
 import identities from "@/data/player-portrait-identities.json"
+import reviewed from "@/data/player-portrait-reviewed.json"
 import { refreshStockIdentities } from "@/lib/identity-refresh"
 import { PORTRAIT_POOL, pickPooledPortrait } from "@/lib/safe-branding/portrait-pool"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -13,10 +14,26 @@ import stockPlayers from '@/public/data/snapshot/players.json'
 
 const id = "fpl_nonpro_1_97989_4293"
 describe("consistent generated-player portraits", () => {
+    it('uses reviewed portraits over previous tight crops and preserves them after a transfer', () => {
+        for (const portrait of reviewed) {
+            expect((identities as Record<string,string>)[portrait.id]).toBe(portrait.destination)
+            expect(playerPortraitSource(portrait.source, portrait.id)).toBe(portrait.destination)
+            const player = {id:portrait.id, name:'Kept', nickname:'Kept', teamId:'new-club', skill:87, portraitPath:PORTRAIT_POOL[0]}
+            refreshStockIdentities({players:[player],teams:[]} as unknown as Parameters<typeof refreshStockIdentities>[0])
+            expect(player.portraitPath).toBe(portrait.destination)
+            expect(player.teamId).toBe('new-club')
+            expect(player.skill).toBe(87)
+        }
+    })
     it('covers every roster member of the top 25 clubs with a distinct authored face', () => {
         const topIds = stockTeams.slice().sort((a, b) => b.reputation - a.reputation).slice(0, 25).flatMap(t => t.rosterIds)
-        expect(Object.keys(identities).sort()).toEqual([...new Set(topIds)].sort())
-        expect(new Set(Object.values(identities)).size).toBe(Object.keys(identities).length)
+        expect(Object.keys(identities).sort()).toEqual([...new Set([...topIds, ...reviewed.map(p => p.id)])].sort())
+        const historicalAliases = new Map(reviewed.filter(p => 'canonicalPortraitId' in p).map(p => [p.id, (p as typeof p & {canonicalPortraitId:string}).canonicalPortraitId]))
+        const canonicalIds = Object.keys(identities).filter(id => !historicalAliases.has(id))
+        expect(new Set(canonicalIds.map(id => (identities as Record<string,string>)[id])).size).toBe(canonicalIds.length)
+        for (const [id, canonicalId] of historicalAliases) {
+            expect((identities as Record<string,string>)[id]).toBe((identities as Record<string,string>)[canonicalId])
+        }
         for (const player of stockPlayers.filter(p => topIds.includes(p.id))) {
             expect(player.portraitPath).toBe((identities as Record<string,string>)[player.id])
         }

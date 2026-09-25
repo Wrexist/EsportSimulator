@@ -1,0 +1,230 @@
+[
+  {
+    "id": "player_45_nimeses_tex7y",
+    "source": "public/assets/teams/nemesis/players/tex1y.webp",
+    "generated": "exec-7a1e6b6b-5050-42ac-b0bc-a9f8877c3643.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_45_nimeses_yiksreso",
+    "source": "public/assets/teams/nemesis/players/yiksrezo.webp",
+    "generated": "exec-7e82ad9a-2218-4923-a401-c40b2016c918.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_7cick",
+    "source": "public/assets/teams/illwill/players/7kick.webp",
+    "generated": "exec-5c3dbcf2-f8f2-4bbb-8316-97c4832cc903.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_adamz",
+    "source": "public/assets/teams/illwill/players/adams.webp",
+    "generated": "exec-fcc36257-2e8f-4334-89f0-eae6bcb94c59.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_foztar",
+    "source": "public/assets/teams/illwill/players/fostar.webp",
+    "generated": "exec-6e9b1bb7-ac3c-4625-a0e9-e534bcf74247.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_hxadji",
+    "source": "public/assets/teams/illwill/players/hadji.webp",
+    "generated": "exec-abf14091-7236-4e87-833b-8f09a34dbc47.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_nxemanha",
+    "source": "public/assets/teams/illwill/players/nemanha.webp",
+    "generated": "exec-5d1de6e4-1865-40b4-ae09-c363570eef42.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_46_illwill_voro2k",
+    "source": "public/assets/teams/illwill/players/woro2k.webp",
+    "generated": "exec-c642eca7-ef08-4ea0-bf05-e11e43b62372.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_47_oddyx_diosera",
+    "source": "public/assets/teams/oddik/players/diozera.webp",
+    "generated": "exec-3eb88bab-2ee3-4d01-b732-dae6ada89e43.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_47_oddyx_kslokz",
+    "source": "public/assets/teams/oddik/players/ksloks.webp",
+    "generated": "exec-854a289f-cba7-4920-a01d-b507cd2a54aa.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_47_oddyx_nzaitte",
+    "source": "public/assets/teams/oddik/players/naitte.webp",
+    "generated": "exec-6e15623d-e7d8-4ebd-b88d-6d62a0519f49.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_47_oddyx_nardez",
+    "source": "public/assets/teams/oddik/players/nardes.webp",
+    "generated": "exec-4e6656ec-84db-47de-82b1-a16fed4506c5.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_47_oddyx_vood1",
+    "source": "public/assets/teams/oddik/players/wood7.webp",
+    "generated": "exec-8ce1d952-490b-4144-961a-25151697653c.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_48_majyc_h7te",
+    "source": "public/assets/teams/magic/players/h1te.webp",
+    "generated": "exec-3d3a9c6b-6add-497b-83e3-39b925c4251f.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_48_majyc_maswal",
+    "source": "public/assets/teams/magic/players/masval.webp",
+    "generated": "exec-4c200539-a3b9-452d-ba8e-c973686d4bf6.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_48_majyc_zfade8",
+    "source": "public/assets/teams/magic/players/sfade8.webp",
+    "generated": "exec-c3b887b9-32a1-4500-9f08-960442186fc5.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_48_majyc_tensy",
+    "source": "public/assets/teams/magic/players/tenzy.webp",
+    "generated": "exec-f831b017-a551-49b4-a588-1ccbc6c3a4df.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_49_vuqa_dxea",
+    "source": "public/assets/teams/voca/players/dea.webp",
+    "generated": "exec-0e43c4da-f22e-4e24-9fb0-36ad8fa0e477.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_49_vuqa_ixnfinite",
+    "source": "public/assets/teams/voca/players/infinite.webp",
+    "generated": "exec-cbf323b4-c1b4-4796-9749-59573e49528c.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_49_vuqa_nozrac",
+    "source": "public/assets/teams/voca/players/nosrac.webp",
+    "generated": "exec-68f13915-5563-475d-9ff8-c3b7859abffe.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_49_vuqa_zhane",
+    "source": "public/assets/teams/voca/players/shane.webp",
+    "generated": "exec-f2a86da1-7278-47b4-8409-5b178db83726.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_49_vuqa_znaw",
+    "source": "public/assets/teams/voca/players/snav.webp",
+    "generated": "exec-6a7d3a95-676b-4a96-b3bb-dbbb58f29df2.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_akor",
+    "source": "public/assets/teams/ecstatic/players/acor.webp",
+    "generated": "exec-3e6dba1d-e6fc-4e91-974e-04e83abe2f9a.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_axnlelele",
+    "source": "public/assets/teams/ecstatic/players/anlelele.webp",
+    "generated": "exec-db73bee3-b0a0-4d58-9441-6f11c363f5aa.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_buss",
+    "source": "public/assets/teams/ecstatic/players/buzz.webp",
+    "generated": "exec-be01dbe7-8744-45e4-a007-daad5da64f59.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_nikoodoz",
+    "source": "public/assets/teams/ecstatic/players/nicoodoz.webp",
+    "generated": "exec-819a36cc-9274-4675-88fb-eba55ac5b15c.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_nxutnut",
+    "source": "public/assets/teams/ecstatic/players/nut_nut.webp",
+    "generated": "exec-83584b8c-8cf3-40e5-876e-5b6b354a1e03.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_zirah",
+    "source": "public/assets/teams/ecstatic/players/sirah.webp",
+    "generated": "exec-868f37fd-83fc-4320-a84e-60fd91e93bb7.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_50_iqstatical_tzmb",
+    "source": "public/assets/teams/ecstatic/players/tmb.webp",
+    "generated": "exec-734120a4-f9df-4231-87c5-697e194a933b.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_51_aramund_antyviruz",
+    "source": "public/assets/teams/oramond/players/antyvirus.webp",
+    "generated": "exec-a58f79ec-fad1-4a3c-9314-396af87f70ae.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_51_aramund_fanatyc",
+    "source": "public/assets/teams/oramond/players/fanatyk.webp",
+    "generated": "exec-3dc83066-0d92-49f3-aa1d-b1f3adb5e9f4.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_51_aramund_frontziderr",
+    "source": "public/assets/teams/oramond/players/frontsiderr.webp",
+    "generated": "exec-a66dc57b-d025-4843-957d-d8dfe4763ca6.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_51_aramund_spawagu",
+    "source": "public/assets/teams/oramond/players/spavaqu.webp",
+    "generated": "exec-53979739-5ff8-4329-9da0-b7f8fdc6c598.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_51_aramund_zuonco",
+    "source": "public/assets/teams/oramond/players/suonko.webp",
+    "generated": "exec-98f05860-2d42-4ba0-bcea-75fd8eb491a9.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_52_overgrowth_azdamb",
+    "source": "public/assets/teams/og/players/adamb.webp",
+    "generated": "exec-0e26f7fa-2f60-40ae-a8bd-929dd6b9fba4.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_52_overgrowth_arrosdoke",
+    "source": "public/assets/teams/og/players/arrozdoce.webp",
+    "generated": "exec-4d1ad215-ca7b-4f1f-89be-9eee0aee8b22.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_52_overgrowth_kadian",
+    "source": "public/assets/teams/og/players/cadian.webp",
+    "generated": "exec-db1b5ae1-d230-4cb4-b177-e9f5120d1692.png",
+    "status": "exported-alpha-contact-reviewed"
+  },
+  {
+    "id": "player_52_overgrowth_fl4muz",
+    "source": "public/assets/teams/og/players/fl4mus.webp",
+    "generated": "exec-ae35a29c-4b15-4f02-82d2-e0eb9b89b592.png",
+    "status": "exported-alpha-contact-reviewed"
+  }
+]

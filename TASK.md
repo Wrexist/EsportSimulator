@@ -1,3 +1,36 @@
+## Avatar bulk complete: all approved personal-photo sources
+
+1,170 player records exported and synced (1,156 unique avatars, fourteen verified historical aliases). Final built-in generation queue: 809/809 successful, no active generation remains. All approved batch inputs delivered, zero wrong snapshot mappings, dark/light contact sheets inspected through final exports. Final portrait tests: 15 passed; TypeScript passed. Earlier isolated UI capture: twelve polished portraits loaded at 1920x1080 and 1280x720, zero page errors, no career created. Originals and older masters preserved; first ten photo-based v3 corrections integrated. 198 records lack a verified personal photo (191 unsuitable/placeholder candidates, six missing local source, one ambiguous identity). See docs/ui-review/portraits/AVATAR-POLISH.md and production-progress.json. No API, Git push or Steam packaging performed. Entries below are historical checkpoints, not the current generation status.
+
+# Avatar bulk checkpoint ? generation still running
+
+347 exported. See docs/ui-review/portraits/AVATAR-POLISH.md and batch-11 through batch-19 approved/pending manifests. Built-in imagegen only; six concurrent requests; save every result. Remaining portraits are NOT complete.
+
+## Avatar production checkpoint: 209 delivered
+
+Batch 08: 42 personal-source jersey avatars integrated; two source-based corrections applied (cap graphic and hair seam). Alpha verified and dark/light contact sheets reviewed. Batches 09 (37 approved inputs) and 10 (38 approved inputs) currently generating; not yet integrated. Only approved input lists may be exported. Whole-library and in-game visual validation remain unfinished.
+
+## Avatar production checkpoint: 167 delivered
+
+Batch 07: 40 new personal-source jersey avatars integrated, alpha verified, dark/light contact sheets reviewed. All 167 mappings and unique masters verified. Portrait tests: 18 passed; TypeScript: passed. No non-portrait gameplay changes. Batch 08: 42 inspected source portraits submitted to built-in imagegen; not yet integrated. Whole library and in-game visual validation remain unfinished. See docs/ui-review/portraits/production-progress.json.
+
+## 2026-09-25 expanded avatar production
+- 127 reviewed avatars integrated; 31-player batch 06 complete, 40-player batch 07 generating through built-in imagegen.
+- Alpha and exact source/output hashes checked; 18 portrait/save tests pass; all 127 snapshot mappings verified. No non-portrait gameplay changes.
+- Source exceptions identify 161 players whose audited candidates are placeholders and five needing alternate identity review; six have no local source. Counts in production-progress.json supersede older entries.
+- Export uses full player IDs for new master filenames to avoid duplicate nickname collisions; earlier master paths preserved. Whole-library generation and actual in-game visual checks remain open.
+
+## 2026-09-25 avatar bulk progress
+- User explicitly chose built-in imagegen, not API, and requested bulk for ALL players with an own portrait. Distinct per-player image requests are dispatched in groups; never a multi-person sprite sheet.
+- 36 delivered avatars across the first seven stock teams, 512px genuine alpha exports, full masters and source hashes preserved. Vitalis/Foria used existing stylized references; later teams use original photographs to remove invented accessories. First two teams still need original-photo likeness comparison.
+- Archive search expands candidate inventory to 1362 own-source candidates, six with no local source. 1332 stock players remain unprocessed (1326 candidates plus six unresolved/missing). No claim of whole-library completion or in-game/Steam verification.
+- See docs/ui-review/portraits/production-progress.json and polished-progress.html for persistent queue and preview. No background image job remains after completed batches. Next: next queued team, then all remaining own-source players; verify actual UI and source/likeness clearance separately.
+
+## 2026-09-25 avatar polish started
+- Built-in imagegen edited five Vitalis portraits; alpha-preserving 512px exports and identity overrides integrated. Original files preserved. 18 focused portrait/save tests and type-check passed before final scope extension.
+- Full 1368-player candidate inventory: 1273 possible own sources, 93 missing locally, 2 ambiguous. These require visual identity/placeholder review; mass generation is NOT complete. User wants own-source avatars for all players with a real portrait, random only when genuinely absent.
+- See docs/ui-review/portraits/AVATAR-POLISH.md. Actual in-game visual check and remaining avatar production pending.
+
 ## 2026-09-25 GitHub release handoff
 - Added STEAM_RELEASE_HANDOFF.md: game/system inventory, current blockers, Windows/Steam installation, store assets/copy, content disposition, support and owner actions. Exported all 102 unchecked tasks and 98 acceptance criteria across L01-L36; unchecked is not a claim of missing implementation.
 - Pre-push preflight passed: TypeScript clean, 192 Jest suites and 1818 tests pass. Shipping byte preservation configured in .gitattributes; duplicate marketing ZIP archives remain local.
@@ -315,19 +348,19 @@ genuinely-dead scout stats are now wired â€” `accuracy`â†’scouting report tier
 
 Added the CS2Nades snapshot for all eight supported maps: 628 mapped lineups, 16 incomplete records linked for manual placement, and outer silhouette wall outlines on ten floors. One-time merging preserves the current 21-mark Mirage draft and adds a downloadable pre-import backup. Compact targets, source links, collection/type/team filters and full-path toggle keep the imported library usable. See docs/MAP-STUDIO-LIBRARY.md and the per-map import report. No live match physics changed.
 
-## L31 artwork/gallery follow-up — 2026-09-16
+## L31 artwork/gallery follow-up ï¿½ 2026-09-16
 161 portraits migrated with legacy aliases; retired artwork excluded and checked in rebuilt QA archive. Approved EM icons applied. Eight gameplay captures and preview/ZIP completed locally. Packaged QA boot passed. Steam install still legacy; content reconciliation and upload/install acceptance remain open. See docs/launch-readiness/evidence/L31-REPORT.md. Next: resolve included-content records, fix shared club emblems/profile energy, then package/upload the real release and test it through Steam.
 
-## L31 stock identity and energy consistency — 2026-09-16
+## L31 stock identity and energy consistency ï¿½ 2026-09-16
 Complete in source/production build: unique stock emblem assignments across all 198 catalog teams; squad/profile use actual training energy. Tests 14/14, type-check, production build and worker verification pass. Packaged content reconciled to exact archive bytes; permission review remains partial (see L31-CONTENT-DECISIONS.md). Next release blocker: imported Valve map permission or independently created replacement maps, remaining artwork records, then release build/upload/Steam install acceptance. No new Steam upload.
 
-## L31 verified artwork records — 2026-09-16
+## L31 verified artwork records ï¿½ 2026-09-16
 Eight exact icon/font/license records resolved with byte-level reproduction and upstream matches. Added packaged Barlow OFL notice. Remaining asset CSV and L31-VERIFIED-ICONS.json identify scope; no blanket approvals. Content gate remains blocked. Local QA repackaging underway for current energy/emblem build; release upload and Steam acceptance still dependent on unresolved artwork/map permissions or replacements.
 - Current QA repackaging completed successfully and actual executable booted to main menu. Archive build 7Tz1KBMCjc_dO3PhMwePO includes emblem/energy fixes and verified font notices. No Steam upload; see L31-REPORT.md for exact remaining records and limits.
 
-## Current owner direction — 2026-09-16
+## Current owner direction ï¿½ 2026-09-16
 Map-use permission is owner-confirmed and recorded for 54 exact assets. Preserve original photos/logos. Clarification pending on "now included" versus "not included" in Steam; current exclusions remain until answered. All 2,878 legacy portrait files and 220 original-logo references verified present locally.
 
-## Confirmed Steam asset selection — 2026-09-16
+## Confirmed Steam asset selection ï¿½ 2026-09-16
 Owner clarified original photographs/logos must remain local and NOT ship. Removed ambiguity: keep source backups; exclude legacy player folders, logo.original references and regular legacy raster logos. Fictional portrait selection and SVG club designs remain. Map authorization remains owner-confirmed. No permission question pending.
 - Original-asset exclusion verified in rebuilt QA archive: zero retired paths, 161 retained portraits, 220 fewer legacy raster-logo files. All original source files preserved. Seven tests, production build and worker verification pass. Steam upload has not occurred.

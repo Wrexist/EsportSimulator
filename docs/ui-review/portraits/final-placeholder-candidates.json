@@ -1,0 +1,66 @@
+[
+  {
+    "id": "player_122_calaoskurnos_cunana",
+    "source": "public/assets/teams/calaoscornos/players/kunana.webp"
+  },
+  {
+    "id": "player_122_calaoskurnos_cunana",
+    "source": "raw-data/teams/calaoscornos/players/kunana.png"
+  },
+  {
+    "id": "player_99_cph_jorco",
+    "source": "public/assets/teams/cph_wolves/players/jorko.webp"
+  },
+  {
+    "id": "player_99_cph_matheoz",
+    "source": "public/assets/teams/cph_wolves/players/matheos.webp"
+  },
+  {
+    "id": "player_99_cph_tapevaare",
+    "source": "public/assets/teams/cph_wolves/players/tapewaare.webp"
+  },
+  {
+    "id": "player_139_vuejo_alennnkar",
+    "source": "public/assets/teams/fuego/players/alennncar.webp"
+  },
+  {
+    "id": "player_139_vuejo_lucita",
+    "source": "public/assets/teams/fuego/players/lukita.webp"
+  },
+  {
+    "id": "player_139_vuejo_zakamoto",
+    "source": "public/assets/teams/fuego/players/sakamoto.webp"
+  },
+  {
+    "id": "player_139_vuejo_vsn",
+    "source": "public/assets/teams/fuego/players/vzn.webp"
+  },
+  {
+    "id": "player_112_impulsa_zprayy",
+    "source": "public/assets/teams/impulse_gw/players/sprayy.webp"
+  },
+  {
+    "id": "player_132_enfuryty_nolw7n",
+    "source": "public/assets/teams/infurity/players/nolv1n.webp"
+  },
+  {
+    "id": "player_102_mevrik_brawkkzz",
+    "source": "public/assets/teams/mavrek/players/brawckzz.webp"
+  },
+  {
+    "id": "player_102_mevrik_kyrix",
+    "source": "public/assets/teams/mavrek/players/cyrix.webp"
+  },
+  {
+    "id": "player_102_mevrik_jakhro",
+    "source": "public/assets/teams/mavrek/players/jachro.webp"
+  },
+  {
+    "id": "player_102_mevrik_zharpie",
+    "source": "public/assets/teams/mavrek/players/sharpie.webp"
+  },
+  {
+    "id": "player_102_mevrik_toazty",
+    "source": "public/assets/teams/mavrek/players/toasty.webp"
+  }
+]

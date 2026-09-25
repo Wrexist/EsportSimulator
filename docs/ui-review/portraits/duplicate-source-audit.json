@@ -1,0 +1,669 @@
+{
+  "note": "Exact duplicate files require visual review before identity generation.",
+  "groups": [
+    [
+      {
+        "id": "player_226_8sins_txornex",
+        "source": "public/assets/teams/8sins/players/tornex.webp"
+      },
+      {
+        "id": "player_131_aedhar_z9rum",
+        "source": "public/assets/teams/aether/players/s3rum.webp"
+      },
+      {
+        "id": "player_131_aedhar_zeb",
+        "source": "public/assets/teams/aether/players/seb.webp"
+      },
+      {
+        "id": "player_221_akymbuyx_lxittlebeer",
+        "source": "public/assets/teams/akimbo/players/littlebeer.webp"
+      },
+      {
+        "id": "player_221_akymbuyx_tzripp",
+        "source": "public/assets/teams/akimbo/players/tripp.webp"
+      },
+      {
+        "id": "player_231_excendium_fzix",
+        "source": "public/assets/teams/ascend/players/fix.webp"
+      },
+      {
+        "id": "player_231_excendium_kr8wa",
+        "source": "public/assets/teams/ascend/players/kr0wa.webp"
+      },
+      {
+        "id": "player_231_excendium_lucibezten",
+        "source": "public/assets/teams/ascend/players/lucibesten.webp"
+      },
+      {
+        "id": "player_231_excendium_ninjat7",
+        "source": "public/assets/teams/ascend/players/ninjat1.webp"
+      },
+      {
+        "id": "player_192_bad_alennnkar",
+        "source": "public/assets/teams/bad_luck/players/alennncar.webp"
+      },
+      {
+        "id": "player_192_bad_zakamoto",
+        "source": "public/assets/teams/bad_luck/players/sakamoto.webp"
+      },
+      {
+        "id": "player_192_bad_zpace",
+        "source": "public/assets/teams/bad_luck/players/space.webp"
+      },
+      {
+        "id": "player_192_bad_talksyn",
+        "source": "public/assets/teams/bad_luck/players/talkzyn.webp"
+      },
+      {
+        "id": "player_147_bazamentor_facerealityy",
+        "source": "public/assets/teams/basement_boys/players/fakerealityy.webp"
+      },
+      {
+        "id": "player_209_bayond_beaztman",
+        "source": "public/assets/teams/beyond_limits/players/beastman.webp"
+      },
+      {
+        "id": "player_209_bayond_dens",
+        "source": "public/assets/teams/beyond_limits/players/denz.webp"
+      },
+      {
+        "id": "player_209_bayond_fxlixxy",
+        "source": "public/assets/teams/beyond_limits/players/flixxy.webp"
+      },
+      {
+        "id": "player_209_bayond_pr8mize",
+        "source": "public/assets/teams/beyond_limits/players/pr0mise.webp"
+      },
+      {
+        "id": "player_81_big_kings_dxoni",
+        "source": "public/assets/teams/big_academy/players/doni.webp"
+      },
+      {
+        "id": "player_81_big_kings_tripex77",
+        "source": "public/assets/teams/big_academy/players/tripex17.webp"
+      },
+      {
+        "id": "player_178_bruti_kad7m",
+        "source": "public/assets/teams/brute/players/kad1m.webp"
+      },
+      {
+        "id": "player_159_byshedo_dxarendeli",
+        "source": "public/assets/teams/bushido_wildcats/players/darendeli.webp"
+      },
+      {
+        "id": "player_159_byshedo_wej",
+        "source": "public/assets/teams/bushido_wildcats/players/vej.webp"
+      },
+      {
+        "id": "player_249_charrodos_pzrotado",
+        "source": "public/assets/teams/charrados/players/protado.webp"
+      },
+      {
+        "id": "player_249_charrodos_rodfpz",
+        "source": "public/assets/teams/charrados/players/rodfps.webp"
+      },
+      {
+        "id": "player_249_charrodos_z7lent",
+        "source": "public/assets/teams/charrados/players/s1lent.webp"
+      },
+      {
+        "id": "player_217_croshers_lakerda",
+        "source": "public/assets/teams/crashers/players/lacerda.webp"
+      },
+      {
+        "id": "player_217_croshers_makhado",
+        "source": "public/assets/teams/crashers/players/machado.webp"
+      },
+      {
+        "id": "player_179_csdiylyt_mzelty",
+        "source": "public/assets/teams/csdiilit/players/melty.webp"
+      },
+      {
+        "id": "player_220_diamend_deztroyd",
+        "source": "public/assets/teams/diamant/players/destro_yd.webp"
+      },
+      {
+        "id": "player_220_diamend_jxernejj",
+        "source": "public/assets/teams/diamant/players/jernejj.webp"
+      },
+      {
+        "id": "player_220_diamend_jun7",
+        "source": "public/assets/teams/diamant/players/jun1.webp"
+      },
+      {
+        "id": "player_220_diamend_lzibraa",
+        "source": "public/assets/teams/diamant/players/libraa.webp"
+      },
+      {
+        "id": "player_240_dxa_k4put",
+        "source": "public/assets/teams/dxa/players/c4put.webp"
+      },
+      {
+        "id": "player_240_dxa_jxlb",
+        "source": "public/assets/teams/dxa/players/jlb.webp"
+      },
+      {
+        "id": "player_240_dxa_superz",
+        "source": "public/assets/teams/dxa/players/supers.webp"
+      },
+      {
+        "id": "player_240_dxa_zakheraay",
+        "source": "public/assets/teams/dxa/players/zacheraay.webp"
+      },
+      {
+        "id": "player_240_dxa_soot",
+        "source": "public/assets/teams/dxa/players/zoot.webp"
+      },
+      {
+        "id": "player_166_ikoisto_havachi",
+        "source": "public/assets/teams/egoisto/players/hawachi.webp"
+      },
+      {
+        "id": "player_166_ikoisto_jaw7ko",
+        "source": "public/assets/teams/egoisto/players/jaw1ko.webp"
+      },
+      {
+        "id": "player_166_ikoisto_zkhwarzkopf",
+        "source": "public/assets/teams/egoisto/players/schwarzkopf.webp"
+      },
+      {
+        "id": "player_166_ikoisto_zh1seido",
+        "source": "public/assets/teams/egoisto/players/sh1seido.webp"
+      },
+      {
+        "id": "player_166_ikoisto_zlazh",
+        "source": "public/assets/teams/egoisto/players/slash.webp"
+      },
+      {
+        "id": "player_170_ilidenergy_finv",
+        "source": "public/assets/teams/elitenergy/players/finw.webp"
+      },
+      {
+        "id": "player_170_ilidenergy_qooddeph",
+        "source": "public/assets/teams/elitenergy/players/gooddeph.webp"
+      },
+      {
+        "id": "player_170_ilidenergy_c1zlll",
+        "source": "public/assets/teams/elitenergy/players/k1slll.webp"
+      },
+      {
+        "id": "player_170_ilidenergy_ceeqan",
+        "source": "public/assets/teams/elitenergy/players/keegan.webp"
+      },
+      {
+        "id": "player_188_ex_jonk_semix",
+        "source": "public/assets/teams/ex-gank/players/zemix.webp"
+      },
+      {
+        "id": "player_188_ex_jonk_zer8uky",
+        "source": "public/assets/teams/ex-gank/players/zer0uky.webp"
+      },
+      {
+        "id": "player_57_ix_rubyel_yumzan",
+        "source": "public/assets/teams/ex-ruby/players/yumsan.webp"
+      },
+      {
+        "id": "player_167_f5_kmrn",
+        "source": "public/assets/teams/f5/players/cmrn.webp"
+      },
+      {
+        "id": "player_167_f5_neiqht",
+        "source": "public/assets/teams/f5/players/neight.webp"
+      },
+      {
+        "id": "player_167_f5_ziqnal",
+        "source": "public/assets/teams/f5/players/signal.webp"
+      },
+      {
+        "id": "player_156_fengdoal_zalmon",
+        "source": "public/assets/teams/fengda/players/salmon.webp"
+      },
+      {
+        "id": "player_156_fengdoal_trazh",
+        "source": "public/assets/teams/fengda/players/trash.webp"
+      },
+      {
+        "id": "player_203_vakusia_ariant8",
+        "source": "public/assets/teams/fokus/players/ariant0.webp"
+      },
+      {
+        "id": "player_190_voorro_klon1",
+        "source": "public/assets/teams/four_magic/players/clon7.webp"
+      },
+      {
+        "id": "player_224_hindxijht_mxadam",
+        "source": "public/assets/teams/hindsight/players/madam.webp"
+      },
+      {
+        "id": "player_224_hindxijht_miceri",
+        "source": "public/assets/teams/hindsight/players/mikeri.webp"
+      },
+      {
+        "id": "player_214_encontrol_jzfeltner",
+        "source": "public/assets/teams/incontrol/players/jsfeltner.webp"
+      },
+      {
+        "id": "player_214_encontrol_scorkhyy",
+        "source": "public/assets/teams/incontrol/players/scorchyy.webp"
+      },
+      {
+        "id": "player_214_encontrol_txyra",
+        "source": "public/assets/teams/incontrol/players/tyra.webp"
+      },
+      {
+        "id": "player_132_enfuryty_ozontoma",
+        "source": "public/assets/teams/infurity/players/oontoma.webp"
+      },
+      {
+        "id": "player_132_enfuryty_rxinji",
+        "source": "public/assets/teams/infurity/players/rinji.webp"
+      },
+      {
+        "id": "player_132_enfuryty_zirius",
+        "source": "public/assets/teams/infurity/players/sirius.webp"
+      },
+      {
+        "id": "player_125_jumboex_pxroper",
+        "source": "public/assets/teams/jumbo/players/proper.webp"
+      },
+      {
+        "id": "player_171_jyxt_zator7",
+        "source": "public/assets/teams/just_swing/players/sator1.webp"
+      },
+      {
+        "id": "player_171_jyxt_zcrr",
+        "source": "public/assets/teams/just_swing/players/skrr.webp"
+      },
+      {
+        "id": "player_182_lastium_mziami",
+        "source": "public/assets/teams/last_bullet/players/miami.webp"
+      },
+      {
+        "id": "player_182_lastium_rxoninbaby",
+        "source": "public/assets/teams/last_bullet/players/roninbaby.webp"
+      },
+      {
+        "id": "player_200_ligianal_bzloody",
+        "source": "public/assets/teams/legion/players/bloody.webp"
+      },
+      {
+        "id": "player_200_ligianal_hsi",
+        "source": "public/assets/teams/legion/players/hzi.webp"
+      },
+      {
+        "id": "player_200_ligianal_pawazt4r",
+        "source": "public/assets/teams/legion/players/pavast4r.webp"
+      },
+      {
+        "id": "player_89_loxrix_azdrien",
+        "source": "public/assets/teams/los_kogutos/players/adrien.webp"
+      },
+      {
+        "id": "player_207_mokicos_ghozt1",
+        "source": "public/assets/teams/magicos/players/ghost1.webp"
+      },
+      {
+        "id": "player_207_mokicos_lks",
+        "source": "public/assets/teams/magicos/players/lcs.webp"
+      },
+      {
+        "id": "player_207_mokicos_rxxq",
+        "source": "public/assets/teams/magicos/players/rx.webp"
+      },
+      {
+        "id": "player_207_mokicos_snov",
+        "source": "public/assets/teams/magicos/players/snow.webp"
+      },
+      {
+        "id": "player_193_mazroea_baqel",
+        "source": "public/assets/teams/mazraea/players/bagel.webp"
+      },
+      {
+        "id": "player_193_mazroea_k8c0",
+        "source": "public/assets/teams/mazraea/players/c0c0.webp"
+      },
+      {
+        "id": "player_193_mazroea_no7nx",
+        "source": "public/assets/teams/mazraea/players/no1nx.webp"
+      },
+      {
+        "id": "player_193_mazroea_tvigs",
+        "source": "public/assets/teams/mazraea/players/twigs.webp"
+      },
+      {
+        "id": "player_115_mekushort_mogw",
+        "source": "public/assets/teams/megoshort/players/mogv.webp"
+      },
+      {
+        "id": "player_115_mekushort_tituluz",
+        "source": "public/assets/teams/megoshort/players/titulus.webp"
+      },
+      {
+        "id": "player_133_mindfraak_dxpr",
+        "source": "public/assets/teams/mindfreak/players/dpr.webp"
+      },
+      {
+        "id": "player_133_mindfraak_zwersien",
+        "source": "public/assets/teams/mindfreak/players/swerzien.webp"
+      },
+      {
+        "id": "player_133_mindfraak_sune",
+        "source": "public/assets/teams/mindfreak/players/zune.webp"
+      },
+      {
+        "id": "player_82_marnengstar_zuci",
+        "source": "public/assets/teams/morningstar/players/suki.webp"
+      },
+      {
+        "id": "player_191_myertaex_lxumier",
+        "source": "public/assets/teams/muerta/players/lumier.webp"
+      },
+      {
+        "id": "player_191_myertaex_semzys",
+        "source": "public/assets/teams/muerta/players/semsys.webp"
+      },
+      {
+        "id": "player_74_naxvaid_diezen",
+        "source": "public/assets/teams/nexvoid/players/diesen.webp"
+      },
+      {
+        "id": "player_74_naxvaid_okeana",
+        "source": "public/assets/teams/nexvoid/players/oceana.webp"
+      },
+      {
+        "id": "player_213_nomadx_hzenx",
+        "source": "public/assets/teams/nomads/players/henx.webp"
+      },
+      {
+        "id": "player_213_nomadx_hoolig6n",
+        "source": "public/assets/teams/nomads/players/hoolig4n.webp"
+      },
+      {
+        "id": "player_222_overcneght_6taylor",
+        "source": "public/assets/teams/overknight/players/4taylor.webp"
+      },
+      {
+        "id": "player_222_overcneght_amk",
+        "source": "public/assets/teams/overknight/players/amc.webp"
+      },
+      {
+        "id": "player_222_overcneght_b7",
+        "source": "public/assets/teams/overknight/players/b1.webp"
+      },
+      {
+        "id": "player_222_overcneght_majestikzz",
+        "source": "public/assets/teams/overknight/players/majesticzz.webp"
+      },
+      {
+        "id": "player_228_piexaboo_hicomi",
+        "source": "public/assets/teams/peekaboo/players/hikomi.webp"
+      },
+      {
+        "id": "player_223_pijaonsor_vieenn",
+        "source": "public/assets/teams/pigeons/players/wieenn.webp"
+      },
+      {
+        "id": "player_149_prezdigeel_folce",
+        "source": "public/assets/teams/prestige/players/folke.webp"
+      },
+      {
+        "id": "player_149_prezdigeel_misi",
+        "source": "public/assets/teams/prestige/players/mizi.webp"
+      },
+      {
+        "id": "player_189_prysan_r9ct",
+        "source": "public/assets/teams/prison_breakers/players/r3kt.webp"
+      },
+      {
+        "id": "player_208_qyezar_7zs",
+        "source": "public/assets/teams/quazar/players/1zz.webp"
+      },
+      {
+        "id": "player_208_qyezar_ne7xxx",
+        "source": "public/assets/teams/quazar/players/ne1xxx.webp"
+      },
+      {
+        "id": "player_208_qyezar_nevt",
+        "source": "public/assets/teams/quazar/players/newt.webp"
+      },
+      {
+        "id": "player_158_qwintry_axbiraju",
+        "source": "public/assets/teams/qwentry/players/abiraju.webp"
+      },
+      {
+        "id": "player_158_qwintry_pzychodoctor",
+        "source": "public/assets/teams/qwentry/players/psychodoctor.webp"
+      },
+      {
+        "id": "player_158_qwintry_zlaxejeszz",
+        "source": "public/assets/teams/qwentry/players/slaxejezzz.webp"
+      },
+      {
+        "id": "player_153_rigaenro_dvrc",
+        "source": "public/assets/teams/regain/players/dvrk.webp"
+      },
+      {
+        "id": "player_153_rigaenro_marekiev",
+        "source": "public/assets/teams/regain/players/marekiew.webp"
+      },
+      {
+        "id": "player_153_rigaenro_zazha",
+        "source": "public/assets/teams/regain/players/sasha.webp"
+      },
+      {
+        "id": "player_153_rigaenro_zukar",
+        "source": "public/assets/teams/regain/players/zucar.webp"
+      },
+      {
+        "id": "player_148_raoxter_adc",
+        "source": "public/assets/teams/rooster/players/adk.webp"
+      },
+      {
+        "id": "player_148_raoxter_ju7kes",
+        "source": "public/assets/teams/rooster/players/ju1ces.webp"
+      },
+      {
+        "id": "player_148_raoxter_txerryyy",
+        "source": "public/assets/teams/rooster/players/terryyy.webp"
+      },
+      {
+        "id": "player_98_ryxtecrix_jakeces",
+        "source": "public/assets/teams/rustec/players/jakekes.webp"
+      },
+      {
+        "id": "player_227_sakurayx_alikeravr",
+        "source": "public/assets/teams/sakura/players/alicerawr.webp"
+      },
+      {
+        "id": "player_235_sidaqoest_qun",
+        "source": "public/assets/teams/sidequest/players/gun.webp"
+      },
+      {
+        "id": "player_235_sidaqoest_larzecdahl",
+        "source": "public/assets/teams/sidequest/players/larsekdahl.webp"
+      },
+      {
+        "id": "player_235_sidaqoest_lzur",
+        "source": "public/assets/teams/sidequest/players/lur.webp"
+      },
+      {
+        "id": "player_235_sidaqoest_probl99m",
+        "source": "public/assets/teams/sidequest/players/probl33m.webp"
+      },
+      {
+        "id": "player_235_sidaqoest_xtsy",
+        "source": "public/assets/teams/sidequest/players/xtzy.webp"
+      },
+      {
+        "id": "player_134_xpurtsbetexpert_zml",
+        "source": "public/assets/teams/sportsbetexpert/players/sml.webp"
+      },
+      {
+        "id": "player_216_tymiwaves_kamille",
+        "source": "public/assets/teams/timewaves/players/camille.webp"
+      },
+      {
+        "id": "player_216_tymiwaves_hxarbor",
+        "source": "public/assets/teams/timewaves/players/harbor.webp"
+      },
+      {
+        "id": "player_216_tymiwaves_cezza",
+        "source": "public/assets/teams/timewaves/players/kezza.webp"
+      },
+      {
+        "id": "player_216_tymiwaves_lavlcay",
+        "source": "public/assets/teams/timewaves/players/lawlkay.webp"
+      },
+      {
+        "id": "player_201_tnk_ezlem",
+        "source": "public/assets/teams/tnc/players/elem.webp"
+      },
+      {
+        "id": "player_164_trukk_mil6nnn",
+        "source": "public/assets/teams/truck_drivers/players/mil4nnn.webp"
+      },
+      {
+        "id": "player_164_trukk_nzaiter",
+        "source": "public/assets/teams/truck_drivers/players/naiter.webp"
+      },
+      {
+        "id": "player_164_trukk_obsvard",
+        "source": "public/assets/teams/truck_drivers/players/obsward.webp"
+      },
+      {
+        "id": "player_180_undergroond_jzynx",
+        "source": "public/assets/teams/underground/players/jynx.webp"
+      },
+      {
+        "id": "player_180_undergroond_n7qhtraid",
+        "source": "public/assets/teams/underground/players/n1ghtraid.webp"
+      },
+      {
+        "id": "player_236_vantaga_arktik",
+        "source": "public/assets/teams/vantage/players/arctic.webp"
+      },
+      {
+        "id": "player_236_vantaga_nxeo",
+        "source": "public/assets/teams/vantage/players/neo.webp"
+      },
+      {
+        "id": "player_236_vantaga_txidy",
+        "source": "public/assets/teams/vantage/players/tidy.webp"
+      },
+      {
+        "id": "player_246_wahweh_bxullet",
+        "source": "public/assets/teams/wahwah/players/bullet.webp"
+      },
+      {
+        "id": "player_246_wahweh_exekutor",
+        "source": "public/assets/teams/wahwah/players/executor.webp"
+      },
+      {
+        "id": "player_246_wahweh_inzmutje",
+        "source": "public/assets/teams/wahwah/players/insmutje.webp"
+      },
+      {
+        "id": "player_246_wahweh_ocay",
+        "source": "public/assets/teams/wahwah/players/okay.webp"
+      },
+      {
+        "id": "player_210_wonted_jdubz",
+        "source": "public/assets/teams/wanted_goons/players/jdubs.webp"
+      },
+      {
+        "id": "player_199_weshengton_bewwe",
+        "source": "public/assets/teams/washington/players/bevve.webp"
+      },
+      {
+        "id": "player_152_wetermelon_qleb86ruz",
+        "source": "public/assets/teams/watermelon/players/gleb86rus.webp"
+      },
+      {
+        "id": "player_152_wetermelon_laczheri",
+        "source": "public/assets/teams/watermelon/players/laksheri.webp"
+      },
+      {
+        "id": "player_152_wetermelon_zexyvowa",
+        "source": "public/assets/teams/watermelon/players/sexyvova.webp"
+      },
+      {
+        "id": "player_198_wildrix_ztrong9r",
+        "source": "public/assets/teams/wild/players/strong3r.webp"
+      },
+      {
+        "id": "player_232_wenners_patootic",
+        "source": "public/assets/teams/winners/players/patootik.webp"
+      },
+      {
+        "id": "player_232_wenners_t8mmyyy",
+        "source": "public/assets/teams/winners/players/t0mmyyy.webp"
+      },
+      {
+        "id": "player_232_wenners_ualiqod",
+        "source": "public/assets/teams/winners/players/ualigod.webp"
+      },
+      {
+        "id": "player_113_ww_ct8m",
+        "source": "public/assets/teams/ww/players/ct0m.webp"
+      },
+      {
+        "id": "player_113_ww_m3vsu",
+        "source": "public/assets/teams/ww/players/m3wsu.webp"
+      },
+      {
+        "id": "player_205_xdm_darcc",
+        "source": "public/assets/teams/xdm/players/darkk.webp"
+      },
+      {
+        "id": "player_205_xdm_cunqao",
+        "source": "public/assets/teams/xdm/players/kungao.webp"
+      },
+      {
+        "id": "player_205_xdm_r1verlace",
+        "source": "public/assets/teams/xdm/players/r1verlake.webp"
+      },
+      {
+        "id": "player_205_xdm_shad8w",
+        "source": "public/assets/teams/xdm/players/shad0w.webp"
+      },
+      {
+        "id": "player_205_xdm_txaidao",
+        "source": "public/assets/teams/xdm/players/taidao.webp"
+      }
+    ],
+    [
+      {
+        "id": "player_218_altoyro_surgexnoc",
+        "source": "raw-data/teams/altay/players/forzenok.png"
+      },
+      {
+        "id": "player_84_g_two_jxunyme",
+        "source": "raw-data/teams/g2_ares/players/junyme.png"
+      },
+      {
+        "id": "player_84_g_two_yczjupe",
+        "source": "raw-data/teams/g2_ares/players/yksjupe.png"
+      },
+      {
+        "id": "player_212_red_edw",
+        "source": "raw-data/teams/red_canids_academy/players/edv.png"
+      },
+      {
+        "id": "player_212_red_qtw",
+        "source": "raw-data/teams/red_canids_academy/players/gtw.png"
+      },
+      {
+        "id": "player_212_red_n8paqe",
+        "source": "raw-data/teams/red_canids_academy/players/n0page.png"
+      },
+      {
+        "id": "player_212_red_nc",
+        "source": "raw-data/teams/red_canids_academy/players/nk.png"
+      },
+      {
+        "id": "player_212_red_zanc",
+        "source": "raw-data/teams/red_canids_academy/players/sanc.png"
+      }
+    ]
+  ]
+}
