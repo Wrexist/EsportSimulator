@@ -156,7 +156,7 @@
     "appId": "com.esportssim.game",
     "productName": "Esports Manager: FPS",
     "executableName": "EsportsManager",
-    "copyright": "\u00a9 2026 IsacC. All rights reserved.",
+    "copyright": "© 2026 IsacC. All rights reserved.",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -267,7 +267,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "packElevateHelper": false
     },
     "forceCodeSigning": false,
     "afterSign": "electron-builder-notarize"
