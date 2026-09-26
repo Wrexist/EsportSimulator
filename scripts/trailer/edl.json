@@ -1,0 +1,446 @@
+{
+  "bpm": 128,
+  "segments": [
+    {
+      "clip": "01_team_wall",
+      "in": 0.5,
+      "beats": 4,
+      "zoom": [
+        1.25,
+        1.45
+      ],
+      "focus": [
+        0.25,
+        0.5
+      ],
+      "text": [
+        {
+          "style": "statement",
+          "text": "From amateurs",
+          "at": 0.25
+        }
+      ]
+    },
+    {
+      "clip": "03_pick_eternal_flame",
+      "in": 2,
+      "beats": 2,
+      "zoom": [
+        1.9,
+        2.05
+      ],
+      "focus": [
+        0.9,
+        0.2
+      ],
+      "punch": 0.1,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Career",
+          "text": "World rank #165",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "17_tournaments",
+      "in": 0.5,
+      "beats": 4,
+      "zoom": [
+        1.6,
+        1.75
+      ],
+      "focus": [
+        0.28,
+        0.32
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "statement",
+          "text": "To champions",
+          "at": 0.25
+        }
+      ]
+    },
+    {
+      "clip": "40_weekly_focus",
+      "in": 0.9,
+      "beats": 4,
+      "zoom": [
+        1.6,
+        1.75
+      ],
+      "focus": [
+        0.85,
+        0.55
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Overview",
+          "text": "Every decision is yours",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "06_scouting",
+      "in": 5,
+      "beats": 2,
+      "zoom": [
+        1.35,
+        1.45
+      ],
+      "focus": [
+        0.85,
+        0.35
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Recruitment",
+          "text": "Scout the world",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "47_transfer_buy",
+      "in": 0.8,
+      "beats": 2,
+      "zoom": [
+        1.25,
+        1.35
+      ],
+      "focus": [
+        0.6,
+        0.3
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Recruitment",
+          "text": "Buy players",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "13_staff",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.6,
+        1.7
+      ],
+      "focus": [
+        0.5,
+        0.78
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Team",
+          "text": "Hire coaches and analysts",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "12_training",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.4,
+        1.5
+      ],
+      "focus": [
+        0.35,
+        0.55
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Team",
+          "text": "Train tactics",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "07_player_profile",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.35,
+        1.5
+      ],
+      "focus": [
+        0.3,
+        0.55
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Team",
+          "text": "Develop players",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "05_squad",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.45,
+        1.6
+      ],
+      "focus": [
+        0.78,
+        0.3
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Team",
+          "text": "Build chemistry",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "44_campus_build",
+      "in": 0.3,
+      "beats": 4,
+      "zoom": [
+        1.3,
+        1.4
+      ],
+      "focus": [
+        0.5,
+        0.95
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Club",
+          "text": "Build your campus",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "45_academy_open",
+      "in": 2.2,
+      "beats": 2,
+      "zoom": [
+        1.2,
+        1.3
+      ],
+      "focus": [
+        0.4,
+        0.3
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Club",
+          "text": "Grow your own talent",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "41_sponsor_accept",
+      "in": 0.9,
+      "beats": 4,
+      "zoom": [
+        1.3,
+        1.4
+      ],
+      "focus": [
+        0.25,
+        0.4
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Business",
+          "text": "Sign sponsors",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "11_finances",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.45,
+        1.55
+      ],
+      "focus": [
+        0.3,
+        0.2
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Business",
+          "text": "Every dollar matters",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "10_equipment",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.7,
+        1.85
+      ],
+      "focus": [
+        0.5,
+        0.7
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Team",
+          "text": "Gear up",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "29_statistics",
+      "in": 0.5,
+      "beats": 2,
+      "zoom": [
+        1.3,
+        1.4
+      ],
+      "focus": [
+        0.5,
+        0.45
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Competition",
+          "text": "Track every stat",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "19_live_r1",
+      "in": 14,
+      "beats": 2,
+      "zoom": [
+        1.4,
+        1.5
+      ],
+      "focus": [
+        0.6,
+        0.6
+      ],
+      "punch": 0.12,
+      "text": [
+        {
+          "style": "statement",
+          "text": "Match day",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "20_buy_call",
+      "in": 2,
+      "beats": 2,
+      "zoom": [
+        1.2,
+        1.3
+      ],
+      "focus": [
+        0.55,
+        1
+      ],
+      "punch": 0.1,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Match day",
+          "text": "Call the buy",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "22_live_timeout",
+      "in": 1.2,
+      "beats": 2,
+      "zoom": [
+        1.3,
+        1.4
+      ],
+      "focus": [
+        0.45,
+        0.25
+      ],
+      "punch": 0.1,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Match day",
+          "text": "Call the timeout",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "clip": "23_live_late",
+      "in": 16.5,
+      "beats": 4,
+      "zoom": [
+        1.6,
+        1.8
+      ],
+      "focus": [
+        0.62,
+        0.55
+      ],
+      "punch": 0.08,
+      "text": [
+        {
+          "style": "chip",
+          "kicker": "Match day",
+          "text": "1v5. Your move.",
+          "at": 0
+        }
+      ]
+    },
+    {
+      "endcard": true,
+      "beats": 12,
+      "fadeOut": 1
+    }
+  ]
+}
