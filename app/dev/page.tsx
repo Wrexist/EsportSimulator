@@ -295,6 +295,9 @@ export default function DevPage() {
             tournamentId: "DEV_TEST",
             stage: "Dev Test",
             week: state.currentWeek || 1,
+            // Without a day, HYBRID_DAILY treats the match as day 6 (future) and
+            // useLiveMatch bounces back to the tactics page.
+            day: state.currentDay ?? 0,
             format: "BO3" as const,
             seed: Date.now(),
             isScrim: false

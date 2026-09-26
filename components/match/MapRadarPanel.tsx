@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useId, memo } from "react"
+import { useState, useEffect, useMemo, useId, useRef, memo } from "react"
 import { MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { Map, ChevronUp, Minus, Plus } from "lucide-react"
@@ -11,7 +11,7 @@ import type { Point } from "@/lib/map-radar-data"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useReducedMotion } from "framer-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
-import { layoutRadarLabels } from "@/lib/radar-label-layout"
+import { layoutRadarLabels, type RadarLabel } from "@/lib/radar-label-layout"
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -19,6 +19,59 @@ function isFiniteCoord(value: unknown): value is number {
 
 function clampRadarCoord(value: number, min = 0, max = 100): number {
     return Math.max(min, Math.min(max, value))
+}
+
+/** Shortest-arc angle interpolation (radians). */
+function lerpAngle(a: number, b: number, t: number): number {
+    const d = Math.atan2(Math.sin(b - a), Math.cos(b - a))
+    return a + d * t
+}
+
+/**
+ * The playback clock ticks once per game-second, so raw dots jump. Glide each
+ * living player from its snapshot toward the next tick's snapshot over the
+ * tick's wall-clock duration, driven by requestAnimationFrame.
+ */
+function useInterpolatedDots(
+    dots: RadarPlayerDot[] | undefined,
+    nextDots: RadarPlayerDot[] | undefined,
+    tickDurationMs: number,
+    isAnimating: boolean,
+): RadarPlayerDot[] | undefined {
+    const [alpha, setAlpha] = useState(0)
+    const tickStart = useRef(0)
+
+    useEffect(() => {
+        tickStart.current = performance.now()
+        setAlpha(0)
+    }, [dots])
+
+    useEffect(() => {
+        if (!isAnimating || !nextDots || !(tickDurationMs > 0)) return
+        let raf = 0
+        const loop = () => {
+            const a = Math.min(1, (performance.now() - tickStart.current) / tickDurationMs)
+            setAlpha(a)
+            if (a < 1) raf = requestAnimationFrame(loop)
+        }
+        raf = requestAnimationFrame(loop)
+        return () => cancelAnimationFrame(raf)
+    }, [dots, nextDots, tickDurationMs, isAnimating])
+
+    return useMemo(() => {
+        if (!dots || !nextDots || alpha <= 0) return dots
+        const next = new globalThis.Map(nextDots.map(d => [d.playerId, d]))
+        return dots.map(dot => {
+            const to = next.get(dot.playerId)
+            if (!to || !dot.isAlive || !to.isAlive || to.level !== dot.level) return dot
+            return {
+                ...dot,
+                x: dot.x + (to.x - dot.x) * alpha,
+                y: dot.y + (to.y - dot.y) * alpha,
+                angle: lerpAngle(dot.angle, to.angle, alpha),
+            }
+        })
+    }, [dots, nextDots, alpha])
 }
 
 const MAP_RADAR_IMAGES: Record<string, { primary: string; secondary?: string }> = {
@@ -36,6 +89,10 @@ interface MapRadarPanelProps {
     currentMapId: MapId
     mapName: string
     radarDots?: RadarPlayerDot[]
+    /** Snapshot one playback tick ahead; dots glide toward it while animating. */
+    nextRadarDots?: RadarPlayerDot[]
+    tickDurationMs?: number
+    isAnimating?: boolean
     bombState?: RadarBombState
     currentTime?: number
     killLines?: RadarKillLine[]
@@ -45,7 +102,8 @@ interface MapRadarPanelProps {
     positionSource?: 'estimated' | 'physical-replay'
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+    const radarDots = useInterpolatedDots(tickDots, nextRadarDots, tickDurationMs, isAnimating)
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
@@ -73,9 +131,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
                 currentTime,
                 bombState,
                 killLines,
-                radarDots,
+                radarDots: tickDots,
             })
-    ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, radarDots])
+    ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, tickDots])
 
     const radarSrc = radarImageData && resolvedRadarLevel === "lower" && radarImageData.secondary
         ? radarImageData.secondary
@@ -95,7 +153,38 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots, bombState, c
         if (!isDualLevel || !dot.level) return true
         return dot.level === resolvedRadarLevel
     }), [safeDots, isDualLevel, resolvedRadarLevel])
-    const labels = useMemo(() => layoutRadarLabels(visibleDots), [visibleDots])
+    // Labels are placed once per playback tick (from the tick snapshot) and
+    // then ride along with their interpolated dot, so they glide instead of
+    // re-running collision layout — and jumping — every frame.
+    const labelOffsets = useRef(new globalThis.Map<string, { dx: number; dy: number }>())
+    const tickLabels = useMemo(() => {
+        const tickVisible = (tickDots || []).filter(dot => (
+            isFiniteCoord(dot.x) && isFiniteCoord(dot.y)
+            && (!isDualLevel || !dot.level || dot.level === resolvedRadarLevel)
+        )).map(dot => ({ ...dot, x: clampRadarCoord(dot.x), y: clampRadarCoord(dot.y) }))
+        const placed = layoutRadarLabels(tickVisible, labelOffsets.current)
+        const offsets = new globalThis.Map<string, { dx: number; dy: number }>()
+        for (const dot of tickVisible) {
+            const label = placed.get(dot.playerId)
+            if (label) offsets.set(dot.playerId, { dx: label.x - dot.x, dy: label.y - dot.y })
+        }
+        labelOffsets.current = offsets
+        return placed
+    }, [tickDots, isDualLevel, resolvedRadarLevel])
+    const labels = useMemo(() => {
+        const moved = new globalThis.Map<string, RadarLabel>()
+        for (const dot of visibleDots) {
+            const label = tickLabels.get(dot.playerId)
+            const offset = labelOffsets.current.get(dot.playerId)
+            if (!label || !offset) continue
+            moved.set(dot.playerId, {
+                ...label,
+                x: clampRadarCoord(dot.x + offset.dx, 1, 99 - label.width),
+                y: clampRadarCoord(dot.y + offset.dy, 1, 99 - label.height),
+            })
+        }
+        return moved
+    }, [visibleDots, tickLabels])
 
     const visibleKillLines = useMemo(() => (killLines || [])
         .filter(line => (

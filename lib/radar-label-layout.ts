@@ -1,8 +1,12 @@
 import type { RadarPlayerDot } from "./radar-position-engine"
 
 export interface RadarLabel { x: number; y: number; width: number; height: number; text: string }
-/** Place names without moving world markers. Stable order keeps labels deterministic. */
-export function layoutRadarLabels(dots: RadarPlayerDot[]): Map<string, RadarLabel> {
+/**
+ * Place names without moving world markers. Stable order keeps labels deterministic.
+ * `preferred` holds each player's previous label offset from its dot; it is tried
+ * first so labels don't flip sides from one tick to the next.
+ */
+export function layoutRadarLabels(dots: RadarPlayerDot[], preferred?: Map<string, { dx: number; dy: number }>): Map<string, RadarLabel> {
     const result = new Map<string, RadarLabel>()
     const live = dots.filter(d => d.isAlive && Number.isFinite(d.x) && Number.isFinite(d.y))
     const reserved = live.map(d => ({ x: d.x - 2, y: d.y - 2, width: 4, height: 4 }))
@@ -11,6 +15,14 @@ export function layoutRadarLabels(dots: RadarPlayerDot[]): Map<string, RadarLabe
     for (const dot of [...live].sort((a, b) => a.playerId.localeCompare(b.playerId))) {
         const text = (dot.nickname || "PLAYER").toUpperCase().slice(0, 6)
         const width = text.length * 1.65 + 1.6, height = 4.2
+        const prev = preferred?.get(dot.playerId)
+        if (prev) {
+            const label = { x: dot.x + prev.dx, y: dot.y + prev.dy, width, height, text }
+            const inBounds = label.x >= 1 && label.x <= 99 - width && label.y >= 1 && label.y <= 99 - height
+            if (inBounds && !reserved.some(box => overlap(label, box))) {
+                result.set(dot.playerId, label); reserved.push(label); continue
+            }
+        }
         for (const distance of [4, 8, 12, 16, 20]) {
             let found = false
             for (const [dx, dy] of [[1, 0], [-1, 0], [0, -1], [0, 1], [1, -1], [-1, 1], [-1, -1], [1, 1]]) {
