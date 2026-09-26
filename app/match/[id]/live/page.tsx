@@ -347,6 +347,24 @@ export default function LiveMatchPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
 
+    // Positions one game-second ahead. The playback clock ticks once per
+    // game-second, so the radar glides from `radarData` toward this snapshot
+    // over the tick instead of jumping on each tick.
+    const nextRadarData = useMemo(() => {
+        if (!simState || !matchData.current || gameState.time < 0) return null
+        return computeRadarPositions(
+            currentMapId as MapId,
+            gameState.time + 1,
+            currentRoundEvents.current,
+            homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
+            awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
+            simState.homeStartsCT,
+            gameState.round,
+            matchData.current.match.seed ?? 0
+        )
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
+
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
     const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
@@ -481,6 +499,9 @@ export default function LiveMatchPage() {
                             currentMapId={currentMapId}
                             mapName={mapName}
                             radarDots={radarData?.dots}
+                            nextRadarDots={nextRadarData?.dots}
+                            tickDurationMs={1000 / Math.max(0.1, speed)}
+                            isAnimating={isPlaying}
                             bombState={radarData?.bomb}
                             killLines={radarData?.killLines}
                             smokes={radarData?.smokes}
