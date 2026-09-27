@@ -105,6 +105,18 @@ const startNextJSServer = async () => {
             throw new Error('.next directory not found at: ' + nextDir);
         }
 
+        // Next 15.5 resolves each route's project dir as
+        // join(process.cwd(), relative(process.cwd(), dir)). When Steam (or a
+        // shortcut) launches us with a cwd on another drive or outside the
+        // install, that yields a bogus "C:\...\D:\...\app.asar" path and every
+        // page 500s (gray window). Pin cwd to the folder containing appDir.
+        try {
+            process.chdir(path.dirname(appDir));
+            debugLog('Working directory: ' + process.cwd());
+        } catch (e) {
+            debugLog('Failed to set working directory: ' + e.message);
+        }
+
         debugLog('Creating Next.js app instance...');
         const nextApp = next({ dev: false, dir: appDir });
         const handle = nextApp.getRequestHandler();

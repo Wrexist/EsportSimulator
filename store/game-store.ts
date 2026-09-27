@@ -923,7 +923,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Phase 75: Game Settings
       resolution: "1920x1080",
       masterVolume: 80,
-      musicVolume: 70,
+      musicVolume: 0,
       gameSpeed: "normal",
       difficulty: "normal",
       autoSave: true,
