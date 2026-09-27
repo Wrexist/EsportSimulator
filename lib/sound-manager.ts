@@ -17,7 +17,7 @@ export class SoundManager {
     private musicGain: GainNode | null = null
     private sfxGain: GainNode | null = null
     private masterVolume = 80
-    private musicVolume = 70
+    private musicVolume = 0
     private sfxVolume = 80
     private pendingMusicScene: 'menu' | 'match' | 'dashboard' | null = null
     private musicPlaying: boolean = false

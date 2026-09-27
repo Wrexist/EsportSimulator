@@ -70,7 +70,7 @@ export const useSettingsStore = create<GameSettings>()(
             reducedMotion: false,
             uiScale: 100,
             masterVolume: 80,
-            musicVolume: 70,
+            musicVolume: 0,
             sfxVolume: 80,
             autoSave: true,
             autoSavePreferenceSet: false,

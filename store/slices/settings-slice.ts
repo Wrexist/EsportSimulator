@@ -13,7 +13,7 @@ export const settingsInitialState: SettingsState = {
   soundEnabled: true,
   resolution: "1920x1080",
   masterVolume: 80,
-  musicVolume: 60,
+  musicVolume: 0,
   gameSpeed: "normal",
   difficulty: "normal",
   autoSave: true,
