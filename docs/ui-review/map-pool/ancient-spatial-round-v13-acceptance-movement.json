@@ -1,0 +1,233 @@
+{
+  "engine": "spatial-round-v13",
+  "mapId": "Ancient",
+  "fixtureSha256": "d4f73e396d772dc9f044fd3b893ac054c30b1c34879dfcdb3c33645f6e81e1ed",
+  "simulatorSourceSha256": "a94a7f9aeccccfea66327881d16fe7d36781dc4b754a495bd30f772b621ab001",
+  "meshSha256": "c72e121d1cacca4db20413293b8c7dcdd8d92b4a06134a915f99ab8c38f9e80a",
+  "complete": true,
+  "scope": "0 combat and 4 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 69.9375,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 49275,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 738,
+        "waits": 2261,
+        "replans": 98,
+        "minSeparation": 32.04361756374201
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 14,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "b60972895a6c3d68e5230d88efa8a8ac50ae162e116d2e3f8f161f7a6c24feef"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": false,
+      "seconds": 64.203125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 66030,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1331,
+        "waits": 2512,
+        "replans": 90,
+        "minSeparation": 32.000386840389595
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 6,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "CT3",
+          "point": [
+            923.0553124199193,
+            219.54209862963697,
+            134.5528616819621
+          ],
+          "goal": [
+            -352,
+            1728,
+            31.49238016354709
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 3618,
+            "type": "spacing-wait",
+            "reason": "Body T1 occupies the swept path.",
+            "actor": "CT3",
+            "side": "CT",
+            "from": [
+              923.0553124199193,
+              219.54209862963697,
+              134.5528616819621
+            ],
+            "point": [
+              922.405094445153,
+              219.65031920012603,
+              134.54809158484727
+            ]
+          }
+        },
+        {
+          "id": "CT4",
+          "point": [
+            969.566350091019,
+            221.1374928101514,
+            133.3138681101296
+          ],
+          "goal": [
+            -448,
+            1728,
+            31.692779692992396
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 3699,
+            "type": "spacing-wait",
+            "reason": "Body T2 occupies the swept path.",
+            "actor": "CT4",
+            "side": "CT",
+            "from": [
+              969.566350091019,
+              221.1374928101514,
+              133.3138681101296
+            ],
+            "point": [
+              970.3506157274887,
+              221.52565997848177,
+              133.23183240343897
+            ]
+          }
+        }
+      ],
+      "outputSha256": "7cfd0a673c054c9918051cc15ce1a767497c2434797de4c6e833587dc637e4fa"
+    },
+    {
+      "seed": 4326180,
+      "objective": "A",
+      "guns": false,
+      "seconds": 69.9375,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 50515,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 738,
+        "waits": 2261,
+        "replans": 98,
+        "minSeparation": 32.04361756374201
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 14,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "b60972895a6c3d68e5230d88efa8a8ac50ae162e116d2e3f8f161f7a6c24feef"
+    },
+    {
+      "seed": 4326181,
+      "objective": "B",
+      "guns": false,
+      "seconds": 64.203125,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 56831,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1331,
+        "waits": 2512,
+        "replans": 90,
+        "minSeparation": 32.000386840389595
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 6,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "CT3",
+          "point": [
+            923.0553124199193,
+            219.54209862963697,
+            134.5528616819621
+          ],
+          "goal": [
+            -352,
+            1728,
+            31.49238016354709
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 3618,
+            "type": "spacing-wait",
+            "reason": "Body T1 occupies the swept path.",
+            "actor": "CT3",
+            "side": "CT",
+            "from": [
+              923.0553124199193,
+              219.54209862963697,
+              134.5528616819621
+            ],
+            "point": [
+              922.405094445153,
+              219.65031920012603,
+              134.54809158484727
+            ]
+          }
+        },
+        {
+          "id": "CT4",
+          "point": [
+            969.566350091019,
+            221.1374928101514,
+            133.3138681101296
+          ],
+          "goal": [
+            -448,
+            1728,
+            31.692779692992396
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 3699,
+            "type": "spacing-wait",
+            "reason": "Body T2 occupies the swept path.",
+            "actor": "CT4",
+            "side": "CT",
+            "from": [
+              969.566350091019,
+              221.1374928101514,
+              133.3138681101296
+            ],
+            "point": [
+              970.3506157274887,
+              221.52565997848177,
+              133.23183240343897
+            ]
+          }
+        }
+      ],
+      "outputSha256": "7cfd0a673c054c9918051cc15ce1a767497c2434797de4c6e833587dc637e4fa"
+    }
+  ]
+}

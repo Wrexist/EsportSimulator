@@ -9,6 +9,17 @@ export function recoveryThreat(contacts: Iterable<Contact>, objective: Vec3, tic
         .sort((a, b) => b.seen - a.seen || distance3(a.point, objective) - distance3(b.point, objective) || a.enemy.localeCompare(b.enemy))[0]
 }
 
+/**
+ * Friendly bodies only. A recoverer physically held by a living teammate hands the pickup to that
+ * teammate when it stands closer to the bomb and has its own checked route there. It does not move
+ * anyone or relax body checks; it only changes which teammate walks to the bomb.
+ */
+export function recoveryHandoff<T extends { id: string; position: Vec3 }>(recoverer: Vec3, blockerId: string, team: T[], bomb: Vec3, reachable: (mate: T) => boolean): string | null {
+    const blocker = team.find(mate => mate.id === blockerId)
+    if (!blocker || distance3(blocker.position, bomb) >= distance3(recoverer, bomb)) return null
+    return reachable(blocker) ? blocker.id : null
+}
+
 /** Forecast uses copied inventory and known geometry. It never spends a live grenade. */
 export function checkRecoveryThrow(plan: ThrowPlan, setup: UtilitySetup, owner: UtilityActor, allies: UtilityActor[], bomb: Vec3, threat: Contact, world: CollisionWorld, height: number): { allowed: boolean; reason: string } {
     const held = (reason: string) => ({ allowed: false, reason })
