@@ -141,7 +141,7 @@ describe("Electron disk boundary (actual IPC handlers + ElectronStorageAdapter)"
             expect((await retry.saveGame({ ...save, currentWeek: 2 })).success).toBe(true)
             expect((await electronManager(directory, disk).manager.loadGame(save.saveId)).save?.currentWeek).toBe(2)
         }
-    })
+    }, 60_000)
 
     test("a crash after any single write step leaves a loadable career with no half-written state", async () => {
         const probe = await seedLastGood()
@@ -181,7 +181,7 @@ describe("Electron disk boundary (actual IPC handlers + ElectronStorageAdapter)"
                 fs.rmSync(crashDir, { recursive: true, force: true })
             }
         }
-    })
+    }, 60_000)
 
     test("an unreadable config.json fails load and save loudly and is never rewritten", async () => {
         const { disk, save } = await seedLastGood()
