@@ -1,0 +1,646 @@
+{
+  "generatedBy": "scripts/launch/l21-paired-scenarios.ts",
+  "engine": "legacy-v2 (canonical series runner)",
+  "format": "BO1",
+  "fixture": "first-week 3921, managed team_player (home) vs team_ai_1 (balanced)",
+  "seeds": 200,
+  "scenarios": [
+    {
+      "id": "playstyle-counter",
+      "decision": "Playstyle: default -> structured (counters the scouted balanced opponent)",
+      "kind": "pre-match",
+      "note": "Rock-paper-scissors counter: x1.04 base strength; structured also gains +5% when chemistry > 80 (not met here).",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.6,
+        "roundShare": 0.526,
+        "spendPerRound": 1913
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.105,
+          "low": 0.0624,
+          "high": 0.1476
+        },
+        "roundShare": {
+          "mean": 0.0403,
+          "low": 0.0283,
+          "high": 0.0523
+        },
+        "spendPerRound": {
+          "mean": -73.0716,
+          "low": -96.3423,
+          "high": -49.8008
+        },
+        "cashPerRound": {
+          "mean": 304.8362,
+          "low": 197.6197,
+          "high": 412.0527
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "playstyle-countered",
+      "decision": "Playstyle: default -> aggressive (countered by balanced)",
+      "kind": "pre-match",
+      "note": "Countered style: x0.97 base strength.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.375,
+        "roundShare": 0.435,
+        "spendPerRound": 2068
+      },
+      "effect": {
+        "matchWin": {
+          "mean": -0.12,
+          "low": -0.1652,
+          "high": -0.0748
+        },
+        "roundShare": {
+          "mean": -0.0511,
+          "low": -0.0649,
+          "high": -0.0374
+        },
+        "spendPerRound": {
+          "mean": 81.7185,
+          "low": 52.4265,
+          "high": 111.0105
+        },
+        "cashPerRound": {
+          "mean": -348.6069,
+          "low": -477.2034,
+          "high": -220.0103
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "economy-force",
+      "decision": "Economy plan: standard -> force (buy $500 earlier)",
+      "kind": "pre-match",
+      "note": "Buy thresholds -$500.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.565,
+        "roundShare": 0.526,
+        "spendPerRound": 1920
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.07,
+          "low": 0.0272,
+          "high": 0.1128
+        },
+        "roundShare": {
+          "mean": 0.0404,
+          "low": 0.0238,
+          "high": 0.0569
+        },
+        "spendPerRound": {
+          "mean": -66.2303,
+          "low": -102.3379,
+          "high": -30.1227
+        },
+        "cashPerRound": {
+          "mean": 239.7105,
+          "low": 88.7641,
+          "high": 390.657
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "economy-eco",
+      "decision": "Economy plan: standard -> eco (save $500 longer)",
+      "kind": "pre-match",
+      "note": "Buy thresholds +$500; banks more cash per round.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.45,
+        "roundShare": 0.468,
+        "spendPerRound": 1949
+      },
+      "effect": {
+        "matchWin": {
+          "mean": -0.045,
+          "low": -0.0937,
+          "high": 0.0037
+        },
+        "roundShare": {
+          "mean": -0.0182,
+          "low": -0.0356,
+          "high": -0.0008
+        },
+        "spendPerRound": {
+          "mean": -37.0208,
+          "low": -69.2112,
+          "high": -4.8304
+        },
+        "cashPerRound": {
+          "mean": 211.9879,
+          "low": 55.9276,
+          "high": 368.0482
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "roles-coverage",
+      "decision": "Roles: AWPer + 4 riflers -> IGL/entry/AWPer/support/rifler",
+      "kind": "pre-match",
+      "note": "Role coverage term 0.8 + unique/5 x 0.2 (2 -> 5 unique roles).",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.62,
+        "roundShare": 0.538,
+        "spendPerRound": 1892
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.125,
+          "low": 0.079,
+          "high": 0.171
+        },
+        "roundShare": {
+          "mean": 0.0519,
+          "low": 0.0385,
+          "high": 0.0654
+        },
+        "spendPerRound": {
+          "mean": -94.4509,
+          "low": -121.0268,
+          "high": -67.8751
+        },
+        "cashPerRound": {
+          "mean": 386.6241,
+          "low": 267.2446,
+          "high": 506.0036
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "roles-no-awper",
+      "decision": "Roles: AWPer + 4 riflers -> 5 riflers",
+      "kind": "pre-match",
+      "note": "Coverage 2 -> 1 unique role; AWP still bought by cash order on FULL.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.43,
+        "roundShare": 0.457,
+        "spendPerRound": 2031
+      },
+      "effect": {
+        "matchWin": {
+          "mean": -0.065,
+          "low": -0.0993,
+          "high": -0.0307
+        },
+        "roundShare": {
+          "mean": -0.0292,
+          "low": -0.0402,
+          "high": -0.0182
+        },
+        "spendPerRound": {
+          "mean": 45.0773,
+          "low": 22.3799,
+          "high": 67.7746
+        },
+        "cashPerRound": {
+          "mean": -198.2845,
+          "low": -291.0248,
+          "high": -105.5442
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "antistrat-target",
+      "decision": "Anti-strat: none -> target the opponent AWPer",
+      "kind": "pre-match",
+      "note": "Target loses 15% equipment contribution; own tactical modifier x0.95 (tunnel vision).",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.57,
+        "roundShare": 0.517,
+        "spendPerRound": 1936
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.075,
+          "low": 0.0359,
+          "high": 0.1141
+        },
+        "roundShare": {
+          "mean": 0.0311,
+          "low": 0.0214,
+          "high": 0.0408
+        },
+        "spendPerRound": {
+          "mean": -49.7837,
+          "low": -70.9041,
+          "high": -28.6633
+        },
+        "cashPerRound": {
+          "mean": 220.9991,
+          "low": 131.5796,
+          "high": 310.4186
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "vod-review",
+      "decision": "VOD review ($2,500): tactical prep 0 -> 25",
+      "kind": "pre-match",
+      "note": "Adds +0.0625 to the additive strength term for this week.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.595,
+        "roundShare": 0.52,
+        "spendPerRound": 1930
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.1,
+          "low": 0.0583,
+          "high": 0.1417
+        },
+        "roundShare": {
+          "mean": 0.0345,
+          "low": 0.023,
+          "high": 0.0461
+        },
+        "spendPerRound": {
+          "mean": -56.2152,
+          "low": -77.3997,
+          "high": -35.0308
+        },
+        "cashPerRound": {
+          "mean": 274.7114,
+          "low": 170.379,
+          "high": 379.0439
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "mental-reset",
+      "decision": "Mental reset ($5,000): +15 morale and match mental prep",
+      "kind": "pre-match",
+      "note": "Morale term (0.8 + morale/100 x 0.4) and +3% tactical modifier.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.605,
+        "roundShare": 0.529,
+        "spendPerRound": 1910
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.11,
+          "low": 0.0665,
+          "high": 0.1535
+        },
+        "roundShare": {
+          "mean": 0.0427,
+          "low": 0.0304,
+          "high": 0.055
+        },
+        "spendPerRound": {
+          "mean": -76.3847,
+          "low": -100.1598,
+          "high": -52.6095
+        },
+        "cashPerRound": {
+          "mean": 316.5856,
+          "low": 206.0838,
+          "high": 427.0873
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "loadout-utility",
+      "decision": "Loadouts: default -> flash + smoke per player (non-eco buys)",
+      "kind": "pre-match",
+      "note": "Saturating utility power (cap 10); costs $500 per player per buy.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.615,
+        "roundShare": 0.544,
+        "spendPerRound": 2018
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.12,
+          "low": 0.0635,
+          "high": 0.1765
+        },
+        "roundShare": {
+          "mean": 0.0581,
+          "low": 0.0393,
+          "high": 0.0769
+        },
+        "spendPerRound": {
+          "mean": 31.6965,
+          "low": -9.6046,
+          "high": 72.9976
+        },
+        "cashPerRound": {
+          "mean": -244.4815,
+          "low": -404.7722,
+          "high": -84.1908
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "loadout-overbuy",
+      "decision": "Loadouts: default -> four grenades per player",
+      "kind": "pre-match",
+      "note": "Diminishing returns: more utility power, but $1,300+ per player per buy.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.54,
+        "roundShare": 0.515,
+        "spendPerRound": 2226
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.045,
+          "low": -0.0176,
+          "high": 0.1076
+        },
+        "roundShare": {
+          "mean": 0.0289,
+          "low": 0.0039,
+          "high": 0.054
+        },
+        "spendPerRound": {
+          "mean": 239.7167,
+          "low": 185.8421,
+          "high": 293.5913
+        },
+        "cashPerRound": {
+          "mean": -1134.7564,
+          "low": -1361.7862,
+          "high": -907.7266
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "call-full-buy",
+      "decision": "Live call: engine default -> FULL every non-pistol round",
+      "kind": "live",
+      "note": "Manager overrides the managed buy each round.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.64,
+        "roundShare": 0.579,
+        "spendPerRound": 1841
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.145,
+          "low": 0.0807,
+          "high": 0.2093
+        },
+        "roundShare": {
+          "mean": 0.0929,
+          "low": 0.0706,
+          "high": 0.1152
+        },
+        "spendPerRound": {
+          "mean": -144.9749,
+          "low": -192.5366,
+          "high": -97.4133
+        },
+        "cashPerRound": {
+          "mean": 602.2835,
+          "low": 396.4778,
+          "high": 808.0892
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "call-eco-after-pistol-loss",
+      "decision": "Live call: save after a lost pistol round",
+      "kind": "live",
+      "note": "Round 2/14 ECO instead of the default force.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.52,
+        "roundShare": 0.503,
+        "spendPerRound": 1928
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.025,
+          "low": -0.0259,
+          "high": 0.0759
+        },
+        "roundShare": {
+          "mean": 0.0168,
+          "low": -0.0009,
+          "high": 0.0345
+        },
+        "spendPerRound": {
+          "mean": -57.5143,
+          "low": -94.8187,
+          "high": -20.2098
+        },
+        "cashPerRound": {
+          "mean": 409.1938,
+          "low": 256.4595,
+          "high": 561.9281
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "timeout-on-streak",
+      "decision": "Tactical timeout at a 3-round losing streak (max 2)",
+      "kind": "live",
+      "note": "Regroup subtracts up to two losses from tilt for two rounds; economy and opponent untouched.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0.525,
+        "roundShare": 0.496,
+        "spendPerRound": 1967
+      },
+      "effect": {
+        "matchWin": {
+          "mean": 0.03,
+          "low": 0.0063,
+          "high": 0.0537
+        },
+        "roundShare": {
+          "mean": 0.0104,
+          "low": 0.0053,
+          "high": 0.0156
+        },
+        "spendPerRound": {
+          "mean": -18.5898,
+          "low": -30.0315,
+          "high": -7.1481
+        },
+        "cashPerRound": {
+          "mean": 83.4984,
+          "low": 35.0636,
+          "high": 131.9332
+        }
+      },
+      "measurable": true,
+      "bounded": true,
+      "verdict": "bounded"
+    },
+    {
+      "id": "call-save-always",
+      "decision": "Live call: ECO every non-pistol round (negative control)",
+      "kind": "live",
+      "note": "Self-defeating plan; the 10% per-round floor keeps rounds winnable.",
+      "seeds": 200,
+      "baseline": {
+        "matchWin": 0.495,
+        "roundShare": 0.486,
+        "spendPerRound": 1986
+      },
+      "variant": {
+        "matchWin": 0,
+        "roundShare": 0.132,
+        "spendPerRound": 87
+      },
+      "effect": {
+        "matchWin": {
+          "mean": -0.495,
+          "low": -0.5645,
+          "high": -0.4255
+        },
+        "roundShare": {
+          "mean": -0.3537,
+          "low": -0.3793,
+          "high": -0.3281
+        },
+        "spendPerRound": {
+          "mean": -1899.2152,
+          "low": -1950.0414,
+          "high": -1848.3891
+        },
+        "cashPerRound": {
+          "mean": 5128.3723,
+          "low": 4881.9586,
+          "high": 5374.7859
+        }
+      },
+      "measurable": true,
+      "bounded": false,
+      "verdict": "negative-control"
+    }
+  ],
+  "regroupRoundProbe": {
+    "seeds": 400,
+    "lossStreak": 5,
+    "baselineWins": 176,
+    "regroupWins": 205,
+    "noStreakIdentical": 400
+  }
+}
