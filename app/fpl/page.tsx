@@ -540,9 +540,9 @@ export default function FPLPage() {
                                             <Crown size={20} />
                                         </div>
                                         <p className="text-lg font-bold text-white mb-1">
-                                            ${reward?.prize.toLocaleString()}
+                                            {reward ? `$${reward.prize.toLocaleString("en-US")}` : "—"}
                                         </p>
-                                        <p className="text-xs text-white/40">+{reward?.xpBonus} XP</p>
+                                        {reward?.xpBonus != null && <p className="text-xs text-white/40">+{reward.xpBonus} XP</p>}
                                         {entry && (
                                             <div className="mt-3 pt-3 border-t border-white/10">
                                                 <p className="text-sm font-bold text-white">{entry.player.nickname}</p>
@@ -776,7 +776,7 @@ export default function FPLPage() {
                                                                                     </div>
                                                                                 </Link>
                                                                             ) : (
-                                                                                <span className="text-white/40 text-sm">{entry.playerId}</span>
+                                                                                <span className="text-white/40 text-sm">Unknown player</span>
                                                                             )}
                                                                         </GlassTableCell>
                                                                         <GlassTableCell className="text-center">

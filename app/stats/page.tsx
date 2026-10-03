@@ -53,6 +53,7 @@ import { cn } from "@/lib/utils"
 import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
 import { motion, AnimatePresence } from "framer-motion"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
+import { pressable } from "@/lib/accessibility"
 
 // Hoisted: pure lookup, no closure. Was being re-created every render.
 function getIntensityStyle(intensity: string) {
@@ -596,7 +597,7 @@ export default function StatsPage() {
                                             won ? "border-l-emerald-500" : "border-l-rose-500",
                                             expandedMatchId === match.id ? "bg-white/5" : ""
                                         )}
-                                        onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
+                                        {...pressable(() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id), { expanded: expandedMatchId === match.id })}
                                     >
                                         <div className="p-4 flex items-center gap-4">
                                             <div className={cn(

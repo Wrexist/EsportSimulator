@@ -1,6 +1,7 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { useEffect, useState } from "react"
 import { ArrowLeftRight } from "lucide-react"
 
@@ -12,7 +13,7 @@ import { ArrowLeftRight } from "lucide-react"
  */
 export function HalfTimeOverlay({ active }: { active: boolean }) {
     const [visible, setVisible] = useState(false)
-    const reduceMotion = useReducedMotion()
+    const reduceMotion = useAppReducedMotion()
 
     useEffect(() => {
         if (!active) return

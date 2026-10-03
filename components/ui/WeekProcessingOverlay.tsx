@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useGameStore } from "@/store/game-store"
 import { Trophy, Frown, Newspaper, ArrowRight, Sparkles } from "lucide-react"
+import { useFocusTrap } from "@/lib/accessibility"
 
 /**
  * Full-screen overlay for week advancement. Two phases:
@@ -30,6 +31,9 @@ export function WeekProcessingOverlay() {
   const continueRef = useRef<HTMLButtonElement>(null)
 
   const showReveal = !isLoading && !!weekReveal
+  // Trap Tab inside the review and return focus to the trigger (usually the
+  // Advance button) on dismiss. Enter/Space/Escape are handled below.
+  const dialogRef = useFocusTrap(showReveal, dismissWeekReveal)
 
   useEffect(() => {
     if (!showReveal) return
@@ -140,12 +144,13 @@ export function WeekProcessingOverlay() {
 
     return (
       <div
+        ref={dialogRef} tabIndex={-1}
         className="fixed inset-0 z-overlay flex items-center justify-center bg-black/72 backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={`Week ${week} review`}
       >
-        <div className="esm-pop flex max-h-[80vh] w-[420px] flex-col rounded-2xl liquid-panel p-7">
+        <div className="esm-pop flex max-h-[80vh] w-[min(420px,calc(100vw-2rem))] flex-col rounded-2xl liquid-panel p-7">
           {/* Header */}
           <div className="esm-head mb-5 flex flex-col gap-1">
             <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300/80">

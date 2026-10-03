@@ -392,7 +392,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     {stage === "BUYOUT" ? "Transfer Negotiation" : !currentTeam ? "Sign Free Agent" : "Contract Offer"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                                    {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name}` : "Negotiating with Player Agent"}
+                                    {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name ?? "the current club"}` : "Negotiating with Player Agent"}
                                 </p>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">

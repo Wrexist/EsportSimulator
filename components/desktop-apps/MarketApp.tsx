@@ -25,6 +25,7 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
+import { pressable } from "@/lib/accessibility"
 
 interface MarketAppProps {
     events: GameEventSaveData[]
@@ -255,9 +256,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                 filteredPlayers.map(p => (
                                     <div
                                         key={p.id}
-                                        onClick={() => {
-                                            setSelectedPlayerId(p.id)
-                                        }}
+                                        {...pressable(() => setSelectedPlayerId(p.id), { pressed: selectedPlayer?.id === p.id })}
                                         className={cn(
                                             "flex items-center gap-3 p-2 rounded-xl transition-all border border-transparent cursor-pointer group",
                                             selectedPlayer?.id === p.id

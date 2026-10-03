@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { Trophy, Star, TrendingUp, DollarSign, X, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,6 +11,7 @@ import { fireConfetti } from "@/lib/confetti-lazy"
 import { panelTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface TournamentWinCelebrationProps {
     data: {
@@ -26,7 +28,8 @@ interface TournamentWinCelebrationProps {
 
 export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebrationProps) {
     const [mounted, setMounted] = useState(false)
-    const reduceMotion = useReducedMotion()
+    const reduceMotion = useAppReducedMotion()
+    const dialogRef = useFocusTrap(mounted, onClose)
 
     useEffect(() => {
         setMounted(true)
@@ -68,8 +71,10 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
     return (
         <AnimatePresence>
             <motion.div
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
+                aria-labelledby="modal-title-tournament-win"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -91,7 +96,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                     initial="initial"
                     animate="animate"
                     exit="exit"
-                    className="relative w-full max-w-4xl liquid-panel rounded-xl overflow-hidden border-white/10"
+                    className="relative w-full max-w-4xl max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain liquid-panel rounded-xl border-white/10"
                 >
                     <div className="absolute top-6 right-6 z-20">
                         <Button
@@ -106,14 +111,14 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                         </Button>
                     </div>
 
-                    <div className="relative z-10 p-8 md:p-12 text-center">
+                    <div className="relative z-10 p-6 md:p-8 text-center">
                         {/* Trophy Animation */}
-                        <div className="relative mb-12">
+                        <div className="relative mb-6">
                             <motion.div
                                 initial={{ scale: 0, rotate: -20 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ delay: 0.3, type: "spring", damping: 12 }}
-                                className="relative z-10 w-48 h-48 mx-auto"
+                                className="relative z-10 w-32 h-32 [@media(min-height:800px)]:w-48 [@media(min-height:800px)]:h-48 mx-auto"
                             >
                                 <div className="absolute inset-0 bg-cyan-200/[0.08] blur-[56px] rounded-full" />
                                 {data.trophyPath ? (
@@ -144,7 +149,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                             <h4 className={cn("text-xs font-normal uppercase tracking-[0.5em] mb-2", tierColor)}>
                                 CHAMPIONS OF THE WORLD
                             </h4>
-                            <h2 className="text-4xl md:text-6xl font-normal text-white tracking-tighter liquid-text mb-4">
+                            <h2 id="modal-title-tournament-win" className="text-4xl md:text-6xl font-normal text-white tracking-tighter liquid-text mb-4">
                                 {data.tournamentName}
                             </h2>
                             <div className="flex items-center justify-center gap-4 mb-10">
@@ -209,7 +214,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.2 }}
-                            className="mt-12"
+                            className="mt-6"
                         >
                             <Button
                                 size="lg"

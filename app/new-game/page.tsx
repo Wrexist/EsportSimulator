@@ -40,6 +40,7 @@ import {
 } from "@/engine/tier-system"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { resolvePlayerRole } from "@/engine/role-determination"
+import { pressable } from "@/lib/accessibility"
 
 interface SnapshotTeam {
     id: string
@@ -663,7 +664,7 @@ export default function TeamSelectionPage() {
                             return (
                                 <div
                                     key={team.id}
-                                    onClick={() => !isLocked && setSelectedTeam(team)}
+                                    {...pressable(() => setSelectedTeam(team), { disabled: isLocked, pressed: selectedTeam?.id === team.id })}
                                     className={cn(
                                         "glass-panel p-4 cursor-pointer border-white/5 relative overflow-hidden",
                                         "transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5",

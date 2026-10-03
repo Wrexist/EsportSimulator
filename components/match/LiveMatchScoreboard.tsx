@@ -22,7 +22,8 @@ interface LiveMatchScoreboardProps {
     bombTime?: number
 }
 
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { scorePulse } from "@/lib/motion"
 
 // Memoized: live page renders this on every tick (~30-60Hz). Most ticks
@@ -55,7 +56,7 @@ function LiveMatchScoreboardImpl({
     const isUrgent = isBombPlanted
         ? displaySeconds <= 10
         : displaySeconds <= 10 && displaySeconds > 0
-    const reduceMotion = useReducedMotion()
+    const reduceMotion = useAppReducedMotion()
 
     /** CT side — cool blue; T side — amber (readability over heavy glow) */
     const homeBorderClass = "border-l-4 border-l-sky-400/45"

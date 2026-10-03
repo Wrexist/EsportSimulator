@@ -13,6 +13,7 @@ import { formatRole } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -26,6 +27,8 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null)
     const [confirmed, setConfirmed] = useState(false)
     const [mounted, setMounted] = useState(false)
+    // A legend must be chosen, so Escape is intentionally not a close path.
+    const dialogRef = useFocusTrap(mounted)
 
     const candidates = data.candidates
         .map(id => players.find(p => p.id === id))
@@ -84,17 +87,18 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                     initial="initial"
                     animate="animate"
                     exit="exit"
+                    ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-legend-pick"
-                    className="relative z-10 w-full max-w-5xl mx-4"
+                    className="relative z-10 w-full max-w-5xl mx-4 py-4 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain"
                 >
                     {/* Header */}
                     <motion.div
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="text-center mb-8"
+                        className="text-center mb-4 [@media(min-height:800px)]:mb-8"
                     >
                         <div className="flex items-center justify-center gap-3 mb-3">
                             <Trophy className="text-amber-400" size={28} />
@@ -113,7 +117,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
                     {/* Legend Cards */}
                     {!confirmed && (
-                        <div className="grid grid-cols-3 gap-6 mb-8">
+                        <div className="grid grid-cols-3 gap-6 mb-4 [@media(min-height:800px)]:mb-8">
                             {candidates.map((legend, i) => (
                                 <motion.div
                                     key={legend.id}
@@ -123,6 +127,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                 >
                                     <button
                                         onClick={() => setSelectedId(legend.id)}
+                                        aria-pressed={selectedId === legend.id}
                                         className={cn(
                                             "w-full text-left rounded-xl transition-[border-color,box-shadow] duration-100 ease-out overflow-hidden group relative glass-card active:scale-[0.99] active:duration-0",
                                             selectedId === legend.id
@@ -136,7 +141,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         )}
 
                                         {/* Portrait area */}
-                                        <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
+                                        <div className="relative h-36 [@media(min-height:800px)]:h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
                                             <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                             </div>

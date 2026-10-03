@@ -172,9 +172,9 @@ export default function FinancesPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
 
-          <div className="relative z-10 grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <div className="relative z-10 grid grid-cols-1 2xl:grid-cols-12 gap-8">
             {/* Left: Title & Health Ring */}
-            <div className="xl:col-span-4 flex items-center gap-6">
+            <div className="2xl:col-span-4 flex items-center gap-6">
               {/* Animated Health Ring */}
               <div className="relative">
                 <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
@@ -219,7 +219,7 @@ export default function FinancesPage() {
             </div>
 
             {/* Center: Key Metrics */}
-            <div className="xl:col-span-5 grid grid-cols-3 gap-4">
+            <div className="2xl:col-span-5 grid grid-cols-3 gap-4">
               {/* Net Worth */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-all group">
                 <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Cash balance</p>
@@ -272,7 +272,7 @@ export default function FinancesPage() {
             </div>
 
             {/* Right: Financial Grade */}
-            <div className="xl:col-span-3 flex items-center justify-end gap-4">
+            <div className="2xl:col-span-3 flex items-center justify-start 2xl:justify-end gap-4">
               <div className="text-right">
                 <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Credit Rating</p>
                 <p className="text-[10px] text-white/60 max-w-[120px]">
@@ -484,7 +484,7 @@ export default function FinancesPage() {
                       >
                         {/* Tooltip on hover */}
                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap z-10">
-                          <p className="font-bold">${(data.budget / 1000).toFixed(0)}k</p>
+                          <p className="font-bold">{formatCurrency(data.budget)}</p>
                           <p className="text-white/50">Week {data.week}</p>
                         </div>
                       </div>
@@ -500,19 +500,19 @@ export default function FinancesPage() {
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">4-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[3]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[3]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[3]?.budget ?? Number.NaN)}{projectedBudget[3]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">8-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[7]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[7]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[7]?.budget ?? Number.NaN)}{projectedBudget[7]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">12-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[11]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[11]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[11]?.budget ?? Number.NaN)}{projectedBudget[11]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
               </div>

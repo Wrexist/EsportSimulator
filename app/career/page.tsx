@@ -31,6 +31,7 @@ import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { pressable } from "@/lib/accessibility"
 
 
 export default function CareerPage() {
@@ -432,7 +433,7 @@ export default function CareerPage() {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 10 }}
                                             transition={{ delay: idx * 0.03 }}
-                                            onClick={() => !isActive && setSelectedSlot(slot.saveId || null)}
+                                            {...pressable(() => setSelectedSlot(slot.saveId || null), { disabled: isActive, pressed: selectedSlot === slot.saveId })}
                                             className={`
                                                 group relative w-full p-5 rounded-3xl cursor-pointer transition-all duration-300 border mb-3 backdrop-blur-sm
                                                 ${isActive
