@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Download, Copy, Trash2, RotateCcw, Check } from "lucide-react"
+import { ArrowLeft, Download, Copy, RotateCcw, Check } from "lucide-react"
 import { MAP_LAYOUTS_ORDERED } from "@/data/map-layouts"
 import type { MapLayoutJson } from "@/data/map-layouts/types"
 import { MapBuilderCanvas } from "@/components/dev/MapBuilderCanvas"

@@ -2,11 +2,11 @@
 
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
 import { fireConfetti } from "@/lib/confetti-lazy"
+import { pressable } from "@/lib/accessibility"
 
 interface BracketTeam {
     id: string
@@ -323,10 +323,6 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         return playerTeamId && (match.team1?.id === playerTeamId || match.team2?.id === playerTeamId)
     }
 
-    // Calculate total width hint
-    const totalRounds = sortedRounds.length
-    const hasMultipleRounds = totalRounds > 2
-
     return (
         <div className="relative">
             {/* Gradient edge fades */}
@@ -537,7 +533,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                 isGrandFinalMatch && match.status !== "completed" && "ring-1 ring-amber-500/30",
                                                 onMatchClick && !isDragging && "cursor-pointer active:scale-[0.98]"
                                             )}
-                                            onClick={() => handleMatchClick(match.id)}
+                                            {...(onMatchClick ? pressable(() => handleMatchClick(match.id)) : {})}
                                         >
                                             <div className="flex flex-col">
                                                 {/* Team 1 */}

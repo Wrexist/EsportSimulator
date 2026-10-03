@@ -25,8 +25,6 @@ interface TacticalLoadoutEditorProps {
     onClose: () => void
 }
 
-const ROLE_OPTIONS = ["AWPER", "RIFLER", "SUPPORT", "ENTRY", "IGL"]
-
 export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     side,
     strategyId,
@@ -272,7 +270,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
             <div className="flex flex-1 min-h-0">
                 {/* Player List (Left Sidebar) */}
-                <div className="w-80 border-r border-white/5 p-5 space-y-2.5 overflow-y-auto bg-black/20 custom-scrollbar">
+                <div className="w-64 xl:w-80 shrink-0 border-r border-white/5 p-5 space-y-2.5 overflow-y-auto bg-black/20 custom-scrollbar">
                     {loadouts.map((loadout, idx) => {
                         const cost = getLoadoutCost(loadout)
                         const isSelected = selectedPlayer === idx
@@ -370,7 +368,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                 {/* Weapon Grid (Right Content) */}
                 <ScrollArea className="flex-1 p-6 custom-scrollbar">
                     {selectedPlayer !== null && currentLoadout ? (
-                        <div className="grid grid-cols-5 gap-6">
+                        <div className="grid grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-6">
                             {/* 1. Equipment */}
                             <div className="space-y-4">
                                 <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">1 Equipment</h3>

@@ -42,6 +42,7 @@ import { toast } from "@/lib/toast"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
 import type { PlayerSaveData } from "@/engine/save-types"
+import { useFocusTrap } from "@/lib/accessibility"
 
 // ===== TYPES & CONSTANTS =====
 
@@ -119,6 +120,7 @@ export function AcademyApp() {
 
     // Release Confirmation State
     const [confirmingReleaseId, setConfirmingReleaseId] = useState<string | null>(null)
+    const releaseDialogRef = useFocusTrap(!!confirmingReleaseId, () => setConfirmingReleaseId(null))
     const RELEASE_FEE = 1000
 
     const prospectsWithData = useMemo(() =>
@@ -451,7 +453,11 @@ export function AcademyApp() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                            ref={releaseDialogRef} tabIndex={-1}
+                            role="alertdialog"
+                            aria-modal="true"
+                            aria-labelledby="modal-title-release-prospect"
+                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full max-h-[calc(100dvh-6rem)] overflow-y-auto shadow-2xl relative"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0" />
 
@@ -459,7 +465,7 @@ export function AcademyApp() {
                                 <X size={28} className="text-red-400" />
                             </div>
 
-                            <h3 className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
+                            <h3 id="modal-title-release-prospect" className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
                             <p className="text-xs text-white/50 text-center mb-6 leading-relaxed">
                                 Are you sure you want to release this talent?
                                 A termination fee of <span className="text-red-400 font-bold">${RELEASE_FEE.toLocaleString()}</span> will be deducted from your budget.
@@ -792,7 +798,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Class of nobody</p>
-                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they'll show up here, immortalised as the first of your academy line.</p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they&apos;ll show up here, immortalised as the first of your academy line.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -905,7 +911,6 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Training Drills — Drag to schedule</div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {ACADEMY_DRILLS.map(drill => {
-                        const Icon = (drill as any).icon || Activity
                         const isDragging = draggedDrill === drill.id
                         const isLocked = academyLevel < drill.minLevel
 
@@ -944,7 +949,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
 
 // ===== MATCHES TAB =====
 
-function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, onGoToRoster, academyRoster, academyPlayers, players }: any) {
+function MatchesTab({ academyLevel, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, academyRoster, academyPlayers, players }: any) {
     const minLevel = 2, matchCost = 2500
     const starterIds = Object.values(academyRoster).filter(Boolean) as string[]
     const activeStarters = academyPlayers.filter((p: any) => starterIds.includes(p.id))
@@ -957,7 +962,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
             {/* ... overlay remains same ... */}
             <AnimatePresence>
                 {showMatchFlow && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center" role="status" aria-live="polite">
                         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center">
                             {!matchResult ? (
                                 <><Gamepad2 size={56} className="mx-auto mb-3 text-cyan-400 animate-pulse" /><div className="text-xl font-bold">Match in Progress...</div></>
@@ -1045,13 +1050,13 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
 
 // ===== REPORTS TAB =====
 
-function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
+function ReportsTab({ reports }: { reports: any[], players: any[] }) {
     if (!reports || reports.length === 0) {
         return (
             <div className="p-16 text-center bg-white/5 rounded-3xl border border-dashed border-white/10 mt-4">
                 <BarChart3 className="mx-auto mb-4 text-white/10" size={48} />
                 <h3 className="text-xl font-bold text-white/60 mb-1">No Academic Reports</h3>
-                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects' progress.</p>
+                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects&apos; progress.</p>
             </div>
         )
     }

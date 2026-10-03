@@ -73,6 +73,7 @@ const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalL
 import { motion, AnimatePresence } from "framer-motion"
 import { DrillManager, ActiveDrill } from "@/engine/drill-manager"
 import { useMemo, useRef, useEffect, useCallback } from "react"
+import { pressable } from "@/lib/accessibility"
 
 // Helper for Focus Icons
 const getFocusIcon = (focus: string | undefined): LucideIcon => {
@@ -309,7 +310,7 @@ export default function TrainingPage() {
               {DrillManager.getDrills().map((drill) => (
                 <div
                   key={drill.id}
-                  onClick={() => setSelectedDrill(drill.id)}
+                  {...pressable(() => setSelectedDrill(drill.id), { pressed: selectedDrill === drill.id })}
                   className={cn(
                     "glass-panel p-6 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group",
                     selectedDrill === drill.id
@@ -575,7 +576,7 @@ export default function TrainingPage() {
           <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
             <Shield size={16} className="text-primary" /> Loadout Manager
           </h3>
-          <p className="text-xs text-white/40 mt-1">Customize your team's buy strategy and weapon loadouts for each economy situation</p>
+          <p className="text-xs text-white/40 mt-1">Customize your team&apos;s buy strategy and weapon loadouts for each economy situation</p>
         </div>
         <div className="glass-panel p-6">
           <p className="text-xs text-white/60 mb-4 flex items-center gap-2">

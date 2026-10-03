@@ -75,7 +75,7 @@ export function GlassTableCell({ className, isHeader, ...props }: React.Componen
 
 export function GlassStatCell({
     value,
-    max = 100,
+    max: _max = 100,
     className
 }: {
     value: number,

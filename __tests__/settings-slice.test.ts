@@ -80,7 +80,7 @@ describe("settings — tutorial / onboarding flags", () => {
         expect(h.state().onboardingCompleted).toBe(false)
         expect(h.state().showTutorialOnNewGame).toBe(false)
         expect(h.state().manualTutorialTrigger).toBe(0)
-        expect(h.state().firstSession).toEqual({ version: 1, status: "active", reviewed: [] })
+        expect(h.state().firstSession).toEqual({ version: 2, status: "active", reviewed: [] })
     })
 
     test("setShowTutorialOnNewGame respects the boolean passed in", () => {

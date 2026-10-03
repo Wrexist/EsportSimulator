@@ -613,6 +613,7 @@ interface GameStoreActions extends PhysicalPreviewActions {
   // Phase 22: Professional Polish
   completeOnboarding: () => void
   reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
+  syncFirstSession: () => void
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
@@ -1600,7 +1601,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null, lastLoadError: null })
         try {
-          const { save, error, errorCode, restoredFromBackup } = await saveManager.loadGame(saveId, cloudChoice)
+          const { save, error, errorCode, restoredFromBackup, recoveryMessage } = await saveManager.loadGame(saveId, cloudChoice)
 
           if (error || !save) {
             const message = error || "Save not found"
@@ -1622,7 +1623,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (restoredFromBackup) {
             setTimeout(() => {
               get().addToast({
-                message: "Your save was corrupted and has been restored from a backup.",
+                message: recoveryMessage || "Your latest save could not be used, so a backup was loaded. Recent progress may be missing.",
                 type: "warning",
                 duration: 10000
               })
@@ -1783,6 +1784,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
             boardState: hydratedSave.boardState,
             socialFeed: hydratedSave.socialFeed,
+            // Optional slices must be assigned explicitly: the spread above
+            // omits absent keys, which would keep the previous career's data.
+            fplData: hydratedSave.fplData,
+            careerStats: hydratedSave.careerStats,
             activeScoutingMission: hydratedSave.activeScoutingMission,
             gameOverReason: hydratedSave.gameOverReason,
             gameOverWeek: hydratedSave.gameOverWeek,

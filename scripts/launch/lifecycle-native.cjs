@@ -31,6 +31,6 @@ app.whenReady().then(async()=>{
  win=new BrowserWindow({show:false,webPreferences:{preload,sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
  win.webContents.on('console-message',(_event,_level,message)=>fs.appendFileSync(path.join(directory,'renderer.log'),message+'\n'));
  harness=loadHandlers({directory,ipcMain,nativeWindow:win,contents:win.webContents,diskStore:actual,port:33590});harness.attachCloseHandler();
- win.on('closed',()=>{if(finished)return;try{const stored=JSON.parse(actual.store.esports_l05_lifecycle);if(stored.phase!=='slow'||stored.attempts!==5||!checks.some(c=>c.stage==='slow-save-still-open'))throw Error('Final durable write missing');checks.push({stage:'closed-after-durable-save',...stored,elapsedMs:Date.now()-slowStarted});finish()}catch(error){finish(error)}});
+ win.on('closed',()=>{if(finished)return;try{const stored=JSON.parse(fs.readFileSync(path.join(directory,'game-storage','esports_l05_lifecycle.json'),'utf8'));if(stored.phase!=='slow'||stored.attempts!==5||!checks.some(c=>c.stage==='slow-save-still-open'))throw Error('Final durable write missing');checks.push({stage:'closed-after-durable-save',...stored,elapsedMs:Date.now()-slowStarted});finish()}catch(error){finish(error)}});
  await win.loadURL('http://localhost:33590/'+(reading?'?read=1':''));
 }).catch(finish);

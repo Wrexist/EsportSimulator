@@ -287,7 +287,6 @@ export default function LiveMatchPage() {
         handleFinish,
         customTactics,
         updateCustomTactic,
-        playerTeam,
         originalHomePlayers,
         originalAwayPlayers,
         currentRoundEvents,
@@ -297,6 +296,10 @@ export default function LiveMatchPage() {
         timeoutsRemaining,
         timeoutActive,
         callTimeout,
+        roundHomeIsCT,
+        isPlayerHome,
+        ownEconomy,
+        ownIsCT,
     } = useLiveMatch(params.id)
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -338,14 +341,14 @@ export default function LiveMatchPage() {
             currentRoundEvents.current,
             homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
             awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            simState.homeStartsCT,
+            roundHomeIsCT,
             gameState.round,
             matchData.current.match.seed ?? 0
         )
         // Intentionally depend on rosterFingerprint instead of the array
         // refs so an unchanged roster (most ticks) skips the recompute.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
+    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
 
     // Positions one game-second ahead. The playback clock ticks once per
     // game-second, so the radar glides from `radarData` toward this snapshot
@@ -358,12 +361,12 @@ export default function LiveMatchPage() {
             currentRoundEvents.current,
             homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
             awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            simState.homeStartsCT,
+            roundHomeIsCT,
             gameState.round,
             matchData.current.match.seed ?? 0
         )
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
+    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
@@ -397,7 +400,11 @@ export default function LiveMatchPage() {
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
 
     // Dynamic Colors based on Side
-    const homeIsCT = simState.homeStartsCT
+    const homeIsCT = roundHomeIsCT
+    // Strategy panel and loadout editor always describe the managed team.
+    const ownRoster = isPlayerHome ? homeRoster : awayRoster
+    const ownOriginal = isPlayerHome ? originalHomeMap : originalAwayMap
+    const ownBudget = Math.floor(Object.values(ownEconomy).reduce((s, p) => s + (p?.cash || 0), 0))
     const homeBorderClass = homeIsCT ? "border-l-blue-500/30" : "border-l-orange-500/30"
     const awayBorderClass = !homeIsCT ? "border-r-blue-500/30" : "border-r-orange-500/30"
 
@@ -429,8 +436,8 @@ export default function LiveMatchPage() {
                     matchFormat={matchData.current.match.format}
                     currentMapId={currentMapId}
                     mapName={mapName}
-                    homeSeriesScore={simState.homeSeriesScore}
-                    awaySeriesScore={simState.awaySeriesScore}
+                    homeSeriesScore={gameState.homeSeriesScore}
+                    awaySeriesScore={gameState.awaySeriesScore}
                     homeScore={gameState.homeScore}
                     awayScore={gameState.awayScore}
                     roundTime={roundTime}
@@ -522,14 +529,14 @@ export default function LiveMatchPage() {
                                 <div>
                                     <h3 className="text-xl font-normal uppercase">Round {gameState.round} • Select Strategy</h3>
                                     <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                                        Team Budget: ${Math.floor(Object.values(simState.homeEconomy).reduce((s, p) => s + p.cash, 0)).toLocaleString()}
+                                        Team Budget: ${ownBudget.toLocaleString()}
                                     </p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-5 gap-2">
                                 {(() => {
-                                    const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + p.cash, 0) / 5)
-                                    const side = simState.homeStartsCT ? "ct" : "t"
+                                    const avgCash = Math.floor(ownBudget / 5)
+                                    const side = ownIsCT ? "ct" : "t"
 
                                     return STRATEGY_OPTIONS.map((strat) => {
                                         const cost = strat.cost
@@ -619,11 +626,11 @@ export default function LiveMatchPage() {
                             side={editingSide}
                             strategyId={editingStrategy}
                             config={customTactics[editingStrategy][editingSide]}
-                            teamBudget={Math.floor(Object.values(simState?.homeEconomy || {}).reduce((s: any, p: any) => s + p.cash, 0))}
-                            playerCash={homeRoster.map(p => simState?.homeEconomy?.[p.id]?.cash ?? p.money ?? 0)}
-                            playerIds={homeRoster.map(p => p.id)}
-                            playerNames={homeRoster.map(p => p.name)}
-                            playerImages={homeRoster.map(p => originalHomeMap.get(p.id)?.portraitPath || "")}
+                            teamBudget={ownBudget}
+                            playerCash={ownRoster.map(p => ownEconomy[p.id]?.cash ?? p.money ?? 0)}
+                            playerIds={ownRoster.map(p => p.id)}
+                            playerNames={ownRoster.map(p => p.name)}
+                            playerImages={ownRoster.map(p => ownOriginal.get(p.id)?.portraitPath || "")}
                             onSave={(newConfig) => {
                                 updateCustomTactic(editingStrategy, editingSide, newConfig)
                                 setIsEditingLoadout(false)

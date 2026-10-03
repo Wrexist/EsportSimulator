@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { AlertTriangle, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { useEffect } from "react"
+import { useFocusTrap } from "@/lib/accessibility"
 
 export type ExitDialogVariant = "saving" | "saveFailed" | "simulationRunning"
 
@@ -49,17 +49,9 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
     const config = VARIANT_CONFIG[variant]
     const Icon = config.icon
 
-    useEffect(() => {
-        if (!open || !config.showButtons) return
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                e.preventDefault()
-                onCancel()
-            }
-        }
-        window.addEventListener("keydown", handleKeyDown)
-        return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [open, config.showButtons, onCancel])
+    // Escape cancels — except while a save is in flight ("saving" has no
+    // buttons), where the dialog must stay up until the write completes.
+    const dialogRef = useFocusTrap(open, config.showButtons ? onCancel : undefined)
 
     return (
         <AnimatePresence>
@@ -75,10 +67,11 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        ref={dialogRef} tabIndex={-1}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="modal-title-exit-confirm"
-                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden"
+                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto text-center shadow-2xl relative"
                     >
                         {/* Ambient glow */}
                         <div className={`absolute top-0 inset-x-0 h-32 ${config.glowColor} blur-3xl pointer-events-none`} />

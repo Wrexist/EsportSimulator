@@ -16,6 +16,7 @@ import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, 
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
+import { useFocusTrap } from "@/lib/accessibility"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { useState, useMemo, useCallback, memo } from "react"
@@ -186,6 +187,7 @@ function SquadPageInner() {
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
+  const promoteDialogRef = useFocusTrap(!!promotingProspectId, () => setPromotingProspectId(null))
 
   // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
   // scan the roster loop below was doing — O(roster × players) per render.
@@ -495,7 +497,11 @@ function SquadPageInner() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="glass-panel max-w-md w-full p-8 border-white/10 bg-white/5 relative overflow-hidden rounded-xl"
+              ref={promoteDialogRef} tabIndex={-1}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title-promote-prospect"
+              className="glass-panel max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto p-6 border-white/10 bg-white/5 relative rounded-xl"
             >
               <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Users size={120} />
@@ -507,7 +513,7 @@ function SquadPageInner() {
                     <CheckCircle2 size={32} className="text-emerald-400" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-normal uppercase tracking-tight text-white">Promote to Main Roster</h2>
+                    <h2 id="modal-title-promote-prospect" className="text-xl font-normal uppercase tracking-tight text-white">Promote to Main Roster</h2>
                     <p className="text-xs text-white/40 font-medium uppercase tracking-widest mt-1">Graduate Confirmation</p>
                   </div>
                 </div>

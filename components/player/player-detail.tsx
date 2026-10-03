@@ -24,7 +24,6 @@ import {
     MousePointer2,
     Keyboard,
     Monitor,
-    Award,
     Target,
     Heart,
     DollarSign,
@@ -59,6 +58,7 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import { RecruitmentProfile } from "./RecruitmentProfile"
+import { pressable } from "@/lib/accessibility"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -88,7 +88,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
     const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [weaponModalOpen, setWeaponModalOpen] = useState(false)
-    const [selectedWeaponForModal, setSelectedWeaponForModal] = useState<WeaponType>("RIFLE")
+    const [, setSelectedWeaponForModal] = useState<WeaponType>("RIFLE")
     const [activeTab, setActiveTab] = useState("technical")
     const [negotiationOpen, setNegotiationOpen] = useState(false)
 
@@ -674,16 +674,15 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                             const xp = typeof data === 'number' ? data : data?.xp || 0
                                             const masteryInfo = getMasteryInfo(xp)
                                             const isMaster = masteryInfo.isMaster
-                                            const levelNum = ["NOVICE", "COMPETENT", "SKILLED", "EXPERT", "MASTER"].indexOf(masteryInfo.level) + 1
 
                                             return (
                                                 <div
                                                     key={weapon}
                                                     className="bg-black/20 p-4 rounded-xl border border-white/5 relative overflow-hidden group cursor-pointer hover:bg-white/5 transition-colors"
-                                                    onClick={() => {
+                                                    {...pressable(() => {
                                                         setSelectedWeaponForModal(weapon as WeaponType)
                                                         setWeaponModalOpen(true)
-                                                    }}
+                                                    })}
                                                 >
                                                     {/* Signature Glow */}
                                                     {isMaster && (
@@ -730,7 +729,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <h3 className="text-xl font-normal text-white flex items-center gap-2">
                                             <Brain className="text-purple-400" /> Player Talents
                                         </h3>
-                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold mt-1">Customize {player.nickname}'s playstyle</p>
+                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold mt-1">Customize {player.nickname}&apos;s playstyle</p>
                                     </div>
                                     <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                                         <Star className="text-amber-400 fill-amber-400" size={16} />

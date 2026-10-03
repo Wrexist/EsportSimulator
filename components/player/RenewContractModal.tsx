@@ -88,7 +88,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
 
                     <div className="bg-white/5 p-4 rounded-lg text-sm text-muted-foreground border border-white/5">
                         <p>
-                            Renewing for <strong>1 Year</strong> will secure <strong>{player.nickname}</strong>'s services until Week {currentEndWeek + 52}.
+                            Renewing for <strong>1 Year</strong> will secure <strong>{player.nickname}</strong>&apos;s services until Week {currentEndWeek + 52}.
                             The salary will increase by <span className="text-emerald-400 font-bold">10%</span>.
                         </p>
                     </div>

@@ -33,6 +33,7 @@ import {
     GlassTableCell,
 } from "@/components/ui/GlassTable"
 import { motion, AnimatePresence } from "framer-motion"
+import { useFocusTrap } from "@/lib/accessibility"
 import { cn } from "@/lib/utils"
 import { calculateTeamTier, getTierStyle, getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -333,9 +334,9 @@ function RankingsPageInner() {
     const viewCareerId = useGameStore(state => state.saveId)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "rankings:search", "")
     const debouncedSearch = useDebounce(searchTerm, 300)
-    const [selectedTier, setSelectedTier] = useRouteViewState<TierLevel | "ALL">(viewCareerId, "rankings:tier", "ALL")
     const [activeTab, setActiveTab] = useRouteViewState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">(viewCareerId, "rankings:tab", "WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
+    const teamDialogRef = useFocusTrap(!!selectedTeam, () => setSelectedTeam(null))
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
@@ -862,7 +863,11 @@ function RankingsPageInner() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="glass-panel w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border-white/10"
+                            ref={teamDialogRef} tabIndex={-1}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="modal-title-team-detail"
+                            className="glass-panel w-full max-w-2xl max-h-[min(85vh,calc(100dvh-2rem))] flex flex-col shadow-2xl border-white/10"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
@@ -876,7 +881,7 @@ function RankingsPageInner() {
                                         />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-normal text-white">{selectedTeam.name}</h2>
+                                        <h2 id="modal-title-team-detail" className="text-2xl font-normal text-white">{selectedTeam.name}</h2>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Badge className={cn("text-[10px]", getTierStyle(selectedTeam.tier).bgColor, getTierStyle(selectedTeam.tier).borderColor, getTierStyle(selectedTeam.tier).color)}>
                                                 {getTierStyle(selectedTeam.tier).label}
@@ -887,7 +892,7 @@ function RankingsPageInner() {
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all">
+                                <button onClick={() => setSelectedTeam(null)} aria-label="Close team details" className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all">
                                     <X size={20} className="text-white/50 hover:text-white" />
                                 </button>
                             </div>

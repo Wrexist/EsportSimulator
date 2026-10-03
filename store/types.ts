@@ -304,6 +304,8 @@ export interface UIActions {
 
 export interface SettingsActions {
   reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
+  /** Record guide steps proven by career state (roster change, played result, week advance). */
+  syncFirstSession: () => void
   completeOnboarding: () => void
   completeTutorial: () => void
   triggerTutorial: () => void

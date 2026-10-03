@@ -22,7 +22,7 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import Image from "next/image"
-import Link from "next/link"
+import { pressable } from "@/lib/accessibility"
 
 // Phase 2: Use real metadata
 // interface EnhancedSaveSlot removed
@@ -83,19 +83,6 @@ export default function MainMenuPage() {
             setIsDeleting(false)
             setDeleteTarget(null)
         }
-    }
-
-    const timeAgo = (dateStr: string | null) => {
-        if (!dateStr) return "Never"
-        const date = new Date(dateStr)
-        const now = new Date()
-        const diffMs = now.getTime() - date.getTime()
-        const diffMins = Math.floor(diffMs / 60000)
-        if (diffMins < 60) return `${diffMins}m ago`
-        const diffHours = Math.floor(diffMins / 60)
-        if (diffHours < 24) return `${diffHours}h ago`
-        const diffDays = Math.floor(diffHours / 24)
-        return `${diffDays}d ago`
     }
 
     const getWinRate = (wins: number, losses: number) => {
@@ -322,7 +309,7 @@ export default function MainMenuPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 10 }}
                                                 transition={{ delay: idx * 0.03 }}
-                                                onClick={() => setSelectedSlot(slot.saveId || null)}
+                                                {...pressable(() => setSelectedSlot(slot.saveId || null), { pressed: selectedSlot === slot.saveId })}
                                                 className={`
                                                     group relative w-full p-5 rounded-md cursor-pointer transition-[background,border-color,box-shadow] duration-300 border mb-3 backdrop-blur-sm
                                                     ${selectedSlot === slot.saveId
@@ -372,7 +359,7 @@ export default function MainMenuPage() {
 
                                                                                 const currentDate = new Date(baseDate.getTime() + ((slot.currentWeek || 1) - 1) * 7 * 24 * 60 * 60 * 1000)
                                                                                 return currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                                                                            } catch (e) {
+                                                                            } catch {
                                                                                 return `Week ${slot.currentWeek || 1}`
                                                                             }
                                                                         })()}

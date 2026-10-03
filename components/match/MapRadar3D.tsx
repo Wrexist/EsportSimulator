@@ -20,12 +20,13 @@
  * orbit on them (click the map to recentre on the bomb-site midpoint).
  */
 
-import { Suspense, useEffect, useLayoutEffect, useState, useRef, Component, type ReactNode } from "react"
+import { Suspense, useEffect, useLayoutEffect, useRef, Component, type ReactNode } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, useTexture, Line, ContactShadows, Grid, Html } from "@react-three/drei"
 import * as THREE from "three"
 import type { Line2, OrbitControls as OrbitControlsImpl } from "three-stdlib"
 import type { RadarPlayerDot, RadarBombState } from "@/lib/radar-position-engine"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 
 const CT_COLOR = "#5b9bd5"
 const T_COLOR = "#e8a838"
@@ -77,18 +78,6 @@ interface MapRadar3DProps {
     bombState?: RadarBombState
     currentTime?: number
     onError?: () => void
-}
-
-function usePrefersReducedMotion(): boolean {
-    const [reduced, setReduced] = useState(false)
-    useEffect(() => {
-        const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-        const update = () => setReduced(mq.matches)
-        update()
-        mq.addEventListener?.("change", update)
-        return () => mq.removeEventListener?.("change", update)
-    }, [])
-    return reduced
 }
 
 /** Keeps player focus responsive without moving the camera on entry. */
@@ -462,7 +451,8 @@ class WebGLErrorBoundary extends Component<{ onError?: () => void; children: Rea
 }
 
 export default function MapRadar3D(props: MapRadar3DProps) {
-    const reduced = usePrefersReducedMotion()
+    // In-game toggle OR OS preference (the old local hook read only the OS).
+    const reduced = useAppReducedMotion()
     return (
         <WebGLErrorBoundary onError={props.onError}>
             <Canvas

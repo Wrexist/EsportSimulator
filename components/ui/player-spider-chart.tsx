@@ -26,14 +26,6 @@ interface PlayerSpiderChartProps {
     glowColor?: string
 }
 
-// Beautiful gradient colors for the chart - BLUE THEME
-const CHART_COLORS = {
-    primary: "#3b82f6", // Blue
-    secondary: "#60a5fa", // Light Blue
-    accent: "#2563eb", // Darker Blue
-    glow: "rgba(59, 130, 246, 0.5)",
-}
-
 // Custom tooltip component
 const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {

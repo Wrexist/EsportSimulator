@@ -55,7 +55,7 @@ export function AnimationShowcase() {
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     Animation Lab
                 </h2>
-                <p className="text-white/50 text-sm">Testing ground for "Juicy" UI interactions</p>
+                <p className="text-white/50 text-sm">Testing ground for &quot;Juicy&quot; UI interactions</p>
             </div>
 
             <div className="grid grid-cols-2 gap-8">
@@ -134,7 +134,7 @@ export function AnimationShowcase() {
                                 <Zap size={14} className="mr-2" /> Increment
                             </Button>
                         </div>
-                        <p className="text-xs text-white/40">Click increment to see the "Juicy Bounce"</p>
+                        <p className="text-xs text-white/40">Click increment to see the &quot;Juicy Bounce&quot;</p>
                     </div>
                 </div>
 

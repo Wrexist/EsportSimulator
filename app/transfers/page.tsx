@@ -22,7 +22,6 @@ import {
   GlassTableHead,
   GlassTableRow,
   GlassTableCell,
-  GlassStatCell
 } from "@/components/ui/GlassTable"
 import { motion } from "framer-motion"
 import { LoadingState } from "@/components/ui/loading"
@@ -44,14 +43,13 @@ export default function TransfersPage() {
 }
 
 function TransfersPageInner() {
-  const { players, teams, getPlayerTeam, transferPlayer, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
+  const { players, teams, getPlayerTeam, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
     players: state.players,
     scoutedPlayers: state.scoutedPlayers,
     academyPlayers: state.academyPlayers,
     academyPendingProspects: state.academyPendingProspects,
     teams: state.teams,
     getPlayerTeam: state.getPlayerTeam,
-    transferPlayer: state.transferPlayer,
     currentWeek: state.currentWeek,
   })))
   const playerTeam = getPlayerTeam()
@@ -225,11 +223,11 @@ function TransfersPageInner() {
               <GlassTableHead>Role</GlassTableHead>
               <GlassTableHead className="text-center">Age</GlassTableHead>
               <GlassTableHead className="text-center">Skill</GlassTableHead>
-              <GlassTableHead className="text-center">Tactic</GlassTableHead>
-              <GlassTableHead className="text-center">Teamwork</GlassTableHead>
+              <GlassTableHead className="text-center hidden xl:table-cell">Tactic</GlassTableHead>
+              <GlassTableHead className="text-center hidden xl:table-cell">Teamwork</GlassTableHead>
               <GlassTableHead className="text-center font-bold text-white">OVR</GlassTableHead>
               <GlassTableHead className="text-right">Contract Terms</GlassTableHead>
-              <GlassTableHead className="text-right"></GlassTableHead>
+              <GlassTableHead className="text-right"><span className="sr-only">Actions</span></GlassTableHead>
             </GlassTableRow>
           </GlassTableHeader>
           <TableBody>
@@ -268,8 +266,8 @@ function TransfersPageInner() {
                     </GlassTableCell>
                     <GlassTableCell className="text-center font-sans text-xs opacity-60 text-white">{player.age}</GlassTableCell>
                     <GlassTableCell className="text-center">{visible.exactStats?.skill ?? "—"}</GlassTableCell>
-                    <GlassTableCell className="text-center">{visible.exactStats?.tactic ?? "—"}</GlassTableCell>
-                    <GlassTableCell className="text-center">{visible.exactStats?.teamwork ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center hidden xl:table-cell">{visible.exactStats?.tactic ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center hidden xl:table-cell">{visible.exactStats?.teamwork ?? "—"}</GlassTableCell>
                     <GlassTableCell className="text-center" title={`${visible.scoutingLevel.toLowerCase()} report`}>{formatScoutedRating(visible.ovrRange)}</GlassTableCell>
                     <GlassTableCell className="text-right">
                       <TooltipProvider>

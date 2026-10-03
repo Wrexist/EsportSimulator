@@ -326,6 +326,14 @@ export const UTIL_POWER: Record<string, number> = {
     he: 4,
 }
 export const UTIL_POWER_DEFAULT = 1
+/**
+ * L21: a player's grenades saturate toward this equipment-power ceiling
+ * (cap x (1 - e^(-raw/cap))). Raw sums let a full four-grenade plan add ~23
+ * power (≈ +29 pp per round) and win 92% of even BO1s in the paired run.
+ * Saturating: flash+smoke ≈ 6.7, four grenades ≈ 9.0 (a vest is 10), so a
+ * modest plan helps and overbuying mostly costs money.
+ */
+export const UTIL_POWER_CAP = 10
 
 // ============================================
 // PRESTIGE

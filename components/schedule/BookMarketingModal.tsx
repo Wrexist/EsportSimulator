@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface BookMarketingModalProps {
     isOpen: boolean
@@ -93,6 +94,8 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
         }
     }
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
@@ -101,10 +104,11 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-book-marketing"
-                className="glass-panel w-full max-w-2xl p-6 shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 shadow-2xl border-white/10"
             >
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">

@@ -17,7 +17,6 @@ import {
     RenderingMode
 } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
-import { cn } from "@/lib/utils"
 import { useGameStore } from "@/store/game-store"
 
 interface SettingsModalProps {

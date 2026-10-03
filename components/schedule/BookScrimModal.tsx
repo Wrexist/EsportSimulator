@@ -13,6 +13,7 @@ import { getTeamFlag } from "@/engine/region-logic"
 import { Badge } from "@/components/ui/badge"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { toast } from "@/lib/toast"
+import { useFocusTrap, pressable } from "@/lib/accessibility"
 
 interface BookScrimModalProps {
     isOpen: boolean
@@ -88,6 +89,8 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         }
     }
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
@@ -96,10 +99,11 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-book-scrim"
-                className="glass-panel w-full max-w-2xl flex flex-col max-h-[80vh] shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-2xl flex flex-col max-h-[min(80vh,calc(100dvh-6rem))] shadow-2xl border-white/10"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -131,7 +135,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                 {/* Team List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
                     {opponents.length === 0 ? (
-                        <div className="text-center py-8 text-white/30 text-sm">No teams found matching "{searchTerm}"</div>
+                        <div className="text-center py-8 text-white/30 text-sm">No teams found matching &quot;{searchTerm}&quot;</div>
                     ) : (
                         opponents.map(team => {
                             const avgRating = teamAvgRatings.get(team.id) || 0
@@ -141,7 +145,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                             return (
                                 <div
                                     key={team.id}
-                                    onClick={() => setSelectedTeamId(team.id)}
+                                    {...pressable(() => setSelectedTeamId(team.id), { pressed: selectedTeamId === team.id })}
                                     className={`
                                     p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group
                                     ${isSelected

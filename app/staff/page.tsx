@@ -46,9 +46,7 @@ function getRarityColor(rarity?: string) {
 export default function StaffPage() {
     const {
         staff,
-        players,
         playerTeamId,
-        hireStaff,
         fireStaff,
         marketStaff,
         refreshStaffMarket,
@@ -56,9 +54,7 @@ export default function StaffPage() {
         _hasHydrated,
     } = useGameStore(useShallow(state => ({
         staff: state.staff,
-        players: state.players,
         playerTeamId: state.playerTeamId,
-        hireStaff: state.hireStaff,
         fireStaff: state.fireStaff,
         marketStaff: state.marketStaff,
         refreshStaffMarket: state.refreshStaffMarket,
@@ -94,11 +90,6 @@ export default function StaffPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [_hasHydrated])
 
-
-    const handleFire = (staffId: string) => {
-        fireStaff(staffId)
-        toast.info("Staff member released")
-    }
 
     // Helper for Stats
     const renderStats = (stats?: Record<string, number>) => {

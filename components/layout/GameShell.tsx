@@ -21,6 +21,7 @@ import { debouncedStorage } from "@/engine/storage-adapter"
 import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
 import { logger } from "@/lib/logger"
 import { MotionConfig } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createSessionPersistence } from "@/lib/session-persistence"
 import { waitForPendingGameSave } from "@/store/game-store"
 
@@ -41,7 +42,7 @@ const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod =
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, timeMode, advanceDay, advanceWeek, soundEnabled } = useGameStore(useShallow(state => ({
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, soundEnabled } = useGameStore(useShallow(state => ({
         theme: state.theme,
         soundEnabled: state.soundEnabled,
         pendingCelebration: state.pendingCelebration,
@@ -50,9 +51,6 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         selectLegend: state.selectLegend,
         initAchievements: state.initAchievements,
         showBugReportButton: state.showBugReportButton,
-        timeMode: state.timeMode,
-        advanceDay: state.advanceDay,
-        advanceWeek: state.advanceWeek,
     })))
 
     // Keyboard shortcuts modal state
@@ -83,6 +81,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [])
 
     const reducedMotion = useSettingsStore(state => state.reducedMotion)
+    const motionReduced = useAppReducedMotion()
     const preferencesHydrated = useGameStore(state => state._hasHydrated)
 
     useEffect(() => {
@@ -311,11 +310,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [router, hideChrome])
 
     return (
-        // App-wide MotionConfig honors prefers-reduced-motion automatically
-        // for every framer-motion descendant. Components that need to
-        // override (e.g. a celebration that should still flash briefly) can
-        // wrap themselves in a nested MotionConfig.
-        <MotionConfig reducedMotion={reducedMotion ? "always" : "user"}>
+        // App-wide MotionConfig. With reduced motion active (in-game setting
+        // OR OS preference) every framer-motion animation — including
+        // opacity/colour loops that `reducedMotion="always"` alone leaves
+        // running — jumps straight to its final value via skipAnimations.
+        <MotionConfig reducedMotion={reducedMotion ? "always" : "user"} skipAnimations={motionReduced}>
         <div data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
             {/* Static light field behind the floating chrome. */}
             <div className="liquid-aurora" />

@@ -252,8 +252,6 @@ export function applyRoundEconomy(input: {
   }
 
   const homeWonRound = input.roundResult.winner === "HOME"
-  const nextHomeLossStreak = homeWonRound ? 0 : input.homeLossStreakBefore + 1
-  const nextAwayLossStreak = homeWonRound ? input.awayLossStreakBefore + 1 : 0
   // Use pre-increment streak for getLossBonus (0-indexed: first loss = 0 → $1900)
   const homeBonus = homeWonRound
     ? EconomyManager.getWinBonus(input.roundResult.winType)

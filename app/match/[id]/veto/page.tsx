@@ -15,6 +15,7 @@ import { simulationEngineV2, SeededRNG } from "@/engine"
 import Image from "next/image"
 import { SideEmblem } from "@/components/match/SideEmblem"
 import { motion, AnimatePresence } from "framer-motion"
+import { useFocusTrap } from "@/lib/accessibility"
 import { cn, deterministicSeed } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -61,13 +62,12 @@ function computeTeamMapStats(
 }
 
 
-export default function VetoPage({ params: initialParams }: { params: Promise<{ id: string }> }) {
+export default function VetoPage({ params: _initialParams }: { params: Promise<{ id: string }> }) {
     const params = useParams()
     const id = params.id as string
     const router = useRouter()
-    const { scheduledMatches, getUpcomingMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
-        getUpcomingMatches: state.getUpcomingMatches,
         teams: state.teams,
         players: state.players,
         updateScheduledMatch: state.updateScheduledMatch,
@@ -86,6 +86,8 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
     const [vetoSequence, setVetoSequence] = useState<VetoTurn[]>([]) // Dynamic sequence
     const [mapStartingSides, setMapStartingSides] = useState<Record<string, string>>({}) // MapId -> TeamId of CT team
     const [showSideSelection, setShowSideSelection] = useState<MapId | null>(null)
+    // Side choice is required to continue: focus is trapped, Escape does not dismiss.
+    const sideDialogRef = useFocusTrap(!!showSideSelection)
 
 
     // Compute map win rates for both teams from completed matches.
@@ -393,7 +395,7 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
             </button>
 
             {/* Header / Team Comparison */}
-            <div className="max-w-7xl mx-auto mb-12 relative z-10">
+            <div className="max-w-7xl mx-auto mb-6 [@media(min-height:800px)]:mb-12 relative z-10">
                 <div className="flex justify-between items-center gap-8">
                     {/* Home Team */}
                     <motion.div
@@ -533,14 +535,14 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.025, duration: 0.18, ease: "easeOut" }}
                                 className={cn(
-                                    "relative h-64 rounded-[22px] overflow-hidden border transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
+                                    "relative h-48 [@media(min-height:800px)]:h-64 rounded-[22px] overflow-hidden border transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
                                     canInteract ? "border-white/10 hover:border-primary/50 cursor-pointer hover:-translate-y-1 hover:shadow-primary/20" : "border-white/10",
                                     isPicked && "border-emerald-500 shadow-emerald-500/20 ring-4 ring-emerald-500/20",
                                     isBanned && "border-rose-400/40 grayscale shadow-none"
                                 )}
                                 role="button"
                                 tabIndex={canInteract ? 0 : -1}
-                                aria-label={`${mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
+                                aria-label={`${MAP_NAMES[mapId] ?? mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
                                 aria-disabled={!canInteract}
                                 onKeyDown={event => {
                                     if (event.target !== event.currentTarget || !canInteract) return
@@ -566,9 +568,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                             <h4 className="text-sm font-normal text-white uppercase tracking-wider">{MAP_NAMES[mapId]}</h4>
                                             {(hStats.wins + hStats.losses + aStats.wins + aStats.losses > 0) && (
                                                 <div className="flex gap-2 mt-0.5">
-                                                    <span className="text-[9px] text-blue-400 font-bold">{hStats.wins}W-{hStats.losses}L</span>
+                                                    <span className="text-[9px] text-blue-400 font-bold" title={`${homeTeam!.name} record on this map`}><span className="sr-only">{homeTeam!.name} </span>{hStats.wins}W-{hStats.losses}L</span>
                                                     <span className="text-[9px] text-white/20">|</span>
-                                                    <span className="text-[9px] text-purple-400 font-bold">{aStats.wins}W-{aStats.losses}L</span>
+                                                    <span className="text-[9px] text-purple-400 font-bold" title={`${awayTeam!.name} record on this map`}><span className="sr-only">{awayTeam!.name} </span>{aStats.wins}W-{aStats.losses}L</span>
                                                 </div>
                                             )}
                                         </div>
@@ -664,14 +666,14 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-6"
                     >
-                        <div className="max-w-2xl w-full text-center">
+                        <div ref={sideDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-side-selection" className="max-w-2xl w-full max-h-full overflow-y-auto text-center">
                             <motion.div
                                 initial={{ y: 50, scale: 0.9 }}
                                 animate={{ y: 0, scale: 1 }}
-                                className="mb-12"
+                                className="mb-6"
                             >
                                 <span className="text-primary font-normal uppercase tracking-[0.5em] text-xs mb-4 block">Side Selection</span>
-                                <h2 className="text-5xl font-normal uppercase mb-4 tracking-tighter">Choose Your Side</h2>
+                                <h2 id="modal-title-side-selection" className="text-5xl font-normal uppercase mb-4 tracking-tighter">Choose Your Side</h2>
                                 <p className="text-white/40 font-bold uppercase tracking-widest text-sm">
                                     Map: {MAP_NAMES[showSideSelection || ""]}
                                 </p>
@@ -683,9 +685,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "CT")}
-                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                                    className="relative aspect-[4/3] rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                                 >
-                                    <div className="w-48 h-48 relative">
+                                    <div className="w-32 h-32 relative">
                                         <SideEmblem side="CT" className="w-full h-full" />
                                     </div>
                                     <div className="text-center">
@@ -699,9 +701,9 @@ export default function VetoPage({ params: initialParams }: { params: Promise<{ 
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "T")}
-                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
+                                    className="relative aspect-[4/3] rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
                                 >
-                                    <div className="w-48 h-48 relative">
+                                    <div className="w-32 h-32 relative">
                                         <SideEmblem side="T" className="w-full h-full" />
                                     </div>
                                     <div className="text-center">

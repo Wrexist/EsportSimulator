@@ -53,6 +53,7 @@ import {
 import { getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { pressable } from "@/lib/accessibility"
 
 // Tab types
 type ViewTab = "ALL" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIERS" | "MY_TOURNAMENTS"
@@ -93,7 +94,7 @@ export default function TournamentsPage() {
 
     const viewCareerId = useGameStore(state => state.saveId)
     const [activeTab, setActiveTab] = useRouteViewState<ViewTab>(viewCareerId, "tournaments:tab", "ALL")
-    const [selectedTournament, setSelectedTournament] = useState<TournamentDefinition | null>(null)
+    const [selectedTournament] = useState<TournamentDefinition | null>(null)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "tournaments:search", "")
     const [view, setView] = useRouteViewState<"cards" | "bracket" | "standings">(viewCareerId, "tournaments:view", "cards")
 
@@ -152,9 +153,6 @@ export default function TournamentsPage() {
     const filteredTournaments = useMemo(() => {
         let filtered = getDiscoveredTournaments(currentWeek)
 
-        // Sync with mock logic for qualification/points if no store data
-        const masterList = [...FULL_TOURNAMENT_CALENDAR]
-
         // Apply tab filter
         switch (activeTab) {
             case "S_TIER":
@@ -188,16 +186,6 @@ export default function TournamentsPage() {
 
         return filtered
     }, [activeTab, searchTerm, playerTeam, qualificationStatuses, currentWeek])
-
-    // Group by week for timeline view
-    const tournamentsByWeek = useMemo(() => {
-        const grouped: Record<number, TournamentDefinition[]> = {}
-        filteredTournaments.forEach(t => {
-            if (!grouped[t.startWeek]) grouped[t.startWeek] = []
-            grouped[t.startWeek].push(t)
-        })
-        return grouped
-    }, [filteredTournaments])
 
     // Get eligibility for a tournament
     const getEligibility = (tournament: TournamentDefinition) => {
@@ -325,7 +313,7 @@ export default function TournamentsPage() {
                     isQualified && "border-emerald-500/30",
                     selectedTournament?.id === tournament.id && "ring-2 ring-primary"
                 )}
-                onClick={() => router.push(`/tournaments/${displayId}`)}
+                {...pressable(() => router.push(`/tournaments/${displayId}`), { label: `Open ${tournament.name}` })}
             >
                 {/* Premium Glow for S-Tier */}
                 {tournament.tier === "S_TIER" && (
@@ -850,10 +838,6 @@ export default function TournamentsPage() {
                                     )
                                     const sidebarDisplayId = sidebarLiveTournament ? sidebarLiveTournament.id : selectedTournament.id
 
-                                    const isOnSchedule = scheduledMatches.some(
-                                        m => (m.tournamentId || "").replace(/_s\d+$/, "") === selectedTournament.id &&
-                                            (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                                    )
                                     const sidebarEffectiveStart = sidebarLiveTournament?.startWeek ??
                                         (Math.floor((currentWeek - 1) / 52) * 52 + selectedTournament.startWeek)
                                     const isPast = currentWeek >= sidebarEffectiveStart + selectedTournament.duration ||

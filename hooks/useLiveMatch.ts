@@ -1,31 +1,28 @@
-import { restoreTimeoutState, spendTimeout, regroupLossStreak, managedLoadout } from "@/engine/match/manager-controls"
+import { restoreTimeoutState, spendTimeout } from "@/engine/match/manager-controls"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
-import { MapId, Team, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, CustomTactics, SimState, Coach, Analyst, Psychologist } from "@/types"
+import { MapId, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, SimState } from "@/types"
 import type { TeamSaveData } from "@/engine/save-types"
-import { simulationEngineV2, EconomyManager, WEAPONS, createMatchRNG, commentaryManager } from "@/engine"
-import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents } from "@/engine/match/live-checkpoint"
-import { applyPreMatchTalents } from "@/engine/match/apply-talents"
-import { pickAutoStrategy } from "@/engine/match/auto-tactics"
-import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
-import { buildFreshLiveResult, buildInitialSimState, sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
-import { generateMatchStats, determineMVP } from "@/engine/match/match-stats"
-import { soundManager } from "@/lib/sound-manager"
+import { EconomyManager, WEAPONS, commentaryManager } from "@/engine"
+import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents, roundEndPending } from "@/engine/match/live-checkpoint"
+import { sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
 import {
-    applyRoundEconomy,
-    createRoundStartEconomy,
-    createOvertimeEconomy,
-    getMapsToWinForFormat,
-    getOvertimeMapWinThreshold,
-    resolveCanonicalSeriesMaps,
-    resolveHomeStartsCT,
-} from "@/lib/live-match-utils"
+    createLegacySeriesState,
+    finalizeLegacySeries,
+    normalizeRestoredSim,
+    playLegacyRound,
+    MANAGER_STRATEGIES,
+    type LegacySeriesContext,
+    type ManagerStrategy,
+} from "@/engine/match/legacy-series"
+import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
+import { soundManager } from "@/lib/sound-manager"
+import { resolveHomeStartsCT } from "@/lib/live-match-utils"
 import { MAP_NAMES } from "@/data/map-pool"
 import {
-    ACTIVE_PLAYERS_PER_TEAM,
     ROUND_SECONDS,
     BOMB_SECONDS,
     ROUND_START_DELAY_MS,
@@ -36,31 +33,34 @@ import {
     sanitizeEconomyForActivePlayers,
 } from "@/lib/live-match-builders"
 
-type RoundStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL"
+type RoundStrategy = ManagerStrategy | "PISTOL"
 
 /** Max kill/event-feed rows kept in state + DOM during a live match. */
 const MAX_LIVE_LOG_ENTRIES = 200
 
 interface LiveMatchRuntimeData {
     ownerSaveId: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     match: any
     result: MatchResult
     // home/awayTeam are stored as the on-disk TeamSaveData shape. The
     // engine entry points accept the runtime `Team` (from types/team.ts);
-    // their read paths only touch fields TeamSaveData also has (`id`,
-    // `playstyle`), so the `as unknown as Team` casts at the call sites
-    // are structurally safe. See ARCHITECTURE.md "Known Type-System Debt".
+    // their read paths only touch fields TeamSaveData also has, so the
+    // casts at the call sites are structurally safe. See ARCHITECTURE.md
+    // "Known Type-System Debt".
     homeTeam: TeamSaveData
     awayTeam: TeamSaveData
     homePlayerIds: string[]
     awayPlayerIds: string[]
     canonicalMaps: MapId[]
     mapStartingSides?: Record<string, string>
+    /** Canonical series context shared with instant simulation (L21/L14). */
+    ctx: LegacySeriesContext
 }
+
 
 export function useLiveMatch(id: string) {
     const router = useRouter()
-    const searchParams = useSearchParams()
     const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
@@ -99,17 +99,13 @@ export function useLiveMatch(id: string) {
     const [homeRoster, setHomeRoster] = useState<LivePlayerState[]>([])
     const [awayRoster, setAwayRoster] = useState<LivePlayerState[]>([])
     const [logs, setLogs] = useState<LogEntry[]>([])
-    // Cap the kill/event feed. Entries are prepended newest-first from ~10 call
-    // sites; a fast-forwarded BO5 can produce 400+ rows, all kept in state and
-    // in the DOM (kill feed visibly chugs on Steam Deck). One trim effect bounds
-    // it regardless of source — keep the newest MAX_LIVE_LOG_ENTRIES.
+    // Cap the kill/event feed (newest first).
     useEffect(() => {
         if (logs.length > MAX_LIVE_LOG_ENTRIES) {
             setLogs(prev => (prev.length > MAX_LIVE_LOG_ENTRIES ? prev.slice(0, MAX_LIVE_LOG_ENTRIES) : prev))
         }
     }, [logs])
-    // Seed live-match playback speed from the user's Game Speed setting
-    // (the only thing that setting drives — was previously inert).
+    // Seed live-match playback speed from the user's Game Speed setting.
     const gameSpeedSetting = useSettingsStore(s => s.gameSpeed)
     const [speed, setSpeed] = useState(() =>
         gameSpeedSetting === "very-fast" ? 3 : gameSpeedSetting === "fast" ? 2 : 1
@@ -123,7 +119,7 @@ export function useLiveMatch(id: string) {
     const [originalAwayPlayers, setOriginalAwayPlayers] = useState<Player[]>([])
 
     // Tactical timeout: two per series, reduces our losing-streak pressure for
-    // the next 2 rounds. The ref mirrors state so the per-round sim call reads the
+    // the next 2 rounds. The refs mirror state so the per-round step reads the
     // latest value outside React's render cycle.
     const [timeoutsRemaining, setTimeoutsRemaining] = useState(2)
     const timeoutsRemainingRef = useRef(2)
@@ -133,14 +129,19 @@ export function useLiveMatch(id: string) {
     timeoutBoostRoundsRef.current = timeoutBoostRounds
 
     // Timer State
-    const [roundTime, setRoundTime] = useState(ROUND_SECONDS) // 1:55 round time
+    const [roundTime, setRoundTime] = useState(ROUND_SECONDS)
     const [isBombPlanted, setIsBombPlanted] = useState(false)
-    const [bombTime, setBombTime] = useState(BOMB_SECONDS) // 40s bomb timer
+    const [bombTime, setBombTime] = useState(BOMB_SECONDS)
 
     const [simState, setSimState] = useState<SimState | null>(null)
+    // Side of the round being played back. The canonical step applies the
+    // halftime/overtime swap as soon as a round is computed, so the radar and
+    // kill feed must use the side the round was actually played on.
+    const [roundHomeIsCT, setRoundHomeIsCT] = useState(true)
 
     const currentRoundEvents = useRef<MatchEvent[]>([])
     const isSimulatingRef = useRef(false)
+    const roundInFlightRef = useRef(false)
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
     const lastProcessedTime = useRef(-1)
@@ -151,34 +152,20 @@ export function useLiveMatch(id: string) {
     const latestHomeRosterRef = useRef<LivePlayerState[]>([])
     const latestAwayRosterRef = useRef<LivePlayerState[]>([])
     const startNextRoundRef = useRef<(playerStrategy?: RoundStrategy) => void>(() => {})
-    const playerMapRef = useRef<Map<string, typeof players[0]>>(new Map())
 
-    // Reset mounted flag on unmount to prevent state updates after navigation
     useEffect(() => {
         isMountedRef.current = true
         return () => {
             isMountedRef.current = false
-            // Clear all orphaned timers on unmount
             pendingTimers.current.forEach(id => clearTimeout(id))
             pendingTimers.current.clear()
         }
     }, [])
 
-    useEffect(() => {
-        latestSimStateRef.current = simState
-    }, [simState])
-
-    useEffect(() => {
-        latestGameStateRef.current = gameState
-    }, [gameState])
-
-    useEffect(() => {
-        latestHomeRosterRef.current = homeRoster
-    }, [homeRoster])
-
-    useEffect(() => {
-        latestAwayRosterRef.current = awayRoster
-    }, [awayRoster])
+    useEffect(() => { latestSimStateRef.current = simState }, [simState])
+    useEffect(() => { latestGameStateRef.current = gameState }, [gameState])
+    useEffect(() => { latestHomeRosterRef.current = homeRoster }, [homeRoster])
+    useEffect(() => { latestAwayRosterRef.current = awayRoster }, [awayRoster])
 
     const queueRoundStart = useCallback((strategy: RoundStrategy, delayMs = ROUND_START_DELAY_MS) => {
         const timerId = setTimeout(() => {
@@ -194,12 +181,8 @@ export function useLiveMatch(id: string) {
         if (hasInitialized.current) return
         if (!isMountedRef.current) return
 
-        // NOTE: setActiveMatch(id) is deliberately NOT called up here. Arming the
-        // navigation lock before the init guards below would trap the player on a
-        // permanently "Warming up servers…" live screen whenever the match can't
-        // actually start (missing team, understrength roster). The lock is armed
-        // only on the committed-init path (next to hasInitialized.current = true).
-
+        // setActiveMatch(id) is armed only on the committed-init path below so a
+        // match that cannot start never traps the player on the live screen.
         const foundMatch = scheduledMatches.find(m => m.id === id)
         if (!foundMatch) return
 
@@ -207,42 +190,46 @@ export function useLiveMatch(id: string) {
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)
         if (!hTeam || !aTeam) return
 
-        // HYBRID_DAILY day pacing: refuse to start (and never arm the lock) a
-        // current-week match whose scheduled day hasn't arrived yet. This is the
-        // authoritative gate for the live path — matching the store-level guard
-        // in simulateInstantMatch — so a UI bypass (e.g. the result-screen "Play
-        // Next Match" CTA) can't jump the day order. Route the player out cleanly.
+        // HYBRID_DAILY day pacing: never start a current-week match before its day.
         if (timeMode === "HYBRID_DAILY" && foundMatch.week === currentWeek && (foundMatch.day ?? 6) > currentDay) {
             if (isMountedRef.current) router.replace(`/match/${id}/tactics`)
             return
         }
 
-        // Build player lookup map for O(1) roster resolution
         const playerMap = new Map(players.map(p => [p.id, p]))
-        playerMapRef.current = playerMap as Map<string, typeof players[0]>
         const homePlayers = getActivePlayersByRosterOrder(hTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
         const awayPlayers = getActivePlayersByRosterOrder(aTeam, players as Array<{ id: string }>, playerMap as Map<string, { id: string }>)
-        // Need a full 5 a side: simulateMatch's pickWeighted throws on an empty
-        // pool, and a 3v5 isn't a real match. The week tick forfeits understrength
-        // rosters (match-forfeit.ts). Since setActiveMatch is NOT armed yet, the
-        // player isn't trapped — route them back to the tactics screen (a clean
-        // exit) so they can advance the week to resolve it by forfeit. Guard on a
-        // populated player list so a mid-hydration render doesn't false-trip this.
+        // Need a full 5 a side; the week tick forfeits understrength rosters.
         if (homePlayers.length < 5 || awayPlayers.length < 5) {
-            if (players.length > 0 && isMountedRef.current) {
-                router.replace(`/match/${id}/tactics`)
-            }
+            if (players.length > 0 && isMountedRef.current) router.replace(`/match/${id}/tactics`)
             return
         }
 
         let playback: ReturnType<typeof restoreLivePlayback> | null = null
+        let ctx: LegacySeriesContext
+        const restoring = activeMatchState?.matchId === id
         try {
             if (foundMatch.engineVersion && foundMatch.engineVersion !== LEGACY_MATCH_ENGINE) throw Error("Unsupported match engine")
-            if (activeMatchState?.matchId === id) {
-                playback = restoreLivePlayback(activeMatchState)
-                if (activeMatchState.playback?.saveId !== undefined && activeMatchState.playback.saveId !== useGameStore.getState().saveId) throw Error("This match checkpoint belongs to another career")
+            if (restoring) {
+                playback = restoreLivePlayback(activeMatchState!)
+                if (activeMatchState!.playback?.saveId !== undefined && activeMatchState!.playback.saveId !== useGameStore.getState().saveId) throw Error("This match checkpoint belongs to another career")
                 if (JSON.stringify(playback.homeRoster) !== JSON.stringify(homePlayers.map(p => p.id)) || JSON.stringify(playback.awayRoster) !== JSON.stringify(awayPlayers.map(p => p.id))) throw Error("The saved match roster has changed. Restore the pre-match recovery save to continue.")
             }
+            const seed = restoring && activeMatchState!.playback ? activeMatchState!.playback.seed : getNormalizedSeed(foundMatch.seed, foundMatch.id)
+            // The persisted veto (or the checkpoint's recorded order) is the only
+            // map authority; URL hints are ignored so a stale link cannot change
+            // the series (L21.A2). Same preparation as instant simulation.
+            const savedMaps = playback?.maps.length ? playback.maps : Array.isArray(foundMatch.maps) && foundMatch.maps.length ? foundMatch.maps : undefined
+            ctx = prepareLegacySeries({
+                match: { ...foundMatch, seed, maps: savedMaps },
+                homeTeam: hTeam,
+                awayTeam: aTeam,
+                homePlayers,
+                awayPlayers,
+                staff,
+                customTactics,
+                managedTeamId: useGameStore.getState().playerTeamId ?? undefined,
+            })
         } catch (error) {
             hasInitialized.current = true
             useGameStore.getState().addToast({ message: error instanceof Error ? error.message : "Could not restore match", type: "warning" })
@@ -251,238 +238,123 @@ export function useLiveMatch(id: string) {
             return
         }
 
-        // All match data resolved — commit init exactly once. The flag is set
-        // HERE, not before the guards above: on the first render the store may
-        // still be hydrating (empty scheduledMatches/teams/players). Setting it
-        // early would permanently block this effect when it re-runs with
-        // populated data, stranding the user on a blank live-match screen.
         hasInitialized.current = true
-
-        // Arm the navigation lock only now that init is guaranteed to succeed.
         setActiveMatch(id)
 
-        const seed = activeMatchState?.matchId === id && activeMatchState.playback ? activeMatchState.playback.seed : getNormalizedSeed(foundMatch.seed, foundMatch.id)
+        const seed = ctx.seed
         const bestOf = foundMatch.format === "BO3" ? 3 : foundMatch.format === "BO5" ? 5 : 1
-        const runtimeMatch: any = {
-            ...foundMatch,
-            id: foundMatch.id,
-            homeTeamId: hTeam.id,
-            awayTeamId: aTeam.id,
-            seed,
-            format: foundMatch.format,
-            bestOf
-        }
-
-        const hStaffData = staff.filter(s => hTeam.staffIds.includes(s.id))
-        const aStaffData = staff.filter(s => aTeam.staffIds.includes(s.id))
-        // Staff adapter extracted to engine/match/live-staff-adapter.ts (L4).
-        const homeStaff = buildRuntimeStaff(hStaffData)
-        const awayStaff = buildRuntimeStaff(aStaffData)
-
-        // Pre-match staff-talent application (morale_floor + timeout_morale
-        // + anti_strat). Centralized in engine/match/apply-talents.ts so
-        // the slice + match-engine paths stay in lockstep.
-        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
-            homePlayers, awayPlayers, hStaffData, aStaffData,
-        )
-        if (homeAntiStrat > 0 && awayStaff.coach) {
-            awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
-        }
-        if (awayAntiStrat > 0 && homeStaff.coach) {
-            homeStaff.coach.tacticBonus = Math.round(homeStaff.coach.tacticBonus * (1 - awayAntiStrat))
-        }
-
-        const engineFallback = simulationEngineV2.simulateMatch(
-            runtimeMatch,
-            hTeam as unknown as Team,
-            aTeam as unknown as Team,
-            homePlayers,
-            awayPlayers,
-            // RuntimeTeamStaff (from live-staff-adapter) has the same
-            // {coach?, analyst?, psychologist?} bundle shape the engine
-            // expects. The `as unknown as` cast bridges the runtime-vs-
-            // builder type identity without `as any`.
-            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-        )
-
-        const queryMaps = searchParams
-            .get("maps")
-            ?.split(",")
-            .map(map => map.trim())
-            .filter(Boolean) || []
-        const canonicalMaps = resolveCanonicalSeriesMaps({
-            format: foundMatch.format,
-            seed,
-            urlMaps: queryMaps,
-            savedMaps: playback?.maps.length ? playback.maps : Array.isArray(foundMatch.maps) ? foundMatch.maps : undefined,
-            fallbackMaps: engineFallback.maps.map(map => map.map)
-        })
-
-        const baseResult = simulationEngineV2.simulateMatch(
-            runtimeMatch,
-            hTeam as unknown as Team,
-            aTeam as unknown as Team,
-            homePlayers,
-            awayPlayers,
-            homeStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            awayStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            canonicalMaps
-        )
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const runtimeMatch: any = { ...foundMatch, seed, format: foundMatch.format, bestOf }
+        const canonicalMaps = ctx.maps
+        const mapStartingSides = foundMatch.mapStartingSides
         const activeHomeIds = homePlayers.map(player => player.id)
         const activeAwayIds = awayPlayers.map(player => player.id)
-        const mapStartingSides = foundMatch.mapStartingSides
+        const fresh = createLegacySeriesState(ctx)
+        const shellResult: MatchResult = {
+            engineVersion: LEGACY_MATCH_ENGINE,
+            lineups: { [hTeam.id]: activeHomeIds, [aTeam.id]: activeAwayIds },
+            winnerId: null, homeScore: 0, awayScore: 0, maps: fresh.maps, mvpPlayerId: "", playerStats: {},
+        }
 
-        if (activeMatchState && activeMatchState.matchId === id) {
-            const restoredSim = activeMatchState.simState as SimState | undefined
-            const requestedMapIndex = restoredSim?.currentMapIndex ?? activeMatchState.gameState?.currentMapIndex ?? 0
+        if (restoring && playback) {
+            const restoredSim = activeMatchState!.simState as SimState | undefined
+            const requestedMapIndex = restoredSim?.currentMapIndex ?? activeMatchState!.gameState?.currentMapIndex ?? 0
             const currentMapIndex = Math.max(0, Math.min(canonicalMaps.length - 1, requestedMapIndex))
             const currentMapId = canonicalMaps[currentMapIndex] || MapId.SANDSTONE
             const homeStartsCT = typeof restoredSim?.homeStartsCT === "boolean"
                 ? restoredSim.homeStartsCT
-                : resolveHomeStartsCT({
-                    mapId: currentMapId,
-                    mapStartingSides,
-                    homeTeamId: hTeam.id,
-                    awayTeamId: aTeam.id,
-                    seed,
-                    mapIndex: currentMapIndex
-                })
+                : resolveHomeStartsCT({ mapId: currentMapId, mapStartingSides, homeTeamId: hTeam.id, awayTeamId: aTeam.id, seed, mapIndex: currentMapIndex })
 
             const restoredHomeEconomy = sanitizeEconomyForActivePlayers(homePlayers, restoredSim?.homeEconomy, homeStartsCT)
             const restoredAwayEconomy = sanitizeEconomyForActivePlayers(awayPlayers, restoredSim?.awayEconomy, !homeStartsCT)
+            const inFlight = roundEndPending(playback.events, playback.processedTime) && !activeMatchState!.isWaitingForStrategy
+            // Pre-v2 checkpoints applied halftime/overtime/map transitions at
+            // ROUND_END playback; normalise them exactly once.
+            const sanitizedSimState: SimState = normalizeRestoredSim(ctx, {
+                ...sanitizeRestoredSimState({ restoredSim, homeEconomy: restoredHomeEconomy, awayEconomy: restoredAwayEconomy, homeStartsCT, currentMapIndex }),
+                ...(restoredSim?.rulesVersion ? { rulesVersion: restoredSim.rulesVersion } : {}),
+                ...(restoredSim?.lastRound ? { lastRound: restoredSim.lastRound } : {}),
+            }, inFlight)
 
-            // Restored SimState sanitization extracted to live-match-init.ts (L5).
-            const sanitizedSimState = sanitizeRestoredSimState({
-                restoredSim,
-                homeEconomy: restoredHomeEconomy,
-                awayEconomy: restoredAwayEconomy,
-                homeStartsCT,
-                currentMapIndex,
-            })
-
-            const restoredResultSource = (activeMatchState.matchResult as unknown as MatchResult | undefined) || baseResult
+            const restoredResultSource = (activeMatchState!.matchResult as unknown as MatchResult | undefined) || shellResult
             const restoredResult: MatchResult = {
                 ...restoredResultSource,
+                engineVersion: LEGACY_MATCH_ENGINE,
+                lineups: shellResult.lineups,
                 homeScore: sanitizedSimState.homeSeriesScore,
                 awayScore: sanitizedSimState.awaySeriesScore,
-                maps: buildCanonicalResultMaps(
-                    restoredResultSource.maps,
-                    canonicalMaps,
-                    hTeam.id,
-                    aTeam.id,
-                    mapStartingSides,
-                    seed
-                )
+                maps: buildCanonicalResultMaps(restoredResultSource.maps, canonicalMaps, hTeam.id, aTeam.id, mapStartingSides, seed),
             }
+            const restoredGameState = buildRestoredGameState({ savedGameState: activeMatchState!.gameState, simState: sanitizedSimState, currentMapIndex: inFlight && sanitizedSimState.lastRound ? sanitizedSimState.lastRound.mapIndex : currentMapIndex })
 
-            // Restored GameState build extracted to live-match-init.ts (L5).
-            const restoredGameState = buildRestoredGameState({
-                savedGameState: activeMatchState.gameState,
-                simState: sanitizedSimState,
-                currentMapIndex,
-            })
+            // Side the in-flight round was played on (from its recorded round).
+            const lastMap = inFlight && sanitizedSimState.lastRound ? restoredResult.maps[sanitizedSimState.lastRound.mapIndex] : undefined
+            const lastRecorded = lastMap?.rounds[lastMap.rounds.length - 1]
+            setRoundHomeIsCT(lastRecorded ? lastRecorded.ctTeam === hTeam.id : sanitizedSimState.homeStartsCT)
 
             matchData.current = {
                 ownerSaveId: useGameStore.getState().saveId,
-                match: runtimeMatch,
-                result: restoredResult,
-                homeTeam: hTeam,
-                awayTeam: aTeam,
-                homePlayerIds: activeHomeIds,
-                awayPlayerIds: activeAwayIds,
-                canonicalMaps,
-                mapStartingSides
+                match: runtimeMatch, result: restoredResult, homeTeam: hTeam, awayTeam: aTeam,
+                homePlayerIds: activeHomeIds, awayPlayerIds: activeAwayIds, canonicalMaps, mapStartingSides, ctx,
             }
 
+            latestSimStateRef.current = sanitizedSimState
             setGameState(restoredGameState)
             setSimState(sanitizedSimState)
-            // These are the visible mid-round inventories/deaths, not the already resolved end-of-round economy.
-            setHomeRoster(structuredClone(activeMatchState.homeRoster))
-            setAwayRoster(structuredClone(activeMatchState.awayRoster))
-            currentRoundEvents.current = playback!.events
-            lastProcessedTime.current = playback!.processedTime
-            setLogs(Array.isArray(activeMatchState.logs) ? activeMatchState.logs : [])
-            setRoundTime(typeof activeMatchState.roundTime === "number" ? activeMatchState.roundTime : ROUND_SECONDS)
-            setIsBombPlanted(Boolean(activeMatchState.isBombPlanted))
-            setBombTime(typeof activeMatchState.bombTime === "number" ? activeMatchState.bombTime : BOMB_SECONDS)
-            setIsWaitingForStrategy(Boolean(activeMatchState.isWaitingForStrategy))
-            // Restore Tactical Timeout state so a reload mid-match can't mint
-            // extra timeouts (fresh defaults only when the snapshot predates this).
-            setTimeoutsRemaining(restoreTimeoutState(activeMatchState.timeoutsRemaining, activeMatchState.timeoutBoostRounds).remaining)
-            setTimeoutBoostRounds(restoreTimeoutState(activeMatchState.timeoutsRemaining, activeMatchState.timeoutBoostRounds).rounds)
+            // Visible mid-round inventories/deaths, not the resolved end-of-round economy.
+            setHomeRoster(structuredClone(activeMatchState!.homeRoster))
+            setAwayRoster(structuredClone(activeMatchState!.awayRoster))
+            currentRoundEvents.current = playback.events
+            lastProcessedTime.current = playback.processedTime
+            roundInFlightRef.current = inFlight
+            setLogs(Array.isArray(activeMatchState!.logs) ? activeMatchState!.logs : [])
+            setRoundTime(typeof activeMatchState!.roundTime === "number" ? activeMatchState!.roundTime : ROUND_SECONDS)
+            setIsBombPlanted(Boolean(activeMatchState!.isBombPlanted))
+            setBombTime(typeof activeMatchState!.bombTime === "number" ? activeMatchState!.bombTime : BOMB_SECONDS)
+            // Between rounds after a reload: always offer the next decision
+            // (pistol rounds auto-start) rather than stalling on a lost timer.
+            setIsWaitingForStrategy(!inFlight && restoredGameState.status === "IN_PROGRESS" ? true : Boolean(activeMatchState!.isWaitingForStrategy))
+            const restoredTimeouts = restoreTimeoutState(activeMatchState!.timeoutsRemaining, activeMatchState!.timeoutBoostRounds)
+            timeoutsRemainingRef.current = restoredTimeouts.remaining
+            timeoutBoostRoundsRef.current = restoredTimeouts.rounds
+            setTimeoutsRemaining(restoredTimeouts.remaining)
+            setTimeoutBoostRounds(restoredTimeouts.rounds)
             setOriginalHomePlayers(homePlayers)
             setOriginalAwayPlayers(awayPlayers)
             setIsPlaying(false)
             return
         }
 
-        const initialMapId = canonicalMaps[0] || MapId.SANDSTONE
-        const initialHomeStartsCT = resolveHomeStartsCT({
-            mapId: initialMapId,
-            mapStartingSides,
-            homeTeamId: hTeam.id,
-            awayTeamId: aTeam.id,
-            seed,
-            mapIndex: 0
-        })
-        const homeEconomy = createRoundStartEconomy(activeHomeIds, initialHomeStartsCT)
-        const awayEconomy = createRoundStartEconomy(activeAwayIds, !initialHomeStartsCT)
-
-        // Live result + initial sim state extracted to
-        // engine/match/live-match-init.ts (Phase L5).
-        const liveResult = buildFreshLiveResult({
-            baseResult,
-            canonicalMaps,
-            homeTeamId: hTeam.id,
-            awayTeamId: aTeam.id,
-            mapStartingSides,
-            seed,
-        })
-
         matchData.current = {
             ownerSaveId: useGameStore.getState().saveId,
-            match: runtimeMatch,
-            result: liveResult,
-            homeTeam: hTeam,
-            awayTeam: aTeam,
-            homePlayerIds: activeHomeIds,
-            awayPlayerIds: activeAwayIds,
-            canonicalMaps,
-            mapStartingSides
+            match: runtimeMatch, result: shellResult, homeTeam: hTeam, awayTeam: aTeam,
+            homePlayerIds: activeHomeIds, awayPlayerIds: activeAwayIds, canonicalMaps, mapStartingSides, ctx,
         }
 
-        setSimState(buildInitialSimState({
-            homeEconomy,
-            awayEconomy,
-            homeStartsCT: initialHomeStartsCT,
-        }))
-
-        setHomeRoster(sanitizeRosterFromEconomy(homePlayers, homeEconomy, initialHomeStartsCT))
-        setAwayRoster(sanitizeRosterFromEconomy(awayPlayers, awayEconomy, !initialHomeStartsCT))
+        latestSimStateRef.current = fresh.sim
+        setSimState(fresh.sim)
+        setRoundHomeIsCT(fresh.sim.homeStartsCT)
+        setHomeRoster(sanitizeRosterFromEconomy(homePlayers, fresh.sim.homeEconomy, fresh.sim.homeStartsCT))
+        setAwayRoster(sanitizeRosterFromEconomy(awayPlayers, fresh.sim.awayEconomy, !fresh.sim.homeStartsCT))
         setOriginalHomePlayers(homePlayers)
         setOriginalAwayPlayers(awayPlayers)
 
+        const initialMapId = canonicalMaps[0] || MapId.SANDSTONE
         const startMsg = commentaryManager.generate("MATCH_START", { map: MAP_NAMES[initialMapId] || initialMapId })
         setLogs([{ type: "SYSTEM", message: startMsg }])
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, searchParams, setActiveMatch, activeMatchState, staff, router, currentWeek, currentDay, timeMode])
+    }, [scheduledMatches, teams, players, id, setActiveMatch, activeMatchState, staff, router, currentWeek, currentDay, timeMode, customTactics])
 
     // Persistence
     useEffect(() => {
         if (!simState || !gameState) return
-        // Don't checkpoint a match that's already finished — the
-        // result/teardown path owns post-match state. Without this guard,
-        // the 500ms debounce can fire AFTER the user has navigated to the
-        // result screen and saveMatchResult ran, overwriting the cleared
-        // activeMatchState with stale "still playing" data.
+        // A finished match is owned by the result/teardown path.
         if (gameState.status === "FINISHED") { pendingCheckpoint.current = null; return }
 
         const currentResult = matchData.current?.result
-        if (!currentResult) return // No match in flight — nothing to checkpoint.
+        if (!currentResult) return
 
         const state: ActiveMatchState = {
             matchId: id,
@@ -503,11 +375,7 @@ export function useLiveMatch(id: string) {
             isWaitingForStrategy,
             timeoutsRemaining,
             timeoutBoostRounds,
-            // ActiveMatchState comes from types/game which carries its own
-            // legacy Player[] and MatchResult shapes (see ARCHITECTURE.md
-            // "Known Type-System Debt"). The runtime values are
-            // structurally identical to the canonical types/match versions
-            // — the casts bridge that duplication without changing data.
+            // Legacy duplicated type shapes; structurally identical at runtime.
             originalHomePlayers: originalHomePlayers as unknown as ActiveMatchState["originalHomePlayers"],
             originalAwayPlayers: originalAwayPlayers as unknown as ActiveMatchState["originalAwayPlayers"],
             matchResult: currentResult as unknown as ActiveMatchState["matchResult"],
@@ -527,120 +395,24 @@ export function useLiveMatch(id: string) {
         return () => { clearInterval(timer); flush() }
     }, [id, updateActiveMatchState])
 
-    // Index staff by teamId once per `staff` array ref, so each live-match
-    // round doesn't re-scan every staff member to build home/away coach/analyst/psych.
-    const staffByTeamId = useMemo(() => {
-        const map = new Map<string, typeof staff>()
-        for (const s of staff) {
-            const teamId = s.teamId
-            if (!teamId) continue
-            const list = map.get(teamId)
-            if (list) list.push(s)
-            else map.set(teamId, [s])
-        }
-        return map
-    }, [staff])
-
-    const getTeamStaff = useCallback((teamId: string) => {
-        return buildRuntimeStaff(staffByTeamId.get(teamId) ?? [])
-    }, [staffByTeamId])
+    const isPlayerHome = !!playerTeam && matchData.current?.homeTeam.id === playerTeam.id
 
     const startNextRound = useCallback((playerStrategy?: RoundStrategy) => {
         const runtime = matchData.current
         const currentSimState = latestSimStateRef.current
         if (!runtime || !currentSimState) return
+        // One round at a time: a queued pistol start, the auto-tactics timer and
+        // a click can otherwise race and play two rounds from one decision.
+        if (roundInFlightRef.current || latestGameStateRef.current.status === "FINISHED") return
 
-        const { homeTeam, awayTeam, homePlayerIds, awayPlayerIds, canonicalMaps } = runtime
-        const pMap = playerMapRef.current
-        const hPlayers = homePlayerIds.map(playerId => pMap.get(playerId)).filter(Boolean) as Player[]
-        const aPlayers = awayPlayerIds.map(playerId => pMap.get(playerId)).filter(Boolean) as Player[]
-        if (hPlayers.length === 0 || aPlayers.length === 0) return
-
-        const isPlayerHome = homeTeam.id === playerTeam?.id
-
+        const { homeTeam, awayTeam } = runtime
         const regrouping = timeoutBoostRoundsRef.current > 0
-
-        let homeStrategy: RoundStrategy
-        let awayStrategy: RoundStrategy
-        if (currentSimState.currentRound === 1 || currentSimState.currentRound === 13) {
-            homeStrategy = "PISTOL"
-            awayStrategy = "PISTOL"
-        } else {
-            const homeAvgCash = Object.values(currentSimState.homeEconomy).reduce((sum: number, econ: any) => sum + (econ?.cash || 0), 0) / Math.max(1, hPlayers.length)
-            const awayAvgCash = Object.values(currentSimState.awayEconomy).reduce((sum: number, econ: any) => sum + (econ?.cash || 0), 0) / Math.max(1, aPlayers.length)
-            homeStrategy = isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(homeAvgCash, homeTeam.economyStyle) as RoundStrategy
-            awayStrategy = !isPlayerHome && playerStrategy ? playerStrategy : EconomyManager.getTeamStrategy(awayAvgCash, awayTeam.economyStyle) as RoundStrategy
-        }
-
+        const strategy = playerStrategy && (MANAGER_STRATEGIES as readonly string[]).includes(playerStrategy) ? playerStrategy as ManagerStrategy : undefined
+        const sideBefore = currentSimState.homeStartsCT
         const mapIndex = currentSimState.currentMapIndex
         const currentRoundNumber = currentSimState.currentRound
-        const roundSeed = (runtime.match.seed as number) + (mapIndex * 1000) + currentRoundNumber
-        const rng = createMatchRNG(roundSeed)
 
-        // PlayerSimulationState shape — economy carries cash + bought items.
-        // Typed explicitly here so the as-any casts at the simulateRound /
-        // performBuyPhase call sites can be dropped.
-        type EconomyState = import("@/engine/match/round-outcome").PlayerSimulationState
-        const hEcon: Record<string, EconomyState> = {}
-        const aEcon: Record<string, EconomyState> = {}
-        Object.keys(currentSimState.homeEconomy).forEach(playerId => {
-            hEcon[playerId] = { ...currentSimState.homeEconomy[playerId] } as EconomyState
-        })
-        Object.keys(currentSimState.awayEconomy).forEach(playerId => {
-            aEcon[playerId] = { ...currentSimState.awayEconomy[playerId] } as EconomyState
-        })
-
-        simulationEngineV2.performBuyPhase(hPlayers, hEcon, homeStrategy, currentSimState.homeStartsCT, rng, managedLoadout(customTactics, homeTeam.id, playerTeam?.id))
-        simulationEngineV2.performBuyPhase(aPlayers, aEcon, awayStrategy, !currentSimState.homeStartsCT, rng, managedLoadout(customTactics, awayTeam.id, playerTeam?.id))
-
-        const startOfRoundHomeEcon: Record<string, number> = {}
-        const startOfRoundAwayEcon: Record<string, number> = {}
-        Object.keys(hEcon).forEach(playerId => { startOfRoundHomeEcon[playerId] = hEcon[playerId].cash })
-        Object.keys(aEcon).forEach(playerId => { startOfRoundAwayEcon[playerId] = aEcon[playerId].cash })
-
-        const hStaff = getTeamStaff(homeTeam.id)
-        const aStaff = getTeamStaff(awayTeam.id)
-
-        const homeBaseStrength = simulationEngineV2.calculateTeamStrength(homeTeam as unknown as Team, hPlayers, hStaff, !!runtime.match.mentalPrep && (runtime.match.mentalPrepTeamId || homeTeam.id) === homeTeam.id)
-        const awayBaseStrength = simulationEngineV2.calculateTeamStrength(awayTeam as unknown as Team, aPlayers, aStaff, !!runtime.match.mentalPrep && runtime.match.mentalPrepTeamId === awayTeam.id)
-        const currentMapId = canonicalMaps[mapIndex] || runtime.result.maps[mapIndex]?.map || MapId.SANDSTONE
-        const homeMapStrength = simulationEngineV2.calculateMapStrengths(hPlayers).get(currentMapId) || 50
-        const awayMapStrength = simulationEngineV2.calculateMapStrengths(aPlayers).get(currentMapId) || 50
-
-        const roundResult = simulationEngineV2.simulateRound(
-            rng,
-            hPlayers,
-            aPlayers,
-            homeBaseStrength,
-            awayBaseStrength,
-            homeMapStrength,
-            awayMapStrength,
-            currentSimState.homeStartsCT,
-            currentSimState.homeWinStreak,
-            currentSimState.awayWinStreak,
-            regroupLossStreak(currentSimState.homeLossStreak, regrouping && isPlayerHome),
-            regroupLossStreak(currentSimState.awayLossStreak, regrouping && !isPlayerHome),
-            currentRoundNumber,
-            hEcon,
-            aEcon,
-            homeStrategy,
-            awayStrategy,
-            false,
-            homeTeam as unknown as Team,
-            awayTeam as unknown as Team,
-            homeTeam.id,
-            awayTeam.id,
-            customTactics,
-            currentSimState.homeMomentumScore,
-            currentSimState.awayMomentumScore,
-            hStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            aStaff as unknown as { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-            currentMapId,
-            undefined, // matchStage
-            undefined, // cachedHomeStressRes
-            undefined, // cachedAwayStressRes
-            undefined, // cachedPlayerMap
-        )
+        const step = playLegacyRound(runtime.ctx, { sim: currentSimState, maps: runtime.result.maps, finished: false }, { strategy, regroup: regrouping, customTactics })
 
         // Consume one round of regroup pressure relief.
         if (timeoutBoostRoundsRef.current > 0) {
@@ -648,143 +420,59 @@ export function useLiveMatch(id: string) {
             setTimeoutBoostRounds(b => Math.max(0, b - 1))
         }
 
-        const appliedEconomy = applyRoundEconomy({
-            homeEconomy: hEcon,
-            awayEconomy: aEcon,
-            roundResult: {
-                winner: roundResult.winner,
-                winType: roundResult.winType,
-                kills: roundResult.kills,
-                deaths: roundResult.deaths
-            },
-            homeIsCT: currentSimState.homeStartsCT,
-            homeLossStreakBefore: currentSimState.homeLossStreak,
-            awayLossStreakBefore: currentSimState.awayLossStreak,
-            homePlayerIds,
-            awayPlayerIds
-        })
+        runtime.result.maps = step.state.maps
+        latestSimStateRef.current = step.state.sim
+        roundInFlightRef.current = true
+        setSimState(step.state.sim)
+        setRoundHomeIsCT(sideBefore)
+        currentRoundEvents.current = step.round.events || []
 
-        const nextHomeEconomy = appliedEconomy.homeEconomy
-        const nextAwayEconomy = appliedEconomy.awayEconomy
-        const isHomeWinner = roundResult.winner === "HOME"
-        const nextHomeRounds = currentSimState.homeRounds + (isHomeWinner ? 1 : 0)
-        const nextAwayRounds = currentSimState.awayRounds + (isHomeWinner ? 0 : 1)
-        const nextHomeWinStreak = isHomeWinner ? currentSimState.homeWinStreak + 1 : 0
-        const nextAwayWinStreak = !isHomeWinner ? currentSimState.awayWinStreak + 1 : 0
-        const nextHomeLossStreak = !isHomeWinner ? currentSimState.homeLossStreak + 1 : 0
-        const nextAwayLossStreak = isHomeWinner ? currentSimState.awayLossStreak + 1 : 0
-        const nextHomeMomentum = isHomeWinner ? Math.min(10, currentSimState.homeMomentumScore + (homeStrategy === "ECO" ? 4 : 1)) : 0
-        const nextAwayMomentum = !isHomeWinner ? Math.min(10, currentSimState.awayMomentumScore + (awayStrategy === "ECO" ? 4 : 1)) : 0
-
-        setSimState(prev => prev ? ({
-            ...prev,
-            homeEconomy: nextHomeEconomy,
-            awayEconomy: nextAwayEconomy,
-            homeRounds: nextHomeRounds,
-            awayRounds: nextAwayRounds,
-            homeWinStreak: nextHomeWinStreak,
-            awayWinStreak: nextAwayWinStreak,
-            homeLossStreak: nextHomeLossStreak,
-            awayLossStreak: nextAwayLossStreak,
-            currentRound: currentRoundNumber + 1,
-            homeMomentumScore: nextHomeMomentum,
-            awayMomentumScore: nextAwayMomentum
-        }) : null)
-
-        currentRoundEvents.current = roundResult.events || []
-
-        const buyLogEntries: LogEntry[] = []
-        const getStratName = (stratId: string, side: "ct" | "t") => {
-            const tactic = customTactics[stratId as keyof typeof customTactics]?.[side]
-            if (tactic?.name) return tactic.name.toUpperCase()
-            return stratId
+        const getStratName = (stratId: string, side: "ct" | "t", managed: boolean) => {
+            const tactic = managed ? customTactics[stratId as keyof typeof customTactics]?.[side] : undefined
+            return tactic?.name ? tactic.name.toUpperCase() : stratId
         }
-        buyLogEntries.push({ type: "BUY", message: `${homeTeam.name}: ${getStratName(homeStrategy, currentSimState.homeStartsCT ? "ct" : "t")}` })
-        buyLogEntries.push({ type: "BUY", message: `${awayTeam.name}: ${getStratName(awayStrategy, !currentSimState.homeStartsCT ? "ct" : "t")}` })
+        const managedHome = runtime.ctx.managedTeamId === homeTeam.id
+        const buys = step.round.buys ?? { home: "", away: "" }
+        const buyLogEntries: LogEntry[] = [
+            { type: "BUY", message: `${homeTeam.name}: ${getStratName(buys.home, sideBefore ? "ct" : "t", managedHome)}` },
+            { type: "BUY", message: `${awayTeam.name}: ${getStratName(buys.away, !sideBefore ? "ct" : "t", !managedHome)}` },
+        ]
+        if (step.round.managerCall?.regroup) buyLogEntries.push({ type: "SYSTEM", message: "Regroup: losing-streak pressure eased this round" })
 
-        setGameState(prev => ({
-            ...prev,
-            round: currentRoundNumber,
-            time: 0,
-            status: "IN_PROGRESS"
-        }))
-
+        setGameState(prev => ({ ...prev, round: currentRoundNumber, time: 0, status: "IN_PROGRESS" }))
         const roundStartMsg = commentaryManager.generate("ROUND_START", { round: currentRoundNumber })
         setLogs(prev => [...buyLogEntries.reverse(), { type: "SYSTEM", message: roundStartMsg }, ...prev])
 
-        if (runtime.result.maps[mapIndex]) {
-            const winningSide = isHomeWinner
-                ? (currentSimState.homeStartsCT ? "ct" : "t")
-                : (currentSimState.homeStartsCT ? "t" : "ct")
-            const fullRoundResult: any = {
-                ...roundResult,
-                roundNumber: currentRoundNumber,
-                ctTeam: currentSimState.homeStartsCT ? homeTeam.id : awayTeam.id,
-                tTeam: currentSimState.homeStartsCT ? awayTeam.id : homeTeam.id,
-                winner: winningSide,
-                winningTeamId: isHomeWinner ? homeTeam.id : awayTeam.id
-            }
-            runtime.result.maps[mapIndex].rounds.push(fullRoundResult)
-            if (isHomeWinner) runtime.result.maps[mapIndex].homeScore = (runtime.result.maps[mapIndex].homeScore || 0) + 1
-            else runtime.result.maps[mapIndex].awayScore = (runtime.result.maps[mapIndex].awayScore || 0) + 1
-        }
-
         const historyStats: Record<string, { kills: number, deaths: number, assists: number, headshots: number }> = {}
-        runtime.result.maps.forEach((mapData: any, iterMapIdx: number) => {
-            mapData.rounds.forEach((roundData: any) => {
+        const bump = (pid: string) => (historyStats[pid] ??= { kills: 0, deaths: 0, assists: 0, headshots: 0 })
+        runtime.result.maps.forEach((mapData, iterMapIdx) => {
+            mapData.rounds.forEach(roundData => {
                 if (iterMapIdx === mapIndex && roundData.roundNumber === currentRoundNumber) return
-                roundData.kills.forEach((kill: any) => {
-                    if (!historyStats[kill.playerId]) historyStats[kill.playerId] = { kills: 0, deaths: 0, assists: 0, headshots: 0 }
-                    historyStats[kill.playerId].kills += kill.kills
-                })
-                roundData.deaths?.forEach((death: any) => {
-                    if (!historyStats[death.playerId]) historyStats[death.playerId] = { kills: 0, deaths: 0, assists: 0, headshots: 0 }
-                    historyStats[death.playerId].deaths += death.deaths
-                })
+                roundData.kills.forEach(kill => { bump(kill.playerId).kills += kill.kills })
+                roundData.deaths?.forEach(death => { bump(death.playerId).deaths += death.deaths })
                 roundData.events?.forEach((event: MatchEvent) => {
                     if (event.type !== "KILL") return
-                    if (event.assisterId) {
-                        if (!historyStats[event.assisterId]) historyStats[event.assisterId] = { kills: 0, deaths: 0, assists: 0, headshots: 0 }
-                        historyStats[event.assisterId].assists += 1
-                    }
-                    if (event.isHeadshot && event.playerId) {
-                        if (!historyStats[event.playerId]) historyStats[event.playerId] = { kills: 0, deaths: 0, assists: 0, headshots: 0 }
-                        historyStats[event.playerId].headshots += 1
-                    }
+                    if (event.assisterId) bump(event.assisterId).assists += 1
+                    if (event.isHeadshot && event.playerId) bump(event.playerId).headshots += 1
                 })
             })
         })
 
-        const homeDefaultWeapon = currentSimState.homeStartsCT ? "usp" : "glock"
-        const awayDefaultWeapon = currentSimState.homeStartsCT ? "glock" : "usp"
-        // Use hEcon/aEcon (post-buy, pre-round) for weapon/armor display at round start,
-        // not nextHomeEconomy (post-round, where dead players' equipment is already reset)
-        setHomeRoster(prev => prev.map(player => ({
+        const roster = (econ: typeof step.preRound.home, isCT: boolean) => (prev: LivePlayerState[]) => prev.map(player => ({
             ...player,
-            money: startOfRoundHomeEcon[player.id] ?? 0,
-            weapon: hEcon[player.id]?.weapon ?? homeDefaultWeapon,
-            hasArmor: hEcon[player.id]?.hasArmor ?? false,
-            hasHelmet: hEcon[player.id]?.hasHelmet ?? false,
-            hasKit: hEcon[player.id]?.hasKit ?? false,
+            money: econ[player.id]?.cash ?? 0,
+            weapon: econ[player.id]?.weapon ?? (isCT ? "usp" : "glock"),
+            hasArmor: econ[player.id]?.hasArmor ?? false,
+            hasHelmet: econ[player.id]?.hasHelmet ?? false,
+            hasKit: econ[player.id]?.hasKit ?? false,
             isDead: false,
             kills: historyStats[player.id]?.kills || 0,
             deaths: historyStats[player.id]?.deaths || 0,
             assists: historyStats[player.id]?.assists || 0,
-            headshots: historyStats[player.id]?.headshots || 0
-        })))
-        setAwayRoster(prev => prev.map(player => ({
-            ...player,
-            money: startOfRoundAwayEcon[player.id] ?? 0,
-            weapon: aEcon[player.id]?.weapon ?? awayDefaultWeapon,
-            hasArmor: aEcon[player.id]?.hasArmor ?? false,
-            hasHelmet: aEcon[player.id]?.hasHelmet ?? false,
-            hasKit: aEcon[player.id]?.hasKit ?? false,
-            isDead: false,
-            kills: historyStats[player.id]?.kills || 0,
-            deaths: historyStats[player.id]?.deaths || 0,
-            assists: historyStats[player.id]?.assists || 0,
-            headshots: historyStats[player.id]?.headshots || 0
-        })))
+            headshots: historyStats[player.id]?.headshots || 0,
+        }))
+        setHomeRoster(roster(step.preRound.home, sideBefore))
+        setAwayRoster(roster(step.preRound.away, !sideBefore))
 
         setIsPlaying(true)
         setIsWaitingForStrategy(false)
@@ -792,7 +480,7 @@ export function useLiveMatch(id: string) {
         setIsBombPlanted(false)
         setBombTime(BOMB_SECONDS)
         lastProcessedTime.current = -1
-    }, [players, playerTeam, customTactics, getTeamStaff])
+    }, [customTactics])
 
     useEffect(() => {
         startNextRoundRef.current = startNextRound
@@ -805,10 +493,8 @@ export function useLiveMatch(id: string) {
         if (!runtime || !sim) return
 
         const fromTime = lastProcessedTime.current
-        const toTime = currentTime
-
         const events = currentRoundEvents.current
-        const eventsToProcess = pendingLiveEvents(events, fromTime, toTime)
+        const eventsToProcess = pendingLiveEvents(events, fromTime, currentTime)
 
         eventsToProcess.forEach(nextEvent => {
             if (nextEvent.type === "KILL") {
@@ -817,7 +503,7 @@ export function useLiveMatch(id: string) {
                 const weaponDef = WEAPONS[weaponKey]
                 const reward = weaponDef?.killReward ?? 300
 
-                setHomeRoster(prev => prev.map(player => {
+                const applyKill = (prev: LivePlayerState[]) => prev.map(player => {
                     if (player.id === nextEvent.playerId) {
                         return {
                             ...player,
@@ -829,30 +515,20 @@ export function useLiveMatch(id: string) {
                     if (player.id === nextEvent.victimId) return { ...player, isDead: true, deaths: (player.deaths || 0) + 1 }
                     if (player.id === nextEvent.assisterId) return { ...player, assists: (player.assists || 0) + 1 }
                     return player
-                }))
-                setAwayRoster(prev => prev.map(player => {
-                    if (player.id === nextEvent.playerId) {
-                        return {
-                            ...player,
-                            kills: (player.kills || 0) + 1,
-                            headshots: (player.headshots || 0) + (nextEvent.isHeadshot ? 1 : 0),
-                            money: Math.min(EconomyManager.MAX_CASH, (player.money || 0) + reward)
-                        }
-                    }
-                    if (player.id === nextEvent.victimId) return { ...player, isDead: true, deaths: (player.deaths || 0) + 1 }
-                    if (player.id === nextEvent.assisterId) return { ...player, assists: (player.assists || 0) + 1 }
-                    return player
-                }))
+                })
+                setHomeRoster(applyKill)
+                setAwayRoster(applyKill)
 
                 const currentHomeRoster = latestHomeRosterRef.current
                 const currentAwayRoster = latestAwayRosterRef.current
+                // Side of the round being played back (last recorded round).
+                const lastMap = sim.lastRound ? runtime.result.maps[sim.lastRound.mapIndex] : undefined
+                const playedRound = lastMap?.rounds[lastMap.rounds.length - 1]
+                const homeWasCT = playedRound ? playedRound.ctTeam === runtime.homeTeam.id : sim.homeStartsCT
                 setLogs(prev => {
                     const isHomeKiller = currentHomeRoster.some(player => player.id === nextEvent.playerId)
-                    const side: "CT" | "T" = isHomeKiller
-                        ? (sim.homeStartsCT ? "CT" : "T")
-                        : (sim.homeStartsCT ? "T" : "CT")
+                    const side: "CT" | "T" = isHomeKiller ? (homeWasCT ? "CT" : "T") : (homeWasCT ? "T" : "CT")
 
-                    // Build O(1) lookup maps instead of repeated .find() on combined arrays
                     const livePlayerMap = new Map<string, LivePlayerState>()
                     for (const p of currentHomeRoster) livePlayerMap.set(p.id, p)
                     for (const p of currentAwayRoster) livePlayerMap.set(p.id, p)
@@ -863,7 +539,6 @@ export function useLiveMatch(id: string) {
                     const killer = nextEvent.playerId ? livePlayerMap.get(nextEvent.playerId) : undefined
                     const victim = nextEvent.victimId ? livePlayerMap.get(nextEvent.victimId) : undefined
                     const assister = nextEvent.assisterId ? livePlayerMap.get(nextEvent.assisterId) : undefined
-
                     const killerPlayer = nextEvent.playerId ? origPlayerMap.get(nextEvent.playerId) : undefined
                     const victimPlayer = nextEvent.victimId ? origPlayerMap.get(nextEvent.victimId) : undefined
                     const assisterPlayer = nextEvent.assisterId ? origPlayerMap.get(nextEvent.assisterId) : undefined
@@ -899,17 +574,14 @@ export function useLiveMatch(id: string) {
                     }, ...prev]
                 })
             } else if (nextEvent.type === "PLANT") {
-                const message = commentaryManager.generate("PLANT", {})
-                setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message }, ...prev])
+                setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message: commentaryManager.generate("PLANT", {}) }, ...prev])
                 setIsBombPlanted(true)
                 setBombTime(BOMB_SECONDS)
             } else if (nextEvent.type === "DEFUSE") {
-                const message = commentaryManager.generate("DEFUSE", {})
-                setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message }, ...prev])
+                setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message: commentaryManager.generate("DEFUSE", {}) }, ...prev])
                 setIsBombPlanted(false)
             } else if (nextEvent.type === "EXPLODE") {
-                const message = commentaryManager.generate("EXPLODE", {})
-                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message }, ...prev])
+                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: commentaryManager.generate("EXPLODE", {}) }, ...prev])
                 setIsBombPlanted(false)
             } else if (nextEvent.type === "CLUTCH") {
                 const playersInRound = [...latestHomeRosterRef.current, ...latestAwayRosterRef.current]
@@ -918,334 +590,95 @@ export function useLiveMatch(id: string) {
             } else if (nextEvent.type === "SAVE") {
                 setLogs(prev => [{ type: "SAVE", time: nextEvent.time, message: nextEvent.details || "Players saving" }, ...prev])
             } else if (nextEvent.type === "ROUND_END") {
+                // The canonical step already applied scores, economy and any
+                // side/map transition; playback only reveals them.
                 const roundState = latestSimStateRef.current || sim
+                const last = roundState.lastRound
+                roundInFlightRef.current = false
+                if (!last) return
+                const transition = last.transition
+                const isHomeWinner = last.winner === "HOME"
+
+                setRoundHomeIsCT(roundState.homeStartsCT)
                 setGameState(prev => ({
                     ...prev,
-                    homeScore: roundState.homeRounds,
-                    awayScore: roundState.awayRounds,
+                    homeScore: last.homeRounds,
+                    awayScore: last.awayRounds,
                     homeSeriesScore: roundState.homeSeriesScore,
                     awaySeriesScore: roundState.awaySeriesScore
                 }))
-
-                const homeSideDefaultWeapon = roundState.homeStartsCT ? "usp" : "glock"
-                const awaySideDefaultWeapon = roundState.homeStartsCT ? "glock" : "usp"
-                setHomeRoster(prev => prev.map(player => ({
+                const resetRoster = (econ: Record<string, { cash?: number; weapon?: string; hasArmor?: boolean; hasHelmet?: boolean; hasKit?: boolean }>, isCT: boolean) => (prev: LivePlayerState[]) => prev.map(player => ({
                     ...player,
-                    money: roundState.homeEconomy[player.id]?.cash ?? player.money,
-                    weapon: roundState.homeEconomy[player.id]?.weapon ?? homeSideDefaultWeapon,
-                    hasArmor: roundState.homeEconomy[player.id]?.hasArmor ?? false,
-                    hasHelmet: roundState.homeEconomy[player.id]?.hasHelmet ?? false,
-                    hasKit: roundState.homeEconomy[player.id]?.hasKit ?? false,
+                    money: econ[player.id]?.cash ?? player.money,
+                    weapon: econ[player.id]?.weapon ?? (isCT ? "usp" : "glock"),
+                    hasArmor: econ[player.id]?.hasArmor ?? false,
+                    hasHelmet: econ[player.id]?.hasHelmet ?? false,
+                    hasKit: econ[player.id]?.hasKit ?? false,
                     isDead: false
-                })))
-                setAwayRoster(prev => prev.map(player => ({
-                    ...player,
-                    money: roundState.awayEconomy[player.id]?.cash ?? player.money,
-                    weapon: roundState.awayEconomy[player.id]?.weapon ?? awaySideDefaultWeapon,
-                    hasArmor: roundState.awayEconomy[player.id]?.hasArmor ?? false,
-                    hasHelmet: roundState.awayEconomy[player.id]?.hasHelmet ?? false,
-                    hasKit: roundState.awayEconomy[player.id]?.hasKit ?? false,
-                    isDead: false
-                })))
+                }))
+                setHomeRoster(resetRoster(roundState.homeEconomy, roundState.homeStartsCT))
+                setAwayRoster(resetRoster(roundState.awayEconomy, !roundState.homeStartsCT))
 
-                const isHomeWinner = roundState.homeWinStreak > 0
                 const winnerName = isHomeWinner ? runtime.homeTeam.name : runtime.awayTeam.name
-                const winnerIsCT = (isHomeWinner && roundState.homeStartsCT) || (!isHomeWinner && !roundState.homeStartsCT)
-                const winType = winnerIsCT ? "ROUND_WIN_CT" : "ROUND_WIN_T"
-                const roundEndMessage = commentaryManager.generate(winType, { team: winnerName })
+                const lastMap = runtime.result.maps[last.mapIndex]
+                const playedRound = lastMap?.rounds[lastMap.rounds.length - 1]
+                const winnerIsCT = playedRound ? playedRound.winner === "ct" : isHomeWinner === roundState.homeStartsCT
+                const roundEndMessage = commentaryManager.generate(winnerIsCT ? "ROUND_WIN_CT" : "ROUND_WIN_T", { team: winnerName })
                 setLogs(prev => [{ type: "ROUND_END", message: `${roundEndMessage} (Winner: ${winnerName})` }, ...prev])
 
-                // Map-win threshold: MR12 regulation is first-to-13; once a map is
-                // in MR3 overtime it climbs (first-to-16, then 19, 22 …). A 12-12
-                // regulation is NOT a clinch — it triggers overtime below.
-                const inOvertime = roundState.isOvertime
-                const mapWinThreshold = inOvertime
-                    ? getOvertimeMapWinThreshold(roundState.currentOTSet)
-                    : 13
-
-                // Per-round audio feedback for the player's team — the most
-                // repeated beat on the centerpiece screen was silent. Skip the
-                // map-clinching round (it gets the victory/defeat cue below, so
-                // the two don't stack). soundManager self-gates on the setting.
-                const mapClinched = roundState.homeRounds >= mapWinThreshold || roundState.awayRounds >= mapWinThreshold
+                const mapClinched = transition === "MAP_END" || transition === "SERIES_END"
                 const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
                 const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
-                // Only cue on normal playback (manual speed caps at 5x). Instant
-                // simulate sets speed to 100 and fast-forwards every remaining
-                // round through this handler — cueing there would machine-gun the
-                // audio, so skip it (keeps per-round feedback sparse).
+                // Only cue on normal playback (instant simulate runs at speed 100).
                 if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= 5) {
-                    const playerWonRound = playerIsHomeSide ? isHomeWinner : !isHomeWinner
-                    soundManager.play(playerWonRound ? "roundWin" : "roundLose")
+                    soundManager.play((playerIsHomeSide ? isHomeWinner : !isHomeWinner) ? "roundWin" : "roundLose")
                 }
 
-                if (mapClinched) {
-                    const homeWonMap = roundState.homeRounds > roundState.awayRounds
-                    const newHomeSeries = roundState.homeSeriesScore + (homeWonMap ? 1 : 0)
-                    const newAwaySeries = roundState.awaySeriesScore + (homeWonMap ? 0 : 1)
-                    const mapIndex = roundState.currentMapIndex
-                    const currentMap = runtime.result.maps[mapIndex]
-                    if (currentMap) {
-                        currentMap.homeScore = roundState.homeRounds
-                        currentMap.awayScore = roundState.awayRounds
-                        currentMap.finalScore = { team1: roundState.homeRounds, team2: roundState.awayRounds }
-                        currentMap.winner = homeWonMap ? runtime.homeTeam.id : runtime.awayTeam.id
-                    }
-                    runtime.result.homeScore = newHomeSeries
-                    runtime.result.awayScore = newAwaySeries
-
-                    const mapsToWin = getMapsToWinForFormat(runtime.match.format)
-                    if (newHomeSeries >= mapsToWin || newAwaySeries >= mapsToWin) {
-                        runtime.result.winnerId = newHomeSeries > newAwaySeries ? runtime.homeTeam.id : runtime.awayTeam.id
-                        setGameState(prev => ({
-                            ...prev,
-                            status: "FINISHED",
-                            homeSeriesScore: newHomeSeries,
-                            awaySeriesScore: newAwaySeries
-                        }))
-                        setIsPlaying(false)
-                        setIsWaitingForStrategy(false)
-                        const isPlayerHome = runtime.homeTeam.id === playerTeam?.id
-                        const playerWon = (isPlayerHome && newHomeSeries > newAwaySeries) || (!isPlayerHome && newAwaySeries > newHomeSeries)
-                        if (playerWon) soundManager.play("victory")
-                        else soundManager.play("defeat")
-                    } else {
-                        const nextMapIndex = mapIndex + 1
-                        const nextMapId = runtime.canonicalMaps[nextMapIndex]
-                        if (!nextMapId) {
-                            runtime.result.winnerId = newHomeSeries > newAwaySeries ? runtime.homeTeam.id : runtime.awayTeam.id
-                            setGameState(prev => ({ ...prev, status: "FINISHED", homeSeriesScore: newHomeSeries, awaySeriesScore: newAwaySeries }))
-                            setIsPlaying(false)
-                            setIsWaitingForStrategy(false)
-                            return
-                        }
-
-                        const nextHomeStartsCT = resolveHomeStartsCT({
-                            mapId: nextMapId,
-                            mapStartingSides: runtime.mapStartingSides,
-                            homeTeamId: runtime.homeTeam.id,
-                            awayTeamId: runtime.awayTeam.id,
-                            seed: runtime.match.seed,
-                            mapIndex: nextMapIndex
-                        })
-                        const nextHomeEconomy = createRoundStartEconomy(runtime.homePlayerIds, nextHomeStartsCT)
-                        const nextAwayEconomy = createRoundStartEconomy(runtime.awayPlayerIds, !nextHomeStartsCT)
-                        const nextHomeDefault = nextHomeStartsCT ? "usp" : "glock"
-                        const nextAwayDefault = nextHomeStartsCT ? "glock" : "usp"
-
-                        setSimState(prev => prev ? ({
-                            ...prev,
-                            homeEconomy: nextHomeEconomy,
-                            awayEconomy: nextAwayEconomy,
-                            homeRounds: 0,
-                            awayRounds: 0,
-                            currentMapIndex: nextMapIndex,
-                            currentRound: 1,
-                            homeSeriesScore: newHomeSeries,
-                            awaySeriesScore: newAwaySeries,
-                            homeWinStreak: 0,
-                            awayWinStreak: 0,
-                            homeLossStreak: 0,
-                            awayLossStreak: 0,
-                            homeStartsCT: nextHomeStartsCT,
-                            homeMomentumScore: 0,
-                            awayMomentumScore: 0,
-                            // A fresh map starts in regulation regardless of whether
-                            // the previous map went to overtime.
-                            isOvertime: false,
-                            currentOTSet: 0
-                        }) : null)
-                        setGameState(prev => ({
-                            ...prev,
-                            currentMapIndex: nextMapIndex,
-                            homeScore: 0,
-                            awayScore: 0,
-                            homeSeriesScore: newHomeSeries,
-                            awaySeriesScore: newAwaySeries,
-                            round: 1,
-                            time: -1
-                        }))
-                        setHomeRoster(prev => prev.map(player => ({
-                            ...player,
-                            money: nextHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                            weapon: nextHomeEconomy[player.id]?.weapon ?? nextHomeDefault,
-                            hasArmor: false,
-                            hasHelmet: false,
-                            hasKit: false,
-                            isDead: false
-                        })))
-                        setAwayRoster(prev => prev.map(player => ({
-                            ...player,
-                            money: nextAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                            weapon: nextAwayEconomy[player.id]?.weapon ?? nextAwayDefault,
-                            hasArmor: false,
-                            hasHelmet: false,
-                            hasKit: false,
-                            isDead: false
-                        })))
-                        setRoundTime(ROUND_SECONDS)
-                        setIsBombPlanted(false)
-                        setBombTime(BOMB_SECONDS)
-                        setIsPlaying(false)
-                        setIsWaitingForStrategy(false)
-                        const nextMapName = MAP_NAMES[nextMapId] || nextMapId
-                        setLogs(prev => [{ type: "SYSTEM", message: `--- NEXT MAP: ${nextMapName.toUpperCase()} ---` }, ...prev])
-                        queueRoundStart("PISTOL")
-                    }
-                } else if (!inOvertime && roundState.homeRounds === 12 && roundState.awayRounds === 12) {
-                    // Regulation finished 12-12 → enter MR3 overtime. Reset both
-                    // economies to $10k, swap sides, and clear streaks/momentum,
-                    // mirroring match-simulation.ts. The clinch threshold climbs to
-                    // 16 (then 19, 22 … per additional tied set) via mapWinThreshold.
-                    const otHomeStartsCT = !roundState.homeStartsCT
-                    const otHomeEconomy = createOvertimeEconomy(runtime.homePlayerIds, otHomeStartsCT)
-                    const otAwayEconomy = createOvertimeEconomy(runtime.awayPlayerIds, !otHomeStartsCT)
-                    const otHomeDefault = otHomeStartsCT ? "usp" : "glock"
-                    const otAwayDefault = otHomeStartsCT ? "glock" : "usp"
-
+                const settle = () => { setRoundTime(ROUND_SECONDS); setIsBombPlanted(false); setBombTime(BOMB_SECONDS) }
+                runtime.result.homeScore = roundState.homeSeriesScore
+                runtime.result.awayScore = roundState.awaySeriesScore
+                if (transition === "SERIES_END") {
+                    runtime.result.winnerId = roundState.homeSeriesScore > roundState.awaySeriesScore ? runtime.homeTeam.id : runtime.awayTeam.id
+                    setGameState(prev => ({ ...prev, status: "FINISHED", homeSeriesScore: roundState.homeSeriesScore, awaySeriesScore: roundState.awaySeriesScore }))
+                    setIsPlaying(false)
+                    setIsWaitingForStrategy(false)
+                    const playerWon = (playerIsHomeSide && roundState.homeSeriesScore > roundState.awaySeriesScore) || (playerIsAwaySide && roundState.awaySeriesScore > roundState.homeSeriesScore)
+                    soundManager.play(playerWon ? "victory" : "defeat")
+                } else if (transition === "MAP_END") {
+                    const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
+                    setGameState(prev => ({ ...prev, currentMapIndex: roundState.currentMapIndex, homeScore: 0, awayScore: 0, round: 1, time: -1 }))
+                    settle()
+                    setIsPlaying(false)
+                    setIsWaitingForStrategy(false)
+                    setLogs(prev => [{ type: "SYSTEM", message: `--- NEXT MAP: ${(MAP_NAMES[nextMapId] || nextMapId).toUpperCase()} ---` }, ...prev])
+                    queueRoundStart("PISTOL")
+                } else if (transition === "OVERTIME") {
                     setLogs(prev => [{ type: "SYSTEM", message: "--- OVERTIME: 12-12 · MR3 · FIRST TO 16 ---" }, ...prev])
-                    setSimState(prev => prev ? ({
-                        ...prev,
-                        isOvertime: true,
-                        currentOTSet: 1,
-                        homeStartsCT: otHomeStartsCT,
-                        homeEconomy: otHomeEconomy,
-                        awayEconomy: otAwayEconomy,
-                        homeWinStreak: 0,
-                        awayWinStreak: 0,
-                        homeLossStreak: 0,
-                        awayLossStreak: 0,
-                        homeMomentumScore: 0,
-                        awayMomentumScore: 0
-                    }) : null)
-                    setHomeRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: otHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: otHomeEconomy[player.id]?.weapon ?? otHomeDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setAwayRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: otAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: otAwayEconomy[player.id]?.weapon ?? otAwayDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setRoundTime(ROUND_SECONDS)
-                    setIsBombPlanted(false)
-                    setBombTime(BOMB_SECONDS)
+                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
-                } else if (!inOvertime && roundState.currentRound === 13) {
-                    const switchedHomeStartsCT = !roundState.homeStartsCT
-                    const halftimeHomeEconomy = createRoundStartEconomy(runtime.homePlayerIds, switchedHomeStartsCT)
-                    const halftimeAwayEconomy = createRoundStartEconomy(runtime.awayPlayerIds, !switchedHomeStartsCT)
-                    const halftimeHomeDefault = switchedHomeStartsCT ? "usp" : "glock"
-                    const halftimeAwayDefault = switchedHomeStartsCT ? "glock" : "usp"
-
+                } else if (transition === "HALFTIME") {
                     setLogs(prev => [{ type: "SYSTEM", message: "--- HALF TIME: SWITCHING SIDES ---" }, ...prev])
-                    setSimState(prev => prev ? ({
-                        ...prev,
-                        homeStartsCT: switchedHomeStartsCT,
-                        homeEconomy: halftimeHomeEconomy,
-                        awayEconomy: halftimeAwayEconomy,
-                        homeWinStreak: 0,
-                        awayWinStreak: 0,
-                        homeLossStreak: 0,
-                        awayLossStreak: 0,
-                        homeMomentumScore: 0,
-                        awayMomentumScore: 0
-                    }) : null)
-                    setHomeRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: halftimeHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: halftimeHomeEconomy[player.id]?.weapon ?? halftimeHomeDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setAwayRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: halftimeAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: halftimeAwayEconomy[player.id]?.weapon ?? halftimeAwayDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setRoundTime(ROUND_SECONDS)
-                    setIsBombPlanted(false)
-                    setBombTime(BOMB_SECONDS)
+                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     queueRoundStart("PISTOL")
-                } else if (inOvertime && roundState.currentRound > 25 && (roundState.currentRound - 25) % 3 === 0) {
-                    // Overtime half / set boundary (every 3 OT rounds): swap sides
-                    // and reset economy to $10k. A whole set (6 rounds) elapsed
-                    // without a clinch means it's tied → advance to the next MR3 set
-                    // (threshold climbs), mirroring match-simulation.ts.
-                    const isNewSet = (roundState.currentRound - 25) % 6 === 0
-                    const otHomeStartsCT = !roundState.homeStartsCT
-                    const otHomeEconomy = createOvertimeEconomy(runtime.homePlayerIds, otHomeStartsCT)
-                    const otAwayEconomy = createOvertimeEconomy(runtime.awayPlayerIds, !otHomeStartsCT)
-                    const otHomeDefault = otHomeStartsCT ? "usp" : "glock"
-                    const otAwayDefault = otHomeStartsCT ? "glock" : "usp"
-
-                    setLogs(prev => [{ type: "SYSTEM", message: isNewSet ? "--- OVERTIME: TIED SET · NEW MR3 SET ---" : "--- OVERTIME: SWITCHING SIDES ---" }, ...prev])
-                    setSimState(prev => prev ? ({
-                        ...prev,
-                        currentOTSet: isNewSet ? (prev.currentOTSet || 1) + 1 : prev.currentOTSet,
-                        homeStartsCT: otHomeStartsCT,
-                        homeEconomy: otHomeEconomy,
-                        awayEconomy: otAwayEconomy,
-                        homeWinStreak: 0,
-                        awayWinStreak: 0,
-                        homeLossStreak: 0,
-                        awayLossStreak: 0,
-                        homeMomentumScore: 0,
-                        awayMomentumScore: 0
-                    }) : null)
-                    setHomeRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: otHomeEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: otHomeEconomy[player.id]?.weapon ?? otHomeDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setAwayRoster(prev => prev.map(player => ({
-                        ...player,
-                        money: otAwayEconomy[player.id]?.cash ?? EconomyManager.ROUND_START_CASH,
-                        weapon: otAwayEconomy[player.id]?.weapon ?? otAwayDefault,
-                        hasArmor: false,
-                        hasHelmet: false,
-                        hasKit: false,
-                        isDead: false
-                    })))
-                    setRoundTime(ROUND_SECONDS)
-                    setIsBombPlanted(false)
-                    setBombTime(BOMB_SECONDS)
+                } else if (transition === "OVERTIME_SWITCH") {
+                    const newSet = (roundState.currentRound - 25) % 6 === 0
+                    setLogs(prev => [{ type: "SYSTEM", message: newSet ? "--- OVERTIME: TIED SET · NEW MR3 SET ---" : "--- OVERTIME: SWITCHING SIDES ---" }, ...prev])
+                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else {
                     setIsWaitingForStrategy(true)
                     setIsPlaying(false)
-                    setRoundTime(ROUND_SECONDS)
-                    setIsBombPlanted(false)
-                    setBombTime(BOMB_SECONDS)
+                    settle()
                 }
             }
         })
 
         lastProcessedTime.current = currentTime
-    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam])
+    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam, speed])
 
     // --- GAME LOOP ---
     useEffect(() => {
@@ -1261,8 +694,7 @@ export function useLiveMatch(id: string) {
             processNextEvent(nextTime)
 
             if ((roundTime === 0 && !isBombPlanted) || (bombTime === 0 && isBombPlanted)) {
-                const events = currentRoundEvents.current
-                const endEvent = events.find(e => e.type === "ROUND_END")
+                const endEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
                 if (endEvent) processNextEvent(Math.max(nextTime, Math.ceil(endEvent.time)))
             }
         }, delay)
@@ -1271,33 +703,24 @@ export function useLiveMatch(id: string) {
     }, [gameState.status, gameState.round, gameState.time, gameState.isPaused, speed, isPlaying, isWaitingForStrategy, isBombPlanted, roundTime, bombTime, processNextEvent])
 
     // --- AUTO ACTIONS ---
+    // Auto/skip makes no manager call: the managed team buys by its economy
+    // style exactly as an instant simulation would, so skipping a match and
+    // simulating it instantly agree (L14.A1).
     useEffect(() => {
         if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS") return
-        if (simState.currentRound === 1 || simState.currentRound === 13) return
-
-        // Auto-tactics strategy pick (Phase L2 extraction).
-        const bestStrategy = pickAutoStrategy(simState.homeEconomy)
-
-        const timer = setTimeout(() => {
-            startNextRound(bestStrategy)
-        }, 500)
+        if (!simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) return
+        const timer = setTimeout(() => { startNextRound() }, 500)
         return () => clearTimeout(timer)
-    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, customTactics, startNextRound])
+    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, startNextRound])
 
     useEffect(() => {
-        if (gameState.status === "IN_PROGRESS" && isWaitingForStrategy && (simState?.currentRound === 1 || simState?.currentRound === 13)) {
-            const timer = setTimeout(() => {
-                startNextRound("PISTOL")
-            }, 1000)
+        if (gameState.status === "IN_PROGRESS" && isWaitingForStrategy && simState && !simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) {
+            const timer = setTimeout(() => { startNextRound("PISTOL") }, 1000)
             return () => clearTimeout(timer)
         }
-    }, [gameState.status, isWaitingForStrategy, simState?.currentRound, startNextRound])
-
+    }, [gameState.status, isWaitingForStrategy, simState, startNextRound])
 
     // --- HANDLERS ---
-    // Wrapped in useCallback so identity is stable across renders. Without this
-    // any child that takes these as props (e.g. LiveMatchControlBar) re-renders
-    // on every parent tick, defeating React.memo.
     const simulateRoundInstant = useCallback(() => {
         if (isSimulatingRef.current) return
         isSimulatingRef.current = true
@@ -1306,14 +729,12 @@ export function useLiveMatch(id: string) {
         const events = currentRoundEvents.current
         if (events.length > 0) {
             const maxTime = Math.max(...events.map(e => Math.ceil(e.time))) + 1
-            // Process everything up to the last event time
             processNextEvent(maxTime)
             setRoundTime(0)
             setBombTime(0)
             setGameState(prev => ({ ...prev, time: maxTime }))
             lastProcessedTime.current = maxTime
         }
-        // Fallback: ensure playback continues for round-end processing
         setSpeed(100)
         setIsPlaying(true)
         isSimulatingRef.current = false
@@ -1339,28 +760,15 @@ export function useLiveMatch(id: string) {
 
     const handleFinish = useCallback(() => {
         const runtime = matchData.current
-        if (!runtime || latestGameStateRef.current?.status !== "FINISHED") return
+        const sim = latestSimStateRef.current
+        if (!runtime || !sim || latestGameStateRef.current?.status !== "FINISHED") return
 
-        // Recompute player stats + MVP from the rounds ACTUALLY played live,
-        // rather than shipping baseResult's quick-sim stats (which were produced
-        // with a different starting-side decision + overtime path, so they can
-        // contradict the scoreboard the player just watched — even crowning an
-        // MVP on the losing team). Reuse the canonical helpers over the live maps.
-        const pMap = playerMapRef.current
-        const hPlayers = runtime.homePlayerIds.map(pid => pMap.get(pid)).filter(Boolean) as Player[]
-        const aPlayers = runtime.awayPlayerIds.map(pid => pMap.get(pid)).filter(Boolean) as Player[]
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const playedMaps = (runtime.result.maps as any[]).filter(m => Array.isArray(m.rounds) && m.rounds.length > 0)
-        if (hPlayers.length > 0 && aPlayers.length > 0 && playedMaps.length > 0) {
-            const homeWon = runtime.result.homeScore > runtime.result.awayScore
-            const statsRng = createMatchRNG(runtime.match.seed as number)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const liveStats = generateMatchStats(statsRng, hPlayers, aPlayers, playedMaps as any, homeWon)
-            runtime.result.playerStats = liveStats
-            runtime.result.mvpPlayerId = determineMVP(liveStats, homeWon ? hPlayers : aPlayers)
-        }
-
-        saveMatchResult(runtime.match.id, runtime.result)
+        // Canonical result from the rounds actually played (same finaliser as
+        // instant simulation: map MVPs, stats stream, lineups, management).
+        const result = finalizeLegacySeries(runtime.ctx, { sim, maps: runtime.result.maps, finished: true }, buildManagementRecord({
+            ctx: runtime.ctx, match: runtime.match, mode: "live", timeoutsUsed: 2 - timeoutsRemainingRef.current, maps: runtime.result.maps,
+        }))
+        saveMatchResult(runtime.match.id, result)
         if (!useGameStore.getState().completedMatches.some(m => m.id === runtime.match.id)) {
             useGameStore.getState().addToast({ message: "The result could not be committed. Your match checkpoint has been preserved.", type: "warning" })
             return
@@ -1369,6 +777,10 @@ export function useLiveMatch(id: string) {
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])
+
+    // Own-team view for the strategy panel and loadout editor (home OR away).
+    const ownEconomy = useMemo(() => (simState ? (isPlayerHome ? simState.homeEconomy : simState.awayEconomy) : {}) as Record<string, { cash: number }>, [simState, isPlayerHome])
+    const ownIsCT = simState ? (isPlayerHome ? simState.homeStartsCT : !simState.homeStartsCT) : true
 
     return {
         gameState,
@@ -1400,7 +812,11 @@ export function useLiveMatch(id: string) {
         timeoutActive: timeoutBoostRounds > 0,
         callTimeout,
         customTactics,
-        teams, // Should be passed? no used by UI
-        updateCustomTactic
+        teams,
+        updateCustomTactic,
+        roundHomeIsCT,
+        isPlayerHome,
+        ownEconomy,
+        ownIsCT,
     }
 }

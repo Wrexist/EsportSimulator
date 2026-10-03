@@ -55,8 +55,6 @@ export default function SchedulePage() {
     scheduledMatches,
     completedMatches,
     scheduledActivities,
-    eventsLog,
-    isLoading,
     gameStartDate,
     teams,
     players,
@@ -70,8 +68,6 @@ export default function SchedulePage() {
     scheduledMatches: state.scheduledMatches,
     completedMatches: state.completedMatches,
     scheduledActivities: state.scheduledActivities,
-    eventsLog: state.eventsLog,
-    isLoading: state.isLoading,
     gameStartDate: state.gameStartDate,
     teams: state.teams,
     players: state.players,
@@ -602,7 +598,7 @@ export default function SchedulePage() {
                         })
 
                         // Check for projected match on this day (Default to Saturday if no real matches)
-                        const dayProjected = projected.filter(p => {
+                        const dayProjected = projected.filter(() => {
                           // Very simple logic: put projected matches on Saturday if no real matches
                           return dayIndex === 5 && dayMatches.length === 0
                         })
@@ -629,7 +625,6 @@ export default function SchedulePage() {
                         const isScrimDay = primaryMatch?.isScrim
                         const isMatchDay = primaryMatch && !primaryMatch.isScrim
                         const isTournamentWeek = participatingTournaments.length > 0
-                        const isBusyDay = isTournamentWeek || weekActivity
 
                         return (
                           <div key={formatGameCalendarDate(gameCalendarDate(gameStartDate, weekNum, dayIndex), { weekday: "short" }).toUpperCase()} className={cn(

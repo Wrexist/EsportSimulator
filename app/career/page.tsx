@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -31,8 +30,8 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
-import Image from "next/image"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { pressable } from "@/lib/accessibility"
 
 
 export default function CareerPage() {
@@ -42,7 +41,6 @@ export default function CareerPage() {
         currentWeek,
         completedMatches,
         eventsLog,
-        hallOfFame,
         saveId: currentSaveId,
         listSaves,
         switchSave,
@@ -54,7 +52,6 @@ export default function CareerPage() {
         currentWeek: state.currentWeek,
         completedMatches: state.completedMatches,
         eventsLog: state.eventsLog,
-        hallOfFame: state.hallOfFame,
         saveId: state.saveId,
         listSaves: state.listSaves,
         switchSave: state.switchSave,
@@ -69,14 +66,11 @@ export default function CareerPage() {
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-    // Calculate Career Stats (Current Save)
-    const playerTeam = useCurrentTeam()
-
     // All derived stats memoized — the page also renders tabs (saves /
     // achievements / history) which re-trigger render on click, and the
     // base lists (completedMatches, eventsLog, financeLedger) reach 1000s
     // of entries on long careers.
-    const { managedMatches, totalMatches, wins, winRate } = useMemo(() => {
+    const { wins, winRate } = useMemo(() => {
         const m = completedMatches.filter(cm =>
             cm.homeTeamId === playerTeamId || cm.awayTeamId === playerTeamId
         )
@@ -149,7 +143,7 @@ export default function CareerPage() {
             } else {
                 toast.error("Failed to load save")
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to load save")
         } finally {
             setIsSwitching(false)
@@ -173,7 +167,7 @@ export default function CareerPage() {
             setConfirmDelete(null)
             if (selectedSlot === saveId) setSelectedSlot(null)
             toast.success("Save deleted")
-        } catch (error) {
+        } catch {
             toast.error("Failed to delete save")
         }
     }
@@ -439,7 +433,7 @@ export default function CareerPage() {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 10 }}
                                             transition={{ delay: idx * 0.03 }}
-                                            onClick={() => !isActive && setSelectedSlot(slot.saveId || null)}
+                                            {...pressable(() => setSelectedSlot(slot.saveId || null), { disabled: isActive, pressed: selectedSlot === slot.saveId })}
                                             className={`
                                                 group relative w-full p-5 rounded-3xl cursor-pointer transition-all duration-300 border mb-3 backdrop-blur-sm
                                                 ${isActive

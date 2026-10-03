@@ -28,6 +28,7 @@ export function MapValidationPanel({ project, disabled, onChange, onSelect, onOv
         }
         instance.onerror = () => setStatus('Geometry worker failed. Close and reopen validation to retry.')
         instance.postMessage({ type: 'load', mapId: project.mapId })
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- serial is a request-id counter, not a DOM ref; bumping the latest value is intended
         return () => { disposed = true; serial.current++; instance.terminate(); worker.current = null }
     }, [open, project.mapId, project.floor])
     useEffect(() => {
