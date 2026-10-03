@@ -3,7 +3,7 @@
  *
  * Every scenario drives the production SaveManager through a production
  * storage adapter: the actual Electron main-process storage handlers (via the
- * launch harness) behind ElectronStorageAdapter, IndexedDBAdapter over an
+ * launch harness, over per-career save files) behind ElectronStorageAdapter, IndexedDBAdapter over an
  * IndexedDB double that commits/aborts like a browser, or the store's own
  * singleton saveManager. Faults are injected below the adapter, never by
  * mocking SaveManager itself.
@@ -11,6 +11,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
+import vm from "node:vm"
 import { SaveManager } from "@/engine/save-manager"
 import { SaveIntegrityManager } from "@/engine/save-integrity"
 import { CURRENT_SAVE_VERSION, STORAGE_KEYS, type GameSave } from "@/engine/save-types"
@@ -43,37 +44,48 @@ function career(week = 1, scenario: Parameters<typeof createLaunchFixture>[0] = 
     return save
 }
 
-// ===== Electron: actual main.js storage handlers over a conf-like disk =====
+// ===== Electron: actual main.js storage handlers over per-career files =====
 
 /**
- * Mirrors conf 15 (electron-store's backend): every `store` read parses
- * config.json from disk, every `store` write replaces the whole file via
- * temp-file + rename. `failFrom` injects ENOSPC from the Nth write onward.
+ * node:fs behind the production game-storage module. Every mutating step
+ * (temp create, data write, rename, unlink, rmdir) is counted; `failFrom`
+ * injects ENOSPC from the Nth step onward and `after` observes each completed
+ * step so a test can snapshot the disk exactly as a killed process would
+ * leave it.
  */
-class ConfLikeDisk {
-    writes = 0
+class FaultFs {
+    steps = 0
     failFrom: number | null = null
-    constructor(readonly file: string) {}
-    private read(): Record<string, unknown> {
-        try { return JSON.parse(fs.readFileSync(this.file, "utf8")) }
-        catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return {}; throw error }
+    after: ((step: number) => void) | null = null
+    readonly fs: typeof fs
+    constructor() {
+        const counted = new Set(["openSync", "writeFileSync", "renameSync", "unlinkSync", "rmdirSync"])
+        this.fs = new Proxy(fs, {
+            get: (target, prop: string) => {
+                const real = (target as unknown as Record<string, unknown>)[prop]
+                if (typeof real !== "function") return real
+                if (!counted.has(prop)) return real.bind(target)
+                return (...args: unknown[]) => {
+                    if (prop === "openSync" && !/[wa]/.test(String(args[1] ?? "r"))) return real.apply(target, args)
+                    this.steps++
+                    if (this.failFrom !== null && this.steps >= this.failFrom) {
+                        throw Object.assign(new Error("ENOSPC: no space left on device, write"), { code: "ENOSPC" })
+                    }
+                    const result = real.apply(target, args)
+                    this.after?.(this.steps)
+                    return result
+                }
+            },
+        })
     }
-    get store() { return this.read() }
-    set store(next: Record<string, unknown>) {
-        this.writes++
-        if (this.failFrom !== null && this.writes >= this.failFrom) {
-            throw Object.assign(new Error("ENOSPC: no space left on device, write"), { code: "ENOSPC" })
-        }
-        fs.writeFileSync(this.file + ".w", JSON.stringify(next))
-        fs.renameSync(this.file + ".w", this.file)
-    }
-    get(key: string) { return this.read()[key] }
-    set(key: string, value: unknown) { this.store = { ...this.read(), [key]: value } }
-    delete(key: string) { const next = this.read(); delete next[key]; this.store = next }
 }
 
-function electronManager(directory: string, disk: ConfLikeDisk) {
-    const harness = loadHandlers({ directory, diskStore: disk })
+function electronHarness(directory: string, faults?: FaultFs) {
+    return loadHandlers({ directory, saveFs: faults?.fs })
+}
+
+function electronManager(directory: string, faults?: FaultFs) {
+    const harness = electronHarness(directory, faults)
     const bridge = {
         getItem: (k: string) => harness.invoke("storage-get-item", k),
         setItem: (k: string, v: string) => harness.invoke("storage-set-item", k, v),
@@ -83,7 +95,15 @@ function electronManager(directory: string, disk: ConfLikeDisk) {
     }
     ;(global as { window?: unknown }).window = { electron: { storage: bridge } }
     const adapter = new ElectronStorageAdapter(new LocalStorageAdapter())
-    return { manager: new SaveManager(adapter), adapter }
+    return { manager: new SaveManager(adapter), adapter, harness }
+}
+
+const careerFile = (directory: string, id: string, file: string) => path.join(directory, "saves", id, file)
+const readCareerFile = (directory: string, id: string, file: string) => fs.readFileSync(careerFile(directory, id, file), "utf8")
+const strayTemps = (directory: string) => {
+    const saves = path.join(directory, "saves")
+    if (!fs.existsSync(saves)) return []
+    return fs.readdirSync(saves).flatMap(id => fs.readdirSync(path.join(saves, id)).filter(name => name.endsWith(".tmp")))
 }
 
 describe("Electron disk boundary (actual IPC handlers + ElectronStorageAdapter)", () => {
@@ -96,104 +116,301 @@ describe("Electron disk boundary (actual IPC handlers + ElectronStorageAdapter)"
         fs.rmSync(directory, { recursive: true, force: true })
     })
 
-    async function seedLastGood() {
-        const disk = new ConfLikeDisk(path.join(directory, "config.json"))
-        const { manager } = electronManager(directory, disk)
+    async function seedLastGood(dir: string, faults = new FaultFs()) {
+        const { manager } = electronManager(dir, faults)
         const save = career(1)
         expect((await manager.saveGame(save)).success).toBe(true)
-        return { disk, save }
+        return { faults, save }
     }
+
+    test("each career copy is its own file in a per-career directory", async () => {
+        const { save } = await seedLastGood(directory)
+        await electronManager(directory).manager.saveGame({ ...save, currentWeek: 2 })
+        expect(fs.readdirSync(path.join(directory, "saves", save.saveId)).sort()).toEqual(["backup-1.json", "primary.json"])
+        expect(JSON.parse(readCareerFile(directory, save.saveId, "primary.json")).currentWeek).toBe(2)
+        expect(JSON.parse(readCareerFile(directory, save.saveId, "backup-1.json")).currentWeek).toBe(1)
+        expect(fs.readFileSync(path.join(directory, "game-storage", `${STORAGE_KEYS.CURRENT_SAVE_ID}.json`), "utf8")).toBe(save.saveId)
+        expect(fs.existsSync(path.join(directory, "config.json"))).toBe(false)
+    })
 
     test("disk full at every write step never reports saved, never tears the primary, and keeps last-good loadable", async () => {
         // Count the writes one full save performs so every step gets a fault.
-        const probe = await seedLastGood()
-        const before = probe.disk.writes
-        expect((await electronManager(directory, probe.disk).manager.saveGame({ ...probe.save, currentWeek: 2 })).success).toBe(true)
-        const stepsPerSave = probe.disk.writes - before
-        expect(stepsPerSave).toBeGreaterThanOrEqual(4)
+        const probe = await seedLastGood(directory)
+        const before = probe.faults.steps
+        expect((await electronManager(directory, probe.faults).manager.saveGame({ ...probe.save, currentWeek: 2 })).success).toBe(true)
+        const stepsPerSave = probe.faults.steps - before
+        expect(stepsPerSave).toBeGreaterThanOrEqual(8)
 
         for (let step = 1; step <= stepsPerSave; step++) {
-            fs.rmSync(path.join(directory, "config.json"), { force: true })
-            const { disk, save } = await seedLastGood()
-            const lastGood = JSON.parse(fs.readFileSync(disk.file, "utf8"))[primaryKey(save.saveId)]
-            disk.failFrom = disk.writes + step
-            const result = await electronManager(directory, disk).manager.saveGame({ ...save, currentWeek: 2 })
-            const onDisk = JSON.parse(fs.readFileSync(disk.file, "utf8"))
+            const dir = fs.mkdtempSync(path.join(directory, "step-"))
+            const { faults, save } = await seedLastGood(dir)
+            const lastGood = readCareerFile(dir, save.saveId, "primary.json")
+            faults.failFrom = faults.steps + step
+            const result = await electronManager(dir, faults).manager.saveGame({ ...save, currentWeek: 2 })
             // Failures after the verified commit (staging cleanup) are still reported, never hidden.
             if (!result.success) expect(result.error).toMatch(/^Disk save (deletion )?failed/)
             // The disk only ever holds complete copies: last-good or the new save.
-            const primaryWeek = JSON.parse(onDisk[primaryKey(save.saveId)]).currentWeek
+            const primary = readCareerFile(dir, save.saveId, "primary.json")
+            const primaryWeek = JSON.parse(primary).currentWeek
             expect([1, 2]).toContain(primaryWeek)
             if (result.success) expect(primaryWeek).toBe(2)
             // An uncommitted save leaves the primary byte-identical to last-good.
-            if (primaryWeek === 1) expect(onDisk[primaryKey(save.saveId)]).toBe(lastGood)
+            if (primaryWeek === 1) expect(primary).toBe(lastGood)
 
             // Disk is still full on relaunch: last-good (or the committed save) still loads.
-            const stillFull = await electronManager(directory, disk).manager.loadGame(save.saveId)
+            const stillFull = await electronManager(dir, faults).manager.loadGame(save.saveId)
             expect(stillFull.save?.currentWeek).toBe(primaryWeek)
             expect(stillFull.restoredFromBackup).toBeUndefined()
 
-            // Space freed: stale staging is discarded and a retry commits week 2.
-            disk.failFrom = null
-            const retry = electronManager(directory, disk).manager
+            // Space freed: stale staging and temp files are discarded and a retry commits week 2.
+            faults.failFrom = null
+            const retry = electronManager(dir, faults).manager
             expect((await retry.loadGame(save.saveId)).save).not.toBeNull()
-            expect(JSON.parse(fs.readFileSync(disk.file, "utf8"))[primaryKey(save.saveId) + ".tmp"]).toBeUndefined()
+            expect(fs.existsSync(careerFile(dir, save.saveId, "staging.json"))).toBe(false)
+            expect(strayTemps(dir)).toEqual([])
             expect((await retry.saveGame({ ...save, currentWeek: 2 })).success).toBe(true)
-            expect((await electronManager(directory, disk).manager.loadGame(save.saveId)).save?.currentWeek).toBe(2)
+            expect((await electronManager(dir, faults).manager.loadGame(save.saveId)).save?.currentWeek).toBe(2)
         }
     }, 60_000)
 
     test("a crash after any single write step leaves a loadable career with no half-written state", async () => {
-        const probe = await seedLastGood()
-        const before = probe.disk.writes
-        await electronManager(directory, probe.disk).manager.saveGame({ ...probe.save, currentWeek: 2 })
-        const stepsPerSave = probe.disk.writes - before
+        const probe = await seedLastGood(directory)
+        const before = probe.faults.steps
+        await electronManager(directory, probe.faults).manager.saveGame({ ...probe.save, currentWeek: 2 })
+        const stepsPerSave = probe.faults.steps - before
 
         for (let completed = 0; completed < stepsPerSave; completed++) {
-            fs.rmSync(path.join(directory, "config.json"), { force: true })
-            const { disk, save } = await seedLastGood()
-            // Kill the process after `completed` writes: copy the disk at that
+            const dir = fs.mkdtempSync(path.join(directory, "crash-src-"))
+            const crashDir = fs.mkdtempSync(path.join(directory, "crash-"))
+            const { faults, save } = await seedLastGood(dir)
+            // Kill the process after `completed` steps: copy the disk at that
             // instant and relaunch against the copy.
-            const crashDir = fs.mkdtempSync(path.join(os.tmpdir(), "esim-save-fault-crash-"))
-            try {
-                let seen = 0
-                const startWrites = disk.writes
-                const realSet = Object.getOwnPropertyDescriptor(ConfLikeDisk.prototype, "store")!.set!
-                Object.defineProperty(disk, "store", {
-                    get: () => JSON.parse(fs.readFileSync(disk.file, "utf8")),
-                    set: (next: Record<string, unknown>) => {
-                        realSet.call(disk, next)
-                        if (++seen === completed) fs.copyFileSync(disk.file, path.join(crashDir, "config.json"))
-                    },
-                })
-                if (completed === 0) fs.copyFileSync(disk.file, path.join(crashDir, "config.json"))
-                await electronManager(directory, disk).manager.saveGame({ ...save, currentWeek: 2 })
-                expect(disk.writes - startWrites).toBe(stepsPerSave)
+            const startSteps = faults.steps
+            faults.after = step => { if (step - startSteps === completed) fs.cpSync(dir, crashDir, { recursive: true }) }
+            if (completed === 0) fs.cpSync(dir, crashDir, { recursive: true })
+            await electronManager(dir, faults).manager.saveGame({ ...save, currentWeek: 2 })
+            expect(faults.steps - startSteps).toBe(stepsPerSave)
 
-                const relaunched = new ConfLikeDisk(path.join(crashDir, "config.json"))
-                const loaded = await electronManager(crashDir, relaunched).manager.loadGame(save.saveId)
-                expect(loaded.save).not.toBeNull()
-                expect([1, 2]).toContain(loaded.save!.currentWeek)
-                const after = JSON.parse(fs.readFileSync(relaunched.file, "utf8"))
-                expect(after[primaryKey(save.saveId) + ".tmp"]).toBeUndefined()
-                expect(JSON.parse(after[primaryKey(save.saveId)]).currentWeek).toBe(loaded.save!.currentWeek)
-            } finally {
-                fs.rmSync(crashDir, { recursive: true, force: true })
-            }
+            const loaded = await electronManager(crashDir).manager.loadGame(save.saveId)
+            expect(loaded.save).not.toBeNull()
+            expect([1, 2]).toContain(loaded.save!.currentWeek)
+            expect(fs.existsSync(careerFile(crashDir, save.saveId, "staging.json"))).toBe(false)
+            expect(strayTemps(crashDir)).toEqual([])
+            expect(JSON.parse(readCareerFile(crashDir, save.saveId, "primary.json")).currentWeek).toBe(loaded.save!.currentWeek)
         }
     }, 60_000)
 
-    test("an unreadable config.json fails load and save loudly and is never rewritten", async () => {
-        const { disk, save } = await seedLastGood()
-        fs.writeFileSync(disk.file, '{"esports_save_')
-        const torn = fs.readFileSync(disk.file)
-        const { manager } = electronManager(directory, disk)
+    test("a corrupt config.json no longer loses careers: they load and save, and config.json is never rewritten", async () => {
+        const legacy = path.join(directory, "config.json")
+        fs.writeFileSync(legacy, '{"esports_save_')
+        const torn = fs.readFileSync(legacy)
+        const { save } = await seedLastGood(directory)
+        const { manager, harness } = electronManager(directory)
+        expect(await harness.invoke("storage-get-all-keys")).toEqual(expect.arrayContaining([primaryKey(save.saveId)]))
         const loaded = await manager.loadGame(save.saveId)
-        expect(loaded.save).toBeNull()
-        expect(loaded.error).toMatch(/could not be read/)
-        const saved = await manager.saveGame({ ...save, currentWeek: 2 })
-        expect(saved.success).toBe(false)
-        expect(fs.readFileSync(disk.file).equals(torn)).toBe(true)
+        expect(loaded.save?.currentWeek).toBe(1)
+        expect((await manager.saveGame({ ...save, currentWeek: 2 })).success).toBe(true)
+        expect((await electronManager(directory).manager.loadGame(save.saveId)).save?.currentWeek).toBe(2)
+        expect(fs.readFileSync(legacy).equals(torn)).toBe(true)
+        // Import is not marked done while the legacy file is unreadable; it is retried on a later launch.
+        expect(fs.existsSync(path.join(directory, "storage-migration.json"))).toBe(false)
+    })
+
+    test("startup survives an unreadable config.json and still serves per-file careers", async () => {
+        const { save } = await seedLastGood(directory)
+        fs.writeFileSync(path.join(directory, "config.json"), "\u0000garbage")
+        const harness = electronHarness(directory)
+        const context = harness.contexts["main.js"]
+        await vm.runInContext("initStore()", context)
+        expect(vm.runInContext("store.get('window').width", context)).toBe(1280)
+        expect(JSON.parse(await harness.invoke("storage-get-item", primaryKey(save.saveId))).saveId).toBe(save.saveId)
+    })
+
+    test("a corrupt file in one career never affects another career", async () => {
+        const { save: a } = await seedLastGood(directory)
+        const b = { ...career(3), saveId: "save_other_career" }
+        const { manager } = electronManager(directory)
+        expect((await manager.saveGame({ ...a, currentWeek: 2 })).success).toBe(true)
+        expect((await manager.saveGame(b)).success).toBe(true)
+        const bBytes = readCareerFile(directory, b.saveId, "primary.json")
+
+        // One damaged primary: that career recovers from its own backup, the other is untouched.
+        fs.writeFileSync(careerFile(directory, a.saveId, "primary.json"), '{"saveId":"torn')
+        const recovered = await electronManager(directory).manager.loadGame(a.saveId)
+        expect(recovered.save?.currentWeek).toBe(1)
+        expect(recovered.restoredFromBackup).toBe(true)
+        expect(readCareerFile(directory, a.saveId, "backup-corrupt.json")).toBe('{"saveId":"torn')
+        expect((await electronManager(directory).manager.loadGame(b.saveId)).save?.currentWeek).toBe(3)
+
+        // Every copy of one career damaged: only that career fails.
+        for (const file of fs.readdirSync(path.join(directory, "saves", a.saveId))) fs.writeFileSync(careerFile(directory, a.saveId, file), "\u0000")
+        const lost = await electronManager(directory).manager.loadGame(a.saveId)
+        expect(lost.save).toBeNull()
+        const other = await electronManager(directory).manager.loadGame(b.saveId)
+        expect(other.save?.currentWeek).toBe(3)
+        expect(other.restoredFromBackup).toBeUndefined()
+        expect(readCareerFile(directory, b.saveId, "primary.json")).toBe(bBytes)
+        const listed = await electronManager(directory).manager.getSaveSlots()
+        expect(listed.map(slot => slot.saveId)).toEqual(expect.arrayContaining([b.saveId]))
+    })
+
+    test("career IDs that are not safe file names are rejected before any path is built", async () => {
+        const { keyLocation, createGameStorage } = require("../electron/game-storage")
+        const { storageKey } = require("../electron/ipc-policy")
+        const allowAny = (key: unknown) => typeof key === "string"
+        for (const key of ["esports_save_../../evil", "esports_save_a/b", "esports_save_a\\b", "esports_backup_..", "esports_save_C:evil", "esports_week_tick_state_x.y", "esports_save_CON", "esports_backup_nul_1", "esports_save_" + "x".repeat(226)]) {
+            expect(() => keyLocation(key, allowAny)).toThrow(/safe file name/)
+        }
+        expect(keyLocation("esports_backup_save_1_2_corrupt", storageKey)).toEqual({ dir: "saves/save_1_2", file: "backup-corrupt.json" })
+        expect(keyLocation("window", storageKey)).toBeNull()
+
+        // Second layer: the storage module itself refuses, even with a permissive key predicate.
+        const storage = createGameStorage({ root: directory, isStorageKey: allowAny, maxValueBytes: 1024 })
+        expect(() => storage.setItem("esports_save_../../evil", "x")).toThrow()
+        expect(fs.existsSync(path.join(directory, "..", "evil"))).toBe(false)
+
+        // Through the real IPC handlers: rejected with the contract fallback and nothing written.
+        const harness = electronHarness(directory)
+        for (const key of ["esports_save_CON", "esports_save_../x", "esports_backup_..%2fx"]) {
+            expect(await harness.invoke("storage-set-item", key, "bad")).toBe(false)
+            expect(await harness.invoke("storage-remove-item", key)).toBe(false)
+        }
+        expect(fs.existsSync(path.join(directory, "saves"))).toBe(false)
+
+        // A career directory replaced by a link/junction is refused, not followed.
+        const outside = fs.mkdtempSync(path.join(directory, "outside-"))
+        fs.mkdirSync(path.join(directory, "saves"), { recursive: true })
+        fs.symlinkSync(outside, path.join(directory, "saves", "save_linked"), "junction")
+        expect(await harness.invoke("storage-set-item", "esports_save_save_linked", "x")).toBe(false)
+        expect(await harness.invoke("storage-get-item", "esports_save_save_linked")).toEqual({ error: expect.any(String) })
+        expect(fs.readdirSync(outside)).toEqual([])
+    })
+})
+
+// ===== Electron: one-time import from the legacy single config.json =====
+
+describe("legacy config.json import", () => {
+    let directory: string
+    beforeAll(() => debouncedStorage.flush())
+    beforeEach(() => { directory = fs.mkdtempSync(path.join(os.tmpdir(), "esim-save-fault-")) })
+    afterEach(() => {
+        expect(path.basename(directory)).toMatch(/^esim-save-fault-/)
+        fs.rmSync(directory, { recursive: true, force: true })
+    })
+
+    /** A config.json exactly as an older build left it: settings plus every career and backup. */
+    async function writeLegacyConfig(dir: string) {
+        const storage = new FixtureStorage()
+        const manager = new SaveManager(storage)
+        const a = career(1)
+        const b = { ...career(5, "weak-club"), saveId: "save_legacy_b" }
+        for (const week of [1, 2, 3, 4]) expect((await manager.saveGame({ ...a, currentWeek: week })).success).toBe(true)
+        expect((await manager.saveGame(b)).success).toBe(true)
+        storage.data.set(backupKey(a.saveId, "_corrupt"), "{quarantined")
+        storage.data.set("esports-sim-storage", '{"state":{"theme":"dark"}}')
+        storage.data.set("cs2_manager_career_profile", '{"careers":2}')
+        const config = { window: { width: 1600, height: 900, x: 10, y: 20, fullscreen: false, maximized: true }, ...Object.fromEntries(storage.data) }
+        fs.writeFileSync(path.join(dir, "config.json"), JSON.stringify(config, null, "\t"))
+        return { legacy: new Map(storage.data), a, b, bytes: fs.readFileSync(path.join(dir, "config.json")) }
+    }
+
+    async function readAll(dir: string, faults?: FaultFs) {
+        const harness = electronHarness(dir, faults)
+        const keys: string[] = await harness.invoke("storage-get-all-keys")
+        const values = new Map<string, string>()
+        for (const key of keys) values.set(key, await harness.invoke("storage-get-item", key))
+        return { harness, values }
+    }
+
+    test("import is lossless: every legacy key reads back byte-identical from its own file, and careers load", async () => {
+        const { legacy, a, b, bytes } = await writeLegacyConfig(directory)
+        expect(legacy.has(backupKey(a.saveId, "_3"))).toBe(true)
+        const { values } = await readAll(directory)
+        expect(values).toEqual(legacy)
+        expect(readCareerFile(directory, a.saveId, "backup-3.json")).toBe(legacy.get(backupKey(a.saveId, "_3")))
+        expect(readCareerFile(directory, a.saveId, "backup-corrupt.json")).toBe("{quarantined")
+        expect(readCareerFile(directory, b.saveId, "primary.json")).toBe(legacy.get(primaryKey(b.saveId)))
+        expect(JSON.parse(fs.readFileSync(path.join(directory, "storage-migration.json"), "utf8"))).toMatchObject({ complete: true, sourceStatus: "readable" })
+        const { manager } = electronManager(directory)
+        expect((await manager.loadGame(a.saveId)).save?.currentWeek).toBe(4)
+        expect((await manager.loadGame(b.saveId)).save?.currentWeek).toBe(5)
+        // The legacy file is left exactly as it was (read-only fallback for support).
+        expect(fs.readFileSync(path.join(directory, "config.json")).equals(bytes)).toBe(true)
+    })
+
+    test("import is idempotent and never overwrites a newer per-file copy", async () => {
+        const { legacy, a, bytes } = await writeLegacyConfig(directory)
+        await readAll(directory)
+        // Relaunch: marker present, no writes at all.
+        const quiet = new FaultFs()
+        expect((await readAll(directory, quiet)).values).toEqual(legacy)
+        expect(quiet.steps).toBe(0)
+
+        // Play on after the import, then lose the marker: re-running keeps the newer career.
+        expect((await electronManager(directory).manager.saveGame({ ...career(1), currentWeek: 9 })).success).toBe(true)
+        const newer = readCareerFile(directory, a.saveId, "primary.json")
+        fs.rmSync(path.join(directory, "storage-migration.json"))
+        const again = await readAll(directory)
+        expect(again.values.get(primaryKey(a.saveId))).toBe(newer)
+        expect(JSON.parse(fs.readFileSync(path.join(directory, "storage-migration.json"), "utf8")).copied).toEqual([])
+        expect((await electronManager(directory).manager.loadGame(a.saveId)).save?.currentWeek).toBe(9)
+
+        // A career deleted after the import stays deleted; config.json is still untouched.
+        expect((await electronManager(directory).manager.deleteSave(a.saveId)).success).toBe(true)
+        expect((await readAll(directory)).values.has(primaryKey(a.saveId))).toBe(false)
+        expect(fs.readFileSync(path.join(directory, "config.json")).equals(bytes)).toBe(true)
+    })
+
+    test("a crash at any step of the import loses nothing, and the next launch finishes it", async () => {
+        const probeDir = fs.mkdtempSync(path.join(directory, "probe-"))
+        const { legacy } = await writeLegacyConfig(probeDir)
+        const probe = new FaultFs()
+        await readAll(probeDir, probe)
+        const importSteps = probe.steps
+        expect(importSteps).toBeGreaterThanOrEqual(legacy.size * 3)
+
+        for (let completed = 0; completed < importSteps; completed += completed < 6 ? 1 : 5) {
+            const dir = fs.mkdtempSync(path.join(directory, "import-"))
+            const crashDir = fs.mkdtempSync(path.join(directory, "import-crash-"))
+            // The exact same legacy file every time, so each crash point is comparable.
+            fs.copyFileSync(path.join(probeDir, "config.json"), path.join(dir, "config.json"))
+            const bytes = fs.readFileSync(path.join(dir, "config.json"))
+            const faults = new FaultFs()
+            faults.after = step => { if (step === completed) fs.cpSync(dir, crashDir, { recursive: true }) }
+            if (completed === 0) fs.cpSync(dir, crashDir, { recursive: true })
+            await readAll(dir, faults)
+
+            // Relaunch on the killed disk: everything is visible and import completes.
+            const relaunched = await readAll(crashDir)
+            expect(relaunched.values).toEqual(legacy)
+            expect(fs.existsSync(path.join(crashDir, "storage-migration.json"))).toBe(true)
+            expect(strayTemps(crashDir)).toEqual([])
+            expect(fs.readFileSync(path.join(crashDir, "config.json")).equals(bytes)).toBe(true)
+        }
+    }, 120_000)
+
+    test("an import that cannot write keeps legacy careers readable, refuses deletes, and completes once space returns", async () => {
+        const { legacy, a, bytes } = await writeLegacyConfig(directory)
+        const full = new FaultFs()
+        full.failFrom = 4
+        const { values, harness } = await readAll(directory, full)
+        expect(values).toEqual(legacy)
+        expect(fs.existsSync(path.join(directory, "storage-migration.json"))).toBe(false)
+        // Deleting a career that still only exists in config.json would be undone by the import.
+        expect(await harness.invoke("storage-remove-item", primaryKey(a.saveId))).toBe(false)
+        expect(await harness.invoke("storage-clear")).toBe(false)
+
+        const { values: after } = await readAll(directory)
+        expect(after).toEqual(legacy)
+        expect(fs.existsSync(path.join(directory, "storage-migration.json"))).toBe(true)
+        expect(fs.readFileSync(path.join(directory, "config.json")).equals(bytes)).toBe(true)
+    })
+
+    test("window placement is carried over from config.json into the separate settings store", async () => {
+        await writeLegacyConfig(directory)
+        const harness = electronHarness(directory)
+        const context = harness.contexts["main.js"]
+        expect(vm.runInContext("legacyWindowState(app.getPath('userData'))", context)).toMatchObject({ width: 1600, height: 900, maximized: true })
     })
 })
 

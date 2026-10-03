@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const {createRequire}=require('node:module');
 const {EventEmitter}=require('node:events');
 const root=path.resolve(__dirname,'../..');
-function loadHandlers({directory, ipcMain, contents, nativeApp, nativeWindow, steamClient, diskStore, port=3210}={}) {
+function loadHandlers({directory, ipcMain, contents, nativeApp, nativeWindow, steamClient, diskStore, saveFs, port=3210}={}) {
     const handlers=new Map();
     const app=new EventEmitter();
     Object.assign(app,{isPackaged:false,setAppUserModelId(){},requestSingleInstanceLock:()=>true,getPath:()=>directory,getAppPath:()=>root,
@@ -23,13 +23,13 @@ function loadHandlers({directory, ipcMain, contents, nativeApp, nativeWindow, st
         const context=vm.createContext({require:id=>id==='electron'?electron:id==='steamworks.js'?{init:()=>fakeSteam}:id==='./steam'?load('steam.js'):localRequire(id),
             module:{exports:{}},exports:{},__dirname:path.dirname(full),__filename:full,URL,Buffer,console:{log(){},error(){},warn(){}},
             process:{env:{NEXT_SERVER_PORT:String(port),ESM_STABILITY_MODE:'1'},platform:process.platform,resourcesPath:directory,version:process.version,exit(){}},
-            setTimeout,clearTimeout,setInterval,clearInterval, testWindow:window,testStore:store});
+            setTimeout,clearTimeout,setInterval,clearInterval, testWindow:window,testStore:store,testSaveFs:saveFs});
         vm.runInContext(fs.readFileSync(full,'utf8'),context,{filename:full});
         contexts[file]=context;
         return context.module.exports;
     }
     load('main.js');
-    vm.runInContext('mainWindow = testWindow; store = testStore;',contexts['main.js']);
+    vm.runInContext('mainWindow = testWindow; store = testStore;'+(saveFs?' saveFsLayer = testSaveFs;':''),contexts['main.js']);
     const event={sender:webContents,senderFrame:webContents.mainFrame};
     const attachCloseHandler=()=>{
         const source=fs.readFileSync(path.join(root,'electron/main.js'),'utf8');

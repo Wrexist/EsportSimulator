@@ -1,11 +1,11 @@
 {
   "date": "2026-09-13",
-  "count": 41,
+  "count": 45,
   "rows": [
     {
       "channel": "app-close-cancelled",
       "file": "electron/main.js",
-      "line": 421,
+      "line": 472,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -14,7 +14,7 @@
     {
       "channel": "app-close-confirmed",
       "file": "electron/main.js",
-      "line": 410,
+      "line": 461,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -23,7 +23,7 @@
     {
       "channel": "app-close-received",
       "file": "electron/main.js",
-      "line": 404,
+      "line": 455,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -32,7 +32,7 @@
     {
       "channel": "app-get-user-data-path",
       "file": "electron/main.js",
-      "line": 311,
+      "line": 362,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → string|null",
       "invalidReturn": null,
@@ -41,7 +41,7 @@
     {
       "channel": "gpu-get-mode",
       "file": "electron/main.js",
-      "line": 377,
+      "line": 428,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → mode|null",
       "invalidReturn": null,
@@ -50,7 +50,7 @@
     {
       "channel": "gpu-set-mode",
       "file": "electron/main.js",
-      "line": 381,
+      "line": 432,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "compatibility|performance → boolean",
       "invalidReturn": false,
@@ -59,7 +59,7 @@
     {
       "channel": "log-write-error",
       "file": "electron/main.js",
-      "line": 433,
+      "line": 484,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "message/stack ≤8000 UTF-8 bytes; fixed level enum → boolean",
       "invalidReturn": false,
@@ -68,7 +68,7 @@
     {
       "channel": "mod-clear",
       "file": "electron/main.js",
-      "line": 666,
+      "line": 746,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -77,16 +77,25 @@
     {
       "channel": "mod-exists",
       "file": "electron/main.js",
-      "line": 627,
+      "line": 690,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
       "authority": "Active mod metadata"
     },
     {
+      "channel": "mod-install",
+      "file": "electron/main.js",
+      "line": 726,
+      "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
+      "schema": "complete database JSON up to 16 MiB",
+      "invalidReturn": false,
+      "authority": "Atomic community database replacement with backup"
+    },
+    {
       "channel": "mod-path",
       "file": "electron/main.js",
-      "line": 679,
+      "line": 748,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → string|null",
       "invalidReturn": null,
@@ -95,16 +104,34 @@
     {
       "channel": "mod-read",
       "file": "electron/main.js",
-      "line": 643,
+      "line": 701,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "four fixed JSON filenames → bounded string|null",
       "invalidReturn": null,
       "authority": "Contained active mod files"
     },
     {
+      "channel": "mod-read-folder",
+      "file": "electron/main.js",
+      "line": 739,
+      "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
+      "schema": "native folder chooser to validated pinned database JSON",
+      "invalidReturn": null,
+      "authority": "Read selected mod media; retain local image bundle for preview"
+    },
+    {
+      "channel": "mod-restore",
+      "file": "electron/main.js",
+      "line": 745,
+      "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
+      "schema": "no arguments",
+      "invalidReturn": false,
+      "authority": "Restore previous community database"
+    },
+    {
       "channel": "mod-write",
       "file": "electron/main.js",
-      "line": 653,
+      "line": 713,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "fixed filename + JSON array/manifest object ≤16 MiB → boolean",
       "invalidReturn": false,
@@ -113,16 +140,25 @@
     {
       "channel": "steam-cloud-delete",
       "file": "electron/steam.js",
-      "line": 460,
+      "line": 505,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "save_*.json → boolean",
       "invalidReturn": false,
       "authority": "Steam cloud namespace; throttled"
     },
     {
+      "channel": "steam-cloud-list",
+      "file": "electron/steam.js",
+      "line": 425,
+      "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
+      "schema": "no arguments to bounded save filenames",
+      "invalidReturn": [],
+      "authority": "Current Steam account cloud namespace, receipt filtered"
+    },
+    {
       "channel": "steam-cloud-read",
       "file": "electron/steam.js",
-      "line": 435,
+      "line": 472,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "save_*.json → bounded string|null",
       "invalidReturn": null,
@@ -131,7 +167,7 @@
     {
       "channel": "steam-cloud-write",
       "file": "electron/steam.js",
-      "line": 412,
+      "line": 434,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "save_*.json + string ≤32 MiB UTF-8 → boolean",
       "invalidReturn": false,
@@ -140,7 +176,7 @@
     {
       "channel": "steam-get-id",
       "file": "electron/steam.js",
-      "line": 253,
+      "line": 268,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → string|null",
       "invalidReturn": null,
@@ -149,7 +185,7 @@
     {
       "channel": "steam-get-persona-name",
       "file": "electron/steam.js",
-      "line": 265,
+      "line": 280,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → string|null",
       "invalidReturn": null,
@@ -158,7 +194,7 @@
     {
       "channel": "steam-get-rich-presence",
       "file": "electron/steam.js",
-      "line": 405,
+      "line": 419,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "status|steam_display → string|null",
       "invalidReturn": null,
@@ -167,7 +203,7 @@
     {
       "channel": "steam-get-stat",
       "file": "electron/steam.js",
-      "line": 277,
+      "line": 292,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "bounded stat identifier → number|null",
       "invalidReturn": null,
@@ -176,7 +212,7 @@
     {
       "channel": "steam-is-achievement-unlocked",
       "file": "electron/steam.js",
-      "line": 345,
+      "line": 359,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowlisted identifier → boolean",
       "invalidReturn": false,
@@ -185,7 +221,7 @@
     {
       "channel": "steam-set-achievement",
       "file": "electron/steam.js",
-      "line": 327,
+      "line": 342,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowlisted identifier → boolean",
       "invalidReturn": false,
@@ -194,7 +230,7 @@
     {
       "channel": "steam-set-leaderboard-score",
       "file": "electron/steam.js",
-      "line": 359,
+      "line": 373,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowlisted name + int32 → boolean",
       "invalidReturn": false,
@@ -203,7 +239,7 @@
     {
       "channel": "steam-set-rich-presence",
       "file": "electron/steam.js",
-      "line": 382,
+      "line": 396,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "status|steam_display + string ≤255 bytes|null → boolean",
       "invalidReturn": false,
@@ -212,7 +248,7 @@
     {
       "channel": "steam-set-stat",
       "file": "electron/steam.js",
-      "line": 289,
+      "line": 304,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowlisted name + finite 32-bit range value → boolean",
       "invalidReturn": false,
@@ -221,7 +257,7 @@
     {
       "channel": "steam-store-stats",
       "file": "electron/steam.js",
-      "line": 313,
+      "line": 329,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -230,7 +266,7 @@
     {
       "channel": "storage-clear",
       "file": "electron/main.js",
-      "line": 517,
+      "line": 580,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -239,7 +275,7 @@
     {
       "channel": "storage-get-all-keys",
       "file": "electron/main.js",
-      "line": 529,
+      "line": 589,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → string[]",
       "invalidReturn": [],
@@ -248,7 +284,7 @@
     {
       "channel": "storage-get-item",
       "file": "electron/main.js",
-      "line": 473,
+      "line": 541,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowed storage key → string|null",
       "invalidReturn": null,
@@ -257,7 +293,7 @@
     {
       "channel": "storage-remove-item",
       "file": "electron/main.js",
-      "line": 505,
+      "line": 570,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowed storage key → boolean",
       "invalidReturn": false,
@@ -266,7 +302,7 @@
     {
       "channel": "storage-set-item",
       "file": "electron/main.js",
-      "line": 489,
+      "line": 556,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "allowed key + string ≤32 MiB UTF-8 → boolean",
       "invalidReturn": false,
@@ -275,7 +311,7 @@
     {
       "channel": "window-get-size",
       "file": "electron/main.js",
-      "line": 355,
+      "line": 406,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → {width,height}|null",
       "invalidReturn": null,
@@ -284,7 +320,7 @@
     {
       "channel": "window-is-fullscreen",
       "file": "electron/main.js",
-      "line": 366,
+      "line": 417,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -293,7 +329,7 @@
     {
       "channel": "window-set-fullscreen",
       "file": "electron/main.js",
-      "line": 320,
+      "line": 371,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "boolean → boolean",
       "invalidReturn": false,
@@ -302,7 +338,7 @@
     {
       "channel": "window-set-size",
       "file": "electron/main.js",
-      "line": 334,
+      "line": 385,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "two integers 1..16384 → boolean; clamped to UI minimum",
       "invalidReturn": false,
@@ -311,7 +347,7 @@
     {
       "channel": "workshop-available",
       "file": "electron/steam.js",
-      "line": 484,
+      "line": 530,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → boolean",
       "invalidReturn": false,
@@ -320,7 +356,7 @@
     {
       "channel": "workshop-get-active",
       "file": "electron/steam.js",
-      "line": 492,
+      "line": 538,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → active pointer|null",
       "invalidReturn": null,
@@ -329,7 +365,7 @@
     {
       "channel": "workshop-list",
       "file": "electron/steam.js",
-      "line": 488,
+      "line": 534,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "no arguments → bounded item list",
       "invalidReturn": [],
@@ -338,7 +374,7 @@
     {
       "channel": "workshop-open",
       "file": "electron/steam.js",
-      "line": 524,
+      "line": 575,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "optional uint64 ID → boolean",
       "invalidReturn": false,
@@ -347,7 +383,7 @@
     {
       "channel": "workshop-set-active",
       "file": "electron/steam.js",
-      "line": 496,
+      "line": 542,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "community or workshop + uint64 decimal ID → boolean",
       "invalidReturn": false,
@@ -356,7 +392,7 @@
     {
       "channel": "workshop-subscribe",
       "file": "electron/steam.js",
-      "line": 507,
+      "line": 558,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "uint64 decimal ID → boolean",
       "invalidReturn": false,
@@ -365,7 +401,7 @@
     {
       "channel": "workshop-unsubscribe",
       "file": "electron/steam.js",
-      "line": 518,
+      "line": 569,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
       "schema": "uint64 decimal ID → boolean",
       "invalidReturn": false,

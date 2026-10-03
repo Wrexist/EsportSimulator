@@ -6,6 +6,7 @@ const { createCloseHandshake } = require('./close-handshake');
 const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
 const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
+const { createGameStorage } = require('./game-storage');
 const { isAllowedLocalRequest, listenLoopback } = require('./local-server');
 const { contentPolicy } = require('./content-policy');
 const { secureWebContents } = require('./renderer-security');
@@ -189,6 +190,9 @@ const closeHandshake = createCloseHandshake(async () => {
 });
 let closePending = false;
 let store;
+// Test harnesses swap this for a fault-injecting fs; production always uses node:fs.
+let saveFsLayer = fs;
+let gameStorageInstance = null;
 let isCreatingWindow = false;
 
 // Below 1024x640 the management UI (tables, roster grids, side panels) wraps
@@ -241,27 +245,62 @@ const resolveWindowIconPath = () => {
     return null;
 };
 
+const WINDOW_DEFAULTS = {
+    width: 1280,
+    height: 720,
+    x: null,
+    y: null,
+    fullscreen: false,
+    maximized: false
+};
+
+// Window settings only. Kept out of the legacy config.json (which older builds
+// filled with every career) so that file is never written again, and so a
+// damaged settings file can only cost window placement, never a save.
+const memorySettingsStore = () => {
+    const values = { window: { ...WINDOW_DEFAULTS } };
+    return {
+        get: (key) => key.split('.').reduce((value, part) => value?.[part], values),
+        set: (key, value) => {
+            const parts = key.split('.');
+            const parent = parts.slice(0, -1).reduce((value, part) => (value[part] ??= {}), values);
+            parent[parts[parts.length - 1]] = value;
+        },
+        get store() { return values; },
+    };
+};
+
+const legacyWindowState = (userDataDir) => {
+    try {
+        const legacy = JSON.parse(fs.readFileSync(containedPath(userDataDir, 'config.json'), 'utf8'));
+        return legacy && typeof legacy.window === 'object' && legacy.window !== null ? legacy.window : null;
+    } catch (_) { return null; }
+};
+
 const initStore = async () => {
-    const { default: Store } = await import('electron-store');
-    // Pin save storage to app.getPath('userData'). electron-store already
-    // defaults to this directory, but stating it explicitly prevents anything
-    // from ever writing into the install/Resources folder (which is read-only
-    // on macOS Steam installs and gets blown away on Windows upgrades).
+    // Pin all storage to app.getPath('userData'). Stating it explicitly
+    // prevents anything from ever writing into the install/Resources folder
+    // (read-only on macOS Steam installs, replaced on Windows upgrades).
     const userDataDir = app.getPath('userData');
-    containedPath(userDataDir, 'config.json', true);
-    store = new Store({
-        cwd: userDataDir,
-        defaults: {
-            window: {
-                width: 1280,
-                height: 720,
-                x: null,
-                y: null,
-                fullscreen: false,
-                maximized: false
-            }
-        }
-    });
+    try {
+        const { default: Store } = await import('electron-store');
+        containedPath(userDataDir, 'settings.json', true);
+        store = new Store({
+            cwd: userDataDir,
+            name: 'settings',
+            clearInvalidConfig: true,
+            defaults: { window: { ...WINDOW_DEFAULTS, ...(legacyWindowState(userDataDir) ?? {}) } },
+        });
+    } catch (e) {
+        console.error('[Electron] Settings store unavailable; using defaults for this session:', e);
+        store = memorySettingsStore();
+    }
+    try {
+        // Import careers from a pre-per-file build. Never blocks startup.
+        if (!gameStorage().ensureMigrated()) console.error('[Electron] Legacy save import pending; legacy saves remain readable.');
+    } catch (e) {
+        console.error('[Electron] Save storage check failed:', e);
+    }
     if (!STABILITY_MODE) {
         console.log('[Electron] Save storage pinned to', userDataDir);
     }
@@ -481,13 +520,28 @@ handleApp('log-write-error', (event, report) => {
     }
 });
 
-// Renderer storage bridge - uses electron-store for disk-backed persistence
+// Renderer storage bridge - one file per career copy under userData/saves
+// (see electron/game-storage.js). Channel names and return contracts are
+// unchanged: values are strings, failures return the contract fallback or an
+// {error} marker the adapter turns into a visible read failure.
+function gameStorage() {
+    const root = app.getPath('userData');
+    if (!gameStorageInstance || gameStorageInstance.root !== path.resolve(root)) {
+        gameStorageInstance = createGameStorage({
+            root,
+            fsImpl: saveFsLayer,
+            isStorageKey: storageKey,
+            maxValueBytes: STORAGE_VALUE_MAX_BYTES,
+            log: (message) => console.error(message),
+        });
+    }
+    return gameStorageInstance;
+}
+
 handleApp('storage-get-item', (_event, key) => {
     try {
-        if (!store || typeof key !== 'string' || !key) return null;
-        // Staging uses a literal .tmp key; dot notation would replace the primary.
-        const value = store.store[key];
-        return typeof value === 'string' ? value : null;
+        if (typeof key !== 'string' || !key) return null;
+        return gameStorage().getItem(key);
     } catch (e) {
         console.error('[Electron] Error reading storage key:', e);
         return { error: 'Disk storage could not be read' };
@@ -496,19 +550,17 @@ handleApp('storage-get-item', (_event, key) => {
 
 // Hard ceiling on a single stored value (~32 MB). A full-season save is well
 // under 2 MB; this only stops a runaway or compromised renderer from filling
-// the user's disk via electron-store.
+// the user's disk.
 const STORAGE_VALUE_MAX_BYTES = 32 * 1024 * 1024;
 
 handleApp('storage-set-item', (_event, key, value) => {
     try {
-        if (!store || typeof key !== 'string' || !key || typeof value !== 'string') return false;
+        if (typeof key !== 'string' || !key || typeof value !== 'string') return false;
         if (Buffer.byteLength(value, 'utf8') > STORAGE_VALUE_MAX_BYTES) {
             console.error('[Electron] Rejected oversized storage write for key:', key);
             return false;
         }
-        containedPath(app.getPath('userData'), 'config.json', true);
-        store.store = { ...store.store, [key]: value };
-        return true;
+        return gameStorage().setItem(key, value);
     } catch (e) {
         console.error('[Electron] Error writing storage key:', e);
         return false;
@@ -517,12 +569,8 @@ handleApp('storage-set-item', (_event, key, value) => {
 
 handleApp('storage-remove-item', (_event, key) => {
     try {
-        if (!store || typeof key !== 'string' || !key) return false;
-        containedPath(app.getPath('userData'), 'config.json', true);
-        const next = { ...store.store };
-        delete next[key];
-        store.store = next;
-        return true;
+        if (typeof key !== 'string' || !key) return false;
+        return gameStorage().removeItem(key);
     } catch (e) {
         console.error('[Electron] Error removing storage key:', e);
         return false;
@@ -531,10 +579,7 @@ handleApp('storage-remove-item', (_event, key) => {
 
 handleApp('storage-clear', () => {
     try {
-        if (!store) return false;
-        containedPath(app.getPath('userData'), 'config.json', true);
-        store.store = Object.fromEntries(Object.entries(store.store ?? {}).filter(([key]) => !storageKey(key)));
-        return true;
+        return gameStorage().clear();
     } catch (e) {
         console.error('[Electron] Error clearing storage:', e);
         return false;
@@ -543,8 +588,7 @@ handleApp('storage-clear', () => {
 
 handleApp('storage-get-all-keys', () => {
     try {
-        if (!store) return [];
-        return Object.keys(store.store ?? {}).filter(storageKey);
+        return gameStorage().getAllKeys();
     } catch (e) {
         console.error('[Electron] Error listing storage keys:', e);
         return { error: 'Disk storage could not be listed' };
