@@ -144,6 +144,41 @@ test('week tick levels every player but only the managed club level-ups reach th
     expect(out.save.players.filter(p => rival.rosterIds.includes(p.id)).every(p => (p.level ?? 1) >= 2)).toBe(true)
 })
 
+test('a transfer-listed player draws at most three open AI bids however many clubs are interested', async () => {
+    const { processAITransferMarket } = await import('@/engine/ai/transfer-market')
+    const save = createLaunchFixture('strong-club') as unknown as GameSave
+    const template = save.teams[1]
+    for (let i = 0; i < 40; i++) save.teams.push({ ...structuredClone(template), id: `bidder_${i}`, rosterIds: template.rosterIds.slice(0, 5), budget: 50_000_000, reputation: 100 })
+    const listed = save.players.find(p => p.id === save.teams[0].rosterIds[0])!
+    listed.forSale = true
+    listed.transferListingPrice = 1
+    for (let week = 0; week < 3; week++) {
+        processAITransferMarket(save, save.teams[0].id, new SeededRNG(100 + week))
+        const open = save.eventsLog.filter(e => e.type === 'TRANSFER_OFFER' && !e.selectedChoiceId && e.data.playerId === listed.id)
+        expect(open.length).toBeGreaterThan(0)
+        expect(open.length).toBeLessThanOrEqual(3)
+        save.currentWeek++
+    }
+})
+
+test('an AI club whose academy upkeep outruns its income sheds academy levels instead of bleeding forever', async () => {
+    const { manageAcademy } = await import('@/engine/ai/infrastructure')
+    const save = createLaunchFixture('first-week') as unknown as GameSave
+    const ai = save.teams[1]
+    ai.reputation = 10
+    ai.sponsors = []
+    ai.academyFacility = { level: 4, builtWeek: 1 }
+    for (let week = 0; week < 6 && (ai.academyFacility?.level ?? 0) > 0; week++) manageAcademy(ai, save, new SeededRNG(week + 1))
+    expect(ai.academyFacility!.level).toBeLessThan(4)
+    const { affordableInvestment } = await import('@/engine/recruitment')
+    expect(affordableInvestment(save, ai, 0)).toBe(true)
+    const rich = createLaunchFixture('first-week') as unknown as GameSave
+    rich.teams[1].reputation = 100
+    rich.teams[1].academyFacility = { level: 1, builtWeek: 1 }
+    manageAcademy(rich.teams[1], rich, new SeededRNG(5))
+    expect(rich.teams[1].academyFacility!.level).toBeGreaterThanOrEqual(1)
+})
+
 test('an indebted AI club with positive cash flow can still fill its fifth seat from free agency, but never by inventing cash', async () => {
     const { manageRoster } = await import('@/engine/ai/roster-management')
     const build = (reputation: number, wage: number) => {

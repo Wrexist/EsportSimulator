@@ -211,7 +211,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
 
     // ------------------------------------------------ deterministic policy
     const playerTeam = () => get().teams.find(t => t.id === teamId)!
-    const policyStats = { signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0 }
+    const policyStats = { registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0 }
     // Job market: stay loyal unless the board has put the manager on notice,
     // then take the best-ranked offer (exercises real job changes).
     const jobMarket = () => {
@@ -285,6 +285,11 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             if (pick && get().transferPlayer(pick.p.id, null, teamId, 0, { salaryPerWeek: pick.wage, startWeek: w, endWeek: w + 104, buyout: 0 }).success) {
                 if (get().transferPlayer(worst.id, teamId, 'FA', 0).success) policyStats.upgrades++
             }
+        }
+        // Enter every upcoming event the club is eligible for (the Tournaments
+        // screen's Register button; auto-registration only covers invites).
+        for (const t of [...get().tournaments].filter(t => t.startWeek > get().currentWeek && t.startWeek <= get().currentWeek + 4 && !t.teamIds.includes(teamId)).sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))) {
+            if (get().registerForTournament(t.id).success) policyStats.registrations++
         }
         // Sponsors: keep slots filled with the best currently offered deal (signSponsor enforces gates).
         if ((playerTeam().sponsors?.length ?? 0) < 3) {
@@ -498,7 +503,7 @@ function aggregate() {
     const summary = {
         generated: new Date().toISOString(), label,
         driver: 'Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.',
-        policy: 'Deterministic: play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent payable from a quarter of cash; greedy-money branch on choice events; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered).',
+        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent payable from a quarter of cash; greedy-money branch on choice events; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered).',
         bounds: BOUNDS,
         sampleSize: { careers: results.length, seeds: [...new Set(results.map(r => r.seed))].length, weekTicks: results.reduce((s, r) => s + r.ticks, 0), seasonSnapshots: seasonsAll.length,
             byTier: Object.fromEntries(TIERS.map(t => [t, results.filter(r => r.tier === t).length])),
