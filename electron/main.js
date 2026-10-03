@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, nativeImage, screen, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
@@ -8,7 +8,8 @@ const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
 const { isAllowedLocalRequest, listenLoopback } = require('./local-server');
 const { contentPolicy } = require('./content-policy');
-const { secureWebContents } = require('./renderer-security');
+const { secureWebContents, secureSession } = require('./renderer-security');
+const { createExternalOpener } = require('./external-links');
 const handleApp = (channel, handler) => registerTrustedHandler(ipcMain, channel, isMainWindowSender, handler);
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
@@ -25,6 +26,8 @@ const gpuCrashFlagPath = path.join(app.getPath('userData'), 'gpu-crash-flag');
 const hadGpuCrash = (() => { try { return fs.existsSync(containedPath(app.getPath('userData'), 'gpu-crash-flag', true)); } catch (_) { return false; } })();
 const forceStabilityMode = process.env.ESM_STABILITY_MODE === '1';
 const STABILITY_MODE = forceStabilityMode || hadGpuCrash;
+// Sandbox every renderer, including any created outside createWindow().
+app.enableSandbox();
 if (STABILITY_MODE) {
     app.disableHardwareAcceleration();
 }
@@ -406,7 +409,7 @@ handleApp('gpu-set-mode', (_event, mode) => {
 });
 
 function isTrustedAppUrl(url) {
-    return isAllowedAppNavigation(url, process.env.NEXT_SERVER_PORT || '3000', app.isPackaged);
+    return isAllowedAppNavigation(url, process.env.NEXT_SERVER_PORT || '3000');
 }
 
 function isMainWindowSender(event) {
@@ -757,44 +760,10 @@ async function createWindow() {
             callback({responseHeaders: {...headers, 'Content-Security-Policy': [contentPolicy(details.url, !app.isPackaged)], 'X-Content-Type-Options': ['nosniff']}});
         });
 
-        // Deny every permission request (geolocation, notifications, media, midi,
-        // pointerLock, clipboard-read, etc.) — the game does not need any of them.
-        mainWindow.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
-            debugLog(`[Security] Denied permission request: ${permission}`);
-            callback(false);
-        });
-        mainWindow.webContents.session.setPermissionCheckHandler((_webContents, permission) => {
-            debugLog(`[Security] Denied permission check: ${permission}`);
-            return false;
-        });
-
-        // Block any child/popup windows from being created (prevents ghost Alt-Tab entries,
-        // also prevents `window.open` from opening an un-isolated child window).
-        mainWindow.webContents.setWindowOpenHandler(() => {
-            return { action: 'deny' };
-        });
-
-        // Block full-page navigation to anything outside the local Next.js server.
-        // In-app SPA routing uses history.pushState and does not trigger this event.
-        mainWindow.webContents.on('will-navigate', (navEvent, navigationUrl) => {
-            const allowed = isTrustedAppUrl(navigationUrl);
-            if (!allowed) {
-                debugLog(`[Security] Blocked navigation to ${navigationUrl}`);
-                navEvent.preventDefault();
-            }
-        });
-        mainWindow.webContents.on('will-redirect', (redirectEvent, redirectUrl) => {
-            const allowed = isTrustedAppUrl(redirectUrl);
-            if (!allowed) {
-                debugLog(`[Security] Blocked redirect to ${redirectUrl}`);
-                redirectEvent.preventDefault();
-            }
-        });
-        mainWindow.webContents.on('will-attach-webview', (attachEvent) => {
-            // <webview> is disabled via webPreferences (default), but block defensively.
-            debugLog('[Security] Blocked <webview> attach');
-            attachEvent.preventDefault();
-        });
+        // Deny every permission request and any download that the app itself
+        // did not create. Navigation, popups and <webview> are locked down for
+        // every WebContents (including this one) in 'web-contents-created'.
+        secureSession(mainWindow.webContents.session, isTrustedAppUrl, { log: debugLog });
 
         if (windowState.maximized) {
             mainWindow.maximize();
@@ -1099,8 +1068,9 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
 
 // Defense-in-depth: apply the same navigation / popup / webview restrictions to
 // any webContents that might be created outside of the main BrowserWindow flow.
+const openAllowedExternal = createExternalOpener(url => shell.openExternal(url), { log: debugLog });
 app.on('web-contents-created', (_event, contents) => {
-    secureWebContents(contents, isTrustedAppUrl);
+    secureWebContents(contents, isTrustedAppUrl, { openExternal: openAllowedExternal, log: debugLog });
 });
 
 app.on('second-instance', () => {
