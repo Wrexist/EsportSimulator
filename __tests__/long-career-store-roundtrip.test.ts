@@ -82,3 +82,25 @@ test('the weekly commit applies the same role reconciliation and field defaults 
     expect(regen.availableSkillPoints).toBe(2)
     expect(regen.roleMastery).toBeDefined()
 })
+
+test('a fixture against an opponent who cannot field five does not block the week (it is forfeited in the tick)', async () => {
+    const save = createLaunchFixture('first-week') as unknown as GameSave
+    save.timeMode = 'WEEKLY'
+    const match = save.scheduledMatches[0]
+    const opponentId = match.awayTeamId
+    useGameStore.setState({ ...initial, ...structuredClone(save), fplData: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set() } as never)
+    jest.spyOn(saveManager, 'saveGame').mockResolvedValue({ success: true })
+    jest.mocked(weekProcessorBridge.processWeek).mockReset().mockImplementation(async input => {
+        const processed = structuredClone(input)
+        processed.scheduledMatches = []
+        processed.currentWeek++
+        return { save: processed, rngState: 9, result: { success: true } as ComputedWeek['result'] }
+    })
+    // Playable fixture: the guard holds the week.
+    await useGameStore.getState().advanceWeek()
+    expect(useGameStore.getState().currentWeek).toBe(save.currentWeek)
+    // Opponent drops to four: the manager cannot play it, so the week must advance.
+    useGameStore.setState(s => { s.teams.find(t => t.id === opponentId)!.rosterIds.pop() })
+    await useGameStore.getState().advanceWeek()
+    expect(useGameStore.getState().currentWeek).toBe(save.currentWeek + 1)
+})

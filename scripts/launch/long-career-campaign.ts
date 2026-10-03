@@ -211,7 +211,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
 
     // ------------------------------------------------ deterministic policy
     const playerTeam = () => get().teams.find(t => t.id === teamId)!
-    const policyStats = { registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0 }
+    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0 }
     // Job market: stay loyal unless the board has put the manager on notice,
     // then take the best-ranked offer (exercises real job changes).
     const jobMarket = () => {
@@ -328,7 +328,14 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                     await step('policy-retry', policy)
                     const again = get().completedMatches.length
                     await step('own-match-retry', () => get().simulateInstantMatch(m.id))
-                    if (get().completedMatches.length === again) return false
+                    if (get().completedMatches.length === again) {
+                        // Unplayable for the manager (e.g. opponent below five): the
+                        // week tick must resolve it by forfeit. Softlock only if the
+                        // coordinator refuses to advance.
+                        for (let i = 0; i < 3 && get().currentWeek === startWeek && !get().gameOverReason; i++) await step('advance-forfeit', () => get().advanceToWeekEnd())
+                        if (get().currentWeek === startWeek && !get().gameOverReason) return false
+                        policyStats.forfeitAdvances++
+                    }
                 }
                 continue
             }

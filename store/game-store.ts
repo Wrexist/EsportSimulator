@@ -77,6 +77,7 @@ import {
   resolveTournamentIdentity
 } from "@/engine/circuit-engine"
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
+import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
 import { pruneGameState } from "@/store/utils/array-pruning"
 import { logger } from "@/lib/logger"
 import { createSettingsSlice } from "@/store/slices/settings-slice"
@@ -745,6 +746,29 @@ interface GameStoreActions extends PhysicalPreviewActions {
   setAutoSave: (enabled: boolean) => void
   setNotifications: (enabled: boolean) => void
   setShowBugReportButton: (enabled: boolean) => void
+}
+
+/**
+ * The manager's fixture this week that must be played before the week can
+ * advance. Fixtures where either side cannot field five active players are
+ * excluded: simulateInstantMatch refuses them and the week tick resolves them
+ * by forfeit (match-forfeit.ts), so blocking on them softlocked the career
+ * (seen in the long-career campaign when an opponent dropped to four).
+ */
+function pendingPlayableMatch(
+  state: Pick<GameStoreState, "playerTeamId" | "scheduledMatches" | "completedMatches" | "currentWeek" | "teams" | "players">,
+  completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
+) {
+  if (!state.playerTeamId) return null
+  const canField = (teamId: string) => {
+    const team = state.teams.find(t => t.id === teamId)
+    return !!team && getActivePlayersByRosterOrder(team, state.players).length >= 5
+  }
+  return state.scheduledMatches.find(m =>
+    m.week === state.currentWeek &&
+    (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
+    !completedIds.has(m.id) && canField(m.homeTeamId) && canField(m.awayTeamId)
+  ) ?? null
 }
 
 /** Field defaults shared by load hydration and the weekly commit. */
@@ -1929,11 +1953,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
 
         // Check if player has an unplayed match this week — stop at match day
-        const playerMatchThisWeek = state.playerTeamId ? state.scheduledMatches.find(m =>
-          m.week === state.currentWeek &&
-          (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-          !state.completedMatches.some(cm => cm.id === m.id)
-        ) : null
+        const playerMatchThisWeek = pendingPlayableMatch(state)
 
         if (playerMatchThisWeek) {
           const matchDay = playerMatchThisWeek.day ?? 6
@@ -1975,11 +1995,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: prevent advancing if the player has an unplayed match this week
         const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
-        const unplayedPlayerMatch = state.playerTeamId ? state.scheduledMatches.find(m =>
-          m.week === state.currentWeek &&
-          (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-          !completedIds.has(m.id)
-        ) : null
+        const unplayedPlayerMatch = pendingPlayableMatch(state, completedIds)
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
           set({ isLoading: false })
