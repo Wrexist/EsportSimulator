@@ -1,5 +1,5 @@
 import { distance3, mix3, type Vec3 } from "./types"
-import type { Route, NavigationMesh } from "./navigation"
+import { walkSampleCount, type Route, type NavigationMesh } from "./navigation"
 import type { CollisionWorld } from "./geometry"
 import { airbornePlan } from './airborne'
 
@@ -11,6 +11,7 @@ export function simulateMovement(route: Route, scene: CollisionWorld, maxSpeed =
     const dt = 1 / 64, frames: MovementFrame[] = [{ time: 0, position: [...route.points[0]], speed: 0, state: "moving" }]
     let position = route.points[0], index = 1, speed = 0
     let flight: { plan: NonNullable<ReturnType<typeof airbornePlan>>; elapsed: number } | null = null
+    let lattice = { segment: 0, checked: 0 }
     let heading = route.points[1] ? Math.atan2(route.points[1][1] - position[1], route.points[1][0] - position[0]) : 0
     frames[0].heading = heading
     if (scene.bodyHit?.(position, height) || nav && !nav.supportedBody(position, scene)) return [{ ...frames[0], state: 'blocked', reason: 'The starting body lacks clearance or floor support.' }]
@@ -48,7 +49,17 @@ export function simulateMovement(route: Route, scene: CollisionWorld, maxSpeed =
             if (onLadder) { speed = Math.min(speed, 85); climbing = true }
             const velocity = Math.max(1, speed), travelled = Math.min(length, velocity * available)
             const next = mix3(position, point, travelled / length)
-            if (nav && route.kinds[index - 1] === 'walk' && (!nav.supportedBody(next, scene) || !nav.supportedSegment(position, next))) { frames.push({ time: step * dt, position, speed: 0, state: 'blocked', reason: 'Feet lost floor support. No floor snapping or teleport recovery.' }); return frames }
+            if (nav && kind === 'walk') {
+                // Floor support belongs to the walk segment, not to a speed-dependent tick position:
+                // check every shared lattice sample reached by this step. The planner validates the same points.
+                const from = route.points[index - 1], segment = distance3(from, point), count = walkSampleCount(from, point)
+                if (lattice.segment !== index) lattice = { segment: index, checked: 0 }
+                const last = travelled >= length - 1e-8 ? count : Math.min(count, Math.floor((segment - length + travelled) / segment * count + 1e-9))
+                let lost = false
+                for (let i = lattice.checked + 1; i <= last && !lost; i++) lost = !nav.supportedWalkSample(from, point, i, scene)
+                if (lost) { frames.push({ time: step * dt, position, speed: 0, state: 'blocked', reason: 'Feet lost floor support. No floor snapping or teleport recovery.' }); return frames }
+                lattice.checked = Math.max(lattice.checked, last)
+            }
             if (scene.movementHit(position, next, height) || scene.bodyHit?.(next,height)) { frames.push({ time: step * dt, position, speed: 0, state: "blocked", reason: "Body sweep or destination clearance hit the collision reference. Player stopped; no teleport recovery." }); return frames }
             position = next; available -= travelled / velocity
             if (travelled >= length - 1e-8) index++

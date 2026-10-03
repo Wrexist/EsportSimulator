@@ -9,6 +9,8 @@ export const DEFAULT_ROUTE_OPTIONS: RouteOptions = { ladders: true, drops: false
 export interface NavLocation { area: number; point: Vec3 }
 export interface Route { areas: number[]; points: Vec3[]; kinds: Traversal[]; distance: number; rejected: number; reason?: string }
 const emptyRoute = (reason: string, rejected = 0): Route => ({ areas: [], points: [], kinds: [], distance: 0, rejected, reason })
+/** Shared floor-support lattice for one walk segment: endpoints plus samples at most 4 units apart. */
+export const walkSampleCount = (a: Vec3, b: Vec3) => Math.max(1, Math.ceil(distance3(a, b) / 4))
 
 /** Follow the actual triangle fan of one nav polygon, including its interior creases. */
 export function surfaceWalk(area: NavArea, a: Vec3, b: Vec3): Vec3[] {
@@ -107,10 +109,17 @@ export class NavigationMesh {
         return samples.every(([x, y]) => this.surfaces(point[0] + x, point[1] + y).some(s => Math.abs(s.point[2] - point[2]) <= (radius ? 20 : tolerance)))
     }
     supportedSegment(a: Vec3, b: Vec3): boolean {
-        const count = Math.max(1, Math.ceil(distance3(a, b) / 4))
+        const count = walkSampleCount(a, b)
         if (count > 10000) return false
         for (let i = 0; i <= count; i++) if (!this.supported(mix3(a, b, i / count), 0, 1.5)) return false
         return true
+    }
+    /** One walk-lattice sample: centre on nav (1.5 units) and the whole footprint supported.
+     * The planner and the movement solver both evaluate exactly these points, so a planned
+     * walk cannot be rejected at a speed-dependent tick position between validated samples. */
+    supportedWalkSample(a: Vec3, b: Vec3, index: number, scene: CollisionWorld): boolean {
+        const count = walkSampleCount(a, b), p = mix3(a, b, index / count)
+        return count <= 10000 && this.supported(p, 0, 1.5) && this.supportedBody(p, scene)
     }
     supportedBody(point: Vec3, scene: CollisionWorld, radius = 16): boolean {
         if (!this.supported(point)) return false
@@ -140,7 +149,7 @@ export class NavigationMesh {
             if(!cache){cache=new Map();this.floorSegments.set(scene,cache)}
             const key=[options.height,...a,...b].join(','),saved=cache.get(key)
             if(saved!==undefined)return saved
-            const count=Math.max(1,Math.ceil(distance3(a,b)/4))
+            const count=walkSampleCount(a,b)
             let clear=count<=10000
             for(let i=0;clear&&i<=count;i++){
                 const p=mix3(a,b,i/count)
