@@ -1,0 +1,59 @@
+{
+  "engine": "spatial-round-v13",
+  "mapId": "Overpass",
+  "fixtureSha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a",
+  "simulatorSourceSha256": "a94a7f9aeccccfea66327881d16fe7d36781dc4b754a495bd30f772b621ab001",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "complete": true,
+  "scope": "2 combat and 0 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": true,
+      "seconds": 64.046875,
+      "outcome": "CT",
+      "reason": "Elimination resolved the round objective.",
+      "elapsedMs": 61265,
+      "metrics": {
+        "shots": 41,
+        "damage": 609,
+        "reports": 45,
+        "waits": 376,
+        "replans": 77,
+        "minSeparation": 32.03898041103629
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 4,
+      "yields": 6,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "cfa895378d6077c1ef499392b921a76c9641fb24cf2aadea34ea21805c49c431"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": true,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 156014,
+      "metrics": {
+        "shots": 71,
+        "damage": 400,
+        "reports": 62,
+        "waits": 1247,
+        "replans": 115,
+        "minSeparation": 32.03398162189783
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 8,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "8b4ae9befb5a3ac0ce43519f0e4656a84999df53ba0acc3eb5ae6e75e3eeeff0"
+    }
+  ]
+}

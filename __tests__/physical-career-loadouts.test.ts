@@ -196,7 +196,7 @@ test('version-one replays and saved cursors remain readable after introducing ve
     const legacyBody={...body,engine:'spatial-round-v1' as const}
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(legacyBody)))),n=>n.toString(16).padStart(2,'0')).join('')
     const legacy:SpatialRoundReplay={...legacyBody,sha256:hash}
-    expect(current.engine).toBe('spatial-round-v12');expect(await verifyRoundReplay(legacy)).toBe(true)
+    expect(current.engine).toBe('spatial-round-v13');expect(await verifyRoundReplay(legacy)).toBe(true)
     const saved=captureRoundPosition(legacy,10);expect(saved.engine).toBe('spatial-round-v1');expect(restoreRoundPosition(legacy,saved).tick).toBe(10)
     expect(()=>restoreRoundPosition(current,saved)).toThrow()
 })
@@ -237,7 +237,7 @@ async function reserved() {
     return {request,journal,result,ticket:journal.pending!.ticket}
 }
 
-test.each(['spatial-round-v3','spatial-round-v4','spatial-round-v5','spatial-round-v6','spatial-round-v7','spatial-round-v8','spatial-round-v9','spatial-round-v10','spatial-round-v11'] as const)('%s recordings remain readable but pending rounds cannot silently change engine rules',async(engine)=>{
+test.each(['spatial-round-v3','spatial-round-v4','spatial-round-v5','spatial-round-v6','spatial-round-v7','spatial-round-v8','spatial-round-v9','spatial-round-v10','spatial-round-v11','spatial-round-v12'] as const)('%s recordings remain readable but pending rounds cannot silently change engine rules',async(engine)=>{
     const {journal,result,ticket,request}=await reserved()
     const {sha256:_hash,...body}=result.replay
     const legacyBody={...body,engine}
