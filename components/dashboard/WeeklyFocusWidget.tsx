@@ -12,9 +12,6 @@ export function WeeklyFocusWidget() {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
     const budget = useGameStore(state => state.teams.find(t => t.id === state.playerTeamId)?.budget ?? 0)
-    const isPlaying = useGameStore(state => state.scheduledMatches.length > 0) // rough check if mid-week? actually we set it before advancing week.
-
-    const currentSelection = selectedActivity ? WEEKLY_ACTIVITIES[selectedActivity] : WEEKLY_ACTIVITIES[WeeklyActivityType.TRAINING_ONLY]
 
     const handleSelect = (type: WeeklyActivityType) => {
         setWeeklyActivity(type)

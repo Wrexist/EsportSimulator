@@ -35,7 +35,7 @@ export default function Page() {
   const {
     isInitialized, playerTeamId, teams, players, contracts,
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
-    timeMode, _hasHydrated, saveId, pendingSeasonRecap,
+    timeMode, _hasHydrated, pendingSeasonRecap,
     gameOverReason, gameOverWeek, tournamentQualifications,
     financeLedger, staff, storeLoading,
   } = useGameStore(useShallow(s => ({
@@ -51,7 +51,6 @@ export default function Page() {
     currentDay: s.currentDay,
     timeMode: s.timeMode,
     _hasHydrated: s._hasHydrated,
-    saveId: s.saveId,
     pendingSeasonRecap: s.pendingSeasonRecap,
     gameOverReason: s.gameOverReason,
     gameOverWeek: s.gameOverWeek,

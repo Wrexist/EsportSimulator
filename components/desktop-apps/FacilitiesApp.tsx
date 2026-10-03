@@ -131,7 +131,7 @@ export function FacilitiesApp() {
                             </div>
                             Headquarters
                         </h1>
-                        <p className="text-sm text-white/50 font-medium">Manage and upgrade your team's operational base.</p>
+                        <p className="text-sm text-white/50 font-medium">Manage and upgrade your team&apos;s operational base.</p>
                     </div>
                     <div className="text-right bg-black/20 p-3 rounded-xl border border-white/5 backdrop-blur-sm">
                         <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Weekly Maintenance</div>

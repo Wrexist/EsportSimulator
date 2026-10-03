@@ -131,7 +131,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                 {/* Team List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
                     {opponents.length === 0 ? (
-                        <div className="text-center py-8 text-white/30 text-sm">No teams found matching "{searchTerm}"</div>
+                        <div className="text-center py-8 text-white/30 text-sm">No teams found matching &quot;{searchTerm}&quot;</div>
                     ) : (
                         opponents.map(team => {
                             const avgRating = teamAvgRatings.get(team.id) || 0

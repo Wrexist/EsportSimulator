@@ -287,7 +287,6 @@ export default function LiveMatchPage() {
         handleFinish,
         customTactics,
         updateCustomTactic,
-        playerTeam,
         originalHomePlayers,
         originalAwayPlayers,
         currentRoundEvents,

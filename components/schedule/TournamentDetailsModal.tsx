@@ -399,7 +399,7 @@ export function TournamentDetailsModal({
                                             <div className="space-y-1">
                                                 <h3 className="text-lg font-bold text-white">No Matches Found</h3>
                                                 <p className="text-sm text-muted-foreground w-64 mx-auto">
-                                                    Matches have not been generated for this tournament yet or the season hasn't started.
+                                                    Matches have not been generated for this tournament yet or the season hasn&apos;t started.
                                                 </p>
                                             </div>
                                         </div>

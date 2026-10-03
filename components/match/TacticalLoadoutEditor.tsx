@@ -25,8 +25,6 @@ interface TacticalLoadoutEditorProps {
     onClose: () => void
 }
 
-const ROLE_OPTIONS = ["AWPER", "RIFLER", "SUPPORT", "ENTRY", "IGL"]
-
 export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     side,
     strategyId,

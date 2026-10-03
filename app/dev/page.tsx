@@ -65,13 +65,13 @@ export default function DevPage() {
     })))
     const router = useRouter()
     const [issues, setIssues] = useState<IntegrityIssue[]>([])
-    const [status, setStatus] = useState("")
+    const [, setStatus] = useState("")
     const [statusLog, setStatusLog] = useState<string[]>([])
     const [isProcessing, setIsProcessing] = useState(false)
     const [determinismResult, setDeterminismResult] = useState<string | null>(null)
     const [confirmNuke, setConfirmNuke] = useState(false)
     const [healthResults, setHealthResults] = useState<HealthCheckResult[]>([])
-    const [showHealthDetails, setShowHealthDetails] = useState(false)
+    const [, setShowHealthDetails] = useState(false)
 
     useEffect(() => {
         if (!devToolsEnabled) {

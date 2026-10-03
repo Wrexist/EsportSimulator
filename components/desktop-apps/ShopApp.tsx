@@ -163,6 +163,7 @@ export function ShopApp() {
                                                     item.tier === 2 ? "bg-blue-500 text-white" : "bg-neutral-700 text-white"
                                             )}>TIER {item.tier}</Badge>
                                         </div>
+                                        {/* eslint-disable-next-line @next/next/no-img-element -- percentage max-size artwork with unknown intrinsic size; images.unoptimized */}
                                         <img
                                             src={equipmentArtwork(item.type, item.tier, item.imagePath || "/team_placeholder.webp")}
                                             alt={item.name}

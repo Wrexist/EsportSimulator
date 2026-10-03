@@ -32,9 +32,12 @@ export async function POST(request: NextRequest) {
         const safeMessage = message.replace(/[\x00-\x1f\x7f]/g, " ")
 
         // Output to terminal with colors
+        // Dev-only bridge that mirrors renderer logs to the server terminal; raw console output is the point.
+        /* eslint-disable no-console, no-restricted-syntax */
         console.log(`\n${color}[BROWSER ${type}] ${timestamp}${colors.RESET}`)
         console.log(safeMessage)
         console.log(`${color}${"─".repeat(60)}${colors.RESET}`)
+        /* eslint-enable no-console, no-restricted-syntax */
 
         return NextResponse.json({ ok: true })
     } catch {

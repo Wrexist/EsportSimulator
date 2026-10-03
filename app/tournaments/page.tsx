@@ -93,7 +93,7 @@ export default function TournamentsPage() {
 
     const viewCareerId = useGameStore(state => state.saveId)
     const [activeTab, setActiveTab] = useRouteViewState<ViewTab>(viewCareerId, "tournaments:tab", "ALL")
-    const [selectedTournament, setSelectedTournament] = useState<TournamentDefinition | null>(null)
+    const [selectedTournament] = useState<TournamentDefinition | null>(null)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "tournaments:search", "")
     const [view, setView] = useRouteViewState<"cards" | "bracket" | "standings">(viewCareerId, "tournaments:view", "cards")
 
@@ -152,9 +152,6 @@ export default function TournamentsPage() {
     const filteredTournaments = useMemo(() => {
         let filtered = getDiscoveredTournaments(currentWeek)
 
-        // Sync with mock logic for qualification/points if no store data
-        const masterList = [...FULL_TOURNAMENT_CALENDAR]
-
         // Apply tab filter
         switch (activeTab) {
             case "S_TIER":
@@ -188,16 +185,6 @@ export default function TournamentsPage() {
 
         return filtered
     }, [activeTab, searchTerm, playerTeam, qualificationStatuses, currentWeek])
-
-    // Group by week for timeline view
-    const tournamentsByWeek = useMemo(() => {
-        const grouped: Record<number, TournamentDefinition[]> = {}
-        filteredTournaments.forEach(t => {
-            if (!grouped[t.startWeek]) grouped[t.startWeek] = []
-            grouped[t.startWeek].push(t)
-        })
-        return grouped
-    }, [filteredTournaments])
 
     // Get eligibility for a tournament
     const getEligibility = (tournament: TournamentDefinition) => {
@@ -850,10 +837,6 @@ export default function TournamentsPage() {
                                     )
                                     const sidebarDisplayId = sidebarLiveTournament ? sidebarLiveTournament.id : selectedTournament.id
 
-                                    const isOnSchedule = scheduledMatches.some(
-                                        m => (m.tournamentId || "").replace(/_s\d+$/, "") === selectedTournament.id &&
-                                            (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                                    )
                                     const sidebarEffectiveStart = sidebarLiveTournament?.startWeek ??
                                         (Math.floor((currentWeek - 1) / 52) * 52 + selectedTournament.startWeek)
                                     const isPast = currentWeek >= sidebarEffectiveStart + selectedTournament.duration ||

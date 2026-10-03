@@ -5,7 +5,6 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 
 interface ChemistryMatrixProps {

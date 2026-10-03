@@ -126,7 +126,7 @@ export const newGameTutorial: TutorialStep[] = [
         title: 'Welcome to Esports Manager!',
         content: (
             <div className="space-y-3">
-                <p>You're about to embark on a journey to esports glory!</p>
+                <p>You&apos;re about to embark on a journey to esports glory!</p>
                 <p>This quick tutorial will show you the basics of managing your team.</p>
             </div>
         )
@@ -159,7 +159,7 @@ export const newGameTutorial: TutorialStep[] = [
                     <li>Player transfers</li>
                 </ul>
                 <p className="text-xs text-muted-foreground">
-                    Tip: Don't overspend on salaries early on!
+                    Tip: Don&apos;t overspend on salaries early on!
                 </p>
             </div>
         )
@@ -183,7 +183,7 @@ export const newGameTutorial: TutorialStep[] = [
         title: 'You\'re Ready!',
         content: (
             <div className="space-y-3">
-                <p>That's all you need to get started!</p>
+                <p>That&apos;s all you need to get started!</p>
                 <p>Remember:</p>
                 <ul className="list-disc pl-5 text-sm space-y-1">
                     <li>Press <kbd className="px-1 rounded bg-white/10">?</kbd> for keyboard shortcuts</li>

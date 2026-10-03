@@ -59,7 +59,7 @@ export class SoundManager {
                     this.sfxGain.gain.value = this.sfxVolume / 100
                     this.sfxGain.connect(this.masterGain)
                     if (this.pendingMusicScene) this.startMusic(this.pendingMusicScene)
-                } catch (e) {
+                } catch {
                     // Silently degrade — all methods check for null ctx
                 }
             }

@@ -61,13 +61,12 @@ function computeTeamMapStats(
 }
 
 
-export default function VetoPage({ params: initialParams }: { params: Promise<{ id: string }> }) {
+export default function VetoPage({ params: _initialParams }: { params: Promise<{ id: string }> }) {
     const params = useParams()
     const id = params.id as string
     const router = useRouter()
-    const { scheduledMatches, getUpcomingMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
-        getUpcomingMatches: state.getUpcomingMatches,
         teams: state.teams,
         players: state.players,
         updateScheduledMatch: state.updateScheduledMatch,

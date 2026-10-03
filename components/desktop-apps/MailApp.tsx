@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useCallback } from "react"
+import React, { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Mail, Inbox, CheckCheck,
@@ -35,22 +35,8 @@ export const MailApp = React.memo(function MailApp({
     onQuickAction
 }: MailAppProps) {
     const [activeFolder, setActiveFolder] = useState<FolderType>("inbox")
-    const [messageFilter, setMessageFilter] = useState<string[]>(["ALL"])
+    const [messageFilter] = useState<string[]>(["ALL"])
     const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-
-    const toggleFilter = useCallback((filter: string) => {
-        setMessageFilter(prev => {
-            if (filter === "ALL") return ["ALL"]
-            let newFilters = prev.filter(f => f !== "ALL")
-            if (newFilters.includes(filter)) {
-                newFilters = newFilters.filter(f => f !== filter)
-            } else {
-                newFilters.push(filter)
-            }
-            if (newFilters.length === 0) return ["ALL"]
-            return newFilters
-        })
-    }, [])
 
     // Check if event requires action
     const requiresAction = (event: GameEventSaveData) => {
@@ -161,8 +147,6 @@ export const MailApp = React.memo(function MailApp({
             default: return <Mail size={16} className={iconClass} />
         }
     }
-
-    const selectedEvent = events.find(e => e.id === selectedEventId)
 
     return (
         <div className="flex h-full">

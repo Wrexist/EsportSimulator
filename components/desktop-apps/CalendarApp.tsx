@@ -187,6 +187,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                         isActive ? "bg-emerald-500/20" : "bg-white/10"
                                                     )}>
                                                         {(tournament as any).logoPath && !hasImageError ? (
+                                                            // eslint-disable-next-line @next/next/no-img-element -- dynamic logo path with onError fallback; CSS-sized, images.unoptimized
                                                             <img
                                                                 src={(tournament as any).logoPath}
                                                                 alt={tournament.name}
@@ -335,6 +336,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                         <div className="flex items-start gap-3">
                             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden relative shadow-inner shrink-0">
                                 {(selectedTournamentData as any).logoPath && !failedImages[selectedTournamentData.id] ? (
+                                    // eslint-disable-next-line @next/next/no-img-element -- dynamic logo path with onError fallback; CSS-sized, images.unoptimized
                                     <img
                                         src={(selectedTournamentData as any).logoPath}
                                         alt={selectedTournamentData.name}

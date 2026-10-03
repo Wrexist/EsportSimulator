@@ -32,7 +32,6 @@ export default function SponsorshipsPage() {
     completedMatches,
     tournaments,
     _hasHydrated,
-    isInitialized,
   } = useGameStore(useShallow(state => ({
     playerTeamId: state.playerTeamId,
     sponsorOffers: state.sponsorOffers,
@@ -43,7 +42,6 @@ export default function SponsorshipsPage() {
     completedMatches: state.completedMatches,
     tournaments: state.tournaments,
     _hasHydrated: state._hasHydrated,
-    isInitialized: state.isInitialized,
   })))
   const playerTeam = useCurrentTeam()
 
@@ -79,7 +77,7 @@ export default function SponsorshipsPage() {
   const totalWeeklyIncome = useMemo(() => {
     if (!playerTeam) return 0
     return EconomyEngine.calculateSponsorIncome(playerTeam)
-  }, [activeSponsors, playerTeam])
+  }, [playerTeam])
 
   // Precompute lock prerequisites once (these don't depend on the offer being
   // checked, only on team state). Was previously recalculated inside

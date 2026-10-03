@@ -33,7 +33,7 @@ function LiveMatchScoreboardImpl({
     homeTeam,
     awayTeam,
     matchFormat,
-    currentMapId,
+    currentMapId: _currentMapId,
     mapName,
     homeSeriesScore,
     awaySeriesScore,

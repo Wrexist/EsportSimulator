@@ -2,7 +2,6 @@
 
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
@@ -322,10 +321,6 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
     const isPlayerMatch = (match: BracketMatch) => {
         return playerTeamId && (match.team1?.id === playerTeamId || match.team2?.id === playerTeamId)
     }
-
-    // Calculate total width hint
-    const totalRounds = sortedRounds.length
-    const hasMultipleRounds = totalRounds > 2
 
     return (
         <div className="relative">

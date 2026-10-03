@@ -75,6 +75,7 @@ export function AnimatedNumber({ value, duration = 650, format, className, anima
             // baseline so the next change animates from where we actually are.
             fromRef.current = value
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- animateOnMount only affects the first run; toggling it later must not restart/cancel a tween
     }, [value, duration])
 
     return (

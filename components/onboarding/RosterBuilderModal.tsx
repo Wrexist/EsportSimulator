@@ -214,7 +214,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
     // NEW one whose buyout is salary×52, not what was paid (that bug displayed
     // weeklyCommitment×52 as "spent on buyouts" and a fake negative budget).
     const [feesPaid, setFeesPaid] = useState<Record<string, number>>({})
-    const [isSkipping, setIsSkipping] = useState(false)
+    const [, setIsSkipping] = useState(false)
     const [roleFilter, setRoleFilter] = useState<string>('ALL')
     const [sortBy, setSortBy] = useState<'skill' | 'potential' | 'salary' | 'age'>('skill')
     const [searchTerm, setSearchTerm] = useState('')
