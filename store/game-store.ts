@@ -613,6 +613,7 @@ interface GameStoreActions extends PhysicalPreviewActions {
   // Phase 22: Professional Polish
   completeOnboarding: () => void
   reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
+  syncFirstSession: () => void
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void

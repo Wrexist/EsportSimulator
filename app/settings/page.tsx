@@ -69,6 +69,7 @@ type SettingsTab = "SETTINGS" | "DEV_TOOLS" | "ACHIEVEMENTS"
 
 export default function SettingsPage() {
   const hasCareer = useGameStore(state => !!state.saveId)
+  const careerLoaded = useGameStore(state => state.isInitialized && !!state.playerTeamId)
   const devToolsEnabled = isDevToolsEnabled()
   const {
     saveGame, deleteAllSaves, soundEnabled, setSoundEnabled, showTutorialOnNewGame, setShowTutorialOnNewGame,
@@ -267,10 +268,11 @@ export default function SettingsPage() {
 
   const handleReplayTutorial = () => {
     // Replay guidance without resetting the career or changing new-game preferences.
+    if (!careerLoaded) return
     useGameStore.getState().triggerTutorial()
     toast({
-      title: "Tutorial Ready",
-      description: "The first-session guide is available again. Your squad, cash and results are unchanged.",
+      title: "Guide restarted",
+      description: "The first-session checklist is back on Home. Your squad, cash and results are unchanged.",
     })
   }
 
@@ -630,7 +632,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Show Tutorial on New Game</p>
-                    <p className="text-xs text-muted-foreground">Display the tutorial guide when starting a new career</p>
+                    <p className="text-xs text-muted-foreground">Show the first-session checklist on Home when starting a new career</p>
                   </div>
                   <Switch checked={showTutorialOnNewGame} onCheckedChange={setShowTutorialOnNewGame} />
                 </div>
@@ -929,12 +931,15 @@ export default function SettingsPage() {
 
                 <Button
                   onClick={handleReplayTutorial}
+                  disabled={!careerLoaded}
+                  aria-describedby="replay-guide-hint"
                   variant="outline"
                   className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
                 >
                   <Info className="mr-2 h-4 w-4" />
                   Replay Tutorial Guide
                 </Button>
+                <p id="replay-guide-hint" className="text-xs text-muted-foreground">{careerLoaded ? "Restarts the five-step first-session checklist for this career. Steps need new actions; nothing in the career is reset." : "Load a career to replay its first-session guide."}</p>
               </CardContent>
             </Card>
 
