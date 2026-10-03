@@ -140,7 +140,6 @@ export default function StaffMeetingPage() {
         currentWeek,
         completedMatches,
         managerDetails,
-        scheduledActivities
     } = useGameStore(useShallow(state => ({
         playerTeamId: state.playerTeamId,
         players: state.players,
@@ -149,7 +148,6 @@ export default function StaffMeetingPage() {
         currentWeek: state.currentWeek,
         completedMatches: state.completedMatches,
         managerDetails: state.managerDetails,
-        scheduledActivities: state.scheduledActivities,
     })))
 
     const [schedulingId, setSchedulingId] = useState<string | null>(null)
@@ -357,7 +355,7 @@ export default function StaffMeetingPage() {
                             {formPercentage.toFixed(0)}% <span className="text-sm font-normal text-white/40">Win Rate</span>
                         </div>
                         <div className="flex gap-1 mt-2">
-                            {recentMatches.map((m, i) => {
+                            {recentMatches.map((m) => {
                                 const isWin = m.result.winnerId === playerTeamId
                                 return (
                                     <div

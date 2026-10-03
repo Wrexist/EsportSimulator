@@ -33,6 +33,7 @@ export function EncounterLab({ project, reference, worker, disabled, edit }: Pro
         }
         const failed = () => { setBusy(false); setMessage('Worker unavailable. Reload the lab to retry.') }
         instance.addEventListener('message', receive); instance.addEventListener('error', failed)
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- request is a request-id counter, not a DOM ref; bumping the latest value is intended
         return () => { instance.removeEventListener('message', receive); instance.removeEventListener('error', failed); request.current++; if (timeout.current) clearTimeout(timeout.current) }
     }, [reference, worker])
     useEffect(() => {
@@ -93,7 +94,7 @@ export function EncounterLab({ project, reference, worker, disabled, edit }: Pro
                 <button disabled={busy || disabled || !project || reference?.mapId !== 'Mirage'} onClick={() => void openExample()}>Open encounter example</button><p>Opening an example downloads your current lab test as a backup. Map Studio drawings stay separate. Save test above also saves encounter settings.</p>
                 <div className={styles.row}><label>Seed<input aria-label="Encounter seed" type="number" min="0" max="4294967295" value={settings.seed} disabled={disabled} onChange={e => Number.isInteger(+e.target.value) && +e.target.value >= 0 && +e.target.value <= 0xffffffff && update({ seed: +e.target.value })} /></label><label>Duration<select value={settings.seconds} disabled={disabled} onChange={e => update({ seconds: +e.target.value })}>{[4, 8, 12, 20].map(n => <option key={n} value={n}>{n} seconds</option>)}</select></label></div>
                 <div className={styles.row}><button disabled={disabled || !project?.a || !project.b} onClick={() => face(false)}>Face each other</button><button disabled={disabled || !project?.a || !project.b} onClick={() => face(true)}>A faces away</button></div>
-                <p>These buttons set the scenario's initial view directions. Players do not automatically turn when you move a marker.</p>
+                <p>These buttons set the scenario&apos;s initial view directions. Players do not automatically turn when you move a marker.</p>
                 <UtilityControls value={project?.utility} result={result} disabled={disabled || busy || !project} change={utility => project && edit({ ...project, utility, encounter: { ...settings, seconds: utility ? Math.max(12, settings.seconds) : settings.seconds } })} />
                 {(['a', 'b'] as const).map(id => <fieldset key={id} disabled={disabled}><legend>Player {id.toUpperCase()}</legend>
                     <label>Facing · {settings[id].yaw.toFixed(0)}°<input aria-label={`Player ${id.toUpperCase()} facing`} type="range" min="-180" max="180" step="1" value={settings[id].yaw} onChange={e => player(id, { yaw: +e.target.value })} /></label>
@@ -104,7 +105,7 @@ export function EncounterLab({ project, reference, worker, disabled, edit }: Pro
                 </fieldset>)}
                 <label>Field of view · {settings.fov}°<input aria-label="Encounter field of view" type="range" min="30" max="160" value={settings.fov} disabled={disabled} onChange={e => update({ fov: +e.target.value })} /></label>
                 <label className={styles.check}><input type="checkbox" checked={settings.approach} disabled={disabled} onChange={e => update({ approach: e.target.checked })} />A follows an approach route</label>
-                <p>Scripted movement uses the lab's stance, pace and geometry checks. It stops short of B. This is a controlled movement test, not autonomous pursuit.</p>
+                <p>Scripted movement uses the lab&apos;s stance, pace and geometry checks. It stops short of B. This is a controlled movement test, not autonomous pursuit.</p>
                 <details><summary>Model and units</summary><p>{LAB_RIFLE.id}: provisional original tuning. 64 ticks/s; positions in map world units; angles in degrees. 34 base damage, head ×4, three-shot bursts, 2.25s reload. Armor, range, movement and recoil affect damage or accuracy. Approximate torso box and head sphere; no material penetration or live career integration. Utility adds smoke, facing-aware flash, covered HE, supported fire and uncertain decoy cues. Parameters remain provisional.</p></details>
             </div>
             <div className={styles.replay}>

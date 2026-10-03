@@ -333,7 +333,6 @@ function RankingsPageInner() {
     const viewCareerId = useGameStore(state => state.saveId)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "rankings:search", "")
     const debouncedSearch = useDebounce(searchTerm, 300)
-    const [selectedTier, setSelectedTier] = useRouteViewState<TierLevel | "ALL">(viewCareerId, "rankings:tier", "ALL")
     const [activeTab, setActiveTab] = useRouteViewState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">(viewCareerId, "rankings:tab", "WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
 

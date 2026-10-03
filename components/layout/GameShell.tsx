@@ -41,7 +41,7 @@ const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod =
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, timeMode, advanceDay, advanceWeek, soundEnabled } = useGameStore(useShallow(state => ({
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, soundEnabled } = useGameStore(useShallow(state => ({
         theme: state.theme,
         soundEnabled: state.soundEnabled,
         pendingCelebration: state.pendingCelebration,
@@ -50,9 +50,6 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         selectLegend: state.selectLegend,
         initAchievements: state.initAchievements,
         showBugReportButton: state.showBugReportButton,
-        timeMode: state.timeMode,
-        advanceDay: state.advanceDay,
-        advanceWeek: state.advanceWeek,
     })))
 
     // Keyboard shortcuts modal state

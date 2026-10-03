@@ -241,7 +241,6 @@ export default function TournamentDetailPage() {
     // Index teams by id once — was being scanned 8+ times per render across the
     // podium / playoff / standings sections.
     const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
-    const completedMatchesById = useMemo(() => new Map(completedMatches.map(m => [m.id, m])), [completedMatches])
     // toSeriesId / isQualificationForTournament / isMatchForTournament are
     // hoisted at module scope (top of file) — pure helpers, no closure
     // capture needed, and stable refs across renders so they don't bust
@@ -713,7 +712,7 @@ export default function TournamentDetailPage() {
                                                 <div className="flex items-end justify-center gap-4 md:gap-8 min-h-[280px]">
                                                     {(() => {
                                                         // Determine Winners
-                                                        let podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
+                                                        const podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
 
                                                         // 1. Bracket Logic (Most reliable for single elim)
                                                         const finalMatch = tournamentMatches.find(m => m.stage === "Grand Final")
@@ -858,7 +857,7 @@ export default function TournamentDetailPage() {
                                             // --------------------------------------------------------------------------------
                                             if (isCompleted) {
                                                 // Determine Standings
-                                                let standings: { team: any, place: number, prize: number, share: string }[] = []
+                                                const standings: { team: any, place: number, prize: number, share: string }[] = []
 
                                                 // A. Bracket Logic
                                                 if (displayTournament?.format !== "league") {

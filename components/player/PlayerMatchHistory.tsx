@@ -9,7 +9,6 @@ import { Trophy, Swords, ChevronRight, Calendar } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import Image from "next/image"
 
 interface PlayerMatchHistoryProps {
     playerId: string
@@ -18,11 +17,10 @@ interface PlayerMatchHistoryProps {
 }
 
 export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, limit = 10, compact = false }: PlayerMatchHistoryProps) {
-    const { completedMatches, teams, getDateForWeek, players } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, getDateForWeek } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         getDateForWeek: state.getDateForWeek,
-        players: state.players,
     })))
 
     const teamMap = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])

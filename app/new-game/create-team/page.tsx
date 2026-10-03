@@ -419,7 +419,7 @@ export default function CreateTeamPage() {
                     >
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-normal text-white mb-2">Team Colors</h2>
-                            <p className="text-muted-foreground">Choose your team's brand colors</p>
+                            <p className="text-muted-foreground">Choose your team&apos;s brand colors</p>
                         </div>
 
                         <div className="grid grid-cols-6 gap-3">
@@ -467,6 +467,7 @@ export default function CreateTeamPage() {
                         {/* Preview */}
                         <div className="p-6 bg-white/5 rounded-xl border border-white/10 text-center">
                             {teamData.logoData ? (
+                                // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
                                 <img
                                     src={teamData.logoData}
                                     alt="Team logo"
@@ -582,6 +583,7 @@ export default function CreateTeamPage() {
                         <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
                             <div className="flex items-center gap-4 mb-6">
                                 {teamData.logoData ? (
+                                    // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
                                     <img
                                         src={teamData.logoData}
                                         alt={teamData.name}

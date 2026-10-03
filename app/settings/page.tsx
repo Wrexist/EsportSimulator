@@ -321,7 +321,7 @@ export default function SettingsPage() {
   // Three filters in series, recomputed on every tab click / settings
   // change / dialog open. Achievements is bounded but the page re-renders
   // a lot — coalesce into one pass via useMemo.
-  const { visibleAchievements, unlockedAchievements, lockedAchievements } = useMemo(() => {
+  const { unlockedAchievements, lockedAchievements } = useMemo(() => {
     const visible = showHidden
       ? achievements
       : achievements.filter(a => !a.hidden || a.unlocked)

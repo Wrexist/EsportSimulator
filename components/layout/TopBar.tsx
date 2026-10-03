@@ -12,7 +12,6 @@ import { spinTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { motion } from "framer-motion"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { getTeamColors } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 
@@ -70,7 +69,6 @@ export function TopBar() {
     const budget = playerTeam?.budget || 0
 
     // Get custom team colors for styling
-    const teamColors = useMemo(() => getTeamColors(playerTeam), [playerTeam])
 
     // Precompute the pending match instead of scanning scheduledMatches in the
     // JSX body. Was running an O(scheduledMatches) `.find()` on every TopBar

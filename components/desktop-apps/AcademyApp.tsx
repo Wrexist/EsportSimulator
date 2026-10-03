@@ -792,7 +792,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
                         <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Class of nobody</p>
-                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they'll show up here, immortalised as the first of your academy line.</p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they&apos;ll show up here, immortalised as the first of your academy line.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -905,7 +905,6 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Training Drills — Drag to schedule</div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {ACADEMY_DRILLS.map(drill => {
-                        const Icon = (drill as any).icon || Activity
                         const isDragging = draggedDrill === drill.id
                         const isLocked = academyLevel < drill.minLevel
 
@@ -944,7 +943,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
 
 // ===== MATCHES TAB =====
 
-function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, onGoToRoster, academyRoster, academyPlayers, players }: any) {
+function MatchesTab({ academyLevel, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, academyRoster, academyPlayers, players }: any) {
     const minLevel = 2, matchCost = 2500
     const starterIds = Object.values(academyRoster).filter(Boolean) as string[]
     const activeStarters = academyPlayers.filter((p: any) => starterIds.includes(p.id))
@@ -1045,13 +1044,13 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
 
 // ===== REPORTS TAB =====
 
-function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
+function ReportsTab({ reports }: { reports: any[], players: any[] }) {
     if (!reports || reports.length === 0) {
         return (
             <div className="p-16 text-center bg-white/5 rounded-3xl border border-dashed border-white/10 mt-4">
                 <BarChart3 className="mx-auto mb-4 text-white/10" size={48} />
                 <h3 className="text-xl font-bold text-white/60 mb-1">No Academic Reports</h3>
-                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects' progress.</p>
+                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects&apos; progress.</p>
             </div>
         )
     }

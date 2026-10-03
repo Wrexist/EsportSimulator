@@ -575,7 +575,7 @@ export default function TrainingPage() {
           <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
             <Shield size={16} className="text-primary" /> Loadout Manager
           </h3>
-          <p className="text-xs text-white/40 mt-1">Customize your team's buy strategy and weapon loadouts for each economy situation</p>
+          <p className="text-xs text-white/40 mt-1">Customize your team&apos;s buy strategy and weapon loadouts for each economy situation</p>
         </div>
         <div className="glass-panel p-6">
           <p className="text-xs text-white/60 mb-4 flex items-center gap-2">

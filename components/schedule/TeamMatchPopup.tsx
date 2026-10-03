@@ -46,7 +46,7 @@ export function TeamMatchPopup({
     playerTeam,
     tournamentName,
     stage,
-    currentWeek,
+    currentWeek: _currentWeek,
     completedMatches,
     playerTeamId
 }: TeamMatchPopupProps) {

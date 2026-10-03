@@ -330,6 +330,7 @@ export default function TeamSelectionPage() {
     useEffect(() => {
         const teamId = loadCareerDraft()?.teamId
         if (teamId && !selectedTeam) setSelectedTeam(rankedTeams.find(t => t.id === teamId) || null)
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot draft restore when teams load; re-running on selectedTeam would re-select the draft team after the user clears it
     }, [rankedTeams])
 
     if (dataError) return <div className="mx-auto max-w-lg p-8 text-slate-200"><h1 className="text-xl">Game data could not load</h1><p className="my-3">Your setup draft is kept. Retry loading the local game data.</p><Button onClick={() => window.location.reload()}>Retry</Button></div>

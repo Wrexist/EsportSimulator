@@ -52,7 +52,6 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 
 // Hoisted: pure lookup, no closure. Was being re-created every render.
@@ -66,13 +65,12 @@ function getIntensityStyle(intensity: string) {
 }
 
 export default function StatsPage() {
-    const { players, teams, playerTeamId, completedMatches, contracts, currentWeek } = useGameStore(useShallow(state => ({
+    const { players, teams, playerTeamId, completedMatches, contracts } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         completedMatches: state.completedMatches,
         contracts: state.contracts,
-        currentWeek: state.currentWeek,
     })))
     const [activeTab, setActiveTab] = useState<"ANALYTICS" | "RESULTS" | "TROPHIES" | "RIVALRIES">("ANALYTICS")
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null)

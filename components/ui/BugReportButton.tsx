@@ -236,7 +236,7 @@ export function BugReportButton() {
       setShowDebug(false)
       setErrors({})
       setOpen(false)
-    } catch (err) {
+    } catch {
       toast({
         title: "Copy Failed",
         description: "Could not copy to clipboard. Please try again.",
@@ -373,6 +373,7 @@ export function BugReportButton() {
               </label>
               {form.screenshot ? (
                 <div className="relative group rounded-lg overflow-hidden border border-white/10 bg-white/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- user-captured screenshot data URL */}
                   <img
                     src={form.screenshot}
                     alt="Bug screenshot"

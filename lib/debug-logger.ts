@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-restricted-syntax -- dev-only console wrapper; calling console directly is its purpose */
 /**
  * Debug Logger Utility
  * Wraps console.log to only output in development mode

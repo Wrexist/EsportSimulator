@@ -6,7 +6,6 @@ import { X, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lu
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait } from "@/components/ui/asset-images"

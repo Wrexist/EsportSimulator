@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-restricted-syntax -- this IS the centralized logger; it must call console directly */
 /**
  * Application logging utility
  * Provides consistent logging with environment-based behavior
@@ -18,7 +19,7 @@ class Logger {
     private logHistory: LogEntry[] = []
     private maxHistorySize = 100
 
-    private formatMessage(level: LogLevel, message: string, ...args: unknown[]): string {
+    private formatMessage(level: LogLevel, message: string, ..._args: unknown[]): string {
         const timestamp = new Date().toISOString()
         const prefix = `[${level.toUpperCase()}] ${timestamp}`
         return `${prefix} ${message}`

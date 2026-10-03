@@ -398,7 +398,6 @@ export default function TacticalHQPage() {
                     // Determine next stage from bracket
                     let nextStage: string | undefined
                     if (liveTournament?.playoffBracket) {
-                        const currentMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
                         const nextMatch = liveTournament.playoffBracket.find(m =>
                             m.sourceMatchIds?.includes(match.id)
                         )

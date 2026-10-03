@@ -22,7 +22,6 @@ import {
   GlassTableHead,
   GlassTableRow,
   GlassTableCell,
-  GlassStatCell
 } from "@/components/ui/GlassTable"
 import { motion } from "framer-motion"
 import { LoadingState } from "@/components/ui/loading"
@@ -44,14 +43,13 @@ export default function TransfersPage() {
 }
 
 function TransfersPageInner() {
-  const { players, teams, getPlayerTeam, transferPlayer, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
+  const { players, teams, getPlayerTeam, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
     players: state.players,
     scoutedPlayers: state.scoutedPlayers,
     academyPlayers: state.academyPlayers,
     academyPendingProspects: state.academyPendingProspects,
     teams: state.teams,
     getPlayerTeam: state.getPlayerTeam,
-    transferPlayer: state.transferPlayer,
     currentWeek: state.currentWeek,
   })))
   const playerTeam = getPlayerTeam()
