@@ -48,6 +48,9 @@ export type SaveErrorCode =
     | "UNKNOWN"
 
 const TMP_SUFFIX = ".tmp"
+// Unreadable primary bytes are moved here before any recovery replaces them.
+// Shares the backup prefix so explicit career deletion still removes it.
+const CORRUPT_SUFFIX = "_corrupt"
 import { runMigrationLadder } from "./save-migrations"
 import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
@@ -141,10 +144,11 @@ export class SaveManager {
         try {
             migrated = this.migrateSave(parsed)
         } catch (err) {
+            const fromVersion = typeof parsed.saveVersion === "number" ? parsed.saveVersion : 0
             return {
                 ok: false,
                 error: "CORRUPTED",
-                message: err instanceof Error ? err.message : "Migration failed",
+                message: `Save version ${fromVersion} could not be upgraded to version ${CURRENT_SAVE_VERSION}: ${err instanceof Error ? err.message : "migration failed"}`,
             }
         }
 
@@ -180,6 +184,24 @@ export class SaveManager {
         const tmp = await this.storage.getItem(tmpKey)
         if (tmp !== null) {
             await this.storage.removeItem(tmpKey)
+        }
+    }
+
+    /**
+     * Replace the primary during recovery without destroying what it held.
+     * Differing bytes are copied to <backup>_corrupt first; if that copy
+     * fails, the primary is left untouched, so the old bytes survive either way.
+     */
+    private async replacePrimaryPreserving(key: string, saveId: string, replacement: string): Promise<void> {
+        try {
+            const current = await this.storage.getItem(key)
+            if (current !== null && current !== replacement) {
+                await this.storage.setItem(STORAGE_KEYS.BACKUP_PREFIX + saveId + CORRUPT_SUFFIX, current)
+            }
+            await this.storage.setItem(key, replacement)
+        } catch (error) {
+            // Primary stays as-is; the next verified save retries the replacement.
+            debug.warn("[SaveManager] Could not promote recovered save:", error instanceof Error ? error.message : error)
         }
     }
 
@@ -340,6 +362,10 @@ export class SaveManager {
                 if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
                 if (backup1Old) await this.storage.setItem(backupKey + "_2", backup1Old)
                 await this.storage.setItem(backupKey + "_1", existing)
+            } else if (existing) {
+                // An unreadable primary (corrupt, or a failed migration) is
+                // kept aside rather than silently overwritten by this save.
+                await this.storage.setItem(backupKey + CORRUPT_SUFFIX, existing)
             }
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
@@ -465,11 +491,14 @@ export class SaveManager {
         error?: string
         errorCode?: SaveErrorCode
         restoredFromBackup?: boolean
+        /** Player-facing account of a backup recovery; set with restoredFromBackup. */
+        recoveryMessage?: string
     }> {
         try {
             const key = STORAGE_KEYS.SAVE_PREFIX + saveId
             const backupKey = STORAGE_KEYS.BACKUP_PREFIX + saveId
             let restoredFromBackup = false
+            let recoveryMessage: string | undefined
 
             // Discard any stale staging file from an interrupted previous write.
             await this.saveChain
@@ -496,6 +525,7 @@ export class SaveManager {
                     if (candidate && (await this.parseAndValidateSaveCandidate(candidate, saveId)).ok) {
                         localData = candidate
                         restoredFromBackup = true
+                        recoveryMessage = "The latest save file was missing, so the most recent valid backup was loaded. Progress since that backup is not included."
                         debug.warn(`Loaded from backup${suffix || " (legacy)"} - primary save was missing`)
                         break
                     }
@@ -598,8 +628,9 @@ export class SaveManager {
                         selected = backupCandidate
                         selectedSource = "local"
                         restoredFromBackup = true
+                        recoveryMessage = `The latest save could not be read (${bestErrorMessage || "unreadable"}), so the most recent valid backup was loaded. Progress since that backup is not included. The unreadable copy was kept.`
                         debug.warn(`Restored from backup${suffix || " (legacy)"} - primary save was corrupted`)
-                        await this.storage.setItem(key, backupData)
+                        await this.replacePrimaryPreserving(key, saveId, backupData)
                         break
                     } else {
                         recordError(backupCandidate)
@@ -619,13 +650,15 @@ export class SaveManager {
                 // Preserve local candidate in backup and promote cloud save as source-of-truth.
                 if (localData && localCandidate.ok) {
                     await this.storage.setItem(backupKey, localData)
+                    await this.storage.setItem(key, cloudData)
+                } else {
+                    await this.replacePrimaryPreserving(key, saveId, cloudData)
                 }
-                await this.storage.setItem(key, cloudData)
             } else if (restoredFromBackup && localCandidate.ok && localData) {
                 await this.storage.setItem(key, localData)
             }
 
-            return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined }
+            return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined, recoveryMessage: restoredFromBackup ? recoveryMessage : undefined }
         } catch (error) {
             return {
                 save: null,
@@ -687,7 +720,7 @@ export class SaveManager {
                 if (!data) continue
                 const candidate = await this.parseAndValidateSaveCandidate(data, saveId)
                 if (candidate.ok) {
-                    await this.storage.setItem(key, data)
+                    await this.replacePrimaryPreserving(key, saveId, data)
                     debug.warn(`[SaveManager] Recovered save ${saveId} from backup${suffix || " (legacy)"}`)
                     return { save: candidate.migrated }
                 }
@@ -706,7 +739,7 @@ export class SaveManager {
                 if (cloud) {
                     const candidate = await this.parseAndValidateSaveCandidate(cloud, saveId)
                     if (candidate.ok) {
-                        await this.storage.setItem(key, cloud)
+                        await this.replacePrimaryPreserving(key, saveId, cloud)
                         debug.warn(`[SaveManager] Recovered save ${saveId} from Steam Cloud`)
                         return { save: candidate.migrated }
                     }
@@ -761,6 +794,7 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + "_3")
             await this.storage.removeItem(backupKey + "_local")
             await this.storage.removeItem(backupKey + "_cloud")
+            await this.storage.removeItem(backupKey + CORRUPT_SUFFIX)
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
