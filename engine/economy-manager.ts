@@ -69,6 +69,14 @@ export const WEAPONS: Record<string, Weapon> = {
   MAG7: { id: "mag7", name: "MAG-7", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
 }
 
+/** Pistol < SMG/shotgun < rifle < sniper; used to tell a planned primary from its sidearm. */
+function weaponTier(weapon: Weapon): number {
+  if (weapon.type === WeaponType.PISTOL) return 1
+  if (weapon.type === WeaponType.SNIPER) return 4
+  if (weapon.type === WeaponType.RIFLE) return 3
+  return 2
+}
+
 export class EconomyManager {
   static MAX_CASH = MATCH_CONSTANTS.MAX_MONEY
   static ROUND_START_CASH = MATCH_CONSTANTS.START_MONEY
@@ -143,6 +151,15 @@ export class EconomyManager {
       let currentCost = 0
       const primary = WEAPONS[(customTactic.primaryWeaponId || "").toUpperCase()] || weapon
       const secondary = WEAPONS[(customTactic.secondaryWeaponId || "").toUpperCase()] || weapon
+
+      // L21: a planned primary the player cannot afford falls back to the
+      // standard role buy for this call (an AWP slot short of $4,750 takes a
+      // rifle), exactly as uncontrolled teams do. Previously the slot dropped
+      // to its pistol, so the default loadouts quietly handicapped the
+      // managed team on marginal FULL buys (-4 pp round share, L21 paired run).
+      if (cash < primary.price && weaponTier(primary) > weaponTier(secondary)) {
+        return EconomyManager.getPlayerBuyV2(cash, strategy, role === "AWPER" && cash < WEAPONS.AWP.price ? "RIFLER" : role, isCT, rng)
+      }
 
       // Try Primary
       if (cash >= primary.price) {
