@@ -1,13 +1,14 @@
 {
   "passed": true,
   "electron": "44.3.0",
-  "directory": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l07-native\\run-xbonzl",
+  "directory": "C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-a7eb55e9f2ff71885\\tmp\\l07-native\\run-aV4vCs",
   "checks": [
     {
       "name": "Trusted sandboxed main frame + schema rejection + private setting preservation",
       "passed": true,
       "results": {
         "url": "http://localhost:33300/",
+        "top": true,
         "nodeExposed": false,
         "write": true,
         "read": "synthetic",
@@ -15,6 +16,10 @@
         "badSize": false,
         "badMod": false,
         "mod": true,
+        "modInstall": true,
+        "modPlayers": null,
+        "modRestore": true,
+        "restoredPlayers": "[]",
         "clear": true,
         "popupDenied": true
       }
@@ -24,10 +29,46 @@
       "passed": true
     },
     {
-      "name": "Different real WebContents denied at same origin",
+      "name": "Allowlisted HTTPS links go to the OS browser; http, foreign hosts and popups are dropped; permissions denied",
+      "passed": true,
+      "opened": [
+        "https://store.steampowered.com/app/480/",
+        "https://steamcommunity.com/app/480/workshop/"
+      ],
+      "results": {
+        "allowedPopup": true,
+        "evilPopup": true,
+        "notification": "denied"
+      }
+    },
+    {
+      "name": "App blob exports download; data: downloads cancelled",
+      "passed": true,
+      "downloads": [
+        {
+          "url": "blob:http://localhost:33300/eb846fde-f59",
+          "prevented": false
+        },
+        {
+          "url": "data:application/octet-stream,owned",
+          "prevented": true
+        }
+      ]
+    },
+    {
+      "name": "Child-frame navigation blocked by navigation guard",
+      "passed": true,
+      "result": {
+        "prevented": true,
+        "url": "http://localhost:33300/frame-child"
+      }
+    },
+    {
+      "name": "Same-origin child frame of the trusted WebContents denied by every probed IPC handler",
       "passed": true,
       "results": {
-        "url": "http://localhost:33300/",
+        "url": "http://localhost:33300/frame-child",
+        "top": false,
         "nodeExposed": false,
         "write": false,
         "read": null,
@@ -35,6 +76,31 @@
         "badSize": false,
         "badMod": false,
         "mod": false,
+        "modInstall": false,
+        "modPlayers": null,
+        "modRestore": false,
+        "restoredPlayers": null,
+        "clear": false,
+        "popupDenied": true
+      }
+    },
+    {
+      "name": "Different real WebContents denied at same origin",
+      "passed": true,
+      "results": {
+        "url": "http://localhost:33300/",
+        "top": true,
+        "nodeExposed": false,
+        "write": false,
+        "read": null,
+        "badKey": false,
+        "badSize": false,
+        "badMod": false,
+        "mod": false,
+        "modInstall": false,
+        "modPlayers": null,
+        "modRestore": false,
+        "restoredPlayers": null,
         "clear": false,
         "popupDenied": true
       }
@@ -44,6 +110,7 @@
       "passed": true,
       "results": {
         "url": "data:text/html,<p>Untrusted document</p>",
+        "top": true,
         "nodeExposed": false,
         "write": false,
         "read": null,
@@ -51,6 +118,10 @@
         "badSize": false,
         "badMod": false,
         "mod": false,
+        "modInstall": false,
+        "modPlayers": null,
+        "modRestore": false,
+        "restoredPlayers": null,
         "clear": false,
         "popupDenied": true
       }
@@ -64,5 +135,19 @@
     "Synthetic storage/Steam SDK; no live Steam calls. Actual main/Steam handlers and real Electron IPC, not a packaged build."
   ],
   "port": 33300,
-  "address": "127.0.0.1"
+  "address": "127.0.0.1",
+  "securityLog": [
+    "[Security] Blocked external URL about:blank",
+    "[Security] Blocked navigation to https://untrusted.invalid/",
+    "[Security] Blocked external URL https://untrusted.invalid/",
+    "[Security] Blocked navigation to https://store.steampowered.com/app/480/",
+    "[Security] Blocked navigation to http://store.steampowered.com/plain-http/",
+    "[Security] Blocked external URL http://store.steampowered.com/plain-http/",
+    "[Security] Blocked external URL https://evil.invalid/blank",
+    "[Security] Blocked external URL https://evil.invalid/popup",
+    "[Security] Denied permission request: notifications",
+    "[Security] Blocked download from data:application/octet-stream,owned",
+    "[Security] Blocked child-frame navigation to http://localhost:33300/frame-child",
+    "[Security] Blocked external URL about:blank"
+  ]
 }

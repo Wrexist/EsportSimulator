@@ -106,6 +106,9 @@ const strayTemps = (directory: string) => {
     return fs.readdirSync(saves).flatMap(id => fs.readdirSync(path.join(saves, id)).filter(name => name.endsWith(".tmp")))
 }
 
+// Exhaustive per-write-step fault loops are slow when the full suite shares the CPU.
+jest.setTimeout(60_000)
+
 describe("Electron disk boundary (actual IPC handlers + ElectronStorageAdapter)", () => {
     let directory: string
     // Settle preference writes queued at import before swapping the window realm.

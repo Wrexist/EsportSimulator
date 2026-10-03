@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json()
-        const type = typeof body?.type === "string" ? body.type : "INFO"
+        // Only known labels reach the terminal; anything else (including escape
+        // sequences in a crafted type) is printed as INFO.
+        const type = typeof body?.type === "string" && Object.prototype.hasOwnProperty.call(colors, body.type) && body.type !== "RESET" ? body.type : "INFO"
         const message = typeof body?.message === "string" ? body.message : ""
 
         if (message.length === 0 || message.length > 8000) {
