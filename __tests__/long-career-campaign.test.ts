@@ -144,6 +144,38 @@ test('week tick levels every player but only the managed club level-ups reach th
     expect(out.save.players.filter(p => rival.rosterIds.includes(p.id)).every(p => (p.level ?? 1) >= 2)).toBe(true)
 })
 
+test('season-end retirements reach the inbox only for the manager\'s own players', async () => {
+    const { EventProcessor } = await import('@/engine/processors/event-processor')
+    const save = createLaunchFixture('first-week') as unknown as GameSave
+    save.currentWeek = 52
+    const mine = save.players.find(p => p.id === save.teams[0].rosterIds[0])!
+    const theirs = save.players.find(p => p.id === save.teams[1].rosterIds[0])!
+    for (const p of [mine, theirs]) { p.age = 38; p.majorWins = 0; p.totalMVPs = 0; p.totalKills = 0; p.avgRating = 1; p.matchesPlayed = 10 }
+    const { retired } = EventProcessor.processRetirements(save, new SeededRNG(3))
+    expect(retired).toEqual(expect.arrayContaining([mine.id, theirs.id]))
+    const inbox = save.eventsLog.filter(e => e.type === 'RETIREMENT').map(e => e.data.playerId)
+    expect(inbox).toContain(mine.id)
+    expect(inbox).not.toContain(theirs.id)
+    expect(save.newsFeed.some(n => n.playerId === theirs.id)).toBe(true)
+})
+
+test('AI academies stop creating new players while the free-agent pool exceeds its per-club reserve', async () => {
+    const { AIManager, AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM } = await import('@/engine/ai-manager')
+    const run = (extraFreeAgents: number) => {
+        const save = createLaunchFixture('strong-club') as unknown as GameSave
+        const ai = save.teams[1]
+        ai.budget = 50_000_000
+        ai.reputation = 100
+        const template = save.players.find(p => p.id === 'qa_free_agent')!
+        for (let i = 0; i < extraFreeAgents; i++) save.players.push({ ...structuredClone(template), id: `fa_${i}` })
+        const before = save.players.length
+        for (let i = 0; i < 300; i++) AIManager.processAcademyScouting(save, ai, new SeededRNG(i + 1))
+        return save.players.length - before
+    }
+    expect(run(0)).toBeGreaterThan(0)
+    expect(run(3 * AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM)).toBe(0)
+})
+
 test('a transfer-listed player draws at most three open AI bids however many clubs are interested', async () => {
     const { processAITransferMarket } = await import('@/engine/ai/transfer-market')
     const save = createLaunchFixture('strong-club') as unknown as GameSave

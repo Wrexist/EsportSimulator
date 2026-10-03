@@ -428,8 +428,10 @@ export class EventProcessor {
                 }
             }
 
-            // Event log entry
-            save.eventsLog.push({
+            // Inbox entry only for the manager's own players and Hall of Fame
+            // inductees; other retirements stay in the news feed. World-wide
+            // inbox items put 50-65 retirements in the inbox every season end.
+            if (lastTeamId === save.playerTeamId || player.isLegendary) save.eventsLog.push({
                 id: `retirement_${player.id}_${save.currentWeek}`,
                 type: EventType.RETIREMENT,
                 week: save.currentWeek,
@@ -595,8 +597,9 @@ export class EventProcessor {
                 save.contracts = save.contracts.filter(c => c.playerId !== player.id)
             }
 
-            // Event log
-            save.eventsLog.push({
+            // Never the manager's player (excluded above): news feed only,
+            // not an inbox item.
+            if (lastTeamId === save.playerTeamId) save.eventsLog.push({
                 id: `midseason_retirement_${player.id}_${save.currentWeek}`,
                 type: EventType.RETIREMENT,
                 week: save.currentWeek,
