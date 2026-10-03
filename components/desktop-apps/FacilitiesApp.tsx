@@ -12,6 +12,7 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "@/lib/toast"
 import { UI_ASSETS } from "@/lib/ui-assets"
 import { soundManager } from "@/lib/sound-manager"
+import { pressable } from "@/lib/accessibility"
 
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
@@ -162,7 +163,7 @@ export function FacilitiesApp() {
                             <motion.div
                                 key={fac.id}
                                 layout
-                                onClick={() => setExpandedId(isExpanded ? null : fac.id)}
+                                {...pressable(() => setExpandedId(isExpanded ? null : fac.id), { expanded: isExpanded })}
                                 className={cn(
                                     "relative overflow-hidden rounded-3xl border transition-all cursor-pointer group select-none",
                                     isExpanded

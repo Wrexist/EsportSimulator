@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { isReducedMotionActive } from "@/lib/reduced-motion"
 
 interface AnimatedNumberProps {
     /** Target value to animate to. */
@@ -23,11 +24,14 @@ interface AnimatedNumberProps {
  * with an ease-out curve so money/stat changes feel earned instead of snapping.
  *
  * - rAF-driven (one piece of state, cancelled on unmount/retarget) — cheap.
- * - Respects `prefers-reduced-motion` (snaps instantly).
+ * - Respects the in-game Reduced motion setting and `prefers-reduced-motion`
+ *   (snaps straight to the final value, including `animateOnMount` reveals).
  * - First mount snaps (no count-up from 0) so a freshly-loaded screen isn't
  *   noisy; only subsequent value changes animate.
  */
 export function AnimatedNumber({ value, duration = 650, format, className, animateOnMount = false, startValue = 0 }: AnimatedNumberProps) {
+    // Initial state must match the server render; reduced motion snaps to the
+    // final value in the first effect below (before any tween frame).
     const [display, setDisplay] = useState(animateOnMount ? startValue : value)
     const fromRef = useRef(animateOnMount ? startValue : value)
     const rafRef = useRef<number | undefined>(undefined)
@@ -48,8 +52,8 @@ export function AnimatedNumber({ value, duration = 650, format, className, anima
         }
 
         // Honor reduced-motion: snap rather than animate.
-        if (typeof window !== "undefined" &&
-            window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+        // Checks both the in-game setting and the OS preference.
+        if (isReducedMotionActive()) {
             fromRef.current = to
             setDisplay(to)
             return

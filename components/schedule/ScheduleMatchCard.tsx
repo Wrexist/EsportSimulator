@@ -7,6 +7,7 @@ import { Trophy, CalendarClock, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { MatchSaveData, CompletedMatchSaveData, TeamSaveData } from "@/engine/save-types"
+import { pressable } from "@/lib/accessibility"
 
 interface ScheduleMatchCardProps {
     match?: MatchSaveData
@@ -59,8 +60,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
 
         return (
             <div
-                onClick={() => {
-                    if (isLocked) return
+                {...pressable(() => {
                     if (onClick) {
                         onClick()
                     } else if (match?.result) {
@@ -68,7 +68,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                     } else {
                         router.push("/")
                     }
-                }}
+                }, { disabled: isLocked })}
                 className={cn(
                     "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
                     isLocked && "opacity-60 cursor-not-allowed hover:scale-100 hover:translate-y-0 active:scale-100",

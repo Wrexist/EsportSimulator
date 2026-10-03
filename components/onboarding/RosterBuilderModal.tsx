@@ -33,6 +33,7 @@ import { SynergyCalculator } from "@/engine/synergy-calculator"
 import { toast } from "@/lib/toast"
 import { GameDifficulty } from "@/types/team-creator"
 import { PlayerRole } from "@/types/enums"
+import { useFocusTrap } from "@/lib/accessibility"
 
 // Weekly salary caps based on difficulty (increased for realistic salaries)
 const WEEKLY_SALARY_CAPS: Record<GameDifficulty, number> = {
@@ -474,6 +475,9 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         onComplete()
     }
 
+    // Required onboarding step: focus is trapped, Escape does not dismiss.
+    const dialogRef = useFocusTrap(isOpen && !!playerTeam)
+
     if (!isOpen || !playerTeam) return null
 
     const canComplete = signedCount >= targetCount
@@ -490,10 +494,11 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-roster-builder"
-                    className="w-full max-w-4xl max-h-[90vh] bg-gradient-to-b from-zinc-900 to-black rounded-2xl border border-white/10 overflow-hidden flex flex-col"
+                    className="w-full max-w-4xl max-h-[min(90vh,calc(100dvh-2rem))] bg-gradient-to-b from-zinc-900 to-black rounded-2xl border border-white/10 overflow-hidden flex flex-col"
                 >
                     {/* Scrollable Content Area */}
                     <div className="flex-1 overflow-y-auto">

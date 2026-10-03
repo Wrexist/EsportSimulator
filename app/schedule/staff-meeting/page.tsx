@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
+import { pressable } from "@/lib/accessibility"
 
 // Meeting type definitions
 interface MeetingType {
@@ -422,7 +423,7 @@ export default function StaffMeetingPage() {
                                                 ? "border-white/10 bg-white/5 hover:bg-white/10 cursor-pointer"
                                                 : "border-white/5 bg-black/40 opacity-50 grayscale"
                                         )}
-                                        onClick={() => status.unlocked && canAfford && handleScheduleMeeting(meeting)}
+                                        {...pressable(() => handleScheduleMeeting(meeting), { disabled: !status.unlocked || !canAfford })}
                                     >
                                         <div className="flex items-start justify-between relative z-10">
                                             <div className="space-y-2">
