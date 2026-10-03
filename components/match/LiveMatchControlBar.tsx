@@ -76,7 +76,7 @@ function LiveMatchControlBarComponent({
                                 scale: isAutoTactics ? 1.1 : 1
                             }}
                             className={cn(
-                                "absolute top-0.5 w-3.5 h-3.5 rounded-full shadow-sm",
+                                "absolute top-0.5 w-3.5 h-3.5 rounded-full shadow-xs",
                                 isAutoTactics ? "bg-amber-400" : "bg-white/30"
                             )}
                         />

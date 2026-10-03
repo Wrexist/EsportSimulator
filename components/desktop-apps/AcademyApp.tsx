@@ -269,8 +269,8 @@ export function AcademyApp() {
     return (
         <div className="flex flex-col h-full bg-[#09090b] text-white font-sans selection:bg-emerald-500/30">
             {/* Header */}
-            <div className="p-5 border-b border-white/5 bg-gradient-to-r from-emerald-950/30 to-cyan-950/30 backdrop-blur-md relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+            <div className="p-5 border-b border-white/5 bg-linear-to-r/srgb from-emerald-950/30 to-cyan-950/30 backdrop-blur-md relative overflow-hidden">
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[20px_20px]" />
                 <div className="flex justify-between items-start relative z-10">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
@@ -453,7 +453,7 @@ export function AcademyApp() {
                             exit={{ scale: 0.9, opacity: 0 }}
                             className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden"
                         >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r/srgb from-red-500/0 via-red-500/50 to-red-500/0" />
 
                             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
                                 <X size={28} className="text-red-400" />
@@ -501,7 +501,7 @@ export function AcademyApp() {
 function BuildAcademyPanel({ budget, onBuild }: { budget: number; onBuild: () => void }) {
     const cost = 25000
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-linear-to-br/srgb from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
             <GraduationCap size={48} className="mx-auto mb-4 text-emerald-400" />
             <h2 className="text-xl font-bold mb-2">Build Your Youth Academy</h2>
             <p className="text-sm text-white/50 mb-6">Scout, train, and develop the next generation of talent.</p>
@@ -572,7 +572,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                 onDragLeave={() => { }}
                                 onDrop={() => onRoleDrop(role)}
                                 className={cn(
-                                    "relative aspect-[3/4] rounded-xl border-2 border-dashed transition-[border-color,background-color,transform] duration-100 ease-out flex flex-col items-center justify-center p-2",
+                                    "relative aspect-3/4 rounded-xl border-2 border-dashed transition-[border-color,background-color,transform] duration-100 ease-out flex flex-col items-center justify-center p-2",
                                     prospectData ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 hover:border-white/20",
                                     isOver && !prospectData && "border-emerald-400 bg-emerald-500/10 scale-105",
                                     draggedProspect && !prospectData && "animate-pulse"
@@ -704,7 +704,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                     </div>
                                     <label className="mt-2 block text-[10px] text-white/60">
                                         Individual focus
-                                        <select aria-label={`${player.nickname} development focus`} value={prospect.trainingFocus || 'BALANCED'} onChange={event => onSetTraining(prospect.id, event.target.value)} onPointerDown={event => event.stopPropagation()} className="mt-1 w-full rounded border border-white/15 bg-[#151c25] px-2 py-1.5 text-xs text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                        <select aria-label={`${player.nickname} development focus`} value={prospect.trainingFocus || 'BALANCED'} onChange={event => onSetTraining(prospect.id, event.target.value)} onPointerDown={event => event.stopPropagation()} className="mt-1 w-full rounded border border-white/15 bg-[#151c25] px-2 py-1.5 text-xs text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-400">
                                             {TRAINING_FOCUS_CONFIG.map(focus => <option key={focus.id} value={focus.id}>{focus.name}</option>)}
                                         </select>
                                     </label>
@@ -787,7 +787,7 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
             </div>
 
             {graduates.length === 0 ? (
-                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+                <div className="p-12 rounded-2xl bg-white/2 border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
                     <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
                         <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
@@ -870,7 +870,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 className="text-center"
                             >
                                 <div className="text-[9px] text-white/40 uppercase font-bold mb-1.5">{day}</div>
-                                <select aria-label={`${day} academy drill`} value={drill?.id || ''} onChange={event => onSetDay(i, event.target.value || null)} className="w-full mb-2 rounded border border-white/15 bg-[#151c25] px-1 py-1.5 text-[10px] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                <select aria-label={`${day} academy drill`} value={drill?.id || ''} onChange={event => onSetDay(i, event.target.value || null)} className="w-full mb-2 rounded border border-white/15 bg-[#151c25] px-1 py-1.5 text-[10px] text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-400">
                                     <option value="">No drill</option>
                                     {ACADEMY_DRILLS.filter(item => item.minLevel <= academyLevel).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
                                 </select>
@@ -1061,7 +1061,7 @@ function ReportsTab({ reports }: { reports: any[], players: any[] }) {
                 // Key by week, not array index — the list is reversed + prepended,
                 // so index-keying reused DOM/animation state across different reports.
                 <div key={report.week} className="bg-[#0b0b0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                    <div className="px-4 py-3 border-b border-white/5 bg-white/[0.03] flex justify-between items-center">
+                    <div className="px-4 py-3 border-b border-white/5 bg-white/3 flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <Activity className="text-emerald-400" size={14} />
                             <span className="text-xs font-normal tracking-widest uppercase text-white/80">Week {report.week} Report</span>
@@ -1072,7 +1072,7 @@ function ReportsTab({ reports }: { reports: any[], players: any[] }) {
                     </div>
                     <div className="divide-y divide-white/5">
                         {report.prospectReports.map((pr: any, pIdx: number) => (
-                            <div key={pr.nickname ?? pIdx} className="p-4 flex items-center justify-between hover:bg-white/[0.01] transition-colors group">
+                            <div key={pr.nickname ?? pIdx} className="p-4 flex items-center justify-between hover:bg-white/1 transition-colors group">
                                 <div className="flex items-center gap-4 min-w-0 flex-1">
                                     <div className={cn("w-1 h-8 rounded-full", pr.isStarter ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-white/10")} />
                                     <div className="min-w-0 flex-1">
@@ -1177,7 +1177,7 @@ function ScoutingTab({
                                             initial={{ x: "-100%" }}
                                             animate={{ x: "100%" }}
                                             transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                                            className="h-full w-1/2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"
+                                            className="h-full w-1/2 bg-linear-to-r/srgb from-transparent via-cyan-500 to-transparent"
                                         />
                                     </div>
                                     <div className="text-[8px] text-cyan-400 font-normal text-center uppercase tracking-widest">In Transit</div>
@@ -1198,7 +1198,7 @@ function ScoutingTab({
 
             {/* Pending Results (Review Talent) */}
             {pendingPlayers.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-6 text-center">
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/1 p-6 text-center">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">
                         No Prospects In Review
                     </div>
@@ -1211,7 +1211,7 @@ function ScoutingTab({
                 <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
-                            <div className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-500/30" />
+                            <div className="h-px w-8 bg-linear-to-r/srgb from-transparent to-cyan-500/30" />
                             <span className="text-[10px] font-normal uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">Review New Talent</span>
                         </div>
                         <div className="text-[10px] font-normal text-white/30 uppercase tracking-tighter">
@@ -1233,7 +1233,7 @@ function ScoutingTab({
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="relative w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
                                         <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={48} className="w-full h-full object-cover" />
-                                        <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-sm rounded-tl-md">
+                                        <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-xs rounded-tl-md">
                                             <div className={cn("w-2.5 h-1.5 rounded-sm", player.nationality === "Sweden" ? "bg-blue-600" : "bg-zinc-600")} />
                                         </div>
                                     </div>

@@ -7,11 +7,11 @@ export type ProgressBarTone = "brand" | "success" | "warning" | "danger" | "neut
 export type ProgressBarSize = "xs" | "sm" | "md"
 
 const TONE_GRADIENT: Record<Exclude<ProgressBarTone, "auto">, string> = {
-  brand: "bg-gradient-to-r from-primary/80 to-primary",
-  success: "bg-gradient-to-r from-emerald-600 to-emerald-400",
-  warning: "bg-gradient-to-r from-amber-600 to-amber-400",
-  danger: "bg-gradient-to-r from-rose-600 to-rose-400",
-  neutral: "bg-gradient-to-r from-white/40 to-white/70",
+  brand: "bg-linear-to-r/srgb from-primary/80 to-primary",
+  success: "bg-linear-to-r/srgb from-emerald-600 to-emerald-400",
+  warning: "bg-linear-to-r/srgb from-amber-600 to-amber-400",
+  danger: "bg-linear-to-r/srgb from-rose-600 to-rose-400",
+  neutral: "bg-linear-to-r/srgb from-white/40 to-white/70",
 }
 
 const HEIGHT_CLASS: Record<ProgressBarSize, string> = {
@@ -91,8 +91,8 @@ export function ProgressBar({
         >
           {decorative && (
             <>
-              <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-80" />
-              <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-b/srgb from-white/40 to-transparent opacity-80" />
+              <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-linear-to-r/srgb from-transparent via-white/50 to-transparent" />
             </>
           )}
         </motion.div>

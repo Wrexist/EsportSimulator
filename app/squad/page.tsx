@@ -91,14 +91,14 @@ const RosterCard = memo(function RosterCard({
       {player.injury && (
         <div className="absolute top-2 right-12 z-20">
           <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
-            <Activity size={10} className="stroke-[3]" />
+            <Activity size={10} className="stroke-3" />
             <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
           </Badge>
         </div>
       )}
 
       {player.injury && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-xs z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none *:pointer-events-auto">
           <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
           <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
           <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
@@ -406,14 +406,14 @@ function SquadPageInner() {
           {/* Only show synergy for active roster */}
           <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
 
-            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
+            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
             <SynergyChart players={activeRoster as any} />
           </div>
 
 
 
           {/* Youth Academy */}
-            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
+            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
             <SectionHeader
               className="mb-6"
               icon={Users}
@@ -457,7 +457,7 @@ function SquadPageInner() {
                           <Button
                             onClick={(e) => { e.stopPropagation(); setPromotingProspectId(ap.id) }}
                             size="sm"
-                            className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-sm"
+                            className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-xs"
                           >
                             <ArrowUpRight size={12} className="mr-1" /> Promote
                           </Button>

@@ -236,7 +236,7 @@ export default function Page() {
                 : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
             </p>
           </div>
-          <Card className="bg-white/[0.02] border-white/5">
+          <Card className="bg-white/2 border-white/5">
             <CardContent className="pt-6 space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Seasons Managed</span><span className="text-white font-mono">{seasonsPlayed}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Weeks Survived</span><span className="text-white font-mono">{weeksPlayed}</span></div>
@@ -352,7 +352,7 @@ export default function Page() {
           {/* Next Match Card */}
           {nextMatch ? (
             <Card className="dashboard-hero overflow-hidden relative group rounded-3xl">
-              <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
+              <div className="absolute inset-x-6 top-0 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
               <CardHeader className="pb-2 relative z-10">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-3">
@@ -476,7 +476,7 @@ export default function Page() {
               </CardHeader>
               <CardContent className="relative z-10 py-6 space-y-4">
                 {upcomingTournaments.map((t) => (
-                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/3 border border-white/5 hover:border-white/10 transition-colors">
                     {/* Player team */}
                     <div className="flex-1 flex items-center gap-4">
                       <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -567,7 +567,7 @@ export default function Page() {
                     <span className="text-[11px] text-muted-foreground uppercase font-semibold tracking-widest opacity-60">Week {currentWeek} / 52</span>
                   </div>
                   <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                    <div className="h-full bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
+                    <div className="h-full bg-linear-to-r/srgb from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
                   </div>
                 </div>
               </CardContent>
@@ -715,7 +715,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
+          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 space-y-2">
             <NewsFeed />
           </div>
         </div>

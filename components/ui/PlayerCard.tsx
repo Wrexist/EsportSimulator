@@ -113,9 +113,9 @@ const PADDING_CLASS: Record<PlayerCardSize, string> = {
 
 const ACCENT_CLASS = {
   default: "border-white/10 bg-black/30",
-  danger: "border-red-500/30 bg-red-500/[0.04]",
-  success: "border-emerald-500/30 bg-emerald-500/[0.04]",
-  brand: "border-primary/40 bg-primary/[0.06]",
+  danger: "border-red-500/30 bg-red-500/4",
+  success: "border-emerald-500/30 bg-emerald-500/4",
+  brand: "border-primary/40 bg-primary/6",
 } as const
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ function roleIcon(role: string | undefined, px = 12) {
 
 function ovrColor(rating: number | undefined) {
   if (rating === undefined) return "text-white/80"
-  if (rating >= 90) return "text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600"
+  if (rating >= 90) return "text-transparent bg-clip-text bg-linear-to-b/srgb from-amber-300 to-amber-600"
   if (rating >= 80) return "text-emerald-400"
   return "text-white/80"
 }
@@ -191,9 +191,9 @@ function PlayerCardImpl({
         "transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out",
         PADDING_CLASS[size],
         ACCENT_CLASS[accent],
-        selected && "border-primary/60 bg-primary/[0.08] scale-[1.01]",
+        selected && "border-primary/60 bg-primary/8 scale-[1.01]",
         muted && "opacity-60 grayscale",
-        !selected && !muted && "hover:border-white/20 hover:bg-white/[0.04]",
+        !selected && !muted && "hover:border-white/20 hover:bg-white/4",
         isReveal && "shadow-2xl",
         onClick && "cursor-pointer",
         className,
@@ -211,7 +211,7 @@ function PlayerCardImpl({
               ? "bg-red-500/10 border-red-500/40"
               : selected
                 ? "bg-primary/10 border-primary/60"
-                : "bg-gradient-to-br from-white/10 to-transparent border-white/5",
+                : "bg-linear-to-br/srgb from-white/10 to-transparent border-white/5",
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >

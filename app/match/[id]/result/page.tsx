@@ -424,7 +424,7 @@ export default function MatchResultPage() {
                 >
                     {/* Background Glows */}
                     <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                        <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
+                        <div className="absolute top-0 left-8 right-8 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
                     </div>
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
@@ -554,12 +554,12 @@ export default function MatchResultPage() {
             </div>
 
             {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (
-                <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-4" aria-label="Next match preparation">
+                <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/3 p-4" aria-label="Next match preparation">
                     <p className="text-sm text-slate-200">{matchFollowup(playerTeamId === match.homeTeamId ? homeStats : awayStats)}</p>
                     {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
                     <div className="mt-3 flex flex-wrap gap-2">
                         {[['Training', '/training'], ['Scout recruitment', '/scouting'], ['Squad and roles', '/squad'], ['Prepare next match', '/schedule']].map(([label, href]) => (
-                            <button key={href} onClick={() => router.push(href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">{label}</button>
+                            <button key={href} onClick={() => router.push(href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{label}</button>
                         ))}
                     </div>
                 </section>
@@ -850,13 +850,13 @@ export default function MatchResultPage() {
                                                             <div
                                                                 className={cn(
                                                                     "h-full rounded-lg",
-                                                                    diff > 0 ? "bg-gradient-to-r from-emerald-500/70 to-emerald-400/40" :
-                                                                    diff < 0 ? "bg-gradient-to-r from-red-500/50 to-red-400/30" :
-                                                                    "bg-gradient-to-r from-white/20 to-white/10"
+                                                                    diff > 0 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
+                                                                    diff < 0 ? "bg-linear-to-r/srgb from-red-500/50 to-red-400/30" :
+                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
                                                                 )}
                                                                 style={{ width: `${Math.max(pct, 8)}%` }}
                                                             />
-                                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-sm">
+                                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-xs">
                                                                 {fk}FK / {fd}FD ({pct}%)
                                                             </span>
                                                         </div>
@@ -901,9 +901,9 @@ export default function MatchResultPage() {
                                                             <div
                                                                 className={cn(
                                                                     "h-full rounded-lg",
-                                                                    kast >= 80 ? "bg-gradient-to-r from-emerald-500/70 to-emerald-400/40" :
-                                                                    kast >= 60 ? "bg-gradient-to-r from-sky-500/60 to-sky-400/30" :
-                                                                    "bg-gradient-to-r from-white/20 to-white/10"
+                                                                    kast >= 80 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
+                                                                    kast >= 60 ? "bg-linear-to-r/srgb from-sky-500/60 to-sky-400/30" :
+                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
                                                                 )}
                                                                 style={{ width: `${kast}%` }}
                                                             />
@@ -1077,7 +1077,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                         const ratingColor = stat.rating >= 1.25 ? "text-emerald-400" : stat.rating < 0.9 ? "text-red-400" : "text-white/80"
 
                         return (
-                            <tr key={stat.playerId} className="bg-white/[0.02] hover:bg-white/[0.06] transition-colors">
+                            <tr key={stat.playerId} className="bg-white/2 hover:bg-white/6 transition-colors">
                                 <td className="px-4 py-3 font-medium text-white flex items-center gap-3">
                                     <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center overflow-hidden relative">
                                         <PlayerPortrait

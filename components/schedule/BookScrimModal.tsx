@@ -124,7 +124,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                         placeholder="Search teams..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:border-primary/50 transition-colors"
                     />
                 </div>
 

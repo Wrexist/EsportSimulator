@@ -121,8 +121,8 @@ export function FacilitiesApp() {
     return (
         <div className="flex flex-col h-full bg-[#09090b] text-white font-sans selection:bg-cyan-500/30">
             {/* Header */}
-            <div className="p-6 border-b border-white/5 bg-gradient-to-r from-cyan-950/30 to-blue-950/30 backdrop-blur-md relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+            <div className="p-6 border-b border-white/5 bg-linear-to-r/srgb from-cyan-950/30 to-blue-950/30 backdrop-blur-md relative overflow-hidden">
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[20px_20px]" />
                 <div className="flex justify-between items-start relative z-10">
                     <div>
                         <h1 className="text-3xl font-normal mb-2 flex items-center gap-3 tracking-tight">
@@ -133,7 +133,7 @@ export function FacilitiesApp() {
                         </h1>
                         <p className="text-sm text-white/50 font-medium">Manage and upgrade your team&apos;s operational base.</p>
                     </div>
-                    <div className="text-right bg-black/20 p-3 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <div className="text-right bg-black/20 p-3 rounded-xl border border-white/5 backdrop-blur-xs">
                         <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Weekly Maintenance</div>
                         <div className="text-xl font-normal font-mono text-red-400 flex items-center justify-end gap-1">
                             <ArrowUp size={14} className="rotate-45" />
@@ -176,7 +176,7 @@ export function FacilitiesApp() {
                                         {/* Facility Icon Box */}
                                         <div className={cn(
                                             "w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500",
-                                            "bg-gradient-to-br from-white/5 to-transparent border border-white/10"
+                                            "bg-linear-to-br/srgb from-white/5 to-transparent border border-white/10"
                                         )}>
                                             <div className={cn("absolute inset-0 opacity-20 bg-current", fac.color)} />
                                             <Icon size={32} className={cn("relative z-10", fac.color)} />
@@ -245,7 +245,7 @@ export function FacilitiesApp() {
                                                         </div>
                                                     ) : (
                                                         <div className="relative group/card">
-                                                            <div className="absolute -inset-0.5 bg-gradient-to-br from-cyan-500/20 to-blue-500/0 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                                                            <div className="absolute -inset-0.5 bg-linear-to-br/srgb from-cyan-500/20 to-blue-500/0 rounded-2xl blur-sm opacity-0 group-hover/card:opacity-100 transition-opacity" />
                                                             <div className="relative p-5 rounded-2xl bg-[#121217] border border-white/10">
                                                                 <div className="text-lg font-bold text-white mb-1">Level {level}</div>
                                                                 <p className="text-sm text-white/60 mb-4 leading-relaxed">{currentLevelInfo?.desc}</p>

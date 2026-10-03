@@ -187,7 +187,7 @@ function LoadGamePageInner() {
 
                                     <div className="p-6 flex-1 space-y-6">
                                         <div className="flex justify-between items-start">
-                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-transparent border border-white/10 flex items-center justify-center font-normal text-2xl shadow-xl group-hover:scale-110 transition-transform">
+                                            <div className="w-14 h-14 rounded-2xl bg-linear-to-br/srgb from-white/10 to-transparent border border-white/10 flex items-center justify-center font-normal text-2xl shadow-xl group-hover:scale-110 transition-transform">
                                                 {slot.teamName?.[0] || "?"}
                                             </div>
                                             <Badge className={cn(

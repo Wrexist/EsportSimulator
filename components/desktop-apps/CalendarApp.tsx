@@ -88,7 +88,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="p-3 border-b border-white/5 bg-white/[0.02] shrink-0">
+            <div className="p-3 border-b border-white/5 bg-white/2 shrink-0">
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <h3 className="font-bold text-white text-sm">Season Calendar</h3>
@@ -176,8 +176,8 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                     isActive
                                                         ? "bg-emerald-500/10 border-emerald-500/30"
                                                         : isPast
-                                                            ? "bg-white/[0.02] border-white/5 opacity-50"
-                                                            : "bg-white/[0.02] border-white/5 hover:bg-white/5"
+                                                            ? "bg-white/2 border-white/5 opacity-50"
+                                                            : "bg-white/2 border-white/5 hover:bg-white/5"
                                                 )}
                                             >
                                                 <div className="flex items-start gap-2">
@@ -251,7 +251,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                     "p-2.5 rounded-xl border cursor-pointer transition-all",
                                                     !event.acknowledged
                                                         ? "bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10"
-                                                        : "bg-white/[0.02] border-white/5 hover:bg-white/5"
+                                                        : "bg-white/2 border-white/5 hover:bg-white/5"
                                                 )}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                     ? "bg-cyan-500/10 border-cyan-500/30"
                                                     : weekTournaments.length > 0
                                                         ? "bg-white/5 border-white/10"
-                                                        : "bg-white/[0.02] border-white/5"
+                                                        : "bg-white/2 border-white/5"
                                             )}
                                         >
                                             <div className={cn(

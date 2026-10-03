@@ -122,7 +122,7 @@ export default function StaffPage() {
                         <p className="text-[10px] font-normal uppercase text-muted-foreground">Weekly Payroll</p>
                         <p className="text-lg font-normal text-rose-400">-${currentStaff.reduce((sum, s) => sum + s.salaryPerWeek, 0).toLocaleString()}</p>
                     </div>
-                    <div className="h-8 w-[1px] bg-white/10" />
+                    <div className="h-8 w-px bg-white/10" />
                     <div>
                         <p className="text-[10px] font-normal uppercase text-muted-foreground">Staff Slots</p>
                         <p className="text-lg font-normal text-white">{currentStaff.length} / 5</p>
@@ -185,7 +185,7 @@ export default function StaffPage() {
                                     className="glass-panel p-0 overflow-hidden group relative"
                                 >
                                     <div className="p-4 flex gap-4">
-                                        <div className="w-20 h-24 bg-neutral-900 border border-white/10 rounded flex-shrink-0 relative overflow-hidden">
+                                        <div className="w-20 h-24 bg-neutral-900 border border-white/10 rounded shrink-0 relative overflow-hidden">
                                             {/* Portrait */}
                                             <StaffPortrait
                                                 src={s.portraitPath}
@@ -323,7 +323,7 @@ export default function StaffPage() {
                             className="glass-panel p-0 overflow-hidden border-white/5 hover:border-primary/30 transition-colors"
                         >
                             <div className="p-4 flex gap-4">
-                                <div className="w-16 h-16 bg-neutral-900 border border-white/10 rounded flex-shrink-0 relative overflow-hidden">
+                                <div className="w-16 h-16 bg-neutral-900 border border-white/10 rounded shrink-0 relative overflow-hidden">
                                     <StaffPortrait
                                         src={s.portraitPath}
                                         alt={s.name}

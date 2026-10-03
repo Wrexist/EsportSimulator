@@ -133,7 +133,7 @@ export function DevTools() {
                         className="fixed bottom-20 right-6 z-devtools w-[480px] max-h-[75vh] bg-black/95 border border-red-500/20 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl flex flex-col"
                     >
                         {/* Header */}
-                        <div className="px-4 py-3 bg-gradient-to-r from-red-950/50 to-black border-b border-red-500/20 flex justify-between items-center shrink-0">
+                        <div className="px-4 py-3 bg-linear-to-r/srgb from-red-950/50 to-black border-b border-red-500/20 flex justify-between items-center shrink-0">
                             <h3 className="font-mono font-bold text-red-400 flex items-center gap-2 text-sm">
                                 <Terminal size={14} /> DEV TOOLS
                             </h3>
@@ -217,7 +217,7 @@ export function DevTools() {
                                                 value={customAmount}
                                                 onChange={e => setCustomAmount(e.target.value)}
                                                 placeholder="Enter amount..."
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/50"
+                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white placeholder:text-muted-foreground focus:outline-hidden focus:border-emerald-500/50"
                                             />
                                             <Button
                                                 size="sm"
@@ -249,7 +249,7 @@ export function DevTools() {
                                         <select
                                             value={targetPlayerId || ""}
                                             onChange={e => setSelectedPlayerId(e.target.value)}
-                                            className="w-full h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-violet-500/50 appearance-none cursor-pointer"
+                                            className="w-full h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-violet-500/50 appearance-none cursor-pointer"
                                         >
                                             {rosterPlayers.map((p: any) => (
                                                 <option key={p.id} value={p.id} className="bg-black text-white">
@@ -306,7 +306,7 @@ export function DevTools() {
                                                 onChange={e => setCustomAge(e.target.value)}
                                                 min={16}
                                                 max={50}
-                                                className="w-20 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-violet-500/50"
+                                                className="w-20 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-violet-500/50"
                                             />
                                             <Button
                                                 size="sm"
@@ -489,7 +489,7 @@ export function DevTools() {
                                                         store.addToast({ message: `Switched to ${team?.name || e.target.value}`, type: "info" })
                                                     }
                                                 }}
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-blue-500/50 appearance-none cursor-pointer"
+                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-blue-500/50 appearance-none cursor-pointer"
                                             >
                                                 {[...store.teams]
                                                     .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
@@ -506,7 +506,7 @@ export function DevTools() {
                                         <div className="flex gap-2">
                                             <select
                                                 id="tournament-select"
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-blue-500/50 appearance-none cursor-pointer"
+                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-blue-500/50 appearance-none cursor-pointer"
                                             >
                                                 {(store.tournaments || [])
                                                     .filter(t => !t.isCompleted)

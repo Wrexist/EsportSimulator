@@ -355,7 +355,7 @@ export default function FPLPage() {
             </div>
 
             {/* What is FPL? (E7) — the mechanic is never explained otherwise. */}
-            <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4 flex items-start gap-3">
+            <div className="rounded-lg border border-white/5 bg-white/2 p-4 flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-amber-500/10 shrink-0"><Users size={14} className="text-amber-400" /></div>
                 <div>
                     <p className="text-xs font-bold text-white/80 uppercase tracking-wide mb-1">What is FPL?</p>
@@ -624,7 +624,7 @@ export default function FPLPage() {
                                     <Link key={entry.player.id} href={`/player/${entry.player.id}`}>
                                         <div className={cn(
                                             "p-3 rounded-xl border text-center hover:bg-white/5 transition-colors",
-                                            idx === 0 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/[0.02] border-white/10"
+                                            idx === 0 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/2 border-white/10"
                                         )}>
                                             <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 mx-auto mb-2">
                                                 <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={48} />
@@ -675,7 +675,7 @@ export default function FPLPage() {
                                     return (
                                         <div
                                             key={pastSeason.id}
-                                            className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden"
+                                            className="rounded-xl border border-white/10 bg-white/2 overflow-hidden"
                                         >
                                             {/* Season Header */}
                                             <div className="flex items-center justify-between p-5 bg-white/5">

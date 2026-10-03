@@ -120,7 +120,7 @@ export default function BasecampPage() {
               <p className="text-[10px] uppercase font-bold text-white/55 tracking-widest mb-1">Available Budget</p>
               <p className="text-3xl font-normal text-white tracking-tight">${playerTeam.budget.toLocaleString()}</p>
             </div>
-            <div className="h-12 w-[1px] bg-white/10" />
+            <div className="h-12 w-px bg-white/10" />
             <div className="text-right">
               <p className="text-[10px] uppercase font-bold text-white/55 tracking-widest mb-1">Global Reputation</p>
               <div className="flex items-center justify-end gap-2">
@@ -180,8 +180,8 @@ export default function BasecampPage() {
                     sizes="(max-width: 1050px) 100vw, 50vw"
                     className="object-cover transition-transform duration-700 opacity-60"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/65 to-black/85" />
-                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20 mix-blend-overlay", config.bgFrom, "to-transparent")} />
+                  <div className="absolute inset-0 bg-linear-to-b/srgb from-transparent via-black/65 to-black/85" />
+                  <div className={cn("absolute inset-0 bg-linear-to-br/srgb opacity-20 mix-blend-overlay", config.bgFrom, "to-transparent")} />
                 </div>
 
                 {/* Content */}
@@ -209,7 +209,7 @@ export default function BasecampPage() {
 
                   {/* Stats Comparison Grid */}
                   <div className="facility-comparison grid grid-cols-2 gap-4">
-                    <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+                    <div className="bg-white/3 rounded-xl p-4 border border-white/5">
                       <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Current Stats</p>
                       <div className="flex items-baseline gap-2">
                         <span className={cn("text-xl font-normal", level > 0 ? "text-white" : "text-white/30")}>
@@ -223,7 +223,7 @@ export default function BasecampPage() {
                     </div>
 
                     {level < 5 && (
-                      <div className={cn("rounded-xl p-4 border relative overflow-hidden", "bg-white/[0.03] border-white/10")}>
+                      <div className={cn("rounded-xl p-4 border relative overflow-hidden", "bg-white/3 border-white/10")}>
 
                         <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Next Level</p>
                         <div className="flex items-baseline gap-2">
@@ -253,7 +253,7 @@ export default function BasecampPage() {
                     onClick={() => handleUpgradeFacility(type)}
                     disabled={level === 5 || playerTeam.budget < nextLevelCost}
                     className={cn(
-                      "w-full h-12 rounded-xl text-xs font-normal uppercase tracking-[0.1em] transition-all relative overflow-hidden group/btn",
+                      "w-full h-12 rounded-xl text-xs font-normal uppercase tracking-widest transition-all relative overflow-hidden group/btn",
                       level === 5
                         ? "bg-white/5 text-white/35 cursor-not-allowed hover:bg-white/5"
                         : "bg-white text-black hover:bg-neutral-200"

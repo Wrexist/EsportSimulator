@@ -34,7 +34,7 @@ const NUMBER_CLASS: Record<RatingSize, string> = {
 }
 
 function defaultColor(value: number): string {
-  if (value >= 90) return "text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-600"
+  if (value >= 90) return "text-transparent bg-clip-text bg-linear-to-b/srgb from-amber-300 to-amber-600"
   if (value >= 80) return "text-emerald-400"
   if (value >= 60) return "text-white/80"
   return "text-rose-400"

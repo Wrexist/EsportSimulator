@@ -195,14 +195,14 @@ function LegendCard({ legend, playerData, isFounding, isActive }: LegendCardProp
             {/* Corner ribbons */}
             {isFounding && !isActive && (
                 <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden z-20 pointer-events-none">
-                    <div className="absolute top-2 right-[-20px] w-[80px] bg-gradient-to-r from-amber-600 to-amber-400 text-[8px] font-normal text-black text-center py-0.5 rotate-45 shadow-lg">
+                    <div className="absolute top-2 right-[-20px] w-[80px] bg-linear-to-r/srgb from-amber-600 to-amber-400 text-[8px] font-normal text-black text-center py-0.5 rotate-45 shadow-lg">
                         LEGEND
                     </div>
                 </div>
             )}
             {isActive && (
                 <div className="absolute top-0 right-0 w-20 h-16 overflow-hidden z-20 pointer-events-none">
-                    <div className="absolute top-2 right-[-16px] w-[90px] bg-gradient-to-r from-zinc-600 to-zinc-400 text-[7px] font-bold text-black text-center py-0.5 rotate-45 shadow-lg">
+                    <div className="absolute top-2 -right-4 w-[90px] bg-linear-to-r/srgb from-zinc-600 to-zinc-400 text-[7px] font-bold text-black text-center py-0.5 rotate-45 shadow-lg">
                         STILL ACTIVE
                     </div>
                 </div>

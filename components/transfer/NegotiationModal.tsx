@@ -321,7 +321,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                 >
                     {/* Left Panel: Player Info */}
                     <div className="w-1/3 shrink-0 min-h-0 overflow-y-auto border-r border-white/10 bg-black/20 p-5 flex flex-col relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg">
@@ -424,7 +424,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                         const budgetCap = Math.max(0, Math.floor(myTeam?.budget || 0))
                                                         setBuyoutOffer(Math.max(0, Math.min(Math.floor(val), budgetCap)))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                         </div>
@@ -491,7 +491,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                         }
                                                         setSalaryOffer(Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(val))))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                         </div>

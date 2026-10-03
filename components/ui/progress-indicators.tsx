@@ -39,13 +39,13 @@ export function ProgressTracker({ steps, currentStep, className }: ProgressTrack
                             )}
                         >
                             {isComplete ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                             ) : isActive ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
+                                <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
                             ) : isError ? (
-                                <div className="w-4 h-4 rounded-full bg-red-500 flex-shrink-0" />
+                                <div className="w-4 h-4 rounded-full bg-red-500 shrink-0" />
                             ) : (
-                                <div className="w-4 h-4 rounded-full bg-white/10 flex-shrink-0" />
+                                <div className="w-4 h-4 rounded-full bg-white/10 shrink-0" />
                             )}
 
                             <span className={cn(

@@ -142,7 +142,7 @@ export function SeasonObjectives({ worldRanking, trophiesThisSeason, followers, 
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
                 {/* Board expectation + confidence */}
-                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3 space-y-2">
+                <div className="rounded-lg bg-white/3 border border-white/5 p-3 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Board Expects</span>
                         {boardOnNotice && (

@@ -614,7 +614,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
                                         "w-full text-left px-3 py-2 rounded-lg border font-medium transition-colors flex items-center gap-2",
                                         tool === t.id
                                             ? "bg-white/15 border-white/30 text-white"
-                                            : "bg-white/[0.04] border-white/10 text-white/70 hover:bg-white/[0.08]"
+                                            : "bg-white/4 border-white/10 text-white/70 hover:bg-white/8"
                                     )}
                                     title={`${t.description}${t.hotkey ? ` (${t.hotkey})` : ""}`}
                                 >
@@ -967,7 +967,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
             {/* Right inspector */}
             <aside className="w-72 shrink-0 space-y-3 overflow-y-auto text-xs">
                 {/* Validation */}
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div className="rounded-xl border border-white/10 bg-white/3 p-3">
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Validation</h4>
                     {findings.length === 0 ? (
                         <p className="text-[11px] text-emerald-400 font-bold">All checks pass.</p>
@@ -986,7 +986,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
                 </div>
 
                 {/* Metrics */}
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-1">
+                <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-1">
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Metrics</h4>
                     <Metric label="T → A path length" value={tToALen.toFixed(1)} />
                     <Metric label="T → B path length" value={tToBLen.toFixed(1)} />
@@ -997,7 +997,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
                 </div>
 
                 {/* Bulk actions */}
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-2">
+                <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Quick actions</h4>
                     <div className="flex flex-wrap gap-1">
                         {(["tToA", "tToB", "ctRotateA", "ctRotateB"] as const).map(f => (
@@ -1021,7 +1021,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
 
                 {/* Copy from other map */}
                 {otherLayouts && otherLayouts.length > 0 && (
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-2">
+                    <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
                         <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Copy from other map</h4>
                         <CopyFromOtherPanel
                             otherLayouts={otherLayouts.filter(m => m.mapId !== layout.mapId)}
@@ -1033,7 +1033,7 @@ export function MapBuilderCanvas({ initial, radarImagePath, onChange, otherLayou
 
             {/* Import dialog */}
             {importDialog && (
-                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
+                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-6">
                     <div className="bg-[#0a0c10] border border-white/10 rounded-2xl p-6 w-full max-w-2xl space-y-3">
                         <h3 className="text-lg font-bold uppercase tracking-tight">Import JSON</h3>
                         <p className="text-xs text-white/40">Paste a full <code className="text-white/70">map-layout</code> JSON below. The current map&apos;s <code>mapId</code>, <code>displayName</code>, and <code>radarImage</code> will be preserved.</p>

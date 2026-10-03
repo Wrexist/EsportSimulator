@@ -95,7 +95,7 @@ export function ActionCenter() {
     const promptCount = decisions.length + (offerCount > 0 ? 1 : 0) + (freeTrainingSlots > 0 ? 1 : 0) + (focusNotSet ? 1 : 0)
 
     return (
-        <Card className="glass-card border-white/5 bg-white/[0.02] rounded-lg overflow-hidden">
+        <Card className="glass-card border-white/5 bg-white/2 rounded-lg overflow-hidden">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">
@@ -125,7 +125,7 @@ export function ActionCenter() {
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- choices is a runtime-only field
                             const choices = (event as any).choices as { id: string; text: string; effects: any }[]
                             return (
-                                <div key={event.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-3 space-y-2">
+                                <div key={event.id} className="rounded-lg border border-white/10 bg-white/3 p-3 space-y-2">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-white uppercase tracking-wide">{getEventTitle(event)}</span>
                                         <span className="text-[9px] text-white/30 uppercase">Wk {event.week}</span>
@@ -149,7 +149,7 @@ export function ActionCenter() {
 
                         {/* Offers — link to the full inbox */}
                         {offerCount > 0 && (
-                            <Link href="/desktop?app=mail" className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-3 hover:bg-amber-500/[0.08] transition-colors group">
+                            <Link href="/desktop?app=mail" className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/4 p-3 hover:bg-amber-500/8 transition-colors group">
                                 <div className="p-2 rounded-lg bg-amber-500/10"><Mail size={14} className="text-amber-400" /></div>
                                 <div className="flex-1">
                                     <p className="text-xs font-bold text-white">{offerCount} offer{offerCount > 1 ? "s" : ""} awaiting response</p>
@@ -161,7 +161,7 @@ export function ActionCenter() {
 
                         {/* Recurring prompts */}
                         {freeTrainingSlots > 0 && (
-                            <Link href="/training" className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 hover:bg-white/[0.05] transition-colors group">
+                            <Link href="/training" className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/2 p-3 hover:bg-white/5 transition-colors group">
                                 <div className="p-2 rounded-lg bg-blue-500/10"><Dumbbell size={14} className="text-blue-400" /></div>
                                 <div className="flex-1">
                                     <p className="text-xs font-bold text-white/90">{freeTrainingSlots} training session{freeTrainingSlots > 1 ? "s" : ""} unused</p>
@@ -172,7 +172,7 @@ export function ActionCenter() {
                         )}
 
                         {focusNotSet && (
-                            <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                            <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/2 p-3">
                                 <div className="p-2 rounded-lg bg-purple-500/10"><CalendarClock size={14} className="text-purple-400" /></div>
                                 <div className="flex-1">
                                     <p className="text-xs font-bold text-white/90">Set this week&apos;s focus</p>

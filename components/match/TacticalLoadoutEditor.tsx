@@ -231,7 +231,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
             `}</style>
 
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-white/5 to-transparent">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-linear-to-r/srgb from-white/5 to-transparent">
                 <div className="flex items-center gap-6">
                     <div className={cn(
                         "p-4 rounded-2xl flex items-center justify-center shadow-lg",
@@ -246,7 +246,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
                                 placeholder={`${strategyId} LOADOUT`}
-                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-white focus:outline-none focus:ring-0 placeholder:text-white/50 w-full"
+                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-white focus:outline-hidden focus:ring-0 placeholder:text-white/50 w-full"
                             />
                         </div>
                         <p className="text-muted-foreground text-[10px] font-normal uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -286,7 +286,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     "w-full p-4 rounded-3xl border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
                                     isSelected
                                         ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40" : "bg-orange-500/20 border-orange-500/40")
-                                        : "bg-white/[0.02] border-white/5 hover:bg-white/5"
+                                        : "bg-white/2 border-white/5 hover:bg-white/5"
                                 )}
                             >
                                 <button
@@ -388,7 +388,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-16 h-16 relative flex-shrink-0 flex items-center justify-center">
+                                                <div className="w-16 h-16 relative shrink-0 flex items-center justify-center">
                                                     {opt.image && (
                                                         <Image
                                                             src={opt.image}
@@ -430,7 +430,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}
@@ -474,7 +474,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}
@@ -518,7 +518,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}

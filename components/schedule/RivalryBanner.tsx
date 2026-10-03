@@ -65,7 +65,7 @@ export function RivalryBanner({ rivalry, recentH2H, playerTeamId, opponentName }
         danger: "border-red-500/30 bg-red-500/10 text-red-300",
         dominant: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
         heated: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-        neutral: "border-white/10 bg-white/[0.04] text-white/70",
+        neutral: "border-white/10 bg-white/4 text-white/70",
     }
 
     const intensityLabel: Record<RivalryData["intensity"], string> = {

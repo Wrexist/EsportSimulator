@@ -103,7 +103,7 @@ const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }
                         className={cn(
                             "relative overflow-hidden p-4 rounded-xl border transition-all duration-300 group min-h-[100px] flex flex-col justify-between",
                             bonus.active
-                                ? "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.06]"
+                                ? "bg-white/3 border-white/10 hover:border-white/20 hover:bg-white/6"
                                 : "bg-black/20 border-white/5 opacity-60 grayscale hover:opacity-80 hover:grayscale-0"
                         )}
                     >

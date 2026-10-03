@@ -145,7 +145,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
             return "bg-emerald-500/10 border-emerald-500/20"
         }
         // Invite slots styling??
-        return "bg-white/[0.02] border-white/5"
+        return "bg-white/2 border-white/5"
     }
 
     // Pre-tournament participant list: show qualified teams when no matches yet
@@ -434,7 +434,7 @@ export default memo(TournamentStandings)
 
 function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
-        <div className={cn("inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
+        <div className={cn("inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
             {children}
         </div>
     )

@@ -319,7 +319,7 @@ export default function TacticalHQPage() {
     return (
         <div className="premium-route text-white p-0 relative overflow-hidden font-sans selection:bg-emerald-500/30">
             {/* Background Ambience */}
-            <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-[500px] bg-linear-to-b/srgb from-blue-900/10 to-transparent pointer-events-none" />
             <div className="absolute -top-20 -right-20 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
 
@@ -343,9 +343,9 @@ export default function TacticalHQPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/[0.01] backdrop-blur-2xl relative overflow-hidden"
+                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/1 backdrop-blur-2xl relative overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-r/srgb from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
 
                     <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
                         {/* Player Team */}
@@ -426,8 +426,8 @@ export default function TacticalHQPage() {
                     transition={{ delay: 0.15 }}
                     className="flex items-center justify-center gap-4"
                 >
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
+                    <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/2 border border-white/5 backdrop-blur-xs">
                         <motion.div
                             animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -442,7 +442,7 @@ export default function TacticalHQPage() {
                             className="w-2 h-2 rounded-full bg-emerald-500"
                         />
                     </div>
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
                 </motion.div>
 
                 {/* Content Grid */}
@@ -456,14 +456,14 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
 
@@ -481,7 +481,7 @@ export default function TacticalHQPage() {
                                     <Video size={24} />
                                 </motion.div>
                                 <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
+                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
                                     <p className="text-sm text-white/40">Analyze opponent playstyle</p>
                                 </div>
                                 {!isVodUnlocked ? (
@@ -512,7 +512,7 @@ export default function TacticalHQPage() {
 
                         <div className="relative overflow-hidden rounded-lg group border border-white/5 bg-[#0a0a0a]">
                             {!isVodUnlocked && (
-                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs">
                         <div className="bg-black/70 px-8 py-6 rounded-xl border border-white/10 text-center shadow-glass-soft transform scale-100">
                             <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-white/10">
                                             <Lock size={24} className="text-white/40" />
@@ -537,7 +537,7 @@ export default function TacticalHQPage() {
                                             <Play size={24} className="ml-1 text-white fill-white" />
                                         </div>
                                     </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/20 to-transparent z-10" />
+                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-[#0a0a0a] via-black/20 to-transparent z-10" />
                                     {/* Placeholder visuals for VOD */}
                                     <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-lg bg-red-500 text-white text-[10px] font-normal uppercase tracking-widest shadow-lg shadow-red-500/20">
                                         LIVE DEMO
@@ -580,7 +580,7 @@ export default function TacticalHQPage() {
                                                 "relative w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all",
                                                 vodReviewed
                                                     ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                                    : "bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg shadow-blue-600/30"
+                                                    : "bg-linear-to-r/srgb from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg shadow-blue-600/30"
                                             )}
                                         >
                                             {vodReviewed ? (
@@ -617,14 +617,14 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none" />
                             <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] pointer-events-none" />
@@ -643,7 +643,7 @@ export default function TacticalHQPage() {
                                     <Layout size={24} />
                                 </motion.div>
                                 <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Tactical HQ</h3>
+                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">Tactical HQ</h3>
                                     <p className="text-sm text-white/40">Optimize team configuration</p>
                                 </div>
                                 <motion.div
@@ -840,7 +840,7 @@ export default function TacticalHQPage() {
                                                             {mapLabel}
                                                         </Badge>
                                                     </div>
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2">
+                                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-black/90 to-transparent flex items-end justify-center pb-2">
                                                         <span className="font-normal uppercase text-sm tracking-widest text-white shadow-black drop-shadow-lg">{map}</span>
                                                     </div>
                                                 </div>

@@ -254,10 +254,10 @@ export function AppWindow({
                             <ResizeHandle dir="e" className="top-0 right-0 w-1 h-full cursor-ew-resize" />
 
                             {/* Corners (Larger hit targets) */}
-                            <ResizeHandle dir="nw" className="top-0 left-0 w-4 h-4 cursor-nwse-resize z-[51]" />
-                            <ResizeHandle dir="ne" className="top-0 right-0 w-4 h-4 cursor-nesw-resize z-[51]" />
-                            <ResizeHandle dir="sw" className="bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-[51]" />
-                            <ResizeHandle dir="se" className="bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-[51]" />
+                            <ResizeHandle dir="nw" className="top-0 left-0 w-4 h-4 cursor-nwse-resize z-51" />
+                            <ResizeHandle dir="ne" className="top-0 right-0 w-4 h-4 cursor-nesw-resize z-51" />
+                            <ResizeHandle dir="sw" className="bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-51" />
+                            <ResizeHandle dir="se" className="bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-51" />
                         </>
                     )}
 
@@ -268,7 +268,7 @@ export function AppWindow({
                             "h-10 flex items-center justify-between px-3 relative",
                             !isMaximized && "cursor-grab",
                             isDragging && "cursor-grabbing",
-                            "bg-white/[0.045] border-b border-white/10",
+                            "bg-white/4.5 border-b border-white/10",
                             "select-none shrink-0"
                         )}
                     >

@@ -326,10 +326,10 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         <div className="relative">
             {/* Gradient edge fades */}
             {canScrollLeft && (
-                <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-30" />
+                <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r/srgb from-[#0a0a0a] to-transparent pointer-events-none z-30" />
             )}
             {canScrollRight && (
-                <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none z-30" />
+                <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l/srgb from-[#0a0a0a] to-transparent pointer-events-none z-30" />
             )}
 
             {/* Left arrow button */}
@@ -434,7 +434,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                             initial={{ opacity: 0, y: -50 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -50 }}
-                            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-400/30 to-amber-500/20 border border-amber-500/50 backdrop-blur-xl shadow-[0_0_50px_rgba(251,191,36,0.3)]"
+                            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-linear-to-r/srgb from-amber-500/20 via-amber-400/30 to-amber-500/20 border border-amber-500/50 backdrop-blur-xl shadow-[0_0_50px_rgba(251,191,36,0.3)]"
                         >
                             <div className="flex items-center gap-4">
                                 <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
@@ -457,8 +457,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                             transition={{ delay: roundIdx * 0.1, duration: 0.5 }}
                             className={cn(
                                 "mb-2 text-center sticky top-0 py-1.5 z-20 border-b border-white/5",
-                                round === "Grand Final" ? "bg-gradient-to-b from-amber-900/20 to-[#0a0a0a]/80" : "bg-[#0a0a0a]/80",
-                                "backdrop-blur-sm"
+                                round === "Grand Final" ? "bg-linear-to-b/srgb from-amber-900/20 to-[#0a0a0a]/80" : "bg-[#0a0a0a]/80",
+                                "backdrop-blur-xs"
                             )}
                         >
                             <h3 className={cn(
@@ -500,7 +500,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                                 className="absolute -top-8 left-1/2 -translate-x-1/2 z-30"
                                             >
-                                                <div className="px-3 py-1 rounded-full bg-gradient-to-r from-primary/80 to-cyan-500/80 text-white text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                                                <div className="px-3 py-1 rounded-full bg-linear-to-r/srgb from-primary/80 to-cyan-500/80 text-white text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
                                                     <Zap size={10} className="animate-pulse" />
                                                     YOUR MATCH
                                                     <Zap size={10} className="animate-pulse" />
@@ -538,8 +538,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                 {/* Team 1 */}
                                                 <div className={cn(
                                                     "flex items-center justify-between px-3 py-2.5 border-b border-white/5 relative overflow-hidden",
-                                                    match.team1?.isWinner && "bg-gradient-to-r from-emerald-500/[0.05] to-transparent",
-                                                    match.team1?.id === playerTeamId && !match.team1?.isWinner && match.status === "scheduled" && "bg-gradient-to-r from-primary/[0.05] to-transparent"
+                                                    match.team1?.isWinner && "bg-linear-to-r/srgb from-emerald-500/5 to-transparent",
+                                                    match.team1?.id === playerTeamId && !match.team1?.isWinner && match.status === "scheduled" && "bg-linear-to-r/srgb from-primary/5 to-transparent"
                                                 )}>
                                                     {match.team1?.branding?.primaryColor && (
                                                         <div
@@ -584,7 +584,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                             initial={{ x: "-100%" }}
                                                             animate={{ x: "100%" }}
                                                             transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
-                                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent skew-x-12"
+                                                            className="absolute inset-0 bg-linear-to-r/srgb from-transparent via-emerald-500/10 to-transparent skew-x-12"
                                                         />
                                                     )}
                                                 </div>
@@ -592,8 +592,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                 {/* Team 2 */}
                                                 <div className={cn(
                                                     "flex items-center justify-between px-3 py-2.5 relative overflow-hidden",
-                                                    match.team2?.isWinner && "bg-gradient-to-r from-emerald-500/[0.05] to-transparent",
-                                                    match.team2?.id === playerTeamId && !match.team2?.isWinner && match.status === "scheduled" && "bg-gradient-to-r from-primary/[0.05] to-transparent"
+                                                    match.team2?.isWinner && "bg-linear-to-r/srgb from-emerald-500/5 to-transparent",
+                                                    match.team2?.id === playerTeamId && !match.team2?.isWinner && match.status === "scheduled" && "bg-linear-to-r/srgb from-primary/5 to-transparent"
                                                 )}>
                                                     {match.team2?.branding?.primaryColor && (
                                                         <div
@@ -638,7 +638,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                             initial={{ x: "-100%" }}
                                                             animate={{ x: "100%" }}
                                                             transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
-                                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent skew-x-12"
+                                                            className="absolute inset-0 bg-linear-to-r/srgb from-transparent via-emerald-500/10 to-transparent skew-x-12"
                                                         />
                                                     )}
                                                 </div>
@@ -657,7 +657,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
 
                                             {/* Grand Final Badge */}
                                             {isGrandFinalMatch && match.status !== "completed" && (
-                                                <div className="absolute top-0 left-0 bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-1 text-[8px] font-bold uppercase text-black tracking-[0.2em] shadow-[0_0_15px_rgba(251,191,36,0.5)] z-20 flex items-center gap-1">
+                                                <div className="absolute top-0 left-0 bg-linear-to-r/srgb from-amber-500 to-amber-600 px-3 py-1 text-[8px] font-bold uppercase text-black tracking-[0.2em] shadow-[0_0_15px_rgba(251,191,36,0.5)] z-20 flex items-center gap-1">
                                                     <Sparkles size={10} />
                                                     CHAMPIONSHIP
                                                 </div>

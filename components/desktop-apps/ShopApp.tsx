@@ -151,7 +151,7 @@ export function ShopApp() {
                                         "group flex flex-col sm:flex-row rounded-xl border transition-all duration-300 overflow-hidden relative",
                                         isOwned
                                             ? "bg-emerald-950/20 border-emerald-500/30 ring-1 ring-emerald-500/20"
-                                            : "bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
+                                            : "bg-white/3 border-white/5 hover:border-white/20 hover:bg-white/5"
                                     )}
                                 >
                                     {/* Left: Image */}

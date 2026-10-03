@@ -118,7 +118,7 @@ export function TeamMatchPopup({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 top-16 bg-black/60 backdrop-blur-sm z-modal"
+                        className="fixed inset-0 top-16 bg-black/60 backdrop-blur-xs z-modal"
                     />
 
                     {/* Popup */}
@@ -134,7 +134,7 @@ export function TeamMatchPopup({
                     >
                         <div className="bg-[#0a0c10]/95 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
                             {/* Header with Match Info */}
-                            <div className="p-6 bg-gradient-to-br from-primary/10 via-transparent to-cyan-500/5 border-b border-white/5">
+                            <div className="p-6 bg-linear-to-br/srgb from-primary/10 via-transparent to-cyan-500/5 border-b border-white/5">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <Swords size={16} className="text-primary" />

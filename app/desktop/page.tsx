@@ -536,7 +536,7 @@ function DesktopContent() {
     return (
       <div className="space-y-4 pt-2">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+          <div className="w-16 h-16 rounded-2xl bg-linear-to-br/srgb from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
             {data.offeringTeamLogo ? (
               <Image src={data.offeringTeamLogo} alt={offeringTeam.name} width={64} height={64} className="w-full h-full object-cover" unoptimized />
             ) : (
@@ -564,7 +564,7 @@ function DesktopContent() {
         </div>
 
         {/* Team Roster Preview */}
-        <div className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 mx-[-8px]">
+        <div className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 -mx-2">
           <h4 className="text-[9px] font-normal uppercase tracking-widest text-white/30 mb-3 px-1">Current Roster</h4>
           <div className="grid grid-cols-5 gap-2">
             {offeringTeam.rosterIds?.map((pid: string) => {
@@ -576,12 +576,12 @@ function DesktopContent() {
               )
               return (
                 <div key={pid} className="flex flex-col items-center gap-1.5 group cursor-default">
-                  <div className="w-10 h-10 rounded-lg bg-black/40 overflow-hidden border border-white/10 relative group-hover:border-white/30 transition-colors shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-black/40 overflow-hidden border border-white/10 relative group-hover:border-white/30 transition-colors shadow-xs">
                     <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col items-center gap-0.5 w-full">
                     <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                      {p.nationality && <CountryFlag country={p.nationality} className="w-2.5 h-2 rounded-[1px] shadow-sm" />}
+                      {p.nationality && <CountryFlag country={p.nationality} className="w-2.5 h-2 rounded-[1px] shadow-xs" />}
                       <span className="text-[9px] font-bold text-white truncate max-w-[45px] text-center leading-none tracking-tight">{p.nickname}</span>
                     </div>
                   </div>
@@ -665,7 +665,7 @@ function DesktopContent() {
       <div className="space-y-4 pt-2">
         {/* Header with Team Info */}
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden shrink-0">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br/srgb from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden shrink-0">
             <TeamLogoImage
               src={(team as any).logoPath}
               alt={team.name}
@@ -750,7 +750,7 @@ function DesktopContent() {
     return (
       <div className="space-y-4 pt-2">
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30 overflow-hidden shrink-0 relative">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br/srgb from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30 overflow-hidden shrink-0 relative">
             {data.logoPath || tournament?.logoPath ? (
               <div className="w-full h-full p-2 flex items-center justify-center relative">
                 <Image src={(data.logoPath || tournament?.logoPath) as string} alt="Tournament" fill className="object-contain drop-shadow-lg" unoptimized />
@@ -899,7 +899,7 @@ function DesktopContent() {
       <div className="space-y-4 pt-2">
         {/* Patient Card */}
         <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center border border-red-500/30 overflow-hidden shrink-0 relative">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br/srgb from-red-500/20 to-orange-500/20 flex items-center justify-center border border-red-500/30 overflow-hidden shrink-0 relative">
             <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} className="w-full h-full object-cover scale-110 translate-y-1 grayscale-[0.3]" />
             <div className="absolute inset-0 bg-red-500/10 mix-blend-overlay" />
           </div>
@@ -994,10 +994,10 @@ function DesktopContent() {
                 className="flex flex-col items-center gap-1 p-3 rounded-lg hover:bg-white/[0.07] transition-colors group"
               >
                 <div className={cn(
-                  "w-12 h-12 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-all shadow-glass-soft",
+                  "w-12 h-12 rounded-lg backdrop-blur-xs border flex items-center justify-center transition-all shadow-glass-soft",
                   windows[app.id].isOpen
                     ? "bg-cyan-300/[0.14] border-cyan-200/25 text-cyan-200"
-                    : "bg-white/[0.075] border-white/10 text-white/70 group-hover:text-white group-hover:border-white/20"
+                    : "bg-white/7.5 border-white/10 text-white/70 group-hover:text-white group-hover:border-white/20"
                 )}>
                   {app.icon}
                 </div>
@@ -1201,7 +1201,7 @@ function DesktopContent() {
       <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEventId(null)}>
         <DialogContent className={cn(
           "bg-[rgba(10,10,15,0.98)] backdrop-blur-2xl p-0 overflow-hidden rounded-2xl relative",
-          "!fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-overlay",
+          "fixed! top-1/2! left-1/2! -translate-x-1/2! -translate-y-1/2! z-overlay!",
           notificationTheme.borderColor,
           "shadow-2xl",
           selectedEvent?.type === "JOB_OFFER" ? "max-w-md" : (
@@ -1211,7 +1211,7 @@ function DesktopContent() {
           {/* Animated background glow */}
           <motion.div
             className={cn(
-              "absolute -inset-10 rounded-full blur-[80px] pointer-events-none bg-gradient-to-br",
+              "absolute -inset-10 rounded-full blur-[80px] pointer-events-none bg-linear-to-br/srgb",
               notificationTheme.gradient
             )}
             animate={{
@@ -1357,7 +1357,7 @@ function DesktopContent() {
                         setIsProModalOpen(true)
                         handleDismiss()
                       }}
-                      className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 rounded-xl font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-2"
+                      className="w-full h-11 bg-linear-to-r/srgb from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 rounded-xl font-bold uppercase tracking-wider text-[10px] flex items-center justify-center gap-2"
                     >
                       <Trophy size={16} />
                       View Awards Ceremony

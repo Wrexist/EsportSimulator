@@ -86,7 +86,7 @@ export function DesktopHomeHero() {
                 className="pointer-events-auto w-[440px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md shadow-glass-soft overflow-hidden"
             >
                 {/* Team identity */}
-                <div className="flex items-center gap-4 p-5 border-b border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent">
+                <div className="flex items-center gap-4 p-5 border-b border-white/5 bg-linear-to-b/srgb from-white/4 to-transparent">
                     <TeamLogoDisplay team={playerTeam} size={52} />
                     <div className="min-w-0 flex-1">
                         <div className="text-lg font-normal text-white truncate">{playerTeam.name}</div>
@@ -123,7 +123,7 @@ export function DesktopHomeHero() {
                             ? router.push(matchIsNow ? `/match/${nextMatch.id}/tactics` : "/schedule")
                             : router.push("/schedule")
                     }
-                    className="w-full text-left p-4 hover:bg-white/[0.04] transition-colors group"
+                    className="w-full text-left p-4 hover:bg-white/4 transition-colors group"
                 >
                     <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/40 mb-2">
                         <Swords size={12} /> {nextMatch ? "Next Match" : "No matches scheduled"}
@@ -164,7 +164,7 @@ export function DesktopHomeHero() {
                         <button
                             key={link.route}
                             onClick={() => router.push(link.route)}
-                            className="flex flex-col items-center gap-1 py-3 text-white/50 hover:text-white hover:bg-white/[0.04] transition-colors"
+                            className="flex flex-col items-center gap-1 py-3 text-white/50 hover:text-white hover:bg-white/4 transition-colors"
                         >
                             {link.icon}
                             <span className="text-[9px] uppercase tracking-wider">{link.label}</span>

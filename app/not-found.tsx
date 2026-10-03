@@ -7,7 +7,7 @@ export default function NotFound() {
         <div className="flex flex-col items-center justify-center min-h-screen liquid-app-bg text-white p-8 relative overflow-hidden">
             {/* Decorative crosshair watermark */}
             <Crosshair
-                className="absolute text-white/[0.02] pointer-events-none"
+                className="absolute text-white/2 pointer-events-none"
                 style={{ width: 520, height: 520 }}
                 aria-hidden="true"
             />

@@ -178,7 +178,7 @@ export function TopBar() {
                     aria-label={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
                     title={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
                     onClick={() => setTheme(theme === "crystal" ? "onyx" : "crystal")}
-                    className="rounded-lg border border-white/10 hover:bg-white/[0.08]"
+                    className="rounded-lg border border-white/10 hover:bg-white/8"
                 >
                     {theme === "crystal" ? <Sun size={18} /> : <Moon size={18} />}
                 </Button>

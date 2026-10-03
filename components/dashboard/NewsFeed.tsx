@@ -104,7 +104,7 @@ export function NewsFeed() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         key={item.id}
-                        className="p-5 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 transition-all group cursor-default relative overflow-hidden"
+                        className="p-5 rounded-3xl bg-white/3 border border-white/5 hover:bg-white/6 hover:border-white/10 transition-all group cursor-default relative overflow-hidden"
                     >
                         <div className="flex items-start gap-4 relative z-10">
                             {/* Category Icon / Team Logo */}
@@ -150,7 +150,7 @@ export function NewsFeed() {
                         </div>
 
                         {/* Subtle background glow based on category */}
-                        <div className={cn("absolute -right-4 -bottom-4 w-24 h-24 blur-[40px] opacity-10 rounded-full", categoryColor.split(' ')[1])} />
+                        <div className={cn("absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-10 rounded-full", categoryColor.split(' ')[1])} />
                     </motion.div>
                 )
             })}

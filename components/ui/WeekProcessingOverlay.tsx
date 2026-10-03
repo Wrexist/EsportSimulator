@@ -85,8 +85,8 @@ export function WeekProcessingOverlay() {
           </div>
 
           {/* Indeterminate bar */}
-          <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
+          <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/6">
+            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-linear-to-r/srgb from-cyan-400 to-blue-500" />
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export function WeekProcessingOverlay() {
 
     return (
       <div
-        className="fixed inset-0 z-overlay flex items-center justify-center bg-black/72 backdrop-blur-md"
+        className="fixed inset-0 z-overlay flex items-center justify-center backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={`Week ${week} review`}
@@ -168,7 +168,7 @@ export function WeekProcessingOverlay() {
                   ? "border-emerald-400/25 bg-emerald-400/[0.07]"
                   : item.tone === "loss"
                     ? "border-rose-400/25 bg-rose-400/[0.07]"
-                    : "border-white/[0.08] bg-white/[0.03]"
+                    : "border-white/8 bg-white/3"
               const iconColor =
                 item.tone === "win"
                   ? "text-emerald-300"
@@ -199,7 +199,7 @@ export function WeekProcessingOverlay() {
           <button
             ref={continueRef}
             onClick={dismissWeekReveal}
-            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg premium-white-action py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
+            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg premium-white-action py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-hidden focus:ring-2 focus:ring-cyan-300/60"
             style={{ animationDelay: `${continueDelay}s` }}
           >
             Continue

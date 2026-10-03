@@ -82,7 +82,7 @@ export function Sidebar() {
                     "nav-route flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-100 group relative border border-transparent active:scale-[0.98]",
                     isActive
                         ? "text-white"
-                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white",
+                        : "text-slate-300 hover:bg-white/6 hover:text-white",
                     isMatchLocked && "opacity-30 pointer-events-none grayscale"
                 )}
             >
@@ -130,7 +130,7 @@ export function Sidebar() {
                 </AnimatePresence>
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="p-1.5 rounded-lg hover:bg-white/[0.08] text-white/50 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-white/8 text-white/50 hover:text-white transition-colors"
                     aria-label="Toggle sidebar"
                     aria-expanded={!isCollapsed}
                 >
@@ -204,7 +204,7 @@ export function Sidebar() {
                     aria-label="Manager profile"
                     title={isCollapsed ? "Manager profile" : undefined}
                     className={cn(
-                        "flex items-center gap-3 overflow-hidden p-2 -m-2 rounded-lg hover:bg-white/[0.055] transition-colors group",
+                        "flex items-center gap-3 overflow-hidden p-2 -m-2 rounded-lg hover:bg-white/5.5 transition-colors group",
                         isCollapsed && "justify-center"
                     )}
                 >

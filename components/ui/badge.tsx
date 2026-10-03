@@ -12,11 +12,11 @@ const badgeVariants = cva(
         default:
           'border-cyan-300/20 bg-cyan-300/[0.14] text-cyan-100 shadow-glass-soft [a&]:hover:bg-cyan-300/20',
         secondary:
-          'border-white/10 bg-white/[0.075] text-white/75 [a&]:hover:bg-white/[0.11]',
+          'border-white/10 bg-white/7.5 text-white/75 [a&]:hover:bg-white/11',
         destructive:
-          'border-red-400/25 bg-red-500/[0.16] text-red-100 [a&]:hover:bg-red-500/[0.22] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          'border-red-400/25 bg-red-500/16 text-red-100 [a&]:hover:bg-red-500/22 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border-white/10 bg-white/[0.035] text-white/70 [a&]:hover:bg-white/[0.08] [a&]:hover:text-white',
+          'border-white/10 bg-white/[0.035] text-white/70 [a&]:hover:bg-white/8 [a&]:hover:text-white',
       },
       size: {
         default: 'px-2 py-0.5 text-xs [&>svg]:size-3',

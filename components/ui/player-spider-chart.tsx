@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload
         return (
-            <div className="bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2 shadow-xl">
+            <div className="bg-background/95 backdrop-blur-xs border border-border/50 rounded-lg px-3 py-2 shadow-xl">
                 <p className="text-sm font-medium text-foreground">{data.subject}</p>
                 <p className="text-lg font-bold" style={{ color: getStatColor(data.value) }}>
                     {data.value}

@@ -154,7 +154,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "ROUND_END") {
                     return (
-                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/[0.08] border-l-white/30 flex items-center gap-2">
+                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
                             <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
                             <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
                         </div>
@@ -173,7 +173,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "SAVE") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-white/3 border-l-white/10 flex items-center gap-2">
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 border-l-white/10 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
                             <span className="text-white/40">{l.message}</span>
@@ -183,7 +183,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "BUY") {
                     return (
-                        <div key={i} className="p-1.5 rounded-lg text-[10px] border border-white/3 bg-white/[0.02] flex items-center gap-2">
+                        <div key={i} className="p-1.5 rounded-lg text-[10px] border bg-white/2 flex items-center gap-2">
                             <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
                             <span className="text-white/30 font-medium">{l.message}</span>
                         </div>
@@ -637,7 +637,7 @@ export default function LiveMatchPage() {
                 <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50 px-4">
                     <Button
                         onClick={handleFinish}
-                        className="w-full h-16 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-normal uppercase tracking-[0.2em] rounded-3xl shadow-lg hover:shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
+                        className="w-full h-16 bg-linear-to-r/srgb from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-normal uppercase tracking-[0.2em] rounded-3xl shadow-lg hover:shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
                     >
                         CONTINUE TO RESULTS
                     </Button>

@@ -115,7 +115,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 transition={{ delay: 0.3, type: "spring", damping: 12 }}
                                 className="relative z-10 w-48 h-48 mx-auto"
                             >
-                                <div className="absolute inset-0 bg-cyan-200/[0.08] blur-[56px] rounded-full" />
+                                <div className="absolute inset-0 bg-cyan-200/8 blur-[56px] rounded-full" />
                                 {data.trophyPath ? (
                                     <Image
                                         src={data.trophyPath}
@@ -125,7 +125,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                         className="relative z-10 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
                                     />
                                 ) : (
-                                    <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center p-10 shadow-2xl">
+                                    <div className="w-full h-full rounded-full bg-linear-to-b/srgb from-amber-400 to-amber-600 flex items-center justify-center p-10 shadow-2xl">
                                         <Trophy className="w-full h-full text-[#1a1a1a]" />
                                     </div>
                                 )}
@@ -160,7 +160,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.8 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
                             >
                                 <div className="w-14 h-14 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                                     <DollarSign className="w-8 h-8" />
@@ -177,7 +177,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
                             >
                                 <div className="w-14 h-14 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                                     <Users className="w-8 h-8" />
@@ -192,7 +192,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 1 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/[0.02] flex items-center gap-6"
+                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
                             >
                                 <div className="w-14 h-14 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
                                     <TrendingUp className="w-8 h-8" />
@@ -222,7 +222,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                     </div>
 
                     {/* Decorative Bottom Pattern */}
-                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-1 bg-linear-to-r/srgb from-transparent via-white/20 to-transparent" />
                 </motion.div>
             </motion.div>
         </AnimatePresence>

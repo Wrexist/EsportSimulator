@@ -327,7 +327,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 {!hideChrome && <TopBar />}
 
                 {/* Scrollable Content Area */}
-                <main ref={mainScrollRef} id="main-content" tabIndex={-1} className="min-h-0 flex-1 overflow-x-hidden relative overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-black/20">
+                <main ref={mainScrollRef} id="main-content" tabIndex={-1} className="min-h-0 flex-1 overflow-x-hidden relative overflow-y-auto">
                     {/* Short opacity reveal; routing never waits for an exit animation. */}
                     <div
                         key={pathname}

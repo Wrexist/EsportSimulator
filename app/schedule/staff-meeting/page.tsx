@@ -319,7 +319,7 @@ export default function StaffMeetingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Status Column */}
                 <div className="space-y-6">
-                    <div className="glass-panel p-6 border-white/5 bg-gradient-to-br from-blue-500/5 to-transparent relative overflow-hidden">
+                    <div className="glass-panel p-6 border-white/5 bg-linear-to-br/srgb from-blue-500/5 to-transparent relative overflow-hidden">
                         <div className="relative z-10">
                             <h3 className="text-sm font-bold uppercase tracking-widest text-blue-200 mb-4 flex items-center gap-2">
                                 <Users size={14} /> Team Morale

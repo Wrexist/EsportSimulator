@@ -88,7 +88,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 overflow-hidden">
                         <Badge variant="outline" className={cn(
-                            "text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-sm shrink-0",
+                            "text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-xs shrink-0",
                             isScrim ? "bg-purple-500/20 text-purple-200" : "bg-emerald-500/20 text-emerald-100"
                         )}>
                             {isScrim ? "SCRIM" : "MATCH"}
@@ -176,12 +176,12 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                     // is distinct from the panel beneath without losing the
                     // dashed-border "tentative" cue.
                     "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border border-dashed min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
-                    "bg-amber-500/[0.06] hover:bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50"
+                    "bg-amber-500/6 hover:bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50"
                 )}
             >
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 overflow-hidden">
-                        <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-sm shrink-0 bg-amber-500/10 text-amber-200">
+                        <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-xs shrink-0 bg-amber-500/10 text-amber-200">
                             UPCOMING
                         </Badge>
                         <div className="flex flex-col min-w-0">

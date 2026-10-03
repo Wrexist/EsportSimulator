@@ -303,7 +303,7 @@ export function HelpSystem() {
                 title="Help & Game Guide"
                 // Stacked above the (conditional) bug-report button at bottom-6
                 // so the two never overlap.
-                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur shadow-lg z-50"
+                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-sm shadow-lg z-50"
             >
                 {showPulse && (
                     <span className="absolute inset-0 rounded-full bg-amber-400/40 animate-ping pointer-events-none" aria-hidden="true" />

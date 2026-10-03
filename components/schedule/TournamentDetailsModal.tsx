@@ -115,9 +115,9 @@ export function TournamentDetailsModal({
                         )}
                     >
                         {/* Header Background Image/Gradient */}
-                        <div className="relative h-40 bg-gradient-to-br from-indigo-900/50 via-purple-900/50 to-black overflow-hidden shrink-0">
+                        <div className="relative h-40 bg-linear-to-br/srgb from-indigo-900/50 via-purple-900/50 to-black overflow-hidden shrink-0">
                             <div className="absolute inset-0 premium-grid-texture opacity-20" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+                            <div className="absolute inset-0 bg-linear-to-t/srgb from-[#0a0a0a] to-transparent" />
 
                             <Button
                                 size="icon"
@@ -160,7 +160,7 @@ export function TournamentDetailsModal({
                         </div>
 
                         {/* Navigation Tabs */}
-                        <div className="flex items-center gap-1 p-2 border-b border-white/5 bg-white/[0.02]">
+                        <div className="flex items-center gap-1 p-2 border-b border-white/5 bg-white/2">
                             <button
                                 onClick={() => setActiveTab("overview")}
                                 className={cn(
@@ -240,7 +240,7 @@ export function TournamentDetailsModal({
 
                                     {/* Details Grid */}
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5 space-y-4">
+                                        <div className="bg-white/3 rounded-xl p-4 border border-white/5 space-y-4">
                                             <h4 className="text-xs font-normal uppercase tracking-wider text-white/40 flex items-center gap-2">
                                                 <Calendar size={12} /> Schedule
                                             </h4>
@@ -260,7 +260,7 @@ export function TournamentDetailsModal({
                                             </div>
                                         </div>
 
-                                        <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5 space-y-4">
+                                        <div className="bg-white/3 rounded-xl p-4 border border-white/5 space-y-4">
                                             <h4 className="text-xs font-normal uppercase tracking-wider text-white/40 flex items-center gap-2">
                                                 <Globe size={12} /> Region & Slots
                                             </h4>
@@ -285,7 +285,7 @@ export function TournamentDetailsModal({
                                     </div>
 
                                     {/* Description */}
-                                    <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+                                    <div className="bg-white/3 rounded-xl p-4 border border-white/5">
                                         <h4 className="text-xs font-normal uppercase tracking-wider text-white/40 mb-2">About Event</h4>
                                         <p className="text-sm text-white/70 leading-relaxed">
                                             {tournament.description}

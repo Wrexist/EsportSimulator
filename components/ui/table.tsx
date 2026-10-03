@@ -8,7 +8,7 @@ function Table({ className, containerLabel = 'Scrollable table', ...props }: Rea
   return (
     <div
       data-slot="table-container"
-      className="relative w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+      className="relative w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-sm focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-300"
       tabIndex={0}
       role="region"
       aria-label={containerLabel}
@@ -47,7 +47,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0',
+        'bg-muted/50 border-t font-medium last:[&>tr]:border-b-0',
         className,
       )}
       {...props}
@@ -73,7 +73,7 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap has-[[role=checkbox]]:pr-0 *:[[role=checkbox]]:translate-y-[2px]',
         className,
       )}
       {...props}
@@ -86,7 +86,7 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'p-2 align-middle whitespace-nowrap has-[[role=checkbox]]:pr-0 *:[[role=checkbox]]:translate-y-[2px]',
         className,
       )}
       {...props}

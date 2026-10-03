@@ -1,132 +1,203 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4.
 
-/* Quiet, discoverable scrollbars for dense management screens. */
-* { scrollbar-width: thin; scrollbar-color: rgba(183, 204, 234, .22) transparent; }
-*::-webkit-scrollbar { width: 5px; height: 5px; }
-*::-webkit-scrollbar-thumb { background: rgba(183, 204, 234, .22); border-radius: 8px; }
+   Cascade layout: Tailwind v4 emits native CSS cascade layers, in which a
+   later layer beats an earlier one regardless of selector specificity. Under
+   v3 the component styles, utilities and the plain rules in this file all
+   competed in a single cascade (specificity first, then source order:
+   components < utilities < unlayered). To keep that behaviour, and so the UI
+   renders exactly as it did under v3, everything except the theme, preflight
+   and our base rules lives in ONE layer (`utilities`), in the v3 order:
+   component classes, then Tailwind's generated utilities, then the custom
+   utilities and former unlayered rules. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import './tailwind-v3-palette.css';
 
-/* Custom Focus Styles
-   High-contrast double-ring (solid outline + soft outer glow) so focus is
-   visible on every background the UI uses: glass panels, dark backdrops,
-   bright accent chips, and the Steam Deck handheld screen in varied
-   lighting. `:focus-visible` (not `:focus`) keeps the ring off for mouse
-   clicks, showing it only for keyboard/gamepad traversal. */
-:focus-visible {
-  outline: 2px solid theme('colors.cyan.400');
-  outline-offset: 2px;
-  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
-  border-radius: inherit;
+/* Tailwind v4 setup. Content sources mirror the v3 `content` globs; the theme
+   (design tokens, shadcn colors, z-index scale) and the tailwindcss-animate
+   plugin still come from tailwind.config.ts so src/design/tokens.ts stays the
+   single source of truth. */
+@source '../app';
+@source '../components';
+@source '../src';
+@config '../tailwind.config.ts';
+
+/* v3 -> v4 theme compatibility: defaults whose values changed in v4. */
+@theme inline {
+  /* Bare `ring` was 3px and rings without a color class were blue-500/50. */
+  --default-ring-width: 3px;
+  --default-ring-color: rgb(59 130 246 / 0.5);
+
+  /* v4 redefined the drop-shadow scale. The upgrade tool renamed
+     `drop-shadow-sm` -> `drop-shadow-xs` and `drop-shadow` -> `drop-shadow-sm`;
+     md/lg/xl kept their names but changed values. Pin the v3 values. */
+  --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.1), 0 1px 1px rgb(0 0 0 / 0.06);
+  --drop-shadow-md: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  --drop-shadow-lg: 0 10px 8px rgb(0 0 0 / 0.04), 0 4px 3px rgb(0 0 0 / 0.1);
+  --drop-shadow-xl: 0 20px 13px rgb(0 0 0 / 0.03), 0 8px 5px rgb(0 0 0 / 0.08);
 }
 
-/* Steam Input maps gamepad to keyboard, so anything marked interactive via
-   role or tabindex must receive the same visible ring as native buttons. */
-[role="button"]:focus-visible,
-[role="link"]:focus-visible,
-[role="menuitem"]:focus-visible,
-[role="option"]:focus-visible,
-[role="tab"]:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid theme('colors.cyan.400');
-  outline-offset: 2px;
-  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
+/* v3 space-y / divide-* semantics.
+   v4 changed these utilities from "margin/border on every visible child after
+   the first" (`> :not([hidden]) ~ :not([hidden])`, specificity 0-3-0) to
+   "margin/border on every child except the last" (`:where(> :not(:last-child))`,
+   zero specificity). That shifts layout wherever the first/last child is
+   absolutely positioned, hidden, or carries its own margin/border utilities,
+   which is common in this UI. The utilities below re-create the v3 rules, and
+   the zero-specificity reset at the end of this file neutralises v4's rules. */
+@utility space-y-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(--spacing(--value(number)) * calc(1 - var(--tw-space-y-reverse)));
+    margin-top: calc(--value([length]) * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(--spacing(--value(number)) * var(--tw-space-y-reverse));
+    margin-bottom: calc(--value([length]) * var(--tw-space-y-reverse));
+  }
+}
+@utility -space-y-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(--spacing(--value(number)) * -1 * calc(1 - var(--tw-space-y-reverse)));
+    margin-top: calc(--value([length]) * -1 * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(--spacing(--value(number)) * -1 * var(--tw-space-y-reverse));
+    margin-bottom: calc(--value([length]) * -1 * var(--tw-space-y-reverse));
+  }
+}
+@utility space-x-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(--spacing(--value(number)) * var(--tw-space-x-reverse));
+    margin-right: calc(--value([length]) * var(--tw-space-x-reverse));
+    margin-left: calc(--spacing(--value(number)) * calc(1 - var(--tw-space-x-reverse)));
+    margin-left: calc(--value([length]) * calc(1 - var(--tw-space-x-reverse)));
+  }
+}
+@utility -space-x-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(--spacing(--value(number)) * -1 * var(--tw-space-x-reverse));
+    margin-right: calc(--value([length]) * -1 * var(--tw-space-x-reverse));
+    margin-left: calc(--spacing(--value(number)) * -1 * calc(1 - var(--tw-space-x-reverse)));
+    margin-left: calc(--value([length]) * -1 * calc(1 - var(--tw-space-x-reverse)));
+  }
+}
+@utility space-y-reverse {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 1;
+  }
+}
+@utility space-x-reverse {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+}
+@utility divide-y {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-y-reverse: 0;
+    border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+  }
+}
+@utility divide-y-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-y-reverse: 0;
+    border-top-width: calc(--value(integer) * 1px * calc(1 - var(--tw-divide-y-reverse)));
+    border-top-width: calc(--value([length]) * calc(1 - var(--tw-divide-y-reverse)));
+    border-bottom-width: calc(--value(integer) * 1px * var(--tw-divide-y-reverse));
+    border-bottom-width: calc(--value([length]) * var(--tw-divide-y-reverse));
+  }
+}
+@utility divide-x {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-x-reverse: 0;
+    border-right-width: calc(1px * var(--tw-divide-x-reverse));
+    border-left-width: calc(1px * calc(1 - var(--tw-divide-x-reverse)));
+  }
+}
+@utility divide-x-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-x-reverse: 0;
+    border-right-width: calc(--value(integer) * 1px * var(--tw-divide-x-reverse));
+    border-right-width: calc(--value([length]) * var(--tw-divide-x-reverse));
+    border-left-width: calc(--value(integer) * 1px * calc(1 - var(--tw-divide-x-reverse)));
+    border-left-width: calc(--value([length]) * calc(1 - var(--tw-divide-x-reverse)));
+  }
+}
+@utility divide-y-reverse {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-y-reverse: 1;
+  }
+}
+@utility divide-x-reverse {
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-x-reverse: 1;
+  }
+}
+@utility divide-* {
+  /* via a custom property so the opacity-modifier form always wins after
+     Lightning CSS splits color-mix() into @supports fallbacks */
+  --tw-v3-divide-color: --value(--color-*, [color]);
+  --tw-v3-divide-color: --alpha(--value(--color-*, [color]) / calc(--modifier(integer) * 1%));
+  & > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--tw-v3-divide-color);
+  }
 }
 
-/* Higher-contrast focus ring inside dialogs/modals/popovers. Steam Deck's
-   small bright screen washed out the standard 1px-glow + 25%-opacity ring
-   when stacked over the dialog backdrop, making gamepad navigation hard to
-   follow. Target Radix slot data-attributes so this applies app-wide
-   without per-component edits. */
-[data-slot="alert-dialog-content"] :focus-visible,
-[data-slot="dialog-content"] :focus-visible,
-[data-slot="popover-content"] :focus-visible,
-[data-slot="dropdown-menu-content"] :focus-visible,
-[data-slot="select-content"] :focus-visible,
-[data-slot="command-input"]:focus-visible {
-  outline: 3px solid theme('colors.cyan.300');
-  outline-offset: 3px;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.6),
-    0 0 0 5px rgba(103, 232, 249, 0.45);
-}
+/* v3 -> v4 preflight compatibility. Tailwind v4 changed several preflight
+   defaults; these restore the v3 values so unstyled elements render as before. */
+@layer base {
+  /* v4 resets `font` on form controls (inheriting e.g. tabular-nums from
+     body) and makes their background transparent; v3 only reset the font
+     family/size/weight/line-height and only cleared button backgrounds. */
+  button,
+  input,
+  select,
+  optgroup,
+  textarea,
+  ::file-selector-button {
+    font-style: normal;
+    font-variant: normal;
+    font-stretch: normal;
+  }
+  input,
+  select,
+  optgroup,
+  textarea {
+    background-color: revert-layer;
+    border-radius: revert-layer;
+  }
 
-/* Reduce motion for users who prefer it (OS-level or in-game setting) */
-@media (prefers-reduced-motion: reduce) {
+  /* v4 zeroes margin/padding on every element; v3 left the UA padding on
+     table cells and the UA (auto-centering) margin on <dialog>. */
+  td,
+  th {
+    padding: revert-layer;
+  }
+  dialog {
+    margin: revert-layer;
+  }
 
+  /* v4 default border color is currentcolor (v3: gray-200). */
   *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
 
-  .animate-schedule-shimmer,
-  .notification-shimmer,
-  .animate-schedule-week-pulse {
-    animation: none !important;
+  /* v4 placeholder is currentcolor at 50% (v3: gray-400). */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
   }
-}
 
-/* In-game reduced motion toggle */
-html.reduce-motion *,
-html.reduce-motion *::before,
-html.reduce-motion *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
-
-html.reduce-motion .animate-schedule-shimmer,
-html.reduce-motion .notification-shimmer,
-html.reduce-motion .animate-schedule-week-pulse {
-  animation: none !important;
-}
-
-html,
-body {
-  overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Snappy click defaults for every interactive surface.
-   - touch-action: manipulation kills the legacy 300ms tap delay on
-     touch-input devices (incl. touchscreen laptops running the Electron build).
-   - -webkit-tap-highlight removes the iOS/Android grey flash overlay.
-   - user-select on press-targets prevents accidental text selection on drag.
-   Applied broadly so plain <button>, role="button", and Radix triggers all
-   benefit without per-component edits. */
-button,
-[role="button"],
-[role="tab"],
-[role="menuitem"],
-[role="option"],
-a[href],
-summary {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-button:not(:disabled),
-[role="button"]:not([aria-disabled="true"]) {
-  cursor: pointer;
-}
-
-/* Prevent Radix UI Dialog from adding padding-right to body when modals open.
-   Since scrollbars are globally hidden, the scrollbar-width compensation is
-   unnecessary and causes the sidebar/layout to shift visually. */
-body[style*="padding-right"] {
-  padding-right: 0px !important;
-}
-
-body[data-scroll-locked] {
-  padding-right: 0px !important;
-  margin-right: 0px !important;
+  /* v4 buttons use cursor: default (v3: pointer). */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer base {
@@ -275,26 +346,11 @@ body[data-scroll-locked] {
 }
 
 @layer utilities {
-  /* Semantic text utilities — prefer these over arbitrary text-white/XX.
-     If you find yourself reaching for text-white/35 etc, pick one of these. */
-  .text-pri { color: var(--text-primary); }
-  .text-sec { color: var(--text-secondary); }
-  .text-ter { color: var(--text-tertiary); }
-  .text-dec { color: var(--text-decorative); }
-
-  /* Semantic radius utilities */
-  .r-chip  { border-radius: var(--radius-chip); }
-  .r-card  { border-radius: var(--radius-card); }
-  .r-panel { border-radius: var(--radius-panel); }
-  .r-hero  { border-radius: var(--radius-hero); }
-}
-
-/* Glass / Liquid material system — defined in @layer components so that
-   Tailwind utility classes (position, z-index, etc.) always win over these
-   base styles. Previously these were in @layer utilities which caused
-   `.liquid-panel { position: relative }` to override `.fixed`, breaking
-   dialog/modal centering game-wide. */
-@layer components {
+  /* Glass / Liquid material system (v3 "@layer components"). Emitted before
+     Tailwind's utilities so utility classes (position, z-index, etc.) win
+     over these base styles at equal specificity. Previously these came after
+     the utilities, which caused ".liquid-panel { position: relative }" to
+     override ".fixed", breaking dialog/modal centering game-wide. */
   /* Lens rim: sharp specular edges over a translucent, saturated body.
      Blur stays on shell/panels; ordinary cards and table rows stay cheap. */
   .game-sidebar,
@@ -303,7 +359,6 @@ body[data-scroll-locked] {
     border-radius: 22px;
     background: linear-gradient(135deg, rgba(210, 230, 255, .12), rgba(156, 181, 215, .025) 45%, rgba(184, 169, 235, .055)), var(--glass-bg-raised);
     backdrop-filter: blur(24px) saturate(150%);
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
     box-shadow: inset 0 1px 0 rgba(241, 249, 255, .2), inset 1px 0 0 rgba(213, 235, 255, .06), inset 0 -1px 0 rgba(5, 12, 24, .3), 0 12px 32px -20px rgba(0, 0, 0, .6);
   }
   .game-sidebar { margin: 12px 0 12px 12px; height: calc(100% - 24px); flex-shrink: 0; }
@@ -345,7 +400,7 @@ body[data-scroll-locked] {
     html .game-sidebar, html .game-topbar, html .glass-panel, html .liquid-panel { background: #172338; }
   }
   @media (prefers-reduced-transparency: reduce) {
-    html .game-sidebar, html .game-topbar, html .glass-panel, html .glass-card, html .liquid-panel { background: #172338; backdrop-filter: none; -webkit-backdrop-filter: none; }
+    html .game-sidebar, html .game-topbar, html .glass-panel, html .glass-card, html .liquid-panel { background: #172338; backdrop-filter: none; }
   }
   .glass-panel {
     position: relative;
@@ -353,7 +408,6 @@ body[data-scroll-locked] {
       linear-gradient(135deg, var(--glass-shine), rgba(255, 255, 255, 0.035) 46%, rgba(255, 255, 255, 0.02)),
       var(--glass-bg-raised);
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
     border: 1px solid var(--glass-border);
     box-shadow:
       inset 0 1px 0 var(--glass-edge),
@@ -381,7 +435,6 @@ body[data-scroll-locked] {
       linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
       var(--glass-bg-dense);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     border: 1px solid rgba(255, 255, 255, 0.085);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 14px 34px -26px rgba(0, 0, 0, 0.72);
     transition:
@@ -405,7 +458,6 @@ body[data-scroll-locked] {
       linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
       var(--glass-bg-base);
     backdrop-filter: blur(24px) saturate(155%);
-    -webkit-backdrop-filter: blur(24px) saturate(155%);
     border: 1px solid var(--glass-border);
     box-shadow:
       inset 0 1px 0 var(--glass-edge),
@@ -418,7 +470,6 @@ body[data-scroll-locked] {
       linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
       rgba(5, 8, 13, 0.72);
     backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
     border-color: rgba(255, 255, 255, 0.11);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -451,7 +502,6 @@ body[data-scroll-locked] {
     border-radius: 12px;
     box-shadow: none;
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
   .player-profile .profile-summary > div {
     min-width: 0;
@@ -536,22 +586,24 @@ body[data-scroll-locked] {
   .glass-panel-dark.cursor-pointer:hover,
   .liquid-panel.cursor-pointer:hover {
     transform: translateY(-2px);
+    translate: var(--tw-v3-transform-reset, none);
+    scale: var(--tw-v3-transform-reset, none);
+    rotate: var(--tw-v3-transform-reset, none);
   }
   @media (prefers-reduced-motion: reduce) {
     .glass-panel.cursor-pointer:hover,
     .glass-panel-dark.cursor-pointer:hover,
-    .liquid-panel.cursor-pointer:hover { transform: none; }
+    .liquid-panel.cursor-pointer:hover { transform: none; translate: var(--tw-v3-transform-reset, none); scale: var(--tw-v3-transform-reset, none); rotate: var(--tw-v3-transform-reset, none); }
   }
   .reduce-motion .glass-panel.cursor-pointer:hover,
   .reduce-motion .glass-panel-dark.cursor-pointer:hover,
-  .reduce-motion .liquid-panel.cursor-pointer:hover { transform: none; }
+  .reduce-motion .liquid-panel.cursor-pointer:hover { transform: none; translate: var(--tw-v3-transform-reset, none); scale: var(--tw-v3-transform-reset, none); rotate: var(--tw-v3-transform-reset, none); }
 
   /* Ultrathin material — chips, hover layers, inline pills. The lightest
      glass tier; sits directly on top of a heavier surface. */
   .glass-ultrathin {
     background: var(--glass-bg-ultrathin);
     backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
-    -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
     border: 1px solid var(--glass-border);
     box-shadow: inset 0 1px 0 var(--glass-edge);
     transition:
@@ -604,6 +656,10 @@ body[data-scroll-locked] {
       inset 0 -18px 36px rgba(0, 0, 0, 0.32),
       0 14px 32px -24px rgba(0, 0, 0, 0.82);
     transform: translateZ(0);
+  }
+
+  .portrait-realist-frame:is([class*="scale-"], [class*="translate-"], [class*="rotate-"], [class*="skew-"]) {
+    transform: none;
   }
 
   .portrait-realist-card {
@@ -730,7 +786,7 @@ body[data-scroll-locked] {
   }
 
   button:focus-visible {
-    outline: 2px solid theme('colors.cyan.400') !important;
+    outline: 2px solid var(--color-cyan-400) !important;
     outline-offset: 2px;
     box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) !important;
   }
@@ -741,11 +797,11 @@ body[data-scroll-locked] {
 
   /* Specifically for tab-style buttons */
   .tab-button {
-    @apply outline-none;
+    @apply outline-hidden;
   }
 
   .tab-button:focus-visible {
-    outline: 2px solid theme('colors.cyan.400') !important;
+    outline: 2px solid var(--color-cyan-400) !important;
     outline-offset: -2px;
     /* Inner focus for tabs */
     box-shadow: none !important;
@@ -757,140 +813,303 @@ body[data-scroll-locked] {
   #main-content {
     contain: style;
   }
-}
 
-/* Selection emphasis — visible but not neon-bloom */
-@keyframes pulse-glow {
+  @tailwind utilities source(none);
 
-  0%,
-  100% {
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 6px 20px -8px rgba(16, 185, 129, 0.25);
+  /* Custom utilities (v3 "@layer utilities") and the formerly unlayered
+     rules. Kept in this layer, after the generated utilities: unlayered CSS
+     would beat every utility regardless of specificity under v4 (e.g.
+     "body { font-family }" overriding "font-sans"). */
+  /* Semantic text utilities — prefer these over arbitrary text-white/XX.
+     If you find yourself reaching for text-white/35 etc, pick one of these. */
+  .text-pri { color: var(--text-primary); }
+  .text-sec { color: var(--text-secondary); }
+  .text-ter { color: var(--text-tertiary); }
+  .text-dec { color: var(--text-decorative); }
+
+  /* Semantic radius utilities */
+  .r-chip  { border-radius: var(--radius-chip); }
+  .r-card  { border-radius: var(--radius-card); }
+  .r-panel { border-radius: var(--radius-panel); }
+  .r-hero  { border-radius: var(--radius-hero); }
+
+  /* Quiet, discoverable scrollbars for dense management screens. */
+  * { scrollbar-width: thin; scrollbar-color: rgba(183, 204, 234, .22) transparent; }
+  *::-webkit-scrollbar { width: 5px; height: 5px; }
+  *::-webkit-scrollbar-thumb { background: rgba(183, 204, 234, .22); border-radius: 8px; }
+
+  /* Custom Focus Styles
+     High-contrast double-ring (solid outline + soft outer glow) so focus is
+     visible on every background the UI uses: glass panels, dark backdrops,
+     bright accent chips, and the Steam Deck handheld screen in varied
+     lighting. `:focus-visible` (not `:focus`) keeps the ring off for mouse
+     clicks, showing it only for keyboard/gamepad traversal. */
+  :focus-visible {
+    outline: 2px solid var(--color-cyan-400);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
+    border-radius: inherit;
   }
 
-  50% {
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.45), 0 8px 24px -8px rgba(16, 185, 129, 0.3);
-  }
-}
-
-/* Schedule page shimmer animation for tournament weeks */
-@keyframes schedule-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-schedule-shimmer {
-  background: linear-gradient(90deg,
-      transparent 0%,
-      rgba(245, 158, 11, 0.05) 50%,
-      transparent 100%);
-  background-size: 200% 100%;
-  animation: schedule-shimmer 4s linear infinite;
-}
-
-/* Schedule page current week pulse */
-@keyframes schedule-week-pulse {
-
-  0%,
-  100% {
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  /* Steam Input maps gamepad to keyboard, so anything marked interactive via
+     role or tabindex must receive the same visible ring as native buttons. */
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-cyan-400);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
   }
 
-  50% {
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
-  }
-}
-
-.animate-schedule-week-pulse {
-  animation: schedule-week-pulse 2.5s ease-in-out infinite;
-}
-
-/* Notification modal shimmer effect */
-@keyframes notification-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.notification-shimmer {
-  background: linear-gradient(90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.06) 50%,
-      transparent 100%);
-  background-size: 200% 100%;
-  animation: notification-shimmer 2.5s linear infinite;
-}
-
-/* Notification icon bounce */
-@keyframes notification-bounce {
-
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
+  /* Higher-contrast focus ring inside dialogs/modals/popovers. Steam Deck's
+     small bright screen washed out the standard 1px-glow + 25%-opacity ring
+     when stacked over the dialog backdrop, making gamepad navigation hard to
+     follow. Target Radix slot data-attributes so this applies app-wide
+     without per-component edits. */
+  [data-slot="alert-dialog-content"] :focus-visible,
+  [data-slot="dialog-content"] :focus-visible,
+  [data-slot="popover-content"] :focus-visible,
+  [data-slot="dropdown-menu-content"] :focus-visible,
+  [data-slot="select-content"] :focus-visible,
+  [data-slot="command-input"]:focus-visible {
+    outline: 3px solid var(--color-cyan-300);
+    outline-offset: 3px;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.6),
+      0 0 0 5px rgba(103, 232, 249, 0.45);
   }
 
-  25% {
-    transform: translateY(-3px) scale(1.05);
+  /* Reduce motion for users who prefer it (OS-level or in-game setting) */
+  @media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .animate-schedule-shimmer,
+    .notification-shimmer,
+    .animate-schedule-week-pulse {
+      animation: none !important;
+    }
   }
 
-  75% {
-    transform: translateY(1px) scale(0.98);
+  /* In-game reduced motion toggle */
+  html.reduce-motion *,
+  html.reduce-motion *::before,
+  html.reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html.reduce-motion .animate-schedule-shimmer,
+  html.reduce-motion .notification-shimmer,
+  html.reduce-motion .animate-schedule-week-pulse {
+    animation: none !important;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Snappy click defaults for every interactive surface.
+     - touch-action: manipulation kills the legacy 300ms tap delay on
+       touch-input devices (incl. touchscreen laptops running the Electron build).
+     - -webkit-tap-highlight removes the iOS/Android grey flash overlay.
+     - user-select on press-targets prevents accidental text selection on drag.
+     Applied broadly so plain <button>, role="button", and Radix triggers all
+     benefit without per-component edits. */
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  a[href],
+  summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  /* Prevent Radix UI Dialog from adding padding-right to body when modals open.
+     Since scrollbars are globally hidden, the scrollbar-width compensation is
+     unnecessary and causes the sidebar/layout to shift visually. */
+  body[style*="padding-right"] {
+    padding-right: 0px !important;
+  }
+
+  body[data-scroll-locked] {
+    padding-right: 0px !important;
+    margin-right: 0px !important;
+  }
+
+  /* Selection emphasis — visible but not neon-bloom */
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 6px 20px -8px rgba(16, 185, 129, 0.25);
+    }
+
+    50% {
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.45), 0 8px 24px -8px rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  /* Schedule page shimmer animation for tournament weeks */
+  @keyframes schedule-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-schedule-shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(245, 158, 11, 0.05) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: schedule-shimmer 4s linear infinite;
+  }
+
+  /* Schedule page current week pulse */
+  @keyframes schedule-week-pulse {
+
+    0%,
+    100% {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+
+    50% {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .animate-schedule-week-pulse {
+    animation: schedule-week-pulse 2.5s ease-in-out infinite;
+  }
+
+  /* Notification modal shimmer effect */
+  @keyframes notification-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .notification-shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.06) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: notification-shimmer 2.5s linear infinite;
+  }
+
+  /* Notification icon bounce */
+  @keyframes notification-bounce {
+
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+
+    25% {
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    75% {
+      transform: translateY(1px) scale(0.98);
+    }
+  }
+
+  .animate-notification-bounce {
+    animation: notification-bounce 0.5s ease-out;
+  }
+
+  /* ========== Accessibility: Colorblind Modes ========== */
+
+  /* Deuteranopia (red-green, most common) */
+  html.colorblind-deuteranopia {
+    filter: url('#deuteranopia-filter');
+  }
+
+  /* Protanopia (red-blind) */
+  html.colorblind-protanopia {
+    filter: url('#protanopia-filter');
+  }
+
+  /* Tritanopia (blue-yellow) */
+  html.colorblind-tritanopia {
+    filter: url('#tritanopia-filter');
+  }
+
+  /* High contrast mode */
+  html.high-contrast {
+    --foreground: 0 0% 100%;
+    --background: 0 0% 0%;
+  }
+
+  html.high-contrast * {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  html.high-contrast .glass-panel {
+    background: rgba(0, 0, 0, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+  }
+
+  /* Shared management-route heading. Avoid full hero typography above dense controls. */
+  .page-title {
+    font-size: clamp(1.5rem, 2vw, 1.875rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    color: #f1f5f9;
+    overflow-wrap: anywhere;
+  }
+
+  html.high-contrast .glass-card,
+  html.high-contrast .liquid-panel { background: #000 !important; backdrop-filter: none !important; }
+
+  /* Neutralise Tailwind v4's own space-y/space-x/divide rules (zero
+     specificity, emitted earlier in this layer); the v3-equivalent rules come
+     from the @utility definitions at the top of this file. */
+  :where([class*='space-y-'] > :not(:last-child)) {
+    margin-block-start: revert-layer;
+    margin-block-end: revert-layer;
+  }
+  :where([class*='space-x-'] > :not(:last-child)) {
+    margin-inline-start: revert-layer;
+    margin-inline-end: revert-layer;
+  }
+  :where([class*='divide-'] > :not(:last-child)) {
+    border-color: revert-layer;
+    border-style: revert-layer;
+    border-width: revert-layer;
   }
 }
-
-.animate-notification-bounce {
-  animation: notification-bounce 0.5s ease-out;
-}
-
-/* ========== Accessibility: Colorblind Modes ========== */
-
-/* Deuteranopia (red-green, most common) */
-html.colorblind-deuteranopia {
-  filter: url('#deuteranopia-filter');
-}
-
-/* Protanopia (red-blind) */
-html.colorblind-protanopia {
-  filter: url('#protanopia-filter');
-}
-
-/* Tritanopia (blue-yellow) */
-html.colorblind-tritanopia {
-  filter: url('#tritanopia-filter');
-}
-
-/* High contrast mode */
-html.high-contrast {
-  --foreground: 0 0% 100%;
-  --background: 0 0% 0%;
-}
-
-html.high-contrast * {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-html.high-contrast .glass-panel {
-  background: rgba(0, 0, 0, 0.95) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-/* Shared management-route heading. Avoid full hero typography above dense controls. */
-.page-title {
-  font-size: clamp(1.5rem, 2vw, 1.875rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.025em;
-  color: #f1f5f9;
-  overflow-wrap: anywhere;
-}
-
-html.high-contrast .glass-card,
-html.high-contrast .liquid-panel { background: #000 !important; backdrop-filter: none !important; }

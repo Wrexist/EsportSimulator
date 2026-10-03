@@ -41,7 +41,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/58 backdrop-blur-md"
+                    className="absolute inset-0 backdrop-blur-md"
                     onClick={onClose}
                 />
 

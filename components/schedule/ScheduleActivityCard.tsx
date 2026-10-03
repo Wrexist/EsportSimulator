@@ -45,13 +45,13 @@ export const ScheduleActivityCard = memo(function ScheduleActivityCard({ activit
     return (
         <div
             className={cn(
-                "px-3 py-2 rounded-xl text-left flex flex-col justify-center relative border h-[48px] transition-all",
+                "px-3 py-2 rounded-xl text-left flex flex-col justify-center relative border h-12 transition-all",
                 getColorClass()
             )}>
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 overflow-hidden">
                     <Badge variant="outline" className={cn(
-                        "text-[8px] px-1 py-0 border-none font-normal backdrop-blur-md shadow-sm shrink-0",
+                        "text-[8px] px-1 py-0 border-none font-normal backdrop-blur-md shadow-xs shrink-0",
                         getBadgeColor()
                     )}>
                         {activity.type}

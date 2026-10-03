@@ -108,7 +108,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                                 <Button
                                     onClick={onCancel}
                                     size="lg"
-                                    className="flex-1 h-14 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-normal uppercase tracking-widest rounded-xl shadow-lg shadow-cyan-500/20"
+                                    className="flex-1 h-14 bg-linear-to-r/srgb from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-normal uppercase tracking-widest rounded-xl shadow-lg shadow-cyan-500/20"
                                 >
                                     Stay
                                 </Button>

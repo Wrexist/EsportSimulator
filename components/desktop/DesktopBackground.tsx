@@ -10,7 +10,7 @@ export const DesktopBackground = React.memo(function DesktopBackground() {
 
             {/* Glass refraction layers */}
             <div className="absolute inset-0 liquid-noise" />
-            <div className="absolute left-8 right-8 top-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="absolute left-8 right-8 top-6 h-px bg-linear-to-r/srgb from-transparent via-white/20 to-transparent" />
             <div className="absolute bottom-8 left-1/2 h-56 w-[min(72vw,920px)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(125,211,252,0.045),transparent_65%)]" />
 
             {/* Grid Pattern */}

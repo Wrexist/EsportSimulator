@@ -208,7 +208,7 @@ export default function CareerPage() {
 
             {/* Manager Level & XP Bar */}
             {managerDetails && (
-                <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                <Card className="bg-white/5 border-white/10 backdrop-blur-xs">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3">
@@ -246,7 +246,7 @@ export default function CareerPage() {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Key Metrics */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                        <Card className="bg-white/5 border-white/10 backdrop-blur-xs">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-amber-500/10 rounded-xl">
@@ -259,7 +259,7 @@ export default function CareerPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                        <Card className="bg-white/5 border-white/10 backdrop-blur-xs">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-emerald-500/10 rounded-xl">
@@ -272,7 +272,7 @@ export default function CareerPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+                        <Card className="bg-white/5 border-white/10 backdrop-blur-xs">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-blue-500/10 rounded-xl">
@@ -288,7 +288,7 @@ export default function CareerPage() {
                     </div>
 
                     {/* Hall of Fame Progress */}
-                    <Card className="bg-gradient-to-br from-white/5 to-transparent border-white/10 relative overflow-hidden">
+                    <Card className="bg-linear-to-br/srgb from-white/5 to-transparent border-white/10 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-32 bg-amber-500/5 blur-3xl rounded-full translate-x-12 -translate-y-12" />
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -333,7 +333,7 @@ export default function CareerPage() {
                     </Card>
 
                     {/* Recent Events Log (Instead of Mock Achievements) */}
-                    <Card className="bg-white/[0.02] border-white/10 h-[400px] flex flex-col">
+                    <Card className="bg-white/2 border-white/10 h-[400px] flex flex-col">
                         <CardHeader>
                             <CardTitle>Career Log</CardTitle>
                             <CardDescription>Significant events from your career.</CardDescription>
@@ -364,7 +364,7 @@ export default function CareerPage() {
                 </div>
 
                 {/* Save Slots Column (PORTED FROM MAIN MENU) */}
-                <div className="lg:col-span-1 backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-3xl p-6 flex flex-col h-fit">
+                <div className="lg:col-span-1 backdrop-blur-xl bg-white/2 border border-white/10 rounded-3xl p-6 flex flex-col h-fit">
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                             <Save className="w-4 h-4 text-primary" />
@@ -434,12 +434,12 @@ export default function CareerPage() {
                                             transition={{ delay: idx * 0.03 }}
                                             onClick={() => !isActive && setSelectedSlot(slot.saveId || null)}
                                             className={`
-                                                group relative w-full p-5 rounded-3xl cursor-pointer transition-all duration-300 border mb-3 backdrop-blur-sm
+                                                group relative w-full p-5 rounded-3xl cursor-pointer transition-all duration-300 border mb-3 backdrop-blur-xs
                                                 ${isActive
                                                     ? "bg-primary/5 border-primary/30 shadow-[0_0_20px_rgba(59,130,246,0.1)] cursor-default"
                                                     : selectedSlot === slot.saveId
-                                                        ? "bg-gradient-to-br from-white/[0.08] to-transparent border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
-                                                        : "bg-gradient-to-br from-white/[0.03] to-transparent border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.08]"
+                                                        ? "bg-linear-to-br/srgb from-white/8 to-transparent border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
+                                                        : "bg-linear-to-br/srgb from-white/3 to-transparent border-white/6 hover:bg-white/4 hover:border-white/8"
                                                 }
                                             `}
                                         >
@@ -449,7 +449,7 @@ export default function CareerPage() {
                                                     {/* Large Team Logo */}
                                                     <div className={`
                                                         w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border overflow-hidden relative
-                                                        ${isActive ? "bg-black/40 border-primary/30" : selectedSlot === slot.saveId ? "bg-black/30 border-white/20" : "bg-white/[0.03] border-white/[0.06]"}
+                                                        ${isActive ? "bg-black/40 border-primary/30" : selectedSlot === slot.saveId ? "bg-black/30 border-white/20" : "bg-white/3 border-white/6"}
                                                     `}>
                                                         {slot.teamLogo ? (
                                                             <TeamLogoImage
@@ -483,7 +483,7 @@ export default function CareerPage() {
                                                         </h3>
                                                         <div className="flex items-center gap-2 flex-wrap">
                                                             {/* Year/Date Display */}
-                                                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                                                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/4 border border-white/6">
                                                                 <Calendar className="w-3 h-3 text-white/30" />
                                                                 <span className="text-[10px] font-medium text-white/50">
                                                                     Week {slot.currentWeek || 1}
@@ -517,7 +517,7 @@ export default function CareerPage() {
                                                     slot.topPlayerPreviews.map((p) => (
                                                         <div key={p.id} className="flex flex-col items-center gap-1 shrink-0">
                                                             <div className="relative">
-                                                                <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
+                                                                <div className="w-10 h-10 rounded-xl bg-white/3 border border-white/6 overflow-hidden">
                                                                     <PlayerPortrait
                                                                         src={p.portraitPath} seed={p.id}
                                                                         alt={p.nickname}
@@ -536,7 +536,7 @@ export default function CareerPage() {
                                                 ) : slot.topPlayerPortraits && slot.topPlayerPortraits.length > 0 ? (
                                                     // Fallback for legacy saves - Use PlayerPortrait for fallback
                                                     slot.topPlayerPortraits.map((src, i) => (
-                                                        <div key={i} className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden shrink-0">
+                                                        <div key={i} className="w-10 h-10 rounded-xl bg-white/3 border border-white/6 overflow-hidden shrink-0">
                                                             <PlayerPortrait src={src} alt="Player" size={40} />
                                                         </div>
                                                     ))
@@ -546,7 +546,7 @@ export default function CareerPage() {
                                             </div>
 
                                             {/* Bottom Row: Trophies & Financials */}
-                                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.04]">
+                                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/4">
                                                 {/* Trophies on the left */}
                                                 <div className="flex items-center gap-2.5">
                                                     {/* Majors */}
@@ -567,7 +567,7 @@ export default function CareerPage() {
 
                                                 {/* Budget on the right */}
                                                 {slot.budget !== undefined && (
-                                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/[0.02]">
+                                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/2">
                                                         <span className="text-[9px] font-medium text-white/30">Budget</span>
                                                         <span className="text-[10px] font-semibold text-white/60">
                                                             ${(slot.budget / 1000).toFixed(0)}k

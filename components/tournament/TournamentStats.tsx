@@ -84,19 +84,19 @@ function MVPBanner({ mvp }: { mvp: TournamentMVP }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden glass-panel p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10"
+            className="relative overflow-hidden glass-panel p-6 rounded-2xl border border-amber-500/30 bg-linear-to-r/srgb from-amber-500/10 via-yellow-500/5 to-amber-500/10"
         >
             {/* Background glow */}
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/20 blur-[80px] pointer-events-none" />
 
             <div className="relative z-10 flex items-center gap-6">
                 {/* MVP Icon */}
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
                     <Trophy className="w-6 h-6 text-amber-400" />
                 </div>
 
                 {/* Player Portrait */}
-                <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 relative">
+                <div className="shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white/5 relative">
                     {mvp.portraitPath ? (
                         <Image
                             src={mvp.portraitPath}
@@ -282,7 +282,7 @@ function TopTeamsTable({ teams: topTeams, allTeams }: { teams: TournamentTeamSta
 
                             {/* Logo & Name */}
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className="w-8 h-8 rounded bg-white/5 overflow-hidden flex-shrink-0">
+                                <div className="w-8 h-8 rounded bg-white/5 overflow-hidden shrink-0">
                                     {teamData?.logoPath ? (
                                         <Image
                                             src={teamData.logoPath}

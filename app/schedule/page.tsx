@@ -411,7 +411,7 @@ export default function SchedulePage() {
                 // Virtualization: only render weeks within viewport window
                 const RENDER_BUFFER = 4
                 if (idx < viewOffset - RENDER_BUFFER || idx > viewOffset + RENDER_BUFFER) {
-                  return <div key={weekNum} className="flex-shrink-0" style={{ width: 320 }} />
+                  return <div key={weekNum} className="shrink-0" style={{ width: 320 }} />
                 }
 
                 const isPast = weekNum < currentWeek
@@ -491,9 +491,9 @@ export default function SchedulePage() {
                     <div className={cn(
                       "h-[80px] p-3 border-b border-white/5 transition-colors relative z-10 shrink-0 flex flex-col",
                       participatingTournaments.length > 0
-                        ? "bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/30 shadow-lg shadow-amber-500/5"
+                        ? "bg-linear-to-b/srgb from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/30 shadow-lg shadow-amber-500/5"
                         : upcomingTournamentIndicators.length > 0
-                          ? "bg-gradient-to-b from-amber-500/5 via-transparent to-transparent border-amber-500/10"
+                          ? "bg-linear-to-b/srgb from-amber-500/5 via-transparent to-transparent border-amber-500/10"
                           : isCurrent ? "bg-primary/20 border-primary/30" : "bg-black/20"
                     )}>
                       <div className="flex items-center justify-center gap-2">
@@ -527,7 +527,7 @@ export default function SchedulePage() {
                                 onClick={() => handleOpenTournament(t.id)}
                                 className={cn(
                                   "w-full text-[10px] uppercase font-normal px-2 py-1.5 rounded-lg",
-                                  "bg-gradient-to-r border shadow-lg",
+                                  "bg-linear-to-r/srgb border shadow-lg",
                     "hover:-translate-y-0.5 hover:shadow-glass-soft transition-all",
                                   "flex items-center justify-between gap-2",
                                   colorClass
@@ -564,7 +564,7 @@ export default function SchedulePage() {
                       {/* Tournament Background Overlay with Shimmer (if active) */}
                       {participatingTournaments.length > 0 && (
                         <>
-                          <div className="absolute inset-0 bg-gradient-to-b from-amber-500/[0.03] via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-linear-to-b/srgb from-amber-500/3 via-transparent to-transparent pointer-events-none" />
                           <div className="absolute inset-0 animate-schedule-shimmer pointer-events-none" />
                         </>
                       )}
@@ -631,8 +631,8 @@ export default function SchedulePage() {
                             "border-b border-white/5 flex group/day transition-all",
                             "min-h-[56px]",
                             isPastDayInCurrentWeek && "opacity-70",
-                            isTodayInCurrentWeek && "bg-primary/[0.06] border-primary/20",
-                            isTournamentWeek ? "bg-amber-500/[0.03]" :
+                            isTodayInCurrentWeek && "bg-primary/6 border-primary/20",
+                            isTournamentWeek ? "bg-amber-500/3" :
                               isScrimDay ? "bg-purple-500/5 border-purple-500/10" :
                                 isMatchDay ? "bg-emerald-500/5 border-emerald-500/10" :
                                   isCurrent && !isPast ? "hover:bg-white/5" : ""

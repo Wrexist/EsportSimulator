@@ -74,7 +74,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/58 backdrop-blur-md"
+                className="fixed inset-0 z-celebration flex items-center justify-center backdrop-blur-md"
             >
                 <div className="absolute inset-0 liquid-app-bg opacity-70 pointer-events-none" />
                 <div className="absolute inset-0 liquid-noise pointer-events-none" />
@@ -132,11 +132,11 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                     >
                                         {/* Card background glow on select */}
                                         {selectedId === legend.id && (
-                                            <div className="absolute inset-0 bg-gradient-to-b from-amber-300/[0.08] to-transparent pointer-events-none" />
+                                            <div className="absolute inset-0 bg-linear-to-b/srgb from-amber-300/8 to-transparent pointer-events-none" />
                                         )}
 
                                         {/* Portrait area */}
-                                        <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
+                                        <div className="relative h-48 bg-linear-to-b/srgb from-white/3 to-transparent flex items-center justify-center">
                                             <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
@@ -206,7 +206,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                             <motion.div
                                                 initial={{ scaleX: 0 }}
                                                 animate={{ scaleX: 1 }}
-                                                className="h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500"
+                                                className="h-1 bg-linear-to-r/srgb from-amber-500 via-yellow-400 to-amber-500"
                                             />
                                         )}
                                     </button>

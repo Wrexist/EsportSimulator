@@ -42,7 +42,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border-white/10 text-white/55 hover:text-white/80 active:scale-[0.98] active:bg-white/[0.06] inline-flex h-[calc(100%-1px)] flex-1 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent px-2.5 py-1 text-sm font-medium whitespace-nowrap transition-[color,background-color,transform] duration-75 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:border-white/10 text-white/55 hover:text-white/80 active:scale-[0.98] active:bg-white/6 inline-flex h-[calc(100%-1px)] flex-1 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent px-2.5 py-1 text-sm font-medium whitespace-nowrap transition-[color,background-color,transform] duration-75 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -57,7 +57,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn('min-w-0 flex-1 outline-none', className)}
+      className={cn('min-w-0 flex-1 outline-hidden', className)}
       {...props}
     />
   )

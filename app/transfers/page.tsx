@@ -179,12 +179,12 @@ function TransfersPageInner() {
             <Input
               placeholder="Search by nickname..."
               aria-label="Search by nickname"
-              className="pl-10 h-11 bg-white/[0.03] border-white/10 rounded-xl focus:ring-primary/40 transition-all font-medium text-sm text-white"
+              className="pl-10 h-11 bg-white/3 border-white/10 rounded-xl focus:ring-primary/40 transition-all font-medium text-sm text-white"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setPage(0) }}
             />
           </div>
-          <div className="flex bg-white/[0.03] border border-white/10 rounded-xl p-1">
+          <div className="flex bg-white/3 border border-white/10 rounded-xl p-1">
             {[
               { value: "AWPER", label: "AWPER" },
               { value: "RIFLER", label: "RIFLER" },

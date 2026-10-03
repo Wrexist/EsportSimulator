@@ -145,7 +145,7 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
         <div className="flex flex-col h-full">
             {/* Breaking News Banner */}
             {categorizedEvents.breaking.length > 0 && category !== "breaking" && (
-                <div className="bg-gradient-to-r from-rose-500/20 to-orange-500/20 border-b border-rose-500/20 px-3 py-2 shrink-0">
+                <div className="bg-linear-to-r/srgb from-rose-500/20 to-orange-500/20 border-b border-rose-500/20 px-3 py-2 shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 bg-rose-500 text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase animate-pulse">
                             <Zap size={10} />
@@ -169,7 +169,7 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
             )}
 
             {/* Category Tabs */}
-            <div className="flex border-b border-white/5 bg-white/[0.02] shrink-0 px-1">
+            <div className="flex border-b border-white/5 bg-white/2 shrink-0 px-1">
                 {categories.map(cat => (
                     <button
                         key={cat.id}
@@ -215,7 +215,7 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
                             >
                                 <div
                                     onClick={() => setExpandedNewsId(isExpanded ? null : event.id)}
-                                    className="flex items-start gap-2.5 p-3 cursor-pointer hover:bg-white/[0.03] transition-all"
+                                    className="flex items-start gap-2.5 p-3 cursor-pointer hover:bg-white/3 transition-all"
                                 >
                                     {/* Icon */}
                                     <div className={cn(

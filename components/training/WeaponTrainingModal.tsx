@@ -144,7 +144,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
             <DialogContent className="max-w-2xl p-0 overflow-hidden bg-zinc-950 border-zinc-800">
                 {/* Header with gradient accent */}
                 <div className="relative px-6 pt-6 pb-4">
-                    <div className="absolute inset-0 bg-gradient-to-b from-zinc-800/50 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-b/srgb from-zinc-800/50 to-transparent" />
                     <DialogHeader className="relative">
                         <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
                             <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center">

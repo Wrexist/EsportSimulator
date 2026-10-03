@@ -38,7 +38,7 @@ export function EmptyState({
   return (
     <div className={cn(
       "premium-empty-state flex flex-col items-center justify-center text-center",
-      framed && "p-6 sm:p-8 rounded-xl border border-dashed border-white/10 bg-white/[0.01]",
+      framed && "p-6 sm:p-8 rounded-xl border border-dashed border-white/10 bg-white/1",
       !framed && "py-8",
       className,
     )}>

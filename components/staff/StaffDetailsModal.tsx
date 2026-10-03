@@ -87,18 +87,18 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                 >
                     {/* Header with Glass Gradient */}
                     <div className="relative p-8 border-b border-white/10 flex items-start justify-between overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50" />
+                        <div className="absolute inset-0 bg-linear-to-r/srgb from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50" />
 
                         <div className="relative z-10 flex items-center gap-8">
                             {/* Portrait with fluid ring */}
                             <div className="relative">
-                                <div className={`w-28 h-28 rounded-2xl border flex items-center justify-center bg-black/50 overflow-hidden shadow-2xl ${staff.rarity === "Legendary" ? "border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)]" : "border-white/[0.08]"}`}>
+                                <div className={`w-28 h-28 rounded-2xl border flex items-center justify-center bg-black/50 overflow-hidden shadow-2xl ${staff.rarity === "Legendary" ? "border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)]" : "border-white/8"}`}>
                                     {staff.portraitPath ? (
                                         <Image src={staff.portraitPath} alt={staff.name} width={112} height={112} className="w-full h-full object-cover" unoptimized />
                                     ) : (
                                         <Image src="/staff_placeholder.webp" alt={staff.name} width={112} height={112} className="w-full h-full object-cover opacity-80" unoptimized />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-black/60 via-transparent to-transparent" />
                                 </div>
                                 {/* Level Badge */}
                                 <div className="absolute -bottom-3 -right-3 bg-[#0a0a0a] border border-white/10 p-1 rounded-lg shadow-lg">
@@ -131,7 +131,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${xpPercentage}%` }}
-                                            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                                            className="h-full bg-linear-to-r/srgb from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                                         />
                                     </div>
                                 </div>
@@ -144,7 +144,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gradient-to-b from-black/20 to-black/80">
+                    <div className="flex-1 overflow-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-linear-to-b/srgb from-black/20 to-black/80">
                         {/* Left Column: Stats & Bio */}
                         <div className="lg:col-span-4 space-y-6">
                             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
@@ -158,7 +158,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
 
                                 <div className="mt-8 pt-6 border-t border-white/5">
                                     <h4 className="text-xs font-normal text-white/40 uppercase tracking-[0.2em] mb-3">Specialization</h4>
-                                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4 rounded-xl text-sm font-semibold text-primary/90 flex items-center gap-3">
+                                    <div className="bg-linear-to-br/srgb from-primary/10 to-primary/5 border border-primary/20 p-4 rounded-xl text-sm font-semibold text-primary/90 flex items-center gap-3">
                                         <Brain size={16} />
                                         {staff.specialization}
                                     </div>
@@ -192,7 +192,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-2xl font-normal text-white tracking-tight flex items-center gap-3">
                                     <Brain className="text-purple-400" />
-                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50">Talent Tree</span>
+                                    <span className="bg-clip-text text-transparent bg-linear-to-r/srgb from-white to-white/50">Talent Tree</span>
                                 </h3>
                                 <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 shadow-lg">
                                     <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                                 </div>
                             </div>
 
-                            <div className="flex-1 bg-[#030303] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent border border-white/10 rounded-2xl overflow-hidden shadow-inner relative">
+                            <div className="flex-1 bg-[#030303] bg-radial-[ellipse_at_center_in_srgb] from-white/5 to-transparent border border-white/10 rounded-2xl overflow-hidden shadow-inner relative">
                                 <div className="absolute inset-0 premium-grid-texture opacity-20" />
                                 <TalentTree
                                     nodes={treeNodes}

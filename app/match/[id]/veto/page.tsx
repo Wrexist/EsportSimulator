@@ -556,7 +556,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 />
 
                                 {/* Glass Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t/srgb from-black/90 via-black/20 to-transparent" />
 
                                 {/* Map Info & Status */}
                                 <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
@@ -649,7 +649,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     ))}
                 </div>
 
-                <div className="px-6 py-2 rounded-full border border-white/5 bg-white/[0.02] text-white/40 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
+                <div className="px-6 py-2 rounded-full border border-white/5 bg-white/2 text-white/40 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
                     {match?.format || "BO3"} Series • Match ID: {id?.substring(0, 12)}...
                 </div>
             </div>
@@ -682,7 +682,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "CT")}
-                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                                    className="relative aspect-square rounded-2xl bg-linear-to-br/srgb from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
                                 >
                                     <div className="w-48 h-48 relative">
                                         <SideEmblem side="CT" className="w-full h-full" />
@@ -698,7 +698,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "T")}
-                                    className="relative aspect-square rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
+                                    className="relative aspect-square rounded-2xl bg-linear-to-br/srgb from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
                                 >
                                     <div className="w-48 h-48 relative">
                                         <SideEmblem side="T" className="w-full h-full" />

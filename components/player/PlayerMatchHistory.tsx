@@ -157,7 +157,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                         >
                             {/* Result Badge */}
                             <div className={cn(
-                                "w-12 h-12 rounded-lg flex items-center justify-center font-normal text-lg flex-shrink-0",
+                                "w-12 h-12 rounded-lg flex items-center justify-center font-normal text-lg shrink-0",
                                 won ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
                             )}>
                                 {won ? "W" : "L"}
@@ -193,7 +193,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                             </div>
 
                             {/* Score */}
-                            <div className="text-center px-4 flex-shrink-0">
+                            <div className="text-center px-4 shrink-0">
                                 <div className="text-2xl font-normal">
                                     <span className={won ? "text-emerald-400" : "text-white/50"}>
                                         {playerScore}
@@ -208,7 +208,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
 
                             {/* Player Stats */}
                             {playerStats && (
-                                <div className="hidden md:grid grid-cols-3 gap-4 text-center min-w-[180px] flex-shrink-0">
+                                <div className="hidden md:grid grid-cols-3 gap-4 text-center min-w-[180px] shrink-0">
                                     <div>
                                         <div className="text-sm font-bold text-white">
                                             {playerStats.kills}/{playerStats.deaths}/{playerStats.assists}
@@ -235,7 +235,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                                 </div>
                             )}
 
-                            <ChevronRight size={16} className="text-muted-foreground flex-shrink-0" />
+                            <ChevronRight size={16} className="text-muted-foreground shrink-0" />
                         </Link>
                     )
                 })}

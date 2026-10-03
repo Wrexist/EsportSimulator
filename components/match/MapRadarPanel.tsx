@@ -323,7 +323,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                 </button>
                 {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
             </div>
-            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/[0.025] px-4 py-2 mb-3">
+            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/2.5 px-4 py-2 mb-3">
                 {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
                     {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
                         onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}

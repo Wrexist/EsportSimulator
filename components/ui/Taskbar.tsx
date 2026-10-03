@@ -53,7 +53,7 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
                 </div>
 
                 {/* Center: App Icons */}
-                <div className="flex items-center gap-1 bg-white/[0.04] rounded-lg px-2 py-1.5 border border-white/10">
+                <div className="flex items-center gap-1 bg-white/4 rounded-lg px-2 py-1.5 border border-white/10">
                     {apps.map((app) => (
                         <button
                             key={app.id}
@@ -63,7 +63,7 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
                             className={cn(
                                 "relative w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-75 ease-out touch-manipulation select-none will-change-transform hover:-translate-y-px active:scale-[0.96] active:translate-y-0 active:duration-0",
                                 app.isOpen
-                                    ? "bg-white/[0.12] text-white shadow-glass-soft"
+                                    ? "bg-white/12 text-white shadow-glass-soft"
                                     : "text-white/50 hover:text-white/80 hover:bg-white/5"
                             )}
                         >
@@ -79,7 +79,7 @@ export function Taskbar({ apps, currentWeek, teamLogo, teamName, onAppClick }: T
 
                             {/* Notification Badge */}
                             {app.hasNotification && (app.notificationCount ?? 0) > 0 && (
-                                <div className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-rose-500 rounded-full flex items-center justify-center">
+                                <div className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-rose-500 rounded-full flex items-center justify-center">
                                     <span className="text-[9px] font-bold text-white">
                                         {(app.notificationCount ?? 0) > 99 ? "99+" : app.notificationCount}
                                     </span>

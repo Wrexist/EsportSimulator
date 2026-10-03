@@ -100,7 +100,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                     </Button>
                     <Button
                         onClick={handleConfirm}
-                        className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold border-0 shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105"
+                        className="bg-linear-to-r/srgb from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold border-0 shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105"
                     >
                         Sign Renewal
                     </Button>

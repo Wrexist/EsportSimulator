@@ -493,7 +493,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-roster-builder"
-                    className="w-full max-w-4xl max-h-[90vh] bg-gradient-to-b from-zinc-900 to-black rounded-2xl border border-white/10 overflow-hidden flex flex-col"
+                    className="w-full max-w-4xl max-h-[90vh] bg-linear-to-b/srgb from-zinc-900 to-black rounded-2xl border border-white/10 overflow-hidden flex flex-col"
                 >
                     {/* Scrollable Content Area */}
                     <div className="flex-1 overflow-y-auto">
@@ -611,7 +611,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                             >
                                                 <X size={10} className="text-white" />
                                             </button>
-                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10 overflow-hidden relative">
+                                            <div className="w-10 h-10 rounded-lg bg-linear-to-br/srgb from-zinc-700 to-zinc-900 border border-white/10 overflow-hidden relative">
                                                 {player.portraitPath ? (
                                                     <Image
                                                         src={player.portraitPath}
@@ -663,7 +663,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                     </div>
 
                     {/* Filter & Sort Bar */}
-                    <div className="px-6 py-3 border-b border-white/10 sticky top-0 z-10 bg-zinc-900/95 backdrop-blur-sm">
+                    <div className="px-6 py-3 border-b border-white/10 sticky top-0 z-10 bg-zinc-900/95 backdrop-blur-xs">
                         <div className="flex items-center gap-3 flex-wrap">
                             {/* Search */}
                             <div className="relative flex-1 min-w-[180px]">
@@ -764,7 +764,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
 
                                             {/* Player Header with Image */}
                                             <div className="flex items-start gap-3 mb-3">
-                                                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center text-white font-bold text-lg border border-white/10 overflow-hidden relative">
+                                                <div className="w-14 h-14 rounded-lg bg-linear-to-br/srgb from-zinc-700 to-zinc-900 flex items-center justify-center text-white font-bold text-lg border border-white/10 overflow-hidden relative">
                                                     {player.portraitPath ? (
                                                         <Image
                                                             src={player.portraitPath}

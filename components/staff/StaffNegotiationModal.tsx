@@ -178,7 +178,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 >
                     {/* Left Panel: Staff Info */}
                     <div className="w-1/3 min-w-0 overflow-y-auto overscroll-contain border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg relative">
@@ -260,7 +260,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                                         }
                                                         setSalaryOffer(Math.max(0, Math.min(MAX_STAFF_SALARY, Math.floor(val))))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                             {!isRenewal && (

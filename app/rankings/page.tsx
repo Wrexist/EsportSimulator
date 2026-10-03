@@ -241,7 +241,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
             {/* Header */}
             <div
                 className={cn(
-                    "grid items-center px-4 h-12 border-b border-white/10 bg-white/[0.03]",
+                    "grid items-center px-4 h-12 border-b border-white/10 bg-white/3",
                     "grid-cols-[80px_minmax(240px,1fr)_120px_100px_80px_120px_56px]",
                     "text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em]"
                 )}
@@ -558,9 +558,9 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("WORLD")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "WORLD"
-                                ? "bg-slate-100 text-slate-900 shadow-sm focus:bg-white active:bg-slate-200"
+                                ? "bg-slate-100 text-slate-900 shadow-xs focus:bg-white active:bg-slate-200"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
                         )}
                     >
@@ -572,7 +572,7 @@ function RankingsPageInner() {
                             key={tier}
                             onClick={() => setActiveTab(tier)}
                             className={cn(
-                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                                 activeTab === tier
                                     ? `${TIER_DISPLAY[tier].bgColor} ${TIER_DISPLAY[tier].color} shadow-lg focus:${TIER_DISPLAY[tier].bgColor} active:${TIER_DISPLAY[tier].bgColor}`
                                     : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
@@ -588,7 +588,7 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("TROPHIES")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "TROPHIES"
                                 ? "bg-amber-500/20 text-amber-400 shadow-lg focus:bg-amber-500/20 active:bg-amber-500/20 focus:text-amber-400 active:text-amber-400"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
@@ -600,7 +600,7 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("CIRCUIT")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "CIRCUIT"
                                 ? "bg-purple-500/20 text-purple-400 shadow-lg focus:bg-purple-500/20 active:bg-purple-500/20 focus:text-purple-400 active:text-purple-400"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"

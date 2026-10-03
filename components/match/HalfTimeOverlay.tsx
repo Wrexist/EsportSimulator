@@ -33,14 +33,14 @@ export function HalfTimeOverlay({ active }: { active: boolean }) {
                     aria-hidden="true"
                 >
                     {/* Soft dark vignette so the card pops */}
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" />
 
                     <motion.div
                         initial={{ scale: 0.96, opacity: 0, y: 12 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.98, opacity: 0, y: 8 }}
                         transition={{ duration: reduceMotion ? 0.1 : 0.35, ease: "easeOut" }}
-                        className="relative z-10 px-10 py-8 rounded-2xl bg-white/[0.06] border border-white/15 backdrop-blur-xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)] text-center"
+                        className="relative z-10 px-10 py-8 rounded-2xl bg-white/6 border border-white/15 backdrop-blur-xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)] text-center"
                     >
                         <ArrowLeftRight className="w-10 h-10 mx-auto mb-4 text-cyan-300/80" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-cyan-300/80 mb-2">

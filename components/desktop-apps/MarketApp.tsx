@@ -152,7 +152,7 @@ function MarketAppComponent(_props: MarketAppProps) {
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/20 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-white/10 shadow-lg shadow-emerald-900/10">
+                    <div className="w-10 h-10 rounded-xl bg-linear-to-br/srgb from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-white/10 shadow-lg shadow-emerald-900/10">
                         <ShoppingBag size={20} className="text-emerald-400" />
                     </div>
                     <div>
@@ -173,7 +173,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                             onClick={() => setActiveTab(tab.id as any)}
                             className={cn(
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all",
-                                activeTab === tab.id ? "bg-white/10 text-white shadow-sm ring-1 ring-white/5" : "text-white/40 hover:text-white hover:bg-white/5"
+                                activeTab === tab.id ? "bg-white/10 text-white shadow-xs ring-1 ring-white/5" : "text-white/40 hover:text-white hover:bg-white/5"
                             )}
                         >
                             <tab.icon size={12} />
@@ -218,7 +218,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                     placeholder="Search players, teams..."
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all focus:bg-black/30 placeholder:text-white/20"
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-hidden transition-all focus:bg-black/30 placeholder:text-white/20"
                                 />
                             </div>
                             <div className={cn("flex items-center gap-2 overflow-x-auto pb-1 min-h-[26px]", scrollbarClass)}>
@@ -261,7 +261,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                         className={cn(
                                             "flex items-center gap-3 p-2 rounded-xl transition-all border border-transparent cursor-pointer group",
                                             selectedPlayer?.id === p.id
-                                                ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-emerald-500/20 shadow-lg"
+                                                ? "bg-linear-to-r/srgb from-emerald-500/10 to-transparent border-emerald-500/20 shadow-lg"
                                                 : "hover:bg-white/5 hover:border-white/5"
                                         )}
                                     >
@@ -311,7 +311,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                 {/* Selected Player Pane - Side by Side (Not Absolute) */}
                 {activeTab === "market" && selectedPlayer && (
                     <div className="w-[320px] shrink-0 border-l border-white/10 flex flex-col bg-[#050505]/95 backdrop-blur-xl shadow-2xl z-20">
-                        <div className="p-4 border-b border-white/10 flex items-start justify-between bg-gradient-to-br from-white/5 to-transparent">
+                        <div className="p-4 border-b border-white/10 flex items-start justify-between bg-linear-to-br/srgb from-white/5 to-transparent">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 shadow-lg">
                                     <PlayerPortrait src={selectedPlayer.portraitPath} seed={selectedPlayer.id} alt={selectedPlayer.nickname} size={48} variant="card" />

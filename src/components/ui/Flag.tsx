@@ -106,7 +106,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
   return (
     <div className={cn("flex items-center gap-2", className)} title={code}>
       <div
-        className="relative overflow-hidden rounded-[2px] shadow-sm bg-white/5 shrink-0"
+        className="relative overflow-hidden rounded-[2px] shadow-xs bg-white/5 shrink-0"
         style={{ width: safeSize, height: Math.round(safeSize * 0.75) }}
       >
         <Image
