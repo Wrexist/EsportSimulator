@@ -37,9 +37,6 @@ import { recruitmentBudget, recruitmentSalary } from "./recruitment"
  * 
  * Logic for non-player teams to manage rosters and finances.
  */
-/** Free agents per club above which AI academies stop discovering new players. */
-export const AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM = 3
-
 export class AIManager {
     private static fallbackRng = new SeededRNG(generateSeed())
 
@@ -333,16 +330,6 @@ export class AIManager {
         // 5% chance per week to discover a youth prospect for AI teams
         if (rng.next() > 0.05) return
         if (team.rosterIds.length >= 7) return // Already have enough players
-        // Discovery adds brand-new players to the world (~500 a season across
-        // ~200 AI clubs) while retirement removes ~60-170, and surplus prospects
-        // are later released into free agency. Over ten seasons that grew the
-        // active pool 2.5x (1,618 -> 4,050) and the free-agent pool 5x. Only
-        // discover new talent while the free-agent pool is below a per-club
-        // reserve; otherwise clubs recruit from the existing pool.
-        const rostered = new Set(save.teams.flatMap(t => t.rosterIds))
-        let freeAgents = 0
-        for (const p of save.players) if (!p.isRetired && !rostered.has(p.id)) freeAgents++
-        if (freeAgents >= save.teams.length * AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM) return
 
         try {
             // Bug fix: previously passed `team.region` (e.g. "EU", "NA") into

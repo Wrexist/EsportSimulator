@@ -159,23 +159,6 @@ test('season-end retirements reach the inbox only for the manager\'s own players
     expect(save.newsFeed.some(n => n.playerId === theirs.id)).toBe(true)
 })
 
-test('AI academies stop creating new players while the free-agent pool exceeds its per-club reserve', async () => {
-    const { AIManager, AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM } = await import('@/engine/ai-manager')
-    const run = (extraFreeAgents: number) => {
-        const save = createLaunchFixture('strong-club') as unknown as GameSave
-        const ai = save.teams[1]
-        ai.budget = 50_000_000
-        ai.reputation = 100
-        const template = save.players.find(p => p.id === 'qa_free_agent')!
-        for (let i = 0; i < extraFreeAgents; i++) save.players.push({ ...structuredClone(template), id: `fa_${i}` })
-        const before = save.players.length
-        for (let i = 0; i < 300; i++) AIManager.processAcademyScouting(save, ai, new SeededRNG(i + 1))
-        return save.players.length - before
-    }
-    expect(run(0)).toBeGreaterThan(0)
-    expect(run(3 * AI_DISCOVERY_FREE_AGENT_RESERVE_PER_TEAM)).toBe(0)
-})
-
 test('a transfer-listed player draws at most three open AI bids however many clubs are interested', async () => {
     const { processAITransferMarket } = await import('@/engine/ai/transfer-market')
     const save = createLaunchFixture('strong-club') as unknown as GameSave

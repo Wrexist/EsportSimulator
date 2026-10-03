@@ -428,10 +428,11 @@ export class EventProcessor {
                 }
             }
 
-            // Inbox entry only for the manager's own players and Hall of Fame
-            // inductees; other retirements stay in the news feed. World-wide
-            // inbox items put 50-65 retirements in the inbox every season end.
-            if (lastTeamId === save.playerTeamId || player.isLegendary) save.eventsLog.push({
+            // Inbox entry only for the manager's own players; other retirements
+            // (including Hall of Fame inductions, ~50 a season by season 10)
+            // stay in the news feed and Hall of Fame. World-wide inbox items
+            // put 50-65 retirements in the inbox every season end.
+            if (lastTeamId === save.playerTeamId) save.eventsLog.push({
                 id: `retirement_${player.id}_${save.currentWeek}`,
                 type: EventType.RETIREMENT,
                 week: save.currentWeek,
