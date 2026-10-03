@@ -316,11 +316,19 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         }
         jobMarket()
         await step('policy', policy)
+        const refused = new Set<string>()
         for (let guard = 0; guard < 20 && get().currentWeek === startWeek && !get().gameOverReason; guard++) {
-            const pending = unplayedOwn()
+            // Earliest fixture first, as the match-day UI presents them; fixtures
+            // the coordinator refused this week are left to the tick's forfeit.
+            const pending = unplayedOwn().filter(m => !refused.has(m.id)).sort((a, b) => (a.day ?? 6) - (b.day ?? 6) || a.id.localeCompare(b.id))
             if (pending.length) {
                 const m = pending[0]
-                if (get().timeMode === 'HYBRID_DAILY' && get().currentDay < (m.day ?? 6)) { await step('advance-day', () => get().advanceToWeekEnd()); continue }
+                if (get().timeMode === 'HYBRID_DAILY' && get().currentDay < (m.day ?? 6)) {
+                    const day = get().currentDay
+                    await step('advance-day', () => get().advanceToWeekEnd())
+                    if (get().currentDay === day && get().currentWeek === startWeek) refused.add(m.id)
+                    continue
+                }
                 const doneBefore = get().completedMatches.length
                 await step('own-match', () => get().simulateInstantMatch(m.id))
                 if (get().completedMatches.length === doneBefore) {
@@ -328,14 +336,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                     await step('policy-retry', policy)
                     const again = get().completedMatches.length
                     await step('own-match-retry', () => get().simulateInstantMatch(m.id))
-                    if (get().completedMatches.length === again) {
-                        // Unplayable for the manager (e.g. opponent below five): the
-                        // week tick must resolve it by forfeit. Softlock only if the
-                        // coordinator refuses to advance.
-                        for (let i = 0; i < 3 && get().currentWeek === startWeek && !get().gameOverReason; i++) await step('advance-forfeit', () => get().advanceToWeekEnd())
-                        if (get().currentWeek === startWeek && !get().gameOverReason) return false
-                        policyStats.forfeitAdvances++
-                    }
+                    if (get().completedMatches.length === again) { refused.add(m.id); policyStats.forfeitAdvances++ }
                 }
                 continue
             }
