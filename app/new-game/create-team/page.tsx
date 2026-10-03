@@ -47,6 +47,7 @@ import {
     PRESET_COLORS
 } from "@/types/team-creator"
 import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
+import { customClubStartingCash, describeClubChallenge } from "@/lib/club-expectations"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 
 // Wizard steps
@@ -104,7 +105,8 @@ export default function CreateTeamPage() {
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (hasUnsavedChanges && !showRosterBuilder) {
+            // The setup draft is restored on reload, so only warn when it could not be stored.
+            if (hasUnsavedChanges && !showRosterBuilder && !draftSaved) {
                 e.preventDefault()
                 e.returnValue = "" // Required for Chrome
                 return ""
@@ -113,7 +115,7 @@ export default function CreateTeamPage() {
 
         window.addEventListener("beforeunload", handleBeforeUnload)
         return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-    }, [hasUnsavedChanges, showRosterBuilder])
+    }, [hasUnsavedChanges, showRosterBuilder, draftSaved])
 
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -501,7 +503,7 @@ export default function CreateTeamPage() {
                     >
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-normal text-white mb-2">Select Difficulty</h2>
-                            <p className="text-muted-foreground">This affects your starting budget and progression</p>
+                            <p className="text-muted-foreground">Sets starting cash, reputation and recurring income. Match simulation is the same on every difficulty.</p>
                             {/* Explain the three tile stats at the commitment moment (E6).
                                 Tooltips live here, outside the difficulty <button>s, so we
                                 don't nest interactive triggers inside a button. */}
@@ -521,11 +523,13 @@ export default function CreateTeamPage() {
                             </div>
                         </div>
 
+                        <p className="text-xs text-slate-400">{draftSaved ? 'Setup saved on this device. Uploaded logos over 500 KB need to be selected again after reload.' : 'Setup could not be saved. Keep this page open until you finish.'}</p>
                         <div className="space-y-3">
                             {(Object.entries(DIFFICULTY_SETTINGS) as [GameDifficulty, typeof DIFFICULTY_SETTINGS[GameDifficulty]][]).map(([key, settings]) => (
                                 <button
                                     key={key}
                                     onClick={() => setTeamData({ ...teamData, difficulty: key })}
+                                    aria-pressed={teamData.difficulty === key}
                                     className={cn(
                                         "w-full p-4 rounded-xl border transition-all text-left",
                                         teamData.difficulty === key
@@ -533,7 +537,6 @@ export default function CreateTeamPage() {
                                             : "bg-white/5 border-white/10 hover:bg-white/10"
                                     )}
                                 >
-                                    <p className="mb-3 text-xs text-slate-400">{draftSaved ? 'Setup saved on this device. Uploaded logos over 500 KB need to be selected again after reload.' : 'Setup could not be saved. Keep this page open until you finish.'}</p>
                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-3">
                                             <DifficultyIcon difficulty={key} />
@@ -548,8 +551,8 @@ export default function CreateTeamPage() {
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/5">
                                         <div className="text-center">
-                                            <p className="text-lg font-bold text-emerald-400">${(settings.startingBudget / 1000).toFixed(0)}K</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase">Budget</p>
+                                            <p className="text-lg font-bold text-emerald-400">${(customClubStartingCash(settings.startingBudget) / 1000).toFixed(0)}K</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase">Starting cash</p>
                                         </div>
                                         <div className="text-center">
                                             <p className="text-lg font-bold text-blue-400">{settings.startingReputation}</p>
@@ -624,8 +627,8 @@ export default function CreateTeamPage() {
                                     <p className="text-white font-bold">{difficultySettings.label}</p>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-xl">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Starting Budget</p>
-                                    <p className="text-emerald-400 font-bold">${(difficultySettings.startingBudget / 1000).toFixed(0)}K</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Starting cash</p>
+                                    <p className="text-emerald-400 font-bold">${(customClubStartingCash(difficultySettings.startingBudget) / 1000).toFixed(0)}K</p>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-xl">
                                     <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Reputation</p>
@@ -633,6 +636,20 @@ export default function CreateTeamPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {(() => {
+                            // Custom clubs enter the world ranking at #150 (initializeCustomTeam).
+                            const challenge = describeClubChallenge({ worldRanking: 150, reputation: difficultySettings.startingReputation, starters: 0, budget: customClubStartingCash(difficultySettings.startingBudget), custom: true })
+                            return (
+                                <section aria-labelledby="custom-expectations-title" className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                                    <h3 id="custom-expectations-title" className="text-xs uppercase tracking-widest text-muted-foreground">What to expect</h3>
+                                    <p className="mt-2 text-sm text-white">Expected board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better.</p>
+                                    <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-300">
+                                        {challenge.notes.map(note => <li key={note}>{note}</li>)}
+                                    </ul>
+                                </section>
+                            )
+                        })()}
 
                         {/* Warning */}
                         <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-3">

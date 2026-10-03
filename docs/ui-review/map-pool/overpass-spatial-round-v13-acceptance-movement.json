@@ -1,0 +1,295 @@
+{
+  "engine": "spatial-round-v13",
+  "mapId": "Overpass",
+  "fixtureSha256": "95d46332dfea37a058d6b60177521945ac345dcbbf5a9ee16aef79578a21809a",
+  "simulatorSourceSha256": "a94a7f9aeccccfea66327881d16fe7d36781dc4b754a495bd30f772b621ab001",
+  "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+  "complete": true,
+  "scope": "0 combat and 4 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 76.203125,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 175708,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 417,
+        "waits": 1200,
+        "replans": 125,
+        "minSeparation": 32.00351167175424
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "64f4c8131302c830be8df3540f46e09d195fd22716e52a179e98e48c38bbbd1c"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 186015,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 2276,
+        "waits": 3988,
+        "replans": 152,
+        "minSeparation": 32.017163893039104
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 16,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "CT4",
+          "point": [
+            -1076.5410513888178,
+            -192.07473063225103,
+            106
+          ],
+          "goal": [
+            -1215.2502,
+            74.87481799999999,
+            106
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 1761,
+            "type": "spacing-wait",
+            "reason": "Body T2 occupies the swept path.",
+            "actor": "CT4",
+            "side": "CT",
+            "from": [
+              -1076.5410513888178,
+              -192.07473063225103,
+              106
+            ],
+            "point": [
+              -1076.656191943969,
+              -191.65062958104772,
+              106
+            ]
+          }
+        },
+        {
+          "id": "T2",
+          "point": [
+            -1073.4458916825554,
+            -160.13593768164702,
+            106
+          ],
+          "goal": [
+            -1824.5,
+            662.4999133333333,
+            482.66664666666674
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 2112,
+            "type": "spacing-wait",
+            "reason": "Body CT4 occupies the swept path.",
+            "actor": "T2",
+            "side": "T",
+            "from": [
+              -1073.4458916825554,
+              -160.13593768164702,
+              106
+            ],
+            "point": [
+              -1073.4549635503702,
+              -160.35547688881152,
+              106
+            ]
+          }
+        },
+        {
+          "id": "T3",
+          "point": [
+            -2263.75,
+            730.7021448399618,
+            479.99996999999996
+          ],
+          "goal": [
+            -1958.7363908235552,
+            667.2688928571616,
+            483.5559107828121
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5136,
+            "type": "spacing-wait",
+            "reason": "Body T4 occupies the swept path.",
+            "actor": "T3",
+            "side": "T",
+            "from": [
+              -2263.75,
+              730.7021448399618,
+              479.99996999999996
+            ],
+            "point": [
+              -2263.75,
+              730.9218714024618,
+              479.99997
+            ]
+          }
+        }
+      ],
+      "outputSha256": "53ebca262a6576118330fa45af1a386f0a7076336a73b868d15f4587904e6f38"
+    },
+    {
+      "seed": 4326180,
+      "objective": "A",
+      "guns": false,
+      "seconds": 76.203125,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 218339,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 417,
+        "waits": 1200,
+        "replans": 125,
+        "minSeparation": 32.00351167175424
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 11,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "64f4c8131302c830be8df3540f46e09d195fd22716e52a179e98e48c38bbbd1c"
+    },
+    {
+      "seed": 4326181,
+      "objective": "B",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 139169,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 2276,
+        "waits": 3988,
+        "replans": 152,
+        "minSeparation": 32.017163893039104
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 16,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "CT4",
+          "point": [
+            -1076.5410513888178,
+            -192.07473063225103,
+            106
+          ],
+          "goal": [
+            -1215.2502,
+            74.87481799999999,
+            106
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 1761,
+            "type": "spacing-wait",
+            "reason": "Body T2 occupies the swept path.",
+            "actor": "CT4",
+            "side": "CT",
+            "from": [
+              -1076.5410513888178,
+              -192.07473063225103,
+              106
+            ],
+            "point": [
+              -1076.656191943969,
+              -191.65062958104772,
+              106
+            ]
+          }
+        },
+        {
+          "id": "T2",
+          "point": [
+            -1073.4458916825554,
+            -160.13593768164702,
+            106
+          ],
+          "goal": [
+            -1824.5,
+            662.4999133333333,
+            482.66664666666674
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 2112,
+            "type": "spacing-wait",
+            "reason": "Body CT4 occupies the swept path.",
+            "actor": "T2",
+            "side": "T",
+            "from": [
+              -1073.4458916825554,
+              -160.13593768164702,
+              106
+            ],
+            "point": [
+              -1073.4549635503702,
+              -160.35547688881152,
+              106
+            ]
+          }
+        },
+        {
+          "id": "T3",
+          "point": [
+            -2263.75,
+            730.7021448399618,
+            479.99996999999996
+          ],
+          "goal": [
+            -1958.7363908235552,
+            667.2688928571616,
+            483.5559107828121
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 5136,
+            "type": "spacing-wait",
+            "reason": "Body T4 occupies the swept path.",
+            "actor": "T3",
+            "side": "T",
+            "from": [
+              -2263.75,
+              730.7021448399618,
+              479.99996999999996
+            ],
+            "point": [
+              -2263.75,
+              730.9218714024618,
+              479.99997
+            ]
+          }
+        }
+      ],
+      "outputSha256": "53ebca262a6576118330fa45af1a386f0a7076336a73b868d15f4587904e6f38"
+    }
+  ]
+}

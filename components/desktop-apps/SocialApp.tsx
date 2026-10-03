@@ -7,6 +7,7 @@ import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircl
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { TeamSaveData, SocialPost } from "@/engine/save-types"
+import { pressable } from "@/lib/accessibility"
 
 interface SocialAppProps {
     posts: SocialPost[]
@@ -164,7 +165,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                 >
                                     <div className="flex gap-2">
                                         <div
-                                            onClick={() => post.teamId && setSelectedTeamProfile(post.teamId)}
+                                            {...(post.teamId ? pressable(() => setSelectedTeamProfile(post.teamId!), { label: `Open ${post.user.name ?? "team"} profile` }) : {})}
                                             className="w-9 h-9 rounded-full bg-linear-to-br/srgb from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
                                         >
                                             {isImagePath(post.user.avatar) ? (
@@ -275,7 +276,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                 {teams.slice(0, 5).map(team => (
                                     <div
                                         key={team.id}
-                                        onClick={() => setSelectedTeamProfile(team.id)}
+                                        {...pressable(() => setSelectedTeamProfile(team.id), { label: `Open ${team.name} profile` })}
                                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors duration-75 ease-out active:scale-[0.99] active:duration-0"
                                     >
                                         <div
@@ -344,7 +345,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                     .map(team => (
                                         <div
                                             key={team.id}
-                                            onClick={() => setSelectedTeamProfile(team.id)}
+                                            {...pressable(() => setSelectedTeamProfile(team.id), { label: `Open ${team.name} profile` })}
                                             className="flex items-center gap-2.5 p-2.5 hover:bg-white/5 rounded-xl cursor-pointer transition-[background-color,transform] duration-75 ease-out group hover:translate-x-1 active:translate-x-0 active:scale-[0.99] active:duration-0"
                                         >
                                             <div className="w-9 h-9 rounded-full bg-linear-to-br/srgb from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">

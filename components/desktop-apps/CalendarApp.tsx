@@ -12,6 +12,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
+import { pressable } from "@/lib/accessibility"
 
 interface CalendarAppProps {
     currentWeek: number
@@ -170,7 +171,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: idx * 0.05 }}
-                                                onClick={() => setSelectedTournament(tournament.id)}
+                                                {...pressable(() => setSelectedTournament(tournament.id))}
                                                 className={cn(
                                                     "p-2.5 rounded-xl border transition-all cursor-pointer",
                                                     isActive
@@ -246,7 +247,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                         {tournamentEvents.slice(0, 5).map(event => (
                                             <div
                                                 key={event.id}
-                                                onClick={() => onEventClick(event)}
+                                                {...pressable(() => onEventClick(event))}
                                                 className={cn(
                                                     "p-2.5 rounded-xl border cursor-pointer transition-all",
                                                     !event.acknowledged
@@ -303,7 +304,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                 {weekTournaments.slice(0, 2).map(t => (
                                                     <div
                                                         key={t.id}
-                                                        onClick={() => setSelectedTournament(t.id)}
+                                                        {...pressable(() => setSelectedTournament(t.id))}
                                                         className="text-[8px] text-white/70 truncate cursor-pointer hover:text-white"
                                                     >
                                                         • {t.name.split(' ').slice(0, 2).join(' ')}

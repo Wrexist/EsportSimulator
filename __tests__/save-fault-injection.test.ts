@@ -762,7 +762,7 @@ function sentinelCareer(): GameSave {
         lastCommittedWeekTick: 9,
         currentDay: 3,
         selectedWeeklyActivity: "BOOTCAMP",
-        firstSession: { version: 1, status: "active", reviewed: [] },
+        firstSession: { version: 2, status: "active", reviewed: ["squad"], baseline: { week: 8, lastResultId: null, rosterIds: [player] } },
         customTactics: tactics,
         watchlistedPlayerIds: [player],
         activeMatchId: "rt-match",

@@ -3,9 +3,9 @@ import { applyRoundEconomy } from '@/lib/live-match-utils'
 import type { SpatialReference } from './types'
 import type { TeamEvent, TeamFrame, TeamResult } from './team-simulation'
 
-export const SPATIAL_ROUND_ENGINE = 'spatial-round-v13' as const
-type ReplayEngine = typeof SPATIAL_ROUND_ENGINE | 'spatial-round-v12' | 'spatial-round-v11' | 'spatial-round-v10' | 'spatial-round-v9' | 'spatial-round-v8' | 'spatial-round-v7' | 'spatial-round-v6' | 'spatial-round-v5' | 'spatial-round-v4' | 'spatial-round-v3' | 'spatial-round-v2' | 'spatial-round-v1'
-const supportedEngine = (engine: string) => engine === SPATIAL_ROUND_ENGINE || engine === 'spatial-round-v12' || engine === 'spatial-round-v11' || engine === 'spatial-round-v10' || engine === 'spatial-round-v9' || engine === 'spatial-round-v8' || engine === 'spatial-round-v7' || engine === 'spatial-round-v6' || engine === 'spatial-round-v5' || engine === 'spatial-round-v4' || engine === 'spatial-round-v3' || engine === 'spatial-round-v2' || engine === 'spatial-round-v1'
+export const SPATIAL_ROUND_ENGINE = 'spatial-round-v14' as const
+type ReplayEngine = typeof SPATIAL_ROUND_ENGINE | 'spatial-round-v13' | 'spatial-round-v12' | 'spatial-round-v11' | 'spatial-round-v10' | 'spatial-round-v9' | 'spatial-round-v8' | 'spatial-round-v7' | 'spatial-round-v6' | 'spatial-round-v5' | 'spatial-round-v4' | 'spatial-round-v3' | 'spatial-round-v2' | 'spatial-round-v1'
+const supportedEngine = (engine: string) => engine === SPATIAL_ROUND_ENGINE || engine === 'spatial-round-v13' || engine === 'spatial-round-v12' || engine === 'spatial-round-v11' || engine === 'spatial-round-v10' || engine === 'spatial-round-v9' || engine === 'spatial-round-v8' || engine === 'spatial-round-v7' || engine === 'spatial-round-v6' || engine === 'spatial-round-v5' || engine === 'spatial-round-v4' || engine === 'spatial-round-v3' || engine === 'spatial-round-v2' || engine === 'spatial-round-v1'
 export interface SpatialRoundReplay {
     format: 'esim-round-replay'
     engine: ReplayEngine

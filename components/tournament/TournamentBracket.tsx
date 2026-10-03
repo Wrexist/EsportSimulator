@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
 import { fireConfetti } from "@/lib/confetti-lazy"
+import { pressable } from "@/lib/accessibility"
 
 interface BracketTeam {
     id: string
@@ -532,7 +533,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                                 isGrandFinalMatch && match.status !== "completed" && "ring-1 ring-amber-500/30",
                                                 onMatchClick && !isDragging && "cursor-pointer active:scale-[0.98]"
                                             )}
-                                            onClick={() => handleMatchClick(match.id)}
+                                            {...(onMatchClick ? pressable(() => handleMatchClick(match.id)) : {})}
                                         >
                                             <div className="flex flex-col">
                                                 {/* Team 1 */}

@@ -9,6 +9,7 @@ import { useGameStore } from '@/store/game-store'
 import { TalentTree } from './TalentTree'
 import { STAFF_TALENT_TREES } from '@/engine/talent-trees'
 import { cn } from '@/lib/utils'
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface StaffDetailsModalProps {
     staffId: string | null
@@ -19,6 +20,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
     const staff = useGameStore(state => state.staff.find(s => s.id === staffId))
     const unlockStaffTalent = useGameStore(state => state.unlockStaffTalent)
     const currentWeek = useGameStore(state => state.currentWeek)
+    const dialogRef = useFocusTrap(!!staff, onClose)
 
     if (!staff) return null
 
@@ -79,6 +81,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                    ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-staff-details"
@@ -172,7 +175,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5">
                                         <span className="text-white/50 text-xs font-bold uppercase">Weekly Salary</span>
-                                        <span className="text-white font-mono font-bold text-lg">${staff.salaryPerWeek?.toLocaleString()}</span>
+                                        <span className="text-white font-mono font-bold text-lg">{staff.salaryPerWeek != null ? `$${staff.salaryPerWeek.toLocaleString("en-US")}` : "—"}</span>
                                     </div>
                                     <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5">
                                         <span className="text-white/50 text-xs font-bold uppercase">Expires In</span>

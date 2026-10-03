@@ -43,7 +43,7 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
     story: {
         id: 'story',
         label: 'Story Mode',
-        description: 'Relaxed experience focused on narrative. Generous budget and forgiving progression.',
+        description: 'Most starting cash and reputation, a bigger starting fanbase and 1.5x recurring income.',
         startingBudget: 500000,
         startingReputation: 50,
         fansMultiplier: 1.5,
@@ -53,7 +53,7 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
     normal: {
         id: 'normal',
         label: 'Normal',
-        description: 'Balanced challenge. Build your way up with fair resources.',
+        description: 'Standard starting cash, reputation and income.',
         startingBudget: 250000,
         startingReputation: 25,
         fansMultiplier: 1.0,
@@ -63,7 +63,7 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
     hard: {
         id: 'hard',
         label: 'Hard',
-        description: 'Limited resources force tough decisions. Every dollar counts.',
+        description: 'Less cash and reputation, 0.8x recurring income. Every wage matters.',
         startingBudget: 150000,
         startingReputation: 10,
         fansMultiplier: 0.75,
@@ -73,7 +73,7 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
     impossible: {
         id: 'impossible',
         label: 'Impossible',
-        description: 'True underdog story. Minimal budget, zero reputation. Only for masochists.',
+        description: 'Minimal cash, zero reputation, 0.6x recurring income. Expect to run close to empty.',
         startingBudget: 75000,
         startingReputation: 0,
         fansMultiplier: 0.5,

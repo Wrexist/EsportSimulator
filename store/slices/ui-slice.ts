@@ -93,7 +93,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         const team = state.teams.find(t => t.id === state.playerTeamId)
         if (!activity || !team || (activity.cost > 0 && activity.cost > team.budget) || state.gameOverReason) return
         state.selectedWeeklyActivity = type
-        if (state.firstSession?.status === "active") state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "plan")
+        if (state.firstSession?.status === "active") { state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "decision"); if (state.firstSession.status === "complete") { state.onboardingCompleted = true; state.tutorialCompleted = true } }
     }); if (get().isInitialized && get().selectedWeeklyActivity === type) void get().saveGame?.() },
 
     selectLegend: (legendId: string) => set((state) => {

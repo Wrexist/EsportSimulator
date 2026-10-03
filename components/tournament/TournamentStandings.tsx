@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TournamentDefinition, formatPrizePool } from "@/data/tournament-calendar"
 import { TeamSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine"
 import { textOnBrand as textOn } from "@/lib/branding/fallback"
+import { pressable } from "@/lib/accessibility"
 
 interface TournamentStandingsProps {
     tournament: TournamentDefinition
@@ -300,7 +301,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    onClick={() => setExpandedTeamId(isExpanded ? null : team.teamId)}
+                                    {...pressable(() => setExpandedTeamId(isExpanded ? null : team.teamId), { expanded: isExpanded })}
                                     className={cn(
                                         "grid grid-cols-[3.5rem_minmax(0,2fr)_repeat(5,minmax(0,0.7fr))_2rem] items-center py-3 px-4 gap-2 text-sm hover:bg-white/5 transition-colors cursor-pointer",
                                         getRowStyle(rank),

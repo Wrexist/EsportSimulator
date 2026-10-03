@@ -26,7 +26,7 @@ import {
 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
-import { ManagerProgression } from "@/engine/manager-progression"
+import { ManagerProgression, ManagerTier, TEAM_REP_TIERS, TIER_THRESHOLDS } from "@/engine/manager-progression"
 import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -40,6 +40,8 @@ import {
 } from "@/engine/tier-system"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { resolvePlayerRole } from "@/engine/role-determination"
+import { pressable } from "@/lib/accessibility"
+import { describeClubChallenge } from "@/lib/club-expectations"
 
 interface SnapshotTeam {
     id: string
@@ -565,7 +567,9 @@ export default function TeamSelectionPage() {
                                 Choose Your Team, <span className="text-primary">{managerName}</span>
                             </h1>
                             <p className="text-muted-foreground text-sm">
-                                <span className="text-amber-400 font-bold uppercase">Manager Mode:</span> You must begin with a <span className="text-white font-bold">Amateur</span> team. Build your reputation to unlock higher-tier clubs.
+                                <span className="text-amber-400 font-bold uppercase">Career mode:</span> {sandboxMode
+                                    ? <>Sandbox is on, so every club is open.</>
+                                    : <>You are manager level <span className="text-white font-bold">{managerLevel}</span>. Clubs with reputation under {TEAM_REP_TIERS.TIER_2_MIN_REP} are open; reputation {TEAM_REP_TIERS.TIER_2_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.CHALLENGER]} and {TEAM_REP_TIERS.TIER_1_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.ELITE]}. Levels carry over between careers.</>}
                             </p>
                         </div>
                     </div>
@@ -663,7 +667,7 @@ export default function TeamSelectionPage() {
                             return (
                                 <div
                                     key={team.id}
-                                    onClick={() => !isLocked && setSelectedTeam(team)}
+                                    {...pressable(() => setSelectedTeam(team), { disabled: isLocked, pressed: selectedTeam?.id === team.id })}
                                     className={cn(
                                         "glass-panel p-4 cursor-pointer border-white/5 relative overflow-hidden",
                                         "transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5",
@@ -682,6 +686,7 @@ export default function TeamSelectionPage() {
                                                 <Briefcase size={10} />
                                                 MANAGER LVL {requiredLevel}
                                             </div>
+                                            <p className="mt-1 text-[10px] text-white/70">You are level {managerLevel}. Sandbox unlocks it.</p>
                                         </div>
                                     )}
                                     <div className="flex items-center gap-3 mb-3">
@@ -817,6 +822,24 @@ export default function TeamSelectionPage() {
                                         <p className="text-[8px] text-muted-foreground font-bold uppercase">Value</p>
                                     </div>
                                 </div>
+
+                                {/* Honest expectations before committing (L22.3) */}
+                                {(() => {
+                                    const challenge = describeClubChallenge({ worldRanking: selectedTeam.worldRanking, reputation: selectedTeam.reputation, starters: selectedRoster.length, budget: getCalculatedBudget(selectedTeam) })
+                                    return (
+                                        <section aria-labelledby="club-expectations-title" className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <h3 id="club-expectations-title" className="text-xs font-normal uppercase tracking-widest text-muted-foreground">What to expect</h3>
+                                                <span className="text-xs font-medium text-amber-300">{challenge.level}</span>
+                                            </div>
+                                            <p className="mt-2 text-sm text-white">Expected board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better{challenge.trophyTarget > 0 ? ` and win ${challenge.trophyTarget} trophy` : ''}.</p>
+                                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-300">
+                                                {challenge.notes.map(note => <li key={note}>{note}</li>)}
+                                            </ul>
+                                            <p className="mt-2 text-[11px] text-muted-foreground">Budget is the estimated starting cash. The board sets its exact target from your standing when the first week is processed.</p>
+                                        </section>
+                                    )
+                                })()}
 
                                 {/* Roster with larger images */}
                                 <h3 className="text-xs font-normal text-muted-foreground uppercase tracking-widest mb-3">

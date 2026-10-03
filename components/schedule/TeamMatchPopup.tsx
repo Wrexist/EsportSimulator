@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo } from "react"
+import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Swords, Trophy, Play } from "lucide-react"
@@ -15,6 +15,7 @@ import { resolvePlayerRole } from "@/engine/role-determination"
 import { RivalryBanner } from "./RivalryBanner"
 import { ScoutingReport } from "./ScoutingReport"
 import { getMatchHeadline, getMatchTone } from "@/lib/match-stakes"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -83,19 +84,9 @@ export function TeamMatchPopup({
             .sort((a, b) => (b.week || 0) - (a.week || 0))
     }, [completedMatches, opponent, playerTeamId])
 
-    // Escape key closes the popup — standard modal keyboard contract.
-    // Refs hold the latest onClose so a non-memoized parent callback
-    // doesn't churn the listener every parent render.
-    const onCloseRef = React.useRef(onClose)
-    React.useEffect(() => { onCloseRef.current = onClose }, [onClose])
-    useEffect(() => {
-        if (!isOpen) return
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onCloseRef.current()
-        }
-        window.addEventListener("keydown", onKey)
-        return () => window.removeEventListener("keydown", onKey)
-    }, [isOpen])
+    // Standard modal keyboard contract: Escape closes, focus is trapped
+    // inside and returned to the trigger (the hook reads the latest onClose).
+    const dialogRef = useFocusTrap(isOpen && !!opponent, onClose)
 
     if (!isOpen || !opponent) return null
 
@@ -129,10 +120,14 @@ export function TeamMatchPopup({
                         animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
                         exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-40%" }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="fixed left-1/2 top-1/2 z-modal w-full max-w-xl cursor-move"
+                        className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-xl cursor-move"
                         style={{ x: "-50%", y: "-50%" }} // Ensure transform is applied for centering
+                        ref={dialogRef} tabIndex={-1}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Match preview: ${opponent.name}`}
                     >
-                        <div className="bg-[#0a0c10]/95 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
+                        <div className="bg-[#0a0c10]/95 backdrop-blur-xl border border-white/10 rounded-3xl overflow-y-auto max-h-[calc(100dvh-6rem)] shadow-2xl shadow-black/50">
                             {/* Header with Match Info */}
                             <div className="p-6 bg-linear-to-br/srgb from-primary/10 via-transparent to-cyan-500/5 border-b border-white/5">
                                 <div className="flex items-center justify-between mb-4">
@@ -142,6 +137,7 @@ export function TeamMatchPopup({
                                     </div>
                                     <button
                                         onClick={onClose}
+                                        aria-label="Close match preview"
                                         className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
                                     >
                                         <X size={16} />
@@ -291,7 +287,7 @@ export function TeamMatchPopup({
                             </div>
 
                             {/* Actions */}
-                            <div className="p-4 bg-white/5 border-t border-white/5">
+                            <div className="sticky bottom-0 p-4 bg-[#11141a] border-t border-white/5">
                                 <div className="flex gap-3">
                                     <Button
                                         variant="outline"

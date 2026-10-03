@@ -1,6 +1,7 @@
 "use client"
 
 import { resultLineup, matchFollowup } from '@/lib/match-followup'
+import { buildMatchInsights, buyWinRate } from '@/lib/match-insights'
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -553,17 +554,67 @@ export default function MatchResultPage() {
                 </motion.div>
             </div>
 
-            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (
-                <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/3 p-4" aria-label="Next match preparation">
-                    <p className="text-sm text-slate-200">{matchFollowup(playerTeamId === match.homeTeamId ? homeStats : awayStats)}</p>
-                    {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                        {[['Training', '/training'], ['Scout recruitment', '/scouting'], ['Squad and roles', '/squad'], ['Prepare next match', '/schedule']].map(([label, href]) => (
-                            <button key={href} onClick={() => router.push(href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{label}</button>
-                        ))}
-                    </div>
-                </section>
-            )}
+            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (() => {
+                const isHome = playerTeamId === match.homeTeamId
+                const ownTeam = isHome ? homeTeam : awayTeam
+                const otherTeam = isHome ? awayTeam : homeTeam
+                const insights = buildMatchInsights({
+                    result,
+                    teamId: playerTeamId,
+                    isHome,
+                    ownLineup: resultLineup(result, ownTeam?.id, ownTeam?.rosterIds),
+                    opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
+                    nextMatchId: nextPlayerMatch?.id,
+                })
+                const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || "Former player"
+                const standout = (label: string, s?: { playerId: string; rating: number; kills: number; deaths: number }) => s && (
+                    <li>{label}: <span className="text-white">{name(s.playerId)}</span> {s.rating.toFixed(2)} rating, {s.kills}-{s.deaths}</li>
+                )
+                return (
+                    <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/3 p-4" aria-labelledby="match-decided-heading">
+                        <h2 id="match-decided-heading" className="text-xs font-bold uppercase tracking-widest text-slate-300">What decided the match</h2>
+                        <p className="mt-1 text-sm text-slate-200">{insights.headline}</p>
+                        <div className="mt-3 grid gap-4 md:grid-cols-3 text-xs text-slate-300">
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Key rounds</h3>
+                                <ul className="space-y-1">
+                                    {insights.keyRounds.map(k => (
+                                        <li key={`${k.map}-${k.round}-${k.label}`}>
+                                            <span className={k.won ? "text-emerald-400" : "text-red-400"}>{k.won ? "Won" : "Lost"}</span> · {k.map} R{k.round}: {k.label}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Economy</h3>
+                                <ul className="space-y-1">
+                                    {insights.economy.buys.map(b => (
+                                        <li key={b.buy}>{b.buy.toLowerCase()} buys: {b.won}/{b.played} won ({buyWinRate(b)}%)</li>
+                                    ))}
+                                    <li>Average spend per player per round: ${insights.economy.avgSpend.toLocaleString()}</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Players and plan</h3>
+                                <ul className="space-y-1">
+                                    {standout("Your best", insights.standouts.best)}
+                                    {standout("Struggled", insights.standouts.struggled)}
+                                    {standout("Opponent top performer", insights.standouts.opponentBest)}
+                                    {insights.tactics.map(t => <li key={t}>{t}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-200">{matchFollowup(isHome ? homeStats : awayStats)}</p>
+                        {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {insights.actions.map(a => (
+                                <button key={a.href + a.label} title={a.reason} aria-label={`${a.label}: ${a.reason}`} onClick={() => router.push(a.href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{a.label}</button>
+                            ))}
+                        </div>
+                        <p className="mt-2 text-[11px] text-slate-500">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
+                    </section>
+                )
+            })()}
 
             {/* TAB NAVIGATION */}
             <div className="max-w-7xl mx-auto mb-6">

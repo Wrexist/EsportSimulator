@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Globe, Calendar, Users, DollarSign, Target, List, Swords } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import TournamentStandings from "@/components/tournament/TournamentStandings"
 import TournamentBracket from "@/components/tournament/TournamentBracket"
 import { isQualificationForTournament, getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface TournamentDetailsModalProps {
     isOpen: boolean
@@ -48,15 +49,8 @@ export function TournamentDetailsModal({
     })))
     const [activeTab, setActiveTab] = useState<"overview" | "matches" | "standings" | "bracket">("standings")
 
-    // Standard modal contract — Escape closes.
-    useEffect(() => {
-        if (!isOpen) return
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose()
-        }
-        window.addEventListener("keydown", onKey)
-        return () => window.removeEventListener("keydown", onKey)
-    }, [isOpen, onClose])
+    // Standard modal contract — Escape closes, focus trapped and restored.
+    const dialogRef = useFocusTrap(isOpen, onClose)
 
     // Find the actual seasonal tournament instance
     // e.g. "major" -> "major_s1"
@@ -103,14 +97,18 @@ export function TournamentDetailsModal({
 
                     {/* Modal Content */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-46%" }}
+                        animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+                        exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-46%" }}
+                        ref={dialogRef} tabIndex={-1}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="modal-title-tournament-details"
+                        // Centered in the viewport below the top bar. framer owns
+                        // `transform`, so the -50% offsets go through x/y.
+                        style={{ x: "-50%", y: "-50%" }}
                         className={cn(
-                            "fixed z-modal w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[85vh]",
+                            "fixed left-1/2 top-[calc(50%+2rem)] z-modal w-[calc(100vw-2rem)] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[min(85vh,calc(100dvh-6rem))]",
                             activeTab === "bracket" ? "max-w-[90vw]" : "max-w-2xl"
                         )}
                     >

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
+import { useFocusTrap, pressable } from "@/lib/accessibility"
 
 interface BookBootcampModalProps {
     isOpen: boolean
@@ -88,6 +89,8 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
         }
     }
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
@@ -96,10 +99,11 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-book-bootcamp"
-                className="glass-panel w-full max-w-4xl flex flex-col max-h-[90vh] shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-4xl flex flex-col max-h-[calc(100dvh-6rem)] shadow-2xl border-white/10"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -123,7 +127,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                         {(Object.entries(BOOTCAMP_OPTIONS) as [BootcampType, typeof BOOTCAMP_OPTIONS[BootcampType]][]).map(([key, option]) => (
                             <div
                                 key={key}
-                                onClick={() => setSelectedType(key)}
+                                {...pressable(() => setSelectedType(key), { pressed: selectedType === key })}
                                 className={`
                                     p-4 rounded-xl border cursor-pointer transition-all group relative overflow-hidden
                                     ${selectedType === key

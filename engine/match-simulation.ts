@@ -1,4 +1,4 @@
-import { managedLoadout } from "./match/manager-controls"
+import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type LegacyDecisionPolicy } from "./match/legacy-series"
 /**
  * Phase 4 Simulation Engine
  * Deterministic, inspectable match simulation for the tactical FPS engine
@@ -14,8 +14,7 @@ import { managedLoadout } from "./match/manager-controls"
 import { resolveCanonicalSeriesMaps } from '@/lib/live-match-utils'
 import { LEGACY_MATCH_ENGINE } from './match/live-checkpoint'
 import { SeededRNG, createMatchRNG } from "./rng"
-import { EconomyManager, WEAPONS, Weapon, WeaponType as EconomyWeaponType } from "./economy-manager"
-import { TeamSaveData } from "./index"
+import { WEAPONS } from "./economy-manager"
 import {
     Player,
     Team,
@@ -26,7 +25,6 @@ import {
     MapVeto,
     PlayerMatchStats,
     MapId,
-    MatchFormat,
     PlayerRole,
     Coach,
     Analyst,
@@ -37,18 +35,14 @@ import {
 } from "@/types"
 import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
 import { perfTrace } from "./perf-trace"
-import { MATCH_BALANCE, MATCH_STRUCTURE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK } from "@/lib/constants"
+import { MATCH_BALANCE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK, UTIL_POWER_CAP } from "@/lib/constants"
 import { logger } from "@/lib/logger"
 import {
     calculateMapStrengths as calculateMapStrengthsFn,
     selectMapForVeto as selectMapForVetoFn,
     simulateMapVeto as simulateMapVetoFn,
 } from "./match/map-veto"
-import {
-    determineMapMVP as determineMapMVPFn,
-    generateMatchStats as generateMatchStatsFn,
-    determineMVP as determineMVPFn,
-} from "./match/match-stats"
+import { generateMatchStats as generateMatchStatsFn } from "./match/match-stats"
 import {
     determineWinType as determineWinTypeFn,
     generateRoundStats as generateRoundStatsFn,
@@ -110,7 +104,7 @@ const PLAYSTYLE_COUNTER_PENALTY = MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY
  * Calculate playstyle counter modifier
  * @returns Multiplier (1.0 = neutral, >1 = advantage, <1 = disadvantage)
  */
-function calculatePlaystyleCounterMod(myStyle: PlaystyleType, opponentStyle: PlaystyleType): number {
+export function calculatePlaystyleCounterMod(myStyle: PlaystyleType, opponentStyle: PlaystyleType): number {
     // Default style is neutral
     if (!myStyle || myStyle === "default" || !opponentStyle || opponentStyle === "default") {
         return 1.0
@@ -139,8 +133,9 @@ function calculatePlaystyleCounterMod(myStyle: PlaystyleType, opponentStyle: Pla
 const UTIL_POWER = UTIL_POWER_MAP
 const UTIL_POWER_DEFAULT = UTIL_POWER_FALLBACK
 
-function getUtilPower(util: string[] = []): number {
-    return (util || []).reduce((sum, u) => sum + (UTIL_POWER[u] ?? UTIL_POWER_DEFAULT), 0)
+export function getUtilPower(util: string[] = []): number {
+    const raw = (util || []).reduce((sum, u) => sum + (UTIL_POWER[u] ?? UTIL_POWER_DEFAULT), 0)
+    return UTIL_POWER_CAP * (1 - Math.exp(-raw / UTIL_POWER_CAP))
 }
 
 // ===== SIMULATION ENGINE =====
@@ -151,7 +146,13 @@ type PlayerSimulationState = RoundPlayerSimulationState
 
 export class SimulationEngineV2 {
     /**
-     * Simulate a complete match with deterministic replay
+     * Simulate a complete match with deterministic replay.
+     *
+     * Delegates to the canonical legacy series runner shared with live
+     * playback (engine/match/legacy-series.ts), so instant, live, skip and
+     * resumed paths agree for the same seed and decisions. `options.policy`
+     * lets a pre-match plan or a recorded live decision log drive the managed
+     * team's buy calls and timeouts.
      */
     simulateMatch(
         match: Match,
@@ -164,141 +165,92 @@ export class SimulationEngineV2 {
         forcedMaps?: MapId[],
         customTactics?: CustomTactics,
         managedTeamId?: string,
+        options?: { policy?: LegacyDecisionPolicy },
     ): MatchResult {
       const __perfT0 = perfTrace.enabled ? perfTrace.now() : 0
       try {
+        const ctx = this.createSeriesContext(match, homeTeam, awayTeam, homePlayers, awayPlayers, homeStaff, awayStaff, forcedMaps, customTactics, managedTeamId)
+        const run = runLegacySeries(ctx, options?.policy)
+        const result = finalizeLegacySeries(ctx, run.state)
+        if (perfTrace.enabled) {
+            perfTrace.record("simulateMatch", __perfT0, {
+                matchId: match.id,
+                format: match.format,
+                maps: result.maps.length,
+            })
+        }
+        return result
+      } catch (error) {
+        logger.error('[SimulationEngineV2] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
+        throw error
+      }
+    }
+
+    /**
+     * Build the fixed per-series context: starters, staff, map order and
+     * base strengths (team strength x playstyle counter). Map order: forced
+     * maps, else the saved veto (canonicalised), else an engine veto from
+     * the match seed.
+     */
+    public createSeriesContext(
+        match: Match,
+        homeTeam: Team,
+        awayTeam: Team,
+        homePlayers: Player[],
+        awayPlayers: Player[],
+        homeStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+        awayStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
+        forcedMaps?: MapId[],
+        customTactics?: CustomTactics,
+        managedTeamId?: string,
+    ): LegacySeriesContext {
         if (match.engineVersion && match.engineVersion !== LEGACY_MATCH_ENGINE) throw Error('Unsupported match engine')
         const matchSeed = (typeof match.seed === 'number' && Number.isFinite(match.seed) && match.seed >= 0)
             ? Math.floor(match.seed) : 12345
-        const rng = createMatchRNG(matchSeed)
-
-        // Enforce 5-man rosters (Active Squad)
-        // If more than 5, take the first 5 (assumed to be active lineup by caller)
         const activeHomePlayers = homePlayers.slice(0, 5)
         const activeAwayPlayers = awayPlayers.slice(0, 5)
-
-        // Use provided staff or fallback to lookup
+        if (!activeHomePlayers.length || !activeAwayPlayers.length) throw Error('Both teams need players')
         const hStaff = homeStaff || this.getTeamStaff(homeTeam)
         const aStaff = awayStaff || this.getTeamStaff(awayTeam)
+        const homeMapStrengths = this.calculateMapStrengths(activeHomePlayers)
+        const awayMapStrengths = this.calculateMapStrengths(activeAwayPlayers)
 
-        // Cache map strengths once (used by veto and map simulation)
-        const cachedHomeMapStrengths = this.calculateMapStrengths(activeHomePlayers)
-        const cachedAwayMapStrengths = this.calculateMapStrengths(activeAwayPlayers)
-
-        // Perform map veto
-        let maps: MapId[] = []
-
+        let maps: MapId[]
         if (forcedMaps && forcedMaps.length > 0) {
             maps = forcedMaps
         } else if (match.maps?.length) {
             if (match.maps.some(m => !Object.values(MapId).includes(m))) throw Error('Saved veto contains an invalid map')
             maps = resolveCanonicalSeriesMaps({ format: match.format, seed: matchSeed, savedMaps: match.maps })
         } else {
-            const vetoResult = this.simulateMapVeto(
-                rng,
-                homeTeam.id,
-                awayTeam.id,
-                activeHomePlayers,
-                activeAwayPlayers,
-                hStaff.analyst,
-                aStaff.analyst,
-                cachedHomeMapStrengths,
-                cachedAwayMapStrengths,
-                match.format,
-            )
-            maps = vetoResult.maps
+            maps = this.simulateMapVeto(createMatchRNG(matchSeed), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
+                hStaff.analyst, aStaff.analyst, homeMapStrengths, awayMapStrengths, match.format).maps
         }
 
-        // Simulate maps
-        const mapResults: MapResult[] = []
-        let homeScore = 0
-        let awayScore = 0
-        const mapsToWin = match.format === MatchFormat.BO1 ? 1 :
-            match.format === MatchFormat.BO3 ? 2 : 3
-
-        // Bug fix: mentalPrep was always applied to the home team, but the
-        // player can be either side. `mentalPrepTeamId` tells the simulator
-        // which side paid for it; legacy saves without that field fall back
-        // to home (the prior behaviour).
-        const homeMentalPrep = !!match.mentalPrep && (
-            !match.mentalPrepTeamId || match.mentalPrepTeamId === homeTeam.id
-        )
+        // mentalPrep belongs to the side that paid (legacy saves: home).
+        const homeMentalPrep = !!match.mentalPrep && (!match.mentalPrepTeamId || match.mentalPrepTeamId === homeTeam.id)
         const awayMentalPrep = !!match.mentalPrep && match.mentalPrepTeamId === awayTeam.id
+        const stress = (players: Player[]) => players.length > 0 ? players.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / players.length : 50
 
-        for (let i = 0; i < maps.length && homeScore < mapsToWin && awayScore < mapsToWin; i++) {
-            const mapResult = this.simulateMap(
-                rng,
-                maps[i],
-                homeTeam,
-                awayTeam,
-                activeHomePlayers,
-                activeAwayPlayers,
-                hStaff,
-                aStaff,
-                !!match.isHighPressure,
-                customTactics,
-                matchSeed,
-                i, // mapIndex
-                match.stage, // matchStage
-                homeMentalPrep,
-                awayMentalPrep,
-                cachedHomeMapStrengths,
-                cachedAwayMapStrengths,
-                match.mapStartingSides?.[maps[i]],
-                managedTeamId ?? homeTeam.id,
-            )
-
-            mapResults.push(mapResult)
-
-            if (mapResult.finalScore.team1 > mapResult.finalScore.team2) {
-                homeScore++
-            } else if (mapResult.finalScore.team2 > mapResult.finalScore.team1) {
-                awayScore++
-            } else {
-                // A drawn map should be impossible — overtime always resolves
-                // a tie — but the round-cap safety break can exit with an
-                // equal score. Resolve with a seeded coin-flip so the result
-                // stays deterministic and the map is never silently handed to
-                // the away team by an `else` fall-through.
-                if (rng.bool(0.5)) homeScore++
-                else awayScore++
-            }
-        }
-
-        // Generate player stats
-        const playerStats = this.generateMatchStats(
-            rng,
-            activeHomePlayers,
-            activeAwayPlayers,
-            mapResults,
-            homeScore > awayScore
-        )
-
-        // Determine MVP
-        const winningPlayers = homeScore > awayScore ? activeHomePlayers : activeAwayPlayers
-        const mvpPlayerId = this.determineMVP(playerStats, winningPlayers)
-
-        if (perfTrace.enabled) {
-            perfTrace.record("simulateMatch", __perfT0, {
-                matchId: match.id,
-                format: match.format,
-                maps: mapResults.length,
-            })
-        }
         return {
-            engineVersion: LEGACY_MATCH_ENGINE,
-            lineups: { [homeTeam.id]: activeHomePlayers.map(p => p.id), [awayTeam.id]: activeAwayPlayers.map(p => p.id) },
-            homeScore,
-            awayScore,
-            maps: mapResults,
-            mvpPlayerId,
-            playerStats,
-            winnerId: homeScore > awayScore ? homeTeam.id : awayTeam.id
+            engine: this,
+            seed: matchSeed,
+            format: match.format,
+            maps,
+            mapStartingSides: match.mapStartingSides,
+            home: {
+                team: homeTeam, players: activeHomePlayers, staff: hStaff, mapStrengths: homeMapStrengths, stressRes: stress(activeHomePlayers),
+                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep) * calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle),
+            },
+            away: {
+                team: awayTeam, players: activeAwayPlayers, staff: aStaff, mapStrengths: awayMapStrengths, stressRes: stress(activeAwayPlayers),
+                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep) * calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle),
+            },
+            isHighPressure: !!match.isHighPressure,
+            matchStage: match.stage,
+            managedTeamId: managedTeamId ?? homeTeam.id,
+            customTactics,
+            playerMap: new Map(activeHomePlayers.concat(activeAwayPlayers).map(p => [p.id, p])),
         }
-      } catch (error) {
-        logger.error('[SimulationEngineV2] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })
-        throw error
-      }
     }
 
     /**
@@ -340,404 +292,6 @@ export class SimulationEngineV2 {
         analystLevel: number
     ): MapId {
         return selectMapForVetoFn(rng, availableMaps, targetStrengths, action, analystLevel)
-    }
-
-    /**
-     * Simulate a single map
-     */
-    private simulateMap(
-        rng: SeededRNG,
-        map: MapId,
-        homeTeam: Team,
-        awayTeam: Team,
-        homePlayers: Player[],
-        awayPlayers: Player[],
-        homeStaff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist } = {},
-        awayStaff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist } = {},
-        isHighPressure: boolean = false,
-        customTactics?: CustomTactics,
-        matchSeed: number = 0,
-        mapIndex: number = 0,
-        matchStage?: string,
-        homeMentalPrep?: boolean,
-        awayMentalPrep?: boolean,
-        cachedHomeMapStrengths?: Map<MapId, number>,
-        cachedAwayMapStrengths?: Map<MapId, number>,
-        startingCTTeamId?: string,
-        managedTeamId?: string,
-    ): MapResult {
-        const rounds: RoundResult[] = []
-        let homeRounds = 0
-        let awayRounds = 0
-
-        // Determine starting sides (knife round)
-        const rolledHomeStartsCT = rng.bool()
-        const homeStartsCT = startingCTTeamId === homeTeam.id ? true : startingCTTeamId === awayTeam.id ? false : rolledHomeStartsCT
-        let currentCTTeam = homeStartsCT ? homeTeam.id : awayTeam.id
-        let currentTTeam = homeStartsCT ? awayTeam.id : homeTeam.id
-
-        // Calculate base team strengths
-        const homeBaseStrength = this.calculateTeamStrength(homeTeam, homePlayers, homeStaff, homeMentalPrep)
-        const awayBaseStrength = this.calculateTeamStrength(awayTeam, awayPlayers, awayStaff, awayMentalPrep)
-
-        // Apply playstyle counter modifiers (rock-paper-scissors tactical system)
-        const homePlaystyleMod = calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle)
-        const awayPlaystyleMod = calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle)
-        const homeStrength = homeBaseStrength * homePlaystyleMod
-        const awayStrength = awayBaseStrength * awayPlaystyleMod
-
-        // Map-specific adjustments (use cached strengths to avoid recalculation)
-        const homeMapStr = cachedHomeMapStrengths || this.calculateMapStrengths(homePlayers)
-        const awayMapStr = cachedAwayMapStrengths || this.calculateMapStrengths(awayPlayers)
-        const mapStrengths = {
-            home: homeMapStr.get(map) || 50,
-            away: awayMapStr.get(map) || 50,
-        }
-
-        // Initialize economy
-        const homeEconomy: Record<string, PlayerSimulationState> = {}
-        const awayEconomy: Record<string, PlayerSimulationState> = {}
-        homePlayers.forEach(p => homeEconomy[p.id] = { id: p.id, cash: 800, weapon: homeStartsCT ? "usp" : "glock", hasArmor: false, hasHelmet: false, hasKit: false, utility: [] })
-        awayPlayers.forEach(p => awayEconomy[p.id] = { id: p.id, cash: 800, weapon: homeStartsCT ? "glock" : "usp", hasArmor: false, hasHelmet: false, hasKit: false, utility: [] })
-
-        // Momentum trackers
-        let homeWinStreak = 0
-        let awayWinStreak = 0
-        let homeLossStreak = 0
-        let awayLossStreak = 0
-        // Match constants - MR12 Format
-        const REGULATION_MAX_ROUNDS = MATCH_STRUCTURE.REGULATION_ROUNDS
-        const OT_HALF_ROUNDS = MATCH_STRUCTURE.OT_ROUNDS_PER_HALF
-        const OT_TOTAL_ROUNDS = OT_HALF_ROUNDS * 2
-
-        let roundNum = 0
-        let currentOTSet = 0
-        let isOvertime = false
-
-        // Momentum Tracking (0-100 Impact)
-        let homeMomentumScore = 0
-        let awayMomentumScore = 0
-
-        // Pre-built lookup set for O(1) home-player checks in the round loop
-        const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
-
-        // Pre-built player map for O(1) lookups in calculateEquipPower
-        const playerMap = new Map(homePlayers.concat(awayPlayers).map(p => [p.id, p]))
-
-        // Cache stress resistance averages (used every round when isHighPressure)
-        const homeStressRes = homePlayers.length > 0 ? homePlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / homePlayers.length : 50
-        const awayStressRes = awayPlayers.length > 0 ? awayPlayers.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / awayPlayers.length : 50
-
-        // Loop until a team reaches a win condition
-        while (true) {
-            roundNum++
-            // Safety guard: prevent infinite loops in edge cases
-            if (roundNum > 100) break
-
-            // Deterministic Round RNG
-            // Seed = MatchSeed + (MapIndex * 1000) + RoundNum
-            const roundSeed = matchSeed + (mapIndex * 1000) + roundNum
-            const roundRng = createMatchRNG(roundSeed)
-
-            // Check for Regulation Win (MR12)
-            if (!isOvertime) {
-                if (homeRounds >= 13) break
-                if (awayRounds >= 13) break
-
-                // Regulation finished 12-12
-                if (homeRounds === 12 && awayRounds === 12) {
-                    isOvertime = true
-                    currentOTSet = 1
-                }
-            } else {
-                // Overtime Win (OT MR3)
-                const targetScore = 12 + (3 * (currentOTSet - 1)) + 4
-
-                if (homeRounds >= targetScore) break
-                if (awayRounds >= targetScore) break
-
-                // Check for tie at end of set
-                const endOfSetRound = 24 + (currentOTSet * 6)
-                if (roundNum > endOfSetRound) {
-                    currentOTSet++
-                    // Cap at 3 OT sets, then sudden death
-                    if (currentOTSet > 3) {
-                        if (homeRounds !== awayRounds) {
-                            // Whoever is ahead wins
-                            break
-                        }
-                        // If still tied, force a winner via coin flip
-                        const totalStr = homeStrength + awayStrength
-                        if (rng.bool(totalStr > 0 ? homeStrength / totalStr : 0.5)) homeRounds++
-                        else awayRounds++
-                        break
-                    }
-                }
-            }
-
-            // Determine Sides
-            let homeIsCT: boolean
-            if (!isOvertime) {
-                // Regulation: swap at 12
-                homeIsCT = roundNum <= REGULATION_MAX_ROUNDS / 2 ? homeStartsCT : !homeStartsCT
-
-                // HALF-TIME RESET (Round 13) - the simulator resets economy and equipment at half-time
-                if (roundNum === REGULATION_MAX_ROUNDS / 2 + 1) {
-                    [currentCTTeam, currentTTeam] = [currentTTeam, currentCTTeam]
-
-                    // Reset economy to $800 for all players (pistol round economy)
-                    Object.values(homeEconomy).forEach(p => {
-                        p.cash = 800
-                        p.weapon = homeIsCT ? "usp" : "glock"
-                        p.hasArmor = false
-                        p.hasHelmet = false
-                        p.hasKit = false
-                        p.utility = []
-                    })
-                    Object.values(awayEconomy).forEach(p => {
-                        p.cash = 800
-                        p.weapon = !homeIsCT ? "usp" : "glock"
-                        p.hasArmor = false
-                        p.hasHelmet = false
-                        p.hasKit = false
-                        p.utility = []
-                    })
-
-                    // Reset win/loss streaks for fresh second half
-                    homeWinStreak = 0
-                    awayWinStreak = 0
-                    homeLossStreak = 0
-                    awayLossStreak = 0
-                }
-            } else {
-                // Overtime: 3 rounds per side
-                const otRoundInSet = (roundNum - REGULATION_MAX_ROUNDS - 1) % OT_TOTAL_ROUNDS
-                const otHalf = Math.floor(otRoundInSet / OT_HALF_ROUNDS)
-
-                homeIsCT = otHalf === 0 ? homeStartsCT : !homeStartsCT
-
-                // Update currentCTTeam/currentTTeam for the round based on homeIsCT
-                if (homeIsCT) {
-                    currentCTTeam = homeTeam.id
-                    currentTTeam = awayTeam.id
-                } else {
-                    currentCTTeam = awayTeam.id
-                    currentTTeam = homeTeam.id
-                }
-            }
-
-            // 1. Determine Buying Strategy
-            // OT Money Reset Logic: Reset to 10k at start of OT and Half-Time of OT
-            const isOTStart = roundNum === 25 || (isOvertime && (roundNum - 24 - 1) % 6 === 0)
-            const isOTHalf = isOvertime && (roundNum - 24 - 1) % 3 === 0 && (roundNum - 24 - 1) % 6 !== 0
-
-            // Standard ruleset: Reset at start of OT (Round 25) and Half (Round 28)
-            if (isOTStart || isOTHalf) {
-                Object.values(homeEconomy).forEach(p => p.cash = 10000) // OT money is 10k usually
-                Object.values(awayEconomy).forEach(p => p.cash = 10000)
-            }
-
-            const homeAvgCash = Object.values(homeEconomy).reduce((s, p) => s + p.cash, 0) / 5
-            const awayAvgCash = Object.values(awayEconomy).reduce((s, p) => s + p.cash, 0) / 5
-
-            // In OT, strategy is always FULL
-            const homeStrategy = isOvertime ? "FULL" : EconomyManager.getTeamStrategy(homeAvgCash, homeTeam.economyStyle)
-            const awayStrategy = isOvertime ? "FULL" : EconomyManager.getTeamStrategy(awayAvgCash, awayTeam.economyStyle)
-
-            // 2. Perform Buys (Use unified method with RoundRNG)
-            // Snapshot pre-buy cash so we can compute actual spend
-            const preBuyCash: Record<string, number> = {}
-            homePlayers.forEach(p => preBuyCash[p.id] = homeEconomy[p.id].cash)
-            awayPlayers.forEach(p => preBuyCash[p.id] = awayEconomy[p.id].cash)
-
-            this.performBuyPhase(homePlayers, homeEconomy, homeStrategy, homeIsCT, roundRng, managedLoadout(customTactics, homeTeam.id, managedTeamId))
-            this.performBuyPhase(awayPlayers, awayEconomy, awayStrategy, !homeIsCT, roundRng, managedLoadout(customTactics, awayTeam.id, managedTeamId))
-
-            // Calculate round win probability
-            const roundResult = this.simulateRound(
-                roundRng,
-                homePlayers,
-                awayPlayers,
-                homeStrength,
-                awayStrength,
-                mapStrengths.home,
-                mapStrengths.away,
-                homeIsCT,
-                homeWinStreak,
-                awayWinStreak,
-                homeLossStreak,
-                awayLossStreak,
-                roundNum,
-                homeEconomy,
-                awayEconomy,
-                homeStrategy,
-                awayStrategy,
-                isHighPressure,
-                homeTeam,
-                awayTeam,
-                currentCTTeam,
-                currentTTeam,
-                customTactics,
-                homeMomentumScore,
-                awayMomentumScore,
-                homeStaff,
-                awayStaff,
-                map,
-                matchStage,
-                homeStressRes,
-                awayStressRes,
-                playerMap
-            )
-
-            // Update Momentum
-            const winnerId = roundResult.winner === "HOME" ? homeTeam.id : awayTeam.id
-            const isHomeWin = roundResult.winner === "HOME"
-            const winningStrategy = isHomeWin ? homeStrategy : awayStrategy
-
-            // Base: Reset loser, Increment winner
-            if (isHomeWin) {
-                awayMomentumScore = 0
-                homeMomentumScore += 1
-                if (winningStrategy === "ECO") homeMomentumScore += 3 // Eco Win Bonus
-            } else {
-                homeMomentumScore = 0
-                awayMomentumScore += 1
-                if (winningStrategy === "ECO") awayMomentumScore += 3
-            }
-
-            // Clutch Bonus
-            const clutchEvent = roundResult.events?.find(e => e.type === "CLUTCH")
-            if (clutchEvent) {
-                if (isHomeWin) homeMomentumScore += 2
-                else awayMomentumScore += 2
-            }
-
-            // Cap Momentum
-            homeMomentumScore = Math.min(homeMomentumScore, 10)
-            awayMomentumScore = Math.min(awayMomentumScore, 10)
-
-            // Update scores and streaks
-            if (roundResult.winner === "HOME") {
-                homeRounds++
-                homeWinStreak++
-                awayWinStreak = 0
-                homeLossStreak = 0
-                awayLossStreak++
-
-                // Immediate break for MR12
-                if (!isOvertime && homeRounds >= 13) break
-            } else {
-                awayRounds++
-                awayWinStreak++
-                homeWinStreak = 0
-                awayLossStreak = 0
-                homeLossStreak++
-
-                // Immediate break for MR12
-                if (!isOvertime && awayRounds >= 13) break
-            }
-
-            rounds.push({
-                roundNumber: roundNum,
-                winner: roundResult.winner === "HOME" ? (currentCTTeam === homeTeam.id ? "ct" : "t") : (currentCTTeam === awayTeam.id ? "ct" : "t"),
-                winningTeamId: roundResult.winner === "HOME" ? homeTeam.id : awayTeam.id,
-                winType: roundResult.winType,
-                ctTeam: currentCTTeam,
-                tTeam: currentTTeam,
-                kills: roundResult.kills,
-                deaths: roundResult.deaths,
-                playerEconomy: [
-                    ...homePlayers.map(p => ({
-                        playerId: p.id,
-                        spent: (preBuyCash[p.id] || 0) - homeEconomy[p.id].cash,
-                        remaining: homeEconomy[p.id].cash,
-                        weapon: homeEconomy[p.id].weapon,
-                        hasArmor: homeEconomy[p.id].hasArmor,
-                        hasHelmet: homeEconomy[p.id].hasHelmet,
-                        hasKit: homeEconomy[p.id].hasKit
-                    })),
-                    ...awayPlayers.map(p => ({
-                        playerId: p.id,
-                        spent: (preBuyCash[p.id] || 0) - awayEconomy[p.id].cash,
-                        remaining: awayEconomy[p.id].cash,
-                        weapon: awayEconomy[p.id].weapon,
-                        hasArmor: awayEconomy[p.id].hasArmor,
-                        hasHelmet: awayEconomy[p.id].hasHelmet,
-                        hasKit: awayEconomy[p.id].hasKit
-                    }))
-                ],
-                events: roundResult.events
-            })
-
-            // 3. Round End Financials
-            const homeWonRound = roundResult.winner === "HOME"
-            const winType = roundResult.winType
-            // Loss streaks are already incremented (lines 616/626), so subtract 1 to get
-            // the correct 0-indexed loss bonus (first loss = streak 1, getLossBonus(0) = $1900)
-            const homeBonus = homeWonRound ? EconomyManager.getWinBonus(winType) : EconomyManager.getLossBonus(homeLossStreak - 1)
-            const awayBonus = !homeWonRound ? EconomyManager.getWinBonus(winType) : EconomyManager.getLossBonus(awayLossStreak - 1)
-
-            // Kill Rewards
-            roundResult.kills.forEach(k => {
-                const isHome = homePlayerIdSet.has(k.playerId)
-                const economy = isHome ? homeEconomy : awayEconomy
-                const state = economy[k.playerId]
-                const weapon = WEAPONS[state.weapon.toUpperCase()] || WEAPONS.AK47
-                state.cash = Math.min(EconomyManager.MAX_CASH, state.cash + (weapon.killReward * k.kills))
-
-                // CT Team Bonus (July 2025 Meta)
-                if ((isHome && homeIsCT) || (!isHome && !homeIsCT)) {
-                    Object.values(economy).forEach(p => {
-                        p.cash = Math.min(EconomyManager.MAX_CASH, p.cash + (EconomyManager.getCTTeamKillBonus() * k.kills))
-                    })
-                }
-            })
-
-            // T Plant Loss Bonus - T-side gets $800 if bomb was planted but they lost (defused)
-            // This happens when winType is BOMB_DEFUSE (CT won after plant)
-            if (winType === "BOMB_DEFUSE") {
-                const tEconomy = homeIsCT ? awayEconomy : homeEconomy
-                // If CT won by defuse, T lost - give T the plant bonus
-                Object.values(tEconomy).forEach(p => {
-                    p.cash = Math.min(EconomyManager.MAX_CASH, p.cash + EconomyManager.getTPlantLossBonus())
-                })
-            }
-
-            // Distribute bonuses
-            homePlayers.forEach(p => homeEconomy[p.id].cash = Math.min(EconomyManager.MAX_CASH, homeEconomy[p.id].cash + homeBonus))
-            awayPlayers.forEach(p => awayEconomy[p.id].cash = Math.min(EconomyManager.MAX_CASH, awayEconomy[p.id].cash + awayBonus))
-
-            // Weapon Loss Logic (if dead, lose weapon)
-            roundResult.deaths.forEach(d => {
-                const isHome = homePlayerIdSet.has(d.playerId)
-                const state = isHome ? homeEconomy[d.playerId] : awayEconomy[d.playerId]
-                if (d.deaths > 0) {
-                    state.weapon = (isHome === homeIsCT) ? "usp" : "glock" // Reset to default based on side
-                    state.hasArmor = false
-                    state.hasHelmet = false
-                    state.hasKit = false
-                    state.utility = []
-                }
-            })
-        }
-
-        // Note: Overtime is handled by the MR12 OT system (12-12 trigger with MR3 rounds,
-        // economy resets, and side swaps). Dead MR15 code removed.
-
-        // Determine map MVP
-        const mvpPlayerId = this.determineMapMVP(rounds, homePlayers, awayPlayers)
-
-        return {
-            map,
-            ctStartTeamId: homeStartsCT ? homeTeam.id : awayTeam.id,
-            tStartTeamId: homeStartsCT ? awayTeam.id : homeTeam.id,
-            rounds,
-            finalScore: {
-                team1: homeRounds,
-                team2: awayRounds,
-            },
-            mvpPlayerId,
-        }
     }
 
     /**
@@ -1042,20 +596,8 @@ export class SimulationEngineV2 {
     }
 
 
-    /**
-     * Determine MVP for a map based on kill performance
-     */
-    // Stats aggregation extracted to engine/match/match-stats.ts (Phase I2).
-    // Facades preserved — generateMatchStats is part of the public API
-    // used by external callers.
-    private determineMapMVP(
-        rounds: RoundResult[],
-        homePlayers: Player[],
-        awayPlayers: Player[]
-    ): string {
-        return determineMapMVPFn(rounds, homePlayers, awayPlayers)
-    }
-
+    // Stats aggregation lives in engine/match/match-stats.ts (Phase I2);
+    // generateMatchStats stays on the public API for external callers.
     public generateMatchStats(
         rng: SeededRNG,
         homePlayers: Player[],
@@ -1064,13 +606,6 @@ export class SimulationEngineV2 {
         homeWon: boolean
     ): Record<string, PlayerMatchStats> {
         return generateMatchStatsFn(rng, homePlayers, awayPlayers, mapResults, homeWon)
-    }
-
-    private determineMVP(
-        stats: Record<string, PlayerMatchStats>,
-        winningPlayers: Player[]
-    ): string {
-        return determineMVPFn(stats, winningPlayers)
     }
 
     /**

@@ -1,0 +1,107 @@
+{
+  "engine": "spatial-round-v14",
+  "mapId": "Mirage",
+  "fixtureSha256": "b3eeeabb2b0b21dd4c0197d3c82509ef8ad40160d5129a3e3449ef644a488939",
+  "simulatorSourceSha256": "ec609799584c0aabf880cf2f7687c8f79526147d2e4e53024a1380d2e3c0f47b",
+  "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+  "complete": true,
+  "scope": "0 combat and 4 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 57.25,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 81243,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 363,
+        "waits": 1177,
+        "replans": 71,
+        "minSeparation": 32.060494912736445
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "43d2f8c575515008178259570943194ee9ce072463e479594dd9e0447de3acd4"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": false,
+      "seconds": 60.5,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 64838,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 482,
+        "waits": 711,
+        "replans": 107,
+        "minSeparation": 32.01026459709778
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "1363d018704c60b866ce4c4002534210cf337b8b611376948862ff6b472b4fdd"
+    },
+    {
+      "seed": 4326180,
+      "objective": "A",
+      "guns": false,
+      "seconds": 57.25,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 77437,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 363,
+        "waits": 1177,
+        "replans": 71,
+        "minSeparation": 32.060494912736445
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 4,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "43d2f8c575515008178259570943194ee9ce072463e479594dd9e0447de3acd4"
+    },
+    {
+      "seed": 4326181,
+      "objective": "B",
+      "guns": false,
+      "seconds": 60.5,
+      "outcome": "CT",
+      "reason": "Uninterrupted defuse finished before the bomb deadline.",
+      "elapsedMs": 58491,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 482,
+        "waits": 711,
+        "replans": 107,
+        "minSeparation": 32.01026459709778
+      },
+      "plants": 1,
+      "defuses": 1,
+      "recoveries": 0,
+      "yields": 1,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "1363d018704c60b866ce4c4002534210cf337b8b611376948862ff6b472b4fdd"
+    }
+  ]
+}

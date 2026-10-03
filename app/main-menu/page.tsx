@@ -22,6 +22,7 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import Image from "next/image"
+import { pressable } from "@/lib/accessibility"
 
 // Phase 2: Use real metadata
 // interface EnhancedSaveSlot removed
@@ -308,7 +309,7 @@ export default function MainMenuPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 10 }}
                                                 transition={{ delay: idx * 0.03 }}
-                                                onClick={() => setSelectedSlot(slot.saveId || null)}
+                                                {...pressable(() => setSelectedSlot(slot.saveId || null), { pressed: selectedSlot === slot.saveId })}
                                                 className={`
                                                     group relative w-full p-5 rounded-md cursor-pointer transition-[background,border-color,box-shadow] duration-300 border mb-3 backdrop-blur-xs
                                                     ${selectedSlot === slot.saveId

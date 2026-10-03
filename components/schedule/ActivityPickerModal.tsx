@@ -3,6 +3,7 @@
 import React from "react"
 import { motion } from "framer-motion"
 import { X, Swords, Plane, Briefcase, Megaphone } from "lucide-react"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface ActivityPickerModalProps {
     isOpen: boolean
@@ -12,6 +13,8 @@ interface ActivityPickerModalProps {
 }
 
 export function ActivityPickerModal({ isOpen, onClose, week, onSelectType }: ActivityPickerModalProps) {
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     const handleSelect = (type: "SCRIM" | "BOOTCAMP" | "MEETING" | "MARKETING") => {
@@ -25,10 +28,11 @@ export function ActivityPickerModal({ isOpen, onClose, week, onSelectType }: Act
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-activity-picker"
-                className="glass-panel w-full max-w-lg p-6 shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 shadow-2xl border-white/10"
             >
                 <div className="flex justify-between items-center mb-6">
                     <div>

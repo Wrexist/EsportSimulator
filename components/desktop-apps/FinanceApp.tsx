@@ -188,7 +188,7 @@ function FinanceAppComponent() {
                                                 {t.type === "INCOME" ? "+" : "-"}${t.amount.toLocaleString()}
                                             </div>
                                             <div className="text-[10px] text-white/30 font-mono">
-                                                Balance: ${t.balance?.toLocaleString()}
+                                                Balance: {t.balance != null ? `$${t.balance.toLocaleString("en-US")}` : "—"}
                                             </div>
                                         </div>
                                     </motion.div>

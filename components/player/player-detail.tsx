@@ -58,6 +58,7 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import { RecruitmentProfile } from "./RecruitmentProfile"
+import { pressable } from "@/lib/accessibility"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -678,10 +679,10 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                 <div
                                                     key={weapon}
                                                     className="bg-black/20 p-4 rounded-xl border border-white/5 relative overflow-hidden group cursor-pointer hover:bg-white/5 transition-colors"
-                                                    onClick={() => {
+                                                    {...pressable(() => {
                                                         setSelectedWeaponForModal(weapon as WeaponType)
                                                         setWeaponModalOpen(true)
-                                                    }}
+                                                    })}
                                                 >
                                                     {/* Signature Glow */}
                                                     {isMaster && (

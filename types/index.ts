@@ -59,6 +59,7 @@ export type {
     RoundResult,
     MatchEvent,
     MatchResult,
+    MatchManagementRecord,
     Tournament,
     TeamStanding,
     BracketMatch,

@@ -53,6 +53,7 @@ import {
 import { getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { pressable } from "@/lib/accessibility"
 
 // Tab types
 type ViewTab = "ALL" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIERS" | "MY_TOURNAMENTS"
@@ -312,7 +313,7 @@ export default function TournamentsPage() {
                     isQualified && "border-emerald-500/30",
                     selectedTournament?.id === tournament.id && "ring-2 ring-primary"
                 )}
-                onClick={() => router.push(`/tournaments/${displayId}`)}
+                {...pressable(() => router.push(`/tournaments/${displayId}`), { label: `Open ${tournament.name}` })}
             >
                 {/* Premium Glow for S-Tier */}
                 {tournament.tier === "S_TIER" && (

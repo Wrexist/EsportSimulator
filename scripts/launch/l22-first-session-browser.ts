@@ -17,7 +17,7 @@ async function run() {
     useGameStore.getState().setWeeklyActivity(WeeklyActivityType.TRAINING_ONLY)
     await waitForPendingGameSave()
     await useGameStore.getState().loadGame(fixture.saveId)
-    assert(useGameStore.getState().firstSession?.reviewed.join(',') === 'squad,budget,plan', 'Guide progress lost at real store reload')
+    assert(useGameStore.getState().firstSession?.reviewed.join(',') === 'squad,budget,decision', 'Guide progress lost at real store reload')
     assert(useGameStore.getState().selectedWeeklyActivity === WeeklyActivityType.TRAINING_ONLY, 'Plan lost at reload')
     useGameStore.getState().completeTutorial(); await waitForPendingGameSave()
     await useGameStore.getState().loadGame(fixture.saveId)
@@ -38,9 +38,9 @@ async function run() {
     const matchId = useGameStore.getState().scheduledMatches.find(m => m.homeTeamId === fixture.playerTeamId || m.awayTeamId === fixture.playerTeamId)!.id
     await useGameStore.getState().simulateInstantMatch(matchId)
     assert(useGameStore.getState().completedMatches.some(m => m.id === matchId), 'First match not committed')
-    useGameStore.getState().reviewGuideStep('match'); await waitForPendingGameSave()
+    useGameStore.getState().syncFirstSession(); await waitForPendingGameSave()
     await useGameStore.getState().loadGame(fixture.saveId)
-    assert(useGameStore.getState().firstSession?.status === 'complete', 'Completion lost at reload')
+    assert(useGameStore.getState().firstSession?.reviewed.includes('match'), 'Played first match not recorded across reload')
     await debouncedStorage.flush()
     return { passed: true, fixtureId: fixture.saveId, legacyFixtureId: legacy.saveId, realStoreLoadSave: true, skipReload: true, replayWorldUnchanged: true, crossCareerIsolation: true,
         weeklyFocusReload: true, firstMatchId: matchId, firstResultSaved: true, finalGuide: useGameStore.getState().firstSession,

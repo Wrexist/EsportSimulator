@@ -23,6 +23,7 @@
 import type { SliceCreator } from "@/store/types"
 import { PLAYER_TALENT_TREE, STAFF_TALENT_TREES } from "@/engine/talent-trees"
 import { nextDeterministicId } from "@/store/utils/helpers"
+import { restoreFirstSession, reviewFirstSession } from "@/lib/first-session"
 
 const STAT_CLAMP_MAX = 100
 
@@ -34,7 +35,7 @@ export interface PlayerDevelopmentActions {
     updatePlayer: (playerId: string, updates: Record<string, any>) => void
 }
 
-export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions> = (set) => ({
+export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions> = (set, get) => ({
     unlockPlayerTalent: (playerId, talentId) => {
         // Look up the talent node before opening the set callback —
         // PLAYER_TALENT_TREE is a static module-level constant.
@@ -151,12 +152,22 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
     },
 
     setPlayerTrainingFocus: (playerId, focus) => {
+        let guideChanged = false
         set((state) => {
             const player = state.players.find(p => p.id === playerId)
             if (!player) return
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(player as any).trainingFocus = focus
+            // A training choice for one of your own players is a first-session decision.
+            const ownPlayer = state.teams.find(t => t.id === state.playerTeamId)?.rosterIds.includes(playerId)
+            if (ownPlayer && state.firstSession?.status === "active") {
+                const before = restoreFirstSession(state.firstSession)
+                const next = reviewFirstSession(before, "decision")
+                if (next !== before) { state.firstSession = next; guideChanged = true }
+                if (next.status === "complete") { state.onboardingCompleted = true; state.tutorialCompleted = true }
+            }
         })
+        if (guideChanged && get().isInitialized) void get().saveGame?.()
     },
 
     updatePlayer: (playerId, updates) => {

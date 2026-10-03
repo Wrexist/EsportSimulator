@@ -5,7 +5,7 @@
  * ARIA labels, keyboard navigation, and screen reader support
  */
 
-import { focusCycleTarget } from './focus-cycle'
+import { attachModalFocus } from './modal-focus'
 import { useEffect, useRef } from 'react'
 
 /**
@@ -57,49 +57,19 @@ export function useAnnounce() {
 }
 
 /**
- * Focus trap for modals
+ * Focus trap for modals. Attach the returned ref to the element carrying
+ * role="dialog" (give it tabIndex={-1}). See lib/modal-focus.ts for the
+ * contract. Pass `onEscape = undefined` while a destructive action is in
+ * progress to keep the dialog open on Escape.
  */
-const modalScopes: HTMLElement[] = []
-export function useFocusTrap(enabled: boolean, onEscape?: () => void) {
-    const ref = useRef<HTMLDivElement>(null)
+export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(enabled: boolean, onEscape?: () => void) {
+    const ref = useRef<T>(null)
     const escapeRef = useRef(onEscape)
     escapeRef.current = onEscape
     useEffect(() => {
         const root = ref.current
         if (!enabled || !root) return
-        const previous = document.activeElement as HTMLElement | null
-        modalScopes.push(root)
-        const isTop = () => modalScopes.at(-1) === root
-        const candidates = () => Array.from(root.querySelectorAll<HTMLElement>(
-            'a[href],button,input,textarea,select,[tabindex]'
-        )).filter(element => element.tabIndex >= 0 && !element.matches(':disabled,[aria-disabled="true"]') && !element.closest('[hidden],[inert]') && element.getClientRects().length > 0)
-        const focus = (element: HTMLElement) => element.focus({ preventScroll: true })
-        const keydown = (event: KeyboardEvent) => {
-            if (!isTop()) return
-            if (event.key === 'Escape' && escapeRef.current) {
-                event.preventDefault(); event.stopPropagation(); escapeRef.current(); return
-            }
-            if (event.key !== 'Tab') return
-            const elements = candidates()
-            const index = elements.indexOf(document.activeElement as HTMLElement)
-            const target = focusCycleTarget(elements.length, index, event.shiftKey)
-            if (target !== null) { event.preventDefault(); focus(target < 0 ? root : elements[target]) }
-        }
-        const focusin = (event: FocusEvent) => { if (isTop() && !root.contains(event.target as Node)) focus(root) }
-        document.addEventListener('keydown', keydown, true)
-        document.addEventListener('focusin', focusin)
-        // Start on the summary, never on a potentially irreversible primary action.
-        focus(root)
-        return () => {
-            const wasTop = isTop()
-            modalScopes.splice(modalScopes.indexOf(root), 1)
-            document.removeEventListener('keydown', keydown, true)
-            document.removeEventListener('focusin', focusin)
-            if (wasTop) {
-                const target = previous?.isConnected ? previous : modalScopes.at(-1) || document.getElementById('main-content')
-                if (target) focus(target)
-            }
-        }
+        return attachModalFocus(root, { getOnEscape: () => escapeRef.current })
     }, [enabled])
     return ref
 }
@@ -113,6 +83,36 @@ export function getAccessibleButtonProps(label: string, disabled = false) {
         'aria-disabled': disabled,
         role: 'button',
         tabIndex: disabled ? -1 : 0
+    }
+}
+
+/**
+ * Keyboard parity for a clickable non-button element (card, row, tile) that
+ * cannot become a <button> because it contains other interactive controls or
+ * block layout. Spread onto the element in place of `onClick`:
+ *
+ *   <div {...pressable(() => select(id), { pressed: isSelected })}>
+ *
+ * Enter/Space activate only when the element itself has focus, so keys on a
+ * nested button never double-fire the parent action.
+ */
+export function pressable(
+    onActivate: () => void,
+    options: { disabled?: boolean; pressed?: boolean; expanded?: boolean; label?: string } = {},
+) {
+    const { disabled = false, pressed, expanded, label } = options
+    return {
+        role: 'button' as const,
+        tabIndex: disabled ? -1 : 0,
+        'aria-disabled': disabled || undefined,
+        'aria-pressed': pressed,
+        'aria-expanded': expanded,
+        'aria-label': label,
+        onClick: () => { if (!disabled) onActivate() },
+        onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => {
+            if (event.target !== event.currentTarget || disabled) return
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onActivate() }
+        },
     }
 }
 

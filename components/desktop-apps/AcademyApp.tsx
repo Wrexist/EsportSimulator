@@ -42,6 +42,7 @@ import { toast } from "@/lib/toast"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
 import type { PlayerSaveData } from "@/engine/save-types"
+import { useFocusTrap } from "@/lib/accessibility"
 
 // ===== TYPES & CONSTANTS =====
 
@@ -119,6 +120,7 @@ export function AcademyApp() {
 
     // Release Confirmation State
     const [confirmingReleaseId, setConfirmingReleaseId] = useState<string | null>(null)
+    const releaseDialogRef = useFocusTrap(!!confirmingReleaseId, () => setConfirmingReleaseId(null))
     const RELEASE_FEE = 1000
 
     const prospectsWithData = useMemo(() =>
@@ -451,7 +453,11 @@ export function AcademyApp() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                            ref={releaseDialogRef} tabIndex={-1}
+                            role="alertdialog"
+                            aria-modal="true"
+                            aria-labelledby="modal-title-release-prospect"
+                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full max-h-[calc(100dvh-6rem)] overflow-y-auto shadow-2xl relative"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r/srgb from-red-500/0 via-red-500/50 to-red-500/0" />
 
@@ -459,7 +465,7 @@ export function AcademyApp() {
                                 <X size={28} className="text-red-400" />
                             </div>
 
-                            <h3 className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
+                            <h3 id="modal-title-release-prospect" className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
                             <p className="text-xs text-white/50 text-center mb-6 leading-relaxed">
                                 Are you sure you want to release this talent?
                                 A termination fee of <span className="text-red-400 font-bold">${RELEASE_FEE.toLocaleString()}</span> will be deducted from your budget.
@@ -956,7 +962,7 @@ function MatchesTab({ academyLevel, matchHistory, budget, showMatchFlow, matchRe
             {/* ... overlay remains same ... */}
             <AnimatePresence>
                 {showMatchFlow && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center" role="status" aria-live="polite">
                         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center">
                             {!matchResult ? (
                                 <><Gamepad2 size={56} className="mx-auto mb-3 text-cyan-400 animate-pulse" /><div className="text-xl font-bold">Match in Progress...</div></>

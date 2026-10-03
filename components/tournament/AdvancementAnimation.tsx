@@ -7,6 +7,7 @@ import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface AdvancementAnimationProps {
     show: boolean
@@ -30,6 +31,8 @@ export function AdvancementAnimation({
     onComplete
 }: AdvancementAnimationProps) {
     const [phase, setPhase] = useState<"idle" | "intro" | "transition" | "reveal" | "celebrate">("idle")
+    // Keyboard parity with click-to-dismiss: Escape (via the trap) and Enter/Space skip.
+    const dialogRef = useFocusTrap(!!show, onComplete)
 
     // Keep the latest onComplete in a ref so it doesn't have to be an effect
     // dependency. The caller passes an inline arrow (fresh identity each render),
@@ -109,7 +112,16 @@ export function AdvancementAnimation({
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/60 backdrop-blur-xs cursor-pointer"
                     onClick={onComplete}
+                    ref={dialogRef} tabIndex={-1}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={isChampionship ? `${teamName} are champions` : `${teamName} advance${toStage ? ` to ${toStage}` : ""}`}
+                    aria-describedby="advancement-skip-hint"
+                    onKeyDown={event => {
+                        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onComplete?.() }
+                    }}
                 >
+                    <span id="advancement-skip-hint" className="sr-only">Press Enter or Escape to continue.</span>
                     {/* Animated Background */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         {/* Primary glow */}

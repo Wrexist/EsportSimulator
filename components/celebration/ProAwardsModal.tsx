@@ -11,6 +11,7 @@ import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { AnnualAwards, Top20Player } from "@/engine/pro-awards-engine"
 import { panelTransition } from "@/lib/motion"
+import { useFocusTrap, pressable } from "@/lib/accessibility"
 
 interface ProAwardsModalProps {
     isOpen: boolean
@@ -22,6 +23,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
     const [revealedCount, setRevealedCount] = useState(0)
     const [isRevealing, setIsRevealing] = useState(false)
     const [selectedPlayer, setSelectedPlayer] = useState<Top20Player | null>(null)
+    const dialogRef = useFocusTrap(isOpen && !!awards, onClose)
 
     // Reset reveal state when modal opens
     useEffect(() => {
@@ -89,7 +91,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                         exit="exit"
                         className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-modal flex items-center justify-center"
                     >
-                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
+                        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
 
                             {/* Header */}
                             <div className="p-6 bg-white/[0.035] border-b border-white/10 relative overflow-hidden shrink-0">
@@ -144,7 +146,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.03 }}
-                                                onClick={() => setSelectedPlayer(player)}
+                                                {...pressable(() => setSelectedPlayer(player), { pressed: selectedPlayer?.playerId === player.playerId })}
                                                 className={cn(
                                                     "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-[background-color,box-shadow] duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.99] active:duration-0",
                                                     selectedPlayer?.playerId === player.playerId

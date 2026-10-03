@@ -92,6 +92,7 @@ const STARTUP_SOUND_DELAY_MS = 500
 const AUTO_OPEN_MAIL_DELAY_MS = 1500
 
 import { Suspense } from "react"
+import { formatCurrency } from "@/lib/utils-extended"
 
 
 function DesktopContent() {
@@ -470,15 +471,15 @@ function DesktopContent() {
         if (data.fatigue) return `${pName} is exhausted (${data.fatigue}). Risk of injury.`
         return `${pName} injured (${data.severity || "Unknown"}). Out for ${data.weeksOut || "?"} weeks.`
       case "FINANCE": return data.description || "Weekly report ready."
-      case "win_streak": return `${data.streak} match win streak! Team is hyped.`
-      case "loss_streak": return `${data.streak} match loss streak. Morale dropping.`
+      case "win_streak": return data.streak != null ? `${data.streak} match win streak! Team is hyped.` : "Win streak! Team is hyped."
+      case "loss_streak": return data.streak != null ? `${data.streak} match loss streak. Morale dropping.` : "Losing streak. Morale dropping."
       case "TRANSFER_OFFER": return data.teamName && data.offerAmount != null ? `${data.teamName} has offered $${data.offerAmount.toLocaleString()} for ${pName}.` : data.message || `Transfer offer for ${pName}.`
       case "TRANSFER_WINDOW": return data.message || "Transfer window activities update."
-      case "ROSTER_UPDATE": return data.message || `Roster changes for ${data.teamName}.`
+      case "ROSTER_UPDATE": return data.message || (data.teamName ? `Roster changes for ${data.teamName}.` : "Roster changes announced.")
       case "AI_SIGNING": return `${data.teamName || "A team"} has signed ${data.playerName || "a player"} from the free agent pool.`
-      case "AI_TRANSFER": return `${data.toTeamName} acquires ${data.playerName} from ${data.fromTeamName} for $${data.fee?.toLocaleString()}.`
+      case "AI_TRANSFER": return `${data.toTeamName || "A team"} acquires ${data.playerName || "a player"}${data.fromTeamName ? ` from ${data.fromTeamName}` : ""}${data.fee != null ? ` for ${formatCurrency(data.fee, "$", false)}` : " for an undisclosed fee"}.`
       case "RETIREMENT": return `${pName} has announced their retirement.`
-      case "JOB_OFFER": return `${data.offeringTeamName} wants you! $${data.salaryOffer?.toLocaleString()}/week.`
+      case "JOB_OFFER": return `${data.offeringTeamName || "A club"} wants you!${data.salaryOffer != null ? ` ${formatCurrency(data.salaryOffer, "$", false)}/week.` : ""}`
       case "CAREER_UPDATE": return data.message || "Your career has been updated."
       case "TOURNAMENT": return data.message || "Tournament update."
       case "MEDIA":
