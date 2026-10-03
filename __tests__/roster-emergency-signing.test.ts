@@ -58,11 +58,15 @@ describe("manageRoster — emergency signing below quorum", () => {
         const freeAgents = [makePlayer("fa1"), makePlayer("fa2")]
         const rostered = ["p1", "p2", "p3"].map(makePlayer)
         const save = makeSave([broke], [...rostered, ...freeAgents])
+        // Existing wages exceed weekly income, so no new wage is covered by
+        // cash flow either (a cash-flow-positive indebted club may still fill
+        // its quorum — see long-career-campaign.test.ts).
+        save.contracts = ["p1", "p2", "p3"].map(playerId => ({ playerId, teamId: "broke", salaryPerWeek: 20_000, startWeek: 1, endWeek: 100, buyout: 0 }))
 
         manageRoster(broke, save)
 
         expect(broke.rosterIds.length).toBe(3)
-        expect(save.contracts).toHaveLength(0)
+        expect(save.contracts).toHaveLength(3)
         expect(broke.budget).toBe(-200_000)
     })
 

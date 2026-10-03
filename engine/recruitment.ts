@@ -26,11 +26,18 @@ export function employedScout(staff: StaffSaveData[], team: TeamSaveData | undef
 }
 
 /** Reserve against the whole recurring deficit, including dated staff and upkeep. No speculative prize money. */
-export function recruitmentBudget(save: Pick<GameSave, "players" | "contracts" | "staff" | "currentWeek" | "academyPlayers"> & { playerTeamId: string | null }, team: TeamSaveData) {
+/**
+ * `quorum`: filling a vacancy below five senior players. A club in debt whose
+ * weekly cash flow already covers the wage may still sign a free agent (no
+ * fee); otherwise an indebted but recovering club could never field a team
+ * and forfeited every match while it paid the debt down.
+ */
+export function recruitmentBudget(save: Pick<GameSave, "players" | "contracts" | "staff" | "currentWeek" | "academyPlayers"> & { playerTeamId: string | null }, team: TeamSaveData, options: { quorum?: boolean } = {}) {
     const academyCount = team.id === save.playerTeamId ? (save.academyPlayers || []).length : (team.youthAcademyIds || []).length + (team.managementState?.academyPlayers || []).length
     const report = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount)
     return (salary: number, fee = 0): boolean => Number.isSafeInteger(salary) && salary > 0 && Number.isSafeInteger(fee) && fee >= 0
-        && Number.isFinite(team.budget) && team.budget - fee >= Math.max(0, salary - report.net) * 26
+        && Number.isFinite(team.budget) && (team.budget - fee >= Math.max(0, salary - report.net) * 26
+            || (!!options.quorum && fee === 0 && salary <= report.net))
 }
 
 /** Optional infrastructure must pay its ongoing costs without speculative future winnings. */

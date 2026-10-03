@@ -25,6 +25,24 @@ import { dedupeQualifications } from "../circuit-engine"
  * unread events never get dropped while older read events remain. Other
  * arrays are stable enough that a tail-slice is safe.
  */
+/**
+ * Cap the shared finance ledger without evicting the managed club's history.
+ * AI clubs write role-training rows every week (~200/week across the world),
+ * so a plain tail-slice kept only the last ~9 weeks of the player's own
+ * receipts — season recaps and finance screens then summed a fraction of the
+ * season. Keep the managed club's newest rows first (up to 3/4 of the cap),
+ * fill the rest with the newest other rows, and preserve original order.
+ */
+export function compactFinanceLedger<T extends { teamId?: string }>(ledger: T[], managedTeamId: string | null | undefined, cap: number): T[] {
+    if (ledger.length <= cap) return ledger
+    const mine = managedTeamId ? ledger.filter(e => e.teamId === managedTeamId) : []
+    const keepMine = mine.slice(-Math.floor(cap * 0.75))
+    const othersBudget = cap - keepMine.length
+    const others = managedTeamId ? ledger.filter(e => e.teamId !== managedTeamId) : ledger
+    const keep = new Set<T>([...keepMine, ...(othersBudget > 0 ? others.slice(-othersBudget) : [])])
+    return ledger.filter(e => keep.has(e))
+}
+
 export function compactPersistentState(save: GameSave): void {
     if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
         save.eventsLog = [...save.eventsLog]
@@ -40,9 +58,7 @@ export function compactPersistentState(save: GameSave): void {
         save.completedMatches = save.completedMatches.slice(-ARRAY_CAPS.completedMatches)
     }
 
-    if (save.financeLedger.length > ARRAY_CAPS.financeLedger) {
-        save.financeLedger = save.financeLedger.slice(-ARRAY_CAPS.financeLedger)
-    }
+    save.financeLedger = compactFinanceLedger(save.financeLedger, save.playerTeamId, ARRAY_CAPS.financeLedger)
 
     if (save.transferHistory.length > ARRAY_CAPS.transferHistory) {
         save.transferHistory = save.transferHistory.slice(-ARRAY_CAPS.transferHistory)

@@ -879,7 +879,10 @@ export class AtomicWeekProcessor {
                 }
                 const baseXp = tierXpBonus[matchTournamentTier] ?? 50
                 const winBonus = 100
-                const applyTournamentXP = (players: typeof save.players, won: boolean) => {
+                // Level-ups apply world-wide, but only the managed club's
+                // reach the inbox: AI rosters produced ~60 PLAYER_LEVEL_UP
+                // items (each also a toast) in busy tournament weeks.
+                const applyTournamentXP = (players: typeof save.players, won: boolean, teamId: string) => {
                     players.forEach(p => {
                         const xpGain = baseXp + (won ? winBonus : 0)
                         p.xp = (p.xp ?? 0) + xpGain
@@ -891,7 +894,7 @@ export class AtomicWeekProcessor {
                             p.level = (p.level || 1) + 1
                             p.talentPoints = (p.talentPoints || 0) + 1
                             p.xpToNextLevel = Math.floor(threshold * 1.5)
-                            save.eventsLog.unshift({
+                            if (teamId === playerTeamId) save.eventsLog.unshift({
                                 id: `evt_lvl_${save.currentWeek}_${p.id}_t`,
                                 type: "PLAYER_LEVEL_UP",
                                 week: save.currentWeek,
@@ -901,8 +904,8 @@ export class AtomicWeekProcessor {
                         }
                     })
                 }
-                applyTournamentXP(homePlayers, homeWon)
-                applyTournamentXP(awayPlayers, !homeWon)
+                applyTournamentXP(homePlayers, homeWon, match.homeTeamId)
+                applyTournamentXP(awayPlayers, !homeWon, match.awayTeamId)
             }
 
             // Fatigue scaled by match format (BO1=10, BO3=15, BO5=25)

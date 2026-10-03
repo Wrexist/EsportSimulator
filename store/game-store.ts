@@ -747,6 +747,20 @@ interface GameStoreActions extends PhysicalPreviewActions {
   setShowBugReportButton: (enabled: boolean) => void
 }
 
+/** Field defaults shared by load hydration and the weekly commit. */
+function applyPlayerFieldDefaults(players: PlayerSaveData[]): void {
+  players.forEach(p => {
+    if (!p.perks) p.perks = []
+    if (!p.roleMastery) p.roleMastery = { [p.role]: 75 }
+    if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
+    if (p.level === undefined) p.level = 1
+    if (p.xp === undefined) p.xp = 0
+    if (p.xpToNextLevel === undefined) p.xpToNextLevel = 1000
+    if (p.talentPoints === undefined) p.talentPoints = 0
+    if (p.unlockedTalentIds === undefined) p.unlockedTalentIds = []
+  })
+}
+
 export const useGameStore = create<GameStoreState & GameStoreActions>()(
   persist(
     immer((set, get) => ({
@@ -1643,16 +1657,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           refreshStockIdentities(hydratedSave)
 
           // Augment with new fields if missing (backward compatibility)
-          hydratedSave.players.forEach(p => {
-            if (!p.perks) p.perks = []
-            if (!p.roleMastery) p.roleMastery = { [p.role]: 75 }
-            if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
-            if (p.level === undefined) p.level = 1
-            if (p.xp === undefined) p.xp = 0
-            if (p.xpToNextLevel === undefined) p.xpToNextLevel = 1000
-            if (p.talentPoints === undefined) p.talentPoints = 0
-            if (p.unlockedTalentIds === undefined) p.unlockedTalentIds = []
-          })
+          applyPlayerFieldDefaults(hydratedSave.players)
 
           hydratedSave.teams.forEach(t => {
             {
@@ -1685,22 +1690,27 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // FPL backward compatibility migration
           if (hydratedSave.fplData) {
             const { getFPLTier, FPL_CONSTANTS: FC } = require("@/types/fpl")
-            // Add missing fields to FPL player stats
+            // Add missing fields to FPL player stats. Only stats that predate
+            // these fields are backfilled from season history: running the
+            // backfill on every load re-added each past title and prize, so
+            // every save/reload inflated championships and earnings.
+            const legacyChampionships = new Set<unknown>()
+            const legacyEarnings = new Set<unknown>()
             Object.values(hydratedSave.fplData.playerStats).forEach((stats: any) => {
-              if (stats.totalFPLEarnings === undefined) stats.totalFPLEarnings = 0
-              if (stats.fplChampionships === undefined) stats.fplChampionships = 0
+              if (stats.totalFPLEarnings === undefined) { stats.totalFPLEarnings = 0; legacyEarnings.add(stats) }
+              if (stats.fplChampionships === undefined) { stats.fplChampionships = 0; legacyChampionships.add(stats) }
             })
             // Retroactively compute championships/earnings from season history
-            if (hydratedSave.fplData.seasonHistory) {
+            if (hydratedSave.fplData.seasonHistory && (legacyChampionships.size || legacyEarnings.size)) {
               hydratedSave.fplData.seasonHistory.forEach((season: any) => {
                 if (season.champion) {
                   const stats = hydratedSave.fplData!.playerStats[season.champion]
-                  if (stats) (stats as any).fplChampionships = ((stats as any).fplChampionships || 0) + 1
+                  if (stats && legacyChampionships.has(stats)) (stats as any).fplChampionships = ((stats as any).fplChampionships || 0) + 1
                 }
                 (season.leaderboard || []).slice(0, 3).forEach((entry: any, idx: number) => {
                   const stats = hydratedSave.fplData!.playerStats[entry.playerId]
                   const reward = (season.rewards || [])[idx]
-                  if (stats && reward) {
+                  if (stats && reward && legacyEarnings.has(stats)) {
                     (stats as any).totalFPLEarnings = ((stats as any).totalFPLEarnings || 0) + reward.prize
                   }
                 })
@@ -2100,10 +2110,19 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               // Prune growing arrays to prevent unbounded memory/save growth
               pruneGameState(draft)
 
+              // Players created this tick (prospects, regens) get the same
+              // defaults loadGame applies; otherwise a reload changes them.
+              applyPlayerFieldDefaults(draft.players)
+
               // Recalculate synergy for all teams (AI transfers may have
               // changed rosters). Uses the indexed O(roster) pass from
               // engine/processors/team-synergy-recalc.ts.
               recalculateAllSynergy(draft.teams, draft.players)
+
+              // Keep roles reconciled after AI roster moves, as loadGame and
+              // new careers do. Without this a save/reload re-assigned roles
+              // and the reloaded career diverged from the uninterrupted one.
+              reconcileAllRoles(draft.teams, draft.players)
             })
 
             // Keep progression locked through post-processing and the final

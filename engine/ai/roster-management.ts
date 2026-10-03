@@ -84,7 +84,7 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
 
     if (freeAgents.length === 0) return
 
-    const canAfford = recruitmentBudget(save, team)
+    const canAfford = recruitmentBudget(save, team, { quorum: team.rosterIds.length < 5 })
 
     // Build the missing-roles set so the scorer can prefer role-fit hires.
     const playerIndex = getPlayerIndex(save)

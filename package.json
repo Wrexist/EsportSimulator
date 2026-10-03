@@ -46,6 +46,7 @@
     "screenshots:steam": "concurrently -k -s first -n \"server,capture\" \"cross-env PORT=3001 next dev\" \"wait-on http-get://127.0.0.1:3001/main-menu && tsx scripts/capture-steam.ts\"",
     "release:verify": "node scripts/launch/verify.cjs",
     "generate:radar-nav": "tsx scripts/generate-radar-nav-data.ts",
+    "campaign:long": "tsx scripts/launch/long-career-campaign.ts",
     "perf:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsx scripts/perf-baseline.ts",
     "test": "npx jest --passWithNoTests",
     "test:watch": "npx jest --watch",

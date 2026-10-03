@@ -82,6 +82,18 @@ function recomputeStandings(
     // So for Swiss we leave the incrementally-maintained wins/losses/maps/rounds
     // intact and only keep `points` in sync with the wins*3 convention the UI
     // expects; everything is still sorted below.
+    // A league's champion is standings[0]. initializeTournament builds the
+    // round-robin schedule but never seeded a row per entrant, so leagues
+    // started in-career finished every match yet never crowned a winner
+    // (no trophy, prizes or circuit points). Seed missing rows here so new
+    // and already-stuck saves both resolve from their recorded matches.
+    if (tournament.format === "league") {
+        const present = new Set(tournament.standings.map(s => s.teamId))
+        for (const teamId of new Set(tournament.teamIds)) {
+            if (present.has(teamId)) continue
+            tournament.standings.push({ teamId, matchesPlayed: 0, wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, points: 0, mapDiff: 0, roundDiff: 0 })
+        }
+    }
     if (tournament.format !== "swiss") {
         tournament.standings.forEach(standing => {
             const teamMatches = tournamentMatches.filter(
