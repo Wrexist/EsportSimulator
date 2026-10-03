@@ -8,7 +8,7 @@ import { NavigationMesh, DEFAULT_ROUTE_OPTIONS, type NavLocation, type RouteOpti
 import { simulateMovement, type MovementFrame } from './movement'
 import { distance3, mix3, type Vec3 } from './types'
 import { UtilitySimulation, smokeRay, type UtilityStock } from './utility'
-import { checkRecoveryThrow, recoveryThreat } from './recovery-support'
+import { checkRecoveryThrow, recoveryHandoff, recoveryThreat } from './recovery-support'
 import { chooseTeamPlan, parseTeamSetup, type Contact, type Intent, type Side, type TeamMember, type TeamPlan, type TeamSetup } from './team-model'
 
 export interface TeamEvent { tick: number; type: string; side?: Side; actor?: string; target?: string; point?: Vec3; from?: Vec3; reason: string; damage?: number; grenade?: string; weapon?: string; headshot?: boolean }
@@ -110,6 +110,7 @@ export function simulateTeams(input: TeamSetup, nav: NavigationMesh, world: Coll
         const goal = nearby(a.position) || a.station
         guards.set(a.id, { key, goal }); return goal
     }
+    const onPlantSite = (a: Actor, site: 'A' | 'B') => s.plantZones ? inPlantZone(a.position, s.plantZones[site]) : distance3(a.position, s.sites[site].point) <= 64 && Math.abs(a.position[2] - s.sites[site].point[2]) <= 12
     const intent = (a: Actor, next: Intent, why: string, tick: number) => { if (a.intent !== next || a.reason !== why) { emit(tick, 'intent', why, { side: a.side, actor: a.id }); a.intent = next; a.reason = why } }
     const snapshot = (tick: number) => frames.push({ tick, actors: actors.map(a => ({ id: a.id, side: a.side, role: a.role, position: copy(a.position), yaw: a.yaw, health: a.health, armor: a.armor, ammo: a.ammo, intent: a.intent, reason: a.reason, goal: a.goal ? copy(a.goal.point) : null, contacts: [...a.contacts.values()].map(cloneContact), blindUntil: a.blindUntil, inventory: utility ? { ...utility.inventory[a.id] } : null, height: height as 54 | 72, movement: a.route[a.routeIndex]?.state || 'arrived' })), plans: { T: { ...plans.T }, CT: { ...plans.CT } }, reports: { T: [...reports.T.values()].map(cloneContact), CT: [...reports.CT.values()].map(cloneContact) }, bomb: { ...bomb, point: copy(bomb.point) } })
     for (let tick = 0; tick <= Math.floor(s.seconds * 64); tick++) {
@@ -150,7 +151,20 @@ export function simulateTeams(input: TeamSetup, nav: NavigationMesh, world: Coll
         }
         if (tick % 16 === 0) {
             if (bomb.state !== 'dropped') recoverer = null
-            else if (!actors.some(a => a.id === recoverer && a.health > 0 && !a.retiredGoal)) {
+            else if (recoverer && !recoveryScreen) {
+                // The nominated recoverer can be physically held by a stationary teammate standing
+                // in a narrow pickup approach (stairs, doors). That teammate is closer, so it takes
+                // over the pickup on its own checked route instead of the recoverer detouring.
+                const current = actors.find(a => a.id === recoverer && a.health > 0 && !a.retiredGoal), wait = current && current.stalled >= 32 ? bodyWaits.get(current.id) : undefined
+                const goal = wait && nearby(bomb.point)
+                const next = current && wait && goal ? recoveryHandoff(current.position, wait.blocker, actors.filter(b => b.side === 'T' && b.health > 0 && !airborne(b)), bomb.point, b => travel(b as Actor, goal) < 999) : null
+                const blocker = next ? actors.find(b => b.id === next) : undefined
+                if (current && blocker) {
+                    recoverer = blocker.id; blocker.retiredGoal = ''; blocker.failures = 0
+                    emit(tick, 'recovery-assigned', 'The teammate holding the recoverer approach is closer and can reach the bomb; it takes over the pickup.', { actor: recoverer, side: 'T', target: current.id })
+                }
+            }
+            if (bomb.state === 'dropped' && !actors.some(a => a.id === recoverer && a.health > 0 && !a.retiredGoal)) {
                 const goal = nearby(bomb.point)
                 const candidates = goal ? actors.filter(a => a.side === 'T' && a.health > 0 && !a.retiredGoal)
                     .map(a => ({ a, seconds: travel(a, goal) })).filter(c => c.seconds < 999)
@@ -162,7 +176,9 @@ export function simulateTeams(input: TeamSetup, nav: NavigationMesh, world: Coll
                 const alive = actors.filter(a => a.side === side && a.health > 0), known = [...reports[side].values()].filter(c => c.confidence > 0.35)
                 const estimates = side === 'CT' && bomb.state === 'planted' ? alive.map(a => ({ a, seconds: travel(a, nearby(bomb.point) || s.sites[bomb.site]) })).sort((a, b) => a.seconds - b.seconds || a.a.id.localeCompare(b.a.id)) : []
                 if (estimates.length && (!defuser || !alive.some(a => a.id === defuser))) defuser = estimates[0].a.id
-                const next = chooseTeamPlan({ side, tick, alive: alive.length, credibleEnemies: known.length, contactsAtSite: known.filter(c => distance3(c.point, s.sites[plans[side].site].point) < 600).length, planted: bomb.state === 'planted', bombSite: bomb.site, bombRemaining: s.bombSeconds - (tick - (bomb.plantedTick || 0)) / 64, travelSeconds: bomb.actor && bomb.actor === defuser ? -bomb.progress / 64 : estimates.find(e => e.a.id === defuser)?.seconds ?? 999, roundRemaining: s.roundSeconds - tick / 64, openingSeconds: s.openingSeconds, defuseSeconds: actors.find(a => a.id === defuser)?.loadout ? (actors.find(a => a.id === defuser)!.loadout!.kit ? 5 : 10) : s.defuseSeconds, economy: s.economy, plan: plans[side] })
+                const next = chooseTeamPlan({ side, tick, alive: alive.length, credibleEnemies: known.length, contactsAtSite: known.filter(c => distance3(c.point, s.sites[plans[side].site].point) < 600).length, planted: bomb.state === 'planted', bombSite: bomb.site, bombRemaining: s.bombSeconds - (tick - (bomb.plantedTick || 0)) / 64, travelSeconds: bomb.actor && bomb.actor === defuser ? -bomb.progress / 64 : estimates.find(e => e.a.id === defuser)?.seconds ?? 999, roundRemaining: s.roundSeconds - tick / 64, openingSeconds: s.openingSeconds, defuseSeconds: actors.find(a => a.id === defuser)?.loadout ? (actors.find(a => a.id === defuser)!.loadout!.kit ? 5 : 10) : s.defuseSeconds, economy: s.economy, plan: plans[side],
+                    // Friendly resource only: the team knows where its own carrier stands.
+                    carrierOnSite: side === 'T' && bomb.state === 'carried' && actors.some(a => a.id === bomb.carrier && a.health > 0 && !airborne(a) && onPlantSite(a, plans.T.site)) })
                 if (next.mode !== plans[side].mode || next.site !== plans[side].site) { plans[side] = next; emit(tick, 'plan', next.reason, { side }); for (const a of alive) { a.retiredGoal = ''; a.failures = 0 } }
             }
             for (const a of actors.filter(a => a.health > 0)) {
@@ -450,13 +466,17 @@ export function simulateTeams(input: TeamSetup, nav: NavigationMesh, world: Coll
         for (const a of actors) if (a.health <= 0 && a.intent !== 'dead') {
             intent(a, 'dead', 'Resolved health reached zero; actions stop.', tick); a.route = []
             for (const mate of actors.filter(b => b.side === a.side && b.health > 0 && distance3(a.position, b.position) < 400)) mate.tradeUntil = tick + 128
-            if (bomb.carrier === a.id) { bomb.state = 'dropped'; bomb.carrier = null; bomb.point = copy(a.position); bomb.progress = 0; bomb.actor = null; emit(tick, 'bomb-dropped', 'Bomb carrier died; teammates must physically recover it.', { side: 'T', actor: a.id, point: copy(a.position) }) }
+            if (bomb.carrier === a.id) {
+                bomb.state = 'dropped'; bomb.carrier = null; bomb.point = copy(a.position); bomb.progress = 0; bomb.actor = null; emit(tick, 'bomb-dropped', 'Bomb carrier died; teammates must physically recover it.', { side: 'T', actor: a.id, point: copy(a.position) })
+                // The team objective changed: earlier failed goals no longer exclude a teammate from recovery.
+                for (const mate of actors) if (mate.side === 'T' && mate.health > 0) { mate.retiredGoal = ''; mate.failures = 0 }
+            }
         }
         if (bomb.state === 'carried') bomb.point = copy(actors.find(a => a.id === bomb.carrier)!.position)
         if (bomb.state === 'dropped') { const picker = actors.find(a => a.side === 'T' && a.health > 0 && recoveryScreen?.actor!==a.id && distance3(a.position, bomb.point) < 32 && !world.raycast(eye(a.position), eye(bomb.point))); if (picker) { bomb.state = 'carried'; bomb.carrier = picker.id; emit(tick, 'bomb-picked-up', 'Teammate reached the dropped bomb.', { side: 'T', actor: picker.id }) } }
         if (bomb.state === 'planted' && tick >= bomb.plantedTick! + s.bombSeconds * 64) { bomb.state = 'exploded'; outcome = 'T'; reason = 'Bomb deadline elapsed before a completed defuse.'; emit(tick, 'exploded', reason) }
         if (outcome === 'unresolved') {
-            const planter = bomb.state === 'carried' ? actors.find(a => a.id === bomb.carrier && a.health > 0 && !airborne(a) && plans.T.mode !== 'save' && plans.T.mode !== 'default' && (s.plantZones ? inPlantZone(a.position, s.plantZones[plans.T.site]) : distance3(a.position, s.sites[plans.T.site].point) <= 64 && Math.abs(a.position[2] - s.sites[plans.T.site].point[2]) <= 12) && !world.raycast(eye(a.position), eye(s.sites[plans.T.site].point))) : null
+            const planter = bomb.state === 'carried' ? actors.find(a => a.id === bomb.carrier && a.health > 0 && !airborne(a) && plans.T.mode !== 'save' && plans.T.mode !== 'default' && onPlantSite(a, plans.T.site) && !world.raycast(eye(a.position), eye(s.sites[plans.T.site].point))) : null
             const defusing = bomb.state === 'planted' ? actors.find(a => a.id === defuser && a.health > 0 && !airborne(a) && plans.CT.mode !== 'save' && distance3(a.position, bomb.point) <= 64 && Math.abs(a.position[2] - bomb.point[2]) <= 12 && !world.raycast(eye(a.position), eye(bomb.point))) : null
             const action = planter || defusing
             if (action) {

@@ -1,0 +1,171 @@
+{
+  "engine": "spatial-round-v13",
+  "mapId": "Inferno",
+  "fixtureSha256": "e807c19c3afd05e126fe086cc9273beefd3a0644c89764371ae9cad9da77cbc3",
+  "simulatorSourceSha256": "a94a7f9aeccccfea66327881d16fe7d36781dc4b754a495bd30f772b621ab001",
+  "meshSha256": "897e6f22dc76ecd3815ce8214ae1eb3254b07f72ba7b5f9470430bd8749ed632",
+  "complete": true,
+  "scope": "0 combat and 4 no-gun movement/objective cases; provisional reference geometry, no verified utility lineups or career adoption.",
+  "rows": [
+    {
+      "seed": 4326170,
+      "objective": "A",
+      "guns": false,
+      "seconds": 108.546875,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 321546,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1426,
+        "waits": 4163,
+        "replans": 154,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 15,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "9e65849adc8921f2c29e10f164fe49717aa712f0c5a9f182251e6b4e0eea72c4"
+    },
+    {
+      "seed": 4326171,
+      "objective": "B",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 74552,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1372,
+        "waits": 1121,
+        "replans": 107,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 9,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            2182.518477216558,
+            629.9838000948102,
+            156.73757094463875
+          ],
+          "goal": [
+            1831.666433333333,
+            374.4997,
+            161.99992000000003
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 2929,
+            "type": "spacing-wait",
+            "reason": "Body CT5 occupies the swept path.",
+            "actor": "T2",
+            "side": "T",
+            "from": [
+              2182.518477216558,
+              629.9838000948102,
+              156.73757094463875
+            ],
+            "point": [
+              2182.100297021727,
+              630.0579084009121,
+              156.85049717139813
+            ]
+          }
+        }
+      ],
+      "outputSha256": "571dc177fa2683ce39f8b65e37d9a5fd875a6f37b5ed5968a973b44edf13171b"
+    },
+    {
+      "seed": 4326180,
+      "objective": "A",
+      "guns": false,
+      "seconds": 108.546875,
+      "outcome": "T",
+      "reason": "Bomb deadline elapsed before a completed defuse.",
+      "elapsedMs": 427824,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1426,
+        "waits": 4163,
+        "replans": 154,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 1,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 15,
+      "routeFailures": [],
+      "finalBlocked": [],
+      "outputSha256": "9e65849adc8921f2c29e10f164fe49717aa712f0c5a9f182251e6b4e0eea72c4"
+    },
+    {
+      "seed": 4326181,
+      "objective": "B",
+      "guns": false,
+      "seconds": 115,
+      "outcome": "CT",
+      "reason": "Round time expired without a completed plant.",
+      "elapsedMs": 100249,
+      "metrics": {
+        "shots": 0,
+        "damage": 0,
+        "reports": 1372,
+        "waits": 1121,
+        "replans": 107,
+        "minSeparation": 32.00087117645798
+      },
+      "plants": 0,
+      "defuses": 0,
+      "recoveries": 0,
+      "yields": 9,
+      "routeFailures": [],
+      "finalBlocked": [
+        {
+          "id": "T2",
+          "point": [
+            2182.518477216558,
+            629.9838000948102,
+            156.73757094463875
+          ],
+          "goal": [
+            1831.666433333333,
+            374.4997,
+            161.99992000000003
+          ],
+          "reason": "Repeated movement attempts failed; hold until the team objective changes.",
+          "lastObstruction": {
+            "tick": 2929,
+            "type": "spacing-wait",
+            "reason": "Body CT5 occupies the swept path.",
+            "actor": "T2",
+            "side": "T",
+            "from": [
+              2182.518477216558,
+              629.9838000948102,
+              156.73757094463875
+            ],
+            "point": [
+              2182.100297021727,
+              630.0579084009121,
+              156.85049717139813
+            ]
+          }
+        }
+      ],
+      "outputSha256": "571dc177fa2683ce39f8b65e37d9a5fd875a6f37b5ed5968a973b44edf13171b"
+    }
+  ]
+}
