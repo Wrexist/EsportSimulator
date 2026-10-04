@@ -1,5 +1,44 @@
 # L07 — Electron, IPC and local boundaries
 
+## 4 October 2026 packaged smoke (A3 / E10, branch `claude/heap-and-packaged-smoke`)
+
+**16/16 checks pass on a packaged Windows build.** Evidence: [L07-packaged-smoke.json](L07-packaged-smoke.json). Script: `scripts/launch/electron-packaged-smoke.cjs`.
+
+**What was tested.** The LOCAL-QA-ONLY copy of `dist/win-unpacked` (`tmp/l27qa/app`) was used, built from `f9358233` (Electron 44.3.0, Chrome 152).
+- Steam is disabled by `resources/LOCAL-QA-ONLY` (`electron/steam.js`). The script refuses any exe without that marker, and anything under `dist/win-unpacked`.
+- Every launch used a fresh `--user-data-dir` under `tmp/l07-packaged/`.
+- The real %APPDATA% profiles were unchanged (mtime check).
+
+| Check | Result |
+|---|---|
+| Fuses (`@electron/fuses read`) | RunAsNode, EnableNodeOptionsEnvironmentVariable, EnableNodeCliInspectArguments and GrantFileProtocolExtraPrivileges are **Disabled**; OnlyLoadAppFromAsar is **Enabled**. EnableEmbeddedAsarIntegrityValidation stays Disabled (item 6 below). |
+| `ELECTRON_RUN_AS_NODE=1 EsportsManager.exe -e …` | The `-e` code did not run (marker file not written), and nothing answered on stdin. The exe started the normal app instead. Next started in-process, with no `fork`. |
+| `NODE_OPTIONS=--inspect`, `--inspect`, `--inspect-brk` | No inspector port opened. |
+| Listening sockets of the whole process tree (`netstat -ano` by PID, launched without `--remote-debugging-port`) | Only `127.0.0.1:3000` TCP. Connections to the three LAN IPv4 addresses on that port failed. |
+| Loopback server gate | 200 for the app. 403 for a foreign Host, a foreign Origin, and `Sec-Fetch-Site: cross-site`. |
+| Enforced CSP (read from the document's `securitypolicyviolation.originalPolicy`) | The packaged policy from `electron/content-policy.js`: no `unsafe-eval`; frame, object, base, form and ancestors are `'none'`; `connect-src 'self'`. |
+| CSP enforcement in the page | `eval` and `new Function` throw EvalError from page script. A remote `fetch`, an external iframe, a same-origin iframe and a blob worker are all blocked. |
+| Renderer globals | No `require`/`process`/`ipcRenderer`. Only the fixed `window.electron` bridge is exposed. |
+| Popups and links | `window.open` returns null (about:blank and a foreign URL). A foreign `target=_blank` link opens no window. |
+| Navigation | Renderer navigation to `https://untrusted.invalid/` and to `data:` is cancelled; the page stays on `/main-menu`. |
+| Permissions | Notification `denied`, getUserMedia `NotAllowedError`, geolocation denied. |
+| Trusted IPC | A save-namespace write/read round-trips. Rejected: a bad key (`window.fullscreen`), a non-string value, mod path traversal, a `..\..` mod read, and `Infinity` window size. |
+| Same WebContents after an origin change (driver navigates it to a `data:` document; the bridge is still injected) | read → null, write → false, keys → [], mod path → null, clear → false. The sentinel save key survives. |
+
+**Not covered here** (limitations are also listed in the JSON):
+- Same-origin child-frame IPC and a second WebContents cannot be built in the packaged app (`frame-src 'none'`, one window). The unpackaged real-Electron smoke and the handler harness still cover them.
+- Allowlisted external links were not clicked, so the OS browser was not opened.
+- No live Steam SDK or account calls (QA copy).
+- This is the f9358233 build, not a signed release candidate. Rerun it on the final `npm run dist` output, using a LOCAL-QA-ONLY copy.
+
+Probe notes:
+- CDP's `Runtime.evaluate` temporarily allows eval (`allowUnsafeEvalBlockedByCSP`), so the eval probe runs from a page script in a later task.
+- Electron injects the CSP in `onHeadersReceived`, so it does not appear in CDP response headers.
+- `@electron/fuses` 1.8.0 prints an unnamed newer fuse as "undefined is Enabled".
+- The app's own blob-URL worker is refused by `worker-src 'self'` in normal sessions (one console error). It falls back without visible effect; its source has not been traced.
+
+Items 2–5 of "Still required" below are now covered for this build. Items 1 (signed release artifact), 6 and 7 remain.
+
 ## 3 October 2026 re-audit (branch `claude/electron-security-hardening`)
 
 **Still partial.** Re-verified the 13 September hardening against current `electron/`, preload, Steam adapter, local server and `app/api/**`. Nothing regressed. The gaps found below are fixed. A1/A2 now have real-Electron evidence (not packaged) that includes a real same-origin child frame. A3 still needs the packaged artifact.
