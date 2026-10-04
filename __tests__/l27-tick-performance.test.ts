@@ -3,7 +3,7 @@
  * optimizations: single serialization of signed saves, FPL history compaction,
  * bridge input ownership, and role-filtered free-agent quoting.
  */
-import { serializeSignedSave } from '@/engine/save-manager'
+import { serializeSignedSave, saveTextFingerprint, SaveManager } from '@/engine/save-manager'
 import { SaveIntegrityManager } from '@/engine/save-integrity'
 import { compactPersistentState } from '@/engine/processors/save-compactor'
 import { ARRAY_CAPS } from '@/lib/constants'
@@ -38,6 +38,42 @@ describe('signed save text', () => {
         save.integrityHash = 'v3:new'
         expect(serializeSignedSave(save, payload)).toBe(JSON.stringify(save))
         expect(serializeSignedSave({ integrityHash: 'v3:x' }, '{}')).toBe('{"integrityHash":"v3:x"}')
+    })
+})
+
+describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
+    const big = (n: number) => `{"saveId":"x"${',"p":"abcdefghij"'.repeat(n)},"integrityHash":"v3:1"}`
+    test('identical text matches; length, head, tail and bulk damage do not', () => {
+        const text = big(40000)
+        expect(saveTextFingerprint(text)).toBe(saveTextFingerprint(text.slice(0)))
+        expect(saveTextFingerprint(text.slice(0, -1))).not.toBe(saveTextFingerprint(text))
+        expect(saveTextFingerprint(text.replace('"saveId":"x"', '"saveId":"y"'))).not.toBe(saveTextFingerprint(text))
+        expect(saveTextFingerprint(text.replace('v3:1', 'v3:2'))).not.toBe(saveTextFingerprint(text))
+        const mid = Math.floor(text.length / 2)
+        expect(saveTextFingerprint(text.slice(0, mid) + 'Z'.repeat(64) + text.slice(mid + 64))).not.toBe(saveTextFingerprint(text))
+        expect(saveTextFingerprint('')).toBe(saveTextFingerprint(''))
+    })
+    test('a save rotates its own verified primary without keeping the text, and still quarantines a foreign one', async () => {
+        const store = new Map<string, string>()
+        const storage = { getItem: async (k: string) => store.get(k) ?? null, setItem: async (k: string, v: string) => { store.set(k, v) }, removeItem: async (k: string) => { store.delete(k) }, clear: async () => store.clear(), getAllKeys: async () => [...store.keys()] }
+        const manager = new SaveManager(storage)
+        const save = createLaunchFixture('first-week', 27103)
+        expect((await manager.saveGame(save)).success).toBe(true)
+        const primaryKey = [...store.keys()].find(k => k.endsWith(save.saveId) && !k.includes('backup'))!
+        const first = store.get(primaryKey)!
+        const held = (manager as unknown as { lastVerifiedPrimary: Record<string, unknown> }).lastVerifiedPrimary
+        expect(Object.values(held).some(v => v === first)).toBe(false)
+        const parse = jest.spyOn(manager as unknown as { parseAndValidateSaveCandidate: () => unknown }, 'parseAndValidateSaveCandidate')
+        save.currentDay = (save.currentDay ?? 0) + 1
+        expect((await manager.saveGame(save)).success).toBe(true)
+        expect(parse).not.toHaveBeenCalled()
+        expect([...store].some(([k, v]) => k.includes('backup') && k.endsWith('_1') && v === first)).toBe(true)
+        // Someone else replaced the primary: it must be validated (and kept aside as corrupt).
+        store.set(primaryKey, 'not a save')
+        expect((await manager.saveGame(save)).success).toBe(true)
+        expect(parse).toHaveBeenCalledTimes(1)
+        expect([...store].some(([k, v]) => /corrupt/i.test(k) && v === 'not a save')).toBe(true)
+        parse.mockRestore()
     })
 })
 

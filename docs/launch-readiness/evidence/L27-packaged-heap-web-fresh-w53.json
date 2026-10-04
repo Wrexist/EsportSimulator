@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "label": "heap-web-fresh-w53",
+  "mode": "session",
+  "recordedAt": "2026-10-04T11:36:24.943Z",
+  "target": "next start production build in Chrome at http://127.0.0.1:3100",
+  "exe": null,
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 177.6
+    },
+    {
+      "route": "/training",
+      "ms": 106.9
+    },
+    {
+      "route": "/schedule",
+      "ms": 174.6
+    },
+    {
+      "route": "/transfers",
+      "ms": 122.8
+    },
+    {
+      "route": "/tournaments",
+      "ms": 126
+    },
+    {
+      "route": "/finances",
+      "ms": 130.1
+    },
+    {
+      "route": "/desktop",
+      "ms": 78.8
+    },
+    {
+      "route": "/",
+      "ms": 295.1
+    },
+    {
+      "route": "/squad",
+      "ms": 127
+    },
+    {
+      "route": "/training",
+      "ms": 155.1
+    },
+    {
+      "route": "/schedule",
+      "ms": 140.5
+    },
+    {
+      "route": "/transfers",
+      "ms": 142.6
+    },
+    {
+      "route": "/tournaments",
+      "ms": 95.3
+    },
+    {
+      "route": "/finances",
+      "ms": 158.3
+    },
+    {
+      "route": "/desktop",
+      "ms": 60.6
+    },
+    {
+      "route": "/",
+      "ms": 258.1
+    },
+    {
+      "route": "/squad",
+      "ms": 145.5
+    },
+    {
+      "route": "/training",
+      "ms": 133
+    },
+    {
+      "route": "/schedule",
+      "ms": 188.6
+    },
+    {
+      "route": "/transfers",
+      "ms": 121.8
+    },
+    {
+      "route": "/tournaments",
+      "ms": 64.2
+    },
+    {
+      "route": "/finances",
+      "ms": 52.9
+    },
+    {
+      "route": "/desktop",
+      "ms": 57.5
+    },
+    {
+      "route": "/",
+      "ms": 207.4
+    }
+  ],
+  "weeks": [],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 53,
+      "jsHeapUsedMB": 25.9,
+      "jsHeapTotalMB": 26.8,
+      "domNodes": 8933,
+      "jsEventListeners": 664,
+      "documents": 11,
+      "frames": 11,
+      "intervals": 1,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 53,
+      "jsHeapUsedMB": 27.9,
+      "jsHeapTotalMB": 29,
+      "domNodes": 6950,
+      "jsEventListeners": 753,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [],
+  "menuInteractiveMs": 5339,
+  "continueCareerToDashboardMs": 949,
+  "domBreakdown": {
+    "total": 5073,
+    "path": "/",
+    "rows": [
+      {
+        "depth": 0,
+        "n": 5025,
+        "label": "body.__variable_401541.font-sans.antialiased.bg-[#0e1217]",
+        "text": "Skip to main content Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedul"
+      },
+      {
+        "depth": 1,
+        "n": 4996,
+        "label": "div.premium-app.relative.isolate.flex",
+        "text": "Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedule TEAM Squad Training"
+      },
+      {
+        "depth": 2,
+        "n": 4772,
+        "label": "div.flex-1.flex.flex-col.min-h-0",
+        "text": "YOUR CLUB EU Natus Vincera $2,331,858 #2 World Sun, Oct 03, 2027 WEEK 53 WEEKLY "
+      },
+      {
+        "depth": 3,
+        "n": 4709,
+        "label": "main#main-content.min-h-0.flex-1.overflow-x-hidden.relative",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 4,
+        "n": 4708,
+        "label": "div.game-page.px-4.py-4.lg:px-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 5,
+        "n": 4707,
+        "label": "div.dashboard.space-y-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 6,
+        "n": 4678,
+        "label": "div.dashboard-layout",
+        "text": "UPCOMING EVENTS On The Horizon NATUS VINCERA VS TBD ELITE SPRING A TIER IN 2"
+      },
+      {
+        "depth": 7,
+        "n": 4529,
+        "label": "div.space-y-6",
+        "text": "This Week 30 to do NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 8,
+        "n": 446,
+        "label": "div.glass-card.text-card-foreground.flex.flex-col",
+        "text": "This Week 30 to do NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 9,
+        "n": 434,
+        "label": "div.px-5.pt-2.space-y-2",
+        "text": "NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +10) -$2,000 +5 Rep S"
+      },
+      {
+        "depth": 8,
+        "n": 3941,
+        "label": "div.max-h-[max(20rem,calc(100vh-12rem))].overflow-y-auto.pr-3.space-y-2",
+        "text": "ACHIEVEMENT OCT 3 Pro Power Rankings: SpurtsBetExpert Top! SPURTSBETEXPERT In t"
+      },
+      {
+        "depth": 9,
+        "n": 3940,
+        "label": "div.space-y-4",
+        "text": "ACHIEVEMENT OCT 3 Pro Power Rankings: SpurtsBetExpert Top! SPURTSBETEXPERT In t"
+      }
+    ]
+  },
+  "summary": {
+    "routeMs": {
+      "n": 24,
+      "min": 52.9,
+      "median": 131.6,
+      "mean": 138.3,
+      "sd": 58.6,
+      "p90": 207.4,
+      "max": 295.1
+    },
+    "routeByPath": {
+      "/": {
+        "n": 3,
+        "min": 207.4,
+        "median": 258.1,
+        "mean": 253.5,
+        "sd": 35.9,
+        "p90": 295.1,
+        "max": 295.1
+      },
+      "/desktop": {
+        "n": 3,
+        "min": 57.5,
+        "median": 60.6,
+        "mean": 65.6,
+        "sd": 9.4,
+        "p90": 78.8,
+        "max": 78.8
+      },
+      "/squad": {
+        "n": 3,
+        "min": 127,
+        "median": 145.5,
+        "mean": 150,
+        "sd": 20.9,
+        "p90": 177.6,
+        "max": 177.6
+      },
+      "/training": {
+        "n": 3,
+        "min": 106.9,
+        "median": 133,
+        "mean": 131.7,
+        "sd": 19.7,
+        "p90": 155.1,
+        "max": 155.1
+      },
+      "/schedule": {
+        "n": 3,
+        "min": 140.5,
+        "median": 174.6,
+        "mean": 167.9,
+        "sd": 20.2,
+        "p90": 188.6,
+        "max": 188.6
+      },
+      "/transfers": {
+        "n": 3,
+        "min": 121.8,
+        "median": 122.8,
+        "mean": 129.1,
+        "sd": 9.6,
+        "p90": 142.6,
+        "max": 142.6
+      },
+      "/tournaments": {
+        "n": 3,
+        "min": 64.2,
+        "median": 95.3,
+        "mean": 95.2,
+        "sd": 25.2,
+        "p90": 126,
+        "max": 126
+      },
+      "/finances": {
+        "n": 3,
+        "min": 52.9,
+        "median": 130.1,
+        "mean": 113.8,
+        "sd": 44.6,
+        "p90": 158.3,
+        "max": 158.3
+      }
+    },
+    "weekToControlsEnabledMs": null,
+    "longestTaskMs": null,
+    "longTaskTotalMs": null,
+    "ownMatchFlowMs": null
+  }
+}

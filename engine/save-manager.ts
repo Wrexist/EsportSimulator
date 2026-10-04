@@ -68,7 +68,10 @@ export class SaveManager {
     private storage: AsyncStorage
     private integrity: SaveIntegrityManager
     private saveChain: Promise<unknown> = Promise.resolve()
-    private lastVerifiedPrimary: { key: string; value: string } | null = null
+    // Fingerprint (not the text) of the primary this manager last wrote and
+    // read back. Holding the full serialized save kept a second copy of the
+    // career (about 25 MB by week 52) alive for the whole session (L27.A3).
+    private lastVerifiedPrimary: { key: string; fingerprint: string } | null = null
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -359,7 +362,7 @@ export class SaveManager {
                 this.storage.getItem(backupKey + "_1"),
                 this.storage.getItem(backupKey + "_2"),
             ])
-            const knownPrimary = this.lastVerifiedPrimary?.key === key && this.lastVerifiedPrimary.value === existing
+            const knownPrimary = !!existing && this.lastVerifiedPrimary?.key === key && this.lastVerifiedPrimary.fingerprint === saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
             if (existing && (knownPrimary || previous?.ok)) {
@@ -426,7 +429,7 @@ export class SaveManager {
             step("06_writeVerify")
 
             // 4. Update current save ID
-            this.lastVerifiedPrimary = { key, value: serialized }
+            this.lastVerifiedPrimary = { key, fingerprint: saveTextFingerprint(serialized) }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
@@ -1240,6 +1243,37 @@ export class SaveManager {
  * signature appended, so the multi-MB save is not serialized a second time.
  * Any other key order falls back to JSON.stringify. Output is identical.
  */
+/**
+ * Cheap identity of a stored save text, used only to recognise the primary
+ * this manager itself wrote and verified, so the next save can rotate it into
+ * the backups without re-parsing it (L27). Covers the exact length, the first
+ * and last 64 KiB in full (the tail holds the integrityHash, the head holds
+ * saveId/updatedAt) and every 31st character in between: about 1 ms for a
+ * 25 MB save instead of keeping that whole string alive between saves.
+ * Truncation, a different or newer save, and block-level damage change it.
+ * A single-character change between sample points would not, in which case
+ * that file is rotated into backup_1 without validation; the new primary is
+ * still written and verified, and backups are validated when loaded.
+ */
+export function saveTextFingerprint(text: string): string {
+    const n = text.length
+    const EDGE = 65536
+    const STRIDE = 31
+    let a = 0x811c9dc5 ^ n
+    let b = 0x9e3779b9
+    const headEnd = Math.min(n, EDGE)
+    const tailStart = Math.max(headEnd, n - EDGE)
+    const mix = (c: number) => {
+        a = Math.imul(a ^ c, 16777619)
+        b = Math.imul(b ^ c, 0x5bd1e995)
+        b ^= b >>> 13
+    }
+    for (let i = 0; i < headEnd; i++) mix(text.charCodeAt(i))
+    for (let i = headEnd; i < tailStart; i += STRIDE) mix(text.charCodeAt(i))
+    for (let i = tailStart; i < n; i++) mix(text.charCodeAt(i))
+    return `${n}:${(a >>> 0).toString(36)}:${(b >>> 0).toString(36)}`
+}
+
 export function serializeSignedSave(save: { integrityHash?: unknown }, payload: string): string {
     const keys = Object.keys(save)
     if (keys[keys.length - 1] === "integrityHash" && typeof save.integrityHash === "string" && payload.length > 2 && payload.endsWith("}")) {

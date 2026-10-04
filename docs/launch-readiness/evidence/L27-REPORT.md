@@ -155,3 +155,55 @@ The 14 September increment (recruitment quote reuse, [budgets](L27-BUDGETS.md), 
 | After, early-profile copy | 87–96 | 2,011 ms | 424 ms | 122 ms |
 
 Same machine (i5-12600K, 31.7 GB, Windows 11). The "after" early profile is a later point of the same career than the "before" run, so those two rows are not like-for-like. Week 168 now advances (previously MATCH NOT FOUND); the early session no longer goes bankrupt after the legend-wage fix. The early run stopped at week 97 because the driver does not dismiss the week-review dialog's Continue button: a harness gap, not a game fault. Evidence: `L27-packaged-after-early.json`, `L27-packaged-after-mid.json`.
+
+## Session heap (L27.A3) and 52-week packaged harness (4 Oct, branch `claude/heap-and-packaged-smoke`)
+
+**Result: the session heap is bounded.** After 52 weeks it is 1.2–1.3× a fresh load of the same career (target ≤ 2×). Most of the earlier "12 → 216 MB" was the measurement harness, not the game.
+
+### Root causes (heap snapshots at weeks 0/13/26/52, [summary](L27-heap-retainers.json))
+
+1. **Harness artefact (about 130 MB at week 52).** `page.waitForSelector()` returns an ElementHandle, and CDP keeps it alive until it is disposed. The driver created one per own match (the tactics page's "Simulate Result Instantly" button). Each one pinned the unmounted tactics page: fiber → props/closures → a whole old game state. The snapshot shows about 30 GC roots labelled "DevTools console" of 5–12 MB each. The game itself held only **one** live state: one live `players` array, and no stale states in subscribers, selectors, memo caches, logs or toasts. A normal player session has no CDP handles. **Fix:** the driver now waits with `waitForFunction`. `--legacy-handle-leak` reproduces the old behaviour.
+2. **App: `SaveManager.lastVerifiedPrimary` kept the full serialized save** between saves (24.7 MB at week 52, about 1× the save size). It is used only to skip re-validating the primary this manager wrote itself. **Fix:** it now stores a fingerprint: exact length, full first and last 64 KiB (saveId/updatedAt and integrityHash) and every 31st character, about 1 ms at 25 MB. Truncation, another or newer save and block damage are still detected and validated/quarantined. A single-character change between sample points would not be detected; that file would be rotated into `backup_1` unvalidated, while the new primary is still written and verified. Tests: `__tests__/l27-tick-performance.test.ts` (fingerprint; no parse on own primary; foreign primary still parsed and quarantined). Game state and results are untouched.
+
+DOM nodes (about 7k at week 52) and listeners stay below a fresh load of the same career (8.9k / 664 on load). They track the capped news feed and to-do list, not a leak.
+
+### Before / after (fresh week-1 career, 52 weeks, forced-GC JS heap MB at weeks 1 / 14 / 27 / 40 / 53)
+
+| Run | Build | Driver | Heap | Week 53 vs fresh load |
+|---|---|---|---|---|
+| [packaged base](L27-packaged-heap-base.json) | QA copy (f9358233) | old (leaks handles) | 14.9 / 39.5 / 66.3 / 133.9 / **187.1** | 6.5× |
+| [packaged](L27-packaged-heap-harnessfix.json) | QA copy (f9358233) | fixed | 14.9 / 34.5 / 47.0 / 55.5 / **58.4** | 2.0× |
+| [browser base](L27-packaged-heap-web-base.json) | `next start` of this branch without the SaveManager fix, Chrome | fixed | 14.5 / 33.9 / 46.5 / 55.0 / **57.9** | 2.1× |
+| [browser fix](L27-packaged-heap-web-fix.json) | `next start` of this branch, Chrome | fixed | 14.4 / 22.5 / 27.8 / 31.5 / **33.3** | **1.2×** |
+
+- Fresh load of the resulting week-53 career: packaged 26.4 MB on load / 28.6 MB after route cycles ([evidence](L27-packaged-heap-fresh-w53.json)); browser 25.9 / 27.9 ([evidence](L27-packaged-heap-web-fresh-w53.json)).
+- The packaged rows come from the existing LOCAL-QA-ONLY copy (Steam disabled). **The SaveManager fix was not repackaged.** This worktree's `node_modules` is a junction, which breaks electron-builder. The fix is measured with the production build in Chrome; that browser baseline matches the packaged run (57.9 vs 58.4 MB).
+
+### Week timings (52 weeks; ms; controls enabled = processing done and header CONTINUE/Play enabled)
+
+| Run | Week advance median / p90 | Longest task median / max | Route median | Own-match flow median |
+|---|---|---|---|---|
+| Packaged, old driver | 2,373 / 3,112 | 732 / 1,395 | 93 | 251 |
+| Packaged, fixed driver | 1,757 / 2,694 | 504 / 1,082 | 102 | 302 |
+| Browser base (Chrome, `next start`) | 2,133 / 2,595 | 554 / 775 | 194 | 489 |
+| Browser fix | 2,076 / 2,962 | 532 / 912 | 177 | 482 |
+
+- The heap snapshots at weeks 0/13/26 inflate the old-driver row. Without leaked handles, the packaged week median falls from 2.37 to 1.76 s: less GC pressure in the harness itself.
+- Browser rows are not comparable with packaged rows: visible Chrome window, different career path because the browser session plays its own fixtures from week 1. Base and fix browser rows are within run-to-run noise. All numbers are from this one machine (i5-12600K).
+
+### Harness fix (`scripts/launch/l27-packaged.cjs`)
+
+The end-of-week review ("WEEK N COMPLETE … CONTINUE", `role=dialog`, `aria-label="Week N review"`) is not in the header. When the page under it had no enabled header button, the old `idle()` waited forever (the week 97 stall).
+- `idle()` now treats the review and the processing overlay as "not ready". While waiting, it presses the review's Continue, or acknowledges other blocking dialogs the way a player would.
+- Timing keeps the old end point: processing done and header enabled or review shown.
+- All three 52-week sessions above completed: 52/52 weeks, no errors.
+- New options: `--heap-at=0,26,52` (snapshots) and `--url=` (drive a `next start` build in Chrome, seeded from the profile's game storage into IndexedDB).
+- The default exe is now the QA copy, and the `--allow-steam` escape hatch is removed.
+
+Analyzer: `node --max-old-space-size=16000 scripts/launch/l27-heap-analyze.cjs a.heapsnapshot [b.heapsnapshot]`.
+
+### Residual
+
+- No packaged rebuild with the SaveManager fix yet (needs a real `npm run dist` / `qa:package` from a normal checkout).
+- Late-career (season 10) session growth was not measured in-session; the save string fix scales with save size (about 20 MB saved there).
+- The app's own blob-URL worker is still refused by `worker-src 'self'` (one console error per session). It falls back without visible effect, but the source has not been traced.
