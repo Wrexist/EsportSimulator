@@ -338,7 +338,7 @@ describe('balance pass 2', () => {
 
     test('free-agent retirement and AI scouting respond to pool size', () => {
         expect(freeAgentPoolFactor(10, 100)).toBe(FREE_AGENT_TUNING.POOL_FACTOR_MIN)
-        expect(freeAgentPoolFactor(200, 100)).toBe(1)
+        expect(freeAgentPoolFactor(FREE_AGENT_TUNING.POOL_TARGET_PER_CLUB * 100, 100)).toBe(1)
         expect(freeAgentPoolFactor(5000, 100)).toBe(FREE_AGENT_TUNING.POOL_FACTOR_MAX)
         const save = createLaunchFixture('first-week', 42002)
         expect(freeAgentScoutingFactor(save)).toBe(1)
