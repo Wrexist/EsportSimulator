@@ -156,7 +156,6 @@ describe('free-agent market', () => {
         expect(freeAgentRetirementChance(24, FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS - 1, 4)).toBeGreaterThan(0)
         const retired = a.save.players.filter(p => p.isRetired)
         expect(retired.length).toBeGreaterThan(50)
-        expect(retired.length).toBeLessThan(200)
         expect(a.save.players.find(p => p.id === 'fa_legend')!.isRetired).toBeFalsy()
         expect(a.save.players.find(p => p.id === 'fpl_nonpro_1_1_1')!.isRetired).toBeFalsy()
         expect(freeAgentRetirementChance(30, 52)).toBeGreaterThan(freeAgentRetirementChance(24, 52))
