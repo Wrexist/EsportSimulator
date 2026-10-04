@@ -2,6 +2,8 @@ import { GameSave, WeekTickState, PlayerSaveData, HallOfFameEntry } from "../sav
 import { SeededRNG } from "../rng"
 import { EventType, Team, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
+import { hallOfFameAchievements, qualifiesForHallOfFame } from "../hall-of-fame-manager"
+import { HALL_OF_FAME_TUNING } from "@/lib/balance-tuning"
 
 const INJURY_BASE_CHANCE = 0.002
 const FATIGUE_INJURY_MULTIPLIER = 0.002
@@ -389,14 +391,9 @@ export class EventProcessor {
             }
 
             // Calculate achievements and legendary status
-            const achievements: string[] = []
-            if (player.majorWins && player.majorWins >= 1) achievements.push(`${player.majorWins}x Major Champion`)
-            if (player.totalMVPs && player.totalMVPs >= 3) achievements.push(`${player.totalMVPs}x Tournament MVP`)
-            if (player.totalKills && player.totalKills >= 1000) achievements.push(`${player.totalKills}+ Career Kills`)
-            if (player.avgRating >= 1.15) achievements.push(`${player.avgRating.toFixed(2)} Career Rating`)
-            if (player.matchesPlayed >= 200) achievements.push(`${player.matchesPlayed}+ Matches Veteran`)
-
-            const isLegendary = achievements.length >= 2 || (player.majorWins && player.majorWins >= 1) || (player.avgRating >= 1.20)
+            // (HALL_OF_FAME_TUNING: a few inductions per season, not every long career.)
+            const achievements = hallOfFameAchievements(player)
+            const isLegendary = qualifiesForHallOfFame(player)
 
             if (isLegendary) {
                 player.isLegendary = true
@@ -411,9 +408,10 @@ export class EventProcessor {
                 if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) {
                     const reasons: HallOfFameEntry['inductionReasons'] = []
                     if (player.majorWins && player.majorWins >= 1) reasons.push({ type: 'CHAMPION', label: `${player.majorWins}x Major Champion`, icon: 'Trophy' })
-                    if (player.avgRating >= 1.15) reasons.push({ type: 'MVP', label: `${player.avgRating.toFixed(2)} Career Rating`, icon: 'Star' })
-                    if (player.matchesPlayed >= 200) reasons.push({ type: 'LONGEVITY', label: `${player.matchesPlayed}+ Matches`, icon: 'Clock' })
-                    if (player.totalKills && player.totalKills >= 1000) reasons.push({ type: 'IMPACT', label: `${player.totalKills}+ Career Kills`, icon: 'Crosshair' })
+                    if (player.avgRating >= HALL_OF_FAME_TUNING.CAREER_RATING && player.matchesPlayed >= HALL_OF_FAME_TUNING.RATING_MIN_MATCHES) reasons.push({ type: 'MVP', label: `${player.avgRating.toFixed(2)} Career Rating`, icon: 'Star' })
+                    if (player.matchesPlayed >= HALL_OF_FAME_TUNING.CAREER_MATCHES) reasons.push({ type: 'LONGEVITY', label: `${player.matchesPlayed}+ Matches`, icon: 'Clock' })
+                    if (player.totalKills && player.totalKills >= HALL_OF_FAME_TUNING.CAREER_KILLS) reasons.push({ type: 'IMPACT', label: `${player.totalKills}+ Career Kills`, icon: 'Crosshair' })
+                    if ((player.totalMVPs || 0) >= HALL_OF_FAME_TUNING.MVP_AWARDS) reasons.push({ type: 'MVP', label: `${player.totalMVPs}x Tournament MVP`, icon: 'Star' })
                     save.hallOfFame.push({
                         id: player.id,
                         name: player.nickname,
@@ -469,15 +467,7 @@ export class EventProcessor {
         }
 
         // Check legendary eligibility without retiring — legends never retire
-        const checkLegendaryEligibility = (player: PlayerSaveData): boolean => {
-            const achievements: string[] = []
-            if (player.majorWins && player.majorWins >= 1) achievements.push(`${player.majorWins}x Major Champion`)
-            if (player.totalMVPs && player.totalMVPs >= 3) achievements.push(`${player.totalMVPs}x Tournament MVP`)
-            if (player.totalKills && player.totalKills >= 1000) achievements.push(`${player.totalKills}+ Career Kills`)
-            if (player.avgRating >= 1.15) achievements.push(`${player.avgRating.toFixed(2)} Career Rating`)
-            if (player.matchesPlayed >= 200) achievements.push(`${player.matchesPlayed}+ Matches Veteran`)
-            return achievements.length >= 2 || (player.majorWins != null && player.majorWins >= 1) || (player.avgRating >= 1.20)
-        }
+        const checkLegendaryEligibility = (player: PlayerSaveData): boolean => qualifiesForHallOfFame(player)
 
         save.players.forEach(player => {
             if (player.isRetired) return
@@ -490,12 +480,7 @@ export class EventProcessor {
                 if (checkLegendaryEligibility(player)) {
                     // Grant legendary status — they keep playing
                     player.isLegendary = true
-                    const achievements: string[] = []
-                    if (player.majorWins && player.majorWins >= 1) achievements.push(`${player.majorWins}x Major Champion`)
-                    if (player.totalMVPs && player.totalMVPs >= 3) achievements.push(`${player.totalMVPs}x Tournament MVP`)
-                    if (player.totalKills && player.totalKills >= 1000) achievements.push(`${player.totalKills}+ Career Kills`)
-                    if (player.avgRating >= 1.15) achievements.push(`${player.avgRating.toFixed(2)} Career Rating`)
-                    if (player.matchesPlayed >= 200) achievements.push(`${player.matchesPlayed}+ Matches Veteran`)
+                    const achievements = hallOfFameAchievements(player)
                     player.legendaryAchievements = achievements
                     legends.push(player.id)
 

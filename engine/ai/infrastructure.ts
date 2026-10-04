@@ -19,6 +19,7 @@ import type { GameSave, TeamSaveData, FacilitySaveData } from "../save-types"
 import type { SeededRNG } from "../rng"
 import { StaffGenerator } from "../staff-generator"
 import { SponsorGenerator } from "../economy-manager"
+import { EconomyEngine } from "../economy-engine"
 import { affordableInvestment } from "../recruitment"
 import { aiRoll, hashTeamId } from "./rng-helpers"
 
@@ -88,7 +89,8 @@ export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRN
 
     const ownedTiers = new Set(team.sponsors.map(s => s.tier))
 
-    const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng)
+    const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng,
+        EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
     if (offers.length === 0) return
 
     const ranking = team.worldRanking || 999

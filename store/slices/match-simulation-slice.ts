@@ -37,6 +37,7 @@ import {
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { applyFormResult } from "@/engine/player-lifecycle"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
@@ -385,6 +386,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         }
                     })()
                     player.morale = Math.max(0, Math.min(100, (player.morale || 50) + moraleChange))
+                    player.form = applyFormResult(player.form, won)
 
                     const stats = result.playerStats[pid]
                     if (!stats) return

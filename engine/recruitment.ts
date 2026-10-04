@@ -1,6 +1,7 @@
 import type { GameSave, PlayerSaveData, StaffSaveData, TeamSaveData } from "./save-types"
 import { evaluatePlayer } from "./player-evaluation"
 import { EconomyEngine } from "./economy-engine"
+import { FREE_AGENT_TUNING } from "@/lib/balance-tuning"
 
 export function recruitmentRole(role?: string): string {
     const key = (role || "RIFLER").toUpperCase()
@@ -15,9 +16,35 @@ export function academyHeldPlayerIds(save: Pick<GameSave, "teams" | "academyPlay
     ])
 }
 
-/** Opening wage expectation, shared by human and AI negotiations. */
-export function recruitmentSalary(player: PlayerSaveData, currentWeek: number): number {
-    return Math.max(200, Math.round(evaluatePlayer(player, undefined, undefined, currentWeek).transferValue / 100))
+/** Minimum weekly wage any player asks for. */
+export const MIN_ASKING_WAGE = 200
+
+/**
+ * Share of the full ask a free agent still demands after `weeksUnsigned`
+ * weeks without a club (FREE_AGENT_TUNING). 1 for contracted players.
+ */
+export function freeAgentWageFactor(player: Pick<PlayerSaveData, "freeAgentSinceWeek">, currentWeek: number): number {
+    if (player.freeAgentSinceWeek === undefined) return 1
+    const weeksUnsigned = Math.max(0, currentWeek - player.freeAgentSinceWeek)
+    return Math.max(FREE_AGENT_TUNING.WAGE_DECAY_FLOOR, 1 - FREE_AGENT_TUNING.WAGE_DECAY_PER_WEEK * weeksUnsigned)
+}
+
+/** Buyer-tier factor: smaller clubs get proportionately smaller asks (same rule for every club). */
+export function buyerReputationFactor(buyer?: Pick<TeamSaveData, "reputation">): number {
+    if (!buyer) return 1
+    const rep = Math.max(0, Math.min(100, Number.isFinite(buyer.reputation) ? buyer.reputation : 50))
+    const min = FREE_AGENT_TUNING.BUYER_REPUTATION_MIN_FACTOR
+    return min + (1 - min) * rep / 100
+}
+
+/**
+ * Opening wage expectation, shared by human and AI negotiations. Decays the
+ * longer a free agent stays unsigned and scales with the buyer's reputation
+ * when the buyer is known.
+ */
+export function recruitmentSalary(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation">): number {
+    const base = evaluatePlayer(player, undefined, undefined, currentWeek).transferValue / 100
+    return Math.max(MIN_ASKING_WAGE, Math.round(base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer)))
 }
 
 export function employedScout(staff: StaffSaveData[], team: TeamSaveData | undefined, week: number): StaffSaveData | undefined {

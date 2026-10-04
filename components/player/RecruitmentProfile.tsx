@@ -43,7 +43,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
         </div>
         <div className="grid gap-4 sm:grid-cols-3 text-sm">
             <div><p className="text-slate-400">Overall estimate</p><p className="text-2xl">{formatScoutedRating(report.ovrRange)}</p></div>
-            <div><p className="text-slate-400">Opening wage expectation</p><p>${recruitmentSalary(player, state.currentWeek).toLocaleString()}/wk</p></div>
+            <div><p className="text-slate-400">Opening wage expectation</p><p>${recruitmentSalary(player, state.currentWeek, state.teams.find(t => t.id === state.playerTeamId)).toLocaleString()}/wk</p></div>
             <div><p className="text-slate-400">Contract</p><p>{contract ? `${contract.endWeek - state.currentWeek} weeks remaining` : "No active senior contract"}</p></div>
         </div>
         <p className="text-sm text-slate-400">Ranges are scouting estimates. A better scout narrows them; an elite report reveals all attributes. Wage and contract terms are confirmed during negotiation.</p>

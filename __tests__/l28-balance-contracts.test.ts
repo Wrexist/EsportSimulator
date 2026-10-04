@@ -21,7 +21,8 @@ test('scouted senior players receive a real fixed-term wage charged by normal fi
     const { save, team, before } = scout()
     expect(save.players).toHaveLength(before + 1)
     const player = save.players.at(-1)!, contract = save.contracts.find(c => c.playerId === player.id)!
-    expect(contract).toEqual({ playerId: player.id, teamId: team.id, salaryPerWeek: recruitmentSalary(player, save.currentWeek), startWeek: save.currentWeek, endWeek: save.currentWeek + 104, buyout: 0 })
+    // Balance tuning: wage asks are quoted for the signing club's reputation (FREE_AGENT_TUNING).
+    expect(contract).toEqual({ playerId: player.id, teamId: team.id, salaryPerWeek: recruitmentSalary(player, save.currentWeek, team), startWeek: save.currentWeek, endWeek: save.currentWeek + 104, buyout: 0 })
     const withPlayer = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff, save.currentWeek + 1)
     const without = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts.filter(c => c !== contract), save.staff, save.currentWeek + 1)
     expect(withPlayer.expenses.total - without.expenses.total).toBe(contract.salaryPerWeek)

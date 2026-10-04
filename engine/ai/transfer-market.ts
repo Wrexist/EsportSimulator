@@ -211,7 +211,7 @@ export function processAITransferMarket(
 
             const offerAmount = Math.round(anchoredValue * (0.85 + aiRoll(rng) * 0.3))
 
-            if (!canAfford(recruitmentSalary(player, save.currentWeek), offerAmount)) return
+            if (!canAfford(recruitmentSalary(player, save.currentWeek, aiTeam), offerAmount)) return
 
             const eventId = `offer_${save.currentWeek}_${aiTeam.id}_${player.id}_${offerAmount}`
 
@@ -226,7 +226,7 @@ export function processAITransferMarket(
                     playerName: player.nickname,
                     offerAmount: offerAmount,
                     expiresWeek: save.currentWeek + 2,
-                    salaryPerWeek: recruitmentSalary(player, save.currentWeek),
+                    salaryPerWeek: recruitmentSalary(player, save.currentWeek, aiTeam),
                     message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`,
                 },
                 acknowledged: false,
@@ -301,7 +301,7 @@ export function processAIToAITransfers(
             .map(ap => {
                 const contract = save.contracts.find(c => c.playerId === ap.player.id && c.teamId === ap.team.id && c.endWeek > save.currentWeek)
                 const fee = Math.round(contract?.buyout || evaluatePlayer(ap.player, undefined, undefined, save.currentWeek).transferValue)
-                return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek) }
+                return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek, buyer) }
             }).filter(c => canAfford(c.salary, c.fee))
             .sort((a, b) => (b.ap.player.skill ?? 0) - (a.ap.player.skill ?? 0) || a.ap.player.id.localeCompare(b.ap.player.id))
         if (!candidates.length) continue

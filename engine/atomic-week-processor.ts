@@ -35,7 +35,7 @@ import {
     TrainingFocus,
     EventType,
 } from "@/types"
-import { PlayerLifecycleManager } from "./player-lifecycle"
+import { PlayerLifecycleManager, applyFormResult } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
@@ -955,6 +955,7 @@ export class AtomicWeekProcessor {
                     let moraleDelta = getMoraleChange(won) * derbyStakes
                     if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
                     p.morale = Math.max(0, Math.min(100, p.morale + Math.round(moraleDelta)))
+                    p.form = applyFormResult(p.form, won)
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
@@ -1178,7 +1179,8 @@ export class AtomicWeekProcessor {
         const team = save.teams.find(t => t.id === playerTeamId)
         if (!team) return
         const offerRng = new SeededRNG(rng.int(1, 2147483646))
-        save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng)
+        save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng,
+            EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
         save.declinedSponsorOfferIds = []
     }
 

@@ -105,8 +105,12 @@ export function playOnce(save: GameSave, seed: number, policy?: LegacyDecisionPo
 const lossStreakTimeout: LegacyDecisionPolicy = v => (v.ownLossStreak >= 3 && v.timeoutsRemaining > 0 && !v.regroupActive ? { callTimeout: true } : undefined)
 const alwaysBuy: LegacyDecisionPolicy = v => (v.pistolRound ? undefined : { strategy: 'FULL' })
 const alwaysSave: LegacyDecisionPolicy = v => (v.pistolRound ? undefined : { strategy: 'ECO' })
-/** Classic call: after losing a pistol round, save round 2/14 for a full buy in round 3/15. */
-const ecoAfterPistolLoss: LegacyDecisionPolicy = v => (!v.isOvertime && (v.round === 2 || v.round === 14) && v.ownLossStreak === 1 ? { strategy: 'ECO' } : undefined)
+/**
+ * Force-buy round 2/14 after a lost pistol round. The default now saves there
+ * (ROUND_ECONOMY_TUNING), so forcing is the decision a manager can change; it
+ * trades the round-3/15 full buy for a better round 2/14.
+ */
+const forceAfterPistolLoss: LegacyDecisionPolicy = v => (!v.isOvertime && (v.round === 2 || v.round === 14) && v.ownLossStreak === 1 ? { strategy: 'FORCE' } : undefined)
 const withUtility = (utility: string[]) => {
     const t = createDefaultTactics()
     for (const k of Object.keys(t) as (keyof CustomTactics)[]) for (const side of ['ct', 't'] as const) t[k][side].playerLoadouts?.forEach(l => { if (k !== 'ECO') l.utility = [...utility] })
@@ -141,8 +145,8 @@ export const SCENARIOS: Scenario[] = [
         note: 'Diminishing returns: more utility power, but $1,300+ per player per buy.', tactics: withUtility(['flash', 'smoke', 'molotov', 'he']) },
     { id: 'call-full-buy', decision: 'Live call: engine default -> FULL every non-pistol round', kind: 'live', primary: 'roundShare',
         note: 'Manager overrides the managed buy each round.', policy: alwaysBuy },
-    { id: 'call-eco-after-pistol-loss', decision: 'Live call: save after a lost pistol round', kind: 'live', primary: 'cashPerRound',
-        note: 'Round 2/14 ECO instead of the default force.', policy: ecoAfterPistolLoss },
+    { id: 'call-force-after-pistol-loss', decision: 'Live call: force-buy after a lost pistol round', kind: 'live', primary: 'cashPerRound',
+        note: 'Round 2/14 FORCE instead of the default save; spends the round-3/15 full buy.', policy: forceAfterPistolLoss },
     { id: 'timeout-on-streak', decision: 'Tactical timeout at a 3-round losing streak (max 2)', kind: 'live', primary: 'roundShare',
         note: 'Regroup subtracts up to two losses from tilt for two rounds; economy and opponent untouched.', policy: lossStreakTimeout },
     { id: 'call-save-always', decision: 'Live call: ECO every non-pistol round (negative control)', kind: 'live', primary: 'roundShare', negativeControl: true,

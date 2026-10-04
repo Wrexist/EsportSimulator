@@ -3,6 +3,7 @@ import { calculateProPrestigeScore } from "./prestige-system"
 import { HallOfFameManager } from "./hall-of-fame-manager"
 import { GameSave, PlayerSaveData } from "./save-types"
 import { SeededRNG, generateSeed } from "./rng"
+import { CONDITION_TUNING } from "@/lib/balance-tuning"
 
 /**
  * Subset of player fields used by processWeeklyUpdates and its internal helpers.
@@ -21,6 +22,12 @@ interface PlayerLike {
     skill: number
     rifle: number
     clutch: number
+}
+
+/** Form after a committed match result (CONDITION_TUNING); same rule for every club. */
+export function applyFormResult(form: number | undefined, won: boolean): number {
+    const delta = won ? CONDITION_TUNING.FORM_PER_WIN : CONDITION_TUNING.FORM_PER_LOSS
+    return Math.max(0, Math.min(100, (form ?? 50) + delta))
 }
 
 /**
@@ -165,15 +172,16 @@ export class PlayerLifecycleManager {
             player.energy = Math.min(maxEnergy, (player.energy ?? 100) + energyRecovery)
         }
 
-        // Morale drifts towards 50 (Baseline)
-        const targetMorale = 50
+        // Morale and form drift towards 50, lowered by carried fatigue
+        // (CONDITION_TUNING): a heavy schedule has a real cost for every club.
+        const fatigueNow = Math.max(0, player.fatigue || 0)
+        const targetMorale = 50 - fatigueNow * CONDITION_TUNING.FATIGUE_MORALE_DRAG
         // Facility bonus to morale drift: slightly faster recovery from low morale
         const moraleStep = player.morale < 50 ? (0.05 + recoveryBonus * 0.01) : 0.05
         const drift = (targetMorale - player.morale) * moraleStep
         player.morale = Math.max(0, Math.min(100, player.morale + drift))
 
-        // Form drifts towards 50
-        const targetForm = 50
+        const targetForm = 50 - fatigueNow * CONDITION_TUNING.FATIGUE_FORM_DRAG
         const formDrift = (targetForm - player.form) * 0.1
         player.form = Math.max(0, Math.min(100, player.form + formDrift))
     }

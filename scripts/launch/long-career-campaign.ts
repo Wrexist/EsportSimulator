@@ -31,6 +31,16 @@ const arg = (key: string, fallback: string) => argv.find(a => a.startsWith(`--${
 const flag = (key: string) => argv.includes(`--${key}`)
 const today = new Date().toISOString().slice(0, 10)
 const label = arg('label', `run-${today}`)
+/**
+ * Managed-club policy: `competent` (default, as documented in the summary),
+ * `passive` (competent but never presses Register: exercises automatic entry),
+ * `spendthrift` (bad policy: no sponsors, signs the best free agents up to
+ * seven regardless of wages; exercises reachable bankruptcy).
+ */
+const POLICIES = ['competent', 'passive', 'spendthrift'] as const
+type PolicyName = typeof POLICIES[number]
+const policyName = arg('policy', 'competent') as PolicyName
+if (!POLICIES.includes(policyName)) throw Error(`Unknown --policy=${policyName}`)
 const outDir = path.join(root, 'tmp', 'long-career', label)
 const TIERS = ['top', 'mid', 'low'] as const
 type Tier = typeof TIERS[number]
@@ -259,7 +269,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             const st = get(), held = academyHeldPlayerIds(st as never)
             const owned = new Set(st.teams.flatMap(t => t.rosterIds))
             const free = st.players.filter(p => !p.isRetired && !held.has(p.id) && !owned.has(p.id) && !st.contracts.some(c => c.playerId === p.id && c.endWeek > st.currentWeek))
-                .map(p => ({ p, wage: recruitmentSalary(p as PlayerSaveData, st.currentWeek) }))
+                .map(p => ({ p, wage: recruitmentSalary(p as PlayerSaveData, st.currentWeek, playerTeam()) }))
             const budget = Math.max(0, playerTeam().budget)
             const affordable = free.filter(x => x.wage * 104 <= budget).sort((a, b) => b.p.skill - a.p.skill || a.p.id.localeCompare(b.p.id))
             const cheapest = free.filter(x => !affordable.includes(x)).sort((a, b) => a.wage - b.wage || a.p.id.localeCompare(b.p.id))
@@ -278,7 +288,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             const worst = starters[0]
             const budget = Math.max(0, playerTeam().budget)
             const pick = worst && st.players.filter(p => !p.isRetired && !held.has(p.id) && !owned.has(p.id) && p.skill >= worst.skill + 5 && !st.contracts.some(c => c.playerId === p.id && c.endWeek > st.currentWeek))
-                .map(p => ({ p, wage: recruitmentSalary(p as PlayerSaveData, st.currentWeek) }))
+                .map(p => ({ p, wage: recruitmentSalary(p as PlayerSaveData, st.currentWeek, playerTeam()) }))
                 .filter(x => x.wage * 104 <= budget * 0.25)
                 .sort((a, b) => b.p.skill - a.p.skill || a.p.id.localeCompare(b.p.id))[0]
             const w = st.currentWeek
@@ -286,13 +296,24 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                 if (get().transferPlayer(worst.id, teamId, 'FA', 0).success) policyStats.upgrades++
             }
         }
+        // Bad policy: stack the squad to seven with the best free agents at
+        // whatever they ask (no affordability check, no sponsors below).
+        if (policyName === 'spendthrift' && playerTeam().rosterIds.length < 7 && get().currentWeek % 4 === 0) {
+            const st = get(), held = academyHeldPlayerIds(st as never)
+            const owned = new Set(st.teams.flatMap(t => t.rosterIds))
+            const pick = st.players.filter(p => !p.isRetired && !held.has(p.id) && !owned.has(p.id) && !st.contracts.some(c => c.playerId === p.id && c.endWeek > st.currentWeek))
+                .sort((a, b) => b.skill - a.skill || a.id.localeCompare(b.id))[0]
+            const w = st.currentWeek
+            if (pick && get().transferPlayer(pick.id, null, teamId, 0, { salaryPerWeek: recruitmentSalary(pick as PlayerSaveData, w, playerTeam()), startWeek: w, endWeek: w + 104, buyout: 0 }).success) policyStats.signings++
+        }
         // Enter every upcoming event the club is eligible for (the Tournaments
-        // screen's Register button; auto-registration only covers invites).
-        for (const t of [...get().tournaments].filter(t => t.startWeek > get().currentWeek && t.startWeek <= get().currentWeek + 4 && !t.teamIds.includes(teamId)).sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))) {
+        // screen's Register button). The passive policy never presses it and
+        // relies on automatic entry (invites, points, open qualifiers).
+        if (policyName !== 'passive') for (const t of [...get().tournaments].filter(t => t.startWeek > get().currentWeek && t.startWeek <= get().currentWeek + 4 && !t.teamIds.includes(teamId)).sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))) {
             if (get().registerForTournament(t.id).success) policyStats.registrations++
         }
         // Sponsors: keep slots filled with the best currently offered deal (signSponsor enforces gates).
-        if ((playerTeam().sponsors?.length ?? 0) < 3) {
+        if (policyName !== 'spendthrift' && (playerTeam().sponsors?.length ?? 0) < 3) {
             if (!get().sponsorOffers.length) get().refreshSponsorOffers()
             for (const o of [...get().sponsorOffers].sort((a, b) => b.weeklyPayout - a.weeklyPayout || a.id.localeCompare(b.id))) {
                 if ((playerTeam().sponsors?.length ?? 0) >= 3) break
@@ -358,7 +379,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     let roundTrip: unknown = null
     const roundTripAt = Number(arg('roundtrip-at', String(60 + (seed * 13) % 120)))
     let ticks = 0
-    const seasonOpen = { cash: playerTeam().budget, retired: new Set(get().players.filter(p => p.isRetired).map(p => p.id)), players: get().players.length }
+    const seasonOpen = openState(snap(), playerTeam().budget)
 
     const income = new Map<string, number>()
     while (ticks < weeks && !get().gameOverReason) {
@@ -421,12 +442,12 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         if (active < openingActive * BOUNDS.supplyMinRatio || active > openingActive * BOUNDS.supplyMaxRatio) record([{ kind: 'player-supply', week: s.currentWeek, detail: `${active} active vs ${openingActive} at start` }], () => s)
         if (structural.length === 0) lastGood = structuredClone(s)
         if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push(seasonMetrics(s, seasonOpen, income, teamId))
-        if (ticks % 52 === 0) { seasonOpen.cash = playerTeam().budget; seasonOpen.retired = new Set(s.players.filter(p => p.isRetired).map(p => p.id)); seasonOpen.players = s.players.length; income.clear() }
+        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear() }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
     const final = snap()
     const result = {
-        seed, tier, club: club.id, clubName: club.name, seasonsRequested: seasons, ticks, finalWeek: final.currentWeek,
+        seed, tier, policyName, openingActive, club: club.id, clubName: club.name, seasonsRequested: seasons, ticks, finalWeek: final.currentWeek,
         terminal: final.gameOverReason ?? null, failures, failureKinds: [...new Set(failures.map(f => f.kind))],
         policy: policyStats, jobChanges, roundTrip, inboxPerWeek: distribution(inboxPerWeek), inboxMax: Math.max(0, ...inboxPerWeek), inboxByType,
         tickMs: distribution(tickMs), seasons: seasonsOut, finalHash: sha(canonicalWeekState(final)),
@@ -436,7 +457,23 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     process.stdout.write(`${tag} done ticks ${ticks} terminal ${result.terminal} failures ${failures.length} kinds ${result.failureKinds.join(',')}\n`)
 }
 
-function seasonMetrics(s: GameSave, open: { cash: number; retired: Set<string>; players: number }, income: Map<string, number>, teamId: string) {
+/** Season-open reference for flow metrics (GC removes retired players at season end, so count by id). */
+function openState(s: GameSave, cash: number) {
+    return { cash, active: new Set(s.players.filter(p => !p.isRetired).map(p => p.id)), all: new Set(s.players.map(p => p.id)), hof: new Set((s.hallOfFame || []).map(h => h.id)) }
+}
+
+const avgOf = (xs: number[]) => xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length * 10) / 10 : NaN
+
+/** Starter condition: managed club vs the AI top ten (form/morale/fatigue/skill averages). */
+function conditionMetrics(s: GameSave, teamId: string) {
+    const byId = new Map(s.players.map(p => [p.id, p]))
+    const of = (ids: string[]) => ids.map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p)
+    const pack = (ps: PlayerSaveData[]) => ({ form: avgOf(ps.map(p => p.form)), morale: avgOf(ps.map(p => p.morale)), fatigue: avgOf(ps.map(p => p.fatigue)), skill: avgOf(ps.map(p => p.skill)) })
+    const aiTop = s.teams.filter(t => t.id !== teamId).sort((a, b) => (a.worldRanking ?? 999) - (b.worldRanking ?? 999)).slice(0, 10)
+    return { managed: pack(of(s.teams.find(t => t.id === teamId)?.rosterIds ?? [])), aiTop10: pack(of(aiTop.flatMap(t => t.rosterIds))) }
+}
+
+function seasonMetrics(s: GameSave, open: ReturnType<typeof openState>, income: Map<string, number>, teamId: string) {
     const team = s.teams.find(t => t.id === teamId)!
     const alive = s.players.filter(p => !p.isRetired)
     const rostered = new Set(s.teams.flatMap(t => t.rosterIds))
@@ -463,7 +500,10 @@ function seasonMetrics(s: GameSave, open: { cash: number; retired: Set<string>; 
         transfers: s.transferHistory.filter(t => t.week > seasonStart).length,
         ovrByAge: Object.fromEntries(Object.entries(ovrByAge).sort().map(([k, v]) => [k, distribution(v)])),
         playersActive: alive.length, playersTotal: s.players.length, freeAgents: alive.filter(p => !rostered.has(p.id)).length,
-        retiredThisSeason: s.players.filter(p => p.isRetired && !open.retired.has(p.id)).length, newPlayers: s.players.length - open.players,
+        retiredThisSeason: (() => { const ids = new Set(alive.map(p => p.id)); return [...open.active].filter(id => !ids.has(id)).length })(), newPlayers: s.players.filter(p => !open.all.has(p.id)).length,
+        hofInductions: (s.hallOfFame || []).filter(h => !open.hof.has(h.id)).length,
+        condition: conditionMetrics(s, teamId),
+        managedTopTierShare: Object.fromEntries(Object.entries(winners).map(([tier, ws]) => [tier, ws.length ? ws.filter(w => w === teamId).length / ws.length : 0])),
         titles: Object.fromEntries(Object.entries(winners).map(([tier, ws]) => [tier, { events: ws.length, distinctWinners: new Set(ws).size, topWinnerShare: ws.length ? Math.max(...[...new Set(ws)].map(w => ws.filter(x => x === w).length)) / ws.length : 0 }])),
         winners: done.map(t => ({ id: t.id, tier: t.tier, winner: t.winnerId })),
         tournamentsTracked: s.tournaments.length, matchesThisSeason: s.completedMatches.filter(m => m.week > seasonStart).length,
@@ -472,6 +512,31 @@ function seasonMetrics(s: GameSave, open: { cash: number; retired: Set<string>; 
 }
 
 // ---------------------------------------------------------------- aggregate
+/** Balance-tuning targets (docs/launch-readiness/evidence/balance-tuning-2026-10-04.md). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function targetMetrics(results: any[]) {
+    const maxSeasons = Math.max(0, ...results.map(r => r.seasons.length))
+    const bySeason = <T>(fn: (s: any) => T) => Array.from({ length: maxSeasons }, (_, i) => results.map(r => r.seasons[i]).filter(Boolean).map(fn)) // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const later = results.flatMap(r => r.seasons.slice(1)) as any[]
+    return {
+        worldNumberOneBySeason: bySeason(s => s.managed.ranking === 1).map((xs, i) => ({ season: i + 1, careers: xs.length, worldNo1: xs.filter(Boolean).length })),
+        managedSTierTitleShareSeason2Plus: distribution(later.map(s => s.managedTopTierShare?.S_TIER ?? 0)),
+        managedATierTitleShareSeason2Plus: distribution(later.map(s => s.managedTopTierShare?.A_TIER ?? 0)),
+        managedWinRateSeason2Plus: distribution(later.filter(s => s.managed.matches).map(s => s.managed.wins / s.managed.matches)),
+        hofInductionsBySeason: bySeason(s => s.hofInductions ?? NaN).map((xs, i) => ({ season: i + 1, ...distribution(xs) })),
+        aiShortRostersAtSeasonEnd: distribution(results.flatMap(r => r.seasons.map((s: { aiShortRosters: number }) => s.aiShortRosters))),
+        poolRatioFinal: distribution(results.map(r => (r.seasons.at(-1)?.playersActive ?? NaN) / (r.openingActive ?? NaN))),
+        newPlayersPerSeason: distribution(results.flatMap(r => r.seasons.map((s: { newPlayers: number }) => s.newPlayers))),
+        retiredPerSeason: distribution(results.flatMap(r => r.seasons.map((s: { retiredThisSeason: number }) => s.retiredThisSeason))),
+        terminal: results.reduce((m: Record<string, number>, r) => { const k = r.terminal ?? 'none'; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        managedFormGap: distribution(later.map(s => (s.condition?.managed.form ?? NaN) - (s.condition?.aiTop10.form ?? NaN))),
+        managedMoraleGap: distribution(later.map(s => (s.condition?.managed.morale ?? NaN) - (s.condition?.aiTop10.morale ?? NaN))),
+        managedSkillGap: distribution(later.map(s => (s.condition?.managed.skill ?? NaN) - (s.condition?.aiTop10.skill ?? NaN))),
+        seasonCashDelta: distribution(results.flatMap(r => r.seasons.map((s: { managed: { cashDelta: number } }) => s.managed.cashDelta))),
+    }
+}
+
 function aggregate() {
     const files = fs.existsSync(outDir) ? fs.readdirSync(outDir).filter(f => /^seed-\d+-\w+\.json$/.test(f)) : []
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -511,6 +576,8 @@ function aggregate() {
     const summary = {
         generated: new Date().toISOString(), label,
         driver: 'Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.',
+        policyName: [...new Set(results.map(r => r.policyName ?? 'competent'))].join(','),
+        targets: targetMetrics(results),
         policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent payable from a quarter of cash; greedy-money branch on choice events; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered).',
         bounds: BOUNDS,
         sampleSize: { careers: results.length, seeds: [...new Set(results.map(r => r.seed))].length, weekTicks: results.reduce((s, r) => s + r.ticks, 0), seasonSnapshots: seasonsAll.length,
@@ -550,8 +617,10 @@ function aggregate() {
         managedIncomeByCategory: seasonsAll.reduce((m: Record<string, number[]>, s: any) => { for (const [k, v] of Object.entries(s.managed.ledger)) (m[k] ??= []).push(v as number); return m }, {}),
         careers: results.map(r => ({ seed: r.seed, tier: r.tier, club: r.club, ticks: r.ticks, terminal: r.terminal, failureKinds: r.failureKinds, finalCash: lastSeason(r)?.managed.cash, policy: r.policy, roundTripIdentical: r.roundTrip?.identical ?? null })),
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))
-    const evidence = path.join(root, 'docs/launch-readiness/evidence', `long-career-${today}.json`)
+    const evidence = path.resolve(root, arg('out', path.join('docs/launch-readiness/evidence', `long-career-${today}.json`)))
     fs.writeFileSync(evidence, JSON.stringify(summary, null, 2))
     process.stdout.write(`aggregate: ${results.length} careers, ${summary.sampleSize.weekTicks} ticks -> ${path.relative(root, evidence)}\n`)
 }
@@ -565,7 +634,7 @@ async function orchestrate() {
     const cli = path.join(root, 'node_modules/tsx/dist/cli.mjs')
     const runOne = (seed: number) => new Promise<void>(resolve => {
         const log = fs.createWriteStream(path.join(outDir, `seed-${seed}.log`))
-        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`, `--policy=${policyName}`], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
         child.stdout.on('data', d => { log.write(d); if (/done|tick \d*0[48] /.test(String(d))) process.stdout.write(String(d)) })
         child.stderr.on('data', d => log.write(d))
         child.on('exit', code => { log.end(); if (code) process.stdout.write(`seed ${seed} exited ${code} (see ${path.relative(root, path.join(outDir, `seed-${seed}.log`))})\n`); resolve() })

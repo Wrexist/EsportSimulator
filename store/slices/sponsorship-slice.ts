@@ -18,6 +18,7 @@
 import type { SponsorshipActions, SliceCreator } from "@/store/types"
 import { SeededRNG } from "@/engine"
 import { SponsorGenerator } from "@/engine/economy-manager"
+import { EconomyEngine } from "@/engine/economy-engine"
 
 export const createSponsorshipSlice: SliceCreator<SponsorshipActions> = (set) => ({
     refreshSponsorOffers: () => {
@@ -27,7 +28,8 @@ export const createSponsorshipSlice: SliceCreator<SponsorshipActions> = (set) =>
             // Mix the last RNG seed with the current week so re-rolls during
             // the same week are stable (same seed + same week = same set).
             const rng = new SeededRNG(state.lastRngSeed + state.currentWeek * 7919)
-            state.sponsorOffers = SponsorGenerator.generateVariedOffers(team, state.currentWeek, rng)
+            state.sponsorOffers = SponsorGenerator.generateVariedOffers(team, state.currentWeek, rng,
+                EconomyEngine.weeklyWageBill(team, state.contracts, state.staff || [], state.currentWeek + 1))
             state.declinedSponsorOfferIds = []
         })
     },

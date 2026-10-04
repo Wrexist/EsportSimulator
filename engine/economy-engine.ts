@@ -113,11 +113,20 @@ export class EconomyEngine {
         }
     }
 
+    /** Weekly player + staff wages payable in `week` (the sponsor wage-share base). */
+    static weeklyWageBill(team: TeamSaveData, contracts: ContractSaveData[], staff: StaffSaveData[], week?: number): number {
+        return this.calculatePlayerWages(team, contracts || [], week) + this.calculateStaffWages(team.staffIds || [], staff || [], week)
+    }
+
+    /** Sponsor income multiplier from reputation (0.7 at 0 to 1.3 at 100). */
+    static sponsorReputationFactor(reputation: number): number {
+        return ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE + ((reputation || 0) / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
+    }
+
     // === INCOME LOGIC ===
 
     static calculateSponsorIncome(team: TeamSaveData): number {
-        const repFactor = ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_BASE
-            + (team.reputation / 100) * ECONOMY_CONSTANTS.SPONSOR_REP_FACTOR_RANGE
+        const repFactor = this.sponsorReputationFactor(team.reputation)
 
         let total = 0
         if (team.sponsors && team.sponsors.length > 0) {
