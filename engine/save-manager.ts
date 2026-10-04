@@ -68,10 +68,10 @@ export class SaveManager {
     private storage: AsyncStorage
     private integrity: SaveIntegrityManager
     private saveChain: Promise<unknown> = Promise.resolve()
-    // Fingerprint (not the text) of the primary this manager last wrote and
-    // read back. Holding the full serialized save kept a second copy of the
-    // career (about 25 MB by week 52) alive for the whole session (L27.A3).
-    private lastVerifiedPrimary: { key: string; fingerprint: string } | null = null
+    // Length + full-content hash (not the text) of the primary this manager
+    // last wrote and read back. Holding the full serialized save kept a second
+    // copy of the career (about 25 MB by week 52) alive all session (L27.A3).
+    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string } | null = null
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -362,7 +362,10 @@ export class SaveManager {
                 this.storage.getItem(backupKey + "_1"),
                 this.storage.getItem(backupKey + "_2"),
             ])
-            const knownPrimary = !!existing && this.lastVerifiedPrimary?.key === key && this.lastVerifiedPrimary.fingerprint === saveTextFingerprint(existing)
+            // Length first (free); the full-content hash only when it could match.
+            const known = this.lastVerifiedPrimary
+            const knownPrimary = !!existing && known?.key === key && known.length === existing.length
+                && known.fingerprint === await saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
             if (existing && (knownPrimary || previous?.ok)) {
@@ -383,6 +386,9 @@ export class SaveManager {
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
             const serialized = serializeSignedSave(save, payload)
             step("05_stringify")
+            // Hash the new primary while the staging/commit writes are in flight
+            // (chunked, so it interleaves with storage I/O). Never rejects.
+            const serializedFingerprint = saveTextFingerprint(serialized)
             await this.storage.setItem(tmpKey, serialized)
 
             // 3. Verify staging succeeded before committing. Concurrent IDB
@@ -429,7 +435,7 @@ export class SaveManager {
             step("06_writeVerify")
 
             // 4. Update current save ID
-            this.lastVerifiedPrimary = { key, fingerprint: saveTextFingerprint(serialized) }
+            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
@@ -1237,43 +1243,74 @@ export class SaveManager {
 }
 
 /**
+ * Full-content identity of a stored save text, used only to recognise the
+ * primary this manager itself wrote and verified, so the next save can rotate
+ * it into the backups without re-parsing it (L27), without keeping the whole
+ * string alive between saves (L27.A3). Every character is hashed; nothing is
+ * sampled, so any change, including a single character, forces validation.
+ *
+ * SHA-256 (WebCrypto: browser, worker, Node 22/jest) over the raw UTF-16 code
+ * units, in 1 Mi-unit chunks whose digests are then hashed together with the
+ * length. Code units (not UTF-8) make every string, including lone
+ * surrogates, hash exactly, and skip a slow UTF-8 transcode of two-byte save
+ * text. Chunking keeps each main-thread slice to a few ms (the digest itself
+ * runs off-thread in browsers). The value never leaves this process, so the
+ * platform byte order of Uint16Array does not matter.
+ * Runtimes without WebCrypto use a full-length 64-bit FNV-1a over every code
+ * unit. The exact length is part of the result; callers compare it first.
+ */
+export async function saveTextFingerprint(text: string): Promise<string> {
+    const subtle = typeof globalThis.crypto !== "undefined" ? globalThis.crypto.subtle : undefined
+    if (subtle) {
+        try {
+            const CHUNK = 1 << 20
+            const n = text.length
+            const chunkCount = Math.max(1, Math.ceil(n / CHUNK))
+            const digests = new Uint8Array(32 * chunkCount)
+            for (let c = 0; c < chunkCount; c++) {
+                const start = c * CHUNK
+                const end = Math.min(n, start + CHUNK)
+                const units = new Uint16Array(end - start)
+                for (let i = start; i < end; i++) units[i - start] = text.charCodeAt(i)
+                digests.set(new Uint8Array(await subtle.digest("SHA-256", units)), 32 * c)
+            }
+            const root = new Uint8Array(await subtle.digest("SHA-256", digests))
+            let hex = ""
+            for (const byte of root) hex += byte.toString(16).padStart(2, "0")
+            return `${n}:sha256u16:${hex}`
+        } catch {
+            // Full-length fallback below.
+        }
+    }
+    return `${text.length}:fnv64:${fnv1a64Utf16(text)}`
+}
+
+/** FNV-1a (64-bit, as two 32-bit halves) over every UTF-16 code unit. */
+export function fnv1a64Utf16(text: string): string {
+    // 64-bit offset basis 0xcbf29ce484222325, prime 0x100000001b3 (= 2^40 + 0x1b3).
+    // Each code unit is fed as two bytes (low, high). (hi:lo) * prime mod 2^64 is
+    // hi' = hi*0x1b3 + carry(lo*0x1b3) + (lo << 8), lo' = low 32 bits of lo*0x1b3.
+    let hi = 0xcbf29ce4 | 0
+    let lo = 0x84222325 | 0
+    const n = text.length
+    for (let i = 0; i < 2 * n; i++) {
+        const c = text.charCodeAt(i >> 1)
+        lo ^= (i & 1) === 0 ? c & 0xff : c >>> 8
+        const loLo = (lo & 0xffff) * 0x1b3
+        const loHi = (lo >>> 16) * 0x1b3 + (loLo >>> 16)
+        hi = (Math.imul(hi, 0x1b3) + Math.floor(loHi / 0x10000) + (lo << 8)) | 0
+        lo = ((loHi & 0xffff) << 16) | (loLo & 0xffff)
+    }
+    return (hi >>> 0).toString(16).padStart(8, "0") + (lo >>> 0).toString(16).padStart(8, "0")
+}
+
+/**
  * `JSON.stringify(save)` for a save whose `integrityHash` was just set from
  * `payload` (= JSON.stringify of the save without that key). When
  * `integrityHash` is the last own key, the full text is the payload with the
  * signature appended, so the multi-MB save is not serialized a second time.
  * Any other key order falls back to JSON.stringify. Output is identical.
  */
-/**
- * Cheap identity of a stored save text, used only to recognise the primary
- * this manager itself wrote and verified, so the next save can rotate it into
- * the backups without re-parsing it (L27). Covers the exact length, the first
- * and last 64 KiB in full (the tail holds the integrityHash, the head holds
- * saveId/updatedAt) and every 31st character in between: about 1 ms for a
- * 25 MB save instead of keeping that whole string alive between saves.
- * Truncation, a different or newer save, and block-level damage change it.
- * A single-character change between sample points would not, in which case
- * that file is rotated into backup_1 without validation; the new primary is
- * still written and verified, and backups are validated when loaded.
- */
-export function saveTextFingerprint(text: string): string {
-    const n = text.length
-    const EDGE = 65536
-    const STRIDE = 31
-    let a = 0x811c9dc5 ^ n
-    let b = 0x9e3779b9
-    const headEnd = Math.min(n, EDGE)
-    const tailStart = Math.max(headEnd, n - EDGE)
-    const mix = (c: number) => {
-        a = Math.imul(a ^ c, 16777619)
-        b = Math.imul(b ^ c, 0x5bd1e995)
-        b ^= b >>> 13
-    }
-    for (let i = 0; i < headEnd; i++) mix(text.charCodeAt(i))
-    for (let i = headEnd; i < tailStart; i += STRIDE) mix(text.charCodeAt(i))
-    for (let i = tailStart; i < n; i++) mix(text.charCodeAt(i))
-    return `${n}:${(a >>> 0).toString(36)}:${(b >>> 0).toString(36)}`
-}
-
 export function serializeSignedSave(save: { integrityHash?: unknown }, payload: string): string {
     const keys = Object.keys(save)
     if (keys[keys.length - 1] === "integrityHash" && typeof save.integrityHash === "string" && payload.length > 2 && payload.endsWith("}")) {

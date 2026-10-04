@@ -3,7 +3,7 @@
  * optimizations: single serialization of signed saves, FPL history compaction,
  * bridge input ownership, and role-filtered free-agent quoting.
  */
-import { serializeSignedSave, saveTextFingerprint, SaveManager } from '@/engine/save-manager'
+import { serializeSignedSave, saveTextFingerprint, fnv1a64Utf16, SaveManager } from '@/engine/save-manager'
 import { SaveIntegrityManager } from '@/engine/save-integrity'
 import { compactPersistentState } from '@/engine/processors/save-compactor'
 import { ARRAY_CAPS } from '@/lib/constants'
@@ -43,16 +43,55 @@ describe('signed save text', () => {
 
 describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
     const big = (n: number) => `{"saveId":"x"${',"p":"abcdefghij"'.repeat(n)},"integrityHash":"v3:1"}`
-    test('identical text matches; length, head, tail and bulk damage do not', () => {
+    const flip = (text: string, i: number) => text.slice(0, i) + (text[i] === 'q' ? 'r' : 'q') + text.slice(i + 1)
+    // The replaced sampler hashed the first/last 64 KiB and every 31st char between.
+    const oldSamplerSkipped = (n: number) => [65537, 65536 + 15, Math.floor(n / 2) + 7, n - 65536 - 2].filter(i => (i - 65536) % 31 !== 0)
+
+    test('identical text matches; uses SHA-256 and includes the exact length', async () => {
         const text = big(40000)
-        expect(saveTextFingerprint(text)).toBe(saveTextFingerprint(text.slice(0)))
-        expect(saveTextFingerprint(text.slice(0, -1))).not.toBe(saveTextFingerprint(text))
-        expect(saveTextFingerprint(text.replace('"saveId":"x"', '"saveId":"y"'))).not.toBe(saveTextFingerprint(text))
-        expect(saveTextFingerprint(text.replace('v3:1', 'v3:2'))).not.toBe(saveTextFingerprint(text))
-        const mid = Math.floor(text.length / 2)
-        expect(saveTextFingerprint(text.slice(0, mid) + 'Z'.repeat(64) + text.slice(mid + 64))).not.toBe(saveTextFingerprint(text))
-        expect(saveTextFingerprint('')).toBe(saveTextFingerprint(''))
+        const fp = await saveTextFingerprint(text)
+        expect(fp).toBe(await saveTextFingerprint(text.slice(0)))
+        expect(fp).toMatch(new RegExp(`^${text.length}:sha256u16:[0-9a-f]{64}$`))
+        expect(await saveTextFingerprint(text.slice(0, -1))).not.toBe(fp)
+        expect(await saveTextFingerprint('')).toBe(await saveTextFingerprint(''))
     })
+    test('a single-character change at every position of a save text is detected', async () => {
+        const text = big(100).slice(0, 1500)
+        const fp = await saveTextFingerprint(text)
+        const seen = new Set([fp])
+        for (let i = 0; i < text.length; i++) seen.add(await saveTextFingerprint(flip(text, i)))
+        expect(seen.size).toBe(text.length + 1)
+    }, 60000)
+    test('a single-character change where the old sampler never looked, or at a chunk boundary, is detected', async () => {
+        const text = big(70000)
+        expect(text.length).toBeGreaterThan((1 << 20) + 2)
+        const fp = await saveTextFingerprint(text)
+        const positions = [...oldSamplerSkipped(text.length), (1 << 20) - 1, 1 << 20, (1 << 20) + 1, text.length - 1]
+        expect(positions.length).toBeGreaterThanOrEqual(3)
+        for (const i of positions) expect(await saveTextFingerprint(flip(text, i))).not.toBe(fp)
+    })
+    test('full-length FNV-1a fallback: reference value, every position, lone surrogates', async () => {
+        const reference = (s: string) => {
+            let h = 0xcbf29ce484222325n
+            for (let i = 0; i < s.length; i++) for (const b of [s.charCodeAt(i) & 0xff, s.charCodeAt(i) >> 8]) h = ((h ^ BigInt(b)) * 0x100000001b3n) & 0xffffffffffffffffn
+            return h.toString(16).padStart(16, '0')
+        }
+        for (const s of ['', 'a', 'save', '\u00e9\u4e2d\uFFFF', big(3)]) expect(fnv1a64Utf16(s)).toBe(reference(s))
+        const text = big(100).slice(0, 1500)
+        const seen = new Set([fnv1a64Utf16(text)])
+        for (let i = 0; i < text.length; i++) seen.add(fnv1a64Utf16(flip(text, i)))
+        expect(seen.size).toBe(text.length + 1)
+        // Code units are hashed directly: a lone surrogate is not folded into U+FFFD.
+        expect(await saveTextFingerprint('a\uD800b')).not.toBe(await saveTextFingerprint('a\uFFFDb'))
+        expect(fnv1a64Utf16('a\uD800b')).not.toBe(fnv1a64Utf16('a\uFFFDb'))
+        const subtle = globalThis.crypto.subtle
+        Object.defineProperty(globalThis.crypto, 'subtle', { value: undefined, configurable: true })
+        try {
+            expect(await saveTextFingerprint(text)).toBe(`${text.length}:fnv64:${fnv1a64Utf16(text)}`)
+        } finally {
+            Object.defineProperty(globalThis.crypto, 'subtle', { value: subtle, configurable: true })
+        }
+    }, 60000)
     test('a save rotates its own verified primary without keeping the text, and still quarantines a foreign one', async () => {
         const store = new Map<string, string>()
         const storage = { getItem: async (k: string) => store.get(k) ?? null, setItem: async (k: string, v: string) => { store.set(k, v) }, removeItem: async (k: string) => { store.delete(k) }, clear: async () => store.clear(), getAllKeys: async () => [...store.keys()] }
@@ -73,6 +112,31 @@ describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
         expect((await manager.saveGame(save)).success).toBe(true)
         expect(parse).toHaveBeenCalledTimes(1)
         expect([...store].some(([k, v]) => /corrupt/i.test(k) && v === 'not a save')).toBe(true)
+        parse.mockRestore()
+    })
+    test('a same-length one-character change to the primary (at a position the old sampler skipped) is re-validated before rotation', async () => {
+        const store = new Map<string, string>()
+        const storage = { getItem: async (k: string) => store.get(k) ?? null, setItem: async (k: string, v: string) => { store.set(k, v) }, removeItem: async (k: string) => { store.delete(k) }, clear: async () => store.clear(), getAllKeys: async () => [...store.keys()] }
+        const manager = new SaveManager(storage)
+        const save = createLaunchFixture('first-week', 27104)
+        // Grow the save past 2 x 64 KiB so the old sampler would have had unsampled positions.
+        while (JSON.stringify(save).length < 4 * 65536) save.players.push(...structuredClone(save.players).map((p, k) => ({ ...p, id: `${p.id}_pad${save.players.length + k}`, teamId: null as unknown as string })))
+        expect((await manager.saveGame(save)).success).toBe(true)
+        const primaryKey = [...store.keys()].find(k => k.endsWith(save.saveId) && !k.includes('backup'))!
+        const good = store.get(primaryKey)!
+        expect(good.length).toBeGreaterThan(3 * 65536)
+        // Change one digit inside the body: same length, still valid JSON, wrong integrity hash.
+        let i = (65536 + Math.floor((good.length - 2 * 65536) / 2)) | 0
+        while (!/[0-9]/.test(good[i]) || (i - 65536) % 31 === 0) i++
+        const damaged = good.slice(0, i) + (good[i] === '1' ? '2' : '1') + good.slice(i + 1)
+        expect(damaged.length).toBe(good.length)
+        store.set(primaryKey, damaged)
+        const parse = jest.spyOn(manager as unknown as { parseAndValidateSaveCandidate: () => unknown }, 'parseAndValidateSaveCandidate')
+        save.currentDay = (save.currentDay ?? 0) + 1
+        expect((await manager.saveGame(save)).success).toBe(true)
+        expect(parse).toHaveBeenCalledTimes(1)
+        expect([...store].some(([k, v]) => k.includes('backup') && k.endsWith('_1') && v === damaged)).toBe(false)
+        expect([...store].some(([k, v]) => /corrupt/i.test(k) && v === damaged)).toBe(true)
         parse.mockRestore()
     })
 })

@@ -163,7 +163,32 @@ Same machine (i5-12600K, 31.7 GB, Windows 11). The "after" early profile is a la
 ### Root causes (heap snapshots at weeks 0/13/26/52, [summary](L27-heap-retainers.json))
 
 1. **Harness artefact (about 130 MB at week 52).** `page.waitForSelector()` returns an ElementHandle, and CDP keeps it alive until it is disposed. The driver created one per own match (the tactics page's "Simulate Result Instantly" button). Each one pinned the unmounted tactics page: fiber → props/closures → a whole old game state. The snapshot shows about 30 GC roots labelled "DevTools console" of 5–12 MB each. The game itself held only **one** live state: one live `players` array, and no stale states in subscribers, selectors, memo caches, logs or toasts. A normal player session has no CDP handles. **Fix:** the driver now waits with `waitForFunction`. `--legacy-handle-leak` reproduces the old behaviour.
-2. **App: `SaveManager.lastVerifiedPrimary` kept the full serialized save** between saves (24.7 MB at week 52, about 1× the save size). It is used only to skip re-validating the primary this manager wrote itself. **Fix:** it now stores a fingerprint: exact length, full first and last 64 KiB (saveId/updatedAt and integrityHash) and every 31st character, about 1 ms at 25 MB. Truncation, another or newer save and block damage are still detected and validated/quarantined. A single-character change between sample points would not be detected; that file would be rotated into `backup_1` unvalidated, while the new primary is still written and verified. Tests: `__tests__/l27-tick-performance.test.ts` (fingerprint; no parse on own primary; foreign primary still parsed and quarantined). Game state and results are untouched.
+2. **App: `SaveManager.lastVerifiedPrimary` kept the full serialized save** between saves (24.7 MB at week 52, about 1× the save size). It is used only to skip re-validating the primary this manager wrote itself. **Fix:** it now stores the exact length plus a **full-content hash** (`saveTextFingerprint`). Nothing is sampled.
+- **How the hash works:** SHA-256 (WebCrypto) runs over every UTF-16 code unit, in 1 Mi-unit chunks. A final SHA-256 of the chunk digests gives one value. Code units are used, not UTF-8, so lone surrogates are hashed exactly and the slow UTF-8 transcode is skipped. Without WebCrypto it falls back to a full-length 64-bit FNV-1a over every code unit.
+- **Check order:** the length is compared first. The stored primary is hashed only when the length matches. Any differing character forces the normal parse + integrity validation, and a failing file is quarantined as `_corrupt` instead of rotated into `backup_1`.
+- **Overlap:** the new text is hashed while the staging/commit writes are in flight.
+- **Earlier version:** an intermediate commit on this branch (`59433e86`) sampled every 31st character. It was replaced because a missed one-character change could rotate an unvalidated file into `backup_1`.
+- **Tests** in `__tests__/l27-tick-performance.test.ts`:
+  - A one-character change at every position of a 1,500-character text gives a distinct hash.
+  - A change at positions the old sampler skipped, and at 1 Mi-unit chunk boundaries, is detected.
+  - The FNV fallback matches a BigInt reference, at every position, and lone surrogates ≠ U+FFFD.
+  - The manager's own primary rotates without a parse; a foreign primary is parsed and quarantined.
+  - A same-length one-digit change at an old-sampler-skipped position is re-validated, quarantined and not rotated.
+- Game state and results are untouched.
+
+**Added cost per save** ([evidence](L27-fingerprint-cost.json), `scripts/launch/l27-fingerprint-cost.cjs`):
+- A save makes 2 hashes: the new text once and, at the next save, the stored primary once.
+- Inputs are real save texts from the 52-week session: week 1 is 2.65 M chars (5 MB in memory); week 53 is 12.9 M chars (24.7 MB in memory, two-byte string).
+
+| Save | Chrome 154: per hash | Chrome: per save | Longest synchronous slice | Node 22: per save | FNV fallback per save (Chrome) |
+|---|---:|---:|---:|---:|---:|
+| Early (week 1, 5 MB) | 13–15 ms | **26–29 ms** | 6 ms | 32–51 ms | 36–39 ms |
+| Late (week 53, 24.7 MB) | 47–60 ms | **93–120 ms** | 4–5 ms | 116–196 ms | 137–162 ms |
+
+- Ranges come from two runs. The first ran on an idle machine (12:28Z). The second ran with the CPU at 93–99% from other worktrees' processes.
+- In Chrome almost all of the time is the synchronous copy of code units into 1 Mi-unit buffers; the digests add little. The copy is split into ≤ 6 ms slices with the event loop running between them, so it creates no long task.
+- An earlier variant using SHA-256 over TextEncoder UTF-8 cost 110–128 ms **per hash** at 24.7 MB (98 ms of it in the encoder). That is why the code hashes code units instead.
+- A 52-week Chrome session with this build ([evidence](L27-packaged-heap-web-sha256.json)) completed 52/52 weeks, and the heap at week 53 was **32.0 MB** (fresh load 25.9–27.9). Its week timings are **not usable**: the CPU was at 93–99% from other processes during the run, and route changes were also about 30% slower than in the earlier runs.
 
 DOM nodes (about 7k at week 52) and listeners stay below a fresh load of the same career (8.9k / 664 on load). They track the capped news feed and to-do list, not a leak.
 
@@ -174,7 +199,8 @@ DOM nodes (about 7k at week 52) and listeners stay below a fresh load of the sam
 | [packaged base](L27-packaged-heap-base.json) | QA copy (f9358233) | old (leaks handles) | 14.9 / 39.5 / 66.3 / 133.9 / **187.1** | 6.5× |
 | [packaged](L27-packaged-heap-harnessfix.json) | QA copy (f9358233) | fixed | 14.9 / 34.5 / 47.0 / 55.5 / **58.4** | 2.0× |
 | [browser base](L27-packaged-heap-web-base.json) | `next start` of this branch without the SaveManager fix, Chrome | fixed | 14.5 / 33.9 / 46.5 / 55.0 / **57.9** | 2.1× |
-| [browser fix](L27-packaged-heap-web-fix.json) | `next start` of this branch, Chrome | fixed | 14.4 / 22.5 / 27.8 / 31.5 / **33.3** | **1.2×** |
+| [browser fix](L27-packaged-heap-web-fix.json) | `next start` with the sampled fingerprint (`59433e86`), Chrome | fixed | 14.4 / 22.5 / 27.8 / 31.5 / **33.3** | **1.2×** |
+| [browser fix, full hash](L27-packaged-heap-web-sha256.json) | `next start` of this branch (full-content SHA-256), Chrome | fixed | 14.4 / 22.6 / 27.9 / 31.6 / **32.0** | **1.2×** |
 
 - Fresh load of the resulting week-53 career: packaged 26.4 MB on load / 28.6 MB after route cycles ([evidence](L27-packaged-heap-fresh-w53.json)); browser 25.9 / 27.9 ([evidence](L27-packaged-heap-web-fresh-w53.json)).
 - The packaged rows come from the existing LOCAL-QA-ONLY copy (Steam disabled). **The SaveManager fix was not repackaged.** This worktree's `node_modules` is a junction, which breaks electron-builder. The fix is measured with the production build in Chrome; that browser baseline matches the packaged run (57.9 vs 58.4 MB).

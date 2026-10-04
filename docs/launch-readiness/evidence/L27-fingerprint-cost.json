@@ -1,0 +1,97 @@
+{
+  "version": 2,
+  "recordedAt": "2026-10-04T12:53:32.936Z",
+  "algorithm": "SHA-256 over UTF-16 code units in 1 Mi-unit chunks, then SHA-256 of the chunk digests; length compared first",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "os": "Windows_NT 10.0.26200",
+    "node": "v22.18.0"
+  },
+  "saves": {
+    "early-week1": {
+      "profile": "tmp/heap/seed/profile",
+      "inMemoryMB": 5,
+      "chrome": {
+        "browser": "154.0.8037.97",
+        "chars": 2645903,
+        "perHashWallMs": 14.5,
+        "perHashWallMaxMs": 22.9,
+        "perHashSyncCopyMs": 14.3,
+        "longestSyncSliceMs": 5.8,
+        "addedPerSaveWallMs": 29,
+        "addedPerSaveSyncMs": 28.6,
+        "fnvFallbackPerHashMs": 18.1,
+        "fnvFallbackPerSaveMs": 36.2
+      },
+      "node": {
+        "chars": 2645903,
+        "perHashWallMs": 25.7,
+        "perHashWallMaxMs": 57.1,
+        "perHashSyncCopyMs": 14.9,
+        "longestSyncSliceMs": 6,
+        "addedPerSaveWallMs": 51.4,
+        "addedPerSaveSyncMs": 29.8,
+        "fnvFallbackPerHashMs": 19.9,
+        "fnvFallbackPerSaveMs": 39.8
+      }
+    },
+    "late-week53": {
+      "profile": "tmp/heap/fixed1/profile",
+      "inMemoryMB": 24.7,
+      "chrome": {
+        "browser": "154.0.8037.97",
+        "chars": 12948199,
+        "perHashWallMs": 46.5,
+        "perHashWallMaxMs": 56.1,
+        "perHashSyncCopyMs": 46.1,
+        "longestSyncSliceMs": 4.3,
+        "addedPerSaveWallMs": 93,
+        "addedPerSaveSyncMs": 92.2,
+        "fnvFallbackPerHashMs": 68.5,
+        "fnvFallbackPerSaveMs": 137
+      },
+      "node": {
+        "chars": 12948199,
+        "perHashWallMs": 57.8,
+        "perHashWallMaxMs": 71.1,
+        "perHashSyncCopyMs": 42.2,
+        "longestSyncSliceMs": 4.9,
+        "addedPerSaveWallMs": 115.6,
+        "addedPerSaveSyncMs": 84.4,
+        "fnvFallbackPerHashMs": 87.1,
+        "fnvFallbackPerSaveMs": 174.2
+      }
+    }
+  },
+  "conditions": "CPU 93-99% busy with other worktrees' processes during this run",
+  "idleMachineRun": {
+    "recordedAt": "2026-10-04T12:28:04.415Z",
+    "conditions": "idle machine; same algorithm, wall time only",
+    "saves": {
+      "early-week1": {
+        "chrome": {
+          "perHashWallMs": 13.1,
+          "addedPerSaveWallMs": 26.2,
+          "fnvFallbackPerSaveMs": 38.6
+        },
+        "node": {
+          "perHashWallMs": 15.9,
+          "addedPerSaveWallMs": 31.8,
+          "fnvFallbackPerSaveMs": 36.8
+        }
+      },
+      "late-week53": {
+        "chrome": {
+          "perHashWallMs": 60,
+          "addedPerSaveWallMs": 120,
+          "fnvFallbackPerSaveMs": 161.8
+        },
+        "node": {
+          "perHashWallMs": 97.8,
+          "addedPerSaveWallMs": 195.6,
+          "fnvFallbackPerSaveMs": 198.2
+        }
+      }
+    }
+  }
+}
