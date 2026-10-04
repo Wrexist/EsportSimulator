@@ -1,3 +1,4 @@
+import { getLossBonus } from '@/lib/constants'
 import { webcrypto } from 'node:crypto'
 import { CollisionScene } from '@/engine/spatial/geometry'
 import { NavigationMesh } from '@/engine/spatial/navigation'
@@ -181,7 +182,8 @@ test('settlement is sequential and idempotent through JSON resume; stale loadout
     const p=bound(), replay=await sealRoundReplay(p,ref,runLabTeams(p,nav,floor,true).result), s=state(), before=JSON.stringify(s)
     const next=await settlePhysicalRoundPreview(s,replay,binding)
     expect(next.awayScore).toBe(1);expect(next.homeScore).toBe(0);expect(next.nextRound).toBe(2)
-    expect(next.homeEconomy.p1.cash).toBe(3900);expect(next.awayEconomy.p2.cash).toBe(5250)
+    // Losing side: 2000 + first loss bonus (ROUND_ECONOMY_TUNING ladder, was 1900).
+    expect(next.homeEconomy.p1.cash).toBe(2000 + getLossBonus(0));expect(next.awayEconomy.p2.cash).toBe(5250)
     expect(await settlePhysicalRoundPreview(JSON.parse(JSON.stringify(next)),replay,binding)).toEqual(next)
     expect(JSON.stringify(s)).toBe(before)
     await expect(settlePhysicalRoundPreview(s,replay,{...binding,roundNumber:2})).rejects.toThrow('sequence')
